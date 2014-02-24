@@ -4,12 +4,12 @@
 namespace Self
 {
 
-class CSelfAuthenticationProvider;
+class CAuthenticationProvider;
 
 class CMessageEncryptionLayer
 {
 public:
-	CMessageEncryptionLayer( CSelfAuthenticationProvider const & _selfAuthenticationProvider );
+	CMessageEncryptionLayer( CAuthenticationProvider const & _selfAuthenticationProvider );
 
 	bool encrypt( void const * _messageIn, void const * _outOut );
 
@@ -19,7 +19,7 @@ public:
 private:
 		bool decriptLevel( void const * _message );
 private:
-	CSelfAuthenticationProvider m_selfAuthenticationProvider;
+	CAuthenticationProvider * m_selfAuthenticationProvider;
 };
 
 }

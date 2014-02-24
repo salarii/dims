@@ -1,5 +1,6 @@
+#ifndef TRANSACTION_RECORD_MANAGER_H
 #define TRANSACTION_RECORD_MANAGER_H
-#endif TRANSACTION_RECORD_MANAGER_H
+
 
 class CTransactionRecordManager
 {
