@@ -3,16 +3,23 @@
 
 namespace Self
 {
-boost::variant<  >
 
+
+typedef boost::variant< GetBitcoinHeaderTip > DatabaseOperationType;
+DatabaseOperationType::types::
 class CDatabaseManager
 {
+	//mutex nie  mo¿e  byæ  przerwane
 public:
 	CDatabaseManager();
 	
-	getStoredItem();
-	setStoredItem();
+	bool getLastBlockHash( uint256 & _hash );
+
+	bool SetLastBlockHash( uint256 const &hash );
+
+	bool getBalanceForHash( uint256 const &_hash );
 private:
+	CBlockTreeDB m_blockTreeDB;
 };
 
 }
