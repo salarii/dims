@@ -13,6 +13,9 @@ public:
 	void sendCoins();
 	bool checkCoinsPresent();
 
+	void encryptWallet();
+	void decriptWallet();
+
 private:
 	CAuthenticationProvider * m_authenticationProvider;
 
