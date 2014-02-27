@@ -243,6 +243,25 @@ public:
 
         vSeeds.clear();  // Regtest mode doesn't have any DNS seeds.
     }
+/*
+        pchMessageStart[0] = 0xfa;
+        pchMessageStart[1] = 0xbf;
+        pchMessageStart[2] = 0xb5;
+        pchMessageStart[3] = 0xda;
+        nSubsidyHalvingInterval = 150;
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 1);
+        genesis.nTime = 1296688602;
+        genesis.nBits = 0x207fffff;
+        genesis.nNonce = 2;
+        hashGenesisBlock = uint256("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
+        nDefaultPort = 18444;
+        strDataDir = "regtest";
+        assert(hashGenesisBlock == uint256("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
+
+        vSeeds.clear();  // Regtest mode doesn't have any DNS seeds.
+
+*/
+
 
     virtual bool RequireRPCPassword() const { return false; }
     virtual Network NetworkID() const { return CChainParams::REGTEST; }

@@ -1946,7 +1946,8 @@ void static FindMostWorkChain() {
             if (pindexTest->nStatus & BLOCK_FAILED_MASK) {
                 // Candidate has an invalid ancestor, remove entire chain from the set.
                 if (pindexBestInvalid == NULL || pindexNew->nChainWork > pindexBestInvalid->nChainWork)
-                    pindexBestInvalid = pindexNew;                CBlockIndex *pindexFailed = pindexNew;
+                    pindexBestInvalid = pindexNew;
+		    CBlockIndex *pindexFailed = pindexNew;
                 while (pindexTest != pindexFailed) {
                     pindexFailed->nStatus |= BLOCK_FAILED_CHILD;
                     setBlockIndexValid.erase(pindexFailed);
@@ -3120,10 +3121,21 @@ bool static AlreadyHave(const CInv& inv)
 
 void static ProcessGetData(CNode* pfrom)
 {
-    std::deque<CInv>::iterator it = pfrom->vRecvGetData.begin();
 
-    vector<CInv> vNotFound;
+	std::deque<CInv>::iterator it = pfrom->vRecvGetData.begin();
+	pfrom->vRecvGetData.erase(pfrom->vRecvGetData.begin(), it);
 
+	// Let the peer know that we didn't find what it asked for, so it doesn't
+	// have to wait around forever. Currently only SPV clients actually care
+	// about this message: it's needed when they are recursively walking the
+	// dependencies of relevant unconfirmed transactions. SPV clients want to
+	// do that because they want to know about (and store and rebroadcast and
+	// risk analyze) the dependencies of transactions relevant to them, without
+	// having to download the entire memory pool.
+	pfrom->PushMessage("notfound",  vector<CInv>());
+
+ //   vector<CInv> vNotFound;
+/*
     LOCK(cs_main);
 
     while (it != pfrom->vRecvGetData.end()) {
@@ -3233,19 +3245,8 @@ void static ProcessGetData(CNode* pfrom)
                 break;
         }
     }
+*/
 
-    pfrom->vRecvGetData.erase(pfrom->vRecvGetData.begin(), it);
-
-    if (!vNotFound.empty()) {
-        // Let the peer know that we didn't find what it asked for, so it doesn't
-        // have to wait around forever. Currently only SPV clients actually care
-        // about this message: it's needed when they are recursively walking the
-        // dependencies of relevant unconfirmed transactions. SPV clients want to
-        // do that because they want to know about (and store and rebroadcast and
-        // risk analyze) the dependencies of transactions relevant to them, without
-        // having to download the entire memory pool.
-        pfrom->PushMessage("notfound", vNotFound);
-    }
 }
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
@@ -3482,7 +3483,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             bool fAlreadyHave = AlreadyHave(inv);
             LogPrint("net", "  got inventory: %s  %s\n", inv.ToString(), fAlreadyHave ? "have" : "new");
 
-            if (!fAlreadyHave) {
+            if (!fAlreadyHave && inv.type == MSG_BLOCK ) {
                 if (!fImporting && !fReindex)
                     pfrom->AskFor(inv);
             } else if (inv.type == MSG_BLOCK && mapOrphanBlocks.count(inv.hash)) {
@@ -3495,9 +3496,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 if (fDebug)
                     LogPrintf("force request: %s\n", inv.ToString());
             }
-
-            // Track requests for our stuff
-            g_signals.Inventory(inv.hash);
         }
     }
 
@@ -3684,7 +3682,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 Misbehaving(pfrom->GetId(), nDoS);
         }
     }
-
+    else if (strCommand == "headers")
+    {
+	    CBlock block;
+	    vRecv >> block;
+	    CValidationState state;
+	    AddToBlockIndex(block, state, CDiskBlockPos());
+    }
 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
     {
@@ -4106,14 +4110,6 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
                     // Periodically clear setAddrKnown to allow refresh broadcasts
                     if (nLastRebroadcast)
                         pnode->setAddrKnown.clear();
-
-                    // Rebroadcast our address
-                    if (!fNoListen)
-                    {
-                        CAddress addr = GetLocalAddress(&pnode->addr);
-                        if (addr.IsRoutable())
-                            pnode->PushAddress(addr);
-                    }
                 }
             }
             nLastRebroadcast = GetTime();
@@ -4170,17 +4166,11 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
             PushGetBlocks(pto, chainActive.Tip(), uint256(0));
         }
 
-        // Resend wallet transactions that haven't gotten in a block yet
-        // Except during reindex, importing and IBD, when old wallet
-        // transactions become unconfirmed and spams other nodes.
-        if (!fReindex && !fImporting && !IsInitialBlockDownload())
-        {
-            g_signals.Broadcast();
-        }
-
         //
         // Message: inventory
         //
+/*
+
         vector<CInv> vInv;
         vector<CInv> vInvWait;
         {
@@ -4226,7 +4216,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         if (!vInv.empty())
             pto->PushMessage("inv", vInv);
 
-
+*/
         //
         // Message: getdata
         //
