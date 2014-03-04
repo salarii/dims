@@ -7,6 +7,12 @@ class CTransactionRecordManager
 public:
 	CTransactionRecordManager();
 
+	//create  transaction view
+	//time  stamp or  something needed
+	//
+
+
+
 private:
 	void synchronize();
 	void askForTokens();

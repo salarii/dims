@@ -66,19 +66,29 @@ COriginAddressScaner::Thread()
 
 void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 {
+
+	unsigned int valueSum = 0;
 	for (unsigned int i = 0; i < _tx.vout.size(); i++)
 	{
 		const CTxOut& txout = _tx.vout[i];
 
-		CScript::const_iterator pc = txout.scriptPubKey.begin();
+		opcodetype opcode;
+
 		std::vector<unsigned char> data;
 
-			opcodetype opcode;
-		if (!txout.scriptPubKey.GetOp(pc, opcode, data))
-			break;
+		CScript::const_iterator pc = txout.scriptPubKey.begin();
+
+		while( pc != txout.scriptPubKey.end() )
+		{
+			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
+				return;
+
+			pc++;
+		}
+
 
 		txnouttype type;
-		unsigned int valueSum = 0;
+
 		std::vector< std:: vector<unsigned char> > vSolutions;
 		if (Solver(txout.scriptPubKey, type, vSolutions) &&
 			(type == TX_PUBKEY || type == TX_PUBKEYHASH))
@@ -101,46 +111,62 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 			}
 		}
 
-		}
-}
-/*
-if (fFound)
-return true;
-
-BOOST_FOREACH(const CTxIn& txin, _tx.vin)
-{
-	// Match if the filter contains any arbitrary script data element in any scriptSig in _tx
-	CScript::const_iterator pc = txin.scriptSig.begin();
-	vector<unsigned char> data;
-	while (pc < txin.scriptSig.end())
-	{
-		opcodetype opcode;
-		if (!txin.scriptSig.GetOp(pc, opcode, data))
-			break;
-		if (data.size() != 0 && contains(data))
-			return true;
 	}
-//address  wysy³acza
+	if ( valueSum == 0 )
+		return;
 
+	for (unsigned int i = 0; i < _tx.vin.size(); i++)
+	{
+		const CTxIn& txin = _tx.vin[i];
 
-	create  coin base transaction
+		CScript::const_iterator pc = txin.scriptSig.begin();
 
-		CPubKey pubkey;
-	if (!reservekey.GetReservedKey(pubkey))
-		return NULL;
-OP_DUP << OP_HASH160 << OP_PUBKEYHASH << OP_EQUALVERIFY << OP_CHECKSIG
-	CScript scriptPubKey = CScript() << pubkey << OP_CHECKSIG;
+		opcodetype opcode;
 
-		// Create coinbase _tx
-	CTransaction txNew;
-	txNew.vin.resize(1);
-	txNew.vin[0].prevout.SetNull();
-	txNew.vout.resize(1);
-	txNew.vout[0].scriptPubKey = scriptPubKeyIn;
+		std::vector<unsigned char> data;
+
+		while( pc != txin.scriptSig.end() )
+		{
+			if (!txin.scriptSig.GetOp(pc, opcode, data))
+				return;
+
+			pc++;
+		}
+
+		txnouttype type;
+		unsigned int valueSum = 0;
+		std::vector< std:: vector<unsigned char> > vSolutions;
+		if (Solver(txin.scriptSig, type, vSolutions) &&
+			(type == TX_PUBKEY || type == TX_PUBKEYHASH))
+		{
+			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
+
+			CScript script;
+			while( it != vSolutions.end() )
+			{
+				if ( type == TX_PUBKEY )
+				{
+					script = CScript() << *it << OP_CHECKSIG;
+				}
+				else
+				{
+					script = CScript()  << OP_DUP << OP_HASH160 << *it << OP_EQUALVERIFY << OP_CHECKSIG;
+				}
+
+				CTransaction txNew;
+				txNew.vin.resize(1);
+				txNew.vin[0].prevout.SetNull();
+				txNew.vout.resize(1);
+				txNew.vout[0].scriptPubKey = script;
+				txNew.vout[0].nValue = valueSum;
+				//add transaction  to  pool and   view
+				return;
+			}
+		}
+
+		break;
+	}
 
 }
 
-return false;
-
-}*/
 }

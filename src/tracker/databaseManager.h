@@ -18,6 +18,9 @@ public:
 	bool SetLastBlockHash( uint256 const &hash );
 
 	bool getBalanceForHash( uint256 const &_hash );
+
+	//serious  data  storage  from  this  recovery
+
 private:
 	CBlockTreeDB m_blockTreeDB;
 };

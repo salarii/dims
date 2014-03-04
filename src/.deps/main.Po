@@ -963,6 +963,7 @@ main.o: main.cpp main.h bitcoin-config.h bignum.h serialize.h \
  ../src/leveldb/include/leveldb/options.h \
  ../src/leveldb/include/leveldb/write_batch.h ui_interface.h \
  c:/msys/1.0/home/Artur/dep/boost_1_50_0/boost/signals2/last_value.hpp \
+ tracker/originAddressScaner.h txmempool.h \
  c:/msys/1.0/home/Artur/dep/boost_1_50_0/boost/filesystem.hpp \
  c:/msys/1.0/home/Artur/dep/boost_1_50_0/boost/filesystem/operations.hpp \
  c:/msys/1.0/home/Artur/dep/boost_1_50_0/boost/detail/bitmask.hpp \
@@ -2958,6 +2959,10 @@ leveldbwrapper.h:
 ui_interface.h:
 
 c:/msys/1.0/home/Artur/dep/boost_1_50_0/boost/signals2/last_value.hpp:
+
+tracker/originAddressScaner.h:
+
+txmempool.h:
 
 c:/msys/1.0/home/Artur/dep/boost_1_50_0/boost/filesystem.hpp:
 
