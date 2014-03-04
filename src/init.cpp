@@ -1031,6 +1031,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     }
     threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
 
+    threadGroup.create_thread(&ThreadTempWhile);
     // ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));

@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include <boost/thread/mutex.hpp>
+
 using namespace std;
 
 #define MESSAGE_START_SIZE 4

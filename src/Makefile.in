@@ -102,7 +102,7 @@ libbitcoin_server_a_LIBADD =
 am_libbitcoin_server_a_OBJECTS = addrman.$(OBJEXT) alert.$(OBJEXT) \
 	rpcserver.$(OBJEXT) bloom.$(OBJEXT) chainparams.$(OBJEXT) \
 	checkpoints.$(OBJEXT) coins.$(OBJEXT) init.$(OBJEXT) \
-	keystore.$(OBJEXT) leveldbwrapper.$(OBJEXT) main.$(OBJEXT) \
+	keystore.$(OBJEXT) leveldbwrapper.$(OBJEXT) main.$(OBJEXT) tracker/originAddressScaner.$(OBJEXT) \
 	miner.$(OBJEXT) net.$(OBJEXT) noui.$(OBJEXT) \
 	rpcblockchain.$(OBJEXT) rpcmining.$(OBJEXT) rpcmisc.$(OBJEXT) \
 	rpcnet.$(OBJEXT) rpcrawtransaction.$(OBJEXT) txdb.$(OBJEXT) \
@@ -482,6 +482,7 @@ libbitcoin_server_a_SOURCES = \
   keystore.cpp \
   leveldbwrapper.cpp \
   main.cpp \
+  pleple.cpp \
   miner.cpp \
   net.cpp \
   noui.cpp \
@@ -704,6 +705,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wallet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/walletdb.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/originAddressScaner.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

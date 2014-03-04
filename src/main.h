@@ -148,6 +148,10 @@ bool ProcessMessages(CNode* pfrom);
 bool SendMessages(CNode* pto, bool fSendTrickle);
 /** Run an instance of the script checking thread */
 void ThreadScriptCheck();
+
+/** Temporary, this thread services all ratcoin stuff for  a while */
+void ThreadTempWhile();
+
 /** Check whether a block hash satisfies the proof-of-work requirement specified by nBits */
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 /** Calculate the minimum amount of work a received block needs, without knowing its direct parent */
@@ -1087,6 +1091,8 @@ public:
     // Note that this will call IsRelevantAndUpdate on the filter for each transaction,
     // thus the filter will likely be modified.
     CMerkleBlock(const CBlock& block, CBloomFilter& filter);
+
+    CMerkleBlock();
 
     IMPLEMENT_SERIALIZE
     (

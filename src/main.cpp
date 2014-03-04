@@ -2,6 +2,8 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#define CONFIRM_LIMIT 6
+
 
 #include "main.h"
 
@@ -16,6 +18,8 @@
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "util.h"
+#include "tracker/originAddressScaner.h"
+
 
 #include <inttypes.h>
 #include <sstream>
@@ -49,6 +53,8 @@ bool fReindex = false;
 bool fBenchmark = false;
 bool fTxIndex = false;
 unsigned int nCoinCacheSize = 5000;
+
+Self::COriginAddressScaner originAddressScaner;
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
 int64_t CTransaction::nMinTxFee = 10000;  // Override with -mintxfee
@@ -1629,8 +1635,19 @@ void ThreadScriptCheck() {
     scriptcheckqueue.Thread();
 }
 
+void ThreadTempWhile()
+{
+	originAddressScaner.Thread();
+}
+
+
 bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck)
 {
+
+    if (block.GetHash() == Params().HashGenesisBlock()) {
+        view.SetBestBlock(pindex->GetBlockHash());
+        return true;
+    }
     // Check it again in case a previous version let a bad block in
     if (!CheckBlock(block, state, !fJustCheck, !fJustCheck))
         return false;
@@ -1641,10 +1658,7 @@ bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, C
 
     // Special case for the genesis block, skipping connection of its transactions
     // (its coinbase is unspendable)
-    if (block.GetHash() == Params().HashGenesisBlock()) {
-        view.SetBestBlock(pindex->GetBlockHash());
-        return true;
-    }
+
 
     bool fScriptChecks = pindex->nHeight >= Checkpoints::GetTotalBlocksEstimate();
 
@@ -2233,6 +2247,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
                          REJECT_INVALID, "bad-blk-sigops", true);
 
     // Check merkle root
+
     if (fCheckMerkleRoot && block.hashMerkleRoot != block.vMerkleTree.back())
         return state.DoS(100, error("CheckBlock() : hashMerkleRoot mismatch"),
                          REJECT_INVALID, "bad-txnmrklroot", true);
@@ -2486,7 +2501,9 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
 
 
 
-
+CMerkleBlock::CMerkleBlock()
+{
+}
 
 
 
@@ -3621,6 +3638,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         bool fMissingInputs = false;
         CValidationState state;
+
+        /*
         if (AcceptToMemoryPool(mempool, state, tx, true, &fMissingInputs))
         {
             mempool.check(pcoinsTip);
@@ -3692,13 +3711,60 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             if (nDoS > 0)
                 Misbehaving(pfrom->GetId(), nDoS);
         }
+
+        */
+    }
+    else if (strCommand == "merkleblock")
+    {
+        CMerkleBlock merkleBlock;
+        vRecv >> merkleBlock;
+
+        std::vector<uint256> vMatch;
+        merkleBlock.txn.ExtractMatches(vMatch);
+
+        int  i = vMatch.size();
     }
     else if (strCommand == "headers")
     {
-	    CBlock block;
-	    vRecv >> block;
+	    std::vector<CBlock> vHead;
+	    vRecv >> vHead;
 	    CValidationState state;
-	    AddToBlockIndex(block, state, CDiskBlockPos());
+
+
+	    std::vector<CBlock>::iterator it= vHead.begin();
+
+
+	    while( it != vHead.end() )
+	    {
+	    	CInv inv(MSG_BLOCK, it->GetHash());
+	    	pfrom->AddInventoryKnown(inv);
+
+	    	LOCK(cs_main);
+	    	//Remember who we got this block from.
+	    	mapBlockSource[inv.hash] = pfrom->GetId();
+
+	    	AddToBlockIndex(*it, state, CDiskBlockPos());
+
+	    	it++;
+	    }
+
+
+		CBlockIndex * index = chainActive.Tip();
+
+		for ( int i = 1; i < CONFIRM_LIMIT; i++ )
+		{
+			if ( index == 0 )
+				break;
+			index = index->pprev;
+		}
+
+//
+		while ( index && Params().GenesisBlock().GetHash() == index->GetBlockHash() )
+		{
+		//	pfrom->AskFor(CInv(MSG_FILTERED_BLOCK, index->GetBlockHash()));
+
+			index = index->pprev;
+		}
     }
 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
@@ -4171,10 +4237,20 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
             pto->PushMessage("reject", (string)"block", reject.chRejectCode, reject.strRejectReason, reject.hashBlock);
         state.rejects.clear();
 
+
+        CBloomFilter bloomFilter =  CBloomFilter();
+
+        std::string const & str = Params().getOriginAddressAsString();
+        std::vector<unsigned char> vKey(str.begin(), str.end());
+
+        bloomFilter.insert(vKey);
+
+        pto->PushMessage("filterload", bloomFilter);
+
         // Start block sync
         if (pto->fStartSync && !fImporting && !fReindex) {
             pto->fStartSync = false;
-            PushGetBlocks(pto, chainActive.Tip(), uint256(0));
+            PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 
         //

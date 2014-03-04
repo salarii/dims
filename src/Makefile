@@ -102,7 +102,7 @@ libbitcoin_server_a_LIBADD =
 am_libbitcoin_server_a_OBJECTS = addrman.$(OBJEXT) alert.$(OBJEXT) \
 	rpcserver.$(OBJEXT) bloom.$(OBJEXT) chainparams.$(OBJEXT) \
 	checkpoints.$(OBJEXT) coins.$(OBJEXT) init.$(OBJEXT) \
-	keystore.$(OBJEXT) leveldbwrapper.$(OBJEXT) main.$(OBJEXT) \
+	keystore.$(OBJEXT) leveldbwrapper.$(OBJEXT) main.$(OBJEXT) tracker/originAddressScaner.$(OBJEXT) \
 	miner.$(OBJEXT) net.$(OBJEXT) noui.$(OBJEXT) \
 	rpcblockchain.$(OBJEXT) rpcmining.$(OBJEXT) rpcmisc.$(OBJEXT) \
 	rpcnet.$(OBJEXT) rpcrawtransaction.$(OBJEXT) txdb.$(OBJEXT) \
@@ -221,14 +221,14 @@ AUTOMAKE = ${SHELL} /c/msys/1.0/home/Artur/bitcoin-master/src/build-aux/missing 
 AWK = gawk
 BDB_CPPFLAGS = 
 BDB_LIBS = -ldb_cxx
-BOOST_CHRONO_LIB = -lboost_chrono-mgw46-mt-s-1_50 
+BOOST_CHRONO_LIB = -lboost_chrono-mgw46-mt-sd-1_50 
 BOOST_CPPFLAGS = -mthreads 
-BOOST_FILESYSTEM_LIB = -lboost_filesystem-mgw46-mt-s-1_50
+BOOST_FILESYSTEM_LIB = -lboost_filesystem-mgw46-mt-sd-1_50
 BOOST_LDFLAGS = 
-BOOST_LIBS =  -lboost_system-mgw46-mt-s-1_50 -lboost_filesystem-mgw46-mt-s-1_50 -lboost_program_options-mgw46-mt-s-1_50 -lboost_thread-mgw46-mt-s-1_50 -lboost_chrono-mgw46-mt-s-1_50 
-BOOST_PROGRAM_OPTIONS_LIB = -lboost_program_options-mgw46-mt-s-1_50
-BOOST_SYSTEM_LIB = -lboost_system-mgw46-mt-s-1_50
-BOOST_THREAD_LIB = -lboost_thread-mgw46-mt-s-1_50
+BOOST_LIBS =  -lboost_system-mgw46-mt-sd-1_50 -lboost_filesystem-mgw46-mt-sd-1_50 -lboost_program_options-mgw46-mt-sd-1_50 -lboost_thread-mgw46-mt-sd-1_50 -lboost_chrono-mgw46-mt-sd-1_50 
+BOOST_PROGRAM_OPTIONS_LIB = -lboost_program_options-mgw46-mt-sd-1_50
+BOOST_SYSTEM_LIB = -lboost_system-mgw46-mt-sd-1_50
+BOOST_THREAD_LIB = -lboost_thread-mgw46-mt-sd-1_50
 BOOST_UNIT_TEST_FRAMEWORK_LIB = 
 BREW = 
 BUILD_QT = 
@@ -237,7 +237,7 @@ BUILD_TEST_QT =
 CC = /mingw/bin/gcc.exe
 CCACHE = 
 CCDEPMODE = depmode=gcc3
-CFLAGS = -DWINVER=0x0501 -D_WIN32_IE=0x0501 -fno-builtin -pipe -O0 -g  -mms-bitfields -march=i686 -mtune=i686
+CFLAGS = -DWINVER=0x0501 -D_WIN32_IE=0x0501 -fno-builtin -pipe -O0 -g -mms-bitfields -march=i686 -mtune=i686
 CLIENT_VERSION_BUILD = 0
 CLIENT_VERSION_IS_RELEASE = true
 CLIENT_VERSION_MAJOR = 0
@@ -252,7 +252,7 @@ CRYPTO_LIBS =
 CXX = /mingw/bin/g++.exe
 CXXCPP = /mingw/bin/g++.exe -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -DWINVER=0x0501 -D_WIN32_IE=0x0501 -fno-builtin -pipe -O0 -g   -mms-bitfields -march=i686 -mtune=i686  -Wstack-protector -fstack-protector-all -fPIE
+CXXFLAGS = -DWINVER=0x0501 -D_WIN32_IE=0x0501 -fno-builtin -pipe -O0 -g -mms-bitfields -march=i686 -mtune=i686  -Wstack-protector -fstack-protector-all -fPIE
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -271,7 +271,7 @@ INSTALL = /bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
-INSTALL_STRIP_PROGRAM = $(install_sh) -c 
+INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 JAVA = 
 JAVA_COMPARISON_TOOL = 
 LCOV = 
@@ -295,7 +295,7 @@ OBJC = gcc
 OBJCDEPMODE = depmode=gcc3
 OBJCFLAGS = 
 OBJCXX = g++
-OBJCXXFLAGS = -DWINVER=0x0501 -D_WIN32_IE=0x0501 -fno-builtin -pipe -O0 -g   -mms-bitfields -march=i686 -mtune=i686  -Wstack-protector -fstack-protector-all -fPIE
+OBJCXXFLAGS = -DWINVER=0x0501 -D_WIN32_IE=0x0501 -fno-builtin -pipe -O0 -g -mms-bitfields -march=i686 -mtune=i686  -Wstack-protector -fstack-protector-all -fPIE
 OBJEXT = o
 PACKAGE = bitcoin
 PACKAGE_BUGREPORT = info@bitcoin.org
@@ -482,6 +482,7 @@ libbitcoin_server_a_SOURCES = \
   keystore.cpp \
   leveldbwrapper.cpp \
   main.cpp \
+  pleple.cpp \
   miner.cpp \
   net.cpp \
   noui.cpp \
@@ -704,6 +705,7 @@ include ./$(DEPDIR)/util.Po
 include ./$(DEPDIR)/version.Po
 include ./$(DEPDIR)/wallet.Po
 include ./$(DEPDIR)/walletdb.Po
+include ./$(DEPDIR)/originAddressScaner.Po
 
 .cpp.o:
 	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

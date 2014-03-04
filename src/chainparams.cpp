@@ -166,6 +166,8 @@ public:
             addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
             vFixedSeeds.push_back(addr);
         }
+
+        originAddress = "";
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -187,6 +189,7 @@ static CMainParams mainParams;
 class CTestNetParams : public CMainParams {
 public:
     CTestNetParams() {
+
         // The message start string is designed to be unlikely to occur in normal data.
         // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
         // a large 4-byte int at any alignment.
@@ -223,6 +226,8 @@ public:
         base58Prefixes[SECRET_KEY]     = list_of(239);
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x35)(0x87)(0xCF);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x35)(0x83)(0x94);
+
+        originAddress = "0f4c5c30a8de7517f444be23626d419322ed5589";
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
 };
@@ -247,7 +252,7 @@ public:
         hashGenesisBlock = genesis.GetHash();
         nDefaultPort = 18444;
         strDataDir = "regtest";
-        assert(hashGenesisBlock == uint256("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
+       // assert(hashGenesisBlock == uint256("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
 
         vSeeds.clear();  // Regtest mode doesn't have any DNS seeds.
     }
