@@ -2007,19 +2007,7 @@ bool ActivateBestChain(CValidationState &state) {
         // Connect new blocks.
         while (!chainActive.Contains(chainMostWork.Tip())) {
             CBlockIndex *pindexConnect = chainMostWork[chainActive.Height() + 1];
-            if (!ConnectTip(state, pindexConnect)) {
-                if (state.IsInvalid()) {
-                    // The block violates a consensus rule.
-                    if (!state.CorruptionPossible())
-                        InvalidChainFound(chainMostWork.Tip());
-                    fComplete = false;
-                    state = CValidationState();
-                    break;
-                } else {
-                    // A system error occurred (disk space, database error, ...).
-                    return false;
-                }
-            }
+            UpdateTip(pindexConnect);
         }
     }
 
@@ -2078,17 +2066,9 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     {
         // Clear fork warning if its no longer applicable
         CheckForkWarningConditions();
-        // Notify UI to display prev block's coinbase if it was ours
-        static uint256 hashPrevBestCoinBase;
-        g_signals.UpdatedTransaction(hashPrevBestCoinBase);
-        hashPrevBestCoinBase = block.GetTxHash(0);
     } else
         CheckForkWarningConditionsOnNewFork(pindexNew);
 
-    if (!pblocktree->Flush())
-        return state.Abort(_("Failed to sync block index"));
-
-    uiInterface.NotifyBlocksChanged();
     return true;
 }
 
@@ -3141,6 +3121,8 @@ bool static AlreadyHave(const CInv& inv)
     case MSG_BLOCK:
         return mapBlockIndex.count(inv.hash) ||
                mapOrphanBlocks.count(inv.hash);
+    case MSG_FILTERED_BLOCK:
+    	return false;
     }
     // Don't know what it is, just say we already got one
     return true;
@@ -3638,7 +3620,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         bool fMissingInputs = false;
         CValidationState state;
-
+        originAddressScaner.addTransaction(0,tx);
         /*
         if (AcceptToMemoryPool(mempool, state, tx, true, &fMissingInputs))
         {
@@ -3759,9 +3741,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		}
 
 //
-		while ( index && Params().GenesisBlock().GetHash() == index->GetBlockHash() )
+		while ( index && Params().GenesisBlock().GetHash() != index->GetBlockHash() )
 		{
-		//	pfrom->AskFor(CInv(MSG_FILTERED_BLOCK, index->GetBlockHash()));
+			pfrom->AskFor(CInv(MSG_FILTERED_BLOCK, index->GetBlockHash()));
 
 			index = index->pprev;
 		}
@@ -4238,18 +4220,15 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         state.rejects.clear();
 
 
-        CBloomFilter bloomFilter =  CBloomFilter();
-
-        std::string const & str = Params().getOriginAddressAsString();
-        std::vector<unsigned char> vKey(str.begin(), str.end());
-
-        bloomFilter.insert(vKey);
-
-        pto->PushMessage("filterload", bloomFilter);
+     //
 
         // Start block sync
         if (pto->fStartSync && !fImporting && !fReindex) {
             pto->fStartSync = false;
+            CBloomFilter bloomFilter =  CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_P2PUBKEY_ONLY);
+            bloomFilter.insert(ParseHex(Params().getOriginAddressAsString()));
+            pto->PushMessage("filterload", bloomFilter);
+
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 

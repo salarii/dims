@@ -72,36 +72,35 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 		CScript::const_iterator pc = txout.scriptPubKey.begin();
 		std::vector<unsigned char> data;
-		while (pc < txout.scriptPubKey.end())
-		{
+
 			opcodetype opcode;
-			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
-				break;
+		if (!txout.scriptPubKey.GetOp(pc, opcode, data))
+			break;
 
-					txnouttype type;
-					unsigned int valueSum = 0;
-					std::vector< std:: vector<unsigned char> > vSolutions;
-					if (Solver(txout.scriptPubKey, type, vSolutions) &&
-						(type == TX_PUBKEY || type == TX_PUBKEYHASH))
-					{
-						std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
+		txnouttype type;
+		unsigned int valueSum = 0;
+		std::vector< std:: vector<unsigned char> > vSolutions;
+		if (Solver(txout.scriptPubKey, type, vSolutions) &&
+			(type == TX_PUBKEY || type == TX_PUBKEYHASH))
+		{
+			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
 
-						while( it != vSolutions.end() )
-						{
-							if ( type == TX_PUBKEY )
-							{
-								if ( uint160(Params().getOriginAddressAsString()) == Hash160( *vSolutions.begin() ) )
-									valueSum += txout.nValue;
-							}
-							else
-							{
-								if ( uint160(Params().getOriginAddressAsString()) == uint160( ( *vSolutions.begin() ) ) )
-									valueSum += txout.nValue;
-							}
-						}
-					}
-				pc++;
+			while( it != vSolutions.end() )
+			{
+				if ( type == TX_PUBKEY )
+				{
+					if ( uint160(ParseHex(Params().getOriginAddressAsString())) == Hash160( *it ) )
+						valueSum += txout.nValue;
+				}
+				else
+				{
+					if ( uint160(ParseHex(Params().getOriginAddressAsString())) == uint160( ( *it ) ) )
+						valueSum += txout.nValue;
+				}
+				it++;
 			}
+		}
+
 		}
 }
 /*
