@@ -70,13 +70,19 @@ public:
 	bool hasKeys() const;
 	void enableAccess() const;
 
+	uint256 sign( std::vector<unsigned char>& _vchSig ) const;
+
 	bool generateKeyPair();
 	void addAddress( char * );
 
 	void save();
 	void load();
+
+	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
 private:
 	CKeyStore * m_keyStore;
+
+	std::map< CNode*, CPubKey > m_pairsPubKeyStore;
 };
 
 void addAddress( char * _privPlain )

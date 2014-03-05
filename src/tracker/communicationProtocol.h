@@ -4,9 +4,12 @@
 class CommunicationProtocol
 {
 public:
+	send( CMessage const & _message );
 
 private:
 
+private:
+	CAuthenticationProvider * m_authenticationProvider;
 };
 
 struct CPayloadKind
@@ -14,9 +17,20 @@ struct CPayloadKind
 	enum Enum
 	{
 		Transactions,
-		InfoRequest
+		InfoRequest,
+		Introduction
 	};
 };
+
+CommunicationProtocol::send( CMessage const & _message )
+{
+	uint256 messageHash = Hash(BEGIN(_message), END(_message));
+
+	m_authenticationProvider->sign( messageHash );
+
+	//set  to  some  send  queue
+}
+
 
 
 struct CHeader
@@ -66,11 +80,6 @@ CMessage::CMessage( CMessage const & _message, uint256 const & _prevKey )
 	m_header.m_prevKey = _prevKey;
 }
 
-CMessage::send()
-{
-
-
-}
 
 CMessage::~CMessage()
 {
