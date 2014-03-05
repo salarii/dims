@@ -66,6 +66,12 @@ CMessage::CMessage( CMessage const & _message, uint256 const & _prevKey )
 	m_header.m_prevKey = _prevKey;
 }
 
+CMessage::send()
+{
+
+
+}
+
 CMessage::~CMessage()
 {
 	if ( m_payload )
@@ -78,6 +84,12 @@ void Serialize(S &s, Encryptor) const
 	<< Encryptor ( m_header );
 	<< m_payload;
 }
+
+//all message
+// hash
+// encrypt  hash
+// public hash message
+
 
 
 void
