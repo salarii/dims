@@ -1,3 +1,6 @@
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+/*
 
 FILE*
 OpenHeadFile(bool fReadOnly)
@@ -54,7 +57,7 @@ while( it != achievedMerkle.end() )
 		break;
 
 }
-
+*/
 
 #ifndef AUTHENTICATION_PROVIDER_H
 #define AUTHENTICATION_PROVIDER_H
@@ -67,10 +70,15 @@ class CAuthenticationProvider
 public:
 	CAuthenticationProvider();
 
-	bool hasKeys() const;
+	void setPassword( SecureString const & _strWalletPassphrase );
+
+	bool hasKey( CKeyID const & _key ) const;
+
 	void enableAccess() const;
 
 	uint256 sign( std::vector<unsigned char>& _vchSig ) const;
+
+	void verify( ) const;
 
 	bool generateKeyPair();
 	void addAddress( char * );
@@ -80,28 +88,16 @@ public:
 
 	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
 private:
-	CKeyStore * m_keyStore;
+	bool isCrypted();
+private:
+	CCryptoKeyStore * m_keyStore;
+	
+	std::map< CKeyID, CPubKey > m_pairsPubKeyStore;
 
-	std::map< CNode*, CPubKey > m_pairsPubKeyStore;
+	CWalletDB *m_keyStorageDataBase;
+	
+	std::string m_authenticationProviderFile;
 };
-
-void addAddress( char * _privPlain )
-{
-	CKey priv;
-	priv.Set( _privPlain[0], _privPlain[size-1] );
-	m_keyStore.AddKey(priv);
-}
-
-bool
-generateKeyPair()
-{
-	CKey priv;
-	priv.MakeNewKey( false );
-	m_keyStore.AddKey(priv);
-
-//	CPrivKey GetPrivKey() const;
-//	CPubKey GetPubKey() const;
-}
 
 }
 
