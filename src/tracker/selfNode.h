@@ -2,17 +2,19 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#define TRANSACTION_INFORMATION_PROVIDER_H
-#endif TRANSACTION_INFORMATION_PROVIDER_H
+#ifndef SELF_NODE_H
+#define SELF_NODE_H
 
-namespace 
+namespace Self
 {
 
-
-class CTransactionInformationProvider
+class CSelfNode : public CNode
 {
 public:
-	void checkTransactionExistance();
+	CSelfNode();
+	CKeyID getPubKeyId();
+private:
+	CPubKey m_pubKey;
 };
 
 }

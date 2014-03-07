@@ -1,16 +1,12 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef COMMUNICATION_PROTOCOL_H
 #define COMMUNICATION_PROTOCOL_H
 
-class CommunicationProtocol
+namespace self
 {
-public:
-	send( CMessage const & _message );
-
-private:
-
-private:
-	CAuthenticationProvider * m_authenticationProvider;
-};
 
 struct CPayloadKind
 {
@@ -22,105 +18,100 @@ struct CPayloadKind
 	};
 };
 
-CommunicationProtocol::send( CMessage const & _message )
+typedef boost::variant< CTransactionBundle > Payload;
+
+class CommunicationProtocol
+{
+public:
+	send( CMessage const & _message );
+
+	Payload retrieveData();
+private:
+	void unwindMessage( CMessage const & _message, CPubKey const &  _pubKey, Payload & _payload );
+private:
+	CAuthenticationProvider * m_authenticationProvider;
+};
+
+CommunicationProtocol::prepareForSend( std::vector )
 {
 	uint256 messageHash = Hash(BEGIN(_message), END(_message));
-
 	m_authenticationProvider->sign( messageHash );
 
-	//set  to  some  send  queue
+
 }
 
-
+template<typename S>
+void Serialize(S &s, int nType, int nVersion) const;
 
 struct CHeader
 {
-	public:
-	void setHash( uint256 const & _hash ) const;
-	void setTime( int64_t const _time ) const;
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_payloadKind);
+		READWRITE(m_signedHash);
+		READWRITE(m_time);
+		READWRITE(m_prevKey);
+	)
+/*
+	unsigned int GetSerializeSize(int nType, int nVersion) const
+	{
+		unsigned size = 0;
+		size+= ::GetSerializeSize(VARINT(m_payloadKind), nType, nVersion);
+		size+= m_signedHash.GetSerializeSize(nType, nVersion);
+		size+= ::GetSerializeSize(VARINT(m_time), nType, nVersion);
+		size+= m_prevKey.GetSerializeSize(nType, nVersion);
 
-	
+		return size;
+	}
+
+	template<typename Stream>
+	void Unserialize(Stream& s, int nType, int nVersion)
+	{
+		s >> VARINT(m_payloadKind);
+		::Unserialize( s, m_signedHash, nType, nVersion );
+		s >> VARINT( m_time );
+		m_prevKey.Unserialize( s, nType, nVersion );
+	}
+
+	template<typename Stream>
+	void Serialize(Stream &s, int nType, int nVersion)
+	{
+		s<<VARINT(m_payloadKind);
+		::Serialize( s, m_signedHash, nType, nVersion );
+		s<<VARINT( m_time );
+		m_prevKey.Serialize( s, nType, nVersion );
+	}
+*/
 	private:
 	CPayloadKind::Enum m_payloadKind;
-	uint256 m_hash;
+	std::vector<unsigned char> m_signedHash;
 	int64_t m_time;
-	uint256 m_prevKey;
+	CPubKey m_prevKey;
 };
 
+	
 
 class CMessage
 {
 public:
-	CMessage( void const * );
+	CMessage( std::vector< CTransaction > _bundle );
 	CMessage( CMessage const & _message, uint256 const & _prevKey );
-	template<typename S>
-	void Serialize( S &s, uint256 _privateKey) const;
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_header);
+		READWRITE(determinePayload());
+		READWRITE();
+	)
 
 	~CMessage();
 private:
+	Payload determinePayload();
+private:
 	CHeader m_header;
-	unsigned m_payloadSize;
-	void const * m_payload;
+	void* m_payload;
 };
 
-CMessage::CMessage( void const * _payload, unsigned _size )
-{
-	m_header.setHash( Hash( _payload,  _size )  );
-	m_header.setTime( GetTime() );
-	m_header.m_prevKey = 0;
-}
 
-CMessage::CMessage( CMessage const & _message, uint256 const & _prevKey )
-{
-	char const *prevMessage = _message;
-
-	m_header.setHash( Hash( prevMessage, prevMessage + sizeof( CMessage ) ) );
-	m_header.setTime( GetTime() );
-	
-	m_header.m_prevKey = _prevKey;
-}
-
-
-CMessage::~CMessage()
-{
-	if ( m_payload )
-		delete m_payload;
-}
-
-template<typename S>
-void Serialize(S &s, Encryptor) const
-{
-	<< Encryptor ( m_header );
-	<< m_payload;
-}
-
-//all message
-// hash
-// encrypt  hash
-// public hash message
-
-
-
-void
-unwindMessage( _message, Decriptor )
-{
-//check  time 
-		int64_t currentTime;
-
-
-	Decriptor << _message 
-
-	m_payload
-
-// reset  decryptor
-	unwindMessage( _message, Decriptor )
-
-
-	CMessage 
-	
-	_message
-
-	throw
 }
 
 #endif // COMMUNICATION_PROTOCOL_H
