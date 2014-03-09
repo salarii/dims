@@ -103,6 +103,7 @@ am_libbitcoin_server_a_OBJECTS = addrman.$(OBJEXT) alert.$(OBJEXT) \
 	rpcserver.$(OBJEXT) bloom.$(OBJEXT) chainparams.$(OBJEXT) \
 	checkpoints.$(OBJEXT) coins.$(OBJEXT) init.$(OBJEXT) \
 	keystore.$(OBJEXT) leveldbwrapper.$(OBJEXT) main.$(OBJEXT) tracker/originAddressScaner.$(OBJEXT) \
+	tracker/transactionRecordManager.$(OBJEXT) tracker/walletManager.$(OBJEXT)  \
 	miner.$(OBJEXT) net.$(OBJEXT) noui.$(OBJEXT) \
 	rpcblockchain.$(OBJEXT) rpcmining.$(OBJEXT) rpcmisc.$(OBJEXT) \
 	rpcnet.$(OBJEXT) rpcrawtransaction.$(OBJEXT) txdb.$(OBJEXT) \
@@ -706,6 +707,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wallet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/walletdb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/originAddressScaner.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transactionRecordManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/walletManager.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

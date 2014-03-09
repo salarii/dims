@@ -5,19 +5,26 @@
 #ifndef WALLET_MANAGER_H
 #define WALLET_MANAGER_H
 
+#include "key.h"
+
+#include "wallet.h"
+
+
 namespace self
 {
+
+class CTransactionRecordManager;
 
 class CWalletManager
 {
 public:
 	CWalletManager();
 
-	bool addAddress( SecureString _privateKey );
+	bool addAddress( std::string const & _privateKey );
 	CPubKey generateAddress();
 	void deleteAddress();
 
-	void sendCoins();
+	void sendCoins( CKeyID const & _keyID, int64_t _value );
 	bool checkCoinsPresent();
 
 	void encryptWallet();
@@ -25,7 +32,7 @@ public:
 
 private:
 	CWallet m_wallet;
-	CValidationManager * m_validationManager;
+	CTransactionRecordManager * m_transactionRecordManager;
 };
 
 

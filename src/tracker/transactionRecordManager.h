@@ -5,10 +5,18 @@
 #ifndef TRANSACTION_RECORD_MANAGER_H
 #define TRANSACTION_RECORD_MANAGER_H
 
+#include <vector>
+
 class CTransaction;
+
+class CCoinsViewCache;
+
+class CTxMemPool;
 
 namespace self
 {
+
+class CValidationManager;
 
 
 class CTransactionRecordManager
@@ -22,13 +30,14 @@ public:
 
 	bool checkIfCoinsAvailable( CTransaction const & _tx ) const;
 
-	void validateTransaction( CTransaction const & _tx ) const;
+	void validateTransaction( CTransaction const & _tx );
 	//time  stamp or  something needed
 	//
 	//create  transaction view
 
+	void handleTransactionBundle( std::vector< CTransaction > const & _transaction );
 
-	void handleTransactionBundle();
+	void loop( std::vector< CTransaction > const & _transaction );
 private:
 	void synchronize();
 	void askForTokens();
@@ -38,6 +47,11 @@ private:
 
 	// mutex
 	CTxMemPool * m_memPool;
+
+	CValidationManager * m_ValidationManager;
+
+	std::vector< std::vector< CTransaction > > m_waitvalidationQueue;
+
 
 //	transaction history  section
 };

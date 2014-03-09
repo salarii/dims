@@ -41,7 +41,7 @@ else
 }
 
 
-std::map< long long, uint256 > achievedMerkle;
+
 
 std::map< long long, uint256 >::iterator it = achievedMerkle.begin();
 

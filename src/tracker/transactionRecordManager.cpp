@@ -4,12 +4,36 @@
 
 #include "txmempool.h"
 
+#include "main.h"
+
 namespace self
 {
 
+// -dbcache default (MiB)
+static const int64_t nDefaultDbCache = 100;
+// max. -dbcache in (MiB)
+static const int64_t nMaxDbCache = sizeof(void*) > 4 ? 4096 : 1024;
+// min. -dbcache in (MiB)
+static const int64_t nMinDbCache = 4;
+
+
 CTransactionRecordManager::CTransactionRecordManager()
 {
-	m_coinsViewCache = new CCoinsViewCache(new CCoinsViewDB );
+	// cache size calculations
+	size_t nTotalCache = (GetArg("-dbcache", nDefaultDbCache) << 20);
+	if (nTotalCache < (nMinDbCache << 20))
+	    nTotalCache = (nMinDbCache << 20); // total cache cannot be less than nMinDbCache
+	else if (nTotalCache > (nMaxDbCache << 20))
+	    nTotalCache = (nMaxDbCache << 20); // total cache cannot be greater than nMaxDbCache
+	size_t nBlockTreeDBCache = nTotalCache / 8;
+	if (nBlockTreeDBCache > (1 << 21) && !GetBoolArg("-txindex", false))
+	    nBlockTreeDBCache = (1 << 21); // block tree db cache shouldn't be larger than 2 MiB
+	nTotalCache -= nBlockTreeDBCache;
+	size_t nCoinDBCache = nTotalCache / 2; // use half of the remaining cache for coindb cache
+	nTotalCache -= nCoinDBCache;
+	nCoinCacheSize = nTotalCache / 300; // coins in memory require around 300 bytes
+
+	m_coinsViewCache = new CCoinsViewCache(*(new CCoinsViewDB(nCoinDBCache, false, fReindex)));
 	m_memPool = new CTxMemPool;
 }
 
@@ -24,6 +48,11 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx )
 {
 	CCoins coins(_tx, 0);
 	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
+
+	bool* pfMissingInputs;
+	CValidationState state;
+	AcceptToMemoryPool(*m_memPool, state, _tx, false, pfMissingInputs, false);
+
 }
 
 bool
@@ -32,48 +61,34 @@ CTransactionRecordManager::checkIfCoinsAvailable( CTransaction const & _tx ) con
 	m_coinsViewCache->HaveInputs(_tx);
 }
 
-void
-CTransactionRecordManager::validateTransaction( CTransaction const & _tx ) const
+
+void CTransactionRecordManager::validateTransaction( CTransaction const & _tx )
 {
-	CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
-
-	std::vector<CScriptCheck> vChecks;
-    if (!CheckInputs(tx, state, view, fScriptChecks, flags, nScriptCheckThreads ? &vChecks : NULL))
-        return false;
-    control.Add(vChecks);
-
-    if (!control.Wait())
 
 }
 
 void
-CTransactionRecordManager::validateTransaction( CTransaction const & _tx ) const
+CTransactionRecordManager::handleTransactionBundle( std::vector< CTransaction > const & _transaction )
 {
-	CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
-
-	std::vector<CScriptCheck> vChecks;
-    if (!CheckInputs(tx, state, view, fScriptChecks, flags, nScriptCheckThreads ? &vChecks : NULL))
-        return false;
-    control.Add(vChecks);
-
-    if (!control.Wait())
-
-
 }
 
 void
-CTransactionRecordManager::handleTransactionBundle()
+CTransactionRecordManager::loop( std::vector< CTransaction > const & _transaction )
 {
-	// expect  vector  of  transactions
+	while(1)
+	{
+		// bundle  from  validation  queue pass to  validator
 
-	// verify  valid ones
+		// check  for  job  done by  validator  periodically
 
-/*
- * signal mechanicks
- * when  signal  came validate  or  recreate  bundle  and  complain in  case  of  problems )
- * ( may relize  that   things  went  wrong, troubleshooting may  try  to  synchronize
- *
- */
+		//update  pool  and view  with  transaction  which  are  considered as valid
+
+
+
+
+	    boost::this_thread::interruption_point();
+	}
+
 }
 
 void
