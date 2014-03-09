@@ -54,6 +54,10 @@ bool fBenchmark = false;
 bool fTxIndex = false;
 unsigned int nCoinCacheSize = 5000;
 
+	std::map< uint256, long long > askedMerkle;
+
+	long long currentHeight = 0;
+
 Self::COriginAddressScaner originAddressScaner;
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
@@ -2682,6 +2686,20 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
     return file;
 }
 
+bool FileExist(const char *prefix)
+{
+    boost::filesystem::path path = GetDataDir() / "blocks" / strprintf("%s%05u.dat", prefix, 0);
+
+    return filesystem::exists(path);
+
+}
+
+FILE*
+OpenHeadFile(bool fReadOnly)
+{
+    return OpenDiskFile(CDiskBlockPos(0,0), "head", fReadOnly);
+}
+
 FILE* OpenBlockFile(const CDiskBlockPos &pos, bool fReadOnly) {
     return OpenDiskFile(pos, "blk", fReadOnly);
 }
@@ -2853,6 +2871,28 @@ bool LoadBlockIndex()
     return true;
 }
 
+void askForRelevantTransactions(CNode* pfrom)
+{
+		CBlockIndex * index = chainActive.Tip();
+
+		for ( int i = 1; i < CONFIRM_LIMIT; i++ )
+		{
+			if ( index == 0 )
+				break;
+			index = index->pprev;
+		}
+
+//
+		while ( index && Params().GenesisBlock().GetHash() != index->GetBlockHash() )
+		{
+			pfrom->AskFor(CInv(MSG_FILTERED_BLOCK, index->GetBlockHash()));
+			askedMerkle.insert( make_pair( index->hashMerkleRoot, index->nHeight ) );
+
+			index = index->pprev;
+		}
+}
+
+
 
 bool InitBlockIndex() {
     // Check whether we're already initialized
@@ -2867,7 +2907,21 @@ bool InitBlockIndex() {
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)
     if (!fReindex) {
         try {
-            CBlock &block = const_cast<CBlock&>(Params().GenesisBlock());
+
+        	CBlock block;
+
+        	if ( FileExist("head") )
+        	{
+        		CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
+        		CBlockHeader header;
+        		file >> header;
+        		block = header;
+        	}
+            else
+            {
+            	block = const_cast<CBlock&>(Params().GenesisBlock());
+            }
+
             // Start new block file
             unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
             CDiskBlockPos blockPos;
@@ -3705,6 +3759,29 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         merkleBlock.txn.ExtractMatches(vMatch);
 
         int  i = vMatch.size();
+
+        std::map< uint256, long long >::iterator iterator;
+
+        iterator = askedMerkle.find(merkleBlock.header.hashMerkleRoot);
+
+        if ( iterator == askedMerkle.end() )
+        	//some serious problem
+        	return false;
+
+        if ( iterator->second > currentHeight )
+        {
+        	currentHeight = iterator->second;
+
+        	CAutoFile file(OpenHeadFile(false), SER_DISK, CLIENT_VERSION);
+        	file << merkleBlock.header;
+
+        	fflush(file);
+
+        	FileCommit(file);
+        }
+
+        askedMerkle.erase(iterator);
+
     }
     else if (strCommand == "headers")
     {
@@ -3730,23 +3807,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 	    	it++;
 	    }
 
-
-		CBlockIndex * index = chainActive.Tip();
-
-		for ( int i = 1; i < CONFIRM_LIMIT; i++ )
-		{
-			if ( index == 0 )
-				break;
-			index = index->pprev;
-		}
-
-//
-		while ( index && Params().GenesisBlock().GetHash() != index->GetBlockHash() )
-		{
-			pfrom->AskFor(CInv(MSG_FILTERED_BLOCK, index->GetBlockHash()));
-
-			index = index->pprev;
-		}
+		askForRelevantTransactions(pfrom);
     }
 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
@@ -3764,8 +3825,11 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         // Remember who we got this block from.
         mapBlockSource[inv.hash] = pfrom->GetId();
 
-        CValidationState state;
-        ProcessBlock(state, pfrom, &block);
+	    CValidationState state;
+
+        AddToBlockIndex(block, state, CDiskBlockPos());
+
+		askForRelevantTransactions(pfrom);
     }
 
 
@@ -4231,6 +4295,10 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
+
+        //last best merkle
+        //
+
 
         //
         // Message: inventory
