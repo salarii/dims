@@ -3,6 +3,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+
 #include "simpleBuddy.h"
 
 #include <stdio.h>
@@ -11,6 +12,7 @@
 #include <assert.h>
 #include <string.h>
 
+#define assert(a) ;
 namespace self
 {
 
@@ -37,7 +39,7 @@ nextPowOfTwo(uint32_t x)
 
 inline
 int
-CSimpleBuddy::indexOffset(int _index, int _level)
+CSimpleBuddy::indexOffset(int _index, int _level) const
 {
 	return ((_index + 1) - (1 << _level)) << (m_level - _level);
 }
@@ -45,10 +47,10 @@ CSimpleBuddy::indexOffset(int _index, int _level)
 
 CSimpleBuddy::CSimpleBuddy(int level)
 {
-	int size = 1 << level;
-	struct buddy * self = malloc(sizeof(struct buddy) + sizeof(uint8_t) * (size * 2 - 2));
-	m_level = level;
-	memset(m_tree , NODE_UNUSED , size*2-1);
+//	int size = 1 << level;
+//	struct buddy * self = malloc(sizeof(struct buddy) + sizeof(uint8_t) * (size * 2 - 2));
+//	m_level = level;
+//	memset(m_tree , NODE_UNUSED , size*2-1);
 
 }
 
@@ -96,8 +98,8 @@ CSimpleBuddy::buddyAlloc( int _requested )
 			if (m_tree[index] == NODE_UNUSED)
 			{
 				m_tree[index] = NODE_USED;
-				markParent(self, index);
-				return indexOffset(index, level, m_level);
+				markParent(index);
+				return indexOffset(index, level);
 			}
 		}
 		else
@@ -151,7 +153,7 @@ CSimpleBuddy::combine( int _index)
 		if (buddy < 0 || m_tree[buddy] != NODE_UNUSED)
 		{
 			m_tree[_index] = NODE_UNUSED;
-			while (((_index = (_index + 1) / 2 - 1) >= 0) && m_tree[index] == NODE_FULL)
+			while (((_index = (_index + 1) / 2 - 1) >= 0) && m_tree[_index] == NODE_FULL)
 			{
 				m_tree[_index] = NODE_SPLIT;
 			}
@@ -166,18 +168,18 @@ CSimpleBuddy::combine( int _index)
 void
 CSimpleBuddy::buddyFree(int offset)
 {
-	assert( offset < (1<< self->level));
+	assert( offset < (1<< m_level));
 	int left = 0;
-	int length = 1 << self->level;
+	int length = 1 << m_level;
 	int index = 0;
 
 	while(1)
 	{
-		switch (self->tree[index])
+		switch (m_tree[index])
 		{
 		case NODE_USED:
 			assert(offset == left);
-			_combine(self, index);
+			combine(index);
 			return;
 		case NODE_UNUSED:
 			assert(0);
@@ -200,16 +202,16 @@ CSimpleBuddy::buddyFree(int offset)
 
 
 int
-CSimpleBuddy::buddySize(int offset)
+CSimpleBuddy::buddySize(int offset) const
 {
-	assert( offset < (1<< self->level));
+	assert( offset < (1<< m_level));
 	int left = 0;
-	int length = 1 << self->level;
+	int length = 1 << m_level;
 	int index = 0;
 
 	while(1)
 	{
-		switch (self->tree[index])
+		switch (m_tree[index])
 		{
 		case NODE_USED:
 			assert(offset == left);
@@ -243,7 +245,7 @@ CSimpleBuddy::getNotEmptyIndexes( int const _level ) const
 	}
 
 	std::list< int > notEmpty;
-	for ( unsigned i = index;i < 2*index ;i++ )
+	for ( int i = index;i < 2*index ;i++ )
 	{
 		if ( m_tree[i] == NODE_USED )
 		{

@@ -5,16 +5,20 @@
 #ifndef FILE_STORAGE_H
 #define FILE_STORAGE_H
 
+
+#include <list>
+
+#include "uint256.h"
+#include "serialize.h"
+
+class CTransaction
+{};
+
+class CCoinsViewCache;
+
 namespace self
 {
 
-/*
-
-<---header--><transactionblocks_1><transactionblocks_88><><>
-
-<record>
-<record>
-*/
 #define BLOCK_SIZE ( 1 << 12 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
 #define MAX_BUCKET ( 0xff -1 )
@@ -24,7 +28,9 @@ typedef unsigned int IndicatorType;
 typedef unsigned int CounterType;
 typedef uint256 HashType;
 
-
+//::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
+// nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
+//tx.GetSerializeSize(SER_NETWORK, CTransaction::CURRENT_VERSION);
 struct CRecord
 {
 
@@ -33,8 +39,8 @@ struct CRecord
 
     IMPLEMENT_SERIALIZE
     (
-        READWRITE(m_blockNumber);
-        READWRITE(m_isEmptySpace);
+       // READWRITE(m_blockNumber);
+       // READWRITE(m_isEmptySpace);
     )
 };
 
@@ -43,25 +49,24 @@ class CHeader
 public:
 	void increaseUsageRecord( unsigned int _recordId );
 	void decreaseUsageRecord( unsigned int _recordId );
-	bool setNewRecord( unsigned int _bucked, CRecord & const _record );
+	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
 	
 
     IMPLEMENT_SERIALIZE
     (
-        READWRITE(m_nextHeader);
-        READWRITE(emptyEntries);
-        READWRITE(m_headerHash);
+    		//FLATDATA
+     //   READWRITE(m_nextHeader);
+    //    READWRITE(m_records);
+    //    READWRITE(m_headerHash);
     )
 private:
-
+	static const unsigned int m_recordsNumber =  ( BLOCK_SIZE - sizeof( IndicatorType )*2 -  sizeof( HashType ) )/ sizeof( CRecord );
+	static const unsigned int m_maxBucket = MAX_BUCKET;
 
 	IndicatorType m_nextHeader;
-	Record m_records[ m_recordsNumber ];
+	CRecord m_records[ m_recordsNumber ];
 
 	HashType m_headerHash;
-
-	static const unsigned int m_recordsNumber =  ( BLOCK_SIZE - sizeof( IndicatorType * 2 ) -  sizeof( HashType ) )/ sizeof( CRecord );
-	static const unsigned int m_maxBucket = MAX_BUCKET;
 };
 
 class CSegmentFileStorage
@@ -79,7 +84,7 @@ public:
 
 	void loop();
 private:
-	void createNewHeader();
+	CHeader * createNewHeader();
 
 	unsigned int calculateBucket( HashType const & _coinsHash ) const;
 
@@ -91,12 +96,12 @@ private:
 
 	unsigned int calculateBlockIndex( void * _block );
 
-	static const std::string ms_fileName = "segments";
+	static const std::string ms_fileName;
 private:
 
 	mutable boost::mutex m_lock;
 
-	std::list< CTransaction _transaction > m_transactionsToStore;
+	std::list< CTransaction > m_transactionsToStore;
 };
 
 

@@ -5,15 +5,14 @@
 namespace self
 {
 
+const std::string
+CSegmentFileStorage::ms_fileName = "segments";
+/*
 //	boost::lock_guard<boost::mutex> lock(m_lock);
 CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
 CBlockHeader header;
 file >> header;
 block = header;
-CSegmentFileStorage::CSegmentFileStorage()
-{
-
-}
 
 CAutoFile file(OpenHeadFile(false), SER_DISK, CLIENT_VERSION);
 file << merkleBlock.header;
@@ -21,6 +20,15 @@ file << merkleBlock.header;
 fflush(file);
 
 FileCommit(file);
+
+*/
+#define assert(a) ;
+CSegmentFileStorage::CSegmentFileStorage()
+{
+
+}
+
+
 
 
 struct CTransactionRecord
@@ -40,9 +48,9 @@ public:
 
     IMPLEMENT_SERIALIZE
     (
-        READWRITE(m_used);
-        READWRITE(m_nextSameBucketBlock);
-        READWRITE(m_transactions);
+     //   READWRITE(m_used);
+     //   READWRITE(m_nextSameBucketBlock);
+     //   READWRITE(m_transactions);
     )
 private:
 	CounterType m_used;
@@ -64,14 +72,14 @@ CHeader::decreaseUsageRecord( unsigned int _recordId )
 }
 
 bool
-CHeader::setNewRecord( unsigned int _bucked, CRecord & const _record )
+CHeader::setNewRecord( unsigned int _bucked, CRecord const & _record )
 {
 	unsigned int maxNumber =  m_recordsNumber / m_maxBucket;
 
-	for ( int i = 0; i < maxNumber; i++ )
+	for ( unsigned int i = 0; i < maxNumber; i++ )
 	{
-		Record & record = m_records[ _bucked + i * m_maxBucket ];
-		if ( !record.emptyEntries && record.m_blockNumber )
+		CRecord & record = m_records[ _bucked + i * m_maxBucket ];
+		if ( !record.m_isEmptySpace && record.m_blockNumber )
 		{
 			record = _record;
 			return true;
@@ -103,6 +111,7 @@ CSegmentFileStorage::loop()
 CHeader *
 CSegmentFileStorage::createNewHeader()
 {
+	/*
 	void * nextBlock = getNextFreeBlock();
 	if ( !nextBlock )
 		return 0;
@@ -115,11 +124,13 @@ CSegmentFileStorage::createNewHeader()
 	lastHeader->m_nextHeader = calculateBlockIndex ( nextBlock );
 
 	return static_cast< CHeader * >( nextBlock );
+	*/
 }
 
 void
 CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 {
+	/*
 	FILE* file = OpenDiskFile(CDiskBlockPos(0,0), ms_fileName, true);
 	CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
 // maybe  buffer  needed here
@@ -154,6 +165,7 @@ CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 
 		}
 	}
+	*/
 }
 
 void
@@ -166,28 +178,31 @@ CSegmentFileStorage::eraseTransaction( CTransaction const & _transaction )
 unsigned int
 CSegmentFileStorage::calculateBucket( HashType const & _coinsHash ) const
 {
-	return _coinsHash.GetLow64()%MAX_BUCKET;
+	return 0;//_coinsHash.GetLow64() % MAX_BUCKET;
 }
 
 void *
 CSegmentFileStorage::getNextFreeBlock()
 {
+	return 0;
 }
 
 void *
 CSegmentFileStorage::getBlock( unsigned int _index )
 {
-
+	return 0;
 }
 
 unsigned int
 CSegmentFileStorage::findLastHeader()
 {
+	return 0;
 }
 
 unsigned int
 CSegmentFileStorage::calculateBlockIndex( void * _block )
 {
+	return 0;
 }
 
 }
