@@ -104,6 +104,7 @@ am_libbitcoin_server_a_OBJECTS = addrman.$(OBJEXT) alert.$(OBJEXT) \
 	checkpoints.$(OBJEXT) coins.$(OBJEXT) init.$(OBJEXT) \
 	keystore.$(OBJEXT) leveldbwrapper.$(OBJEXT) main.$(OBJEXT) tracker/originAddressScaner.$(OBJEXT) \
 	tracker/transactionRecordManager.$(OBJEXT) tracker/walletManager.$(OBJEXT)  \
+	tracker/segmentFileStorage.$(OBJEXT) \
 	miner.$(OBJEXT) net.$(OBJEXT) noui.$(OBJEXT) \
 	rpcblockchain.$(OBJEXT) rpcmining.$(OBJEXT) rpcmisc.$(OBJEXT) \
 	rpcnet.$(OBJEXT) rpcrawtransaction.$(OBJEXT) txdb.$(OBJEXT) \
@@ -709,6 +710,7 @@ include ./$(DEPDIR)/walletdb.Po
 include ./$(DEPDIR)/originAddressScaner.Po
 include ./$(DEPDIR)/transactionRecordManager.Po
 include ./$(DEPDIR)/walletManager.Po
+include ./$(DEPDIR)/segmentFileStorage.Po
 
 .cpp.o:
 	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

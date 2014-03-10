@@ -5,16 +5,16 @@
 #ifndef FILE_STORAGE_H
 #define FILE_STORAGE_H
 
-namespace Self
+namespace self
 {
 
-
+/*
 
 <---header--><transactionblocks_1><transactionblocks_88><><>
 
 <record>
 <record>
-
+*/
 #define BLOCK_SIZE ( 1 << 12 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
 #define MAX_BUCKET ( 0xff -1 )
@@ -24,12 +24,18 @@ typedef unsigned int IndicatorType;
 typedef unsigned int CounterType;
 typedef uint256 HashType;
 
-struct Record;
 
 struct CRecord
 {
+
 	IndicatorType m_blockNumber;
-	CounterType emptyEntries;
+	char m_isEmptySpace;
+
+    IMPLEMENT_SERIALIZE
+    (
+        READWRITE(m_blockNumber);
+        READWRITE(m_isEmptySpace);
+    )
 };
 
 class CHeader
@@ -39,9 +45,18 @@ public:
 	void decreaseUsageRecord( unsigned int _recordId );
 	bool setNewRecord( unsigned int _bucked, CRecord & const _record );
 	
+
+    IMPLEMENT_SERIALIZE
+    (
+        READWRITE(m_nextHeader);
+        READWRITE(emptyEntries);
+        READWRITE(m_headerHash);
+    )
 private:
+
+
 	IndicatorType m_nextHeader;
-	Record m_records[ m_recordsNumber ]
+	Record m_records[ m_recordsNumber ];
 
 	HashType m_headerHash;
 
@@ -49,68 +64,42 @@ private:
 	static const unsigned int m_maxBucket = MAX_BUCKET;
 };
 
-bool 
-CHeader::setNewRecord( unsigned int _bucked, CRecord & const _record )
-{
-	unsigned int maxNumber =  m_recordsNumber / m_maxBucket;
-
-	for ( int i = 0; i < maxNumber; i++ )
-	{
-		Record & record = m_records[ _bucked + i * m_maxBucket ];
-		if ( !record.emptyEntries && record.m_blockNumber )
-		{
-			record = _record;
-			return true;
-		}
-	}
-	return false;
-}
-
-
-class CDiskBlock
+class CSegmentFileStorage
 {
 public:
-	void removeTransaction();
-private:
-	CounterType m_used;
-	IndicatorType nextSameBucketBlock;
-	char [ BLOCK_SIZE ];
-};
+	CSegmentFileStorage();
 
+	void includeTransaction( CTransaction const & _transaction );
 
+	void eraseTransaction( CTransaction const & _transaction );
 
+	void includeTransactions( std::list< CTransaction > const & _transaction );
 
-class CFileStorage
-{
-public:
-	void includeTransaction();
-	
+	void readTransactions( CCoinsViewCache * _coinsViewCache );
+
+	void loop();
 private:
 	void createNewHeader();
-	unsigned int calculateBucket( HashType const & _coinsHash );
+
+	unsigned int calculateBucket( HashType const & _coinsHash ) const;
+
 	void * getNextFreeBlock();
+
 	void * getBlock( unsigned int _index );
+
 	unsigned int findLastHeader();
 
 	unsigned int calculateBlockIndex( void * _block );
+
+	static const std::string ms_fileName = "segments";
+private:
+
+	mutable boost::mutex m_lock;
+
+	std::list< CTransaction _transaction > m_transactionsToStore;
 };
 
-CHeader * 
-CFileStorage::createNewHeader()
-{
-	void * nextBlock = getNextFreeBlock();
-	if ( !nextBlock )
-		return 0;
 
-	CHeader * lastHeader = static_cast< CHeader * >( getBlock( findLastHeader() ) );
-
-	if ( !lastHeader )
-		return 0;
-
-	lastHeader->m_nextHeader = calculateBlockIndex ( nextBlock );
-
-	return static_cast< CHeader * >( nextBlock );
-}
 
 }
 

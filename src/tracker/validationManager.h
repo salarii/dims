@@ -45,7 +45,7 @@ private:
 	std::list< std::pair< TransactionStatus::Enum, std::vector< CTransaction > > > m_bundlePipe;
 
 /*
-pyramide 
+pyramid
 	char dirtyTable
 	CTransaction 
 

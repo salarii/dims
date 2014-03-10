@@ -185,7 +185,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
                         bool* pfMissingInputs, bool fRejectInsaneFee=false);
 
 
-
+FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly);
 
 
 
