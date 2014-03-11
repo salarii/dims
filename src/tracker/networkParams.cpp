@@ -105,3 +105,14 @@ public:
 };
 static CTestNetParams testNetParams;
 
+/*
+tracer bublic number  t
+monitor  public  number  m
+
+
+m - 0x69
+t - 0x7a
+
+r - 0x75
+*/
+
