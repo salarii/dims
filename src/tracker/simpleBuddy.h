@@ -41,9 +41,8 @@ public:
 
     IMPLEMENT_SERIALIZE
     (
-     //   READWRITE(m_level);
-     //   READWRITE(m_tree);
-     //   READWRITE(m_area);
+        READWRITE(FLATDATA(m_tree));
+        READWRITE(FLATDATA(m_area));
     )
 public:
 	static const int m_level = 6;

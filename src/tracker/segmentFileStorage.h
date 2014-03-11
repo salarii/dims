@@ -11,8 +11,7 @@
 #include "uint256.h"
 #include "serialize.h"
 
-class CTransaction
-{};
+class CTransaction;
 
 class CCoinsViewCache;
 
@@ -39,8 +38,8 @@ struct CRecord
 
     IMPLEMENT_SERIALIZE
     (
-       // READWRITE(m_blockNumber);
-       // READWRITE(m_isEmptySpace);
+        READWRITE(m_blockNumber);
+        READWRITE(m_isEmptySpace);
     )
 };
 
@@ -54,14 +53,20 @@ public:
 
     IMPLEMENT_SERIALIZE
     (
-    		//FLATDATA
-     //   READWRITE(m_nextHeader);
-    //    READWRITE(m_records);
-    //    READWRITE(m_headerHash);
+        READWRITE(m_nextHeader);
+        READWRITE(FLATDATA(m_records));
+        READWRITE(m_headerHash);
     )
+
+	IndicatorType getNextHeader() const;
+	void setNextHeader( IndicatorType _nextHeader );
+
+	static unsigned int const getRecordNumber();
+
+	bool givenRecordUsed(unsigned int _index );
 private:
-	static const unsigned int m_recordsNumber =  ( BLOCK_SIZE - sizeof( IndicatorType )*2 -  sizeof( HashType ) )/ sizeof( CRecord );
-	static const unsigned int m_maxBucket = MAX_BUCKET;
+	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( IndicatorType )*2 -  sizeof( HashType ) )/ sizeof( CRecord );
+	static unsigned int const  m_maxBucket = MAX_BUCKET;
 
 	IndicatorType m_nextHeader;
 	CRecord m_records[ m_recordsNumber ];

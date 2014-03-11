@@ -2,6 +2,8 @@
 
 #include "simpleBuddy.h"
 
+#include "main.h"
+
 namespace self
 {
 
@@ -29,17 +31,26 @@ CSegmentFileStorage::CSegmentFileStorage()
 }
 
 
-
-
 struct CTransactionRecord
 {
+	static unsigned int const ms_defaultLevel = 4;
+
+	CTransactionRecord();
+
 	CSimpleBuddy m_simpleBuddy;
 
     IMPLEMENT_SERIALIZE
     (
         READWRITE(m_simpleBuddy);
     )
+
 };
+
+CTransactionRecord::CTransactionRecord()
+	: m_simpleBuddy(ms_defaultLevel)
+{
+}
+
 
 class CDiskBlock
 {
@@ -48,9 +59,9 @@ public:
 
     IMPLEMENT_SERIALIZE
     (
-     //   READWRITE(m_used);
-     //   READWRITE(m_nextSameBucketBlock);
-     //   READWRITE(m_transactions);
+		 READWRITE(m_used);
+		 READWRITE(m_nextSameBucketBlock);
+		 READWRITE(FLATDATA(m_transactions));
     )
 private:
 	CounterType m_used;
@@ -88,6 +99,34 @@ CHeader::setNewRecord( unsigned int _bucked, CRecord const & _record )
 	return false;
 }
 
+inline
+IndicatorType
+CHeader::getNextHeader() const
+{
+	return m_nextHeader;
+}
+
+inline
+void
+CHeader::setNextHeader( IndicatorType _nextHeader )
+{
+	m_nextHeader = _nextHeader;
+}
+
+inline
+bool
+CHeader::givenRecordUsed(unsigned int _index )
+{
+	return m_records[_index].m_blockNumber;
+}
+
+inline
+unsigned int const
+CHeader::getRecordNumber()
+{
+	return m_recordsNumber;
+}
+
 void
 CSegmentFileStorage::includeTransaction( CTransaction const & _transaction )
 {
@@ -108,10 +147,11 @@ CSegmentFileStorage::loop()
 
 }
 
+
+
 CHeader *
 CSegmentFileStorage::createNewHeader()
 {
-	/*
 	void * nextBlock = getNextFreeBlock();
 	if ( !nextBlock )
 		return 0;
@@ -121,29 +161,26 @@ CSegmentFileStorage::createNewHeader()
 	if ( !lastHeader )
 		return 0;
 
-	lastHeader->m_nextHeader = calculateBlockIndex ( nextBlock );
+	lastHeader->setNextHeader( calculateBlockIndex ( nextBlock ) );
 
 	return static_cast< CHeader * >( nextBlock );
-	*/
 }
 
 void
 CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 {
-	/*
-	FILE* file = OpenDiskFile(CDiskBlockPos(0,0), ms_fileName, true);
-	CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
-// maybe  buffer  needed here
+	FILE* file = OpenDiskFile(CDiskBlockPos(0,0), ms_fileName.c_str(), true);
+
 
 	CHeader header;
-	file >> header;
-	file >> header;
+	CBufferedFile blkdat(file, 2*MAX_BLOCK_SIZE, MAX_BLOCK_SIZE+8, SER_DISK, CLIENT_VERSION);
+	blkdat >> header;
 // it  is not  full  only some  experimental  crap
-	for ( unsigned i = 0; i < m_recordsNumber; ++i )
+	for ( unsigned i = 0; i < CHeader::getRecordNumber(); ++i )
 	{
 		CTransactionRecord transactionRecord;
-		if ( m_blockNumber!= 0)
-		file >> transactionRecord;
+		if ( header.givenRecordUsed(i))
+			blkdat >> transactionRecord;
 
 		int level = transactionRecord.m_simpleBuddy.m_level;
 
@@ -157,15 +194,14 @@ CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 
 			while( iterator != transactions.end() )
 			{
-				CTransaction * transaction = (CTransaction *)((void*)m_area + *iterator);
-				_coinsViewCache->SetCoins(transaction->GetHash(), CCoins( *transaction,*iterator ));
+				CTransaction * transaction = (CTransaction *)((void*)transactionRecord.m_simpleBuddy.m_area + *iterator);
+			//	_coinsViewCache->SetCoins(transaction->GetHash(), CCoins( *transaction,*iterator ));
 
 				iterator++;
 			}
 
 		}
 	}
-	*/
 }
 
 void

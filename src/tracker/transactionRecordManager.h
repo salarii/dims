@@ -7,6 +7,7 @@
 
 #include <vector>
 
+
 class CTransaction;
 
 class CCoinsViewCache;
