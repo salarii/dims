@@ -23,20 +23,16 @@ public:
 		// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 		// a large 4-byte int at any alignment.
 		pchMessageStart[0] = 0xf9;
-		pchMessageStart[1] = 0xbe;
-		pchMessageStart[2] = 0xb4;
+		pchMessageStart[1] = 0xbf;
+		pchMessageStart[2] = 0xb5;
 		pchMessageStart[3] = 0xd9;
 		vAlertPubKey = ParseHex("");
-		nDefaultPort = 8333;
-		nRPCPort = 8332;
+		nDefaultPort = 20010;
+		nRPCPort = 20011;
 
 		hashGenesisBlock = genesis.GetHash();
 /*
-		vSeeds.push_back(CDNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"));
-		vSeeds.push_back(CDNSSeedData("bluematt.me", "dnsseed.bluematt.me"));
-		vSeeds.push_back(CDNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org"));
-		vSeeds.push_back(CDNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"));
-		vSeeds.push_back(CDNSSeedData("xf2.org", "bitseed.xf2.org"));
+		vSeeds.push_back(CDNSSeedData("ratcoin.beacon.org", "dnsseed.ratcoin.beacon.org"));
 */
 		base58Prefixes[PUBKEY_ADDRESS] = list_of(58);//R
 		base58Prefixes[SCRIPT_ADDRESS] = list_of();//r
@@ -81,12 +77,12 @@ public:
 		// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 		// a large 4-byte int at any alignment.
 		pchMessageStart[0] = 0x0b;
-		pchMessageStart[1] = 0x11;
-		pchMessageStart[2] = 0x09;
+		pchMessageStart[1] = 0x12;
+		pchMessageStart[2] = 0x0a;
 		pchMessageStart[3] = 0x07;
 		vAlertPubKey = ParseHex("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
-		nDefaultPort = 18333;
-		nRPCPort = 18332;
+		nDefaultPort = 20020;
+		nRPCPort = 20021;
 		strDataDir = "testnet3";
 
 		// Modify the testnet genesis block so the timestamp is valid for a later start.
@@ -97,10 +93,9 @@ public:
 
 		vFixedSeeds.clear();
 		vSeeds.clear();
-		vSeeds.push_back(CDNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
-		vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
+		vSeeds.push_back(CDNSSeedData("ratcoin.testnet.beacon.org", "dnsseed.ratcoin.testnet.beacon.org"));
 
-		base58Prefixes[PUBKEY_ADDRESS] = list_of();
+		base58Prefixes[PUBKEY_ADDRESS] = list_of();  // time to set this ??
 		base58Prefixes[SCRIPT_ADDRESS] = list_of();
 		base58Prefixes[SECRET_KEY]     = list_of();
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of()()()();

@@ -1,3 +1,7 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef NETWORK_PARAMS_H
 #define NETWORK_PARAMS_H
 
@@ -45,7 +49,7 @@ public:
     const uint256& HashOfBitcoinGenesisBlock() const { return hashGenesisBlock; }
     const MessageStartChars& MessageStart() const { return pchMessageStart; }
     const vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
-    int GetDefaultPort() const { return nDefaultPort; }
+     int GetDefaultPort() const { return nDefaultPort; }
     virtual bool RequireRPCPassword() const { return true; }
     const string& DataDir() const { return strDataDir; }
     virtual Network NetworkID() const = 0;
@@ -54,7 +58,7 @@ public:
     virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
 protected:
-    CChainParams() {}
+    CNetworkParams() {}
 
     uint256 hashGenesisBlock;
     MessageStartChars pchMessageStart;

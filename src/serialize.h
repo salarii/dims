@@ -1363,4 +1363,91 @@ public:
     }
 };
 
+class CBufferAsStream
+{
+private:
+	char *src;
+	uint64_t const nSourceSize;
+	uint64_t nReadWritePos;    // how many bytes have been read from this
+protected:
+	// read data from the source to fill the buffer
+	void fill(void * _dest, void * _src,uint64_t size )
+	{
+		memcpy ( _dest, _src, size );
+	}
+
+public:
+	int nType;
+	int nVersion;
+
+	CBufferAsStream(char *_src, uint64_t _sourceSize, int nTypeIn, int nVersionIn)
+		: src(_src)
+		, nReadWritePos(0)
+		, nSourceSize(_sourceSize)
+		, nType(nTypeIn)
+		, nVersion(nVersionIn) 
+	{
+	}
+
+	// check whether we're at the end of the buffor
+	bool eof() const {
+		return nReadWritePos == nSourceSize;
+	}
+
+	// read a number of bytes
+	CBufferAsStream& write(char const*pch, size_t nSize) {
+		if (nSize + nReadWritePos > nSourceSize)
+			throw std::ios_base::failure("Read attempted past buffer limit");
+
+		memcpy(src+ nReadWritePos, pch, nSize);
+		nReadWritePos += nSize;
+
+		return (*this);
+	}
+
+	// read a number of bytes
+	CBufferAsStream& read(char *pch, size_t nSize) {
+		if (nSize + nReadWritePos > nSourceSize)
+			throw std::ios_base::failure("Read attempted past buffer limit");
+
+		memcpy(pch, src+ nReadWritePos, nSize);
+		nReadWritePos += nSize;
+
+		return (*this);
+	}
+
+	// return the current reading position
+	uint64_t GetPos() {
+		return nReadWritePos;
+	}
+
+	// rewind to a given reading position
+	bool SetPos(uint64_t nPos) {
+		if ( nSourceSize <= nPos )
+			return false;
+		nReadWritePos = nPos;
+	}
+
+
+	template<typename T>
+	CBufferAsStream& operator>>(T& obj) {
+		// Unserialize from this stream
+		::Unserialize(*this, obj, nType, nVersion);
+		return (*this);
+	}
+
+	// search for a given byte in the stream, and remain positioned on it
+	void FindByte(char ch) {
+		while (true) {
+			if (*(src+ nReadWritePos) == ch)
+				break;
+			nReadWritePos++;
+
+			if ( nReadWritePos >= nSourceSize )
+				return;
+		}
+	}
+};
+
+
 #endif
