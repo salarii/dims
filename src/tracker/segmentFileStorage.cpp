@@ -2,7 +2,7 @@
 
 #include "simpleBuddy.h"
 
-#include "main.h"
+#include "helper.h"
 
 namespace self
 {
@@ -22,7 +22,7 @@ file << merkleBlock.header;
 fflush(file);
 
 FileCommit(file);
-
+OpenDiskFile(CDiskBlockPos(0,0), "", bool fReadOnly)
 */
 #define assert(a) ;
 CSegmentFileStorage::CSegmentFileStorage()
@@ -144,6 +144,23 @@ CSegmentFileStorage::includeTransactions( std::list< CTransaction > const & _tra
 void
 CSegmentFileStorage::loop()
 {
+	FILE* file = OpenDiskFile(CDiskBlockPos(0,0), ms_fileName.c_str(), true);
+	while(1)
+	{
+		{
+			boost::lock_guard<boost::mutex> lock(m_lock);
+
+			std::list< CTransaction >::iterator iterator = m_transactionsToStore.begin();
+			while(iterator != m_transactionsToStore.end())
+			{
+				iterator->GetHash();
+
+				iterator++;
+			}
+		}
+		boost::this_thread::interruption_point();
+
+	}
 
 }
 
@@ -212,9 +229,9 @@ CSegmentFileStorage::eraseTransaction( CTransaction const & _transaction )
 
 
 unsigned int
-CSegmentFileStorage::calculateBucket( HashType const & _coinsHash ) const
+CSegmentFileStorage::calculateBucket( uint256 const & _coinsHash ) const
 {
-	return 0;//_coinsHash.GetLow64() % MAX_BUCKET;
+	return  _coinsHash.GetLow64() % MAX_BUCKET;
 }
 
 void *

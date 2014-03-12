@@ -25,7 +25,6 @@ namespace self
 
 typedef unsigned int IndicatorType;
 typedef unsigned int CounterType;
-typedef uint256 HashType;
 
 //::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
 // nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
@@ -65,13 +64,13 @@ public:
 
 	bool givenRecordUsed(unsigned int _index );
 private:
-	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( IndicatorType )*2 -  sizeof( HashType ) )/ sizeof( CRecord );
+	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( IndicatorType )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
 	static unsigned int const  m_maxBucket = MAX_BUCKET;
 
 	IndicatorType m_nextHeader;
 	CRecord m_records[ m_recordsNumber ];
 
-	HashType m_headerHash;
+	uint256 m_headerHash;
 };
 
 class CSegmentFileStorage
@@ -91,7 +90,7 @@ public:
 private:
 	CHeader * createNewHeader();
 
-	unsigned int calculateBucket( HashType const & _coinsHash ) const;
+	unsigned int calculateBucket( uint256 const & _coinsHash ) const;
 
 	void * getNextFreeBlock();
 
