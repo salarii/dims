@@ -7,7 +7,14 @@
 
 namespace Self
 {
+/*
+this  should  store  addresses  and  manage  conections  to other  nodes,  such  like  other  trackers  and  monitors 
+this should  be also  store  on  relevant  information  about  known  nodes  such  like  fees
 
+this in case when  nodes  can't  access  monitor because  of  huge  congestion
+the effort  should be  made  to  decrease monitors overhead  since  thay  may be  performing  quite heavy  auditing  operations
+
+*/
 class CSelfNodesManager
 {
 public:
