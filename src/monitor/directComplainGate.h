@@ -12,7 +12,7 @@ namespace monitor
 class CDirectComplainGate
 {
 // create  popco server 
-//
+// probably code   could  be  common in  some  way  with tracer  related 
 };
 
 }

@@ -23,6 +23,11 @@ struct CInvestigationItem
 	std::list< uint256 > m_trackersId;
 	IvestigationType::Enum m_type;
 };
+/*
+ther  may  be  need  for  investigator  to  order  some  proven  tracker  to  proceed  with  investigation
+
+*/
+
 
 class CInvestigator
 {
