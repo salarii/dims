@@ -6,6 +6,19 @@
 
 namespace self
 {
+/*
+split to two files
+
+*/
+
+
+/*
+how  to  append  new  content  to file 
+does  the  serialisation  doing i t  right ??
+
+
+*/
+
 
 const std::string
 CSegmentFileStorage::ms_fileName = "segments";
@@ -98,6 +111,8 @@ CTransactionRecord::CTransactionRecord()
 class CDiskBlock
 {
 public:
+
+	CDiskBlock( CTransactionRecord const & _transactionRecord );
 	void removeTransaction();
 
     IMPLEMENT_SERIALIZE
@@ -107,10 +122,21 @@ public:
 		 READWRITE(FLATDATA(m_transactions));
     )
 private:
-	CounterType m_used;
-	IndicatorType m_nextSameBucketBlock;
-	char m_transactions[ BLOCK_SIZE ];
+	// make those field be allocated in first buddy of transaction record
+	bool m_empty;
+	unsigned int m_blockPosition;
+	unsigned int m_nextSameBucketBlock;
+	CTransactionRecord m_transactionRecord;
 };
+
+CDiskBlock( CTransactionRecord const & _transactionRecord )
+{
+	m_transactionRecord = _transactionRecord;
+	/*  initialise  those  somehow
+	m_empty;
+	m_blockPosition;
+	m_nextSameBucketBlock;*/
+}
 
 
 void
@@ -169,6 +195,13 @@ CSegmentHeader::getRecordNumber()
 {
 	return m_recordsNumber;
 }
+
+CRecord
+CSegmentHeader::getRecord(unsigned int _index ) const
+{
+	return m_records[ _index ];
+}
+
 
 void
 CSegmentFileStorage::includeTransaction( CTransaction const & _transaction )
@@ -336,19 +369,54 @@ CSegmentFileStorage::eraseTransaction( CTransaction const & _transaction )
 void
 CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
 {
-	
-	if ( _coins.nHeight )
+	if ( _coins.nHeight != 0 )
 	{
+		CSegmentHeader header = getBlock<CSegmentHeader>( 0 );
 
+		unsigned int recordNumberInHeader = CSegmentHeader::getRecordSetNumber();
+
+		unsigned short recordNumber = _coins.nHeight >> 16;
+
+		CRecord record = findGivenHeader( recordNumber/recordNumberInHeader ).getRecord(recordNumberInHeader*recordNumber%recordNumberInHeader + _coins.m_bucket );
+
+		CTransactionRecord blockRecord = getBlock<CTransactionRecord>( record.m_blockNumber );
+
+		blockRecord.buddyFree(_coins.nHeight & 0xff);
+
+		m_discCache.insert( _coins.m_bucket, blockRecord);
 	}
 	else
 	{
-		_coins.m_bucket
-	}
+		ToInclude toInclude;
 
-		_transaction.
+		toInclude = m_discCache.equal_range(bucked);
+
+		int index = -1;
+		if ( toInclude.first != m_discCache.end() )
+		{
+			for ( CacheIterators cacheIterator=toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
+			{
+				/*
+				find  using  
+				
+				*/
+
+				index = cacheIterator->buddyAlloc( reqLevel );
+			}
+		}
+
+	}
 }
 
+CSegmentHeader 
+CSegmentFileStorage::findGivenHeader( unsigned int _index )
+{
+	std::vector< unsigned int >
+	m_headersPositions.size() > _headerIndex
+
+	return m_headersPositions
+
+}
 
 unsigned int
 CSegmentFileStorage::calculateBucket( uint256 const & _coinsHash ) const

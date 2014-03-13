@@ -5,7 +5,9 @@
 #ifndef FILE_STORAGE_H
 #define FILE_STORAGE_H
 
-
+/*
+separate headers  and  blocks?
+*/
 #include <list>
 
 #include "uint256.h"
@@ -58,11 +60,14 @@ public:
     )
 
 	unsigned int getNextHeader() const;
+
 	void setNextHeader( unsigned int _nextHeader );
 
-	static unsigned int const getRecordNumber();
+	bool givenRecordUsed(unsigned int _index ) const;
 
-	bool givenRecordUsed(unsigned int _index );
+	CRecord getRecord(unsigned int _index );
+
+	static unsigned int const getRecordsNumber();
 private:
 	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( unsigned int )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
 	static unsigned int const  m_maxBucket = MAX_BUCKET;
@@ -101,8 +106,12 @@ private:
 
 	CSegmentHeader findLastHeader();
 
+	CSegmentHeader findGivenHeader(unsigned int _index);
+
 	unsigned int calculateBlockIndex( void * _block );
 private:
+	std::vector< CSegmentHeader > m_headersPositions;
+
 	typedef std::multimap< unsigned int,CDiskBlock >::iterator CacheIterators;
 
 	typedef std::pair< CacheIterators, CacheIterators > ToInclude;
