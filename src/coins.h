@@ -76,7 +76,7 @@ public:
 
     // at which height this transaction was included in the active block chain
     int nHeight;
-
+    unsigned int m_bucket;
     // version of the CTransaction; accesses to this value should probably check for nHeight as well,
     // as new tx version will probably only be introduced at certain heights
     int nVersion;
