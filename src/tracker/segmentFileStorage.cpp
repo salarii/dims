@@ -8,126 +8,23 @@ namespace self
 {
 /*
 split to two files
-
-*/
-
-
-/*
 how  to  append  new  content  to file 
 does  the  serialisation  doing i t  right ??
 
-
+fflush(file);
 */
-
+const std::string
+CSegmentFileStorage::ms_segmentFileName = "segments";
 
 const std::string
-CSegmentFileStorage::ms_fileName = "segments";
-/*
-//	boost::lock_guard<boost::mutex> lock(m_lock);
-CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
-CBlockHeader header;
-file >> header;
-block = header;
+CSegmentFileStorage::ms_headerFileName = "serheaders";
 
-CAutoFile file(OpenHeadFile(false), SER_DISK, CLIENT_VERSION);
-file << merkleBlock.header;
-
-fflush(file);
-
-FileCommit(file);
-OpenDiskFile(CDiskBlockPos(0,0), "", bool fReadOnly)
-*/
 #define assert(a) ;
-CSegmentFileStorage::CSegmentFileStorage()
-{
-
-}
-
-
-struct CTransactionRecord
-{
-	static unsigned int const ms_buddyBaseLevel = 16;
-
-	static unsigned int const ms_buddySize = 1 << ( KiloByteShift* 512); // in bytes
-
-	CTransactionRecord();
-	
-	static unsigned int getBuddyLevel( size_t _transactionSize );
-
-	static size_t getBuddySize( unsigned int  _level );
-
-	void * translateToAddress( unsigned int _index );
-
-	CSimpleBuddy m_simpleBuddy;
-
-    IMPLEMENT_SERIALIZE
-    (
-        READWRITE(m_simpleBuddy);
-    )
-};
-
-unsigned int
-CTransactionRecord::getBuddyLevel( size_t const _transactionSize )
-{
-	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
-
-	unsigned int level = ms_buddyBaseLevel;
-
-	while( baseUnit < _transactionSize && level )
-	{
-		level--;
-		baseUnit <<=2;
-	}
-
-	if ( baseUnit < _transactionSize )
-	{
-		throw std::exception();
-	}
-
-	return level;
-}
-
-size_t
-CTransactionRecord::getBuddySize( unsigned int  _level )
-{
-	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
-
-	return baseUnit << _level;
-}
-
-void * 
-CTransactionRecord::translateToAddress( unsigned int _index )
-{
-	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
-	return m_simpleBuddy.m_area[ _index ];
-}
 
 CTransactionRecord::CTransactionRecord()
 	: m_simpleBuddy(ms_buddyBaseLevel)
 {
 }
-
-
-class CDiskBlock
-{
-public:
-
-	CDiskBlock( CTransactionRecord const & _transactionRecord );
-	void removeTransaction();
-
-    IMPLEMENT_SERIALIZE
-    (
-		 READWRITE(m_used);
-		 READWRITE(m_nextSameBucketBlock);
-		 READWRITE(FLATDATA(m_transactions));
-    )
-private:
-	// make those field be allocated in first buddy of transaction record
-	bool m_empty;
-	unsigned int m_blockPosition;
-	unsigned int m_nextSameBucketBlock;
-	CTransactionRecord m_transactionRecord;
-};
 
 CDiskBlock( CTransactionRecord const & _transactionRecord )
 {
@@ -138,6 +35,10 @@ CDiskBlock( CTransactionRecord const & _transactionRecord )
 	m_nextSameBucketBlock;*/
 }
 
+CSegmentHeader::CSegmentHeader()
+	: m_nextHeader(0);
+{
+}
 
 void
 CSegmentHeader::increaseUsageRecord( unsigned int _recordId )
@@ -169,17 +70,17 @@ CSegmentHeader::setNewRecord( unsigned int _bucked, CRecord const & _record )
 }
 
 inline
-IndicatorType
-CSegmentHeader::getNextHeader() const
+bool
+CSegmentHeader::isNextHeader() const
 {
 	return m_nextHeader;
 }
 
 inline
 void
-CSegmentHeader::setNextHeader( IndicatorType _nextHeader )
+CSegmentHeader::setNextHeaderFlag()
 {
-	m_nextHeader = _nextHeader;
+	m_nextHeader = 1;
 }
 
 inline
@@ -189,11 +90,15 @@ CSegmentHeader::givenRecordUsed(unsigned int _index )
 	return m_records[_index].m_blockNumber;
 }
 
-inline
-unsigned int const
-CSegmentHeader::getRecordNumber()
+unsigned int getUsedRecordNumber() const
 {
-	return m_recordsNumber;
+	unsigned int usageCnt = 0;
+	for ( unsigned i = 0; i < CSegmentHeader::getRecordNumber(); ++i )
+	{
+		if ( givenRecordUsed(i) )
+			usageCnt++
+	}
+	return usageCnt;
 }
 
 CRecord
@@ -202,6 +107,9 @@ CSegmentHeader::getRecord(unsigned int _index ) const
 	return m_records[ _index ];
 }
 
+CSegmentFileStorage::CSegmentFileStorage()
+{
+}
 
 void
 CSegmentFileStorage::includeTransaction( CTransaction const & _transaction )
@@ -215,6 +123,29 @@ CSegmentFileStorage::includeTransactions( std::list< CTransaction > const & _tra
 {
 	boost::lock_guard<boost::mutex> lock(m_lock);
 	m_transactionsToStore.insert (m_transactionsToStore.end(),_transaction.begin(),_transaction.end());
+}
+
+CSegmentHeader &
+CSegmentFileStorage::createNewHeader()
+{
+	if ( !m_headersCache.empty() )
+		m_headersCache.back().setNextHeaderFlag();
+	
+	m_headersCache.push_back( CSegmentHeader() );
+	
+	return m_headersCache.back();
+}
+
+CDiskBlock 
+CSegmentFileStorage::getBlock( unsigned int _index )
+{
+	return getBlockFromFile( _index, ms_segmentFileName );
+}
+
+CSegmentHeader 
+CSegmentFileStorage::getSegmentHeader( unsigned int _index )
+{
+	return getBlockFromFile( _index, ms_headerFileName );
 }
 
 void 
@@ -245,18 +176,17 @@ CSegmentFileStorage::flushLoop()
 void
 CSegmentFileStorage::loop()
 {
-	CSegmentHeader header = findLastHeader();
+	fillHeaderBuffor();
 
 	while(1)
 	{
 		{
 			boost::lock_guard<boost::mutex> lock(m_lock);
 
-			std::list< CTransaction >::iterator iterator = m_transactionsToStore.begin();
-			while(iterator != m_transactionsToStore.end())
+			BOOST_FOREACH( CTransaction transaction, m_transactionsToStore )
 			{
-				unsigned int bucket = calculateBucket( iterator->GetHash() );
-				unsigned int reqLevel = CTransactionRecord::getBuddyLevel( iterator->GetSerializeSize(SER_DISK, CTransaction::CURRENT_VERSION) );
+				unsigned int bucket = calculateBucket( transaction.GetHash() );
+				unsigned int reqLevel = CSimpleBuddy::getBuddyLevel( transaction.GetSerializeSize(SER_DISK, CTransaction::CURRENT_VERSION) );
 
 				ToInclude toInclude;
 
@@ -273,12 +203,12 @@ CSegmentFileStorage::loop()
 						else
 						{
 							CBufferAsStream stream(
-								cacheIterator->translateToAddress( index )
+								 cacheIterator->translateToAddress( index )
 								, cacheIterator->getBuddySize( reqLevel )
 								, SER_DISK
 								, CLIENT_VERSION);
 
-							stream << *iterator;
+							stream << transaction;
 
 							break;
 						}
@@ -287,80 +217,67 @@ CSegmentFileStorage::loop()
 
 				if ( index == -1 )
 				{
-					CTransactionRecord transactionRecord;
+					CDiskBlock discBlock;
 					
 					CBufferAsStream stream(
-						  transactionRecord.translateToAddress( index )
-						, transactionRecord.getBuddySize( reqLevel )
+						  discBlock.translateToAddress( index )
+						, discBlock.getBuddySize( reqLevel )
 						, SER_DISK
 						, CLIENT_VERSION);
 
-					stream << *iterator;
+					stream << transaction;
 
-					m_discCache.insert( std::make_pair ( bucket,transactionRecord); )
+					m_discCache.insert( std::make_pair ( bucket,discBlock) );
 				}
-				iterator++;
 			}
 		}
 		boost::this_thread::interruption_point();
 	}
 }
 
-CSegmentHeader *
-CSegmentFileStorage::createNewHeader()
-{
-	void * nextBlock = getNextFreeBlock();
-	if ( !nextBlock )
-		return 0;
-
-	CSegmentHeader * lastHeader = static_cast< CSegmentHeader * >( getBlock( findLastHeader() ) );
-
-	if ( !lastHeader )
-		return 0;
-
-	lastHeader->setNextHeader( calculateBlockIndex ( nextBlock ) );
-
-	return static_cast< CSegmentHeader * >( nextBlock );
-}
-
 void
 CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 {
-	FILE* file = OpenDiskFile(CDiskBlockPos(0,0), ms_fileName.c_str(), true);
+	fillHeaderBuffor();
 
+	std::vector< CSegmentHeader > iterator = m_headersCache.begin();
 
-	CSegmentHeader header;
-	CBufferedFile blkdat(file, 2*MAX_BLOCK_SIZE, MAX_BLOCK_SIZE+8, SER_DISK, CLIENT_VERSION);
-	blkdat >> header;
-// it  is not  full  only some  experimental  crap
-	for ( unsigned i = 0; i < CSegmentHeader::getRecordNumber(); ++i )
+	for ( int i = 0; i < calculateStoredBlockNumber(); i++)
 	{
-		CTransactionRecord transactionRecord;
-		if ( header.givenRecordUsed(i))
-			blkdat >> transactionRecord;
+		CDiskBlock discBlock;
 
-		int level = transactionRecord.m_simpleBuddy.m_level;
+		discBlock = getBlock( i );
+		
+		int level = ms_buddyBaseLevel;
 
 		while(level)
 		{
-			std::list< int > transactions = transactionRecord.m_simpleBuddy.getNotEmptyIndexes( level );
+			std::list< int > transactionsInd = discBlock.getNotEmptyIndexes( level );
 
-			level--;
+			std::list< int >::iterator iterator = transactionsInd.begin();
 
-			std::list< int >::iterator iterator = transactions.begin();
-
-			while( iterator != transactions.end() )
+			BOOST_FOREACH( int index, transactionsInd )
 			{
-				CTransaction * transaction = (CTransaction *)((void*)transactionRecord.m_simpleBuddy.m_area + *iterator);
-			//	_coinsViewCache->SetCoins(transaction->GetHash(), CCoins( *transaction,*iterator ));
 
-				iterator++;
+				CBufferAsStream stream(
+					  discBlock->translateToAddress( index )
+					, discBlock->getBuddySize( level )
+					, SER_DISK
+					, CLIENT_VERSION);
+
+				CTransaction transaction;
+
+				stream >> transaction;
+				/* do  something  with  those transactions */
+				//	_coinsViewCache->SetCoins(transaction->GetHash(), CCoins( *transaction,*iterator ));
+
 			}
-
+			level--;
 		}
 	}
+
 }
-// slow
+
 void
 CSegmentFileStorage::eraseTransaction( CTransaction const & _transaction )
 {
@@ -431,21 +348,40 @@ CSegmentFileStorage::getNextFreeBlock()
 }
 
 CSegmentHeader
-CSegmentFileStorage::findLastHeader(CBufferedFile const & blkdat)
+CSegmentFileStorage::fillHeaderBuffor()
 {
-	CSegmentHeader header = getBlock<CSegmentHeader>( 0 );
-	
-	while(header.getNextHeader())
+	CSegmentHeader header;
+
+	if ( m_headersCache.size() > 0 )
 	{
-		header = getBlock<CSegmentHeader>( header.getNextHeader() )
+		header = &m_headersCache.back();
 	}
-	return header;
+	else
+	{
+		header = getSegmentHeader( 0 );
+	}
+
+	while(header.isNextHeader())
+	{
+		header = getBlock<CSegmentHeader>( m_headersCache.size() );
+	}
 }
 
 unsigned int
 CSegmentFileStorage::calculateBlockIndex( void * _block )
 {
 	return 0;
+}
+
+
+unsigned int
+CSegmentFileStorage::calculateStoredBlockNumber() const
+{
+	unsigned int blockCnt = 0;
+	BOOST_FOREACH( CSegmentHeader header, m_headersCache )
+	{
+		blockCnt += header.getUsedRecordNumber();
+	}
 }
 
 }

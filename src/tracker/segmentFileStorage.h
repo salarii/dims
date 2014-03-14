@@ -44,35 +44,61 @@ struct CRecord
     )
 };
 
+struct CTransactionRecord : public CSimpleBuddy
+{
+
+	CTransactionRecord();
+
+
+};
+
+class CDiskBlock : public CTransactionRecord
+{
+public:
+
+	CDiskBlock( CTransactionRecord const & _transactionRecord );
+	void removeTransaction();
+private:
+	unsigned int m_blockPosition;
+};
+
+
 class CSegmentHeader
 {
 public:
+	CSegmentHeader();
+
 	void increaseUsageRecord( unsigned int _recordId );
+
 	void decreaseUsageRecord( unsigned int _recordId );
+
 	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
-	
 
-    IMPLEMENT_SERIALIZE
-    (
-        READWRITE(m_nextHeader);
-        READWRITE(FLATDATA(m_records));
-        READWRITE(m_headerHash);
-    )
+	void setNextHeaderFlag();
 
-	unsigned int getNextHeader() const;
+	bool isNextHeader() const;
 
-	void setNextHeader( unsigned int _nextHeader );
+	bool givenRecordUsed( unsigned int _index ) const;
 
-	bool givenRecordUsed(unsigned int _index ) const;
+	unsigned int getUsedRecordNumber() const;
 
-	CRecord getRecord(unsigned int _index );
+	CRecord getRecord( unsigned int _index );
 
 	static unsigned int const getRecordsNumber();
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_nextHeader);
+		READWRITE(FLATDATA(m_records));
+		READWRITE(m_headerHash);
+	)
+
 private:
 	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( unsigned int )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
 	static unsigned int const  m_maxBucket = MAX_BUCKET;
 
-	unsigned int m_nextHeader;
+	char m_nextHeader;
+
 	CRecord m_records[ m_recordsNumber ];
 
 	uint256 m_headerHash;
@@ -93,30 +119,33 @@ public:
 
 	void loop();
 	
-	void flushLoop()
+	void flushLoop();
 private:
-	CSegmentHeader createNewHeader();
+	CSegmentHeader & createNewHeader();
 
 	unsigned int calculateBucket( uint256 const & _coinsHash ) const;
 
 	void * getNextFreeBlock();
 
-	template< class T >
-	T getBlock( unsigned int _index );
+	CDiskBlock getBlock( unsigned int _index );
 
-	CSegmentHeader findLastHeader();
+	CSegmentHeader getSegmentHeader( unsigned int _index );
 
-	CSegmentHeader findGivenHeader(unsigned int _index);
+	CSegmentHeader fillHeaderBuffor();
 
 	unsigned int calculateBlockIndex( void * _block );
+
+	unsigned int calculateStoredBlockNumber() const;
 private:
-	std::vector< CSegmentHeader > m_headersPositions;
+	std::vector< CSegmentHeader > m_headersCache;
 
 	typedef std::multimap< unsigned int,CDiskBlock >::iterator CacheIterators;
 
 	typedef std::pair< CacheIterators, CacheIterators > ToInclude;
 private:
-	static const std::string ms_fileName;
+	static const std::string ms_segmentFileName;
+
+	static const std::string ms_headerFileName;
 
 	mutable boost::mutex m_lock;
 
@@ -126,14 +155,21 @@ private:
 	std::multimap< unsigned int,CDiskBlock > m_discCache;
 
 	static size_t const m_segmentSize = 1 << KiloByteShift * 512;
-};
+/*
+	FILE* m_headerFile;
+
+	FILE* m_blockFile;
+*/
+	};
 
 template< class T >
 T 
-CSegmentFileStorage::getBlock( unsigned int _index )
+getBlockFromFile( unsigned int _index, std::string const & _fileName )
 {
-	FILE* file = OpenDiskFile(CDiskBlockPos( 0,m_segmentSize * _index ), ms_fileName.c_str(), true);
-	CBufferedFile blkdat(file, 2*m_segmentSize, m_segmentSize+8, SER_DISK, CLIENT_VERSION);
+	FILE* file = OpenDiskFile(CDiskBlockPos( 0,sizeof( T ) ), _fileName.c_str(), true);
+
+	unsigned int bufferedSize = 1 << KiloByteShift * 4;
+	CBufferedFile blkdat(file, bufferedSize, bufferedSize, SER_DISK, CLIENT_VERSION);
 
 	T block;
 	blkdat >> block;

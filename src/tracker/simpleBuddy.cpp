@@ -45,7 +45,7 @@ CSimpleBuddy::indexOffset(int _index, int _level) const
 }
 
 
-CSimpleBuddy::CSimpleBuddy(int level)
+CSimpleBuddy::CSimpleBuddy(int _level, size_t _size)
 {
 //	int size = 1 << level;
 //	struct buddy * self = malloc(sizeof(struct buddy) + sizeof(uint8_t) * (size * 2 - 2));
@@ -200,6 +200,41 @@ CSimpleBuddy::buddyFree(int offset)
 	}
 }
 
+unsigned int
+CSimpleBuddy::getBuddyLevel( size_t const _transactionSize )
+{
+	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
+
+	unsigned int level = ms_buddyBaseLevel;
+
+	while( baseUnit < _transactionSize && level )
+	{
+		level--;
+		baseUnit <<=2;
+	}
+
+	if ( baseUnit < _transactionSize )
+	{
+		throw std::exception();
+	}
+
+	return level;
+}
+
+size_t
+CSimpleBuddy::getBuddySize( unsigned int  _level )
+{
+	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
+
+	return baseUnit << _level;
+}
+
+void * 
+CSimpleBuddy::translateToAddress( unsigned int _index )
+{
+	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
+	return m_simpleBuddy.m_area[ _index ];
+}
 
 int
 CSimpleBuddy::buddySize(int offset) const
@@ -254,6 +289,12 @@ CSimpleBuddy::getNotEmptyIndexes( int const _level ) const
 	}
 
 	return notEmpty;
+}
+
+bool 
+CSimpleBuddy::isFull() const
+{
+	return m_full;
 }
 
 }

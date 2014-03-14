@@ -19,19 +19,12 @@
 namespace self
 {
 
-
 struct CSimpleBuddy
 {
 public:
-	CSimpleBuddy(int _level);
+	CSimpleBuddy(int _level, size_t _size);
 
 	int buddyAlloc( int _requested );
-
-	void markParent(int _index);
-
-	int indexOffset(int _index, int _level) const;
-
-	void combine( int _index);
 
 	void buddyFree(int offset);
 
@@ -39,12 +32,33 @@ public:
 
 	std::list< int > getNotEmptyIndexes( int const _level ) const;
 
+	bool isFull() const;
+
+	static unsigned int getBuddyLevel( size_t _transactionSize );
+
+	void * translateToAddress( unsigned int _index );
+
+	static size_t getBuddySize( unsigned int  _level );
+
     IMPLEMENT_SERIALIZE
     (
         READWRITE(FLATDATA(m_tree));
         READWRITE(FLATDATA(m_area));
     )
 public:
+	static unsigned int const ms_buddyBaseLevel = 16;
+
+	static unsigned int const ms_buddySize = 1 << ( KiloByteShift* 512); // in bytes
+private:
+
+	void markParent(int _index);
+
+	int indexOffset(int _index, int _level) const;
+
+	void combine( int _index);
+private:
+	char m_full;
+
 	static const int m_level = 6;
 
 	unsigned char m_tree[m_level];
