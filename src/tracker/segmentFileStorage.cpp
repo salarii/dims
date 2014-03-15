@@ -76,6 +76,19 @@ CSegmentHeader::isNextHeader() const
 	return m_nextHeader;
 }
 
+int
+CSegmentHeader::getIndexForBucket( unsigned int _bucket ) const
+{
+	for( int i = 0;i < m_recordsNumber/MAX_BUCKET; i++)
+	{
+		CRecord record = m_records[ i*(m_recordsNumber/MAX_BUCKET) + _bucket ];
+		if ( record.m_blockNumber )
+			return record.m_blockNumber;
+	}
+
+	return -1;
+}
+
 inline
 void
 CSegmentHeader::setNextHeaderFlag()
@@ -108,6 +121,7 @@ CSegmentHeader::getRecord(unsigned int _index ) const
 }
 
 CSegmentFileStorage::CSegmentFileStorage()
+: m_recentlyStored(4)
 {
 }
 
@@ -148,6 +162,35 @@ CSegmentFileStorage::getSegmentHeader( unsigned int _index )
 	return getBlockFromFile( _index, ms_headerFileName );
 }
 
+void
+CSegmentFileStorage::saveBlock( unsigned int _index, CSegmentHeader const & _header )
+{
+	saveSegmentToFile( _index, ms_headerFileName, _header );
+}
+
+void
+CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
+{
+	saveSegmentToFile( _index, ms_segmentFileName, _block );
+}
+}
+
+
+unsigned int
+CSegmentFileStorage::createRecordForBlock( unsigned int _bucket )
+{
+	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
+
+	while( iterator != m_headersCache.end() )
+	{
+		int index = iterator->getIndexForBucket( _bucket );
+		if ( -1 != index )
+		{
+			iterator->setNewRecord( _bucked, CRecord(m_lastSegmentIndex,1));
+		}
+	}
+}
+
 void 
 CSegmentFileStorage::flushLoop()
 {
@@ -156,20 +199,63 @@ CSegmentFileStorage::flushLoop()
 		{
 			boost::lock_guard<boost::mutex> lock(m_lock);
 
-				ToInclude = m_discCache.equal_range(bucked);
+			// do something  like  this ???? go over all, save full, and drop
+			// do time checking improve  this  by adding logic
 
-						for ( CacheIterators iterator=ToInclude.first; iterator!=ToInclude.second; ++iterator )
+			unsigned int storeCandidate = m_recentlyStored.begin()->m_bucked;
 
-					CTransactionRecord transactionRecord;
-					
-					// this  code is executed during  flushes
-					/*if ( header.setNewRecord( bucket, transactionRecord ) );
-					{
-						header = createNewHeader();
-						header = setNewRecord( bucket, transactionRecord )
-					}*/
+			CacheIterators iterator = m_discCache.begin();
 
+			while( iterator != iterator.end() )
+			{
+				if ( !m_recentlyStored.find( CStore( iterator->first, 0 ) );
+				{
+					storeCandidate = iterator->first;
+					break;
+				}
+				iterator++;
+			}
+
+			ToInclude = m_discCache.equal_range(storeCandidate);
+
+			int64_t newStoretime = GetTime();
+
+			for ( CacheIterators iterator=ToInclude.first; iterator!=ToInclude.second; ++iterator )
+			{
+
+				if ( iterator->m_blockPosition )
+				{
+					setBlock( m_lastSegmentIndex, *iterator );
+				}
+				else
+				{
+					m_lastSegmentIndex++;
+
+					createRecordForBlock( storeCandidate );
+					setBlock( m_lastSegmentIndex, *iterator );
+				}
+				m_recentlyStored.insert( CStore(newStoretime,storeCandidate) );
+			}
+
+			//flush
+		}
+		{
+			boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
+
+			unsigned int index = 0;
+			BOOST_FOREACH( CSegmentHeader header, m_headersCache )
+			{
+				index++;
+				saveBlock(index,header);
+			}
+
+		}
+		//flush
+
+//rebuild merkle and store it, in database
 		boost::this_thread::interruption_point();
+		MilliSleep(1000*60*3);
+
 	}
 }
 

@@ -33,9 +33,9 @@ typedef unsigned int CounterType;
 //tx.GetSerializeSize(SER_NETWORK, CTransaction::CURRENT_VERSION);
 struct CRecord
 {
-
+	CRecord( unsigned int _blockNumber,unsigned char _isEmptySpace ):m_blockNumber(_blockNumber),m_isEmptySpace(_isEmptySpace){}
 	unsigned int m_blockNumber;
-	char m_isEmptySpace;
+	unsigned char m_isEmptySpace;
 
     IMPLEMENT_SERIALIZE
     (
@@ -44,15 +44,8 @@ struct CRecord
     )
 };
 
-struct CTransactionRecord : public CSimpleBuddy
-{
 
-	CTransactionRecord();
-
-
-};
-
-class CDiskBlock : public CTransactionRecord
+class CDiskBlock : public CSimpleBuddy
 {
 public:
 
@@ -60,8 +53,8 @@ public:
 	void removeTransaction();
 private:
 	unsigned int m_blockPosition;
+	int64_t m_lastStoredTime;
 };
-
 
 class CSegmentHeader
 {
@@ -80,6 +73,8 @@ public:
 
 	bool givenRecordUsed( unsigned int _index ) const;
 
+	int getIndexForBucket( unsigned int _bucket ) const;
+
 	unsigned int getUsedRecordNumber() const;
 
 	CRecord getRecord( unsigned int _index );
@@ -95,6 +90,7 @@ public:
 
 private:
 	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( unsigned int )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
+
 	static unsigned int const  m_maxBucket = MAX_BUCKET;
 
 	char m_nextHeader;
@@ -106,6 +102,16 @@ private:
 
 class CSegmentFileStorage
 {
+public:
+	struct CStore
+	{
+		CStore( int64_t _time, unsigned int _bucked ):m_time(_time),m_bucked(_bucked){}
+		int64_t m_time;
+		unsigned int m_bucked;
+	    bool operator==( CStore const & _store) const { return m_bucked == _store.m_bucked; }
+	    bool operator<( CStore const & _store)const { return m_time < _store.m_time; }
+	};
+
 public:
 	CSegmentFileStorage();
 
@@ -131,12 +137,19 @@ private:
 
 	CSegmentHeader getSegmentHeader( unsigned int _index );
 
+	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
+
+	void saveBlock( unsigned int _index, CDiskBlock const & _block );
+
 	CSegmentHeader fillHeaderBuffor();
 
 	unsigned int calculateBlockIndex( void * _block );
 
 	unsigned int calculateStoredBlockNumber() const;
+
+	unsigned int createRecordForBlock( unsigned int _recordIndex );
 private:
+	mutable boost::mutex m_headerCacheLock;
 	std::vector< CSegmentHeader > m_headersCache;
 
 	typedef std::multimap< unsigned int,CDiskBlock >::iterator CacheIterators;
@@ -155,6 +168,11 @@ private:
 	std::multimap< unsigned int,CDiskBlock > m_discCache;
 
 	static size_t const m_segmentSize = 1 << KiloByteShift * 512;
+
+	mruset< CStore > m_recentlyStored;
+
+	static size_t m_lastSegmentIndex = 0;
+
 /*
 	FILE* m_headerFile;
 
@@ -164,9 +182,9 @@ private:
 
 template< class T >
 T 
-getBlockFromFile( unsigned int _index, std::string const & _fileName )
+loadSegmentFromFile( unsigned int _index, std::string const & _fileName )
 {
-	FILE* file = OpenDiskFile(CDiskBlockPos( 0,sizeof( T ) ), _fileName.c_str(), true);
+	FILE* file = OpenDiskFile(CDiskBlockPos( 0,sizeof( T )* _index ), _fileName.c_str(), true);
 
 	unsigned int bufferedSize = 1 << KiloByteShift * 4;
 	CBufferedFile blkdat(file, bufferedSize, bufferedSize, SER_DISK, CLIENT_VERSION);
@@ -175,6 +193,15 @@ getBlockFromFile( unsigned int _index, std::string const & _fileName )
 	blkdat >> block;
 
 	return block;
+}
+
+template< class T >
+void
+saveSegmentToFile( unsigned int _index, std::string const & _fileName, T const & _block )
+{
+	FILE* file = OpenDiskFile(CDiskBlockPos( 0,sizeof( T )*_index ), _fileName.c_str(), true);
+
+	file << _block;
 }
 
 }
