@@ -45,7 +45,7 @@ CSimpleBuddy::indexOffset(int _index, int _level) const
 }
 
 
-CSimpleBuddy::CSimpleBuddy(int _level, size_t _size)
+CSimpleBuddy::CSimpleBuddy()
 {
 //	int size = 1 << level;
 //	struct buddy * self = malloc(sizeof(struct buddy) + sizeof(uint8_t) * (size * 2 - 2));
@@ -72,7 +72,6 @@ CSimpleBuddy::markParent(int _index)
 		}
 	}
 }
-
 
 int
 CSimpleBuddy::buddyAlloc( int _requested )
@@ -233,7 +232,7 @@ void *
 CSimpleBuddy::translateToAddress( unsigned int _index )
 {
 	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
-	return m_simpleBuddy.m_area[ _index ];
+	return (void *)&m_area[ _index ];
 }
 
 int

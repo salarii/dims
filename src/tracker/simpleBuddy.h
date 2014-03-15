@@ -15,6 +15,7 @@
 #include <list>
 #include "serialize.h"
 
+#define  KiloByteShift 10
 
 namespace self
 {
@@ -22,7 +23,7 @@ namespace self
 struct CSimpleBuddy
 {
 public:
-	CSimpleBuddy(int _level, size_t _size);
+	CSimpleBuddy();
 
 	int buddyAlloc( int _requested );
 

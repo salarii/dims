@@ -13,6 +13,8 @@ does  the  serialisation  doing i t  right ??
 
 fflush(file);
 */
+size_t CSegmentFileStorage::m_lastSegmentIndex = 0;
+
 const std::string
 CSegmentFileStorage::ms_segmentFileName = "segments";
 
@@ -21,14 +23,13 @@ CSegmentFileStorage::ms_headerFileName = "serheaders";
 
 #define assert(a) ;
 
-CTransactionRecord::CTransactionRecord()
-	: m_simpleBuddy(ms_buddyBaseLevel)
+CDiskBlock::CDiskBlock()
 {
 }
 
-CDiskBlock( CTransactionRecord const & _transactionRecord )
+CDiskBlock::CDiskBlock( CSimpleBuddy const & _simpleBuddy )
+	:CSimpleBuddy( _simpleBuddy )
 {
-	m_transactionRecord = _transactionRecord;
 	/*  initialise  those  somehow
 	m_empty;
 	m_blockPosition;
@@ -36,7 +37,7 @@ CDiskBlock( CTransactionRecord const & _transactionRecord )
 }
 
 CSegmentHeader::CSegmentHeader()
-	: m_nextHeader(0);
+	: m_nextHeader(0)
 {
 }
 
@@ -90,32 +91,34 @@ CSegmentHeader::getIndexForBucket( unsigned int _bucket ) const
 }
 
 inline
+bool
+CSegmentHeader::givenRecordUsed(unsigned int _index ) const
+{
+	return m_records[_index].m_blockNumber;
+}
+
+unsigned int
+CSegmentHeader::getUsedRecordNumber() const
+{
+	unsigned int usageCnt = 0;
+	for ( unsigned i = 0; i < m_recordsNumber; ++i )
+	{
+		if ( givenRecordUsed(i) )
+			usageCnt++;
+	}
+	return usageCnt;
+}
+
+inline
 void
 CSegmentHeader::setNextHeaderFlag()
 {
 	m_nextHeader = 1;
 }
 
-inline
-bool
-CSegmentHeader::givenRecordUsed(unsigned int _index )
-{
-	return m_records[_index].m_blockNumber;
-}
 
-unsigned int getUsedRecordNumber() const
-{
-	unsigned int usageCnt = 0;
-	for ( unsigned i = 0; i < CSegmentHeader::getRecordNumber(); ++i )
-	{
-		if ( givenRecordUsed(i) )
-			usageCnt++
-	}
-	return usageCnt;
-}
-
-CRecord
-CSegmentHeader::getRecord(unsigned int _index ) const
+CRecord &
+CSegmentHeader::getRecord(unsigned int _index )
 {
 	return m_records[ _index ];
 }
@@ -153,13 +156,13 @@ CSegmentFileStorage::createNewHeader()
 CDiskBlock 
 CSegmentFileStorage::getBlock( unsigned int _index )
 {
-	return getBlockFromFile( _index, ms_segmentFileName );
+	return loadSegmentFromFile< CDiskBlock >( _index, ms_segmentFileName );
 }
 
 CSegmentHeader 
 CSegmentFileStorage::getSegmentHeader( unsigned int _index )
 {
-	return getBlockFromFile( _index, ms_headerFileName );
+	return loadSegmentFromFile< CSegmentHeader >( _index, ms_headerFileName );
 }
 
 void
@@ -173,7 +176,6 @@ CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
 {
 	saveSegmentToFile( _index, ms_segmentFileName, _block );
 }
-}
 
 
 unsigned int
@@ -186,7 +188,7 @@ CSegmentFileStorage::createRecordForBlock( unsigned int _bucket )
 		int index = iterator->getIndexForBucket( _bucket );
 		if ( -1 != index )
 		{
-			iterator->setNewRecord( _bucked, CRecord(m_lastSegmentIndex,1));
+			iterator->setNewRecord( _bucket, CRecord(m_lastSegmentIndex,1));
 		}
 	}
 }
@@ -206,9 +208,9 @@ CSegmentFileStorage::flushLoop()
 
 			CacheIterators iterator = m_discCache.begin();
 
-			while( iterator != iterator.end() )
+			while( iterator != m_discCache.end() )
 			{
-				if ( !m_recentlyStored.find( CStore( iterator->first, 0 ) );
+				if ( m_recentlyStored.find( CStore( iterator->first, 0 ) ) != m_recentlyStored.end() )
 				{
 					storeCandidate = iterator->first;
 					break;
@@ -216,23 +218,23 @@ CSegmentFileStorage::flushLoop()
 				iterator++;
 			}
 
-			ToInclude = m_discCache.equal_range(storeCandidate);
+			ToInclude toInclude = m_discCache.equal_range(storeCandidate);
 
 			int64_t newStoretime = GetTime();
 
-			for ( CacheIterators iterator=ToInclude.first; iterator!=ToInclude.second; ++iterator )
+			for ( CacheIterators iterator=toInclude.first; iterator!= toInclude.second; ++iterator )
 			{
 
-				if ( iterator->m_blockPosition )
+				if ( iterator->second.m_blockPosition )
 				{
-					setBlock( m_lastSegmentIndex, *iterator );
+					saveBlock( m_lastSegmentIndex, iterator->second );
 				}
 				else
 				{
 					m_lastSegmentIndex++;
 
 					createRecordForBlock( storeCandidate );
-					setBlock( m_lastSegmentIndex, *iterator );
+					saveBlock( m_lastSegmentIndex, iterator->second );
 				}
 				m_recentlyStored.insert( CStore(newStoretime,storeCandidate) );
 			}
@@ -276,21 +278,21 @@ CSegmentFileStorage::loop()
 
 				ToInclude toInclude;
 
-				toInclude = m_discCache.equal_range(bucked);
+				toInclude = m_discCache.equal_range(bucket);
 
 				int index = -1;
 				if ( toInclude.first != m_discCache.end() )
 				{
 					for ( CacheIterators cacheIterator=toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
 					{
-						index = cacheIterator->buddyAlloc( reqLevel );
+						index = cacheIterator->second.buddyAlloc( reqLevel );
 						if ( index == -1 )
 							continue;
 						else
 						{
 							CBufferAsStream stream(
-								 cacheIterator->translateToAddress( index )
-								, cacheIterator->getBuddySize( reqLevel )
+								 (char *)cacheIterator->second.translateToAddress( index )
+								, cacheIterator->second.getBuddySize( reqLevel )
 								, SER_DISK
 								, CLIENT_VERSION);
 
@@ -306,7 +308,7 @@ CSegmentFileStorage::loop()
 					CDiskBlock discBlock;
 					
 					CBufferAsStream stream(
-						  discBlock.translateToAddress( index )
+						  (char *)discBlock.translateToAddress( index )
 						, discBlock.getBuddySize( reqLevel )
 						, SER_DISK
 						, CLIENT_VERSION);
@@ -324,9 +326,11 @@ CSegmentFileStorage::loop()
 void
 CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 {
+	boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
+
 	fillHeaderBuffor();
 
-	std::vector< CSegmentHeader > iterator = m_headersCache.begin();
+	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
 
 	for ( int i = 0; i < calculateStoredBlockNumber(); i++)
 	{
@@ -334,7 +338,7 @@ CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 
 		discBlock = getBlock( i );
 		
-		int level = ms_buddyBaseLevel;
+		int level = CSimpleBuddy::ms_buddyBaseLevel;
 
 		while(level)
 		{
@@ -346,8 +350,8 @@ CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 			{
 
 				CBufferAsStream stream(
-					  discBlock->translateToAddress( index )
-					, discBlock->getBuddySize( level )
+					  (char *)discBlock.translateToAddress( index )
+					, discBlock.getBuddySize( level )
 					, SER_DISK
 					, CLIENT_VERSION);
 
@@ -372,54 +376,27 @@ CSegmentFileStorage::eraseTransaction( CTransaction const & _transaction )
 void
 CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
 {
-	if ( _coins.nHeight != 0 )
+	int index = -1;
+
+	ToInclude toInclude = m_discCache.equal_range(_coins.m_bucket);
+
+	unsigned short recordId = _coins.nHeight % CSegmentHeader::m_recordsNumber;
+
+	unsigned short cacheId = (_coins.nHeight >> 16)/CSegmentHeader::m_recordsNumber;
+
+	if ( toInclude.first != m_discCache.end() )
 	{
-		CSegmentHeader header = getBlock<CSegmentHeader>( 0 );
-
-		unsigned int recordNumberInHeader = CSegmentHeader::getRecordSetNumber();
-
-		unsigned short recordNumber = _coins.nHeight >> 16;
-
-		CRecord record = findGivenHeader( recordNumber/recordNumberInHeader ).getRecord(recordNumberInHeader*recordNumber%recordNumberInHeader + _coins.m_bucket );
-
-		CTransactionRecord blockRecord = getBlock<CTransactionRecord>( record.m_blockNumber );
-
-		blockRecord.buddyFree(_coins.nHeight & 0xff);
-
-		m_discCache.insert( _coins.m_bucket, blockRecord);
-	}
-	else
-	{
-		ToInclude toInclude;
-
-		toInclude = m_discCache.equal_range(bucked);
-
-		int index = -1;
-		if ( toInclude.first != m_discCache.end() )
+		for ( CacheIterators cacheIterator = toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
 		{
-			for ( CacheIterators cacheIterator=toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
-			{
-				/*
-				find  using  
-				
-				*/
+			cacheId--;
 
-				index = cacheIterator->buddyAlloc( reqLevel );
-			}
+			if ( cacheId == 0 )
+				cacheIterator->second.buddyFree(_coins.nHeight & 0xff);
+			//set  time
 		}
-
 	}
 }
 
-CSegmentHeader 
-CSegmentFileStorage::findGivenHeader( unsigned int _index )
-{
-	std::vector< unsigned int >
-	m_headersPositions.size() > _headerIndex
-
-	return m_headersPositions
-
-}
 
 unsigned int
 CSegmentFileStorage::calculateBucket( uint256 const & _coinsHash ) const
@@ -440,7 +417,7 @@ CSegmentFileStorage::fillHeaderBuffor()
 
 	if ( m_headersCache.size() > 0 )
 	{
-		header = &m_headersCache.back();
+		header = m_headersCache.back();
 	}
 	else
 	{
@@ -449,7 +426,7 @@ CSegmentFileStorage::fillHeaderBuffor()
 
 	while(header.isNextHeader())
 	{
-		header = getBlock<CSegmentHeader>( m_headersCache.size() );
+		header = getSegmentHeader( m_headersCache.size() );
 	}
 }
 
