@@ -19,7 +19,7 @@ separate headers  and  blocks?
 
 #include "uglyTestHelper.h"
 
-#include "version.h"
+#include "accessFile.h"
 
 class CTransaction;
 
@@ -50,14 +50,16 @@ struct CRecord
 };
 
 
-class CDiskBlock : public CSimpleBuddy
+struct CDiskBlock : public CSimpleBuddy
 {
 public:
-	CDiskBlock();
-	CDiskBlock( CSimpleBuddy const & _simpleBuddy );
+	CDiskBlock( CSimpleBuddy const & _simpleBuddy = CSimpleBuddy() );
 public:
 	unsigned int m_blockPosition;
 	int64_t m_lastStoredTime;
+	unsigned int m_id;
+private:
+	static std::map< unsigned int, unsigned int > m_currentLastBlockIds;
 };
 
 class CSegmentHeader
@@ -103,6 +105,7 @@ private:
 	CRecord m_records[ m_recordsNumber ];
 
 	uint256 m_headerHash;
+
 };
 
 class CSegmentFileStorage
@@ -180,38 +183,8 @@ private:
 
 	static size_t m_lastSegmentIndex;
 
-/*
-	FILE* m_headerFile;
-
-	FILE* m_blockFile;
-*/
+	CAccessFile m_accessFile;
 	};
-
-template< class T >
-bool
-loadSegmentFromFile( unsigned int _index, std::string const & _fileName, T & _t )
-{
-	if (!FileExist(_fileName.c_str()))
-		return false;
-
-	FILE* file = OpenDiskFile(ugly::CDiskBlockPos( 0,sizeof( T )* _index ), _fileName.c_str(), true);
-
-	unsigned int bufferedSize = 1 << KiloByteShift * 4;
-	CBufferedFile blkdat(file, bufferedSize, bufferedSize, SER_DISK, CLIENT_VERSION);
-
-	blkdat >> _t;
-
-	return true;
-}
-
-template< class T >
-void
-saveSegmentToFile( unsigned int _index, std::string const & _fileName, T const & _block )
-{
-	FILE* file = OpenDiskFile(ugly::CDiskBlockPos( 0,sizeof( T )*_index ), _fileName.c_str(), true);
-	CAutoFile autoFile(file, SER_DISK, CLIENT_VERSION);
-	autoFile << _block;
-}
 
 }
 

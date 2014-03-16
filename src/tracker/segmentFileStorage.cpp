@@ -21,19 +21,19 @@ CSegmentFileStorage::ms_segmentFileName = "segments";
 const std::string
 CSegmentFileStorage::ms_headerFileName = "serheaders";
 
+std::map< unsigned int, unsigned int > CDiskBlock::m_currentLastBlockIds;
+
 #define assert(a) ;
 
-CDiskBlock::CDiskBlock()
-{
-}
+
 
 CDiskBlock::CDiskBlock( CSimpleBuddy const & _simpleBuddy )
 	:CSimpleBuddy( _simpleBuddy )
 {
-	/*  initialise  those  somehow
-	m_empty;
-	m_blockPosition;
-	m_nextSameBucketBlock;*/
+	for (unsigned int i = 0;i < MAX_BUCKET;i++)
+	{
+		m_currentLastBlockIds.insert( std::make_pair( i, 0 ) );
+	}
 }
 
 CSegmentHeader::CSegmentHeader()
@@ -86,7 +86,6 @@ CSegmentHeader::getIndexForBucket( unsigned int _bucket ) const
 		if ( record.m_blockNumber )
 			return record.m_blockNumber;
 	}
-
 	return -1;
 }
 
@@ -157,25 +156,25 @@ CSegmentFileStorage::createNewHeader()
 bool
 CSegmentFileStorage::getBlock( unsigned int _index, CDiskBlock & _discBlock )
 {
-	return loadSegmentFromFile< CDiskBlock >( _index, ms_segmentFileName, _discBlock );
+	return m_accessFile.loadSegmentFromFile< CDiskBlock >( _index, ms_segmentFileName, _discBlock );
 }
 
 bool
 CSegmentFileStorage::getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader )
 {
-	return loadSegmentFromFile< CSegmentHeader >( _index, ms_headerFileName, _segmentHeader );
+	return m_accessFile.loadSegmentFromFile< CSegmentHeader >( _index, ms_headerFileName, _segmentHeader );
 }
 
 void
 CSegmentFileStorage::saveBlock( unsigned int _index, CSegmentHeader const & _header )
 {
-	saveSegmentToFile( _index, ms_headerFileName, _header );
+	m_accessFile.saveSegmentToFile( _index, ms_headerFileName, _header );
 }
 
 void
 CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
 {
-	saveSegmentToFile( _index, ms_segmentFileName, _block );
+	m_accessFile.saveSegmentToFile( _index, ms_segmentFileName, _block );
 }
 
 
@@ -240,7 +239,7 @@ CSegmentFileStorage::flushLoop()
 				m_recentlyStored.insert( CStore(newStoretime,storeCandidate) );
 			}
 
-			//flush
+			m_accessFile.flush(ms_segmentFileName);
 		}
 		{
 			boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
@@ -253,7 +252,7 @@ CSegmentFileStorage::flushLoop()
 			}
 
 		}
-		//flush
+		m_accessFile.flush(ms_headerFileName);
 
 //rebuild merkle and store it, in database
 		boost::this_thread::interruption_point();

@@ -1,15 +1,15 @@
 #include "accessFile.h"
 
+namespace self
+{
+
 class CDiskBlock;
 
 class CSegmentHeader;
 
-namespace self
-{
-
 template<> unsigned int const CSerializedTypes<CDiskBlock>::m_key = 1;
 
-template<> unsigned int const CSerializedTypes<CSegmentHeader>::m_key = 1;
+template<> unsigned int const CSerializedTypes<CSegmentHeader>::m_key = 2;
 
 std::string const
 CAccessFile::m_baseDirectory = ".\\network\\";
