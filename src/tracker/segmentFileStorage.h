@@ -36,9 +36,6 @@ namespace self
 
 typedef unsigned int CounterType;
 
-//::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
-// nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
-//tx.GetSerializeSize(SER_NETWORK, CTransaction::CURRENT_VERSION);
 struct CRecord
 {
 	CRecord( unsigned int _blockNumber = 0,unsigned char _isEmptySpace = 0 ):m_blockNumber(_blockNumber),m_isEmptySpace(_isEmptySpace){}
