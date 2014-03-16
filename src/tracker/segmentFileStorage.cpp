@@ -153,16 +153,16 @@ CSegmentFileStorage::createNewHeader()
 	return m_headersCache.back();
 }
 
-CDiskBlock 
-CSegmentFileStorage::getBlock( unsigned int _index )
+bool
+CSegmentFileStorage::getBlock( unsigned int _index, CDiskBlock & _discBlock )
 {
-	return loadSegmentFromFile< CDiskBlock >( _index, ms_segmentFileName );
+	return loadSegmentFromFile< CDiskBlock >( _index, ms_segmentFileName, _discBlock );
 }
 
-CSegmentHeader 
-CSegmentFileStorage::getSegmentHeader( unsigned int _index )
+bool
+CSegmentFileStorage::getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader )
 {
-	return loadSegmentFromFile< CSegmentHeader >( _index, ms_headerFileName );
+	return loadSegmentFromFile< CSegmentHeader >( _index, ms_headerFileName, _segmentHeader );
 }
 
 void
@@ -336,7 +336,7 @@ CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 	{
 		CDiskBlock discBlock;
 
-		discBlock = getBlock( i );
+		getBlock( i, discBlock );
 		
 		int level = CSimpleBuddy::ms_buddyBaseLevel;
 
@@ -410,7 +410,7 @@ CSegmentFileStorage::getNextFreeBlock()
 	return 0;
 }
 
-CSegmentHeader
+void
 CSegmentFileStorage::fillHeaderBuffor()
 {
 	CSegmentHeader header;
@@ -421,12 +421,13 @@ CSegmentFileStorage::fillHeaderBuffor()
 	}
 	else
 	{
-		header = getSegmentHeader( 0 );
+		getSegmentHeader( 0, header );
 	}
 
 	while(header.isNextHeader())
 	{
-		header = getSegmentHeader( m_headersCache.size() );
+		getSegmentHeader( m_headersCache.size(), header );
+		m_headersCache.push_back(header);
 	}
 }
 

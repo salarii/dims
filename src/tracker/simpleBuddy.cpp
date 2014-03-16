@@ -41,16 +41,13 @@ inline
 int
 CSimpleBuddy::indexOffset(int _index, int _level) const
 {
-	return ((_index + 1) - (1 << _level)) << (m_level - _level);
+	return ((_index + 1) - (1 << _level)) << (ms_buddyBaseLevel - _level);
 }
 
 
 CSimpleBuddy::CSimpleBuddy()
 {
-//	int size = 1 << level;
-//	struct buddy * self = malloc(sizeof(struct buddy) + sizeof(uint8_t) * (size * 2 - 2));
-//	m_level = level;
-//	memset(m_tree , NODE_UNUSED , size*2-1);
+	memset(m_tree , NODE_UNUSED , 1 << ms_buddyBaseLevel << 1);
 
 }
 
@@ -82,7 +79,7 @@ CSimpleBuddy::buddyAlloc( int _requested )
 	else
 		size = (int)nextPowOfTwo(_requested);
 
-	int length = 1 << m_level;
+	int length = 1 << ms_buddyBaseLevel;
 
 	if (size > length)
 		return -1;
@@ -167,9 +164,9 @@ CSimpleBuddy::combine( int _index)
 void
 CSimpleBuddy::buddyFree(int offset)
 {
-	assert( offset < (1<< m_level));
+	assert( offset < (1<< ms_buddyBaseLevel));
 	int left = 0;
-	int length = 1 << m_level;
+	int length = 1 << ms_buddyBaseLevel;
 	int index = 0;
 
 	while(1)
@@ -238,9 +235,9 @@ CSimpleBuddy::translateToAddress( unsigned int _index )
 int
 CSimpleBuddy::buddySize(int offset) const
 {
-	assert( offset < (1<< m_level));
+	assert( offset < (1<< ms_buddyBaseLevel));
 	int left = 0;
-	int length = 1 << m_level;
+	int length = 1 << ms_buddyBaseLevel;
 	int index = 0;
 
 	while(1)

@@ -17,6 +17,10 @@ separate headers  and  blocks?
 
 #include "simpleBuddy.h"
 
+#include "uglyTestHelper.h"
+
+#include "version.h"
+
 class CTransaction;
 
 class CCoinsViewCache;
@@ -139,15 +143,15 @@ private:
 
 	void * getNextFreeBlock();
 
-	CDiskBlock getBlock( unsigned int _index );
+	bool getBlock( unsigned int _index, CDiskBlock & _diskBlock );
 
-	CSegmentHeader getSegmentHeader( unsigned int _index );
+	bool getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader );
 
 	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
 
 	void saveBlock( unsigned int _index, CDiskBlock const & _block );
 
-	CSegmentHeader fillHeaderBuffor();
+	void fillHeaderBuffor();
 
 	unsigned int calculateBlockIndex( void * _block );
 
@@ -187,27 +191,29 @@ private:
 	};
 
 template< class T >
-T 
-loadSegmentFromFile( unsigned int _index, std::string const & _fileName )
+bool
+loadSegmentFromFile( unsigned int _index, std::string const & _fileName, T & _t )
 {
-/*	FILE* file = OpenDiskFile(CDiskBlockPos( 0,sizeof( T )* _index ), _fileName.c_str(), true);
+	if (!FileExist(_fileName.c_str()))
+		return false;
+
+	FILE* file = OpenDiskFile(ugly::CDiskBlockPos( 0,sizeof( T )* _index ), _fileName.c_str(), true);
 
 	unsigned int bufferedSize = 1 << KiloByteShift * 4;
 	CBufferedFile blkdat(file, bufferedSize, bufferedSize, SER_DISK, CLIENT_VERSION);
-*/
-	T block;
-//	blkdat >> block;
 
-	return block;
+	blkdat >> _t;
+
+	return true;
 }
 
 template< class T >
 void
 saveSegmentToFile( unsigned int _index, std::string const & _fileName, T const & _block )
 {
-	//FILE* file = OpenDiskFile(CDiskBlockPos( 0,sizeof( T )*_index ), _fileName.c_str(), true);
-
-	//file << _block;
+	FILE* file = OpenDiskFile(ugly::CDiskBlockPos( 0,sizeof( T )*_index ), _fileName.c_str(), true);
+	CAutoFile autoFile(file, SER_DISK, CLIENT_VERSION);
+	autoFile << _block;
 }
 
 }

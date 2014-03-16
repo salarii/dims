@@ -60,11 +60,9 @@ private:
 private:
 	char m_full;
 
-	static const int m_level = 6;
+	unsigned char m_tree[1 << ms_buddyBaseLevel << 1 ];
 
-	unsigned char m_tree[m_level];
-
-	unsigned char m_area[m_level];
+	unsigned char m_area[ms_buddySize ];
 };
 
 }
