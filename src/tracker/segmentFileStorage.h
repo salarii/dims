@@ -32,7 +32,7 @@ namespace self
 
 #define BLOCK_SIZE ( 1 << 12 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
-#define MAX_BUCKET ( 0xff -1 )
+#define MAX_BUCKET ( 0xf )
 
 typedef unsigned int CounterType;
 
@@ -170,7 +170,7 @@ private:
 
 	static const std::string ms_headerFileName;
 
-	mutable boost::mutex m_lock;
+	mutable boost::mutex m_storeTransLock;
 
 	std::list< CTransaction > m_transactionsToStore;
 

@@ -25,7 +25,7 @@ struct CSimpleBuddy
 public:
 	CSimpleBuddy();
 
-	int buddyAlloc( int _requested );
+	int buddyAlloc( int _requestedLevel );
 
 	void buddyFree(int offset);
 
@@ -49,7 +49,7 @@ public:
 public:
 	static unsigned int const ms_buddyBaseLevel = 16;
 
-	static unsigned int const ms_buddySize = 1 << ( KiloByteShift* 512); // in bytes
+	static unsigned int const ms_buddySize = ( 1 << KiloByteShift)* 256; // in bytes
 private:
 
 	void markParent(int _index);

@@ -71,25 +71,14 @@ CSimpleBuddy::markParent(int _index)
 }
 
 int
-CSimpleBuddy::buddyAlloc( int _requested )
+CSimpleBuddy::buddyAlloc( int _requestedLevel )
 {
-	int size;
-	if (_requested==0)
-		size = 1;
-	else
-		size = (int)nextPowOfTwo(_requested);
-
-	int length = 1 << ms_buddyBaseLevel;
-
-	if (size > length)
-		return -1;
-
 	int index = 0;
 	int level = 0;
 
 	while (index >= 0)
 	{
-		if (size == length)
+		if (level == _requestedLevel)
 		{
 			if (m_tree[index] == NODE_UNUSED)
 			{
@@ -111,7 +100,6 @@ CSimpleBuddy::buddyAlloc( int _requested )
 					m_tree[index*2+2] = NODE_UNUSED;
 				default:
 					index = index * 2 + 1;
-					length /= 2;
 					level++;
 				continue;
 			}
@@ -124,7 +112,6 @@ CSimpleBuddy::buddyAlloc( int _requested )
 		while(1)
 		{
 			level--;
-			length *= 2;
 			index = (index+1)/2 -1;
 
 			if (index < 0)
@@ -203,10 +190,10 @@ CSimpleBuddy::getBuddyLevel( size_t const _transactionSize )
 
 	unsigned int level = ms_buddyBaseLevel;
 
-	while( baseUnit < _transactionSize && level )
+	while( ( baseUnit < _transactionSize ) && level )
 	{
 		level--;
-		baseUnit <<=2;
+		baseUnit <<=1;
 	}
 
 	if ( baseUnit < _transactionSize )
@@ -222,14 +209,14 @@ CSimpleBuddy::getBuddySize( unsigned int  _level )
 {
 	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
 
-	return baseUnit << _level;
+	return baseUnit << ( ms_buddyBaseLevel - _level );
 }
 
 void * 
 CSimpleBuddy::translateToAddress( unsigned int _index )
 {
 	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
-	return (void *)&m_area[ _index ];
+	return (void *)&m_area[ _index * baseUnit ];
 }
 
 int

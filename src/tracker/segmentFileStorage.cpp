@@ -124,21 +124,22 @@ CSegmentHeader::getRecord(unsigned int _index )
 }
 
 CSegmentFileStorage::CSegmentFileStorage()
-: m_recentlyStored(4)
+: m_recentlyStored(MAX_BUCKET)
 {
+	fillHeaderBuffor();
 }
 
 void
 CSegmentFileStorage::includeTransaction( CTransaction const & _transaction )
 {
-	boost::lock_guard<boost::mutex> lock(m_lock);
+	boost::lock_guard<boost::mutex> lock(m_storeTransLock);
 	m_transactionsToStore.push_back( _transaction );
 }
 
 void
 CSegmentFileStorage::includeTransactions( std::list< CTransaction > const & _transaction )
 {
-	boost::lock_guard<boost::mutex> lock(m_lock);
+	boost::lock_guard<boost::mutex> lock(m_storeTransLock);
 	m_transactionsToStore.insert (m_transactionsToStore.end(),_transaction.begin(),_transaction.end());
 }
 
@@ -199,7 +200,7 @@ CSegmentFileStorage::flushLoop()
 	while(1)
 	{
 		{
-			boost::lock_guard<boost::mutex> lock(m_lock);
+			boost::lock_guard<boost::mutex> lock(m_cachelock);
 
 			// do something  like  this ???? go over all, save full, and drop
 			// do time checking improve  this  by adding logic
@@ -264,12 +265,10 @@ CSegmentFileStorage::flushLoop()
 void
 CSegmentFileStorage::loop()
 {
-	fillHeaderBuffor();
-
 	while(1)
 	{
 		{
-			boost::lock_guard<boost::mutex> lock(m_lock);
+			boost::lock_guard<boost::mutex> lock(m_storeTransLock);
 
 			BOOST_FOREACH( CTransaction transaction, m_transactionsToStore )
 			{
@@ -307,6 +306,8 @@ CSegmentFileStorage::loop()
 				{
 					CDiskBlock discBlock;
 					
+					index = discBlock.buddyAlloc( reqLevel );
+
 					CBufferAsStream stream(
 						  (char *)discBlock.translateToAddress( index )
 						, discBlock.getBuddySize( reqLevel )
