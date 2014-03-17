@@ -1436,6 +1436,13 @@ public:
 		return (*this);
 	}
 
+
+	template<typename T>
+	CBufferAsStream& operator<<(T& obj) {
+		// Serialize to this stream
+		::Serialize(*this, obj, nType, nVersion);
+		return (*this);
+	}
 	// search for a given byte in the stream, and remain positioned on it
 	void FindByte(char ch) {
 		while (true) {

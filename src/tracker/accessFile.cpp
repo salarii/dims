@@ -54,7 +54,6 @@ CAccessFile::flush( std::string const & _fileName )
 {
 	std::map< std::string, FILE* >::iterator iterator = m_accessed.find( _fileName );
 
-	FILE * fileStream;
 
 	if ( iterator == m_accessed.end() )
 		return;

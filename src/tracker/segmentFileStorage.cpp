@@ -203,14 +203,15 @@ CSegmentFileStorage::flushLoop()
 
 			// do something  like  this ???? go over all, save full, and drop
 			// do time checking improve  this  by adding logic
-
-			unsigned int storeCandidate = m_recentlyStored.begin()->m_bucked;
+			unsigned int storeCandidate = -1;
+			if ( !m_recentlyStored.empty() )
+				storeCandidate = m_recentlyStored.begin()->m_bucked;
 
 			CacheIterators iterator = m_discCache.begin();
 
 			while( iterator != m_discCache.end() )
 			{
-				if ( m_recentlyStored.find( CStore( iterator->first, 0 ) ) != m_recentlyStored.end() )
+				if ( m_recentlyStored.find( CStore( iterator->first, 0 ) ) == m_recentlyStored.end() )
 				{
 					storeCandidate = iterator->first;
 					break;
@@ -218,28 +219,34 @@ CSegmentFileStorage::flushLoop()
 				iterator++;
 			}
 
-			ToInclude toInclude = m_discCache.equal_range(storeCandidate);
-
-			int64_t newStoretime = GetTime();
-
-			for ( CacheIterators iterator=toInclude.first; iterator!= toInclude.second; ++iterator )
+			if (storeCandidate != -1)
 			{
+				ToInclude toInclude = m_discCache.equal_range(storeCandidate);
 
-				if ( iterator->second.m_blockPosition )
-				{
-					saveBlock( m_lastSegmentIndex, iterator->second );
-				}
-				else
-				{
-					m_lastSegmentIndex++;
+				int64_t newStoretime = GetTime();
 
-					createRecordForBlock( storeCandidate );
-					saveBlock( m_lastSegmentIndex, iterator->second );
+				for ( CacheIterators iterator=toInclude.first; iterator!= toInclude.second; ++iterator )
+				{
+					// buggy, maybe use -1 ??
+					if ( iterator->second->m_blockPosition )
+					{
+						saveBlock( m_lastSegmentIndex, *iterator->second );
+					}
+					else
+					{
+						m_lastSegmentIndex++;
+
+						createRecordForBlock( storeCandidate );
+						saveBlock( m_lastSegmentIndex, *iterator->second );
+						// update block  field
+
+					}
+
+					m_recentlyStored.insert( CStore(newStoretime,storeCandidate) );
 				}
-				m_recentlyStored.insert( CStore(newStoretime,storeCandidate) );
+
+				m_accessFile.flush(ms_segmentFileName);
 			}
-
-			m_accessFile.flush(ms_segmentFileName);
 		}
 		{
 			boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
@@ -256,7 +263,7 @@ CSegmentFileStorage::flushLoop()
 
 //rebuild merkle and store it, in database
 		boost::this_thread::interruption_point();
-		MilliSleep(1000*60*3);
+//		MilliSleep(1000*60*3);
 
 	}
 }
@@ -269,6 +276,7 @@ CSegmentFileStorage::loop()
 		{
 			boost::lock_guard<boost::mutex> lock(m_storeTransLock);
 
+			boost::lock_guard<boost::mutex> lockCache(m_cachelock);
 			BOOST_FOREACH( CTransaction transaction, m_transactionsToStore )
 			{
 				unsigned int bucket = calculateBucket( transaction.GetHash() );
@@ -283,14 +291,14 @@ CSegmentFileStorage::loop()
 				{
 					for ( CacheIterators cacheIterator=toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
 					{
-						index = cacheIterator->second.buddyAlloc( reqLevel );
+						index = cacheIterator->second->buddyAlloc( reqLevel );
 						if ( index == -1 )
 							continue;
 						else
 						{
 							CBufferAsStream stream(
-								 (char *)cacheIterator->second.translateToAddress( index )
-								, cacheIterator->second.getBuddySize( reqLevel )
+								 (char *)cacheIterator->second->translateToAddress( index )
+								, cacheIterator->second->getBuddySize( reqLevel )
 								, SER_DISK
 								, CLIENT_VERSION);
 
@@ -303,17 +311,18 @@ CSegmentFileStorage::loop()
 
 				if ( index == -1 )
 				{
-					CDiskBlock discBlock;
+					CDiskBlock * discBlock = new CDiskBlock;
 					
-					index = discBlock.buddyAlloc( reqLevel );
+					index = discBlock->buddyAlloc( reqLevel );
 
 					CBufferAsStream stream(
-						  (char *)discBlock.translateToAddress( index )
-						, discBlock.getBuddySize( reqLevel )
+						  (char *)discBlock->translateToAddress( index )
+						, discBlock->getBuddySize( reqLevel )
 						, SER_DISK
 						, CLIENT_VERSION);
 
 					stream << transaction;
+
 
 					m_discCache.insert( std::make_pair ( bucket,discBlock) );
 				}
@@ -391,7 +400,7 @@ CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
 			cacheId--;
 
 			if ( cacheId == 0 )
-				cacheIterator->second.buddyFree(_coins.nHeight & 0xff);
+				cacheIterator->second->buddyFree(_coins.nHeight & 0xff);
 			//set  time
 		}
 	}

@@ -162,7 +162,7 @@ private:
 	mutable boost::mutex m_headerCacheLock;
 	std::vector< CSegmentHeader > m_headersCache;
 
-	typedef std::multimap< unsigned int,CDiskBlock >::iterator CacheIterators;
+	typedef std::multimap< unsigned int,CDiskBlock* >::iterator CacheIterators;
 
 	typedef std::pair< CacheIterators, CacheIterators > ToInclude;
 private:
@@ -175,7 +175,7 @@ private:
 	std::list< CTransaction > m_transactionsToStore;
 
 	mutable boost::mutex m_cachelock;
-	std::multimap< unsigned int,CDiskBlock > m_discCache;
+	std::multimap< unsigned int,CDiskBlock* > m_discCache;
 
 	static size_t const m_segmentSize = 1 << KiloByteShift * 512;
 
