@@ -61,15 +61,25 @@ CTransactionRecordManager::checkIfCoinsAvailable( CTransaction const & _tx ) con
 	m_coinsViewCache->HaveInputs(_tx);
 }
 
-
-void CTransactionRecordManager::validateTransaction( CTransaction const & _tx )
+bool
+CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction > const & _transaction )
 {
+	CValidationState state;
+	unsigned int flags = SCRIPT_VERIFY_NOCACHE | SCRIPT_VERIFY_NONE;
 
+	CCheckQueueControl<CScriptCheck> control( &scriptcheckqueue);
+
+	BOOST_FOREACH( CTransaction & transaction, _transaction )
+	{
+			std::vector<CScriptCheck> vChecks;
+		if ( !CheckInputs(transaction, state, m_coinsViewCache, true, flags, &vChecks ) )
+			return false;
+
+		control.Add(vChecks);
+	}
+	return control.Wait();
 }
 
-void
-CTransactionRecordManager::handleTransactionBundle( std::vector< CTransaction > const & _transaction )
-{
 }
 
 void
@@ -77,25 +87,16 @@ CTransactionRecordManager::loop( std::vector< CTransaction > const & _transactio
 {
 	while(1)
 	{
-		// bundle  from  validation  queue pass to  validator
 
-		// check  for  job  done by  validator  periodically
+		//update  pool  and view  with valid transaction
+		// send  those to storage
 
-		//update  pool  and view  with  transaction  which  are  considered as valid
-
-
-
-
-	    boost::this_thread::interruption_point();
+		boost::this_thread::interruption_point();
 	}
 
 }
 
 void
-// Copyright (c) 2014 Ratcoin dev-team
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
 CTransactionRecordManager::synchronize()
 {
 }

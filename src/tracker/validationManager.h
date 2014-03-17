@@ -7,11 +7,12 @@
 
 namespace self
 {
-struct TransactionStatus
+struct TransactionsStatus
 {
 	enum Enum
 	{
 		 Invalid = 0
+		, Valdated
 		, Unconfirmed
 		, Ack
 		// , DoubleSpend
@@ -31,7 +32,7 @@ public:
 private:
 	void workLoop();
 
-	void  passTransactionBundleToNetwork( std::vector< CTransaction > _transactionBundle , TransactionStatus::Enum _status );
+//	void  passTransactionBundleToNetwork( std::vector< CTransaction > _transactionBundle , TransactionStatus::Enum _status );
 
 	void addBundleToSendQueue( std::vector< CTransaction > _bundle );
 
@@ -42,8 +43,12 @@ private:
 
 	boost::mutex processedMutex;
 
-	std::list< std::pair< TransactionStatus::Enum, std::vector< CTransaction > > > m_bundlePipe;
+	//std::list< std::pair< TransactionStatus::Enum, std::vector< CTransaction > > > m_bundlePipe;
 
+	boost::mutex validateTransLock;
+	std::map< uint256, std::vector< CTransaction > > m_relayedTransactions;
+
+	std::set< uint256 > m_validated;
 /*
 pyramid
 	char dirtyTable

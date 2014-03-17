@@ -1,9 +1,14 @@
 #include "server.h"
 
+#include "serialize.h"
+
+#include "nodeMessage.h"
+
 using namespace std;
 
 namespace self
 {
+
 class server_error : public std::runtime_error
 {
 public:
@@ -50,10 +55,65 @@ CTcpServerConnection::run()
 			{
 				cout << "Receiving nBytes: " << nBytes << endl << flush;
 			}
+			/* handle  incomming  connections */
+			
+			/* answare  to  incomming  connections */
 		}
 	}
 	cout << "Connection finished!" << endl << flush;
 }
+
+bool
+CTcpServerConnection::handleIncommingBuffor( unsigned char* _buffor, unsigned int _size )
+{
+// header match
+	MessageStartChars const & messageStart = m_networkParams->MessageStart();
+
+	CBufferAsStream stream(
+	 (char*)_buffor
+	, _size
+	, SER_DISK
+	, CLIENT_VERSION);
+
+	unsigned char signatureByte;
+	for ( int i = 0 ; i < sizeof( MessageStartChars ); i++ )
+	{
+		stream >> signatureByte;
+
+		if ( signatureByte != messageStart[ i ] )
+			return false;
+	}
+
+	while( !stream.eof() )
+	{
+		int messageType;
+
+		stream >> messageType;
+
+		switch( (CClientMessageType::Enum)messageType )
+		{
+			case CClientMessageType::Transaction:
+
+				CTransactionMessage transactionMessage;
+				stream >> transactionMessage.m_transaction;
+
+				break;
+			case CClientMessageType::TrackerInfoReq:
+				break;
+			case CClientMessageType::MonitorInfoReq:
+				break;
+			case CClientMessageType::TransactionInfoReq:
+				break;
+			default:
+				return false;
+		}
+	}
+
+}
+CTransactionMessage
+CTrackerInfoReq
+CMonitorInfoReq
+CTransactionInfoReq
 /*
 int sendBytes(
 const void * buffer,

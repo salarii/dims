@@ -30,13 +30,9 @@ public:
 	void addCoinbaseTransaction( CTransaction const & _tx );
 
 	bool checkIfCoinsAvailable( CTransaction const & _tx ) const;
-
-	void validateTransaction( CTransaction const & _tx );
 	//time  stamp or  something needed
 	//
-	//create  transaction view
-
-	void handleTransactionBundle( std::vector< CTransaction > const & _transaction );
+	bool validateTransactionBundle( std::vector< CTransaction > const & _transaction );
 
 	void loop( std::vector< CTransaction > const & _transaction );
 private:
@@ -48,12 +44,6 @@ private:
 
 	// mutex
 	CTxMemPool * m_memPool;
-
-	CValidationManager * m_ValidationManager;
-
-	std::vector< std::vector< CTransaction > > m_waitvalidationQueue;
-
-
 //	transaction history  section
 };
 

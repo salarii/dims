@@ -5,7 +5,6 @@ namespace self
 
 CValidationManager::CValidationManager()
 {
-
 }
 
 void
@@ -17,12 +16,9 @@ CValidationManager::auditTransaction( CTransaction const & _tx )
 }
 
 void
-CValidationManager::addBundleToSendQueue( std::vector< CTransaction > const & _bundle, TransactionStatus::Enum const _status )
+CValidationManager::addBundleToSendQueue( std::vector< CTransaction > const & _bundle )
 {
-	std::pair< std::vector< CTransaction >, TransactionStatus::Enum > bundle( _bundle, _status );
-
 	boost::lock_guard<boost::mutex> lock(processedMutex);
-
 	m_bundlePipe.push_back( bundle );
 }
 
@@ -36,13 +32,31 @@ void
 CValidationManager::workLoop()
 {
 	{
-		boost::lock_guard<boost::mutex> lock(buffMutex);
+		boost::lock_guard<boost::mutex> lock(validateTransLock);
+		std::map< uint256, std::vector< CTransaction > > 
+		BOOST_FOREACH( std::pair< uint256, std::vector< CTransaction > & bundle, m_relayedTransactions )
+		{
+			if ( !m_validated.find( bundle->first ) )
+			{
+				if ( m_transactionRecordManager->validateTransactionBundle( bundle->second ) );
+				{
+					m_validated.insert( bundle->first );
+				}
+			}
+		}
+	}
 
-		m_transactionRecordManager->handleTransactionBundle( m_transactionsCandidates );
+	if ( m_relayedTransactions.find( uint256() ) == m_relayedTransactions.end() )
+	{
+		boost::lock_guard<boost::mutex> lock(buffMutex);
+		m_relayedTransactions.insert( std::make_pair( uint256(), m_transactionsCandidates ) );
 		m_transactionsCandidates.clear();
 	}
 
+	BOOST_FOREACH(uint256 & hash, m_validated )
 	{
+		// here plece  code  rlated  to  propagation of bundles  within  network as  well as  updating transaction  register with correct  transactions
+		/*
 		boost::lock_guard<boost::mutex> lock(processedMutex);
 
 		std::list< std::pair< TransactionStatus::Enum, std::vector< CTransaction > > >::iterator iterator = m_bundlePipe.begin();
@@ -52,10 +66,8 @@ CValidationManager::workLoop()
 			passTransactionBundleToNetwork( iterator->second, iterator->first);
 			m_bundlePipe.erase( iterator );
 		}
-		
+		*/
 	}
-
-	MilliSleep(500);
 }
 
 }

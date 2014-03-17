@@ -18,12 +18,28 @@ namespace self
 class CTcpServerConnection : public Poco::Net::TCPServerConnection
 {
 public:
+	struct RespondBuffor
+	{
+		char *m_buffor;
+		unsigned int m_size;
+	};
+public:
 	CTcpServerConnection(Poco::Net::StreamSocket const & _serverConnection ) :
 	Poco::Net::TCPServerConnection( _serverConnection )
 	{
 	}
 
+	bool handleIncommingBuffor( unsigned char* _buffor, unsigned int _size );
+
 	void run();
+private:
+	template < class T >
+	void
+	handleMessage( std::vector< T > const & _messages, RespondBuffor & _respondBuffor );
+private:
+	CNetworkParams * m_networkParams;
 };
+//create identification token 
+// send back identification token 
 
 #endif
