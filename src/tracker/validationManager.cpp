@@ -8,7 +8,7 @@ CValidationManager::CValidationManager()
 }
 
 void
-CValidationManager::auditTransaction( CTransaction const & _tx )
+CValidationManager::serviceTransaction( CTransaction const & _tx )
 {
 	boost::lock_guard<boost::mutex> lock(buffMutex);
 

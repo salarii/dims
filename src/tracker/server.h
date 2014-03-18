@@ -18,9 +18,9 @@ namespace self
 class CTcpServerConnection : public Poco::Net::TCPServerConnection
 {
 public:
-	struct RespondBuffor
+	struct CBuffor
 	{
-		char *m_buffor;
+		unsigned char  m_buffor;
 		unsigned int m_size;
 	};
 public:
@@ -33,11 +33,22 @@ public:
 
 	void run();
 private:
+	void writeSignature( CBufferAsStream & _stream );
+
+	bool checkSignature( CBufferAsStream const & _stream );
+
 	template < class T >
 	void
 	handleMessage( std::vector< T > const & _messages, RespondBuffor & _respondBuffor );
+
+	CBufferAsStream createStream( CBuffor & _buffor );
 private:
+	CBuffor m_incommingBuffer;
+
+	CBuffor m_outgoingBuffer;
+
 	CNetworkParams * m_networkParams;
+	CValidationManager * m_validationManager;
 };
 //create identification token 
 // send back identification token 

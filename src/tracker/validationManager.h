@@ -26,7 +26,7 @@ class CValidationManager
 public:
 	CValidationManager();
 	
-	void auditTransaction( CTransaction const & _tx );
+	void serviceTransaction( CTransaction const & _tx );
 
 	TransactionStatus::Enum pullCurrentTransactionStatus( CTransaction const & _tx );
 private:
