@@ -8,6 +8,7 @@ CVisitor::CVisitor( RequestRespond const & _requestRespond )
 	: m_requestRespond( _requestRespond )
 {
 }
+
 TransactionsStatus::Enum m_status;
 uint256 m_token;
 class GetTransactionStatus : public boost::static_visitor<int>
@@ -15,7 +16,7 @@ class GetTransactionStatus : public boost::static_visitor<int>
 public:
 	TransactionsStatus::Enum operator()(CTransactionStatus & _transactionStatus ) const
 	{
-		return i;
+		return _transactionStatus.m_status;
 	}
 
 	TransactionsStatus::Enum operator()(boost::any & _any ) const
@@ -29,7 +30,7 @@ class GetToken : public boost::static_visitor<int>
 public:
 	uint256 operator()(CTransactionStatus & _transactionStatus ) const
 	{
-		return i;
+		return _transactionStatus.m_token;
 	}
 
 	uint256 operator()(boost::any & _any ) const
@@ -41,7 +42,8 @@ public:
 void 
 CVisitor::visit( CSendTransaction & _sendTransaction )
 {
-
+	_sendTransaction.setTransactionStatus(boost::apply_visitor( GetTransactionStatus(), m_requestRespond ));
+	_sendTransaction.setTransactionToken(boost::apply_visitor( GetToken(), m_requestRespond ));
 }
 
 void
@@ -75,9 +77,17 @@ CActionHandle::run()
 
 		}
  
+		std::list<>
 		BOOST_FOREACH(std::pair< CRequest*, CAction* > reqAction, m_reqToAction)
 		{
 			if ( m_requestHandler->isProcessed( reqAction.first ) )
+			{
+				
+				CVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
+				reqAction.second.accept( visitor );
+				
+				m_actions.push_back( reqAction.second );
+			}
 			
 
 		}

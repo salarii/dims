@@ -25,7 +25,6 @@ class CAction
 public:
 	virtual void accept( CVisitor & _visitor );
 
-	virtual prepare() = 0;
 	virtual CRequest* execute() = 0;
 };
 

@@ -23,12 +23,17 @@ struct CRequest
 class CRequestHandler
 {
 public:
-	bool isProcessed( CRequest* _request );
+	RequestRespond getRespond( CRequest* _request ) const;
+
+	bool isProcessed( CRequest* _request ) const;
 private:
 	std::vector<CRequest*> m_newRequest
 	std::map<CRequest*,uint256> m_pendingRequest;
-	//std::map<CRequest*,uint256> m_pendingRequest;
+	std::map<CRequest*,RequestRespond> m_processedRequests;
 };
+
+
+m_processedRequests.find( reqAction.first )
 
 /*
 
