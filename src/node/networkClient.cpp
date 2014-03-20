@@ -144,5 +144,11 @@ void CNetworkClient::run()
 		printf("Client socket failed to connect\n");
 	}
 }
- 
+
+void
+CNetworkClient::send( CCommunicationBuffer const & _inBuffor )
+{
+	m_inBuffor = _inBuffor;
+}
+
 }

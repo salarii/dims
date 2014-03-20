@@ -19,6 +19,18 @@ struct CClientMessageType
 	};
 };
 
+struct CServerMessageType
+{
+	enum Enum
+	{
+		  ReferenceToken
+		, TransactionStatus
+		, MonitorInfo
+		, Trackernfo
+		, RequestSatatus
+	};
+};
+
 struct CTransactionMessage
 {
 	CTransaction m_transaction;

@@ -26,10 +26,18 @@ public:
 	RequestRespond getRespond( CRequest* _request ) const;
 
 	bool isProcessed( CRequest* _request ) const;
+
+	bool setRequest( CRequest* _request ) const;
+
+	void runRequests();
+
+	void readLoop();
 private:
 	std::vector<CRequest*> m_newRequest
 	std::map<CRequest*,uint256> m_pendingRequest;
 	std::map<CRequest*,RequestRespond> m_processedRequests;
+
+	CNetworkClient * m_networkClient;
 };
 
 

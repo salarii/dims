@@ -22,6 +22,10 @@ public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
 	virtual void startThread();
 	virtual void stopThread();
+
+	void send( CCommunicationBuffer const & _inBuffor );
+	bool serviced() const;
+	bool getResponse() const;
 private:
 	QMutex m_mutex;
 	const QString m_ip;
