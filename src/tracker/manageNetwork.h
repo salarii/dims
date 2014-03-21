@@ -52,6 +52,8 @@ private:
 
 	bool addLocal(const CNetAddr &addr, int nScore);
 
+	bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot);
+
 	void advertizeLocal();
 
 	void threadSocketHandler();
@@ -60,6 +62,7 @@ private:
 
 	void threadMessageHandler();
 private:
+
 	static CSemaphore *ms_semOutbound;
 
 	static unsigned int m_maxConnections;
@@ -69,6 +72,20 @@ private:
 	Poco::Net::TCPServer  * m_tcpServer;
 
 	CSelfNode * m_nodeLocalHost;
+
+	CSelfNodesManager * m_nodesManager;
+
+	CCriticalSection cs_vNodes;
+
+	vector<CNode*> m_nodes;
+
+	static list<CNode*> m_nodesDisconnected;
+
+	static std::vector<SOCKET> m_listenSocket;
+
+	CSemaphore *m_semOutbound;
+
+	 CAddrMan addrman;
 };
 
 

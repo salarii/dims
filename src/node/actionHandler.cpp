@@ -3,11 +3,7 @@
 namespace node
 {
 
-inline
-CVisitor::CVisitor( RequestRespond const & _requestRespond )
-	: m_requestRespond( _requestRespond )
-{
-}
+unsigned int const CActionHandle::m_sleepTime = 2;
 
 TransactionsStatus::Enum m_status;
 uint256 m_token;
@@ -39,21 +35,8 @@ public:
 	}
 };
 
-void 
-CVisitor::visit( CSendTransaction & _sendTransaction )
-{
-	_sendTransaction.setTransactionStatus(boost::apply_visitor( GetTransactionStatus(), m_requestRespond ));
-	_sendTransaction.setTransactionToken(boost::apply_visitor( GetToken(), m_requestRespond ));
-}
-
 void
-CVisitor::visit( CAction & _action )
-{
-
-}
-
-void
-accept( CVisitor & _visitor )
+accept( CSetResponseVisitor & _visitor )
 {
 	_visitor( *this );
 }
@@ -83,15 +66,13 @@ CActionHandle::run()
 			if ( m_requestHandler->isProcessed( reqAction.first ) )
 			{
 				
-				CVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
+				CSetResponseVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
 				reqAction.second.accept( visitor );
 				
 				m_actions.push_back( reqAction.second );
 			}
-			
-
 		}
-		sleep(1000);
+		QThread::sleep ( m_sleepTime );
 	}
 }
 

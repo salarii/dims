@@ -6,24 +6,10 @@ namespace node
 
 typedef boost::variant< CTransactionStatus, CAccountBalance > RequestRespond;
 
-class CVisitor
-{
-public:
-	CVisitor( RequestRespond _requestRespond );
-	
-	void visit( CSendTransaction & _sendTransaction );
-
-	void visit( CAction & _action );
-private:
-
-	RequestRespond m_requestRespond;
-};
-
-
 class CAction
 {
 public:
-	virtual void accept( CVisitor & _visitor );
+	virtual void accept( CSetResponseVisitor & _visitor );
 
 	virtual CRequest* execute() = 0;
 };
@@ -44,6 +30,8 @@ private:
 	std::map< CRequest*, CAction* > m_reqToAction;
 
 	CRequestHandler * m_requestHandler;
+
+	static unsigned int const m_sleepTime;
 };
 
 }

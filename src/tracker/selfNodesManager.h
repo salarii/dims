@@ -5,7 +5,7 @@
 #ifndef SELF_NODES_MANAGER_H
 #define SELF_NODES_MANAGER_H
 
-namespace Self
+namespace self
 {
 /*
 this  should  store  addresses  and  manage  conections  to other  nodes,  such  like  other  trackers  and  monitors 
@@ -27,6 +27,10 @@ public:
 	void manageNodes();
 
 	void connectNodes();
+
+	bool isNodeHonest();
+
+	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
 private:
 
 	void propagateMessage();

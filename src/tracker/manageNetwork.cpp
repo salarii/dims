@@ -169,7 +169,7 @@ void
 CManageNetwork::advertizeLocal()
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, vNodes)
+	BOOST_FOREACH(CNode* pnode, m_nodes)
 	{
 		if (pnode->fSuccessfullyConnected)
 		{
@@ -183,7 +183,6 @@ CManageNetwork::advertizeLocal()
 	}
 }
 
-
 void 
 CManageNetwork::threadSocketHandler()
 {
@@ -196,14 +195,15 @@ CManageNetwork::threadSocketHandler()
 		{
 			LOCK(cs_vNodes);
 			// Disconnect unused nodes
-			vector<CNode*> vNodesCopy = vNodes;
+			vector<CNode*> vNodesCopy = m_nodes;
 			BOOST_FOREACH(CNode* pnode, vNodesCopy)
 			{
 				if (pnode->fDisconnect ||
-					(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty()))
+					(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())
+					|| !m_nodesManager->isNodeHonest( pnode ))
 				{
-					// remove from vNodes
-					vNodes.erase(remove(vNodes.begin(), vNodes.end(), pnode), vNodes.end());
+					// remove from m_nodes
+					m_nodes.erase(remove(m_nodes.begin(), m_nodes.end(), pnode), m_nodes.end());
 
 					// release outbound grant (if any)
 					pnode->grantOutbound.Release();
@@ -215,13 +215,13 @@ CManageNetwork::threadSocketHandler()
 					// hold in disconnected pool until all refs are released
 					if (pnode->fNetworkNode || pnode->fInbound)
 						pnode->Release();
-					vNodesDisconnected.push_back(pnode);
+					m_nodesDisconnected.push_back(pnode);
 				}
 			}
 		}
 		{
 			// Delete disconnected nodes
-			list<CNode*> vNodesDisconnectedCopy = vNodesDisconnected;
+			list<CNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
 			BOOST_FOREACH(CNode* pnode, vNodesDisconnectedCopy)
 			{
 				// wait until threads are done using it
@@ -243,17 +243,16 @@ CManageNetwork::threadSocketHandler()
 					}
 					if (fDelete)
 					{
-						vNodesDisconnected.remove(pnode);
+						m_nodesDisconnected.remove(pnode);
 						delete pnode;
 					}
 				}
 			}
 		}
-		if(vNodes.size() != nPrevNodeCount) {
-			nPrevNodeCount = vNodes.size();
-			uiInterface.NotifyNumConnectionsChanged(nPrevNodeCount);
+		if(m_nodes.size() != nPrevNodeCount) {
+			nPrevNodeCount = m_nodes.size();
+			//uiInterface.NotifyNumConnectionsChanged(nPrevNodeCount);  not  needed now
 		}
-
 
 		//
 		// Find which sockets have data to receive
@@ -271,14 +270,14 @@ CManageNetwork::threadSocketHandler()
 		SOCKET hSocketMax = 0;
 		bool have_fds = false;
 
-		BOOST_FOREACH(SOCKET hListenSocket, vhListenSocket) {
+		BOOST_FOREACH(SOCKET hListenSocket, m_listenSocket) {
 			FD_SET(hListenSocket, &fdsetRecv);
 			hSocketMax = max(hSocketMax, hListenSocket);
 			have_fds = true;
 		}
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, vNodes)
+			BOOST_FOREACH(CNode* pnode, m_nodes)
 			{
 				if (pnode->hSocket == INVALID_SOCKET)
 					continue;
@@ -340,7 +339,7 @@ CManageNetwork::threadSocketHandler()
 		//
 		// Accept new connections
 		//
-		BOOST_FOREACH(SOCKET hListenSocket, vhListenSocket)
+		BOOST_FOREACH(SOCKET hListenSocket, m_listenSocket)
 			if (hListenSocket != INVALID_SOCKET && FD_ISSET(hListenSocket, &fdsetRecv))
 			{
 #ifdef USE_IPV6
@@ -359,7 +358,7 @@ CManageNetwork::threadSocketHandler()
 
 				{
 					LOCK(cs_vNodes);
-					BOOST_FOREACH(CNode* pnode, vNodes)
+					BOOST_FOREACH(CNode* pnode, m_nodes)
 						if (pnode->fInbound)
 							nInbound++;
 				}
@@ -378,7 +377,7 @@ CManageNetwork::threadSocketHandler()
 							closesocket(hSocket);
 					}
 				}
-				else if (CNode::IsBanned(addr))
+				else if (m_nodesManager->isBanned( addr ))
 				{
 					LogPrintf("connection from %s dropped (banned)\n", addr.ToString());
 					closesocket(hSocket);
@@ -390,7 +389,7 @@ CManageNetwork::threadSocketHandler()
 					pnode->AddRef();
 					{
 						LOCK(cs_vNodes);
-						vNodes.push_back(pnode);
+						m_nodes.push_back(pnode);
 					}
 				}
 			}
@@ -402,7 +401,7 @@ CManageNetwork::threadSocketHandler()
 			vector<CNode*> vNodesCopy;
 			{
 				LOCK(cs_vNodes);
-				vNodesCopy = vNodes;
+				vNodesCopy = m_nodes;
 				BOOST_FOREACH(CNode* pnode, vNodesCopy)
 					pnode->AddRef();
 			}
@@ -519,7 +518,7 @@ CManageNetwork::threadOpenAddedConnections()
 			}
 			BOOST_FOREACH(string& strAddNode, lAddresses) {
 				CAddress addr;
-				CSemaphoreGrant grant(*semOutbound);
+				CSemaphoreGrant grant(*m_semOutbound);
 				OpenNetworkConnection(addr, &grant, strAddNode.c_str());
 				MilliSleep(500);
 			}
@@ -554,7 +553,7 @@ CManageNetwork::threadOpenAddedConnections()
 		// (keeping in mind that addnode entries can have many IPs if fNameLookup)
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, vNodes)
+			BOOST_FOREACH(CNode* pnode, m_nodes)
 				for (list<vector<CService> >::iterator it = lservAddressesToAdd.begin(); it != lservAddressesToAdd.end(); it++)
 					BOOST_FOREACH(CService& addrNode, *(it))
 					if (pnode->addr == addrNode)
@@ -566,7 +565,7 @@ CManageNetwork::threadOpenAddedConnections()
 		}
 		BOOST_FOREACH(vector<CService>& vserv, lservAddressesToAdd)
 		{
-			CSemaphoreGrant grant(*semOutbound);
+			CSemaphoreGrant grant(*m_semOutbound);
 			OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
 			MilliSleep(500);
 		}
@@ -601,11 +600,11 @@ CManageNetwork::threadOpenConnections()
 	int64_t nStart = GetTime();
 	while (true)
 	{
-		ProcessOneShot();
+		//ProcessOneShot();
 
 		MilliSleep(500);
 
-		CSemaphoreGrant grant(*semOutbound);
+		CSemaphoreGrant grant(*m_semOutbound);
 		boost::this_thread::interruption_point();
 
 		// Add seed nodes if DNS seeds are all down (an infrastructure attack?).
@@ -624,12 +623,12 @@ CManageNetwork::threadOpenConnections()
 		CAddress addrConnect;
 
 		// Only connect out to one peer per network group (/16 for IPv4).
-		// Do this here so we don't have to critsect vNodes inside mapAddresses critsect.
+		// Do this here so we don't have to critsect m_nodes inside mapAddresses critsect.
 		int nOutbound = 0;
 		set<vector<unsigned char> > setConnected;
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, vNodes) {
+			BOOST_FOREACH(CNode* pnode, m_nodes) {
 				if (!pnode->fInbound) {
 					setConnected.insert(pnode->addr.GetGroup());
 					nOutbound++;
@@ -676,6 +675,35 @@ CManageNetwork::threadOpenConnections()
 	}
 }
 
+bool
+CManageNetwork::::OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot)
+{
+	//
+	// Initiate outbound network connection
+	//
+	boost::this_thread::interruption_point();
+	if (!strDest)
+		if (IsLocal(addrConnect) ||
+			FindNode((CNetAddr)addrConnect) || CNode::IsBanned(addrConnect) ||
+			FindNode(addrConnect.ToStringIPPort().c_str()))
+			return false;
+	if (strDest && FindNode(strDest))
+		return false;
+
+	CNode* pnode = ConnectNode(addrConnect, strDest);
+	boost::this_thread::interruption_point();
+
+	if (!pnode)
+		return false;
+	if (grantOutbound)
+		grantOutbound->MoveTo(pnode->grantOutbound);
+	pnode->fNetworkNode = true;
+	if (fOneShot)
+		pnode->fOneShot = true;
+
+	return true;
+}
+
 void 
 CManageNetwork::threadMessageHandler()
 {
@@ -687,7 +715,7 @@ CManageNetwork::threadMessageHandler()
 		vector<CNode*> vNodesCopy;
 		{
 			LOCK(cs_vNodes);
-			vNodesCopy = vNodes;
+			vNodesCopy = m_nodes;
 			BOOST_FOREACH(CNode* pnode, vNodesCopy) {
 				pnode->AddRef();
 				if (pnode == pnodeSync)
