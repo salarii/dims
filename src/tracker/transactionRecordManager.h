@@ -7,6 +7,9 @@
 
 #include <vector>
 
+#include "checkqueue.h"
+
+#include "main.h"
 
 class CTransaction;
 
@@ -45,6 +48,8 @@ private:
 	// mutex
 	CTxMemPool * m_memPool;
 //	transaction history  section
+
+	CCheckQueue<CScriptCheck> scriptcheckqueue;
 };
 
 

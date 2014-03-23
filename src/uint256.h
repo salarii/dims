@@ -369,7 +369,7 @@ public:
 
     uint64_t GetLow64() const
     {
-        assert(WIDTH >= 2);
+       // assert(WIDTH >= 2);
         return pn[0] | (uint64_t)pn[1] << 32;
     }
 

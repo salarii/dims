@@ -18,6 +18,7 @@ static const int64_t nMinDbCache = 4;
 
 
 CTransactionRecordManager::CTransactionRecordManager()
+:scriptcheckqueue(32)
 {
 	// cache size calculations
 	size_t nTotalCache = (GetArg("-dbcache", nDefaultDbCache) << 20);
@@ -69,10 +70,10 @@ CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction 
 
 	CCheckQueueControl<CScriptCheck> control( &scriptcheckqueue);
 
-	BOOST_FOREACH( CTransaction & transaction, _transaction )
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
 	{
 			std::vector<CScriptCheck> vChecks;
-		if ( !CheckInputs(transaction, state, m_coinsViewCache, true, flags, &vChecks ) )
+		if ( !CheckInputs(transaction, state, *m_coinsViewCache, true, flags, &vChecks ) )
 			return false;
 
 		control.Add(vChecks);
@@ -80,7 +81,6 @@ CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction 
 	return control.Wait();
 }
 
-}
 
 void
 CTransactionRecordManager::loop( std::vector< CTransaction > const & _transaction )
