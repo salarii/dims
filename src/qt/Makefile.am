@@ -87,7 +87,6 @@ QT_FORMS_UI = \
   forms/overviewpage.ui \
   forms/receivecoinsdialog.ui \
   forms/receiverequestdialog.ui \
-  forms/rpcconsole.ui \
   forms/sendcoinsdialog.ui \
   forms/sendcoinsentry.ui \
   forms/signverifymessagedialog.ui \
@@ -122,12 +121,10 @@ QT_MOC_CPP = \
   moc_receivecoinsdialog.cpp \
   moc_receiverequestdialog.cpp \
   moc_recentrequeststablemodel.cpp \
-  moc_rpcconsole.cpp \
   moc_sendcoinsdialog.cpp \
   moc_sendcoinsentry.cpp \
   moc_signverifymessagedialog.cpp \
   moc_splashscreen.cpp \
-  moc_trafficgraphwidget.cpp \
   moc_transactiondesc.cpp \
   moc_transactiondescdialog.cpp \
   moc_transactionfilterproxy.cpp \
@@ -145,8 +142,7 @@ BITCOIN_MM = \
 QT_MOC = \
   bitcoin.moc \
   intro.moc \
-  overviewpage.moc \
-  rpcconsole.moc
+  overviewpage.moc
 
 QT_QRC_CPP = qrc_bitcoin.cpp
 QT_QRC = bitcoin.qrc
@@ -186,12 +182,10 @@ BITCOIN_QT_H = \
   receivecoinsdialog.h \
   receiverequestdialog.h \
   recentrequeststablemodel.h \
-  rpcconsole.h \
   sendcoinsdialog.h \
   sendcoinsentry.h \
   signverifymessagedialog.h \
   splashscreen.h \
-  trafficgraphwidget.h \
   transactiondesc.h \
   transactiondescdialog.h \
   transactionfilterproxy.h \
@@ -265,10 +259,8 @@ BITCOIN_QT_CPP = \
   optionsmodel.cpp \
   qvalidatedlineedit.cpp \
   qvaluecombobox.cpp \
-  rpcconsole.cpp \
   signverifymessagedialog.cpp \
   splashscreen.cpp \
-  trafficgraphwidget.cpp \
   utilitydialog.cpp
 
 if ENABLE_WALLET

@@ -23,6 +23,11 @@ endif
 SUBDIRS = . $(BUILD_QT) $(BUILD_TEST)
 DIST_SUBDIRS = . qt test
 .PHONY: FORCE
+
+# tracker core #
+TRACKER_CORE_H = \
+  tracker/originAddressScaner.h
+  
 # bitcoin core #
 BITCOIN_CORE_H = \
   addrman.h \
@@ -87,6 +92,10 @@ obj/build.h: FORCE
 	  $(abs_top_srcdir)
 version.o: obj/build.h
 
+# tracker core #
+TRACKER_CORE_CPP = \
+  tracker/originAddressScaner.cpp
+
 libbitcoin_server_a_SOURCES = \
   addrman.cpp \
   alert.cpp \
@@ -110,8 +119,10 @@ libbitcoin_server_a_SOURCES = \
   txdb.cpp \
   txmempool.cpp \
   $(JSON_H) \
-  $(BITCOIN_CORE_H)
-
+  $(BITCOIN_CORE_H) \
+  $(TRACKER_CORE_H) \
+  $(TRACKER_CORE_CPP)
+  
 libbitcoin_wallet_a_SOURCES = \
   db.cpp \
   crypter.cpp \

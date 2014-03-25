@@ -37,23 +37,15 @@ public:
     OptionsModel *getOptionsModel();
 
     int getNumConnections() const;
-    int getNumBlocks() const;
-    int getNumBlocksAtStartup();
 
     quint64 getTotalBytesRecv() const;
     quint64 getTotalBytesSent() const;
 
     double getVerificationProgress() const;
-    QDateTime getLastBlockDate() const;
 
     //! Return network (main, testnet3, regtest)
     QString getNetworkName() const;
-    //! Return true if core is doing initial block download
-    bool inInitialBlockDownload() const;
-    //! Return true if core is importing blocks
-    enum BlockSource getBlockSource() const;
-    //! Return conservative estimate of total number of blocks, or 0 if unknown
-    int getNumBlocksOfPeers() const;
+
     //! Return warnings to be displayed in status bar
     QString getStatusBarWarnings() const;
 
@@ -80,7 +72,6 @@ private:
 
 signals:
     void numConnectionsChanged(int count);
-    void numBlocksChanged(int count, int countOfPeers);
     void alertsChanged(const QString &warnings);
     void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
 

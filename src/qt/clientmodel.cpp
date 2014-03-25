@@ -44,17 +44,6 @@ int ClientModel::getNumConnections() const
     return vNodes.size();
 }
 
-int ClientModel::getNumBlocks() const
-{
-    return chainActive.Height();
-}
-
-int ClientModel::getNumBlocksAtStartup()
-{
-    if (numBlocksAtStartup == -1) numBlocksAtStartup = getNumBlocks();
-    return numBlocksAtStartup;
-}
-
 quint64 ClientModel::getTotalBytesRecv() const
 {
     return CNode::GetTotalBytesRecv();
@@ -65,13 +54,6 @@ quint64 ClientModel::getTotalBytesSent() const
     return CNode::GetTotalBytesSent();
 }
 
-QDateTime ClientModel::getLastBlockDate() const
-{
-    if (chainActive.Tip())
-        return QDateTime::fromTime_t(chainActive.Tip()->GetBlockTime());
-    else
-        return QDateTime::fromTime_t(Params().GenesisBlock().nTime); // Genesis block's time of current network
-}
 
 double ClientModel::getVerificationProgress() const
 {
@@ -80,25 +62,7 @@ double ClientModel::getVerificationProgress() const
 
 void ClientModel::updateTimer()
 {
-    // Some quantities (such as number of blocks) change so fast that we don't want to be notified for each change.
-    // Periodically check and update with a timer.
-    int newNumBlocks = getNumBlocks();
-    int newNumBlocksOfPeers = getNumBlocksOfPeers();
 
-    // check for changed number of blocks we have, number of blocks peers claim to have, reindexing state and importing state
-    if (cachedNumBlocks != newNumBlocks || cachedNumBlocksOfPeers != newNumBlocksOfPeers ||
-        cachedReindexing != fReindex || cachedImporting != fImporting)
-    {
-        cachedNumBlocks = newNumBlocks;
-        cachedNumBlocksOfPeers = newNumBlocksOfPeers;
-        cachedReindexing = fReindex;
-        cachedImporting = fImporting;
-
-        // ensure we return the maximum of newNumBlocksOfPeers and newNumBlocks to not create weird displays in the GUI
-        emit numBlocksChanged(newNumBlocks, std::max(newNumBlocksOfPeers, newNumBlocks));
-    }
-
-    emit bytesChanged(getTotalBytesRecv(), getTotalBytesSent());
 }
 
 void ClientModel::updateNumConnections(int numConnections)
@@ -129,28 +93,6 @@ QString ClientModel::getNetworkName() const
     if(netname.isEmpty())
         netname = "main";
     return netname;
-}
-
-bool ClientModel::inInitialBlockDownload() const
-{
-    return IsInitialBlockDownload();
-}
-
-enum BlockSource ClientModel::getBlockSource() const
-{
-    if (fReindex)
-        return BLOCK_SOURCE_REINDEX;
-    else if (fImporting)
-        return BLOCK_SOURCE_DISK;
-    else if (getNumConnections() > 0)
-        return BLOCK_SOURCE_NETWORK;
-
-    return BLOCK_SOURCE_NONE;
-}
-
-int ClientModel::getNumBlocksOfPeers() const
-{
-    return GetNumBlocksOfPeers();
 }
 
 QString ClientModel::getStatusBarWarnings() const

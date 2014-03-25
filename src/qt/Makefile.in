@@ -112,15 +112,14 @@ am__libbitcoinqt_a_SOURCES_DIST = bitcoin.cpp \
 	csvmodelwriter.cpp guiutil.cpp intro.cpp \
 	monitoreddatamapper.cpp notificator.cpp optionsdialog.cpp \
 	optionsmodel.cpp qvalidatedlineedit.cpp qvaluecombobox.cpp \
-	rpcconsole.cpp signverifymessagedialog.cpp splashscreen.cpp \
-	trafficgraphwidget.cpp utilitydialog.cpp addressbookpage.cpp \
-	addresstablemodel.cpp askpassphrasedialog.cpp \
-	coincontroldialog.cpp coincontroltreewidget.cpp \
-	editaddressdialog.cpp openuridialog.cpp overviewpage.cpp \
-	paymentrequestplus.cpp paymentserver.cpp \
-	receivecoinsdialog.cpp receiverequestdialog.cpp \
-	recentrequeststablemodel.cpp sendcoinsdialog.cpp \
-	sendcoinsentry.cpp transactiondesc.cpp \
+	signverifymessagedialog.cpp splashscreen.cpp utilitydialog.cpp \
+	addressbookpage.cpp addresstablemodel.cpp \
+	askpassphrasedialog.cpp coincontroldialog.cpp \
+	coincontroltreewidget.cpp editaddressdialog.cpp \
+	openuridialog.cpp overviewpage.cpp paymentrequestplus.cpp \
+	paymentserver.cpp receivecoinsdialog.cpp \
+	receiverequestdialog.cpp recentrequeststablemodel.cpp \
+	sendcoinsdialog.cpp sendcoinsentry.cpp transactiondesc.cpp \
 	transactiondescdialog.cpp transactionfilterproxy.cpp \
 	transactionrecord.cpp transactiontablemodel.cpp \
 	transactionview.cpp walletframe.cpp walletmodel.cpp \
@@ -134,20 +133,19 @@ am__libbitcoinqt_a_SOURCES_DIST = bitcoin.cpp \
 	openuridialog.h optionsdialog.h optionsmodel.h overviewpage.h \
 	paymentrequestplus.h paymentserver.h qvalidatedlineedit.h \
 	qvaluecombobox.h receivecoinsdialog.h receiverequestdialog.h \
-	recentrequeststablemodel.h rpcconsole.h sendcoinsdialog.h \
-	sendcoinsentry.h signverifymessagedialog.h splashscreen.h \
-	trafficgraphwidget.h transactiondesc.h transactiondescdialog.h \
-	transactionfilterproxy.h transactionrecord.h \
-	transactiontablemodel.h transactionview.h utilitydialog.h \
-	walletframe.h walletmodel.h walletmodeltransaction.h \
-	walletview.h forms/aboutdialog.ui forms/addressbookpage.ui \
-	forms/askpassphrasedialog.ui forms/coincontroldialog.ui \
-	forms/editaddressdialog.ui forms/helpmessagedialog.ui \
-	forms/intro.ui forms/openuridialog.ui forms/optionsdialog.ui \
+	recentrequeststablemodel.h sendcoinsdialog.h sendcoinsentry.h \
+	signverifymessagedialog.h splashscreen.h transactiondesc.h \
+	transactiondescdialog.h transactionfilterproxy.h \
+	transactionrecord.h transactiontablemodel.h transactionview.h \
+	utilitydialog.h walletframe.h walletmodel.h \
+	walletmodeltransaction.h walletview.h forms/aboutdialog.ui \
+	forms/addressbookpage.ui forms/askpassphrasedialog.ui \
+	forms/coincontroldialog.ui forms/editaddressdialog.ui \
+	forms/helpmessagedialog.ui forms/intro.ui \
+	forms/openuridialog.ui forms/optionsdialog.ui \
 	forms/overviewpage.ui forms/receivecoinsdialog.ui \
-	forms/receiverequestdialog.ui forms/rpcconsole.ui \
-	forms/sendcoinsdialog.ui forms/sendcoinsentry.ui \
-	forms/signverifymessagedialog.ui \
+	forms/receiverequestdialog.ui forms/sendcoinsdialog.ui \
+	forms/sendcoinsentry.ui forms/signverifymessagedialog.ui \
 	forms/transactiondescdialog.ui bitcoin.qrc \
 	locale/bitcoin_ach.ts locale/bitcoin_af_ZA.ts \
 	locale/bitcoin_ar.ts locale/bitcoin_be_BY.ts \
@@ -242,10 +240,8 @@ am__objects_2 = libbitcoinqt_a-bitcoin.$(OBJEXT) \
 	libbitcoinqt_a-optionsmodel.$(OBJEXT) \
 	libbitcoinqt_a-qvalidatedlineedit.$(OBJEXT) \
 	libbitcoinqt_a-qvaluecombobox.$(OBJEXT) \
-	libbitcoinqt_a-rpcconsole.$(OBJEXT) \
 	libbitcoinqt_a-signverifymessagedialog.$(OBJEXT) \
 	libbitcoinqt_a-splashscreen.$(OBJEXT) \
-	libbitcoinqt_a-trafficgraphwidget.$(OBJEXT) \
 	libbitcoinqt_a-utilitydialog.$(OBJEXT) $(am__objects_1)
 am__objects_3 =
 am_libbitcoinqt_a_OBJECTS = $(am__objects_2) $(am__objects_3) \
@@ -280,12 +276,10 @@ am__objects_4 = libbitcoinqt_a-moc_addressbookpage.$(OBJEXT) \
 	libbitcoinqt_a-moc_receivecoinsdialog.$(OBJEXT) \
 	libbitcoinqt_a-moc_receiverequestdialog.$(OBJEXT) \
 	libbitcoinqt_a-moc_recentrequeststablemodel.$(OBJEXT) \
-	libbitcoinqt_a-moc_rpcconsole.$(OBJEXT) \
 	libbitcoinqt_a-moc_sendcoinsdialog.$(OBJEXT) \
 	libbitcoinqt_a-moc_sendcoinsentry.$(OBJEXT) \
 	libbitcoinqt_a-moc_signverifymessagedialog.$(OBJEXT) \
 	libbitcoinqt_a-moc_splashscreen.$(OBJEXT) \
-	libbitcoinqt_a-moc_trafficgraphwidget.$(OBJEXT) \
 	libbitcoinqt_a-moc_transactiondesc.$(OBJEXT) \
 	libbitcoinqt_a-moc_transactiondescdialog.$(OBJEXT) \
 	libbitcoinqt_a-moc_transactionfilterproxy.$(OBJEXT) \
@@ -679,7 +673,6 @@ QT_FORMS_UI = \
   forms/overviewpage.ui \
   forms/receivecoinsdialog.ui \
   forms/receiverequestdialog.ui \
-  forms/rpcconsole.ui \
   forms/sendcoinsdialog.ui \
   forms/sendcoinsentry.ui \
   forms/signverifymessagedialog.ui \
@@ -714,12 +707,10 @@ QT_MOC_CPP = \
   moc_receivecoinsdialog.cpp \
   moc_receiverequestdialog.cpp \
   moc_recentrequeststablemodel.cpp \
-  moc_rpcconsole.cpp \
   moc_sendcoinsdialog.cpp \
   moc_sendcoinsentry.cpp \
   moc_signverifymessagedialog.cpp \
   moc_splashscreen.cpp \
-  moc_trafficgraphwidget.cpp \
   moc_transactiondesc.cpp \
   moc_transactiondescdialog.cpp \
   moc_transactionfilterproxy.cpp \
@@ -737,8 +728,7 @@ BITCOIN_MM = \
 QT_MOC = \
   bitcoin.moc \
   intro.moc \
-  overviewpage.moc \
-  rpcconsole.moc
+  overviewpage.moc
 
 QT_QRC_CPP = qrc_bitcoin.cpp
 QT_QRC = bitcoin.qrc
@@ -776,12 +766,10 @@ BITCOIN_QT_H = \
   receivecoinsdialog.h \
   receiverequestdialog.h \
   recentrequeststablemodel.h \
-  rpcconsole.h \
   sendcoinsdialog.h \
   sendcoinsentry.h \
   signverifymessagedialog.h \
   splashscreen.h \
-  trafficgraphwidget.h \
   transactiondesc.h \
   transactiondescdialog.h \
   transactionfilterproxy.h \
@@ -844,8 +832,8 @@ BITCOIN_QT_CPP = bitcoin.cpp bitcoinaddressvalidator.cpp \
 	clientmodel.cpp csvmodelwriter.cpp guiutil.cpp intro.cpp \
 	monitoreddatamapper.cpp notificator.cpp optionsdialog.cpp \
 	optionsmodel.cpp qvalidatedlineedit.cpp qvaluecombobox.cpp \
-	rpcconsole.cpp signverifymessagedialog.cpp splashscreen.cpp \
-	trafficgraphwidget.cpp utilitydialog.cpp $(am__append_4)
+	signverifymessagedialog.cpp splashscreen.cpp utilitydialog.cpp \
+	$(am__append_4)
 RES_IMAGES = \
   res/images/about.png \
   res/images/splash.png \
@@ -1023,12 +1011,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_receivecoinsdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_receiverequestdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_recentrequeststablemodel.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_rpcconsole.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_sendcoinsdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_sendcoinsentry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_signverifymessagedialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_splashscreen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_trafficgraphwidget.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_transactiondesc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_transactiondescdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-moc_transactionfilterproxy.Po@am__quote@
@@ -1053,12 +1039,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-receivecoinsdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-receiverequestdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-recentrequeststablemodel.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-rpcconsole.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-sendcoinsdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-sendcoinsentry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-signverifymessagedialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-splashscreen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-trafficgraphwidget.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-transactiondesc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-transactiondescdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-transactionfilterproxy.Po@am__quote@
@@ -1329,22 +1313,6 @@ libbitcoinqt_a-qvaluecombobox.obj: qvaluecombobox.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-qvaluecombobox.obj `if test -f 'qvaluecombobox.cpp'; then $(CYGPATH_W) 'qvaluecombobox.cpp'; else $(CYGPATH_W) '$(srcdir)/qvaluecombobox.cpp'; fi`
 
-libbitcoinqt_a-rpcconsole.o: rpcconsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-rpcconsole.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-rpcconsole.Tpo -c -o libbitcoinqt_a-rpcconsole.o `test -f 'rpcconsole.cpp' || echo '$(srcdir)/'`rpcconsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-rpcconsole.Tpo $(DEPDIR)/libbitcoinqt_a-rpcconsole.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='rpcconsole.cpp' object='libbitcoinqt_a-rpcconsole.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-rpcconsole.o `test -f 'rpcconsole.cpp' || echo '$(srcdir)/'`rpcconsole.cpp
-
-libbitcoinqt_a-rpcconsole.obj: rpcconsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-rpcconsole.obj -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-rpcconsole.Tpo -c -o libbitcoinqt_a-rpcconsole.obj `if test -f 'rpcconsole.cpp'; then $(CYGPATH_W) 'rpcconsole.cpp'; else $(CYGPATH_W) '$(srcdir)/rpcconsole.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-rpcconsole.Tpo $(DEPDIR)/libbitcoinqt_a-rpcconsole.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='rpcconsole.cpp' object='libbitcoinqt_a-rpcconsole.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-rpcconsole.obj `if test -f 'rpcconsole.cpp'; then $(CYGPATH_W) 'rpcconsole.cpp'; else $(CYGPATH_W) '$(srcdir)/rpcconsole.cpp'; fi`
-
 libbitcoinqt_a-signverifymessagedialog.o: signverifymessagedialog.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-signverifymessagedialog.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-signverifymessagedialog.Tpo -c -o libbitcoinqt_a-signverifymessagedialog.o `test -f 'signverifymessagedialog.cpp' || echo '$(srcdir)/'`signverifymessagedialog.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-signverifymessagedialog.Tpo $(DEPDIR)/libbitcoinqt_a-signverifymessagedialog.Po
@@ -1376,22 +1344,6 @@ libbitcoinqt_a-splashscreen.obj: splashscreen.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='splashscreen.cpp' object='libbitcoinqt_a-splashscreen.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-splashscreen.obj `if test -f 'splashscreen.cpp'; then $(CYGPATH_W) 'splashscreen.cpp'; else $(CYGPATH_W) '$(srcdir)/splashscreen.cpp'; fi`
-
-libbitcoinqt_a-trafficgraphwidget.o: trafficgraphwidget.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-trafficgraphwidget.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-trafficgraphwidget.Tpo -c -o libbitcoinqt_a-trafficgraphwidget.o `test -f 'trafficgraphwidget.cpp' || echo '$(srcdir)/'`trafficgraphwidget.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-trafficgraphwidget.Tpo $(DEPDIR)/libbitcoinqt_a-trafficgraphwidget.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='trafficgraphwidget.cpp' object='libbitcoinqt_a-trafficgraphwidget.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-trafficgraphwidget.o `test -f 'trafficgraphwidget.cpp' || echo '$(srcdir)/'`trafficgraphwidget.cpp
-
-libbitcoinqt_a-trafficgraphwidget.obj: trafficgraphwidget.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-trafficgraphwidget.obj -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-trafficgraphwidget.Tpo -c -o libbitcoinqt_a-trafficgraphwidget.obj `if test -f 'trafficgraphwidget.cpp'; then $(CYGPATH_W) 'trafficgraphwidget.cpp'; else $(CYGPATH_W) '$(srcdir)/trafficgraphwidget.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-trafficgraphwidget.Tpo $(DEPDIR)/libbitcoinqt_a-trafficgraphwidget.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='trafficgraphwidget.cpp' object='libbitcoinqt_a-trafficgraphwidget.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-trafficgraphwidget.obj `if test -f 'trafficgraphwidget.cpp'; then $(CYGPATH_W) 'trafficgraphwidget.cpp'; else $(CYGPATH_W) '$(srcdir)/trafficgraphwidget.cpp'; fi`
 
 libbitcoinqt_a-utilitydialog.o: utilitydialog.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-utilitydialog.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-utilitydialog.Tpo -c -o libbitcoinqt_a-utilitydialog.o `test -f 'utilitydialog.cpp' || echo '$(srcdir)/'`utilitydialog.cpp
@@ -2257,22 +2209,6 @@ libbitcoinqt_a-moc_recentrequeststablemodel.obj: moc_recentrequeststablemodel.cp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-moc_recentrequeststablemodel.obj `if test -f 'moc_recentrequeststablemodel.cpp'; then $(CYGPATH_W) 'moc_recentrequeststablemodel.cpp'; else $(CYGPATH_W) '$(srcdir)/moc_recentrequeststablemodel.cpp'; fi`
 
-libbitcoinqt_a-moc_rpcconsole.o: moc_rpcconsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-moc_rpcconsole.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-moc_rpcconsole.Tpo -c -o libbitcoinqt_a-moc_rpcconsole.o `test -f 'moc_rpcconsole.cpp' || echo '$(srcdir)/'`moc_rpcconsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-moc_rpcconsole.Tpo $(DEPDIR)/libbitcoinqt_a-moc_rpcconsole.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='moc_rpcconsole.cpp' object='libbitcoinqt_a-moc_rpcconsole.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-moc_rpcconsole.o `test -f 'moc_rpcconsole.cpp' || echo '$(srcdir)/'`moc_rpcconsole.cpp
-
-libbitcoinqt_a-moc_rpcconsole.obj: moc_rpcconsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-moc_rpcconsole.obj -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-moc_rpcconsole.Tpo -c -o libbitcoinqt_a-moc_rpcconsole.obj `if test -f 'moc_rpcconsole.cpp'; then $(CYGPATH_W) 'moc_rpcconsole.cpp'; else $(CYGPATH_W) '$(srcdir)/moc_rpcconsole.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-moc_rpcconsole.Tpo $(DEPDIR)/libbitcoinqt_a-moc_rpcconsole.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='moc_rpcconsole.cpp' object='libbitcoinqt_a-moc_rpcconsole.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-moc_rpcconsole.obj `if test -f 'moc_rpcconsole.cpp'; then $(CYGPATH_W) 'moc_rpcconsole.cpp'; else $(CYGPATH_W) '$(srcdir)/moc_rpcconsole.cpp'; fi`
-
 libbitcoinqt_a-moc_sendcoinsdialog.o: moc_sendcoinsdialog.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-moc_sendcoinsdialog.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-moc_sendcoinsdialog.Tpo -c -o libbitcoinqt_a-moc_sendcoinsdialog.o `test -f 'moc_sendcoinsdialog.cpp' || echo '$(srcdir)/'`moc_sendcoinsdialog.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-moc_sendcoinsdialog.Tpo $(DEPDIR)/libbitcoinqt_a-moc_sendcoinsdialog.Po
@@ -2336,22 +2272,6 @@ libbitcoinqt_a-moc_splashscreen.obj: moc_splashscreen.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='moc_splashscreen.cpp' object='libbitcoinqt_a-moc_splashscreen.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-moc_splashscreen.obj `if test -f 'moc_splashscreen.cpp'; then $(CYGPATH_W) 'moc_splashscreen.cpp'; else $(CYGPATH_W) '$(srcdir)/moc_splashscreen.cpp'; fi`
-
-libbitcoinqt_a-moc_trafficgraphwidget.o: moc_trafficgraphwidget.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-moc_trafficgraphwidget.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-moc_trafficgraphwidget.Tpo -c -o libbitcoinqt_a-moc_trafficgraphwidget.o `test -f 'moc_trafficgraphwidget.cpp' || echo '$(srcdir)/'`moc_trafficgraphwidget.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-moc_trafficgraphwidget.Tpo $(DEPDIR)/libbitcoinqt_a-moc_trafficgraphwidget.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='moc_trafficgraphwidget.cpp' object='libbitcoinqt_a-moc_trafficgraphwidget.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-moc_trafficgraphwidget.o `test -f 'moc_trafficgraphwidget.cpp' || echo '$(srcdir)/'`moc_trafficgraphwidget.cpp
-
-libbitcoinqt_a-moc_trafficgraphwidget.obj: moc_trafficgraphwidget.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-moc_trafficgraphwidget.obj -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-moc_trafficgraphwidget.Tpo -c -o libbitcoinqt_a-moc_trafficgraphwidget.obj `if test -f 'moc_trafficgraphwidget.cpp'; then $(CYGPATH_W) 'moc_trafficgraphwidget.cpp'; else $(CYGPATH_W) '$(srcdir)/moc_trafficgraphwidget.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbitcoinqt_a-moc_trafficgraphwidget.Tpo $(DEPDIR)/libbitcoinqt_a-moc_trafficgraphwidget.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='moc_trafficgraphwidget.cpp' object='libbitcoinqt_a-moc_trafficgraphwidget.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-moc_trafficgraphwidget.obj `if test -f 'moc_trafficgraphwidget.cpp'; then $(CYGPATH_W) 'moc_trafficgraphwidget.cpp'; else $(CYGPATH_W) '$(srcdir)/moc_trafficgraphwidget.cpp'; fi`
 
 libbitcoinqt_a-moc_transactiondesc.o: moc_transactiondesc.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-moc_transactiondesc.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-moc_transactiondesc.Tpo -c -o libbitcoinqt_a-moc_transactiondesc.o `test -f 'moc_transactiondesc.cpp' || echo '$(srcdir)/'`moc_transactiondesc.cpp

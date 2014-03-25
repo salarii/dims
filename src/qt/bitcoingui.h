@@ -97,7 +97,6 @@ private:
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
-    RPCConsole *rpcConsole;
 
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
@@ -129,8 +128,6 @@ signals:
 public slots:
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);
-    /** Set number of blocks shown in the UI */
-    void setNumBlocks(int count, int nTotalBlocks);
 
     /** Notify the user of an event from the core network or transaction handling code.
        @param[in] title     the message box / notification title
