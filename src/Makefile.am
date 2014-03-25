@@ -99,7 +99,6 @@ libbitcoin_server_a_SOURCES = \
   keystore.cpp \
   leveldbwrapper.cpp \
   main.cpp \
-  pleple.cpp \
   miner.cpp \
   net.cpp \
   noui.cpp \

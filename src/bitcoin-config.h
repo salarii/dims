@@ -75,7 +75,7 @@
 #define HAVE_LIBGDI32 1
 
 /* Define to 1 if you have the `imm32' library (-limm32). */
-/* #undef HAVE_LIBIMM32 */
+#define HAVE_LIBIMM32 1
 
 /* Define to 1 if you have the `iphlpapi' library (-liphlpapi). */
 #define HAVE_LIBIPHLPAPI 1
@@ -99,13 +99,13 @@
 #define HAVE_LIBOLEAUT32 1
 
 /* Define to 1 if you have the `png ' library (-lpng ). */
-/* #undef HAVE_LIBPNG_ */
+#define HAVE_LIBPNG_ 1
 
 /* Define to 1 if you have the `protobuf ' library (-lprotobuf ). */
-/* #undef HAVE_LIBPROTOBUF_ */
+#define HAVE_LIBPROTOBUF_ 1
 
 /* Define to 1 if you have the `qrencode' library (-lqrencode). */
-/* #undef HAVE_LIBQRENCODE */
+#define HAVE_LIBQRENCODE 1
 
 /* Define to 1 if you have the `rpcrt4' library (-lrpcrt4). */
 #define HAVE_LIBRPCRT4 1
@@ -135,7 +135,7 @@
 #define HAVE_LIBWS2_32 1
 
 /* Define to 1 if you have the `z ' library (-lz ). */
-/* #undef HAVE_LIBZ_ */
+#define HAVE_LIBZ_ 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -159,7 +159,7 @@
 #define HAVE_PTHREAD 1
 
 /* Have PTHREAD_PRIO_INHERIT. */
-/* #undef HAVE_PTHREAD_PRIO_INHERIT */
+#define HAVE_PTHREAD_PRIO_INHERIT 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -209,12 +209,12 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "0.9.0"
 
-/* Define to necessary symbol if this constant uses a non-standard name on
+/* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
 /* #undef PTHREAD_CREATE_JOINABLE */
 
 /* Define this symbol if qt plugins are static */
-/* #undef QT_STATICPLUGIN */
+#define QT_STATICPLUGIN 1
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -226,7 +226,7 @@
 #define USE_IPV6 1
 
 /* Define if QR support should be compiled in */
-/* #undef USE_QRCODE */
+#define USE_QRCODE 1
 
 /* UPnP support not compiled if undefined, otherwise value (0 or 1) determines
    default state */
@@ -245,7 +245,7 @@
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
-/* #undef _FILE_OFFSET_BITS */
+#define _FILE_OFFSET_BITS 64
 
 /* Define for large files, on AIX-style hosts. */
 /* #undef _LARGE_FILES */

@@ -1,1 +1,0 @@
-originAddressScaner.o: originAddressScaner.cpp

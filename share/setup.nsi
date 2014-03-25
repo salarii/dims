@@ -10,11 +10,11 @@ SetCompressor /SOLID lzma
 !define URL http://www.bitcoin.org/
 
 # MUI Symbol Definitions
-!define MUI_ICON "/c/msys/1.0/home/Artur/bitcoin-master/share/pixmaps/bitcoin.ico"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "/c/msys/1.0/home/Artur/bitcoin-master/share/pixmaps/nsis-wizard.bmp"
+!define MUI_ICON "/e/dep/ratcoin/share/pixmaps/bitcoin.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "/e/dep/ratcoin/share/pixmaps/nsis-wizard.bmp"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_RIGHT
-!define MUI_HEADERIMAGE_BITMAP "/c/msys/1.0/home/Artur/bitcoin-master/share/pixmaps/nsis-header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "/e/dep/ratcoin/share/pixmaps/nsis-header.bmp"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
@@ -22,7 +22,7 @@ SetCompressor /SOLID lzma
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "Bitcoin Core"
 !define MUI_FINISHPAGE_RUN $INSTDIR\bitcoin-qt.exe
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
-!define MUI_UNWELCOMEFINISHPAGE_BITMAP "/c/msys/1.0/home/Artur/bitcoin-master/share/pixmaps/nsis-wizard.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "/e/dep/ratcoin/share/pixmaps/nsis-wizard.bmp"
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
 # Included files
@@ -48,7 +48,7 @@ Var StartMenuGroup
 !insertmacro MUI_LANGUAGE English
 
 # Installer attributes
-OutFile /c/msys/1.0/home/Artur/bitcoin-master/bitcoin-${VERSION}-win32-setup.exe
+OutFile /e/dep/ratcoin/bitcoin-${VERSION}-win32-setup.exe
 !if "32" == "64"
 InstallDir $PROGRAMFILES64\Bitcoin
 !else
@@ -73,14 +73,14 @@ ShowUninstDetails show
 Section -Main SEC0000
     SetOutPath $INSTDIR
     SetOverwrite on
-    File /c/msys/1.0/home/Artur/bitcoin-master/release/bitcoin-qt.exe
-    File /oname=COPYING.txt /c/msys/1.0/home/Artur/bitcoin-master/COPYING
-    File /oname=readme.txt /c/msys/1.0/home/Artur/bitcoin-master/doc/README_windows.txt
+    File /e/dep/ratcoin/release/bitcoin-qt.exe
+    File /oname=COPYING.txt /e/dep/ratcoin/COPYING
+    File /oname=readme.txt /e/dep/ratcoin/doc/README_windows.txt
     SetOutPath $INSTDIR\daemon
-    File /c/msys/1.0/home/Artur/bitcoin-master/release/bitcoind.exe
-    File /c/msys/1.0/home/Artur/bitcoin-master/release/bitcoin-cli.exe
+    File /e/dep/ratcoin/release/bitcoind.exe
+    File /e/dep/ratcoin/release/bitcoin-cli.exe
     SetOutPath $INSTDIR\doc
-    File /r /c/msys/1.0/home/Artur/bitcoin-master/doc\*.*
+    File /r /e/dep/ratcoin/doc\*.*
     SetOutPath $INSTDIR
     WriteRegStr HKCU "${REGKEY}\Components" Main 1
 
