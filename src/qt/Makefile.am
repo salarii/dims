@@ -135,6 +135,19 @@ QT_MOC_CPP = \
   moc_walletmodel.cpp \
   moc_walletview.cpp
 
+CLIENT_H = \
+  ../node/actionHandler.h \
+  ../node/networkAction.h \
+  ../node/networkClient.h \
+  ../node/requestHandler.h \
+  ../node/setResponseVisitor.h
+
+CLIENT_CPP = \
+  ../node/actionHandler.cpp \
+  ../node/networkAction.cpp \
+  ../node/requestHandler.cpp \
+  ../node/setResponseVisitor.cpp
+
 BITCOIN_MM = \
   macdockiconhandler.mm \
   macnotificationhandler.mm
@@ -304,7 +317,8 @@ BITCOIN_RC = res/bitcoin-qt-res.rc
 libbitcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) \
   -I$(top_srcdir)/src/qt/forms $(QT_DBUS_INCLUDES)
 libbitcoinqt_a_SOURCES = $(BITCOIN_QT_CPP) $(BITCOIN_QT_H) $(QT_FORMS_UI) \
-  $(QT_QRC) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES)
+  $(QT_QRC) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) \
+  $(CLIENT_H) $(CLIENT_CPP)
 
 nodist_libbitcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
   $(PROTOBUF_H) $(QT_QRC_CPP)
