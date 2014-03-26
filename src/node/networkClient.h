@@ -1,3 +1,7 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef NETWORK_CLIENT_H
 #define NETWORK_CLIENT_H
 
@@ -25,7 +29,7 @@ public:
 
 	void send( CCommunicationBuffer const & _inBuffor );
 	bool serviced() const;
-	bool getResponse() const;
+	bool getResponse( CCommunicationBuffer & _outBuffor ) const;
 private:
 	QMutex m_mutex;
 	const QString m_ip;

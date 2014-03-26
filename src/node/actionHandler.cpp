@@ -1,45 +1,32 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include "actionHandler.h"
+#include <exception> 
+
+#include "setResponseVisitor.h"
+
+#include <boost/foreach.hpp>
+
 
 namespace node
 {
 
 unsigned int const CActionHandle::m_sleepTime = 2;
 
-TransactionsStatus::Enum m_status;
+self::TransactionsStatus::Enum m_status;
+
 uint256 m_token;
-class GetTransactionStatus : public boost::static_visitor<int>
-{
-public:
-	TransactionsStatus::Enum operator()(CTransactionStatus & _transactionStatus ) const
-	{
-		return _transactionStatus.m_status;
-	}
 
-	TransactionsStatus::Enum operator()(boost::any & _any ) const
-	{
-		throw std::exception;
-	}
-};
-
-class GetToken : public boost::static_visitor<int>
-{
-public:
-	uint256 operator()(CTransactionStatus & _transactionStatus ) const
-	{
-		return _transactionStatus.m_token;
-	}
-
-	uint256 operator()(boost::any & _any ) const
-	{
-		throw std::exception;
-	}
-};
 
 void
-accept( CSetResponseVisitor & _visitor )
+CAction::accept( CSetResponseVisitor & _visitor )
 {
-	_visitor( *this );
+	_visitor.visit( *this );
 }
+
+typedef std::pair<node::CRequest* const, node::CAction*> ReqAction;
 
 void 
 CActionHandle::run()
@@ -59,15 +46,14 @@ CActionHandle::run()
 			m_actions.clear();
 
 		}
- 
-		std::list<>
-		BOOST_FOREACH(std::pair< CRequest*, CAction* > reqAction, m_reqToAction)
+
+		BOOST_FOREACH(ReqAction & reqAction, m_reqToAction)
 		{
 			if ( m_requestHandler->isProcessed( reqAction.first ) )
 			{
 				
 				CSetResponseVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
-				reqAction.second.accept( visitor );
+				reqAction.second->accept( visitor );
 				
 				m_actions.push_back( reqAction.second );
 			}

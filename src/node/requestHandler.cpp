@@ -1,4 +1,9 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include "requestHandler.h"
+#include "tracker/nodeMessages.h"
 
 namespace node
 {
@@ -35,14 +40,14 @@ CRequestHandler::runRequests()
 
 	BOOST_FOREACH( CRequest* request, m_newRequest )
 	{
-		m_networkClient
-			request
+//		m_networkClient
+//			request
 
-			request->serialize( stream );
+		request->serialize( stream );
 
 	}
 
-	m_networkClient->send( CCommunicationBuffer _inBuffor );
+	m_networkClient->send( inBuffor );
 
 	readLoop();
 }
@@ -52,7 +57,8 @@ CRequestHandler::readLoop()
 {
 	while(!m_networkClient->serviced());
 
-	CCommunicationBuffer response = m_networkClient->getResponse();
+	CCommunicationBuffer response;
+	m_networkClient->getResponse(response);
 
 	CBufferAsStream stream(
 		  (char*)response.m_buffer
@@ -70,28 +76,30 @@ CRequestHandler::readLoop()
 
 		counter++;
 
-		switch( (CServerMessageType::Enum)messageType )
+		uint256 token;
+		int status;
+
+		switch( (self::CServerMessageType::Enum)messageType )
 		{
-		case CServerMessageType::ReferenceToken:
-			uint256 token;
+		case self::CServerMessageType::ReferenceToken:
 			stream >> token;
-			m_pendingRequest.insert( make_pair( m_newRequest[counter], token ) );
+			m_pendingRequest.insert( std::make_pair( m_newRequest[counter], token ) );
 			break;
-		case CServerMessageType::TransactionStatus:
-			TransactionsStatus::Enum status;
+		case self::CServerMessageType::TransactionStatus:
 			stream >> status;
-			m_processedRequests.insert( make_pair( m_newRequest[counter], status ) );
+			//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (self::TransactionsStatus::Enum )status ) ) );
 			break;
-		case CServerMessageType::MonitorInfo:
+		case self::CServerMessageType::MonitorInfo:
 			break;
-		case CServerMessageType::Trackernfo:
+		case self::CServerMessageType::Trackernfo:
 			break;
-		case CServerMessageType::RequestSatatus:
+		case self::CServerMessageType::RequestSatatus:
 			break;
 		default:
-			return false;
+			return;
 		}
 	}
 }
+
 
 }

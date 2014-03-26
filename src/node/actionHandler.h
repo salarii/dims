@@ -1,10 +1,21 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef ACTION_HANDLER_H
 #define ACTION_HANDLER_H
 
+#include "setResponseVisitor.h"
+
+#include <QThread>
+
+#include <QMutex>
+
+#include <map>
+
+
 namespace node
 {
-
-typedef boost::variant< CTransactionStatus, CAccountBalance > RequestRespond;
 
 class CAction
 {
@@ -13,9 +24,6 @@ public:
 
 	virtual CRequest* execute() = 0;
 };
-
-template < class T >
-accept( T _visitor )
 
 class CActionHandle : public QThread
 {

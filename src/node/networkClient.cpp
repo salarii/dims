@@ -1,3 +1,7 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include "networkClient.h"
 
 #include <QHostAddress>
@@ -41,7 +45,7 @@ int CNetworkClient::waitForInput( QTcpSocket *socket )
 		}
 		else
 		{
-			Sleep( 50 );
+			QThread::msleep( 50 );
 		}
 	}
 
@@ -143,6 +147,14 @@ void CNetworkClient::run()
 	{
 		printf("Client socket failed to connect\n");
 	}
+}
+
+bool
+CNetworkClient::getResponse( CCommunicationBuffer & _outBuffor ) const
+{
+	_outBuffor = m_outBuffor;
+
+	return true;
 }
 
 void

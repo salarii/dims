@@ -198,7 +198,12 @@ am__libbitcoinqt_a_SOURCES_DIST = bitcoin.cpp \
 	res/icons/tx_input.png res/icons/tx_output.png \
 	res/icons/tx_mined.png res/images/about.png \
 	res/images/splash.png res/images/splash_testnet.png $(wildcard \
-	res/movies/spinner-*.png)
+	res/movies/spinner-*.png) ../node/actionHandler.h \
+	../node/networkAction.h ../node/networkClient.h \
+	../node/requestHandler.h ../node/setResponseVisitor.h \
+	../node/actionHandler.cpp ../node/networkAction.cpp \
+	../node/networkClient.cpp ../node/requestHandler.cpp \
+	../node/setResponseVisitor.cpp
 @ENABLE_WALLET_TRUE@am__objects_1 =  \
 @ENABLE_WALLET_TRUE@	libbitcoinqt_a-addressbookpage.$(OBJEXT) \
 @ENABLE_WALLET_TRUE@	libbitcoinqt_a-addresstablemodel.$(OBJEXT) \
@@ -244,11 +249,17 @@ am__objects_2 = libbitcoinqt_a-bitcoin.$(OBJEXT) \
 	libbitcoinqt_a-splashscreen.$(OBJEXT) \
 	libbitcoinqt_a-utilitydialog.$(OBJEXT) $(am__objects_1)
 am__objects_3 =
+am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_4 = ../node/libbitcoinqt_a-actionHandler.$(OBJEXT) \
+	../node/libbitcoinqt_a-networkAction.$(OBJEXT) \
+	../node/libbitcoinqt_a-networkClient.$(OBJEXT) \
+	../node/libbitcoinqt_a-requestHandler.$(OBJEXT) \
+	../node/libbitcoinqt_a-setResponseVisitor.$(OBJEXT)
 am_libbitcoinqt_a_OBJECTS = $(am__objects_2) $(am__objects_3) \
 	$(am__objects_3) $(am__objects_3) $(am__objects_3) \
 	$(am__objects_3) $(am__objects_3) $(am__objects_3) \
-	$(am__objects_3)
-am__objects_4 = libbitcoinqt_a-moc_addressbookpage.$(OBJEXT) \
+	$(am__objects_3) $(am__objects_3) $(am__objects_4)
+am__objects_5 = libbitcoinqt_a-moc_addressbookpage.$(OBJEXT) \
 	libbitcoinqt_a-moc_addresstablemodel.$(OBJEXT) \
 	libbitcoinqt_a-moc_askpassphrasedialog.$(OBJEXT) \
 	libbitcoinqt_a-moc_bitcoinaddressvalidator.$(OBJEXT) \
@@ -289,24 +300,23 @@ am__objects_4 = libbitcoinqt_a-moc_addressbookpage.$(OBJEXT) \
 	libbitcoinqt_a-moc_walletframe.$(OBJEXT) \
 	libbitcoinqt_a-moc_walletmodel.$(OBJEXT) \
 	libbitcoinqt_a-moc_walletview.$(OBJEXT)
-am__objects_5 = libbitcoinqt_a-paymentrequest.pb.$(OBJEXT)
-am__objects_6 = libbitcoinqt_a-qrc_bitcoin.$(OBJEXT)
-nodist_libbitcoinqt_a_OBJECTS = $(am__objects_4) $(am__objects_3) \
-	$(am__objects_5) $(am__objects_3) $(am__objects_6)
+am__objects_6 = libbitcoinqt_a-paymentrequest.pb.$(OBJEXT)
+am__objects_7 = libbitcoinqt_a-qrc_bitcoin.$(OBJEXT)
+nodist_libbitcoinqt_a_OBJECTS = $(am__objects_5) $(am__objects_3) \
+	$(am__objects_6) $(am__objects_3) $(am__objects_7)
 libbitcoinqt_a_OBJECTS = $(am_libbitcoinqt_a_OBJECTS) \
 	$(nodist_libbitcoinqt_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__bitcoin_qt_SOURCES_DIST = bitcoin.cpp macdockiconhandler.mm \
 	macnotificationhandler.mm res/bitcoin-qt-res.rc
-am__objects_7 = macdockiconhandler.$(OBJEXT) \
+am__objects_8 = macdockiconhandler.$(OBJEXT) \
 	macnotificationhandler.$(OBJEXT)
-@TARGET_DARWIN_TRUE@am__objects_8 = $(am__objects_7)
-am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_9 = res/bitcoin-qt-res.$(OBJEXT)
-@TARGET_WINDOWS_TRUE@am__objects_10 = $(am__objects_9)
-am_bitcoin_qt_OBJECTS = bitcoin_qt-bitcoin.$(OBJEXT) $(am__objects_8) \
-	$(am__objects_10)
+@TARGET_DARWIN_TRUE@am__objects_9 = $(am__objects_8)
+am__objects_10 = res/bitcoin-qt-res.$(OBJEXT)
+@TARGET_WINDOWS_TRUE@am__objects_11 = $(am__objects_10)
+am_bitcoin_qt_OBJECTS = bitcoin_qt-bitcoin.$(OBJEXT) $(am__objects_9) \
+	$(am__objects_11)
 bitcoin_qt_OBJECTS = $(am_bitcoin_qt_OBJECTS)
 am__DEPENDENCIES_1 = $(am__append_2)
 am__DEPENDENCIES_2 = $(am__append_3)
@@ -721,6 +731,20 @@ QT_MOC_CPP = \
   moc_walletmodel.cpp \
   moc_walletview.cpp
 
+CLIENT_H = \
+  ../node/actionHandler.h \
+  ../node/networkAction.h \
+  ../node/networkClient.h \
+  ../node/requestHandler.h \
+  ../node/setResponseVisitor.h
+
+CLIENT_CPP = \
+  ../node/actionHandler.cpp \
+  ../node/networkAction.cpp \
+  ../node/networkClient.cpp \
+  ../node/requestHandler.cpp \
+  ../node/setResponseVisitor.cpp
+
 BITCOIN_MM = \
   macdockiconhandler.mm \
   macnotificationhandler.mm
@@ -845,7 +869,8 @@ libbitcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) \
   -I$(top_srcdir)/src/qt/forms $(QT_DBUS_INCLUDES)
 
 libbitcoinqt_a_SOURCES = $(BITCOIN_QT_CPP) $(BITCOIN_QT_H) $(QT_FORMS_UI) \
-  $(QT_QRC) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES)
+  $(QT_QRC) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) \
+  $(CLIENT_H) $(CLIENT_CPP)
 
 nodist_libbitcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
   $(PROTOBUF_H) $(QT_QRC_CPP)
@@ -907,6 +932,22 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+../node/$(am__dirstamp):
+	@$(MKDIR_P) ../node
+	@: > ../node/$(am__dirstamp)
+../node/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ../node/$(DEPDIR)
+	@: > ../node/$(DEPDIR)/$(am__dirstamp)
+../node/libbitcoinqt_a-actionHandler.$(OBJEXT):  \
+	../node/$(am__dirstamp) ../node/$(DEPDIR)/$(am__dirstamp)
+../node/libbitcoinqt_a-networkAction.$(OBJEXT):  \
+	../node/$(am__dirstamp) ../node/$(DEPDIR)/$(am__dirstamp)
+../node/libbitcoinqt_a-networkClient.$(OBJEXT):  \
+	../node/$(am__dirstamp) ../node/$(DEPDIR)/$(am__dirstamp)
+../node/libbitcoinqt_a-requestHandler.$(OBJEXT):  \
+	../node/$(am__dirstamp) ../node/$(DEPDIR)/$(am__dirstamp)
+../node/libbitcoinqt_a-setResponseVisitor.$(OBJEXT):  \
+	../node/$(am__dirstamp) ../node/$(DEPDIR)/$(am__dirstamp)
 libbitcoinqt.a: $(libbitcoinqt_a_OBJECTS) $(libbitcoinqt_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libbitcoinqt.a
 	$(AM_V_AR)$(libbitcoinqt_a_AR) libbitcoinqt.a $(libbitcoinqt_a_OBJECTS) $(libbitcoinqt_a_LIBADD)
@@ -962,11 +1003,21 @@ bitcoin-qt$(EXEEXT): $(bitcoin_qt_OBJECTS) $(bitcoin_qt_DEPENDENCIES)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f ../node/libbitcoinqt_a-actionHandler.$(OBJEXT)
+	-rm -f ../node/libbitcoinqt_a-networkAction.$(OBJEXT)
+	-rm -f ../node/libbitcoinqt_a-networkClient.$(OBJEXT)
+	-rm -f ../node/libbitcoinqt_a-requestHandler.$(OBJEXT)
+	-rm -f ../node/libbitcoinqt_a-setResponseVisitor.$(OBJEXT)
 	-rm -f res/bitcoin-qt-res.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@../node/$(DEPDIR)/libbitcoinqt_a-actionHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../node/$(DEPDIR)/libbitcoinqt_a-networkAction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../node/$(DEPDIR)/libbitcoinqt_a-networkClient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../node/$(DEPDIR)/libbitcoinqt_a-requestHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../node/$(DEPDIR)/libbitcoinqt_a-setResponseVisitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bitcoin_qt-bitcoin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-addressbookpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbitcoinqt_a-addresstablemodel.Po@am__quote@
@@ -1760,6 +1811,86 @@ libbitcoinqt_a-walletview.obj: walletview.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='walletview.cpp' object='libbitcoinqt_a-walletview.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoinqt_a-walletview.obj `if test -f 'walletview.cpp'; then $(CYGPATH_W) 'walletview.cpp'; else $(CYGPATH_W) '$(srcdir)/walletview.cpp'; fi`
+
+../node/libbitcoinqt_a-actionHandler.o: ../node/actionHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-actionHandler.o -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-actionHandler.Tpo -c -o ../node/libbitcoinqt_a-actionHandler.o `test -f '../node/actionHandler.cpp' || echo '$(srcdir)/'`../node/actionHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-actionHandler.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-actionHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/actionHandler.cpp' object='../node/libbitcoinqt_a-actionHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-actionHandler.o `test -f '../node/actionHandler.cpp' || echo '$(srcdir)/'`../node/actionHandler.cpp
+
+../node/libbitcoinqt_a-actionHandler.obj: ../node/actionHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-actionHandler.obj -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-actionHandler.Tpo -c -o ../node/libbitcoinqt_a-actionHandler.obj `if test -f '../node/actionHandler.cpp'; then $(CYGPATH_W) '../node/actionHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/actionHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-actionHandler.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-actionHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/actionHandler.cpp' object='../node/libbitcoinqt_a-actionHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-actionHandler.obj `if test -f '../node/actionHandler.cpp'; then $(CYGPATH_W) '../node/actionHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/actionHandler.cpp'; fi`
+
+../node/libbitcoinqt_a-networkAction.o: ../node/networkAction.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-networkAction.o -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-networkAction.Tpo -c -o ../node/libbitcoinqt_a-networkAction.o `test -f '../node/networkAction.cpp' || echo '$(srcdir)/'`../node/networkAction.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-networkAction.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-networkAction.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/networkAction.cpp' object='../node/libbitcoinqt_a-networkAction.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-networkAction.o `test -f '../node/networkAction.cpp' || echo '$(srcdir)/'`../node/networkAction.cpp
+
+../node/libbitcoinqt_a-networkAction.obj: ../node/networkAction.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-networkAction.obj -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-networkAction.Tpo -c -o ../node/libbitcoinqt_a-networkAction.obj `if test -f '../node/networkAction.cpp'; then $(CYGPATH_W) '../node/networkAction.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/networkAction.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-networkAction.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-networkAction.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/networkAction.cpp' object='../node/libbitcoinqt_a-networkAction.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-networkAction.obj `if test -f '../node/networkAction.cpp'; then $(CYGPATH_W) '../node/networkAction.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/networkAction.cpp'; fi`
+
+../node/libbitcoinqt_a-networkClient.o: ../node/networkClient.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-networkClient.o -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-networkClient.Tpo -c -o ../node/libbitcoinqt_a-networkClient.o `test -f '../node/networkClient.cpp' || echo '$(srcdir)/'`../node/networkClient.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-networkClient.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-networkClient.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/networkClient.cpp' object='../node/libbitcoinqt_a-networkClient.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-networkClient.o `test -f '../node/networkClient.cpp' || echo '$(srcdir)/'`../node/networkClient.cpp
+
+../node/libbitcoinqt_a-networkClient.obj: ../node/networkClient.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-networkClient.obj -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-networkClient.Tpo -c -o ../node/libbitcoinqt_a-networkClient.obj `if test -f '../node/networkClient.cpp'; then $(CYGPATH_W) '../node/networkClient.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/networkClient.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-networkClient.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-networkClient.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/networkClient.cpp' object='../node/libbitcoinqt_a-networkClient.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-networkClient.obj `if test -f '../node/networkClient.cpp'; then $(CYGPATH_W) '../node/networkClient.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/networkClient.cpp'; fi`
+
+../node/libbitcoinqt_a-requestHandler.o: ../node/requestHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-requestHandler.o -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-requestHandler.Tpo -c -o ../node/libbitcoinqt_a-requestHandler.o `test -f '../node/requestHandler.cpp' || echo '$(srcdir)/'`../node/requestHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-requestHandler.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-requestHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/requestHandler.cpp' object='../node/libbitcoinqt_a-requestHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-requestHandler.o `test -f '../node/requestHandler.cpp' || echo '$(srcdir)/'`../node/requestHandler.cpp
+
+../node/libbitcoinqt_a-requestHandler.obj: ../node/requestHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-requestHandler.obj -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-requestHandler.Tpo -c -o ../node/libbitcoinqt_a-requestHandler.obj `if test -f '../node/requestHandler.cpp'; then $(CYGPATH_W) '../node/requestHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/requestHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-requestHandler.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-requestHandler.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/requestHandler.cpp' object='../node/libbitcoinqt_a-requestHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-requestHandler.obj `if test -f '../node/requestHandler.cpp'; then $(CYGPATH_W) '../node/requestHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/requestHandler.cpp'; fi`
+
+../node/libbitcoinqt_a-setResponseVisitor.o: ../node/setResponseVisitor.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-setResponseVisitor.o -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-setResponseVisitor.Tpo -c -o ../node/libbitcoinqt_a-setResponseVisitor.o `test -f '../node/setResponseVisitor.cpp' || echo '$(srcdir)/'`../node/setResponseVisitor.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-setResponseVisitor.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-setResponseVisitor.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/setResponseVisitor.cpp' object='../node/libbitcoinqt_a-setResponseVisitor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-setResponseVisitor.o `test -f '../node/setResponseVisitor.cpp' || echo '$(srcdir)/'`../node/setResponseVisitor.cpp
+
+../node/libbitcoinqt_a-setResponseVisitor.obj: ../node/setResponseVisitor.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../node/libbitcoinqt_a-setResponseVisitor.obj -MD -MP -MF ../node/$(DEPDIR)/libbitcoinqt_a-setResponseVisitor.Tpo -c -o ../node/libbitcoinqt_a-setResponseVisitor.obj `if test -f '../node/setResponseVisitor.cpp'; then $(CYGPATH_W) '../node/setResponseVisitor.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/setResponseVisitor.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../node/$(DEPDIR)/libbitcoinqt_a-setResponseVisitor.Tpo ../node/$(DEPDIR)/libbitcoinqt_a-setResponseVisitor.Po
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../node/setResponseVisitor.cpp' object='../node/libbitcoinqt_a-setResponseVisitor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../node/libbitcoinqt_a-setResponseVisitor.obj `if test -f '../node/setResponseVisitor.cpp'; then $(CYGPATH_W) '../node/setResponseVisitor.cpp'; else $(CYGPATH_W) '$(srcdir)/../node/setResponseVisitor.cpp'; fi`
 
 libbitcoinqt_a-moc_addressbookpage.o: moc_addressbookpage.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoinqt_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbitcoinqt_a-moc_addressbookpage.o -MD -MP -MF $(DEPDIR)/libbitcoinqt_a-moc_addressbookpage.Tpo -c -o libbitcoinqt_a-moc_addressbookpage.o `test -f 'moc_addressbookpage.cpp' || echo '$(srcdir)/'`moc_addressbookpage.cpp
@@ -2708,6 +2839,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f ../node/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ../node/$(am__dirstamp)
 	-rm -f res/$(DEPDIR)/$(am__dirstamp)
 	-rm -f res/$(am__dirstamp)
 
@@ -2721,7 +2854,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ../node/$(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -2767,7 +2900,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ../node/$(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

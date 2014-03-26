@@ -5,8 +5,13 @@
 #ifndef VALIDATION_MANAGER_H
 #define VALIDATION_MANAGER_H
 
+#include "core.h"
+
 namespace self
 {
+
+class CTransactionRecordManager;
+
 struct TransactionsStatus
 {
 	enum Enum
@@ -15,7 +20,7 @@ struct TransactionsStatus
 		, Valdated
 		, Unconfirmed
 		, Ack
-		// , DoubleSpend
+		, DoubleSpend
 		, Confirmed
 		, Investigated
 	};
@@ -28,7 +33,7 @@ public:
 	
 	void serviceTransaction( CTransaction const & _tx );
 
-	TransactionStatus::Enum pullCurrentTransactionStatus( CTransaction const & _tx );
+	TransactionsStatus::Enum pullCurrentTransactionStatus( CTransaction const & _tx );
 private:
 	void workLoop();
 
@@ -36,7 +41,7 @@ private:
 
 	void addBundleToSendQueue( std::vector< CTransaction > _bundle );
 
-	CTransactionRecordManager m_transactionRecordManager;
+	CTransactionRecordManager * m_transactionRecordManager;
 private:
 	boost::mutex buffMutex;
 	std::vector< CTransaction > m_transactionsCandidates;
