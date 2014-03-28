@@ -105,6 +105,10 @@ AC_DEFUN([AX_BOOST_UNIT_TEST_FRAMEWORK],
 				link_unit_test_framework="no"
 				saved_ldflags="${LDFLAGS}"
 				for ax_lib in boost_unit_test_framework-$ax_boost_user_unit_test_framework_lib $ax_boost_user_unit_test_framework_lib ; do
+					AC_CHECK_LIB($ax_lib, exit,
+					[BOOST_UNIT_TEST_FRAMEWORK_LIB="-l$ax_lib"; AC_SUBST(BOOST_UNIT_TEST_FRAMEWORK_LIB) link_unit_test_framework="yes"; break],
+					[link_unit_test_framework="no"])
+					
 					if test "x$link_unit_test_framework" = "xyes"; then
 						break;
 					fi

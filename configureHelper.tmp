@@ -1,0 +1,35 @@
+CPPFLAGS="-I/e/dep/boost_1_55_0 \
+-I/e/dep/db-4.8.30.NC/build_unix \
+-I/e/dep/openssl/include \
+-I/e/dep \
+-I/e/dep/protobuf-2.5.0/src \
+-I/e/dep/libpng-1.6.9 \
+-I/e/dep/qrencode-3.4.3" \
+LDFLAGS="-L/e/dep/boost_1_55_0/stage/lib \
+-L/e/dep/db-4.8.30.NC/build_unix \
+-L/e/dep/openssl \
+-L/e/dep/miniupnpc \
+-L/e/dep/protobuf-2.5.0/src/.libs \
+-L/e/dep/libpng-1.6.9/.libs \
+-L/e/dep/qrencode-3.4.3/.libs" \
+./configure \
+--disable-upnp-default \
+--enable-tests \
+--with-qt-incdir=/e/dep/qt-5.2.1/include \
+--with-qt-libdir=/e/dep/qt-5.2.1/lib \
+--with-qt-bindir=/e/dep/qt-5.2.1/bin \
+--with-qt-plugindir=/e/dep/qt-5.2.1/plugins \
+--with-boost-system=mgw48-mt-s-1_55 \
+--with-boost-filesystem=mgw48-mt-s-1_55 \
+--with-boost-program-options=mgw48-mt-s-1_55 \
+--with-boost-thread=mgw48-mt-s-1_55 \
+--with-boost_chrono=mgw48-mt-s-1_55 \
+--with-boost-unit-test-framework=mgw48-mt-s-1_55 \
+--with-protoc-bindir=/e/dep/protobuf-2.5.0/src
+
+libboost_chrono-mgw48-mt-1_55.dll
+
+
+--with-boost-unit_test_framework-mgw48-mt-s-1_55 \
+
+
