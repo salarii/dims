@@ -19,8 +19,6 @@ AH_BOTTOM([#endif //BITCOIN_CONFIG_H])
 # a default location. It is currently used for building on OSX where autotools
 # are preinstalled but pkg-config comes from macports or homebrew. It should
 # probably be removed when building on <= 10.6 is no longer supported.
-USE_UPNP=
-
 m4_include([pkg.m4])
 
 dnl faketime breaks configure and is only needed for make. Disable it here.
@@ -138,6 +136,23 @@ AC_PATH_PROG(CCACHE,ccache)
 AC_PATH_PROG(XGETTEXT,xgettext)
 AC_PATH_PROG(HEXDUMP,hexdump)
 PKG_PROG_PKG_CONFIG
+
+# Enable debug 
+AC_ARG_ENABLE([debug],
+    [AS_HELP_STRING([--enable-debug],
+                    [use debug compiler flags and macros (default is no)])],
+    [enable_debug=$enableval],
+    [enable_debug=no])
+
+if test "x$enable_debug" = xyes; then
+    if test "x$GCC" = xyes; then
+        CFLAGS="-g3 -O0 -DDEBUG"
+    fi
+    
+    if test "x$GXX" = xyes; then
+        CXXFLAGS="-g3 -O0 -DDEBUG"
+    fi
+fi 
 
 ## TODO: Remove these hard-coded paths and flags. They are here for the sake of
 ##       compatibility with the legacy buildsystem.
