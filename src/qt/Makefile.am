@@ -145,6 +145,7 @@ CLIENT_H = \
 CLIENT_CPP = \
   ../node/actionHandler.cpp \
   ../node/networkAction.cpp \
+  ../node/networkClient.cpp \
   ../node/requestHandler.cpp \
   ../node/setResponseVisitor.cpp
 
