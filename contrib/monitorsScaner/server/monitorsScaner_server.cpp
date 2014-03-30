@@ -6,8 +6,8 @@
 #include <thrift/server/TSimpleServer.h>
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
-
-//#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
 
 #include "informationProvider.h"
 
@@ -43,7 +43,9 @@ int main(int argc, char **argv) {
   shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
   shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
 
-  //boost::thread switchStorageThread( boost::bind( &CInforamtionProvider::changeStorageThread, &handler->m_informationProvider ) );
+
+
+  boost::thread switchStorageThread( boost::bind( &CInforamtionProvider::changeStorageThread, &handler->m_informationProvider ) );
 
   TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
   server.serve();

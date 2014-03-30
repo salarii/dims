@@ -63,7 +63,11 @@ m_trackers = map_list_of<std::string,std::list<std::string> >
 ("1NCSLbBHF8CmZcwpWwvUMxnBR73FGirFWW", list_of("94.23.213.14:8333")("16ibDU3zZdYp5MD25jxLjrunshKY3zwuhE")("kk")("1900")("0.5%"))
 ("1NCSLbBHF8CmZcwpWwvUMxnBR73FGirFWW", list_of("46.4.58.69:8337")("13LUcsR2bc4j6mmo7sdU9Y6v7oQqG67i1n")("mm")("2000")("0.5%"));
 
+usedVectorTest = &vec3;
 
+usedVectorMain = &vec1;
+
+usedVector = usedVectorMain;
 }
 
 void
@@ -124,11 +128,11 @@ CInforamtionProvider::getMonitorsInfo(monitorsScaner::Data& _monitors) const
 void 
 CInforamtionProvider::getInfo(monitorsScaner::Data& _return, const InfoRequest& infoRequest)
 {
-	if ( Info::TRACKERS_INFO )
+	if ( Info::TRACKERS_INFO == infoRequest.info )
 	{	
 		getTrackers(_return, infoRequest.key );
 	}
-	else if( Info::MONITORS_INFO )
+	else if( Info::MONITORS_INFO == infoRequest.info  )
 	{
 		if ( infoRequest.networkType == NetworkType::TESTNET )
 		{
@@ -157,12 +161,12 @@ CInforamtionProvider::getInfo(monitorsScaner::Data& _return, const InfoRequest& 
 
 
 void 
-CInforamtionProvider::changeStorageThread( CInforamtionProvider & _informationProvider )
+CInforamtionProvider::changeStorageThread()
 {
 	while(1)
 	{
-		_informationProvider.changeStorage();
-		boost::this_thread::sleep(boost::posix_time::seconds(180));
+		changeStorage();
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
 		boost::this_thread::interruption_point();
 	}
 }

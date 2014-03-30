@@ -22,7 +22,7 @@ public:
 
 	void changeStorage();
 
-	void changeStorageThread( CInforamtionProvider & _informationProvider );
+	void changeStorageThread();
 private:
 	void getTrackers(monitorsScaner::Data& _trackers, std::string _publicKey ) const;
 	void getMonitorsInfo(monitorsScaner::Data& _monitors)const;
