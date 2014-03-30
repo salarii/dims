@@ -166,7 +166,7 @@ CInforamtionProvider::changeStorageThread()
 	while(1)
 	{
 		changeStorage();
-		boost::this_thread::sleep(boost::posix_time::seconds(1));
+		boost::this_thread::sleep(boost::posix_time::seconds(180));
 		boost::this_thread::interruption_point();
 	}
 }
