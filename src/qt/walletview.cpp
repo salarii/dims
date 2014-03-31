@@ -52,12 +52,10 @@ WalletView::WalletView(QWidget *parent):
     transactionsPage->setLayout(vbox);
 
     receiveCoinsPage = new ReceiveCoinsDialog();
-    sendCoinsPage = new SendCoinsDialog();
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
-    addWidget(sendCoinsPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -68,8 +66,6 @@ WalletView::WalletView(QWidget *parent):
     // Clicking on "Export" allows to export the transaction list
     connect(exportButton, SIGNAL(clicked()), transactionView, SLOT(exportClicked()));
 
-    // Pass through messages from sendCoinsPage
-    connect(sendCoinsPage, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
     // Pass through messages from transactionView
     connect(transactionView, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
 }
@@ -111,7 +107,6 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     transactionView->setModel(walletModel);
     overviewPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
-    sendCoinsPage->setModel(walletModel);
 
     if (walletModel)
     {
@@ -164,10 +159,9 @@ void WalletView::gotoReceiveCoinsPage()
 
 void WalletView::gotoSendCoinsPage(QString addr)
 {
-    setCurrentWidget(sendCoinsPage);
-
-    if (!addr.isEmpty())
-        sendCoinsPage->setAddress(addr);
+	SendCoinsDialog dlg(this);
+	dlg.setModel(walletModel);
+	dlg.exec();
 }
 
 void WalletView::gotoSignMessageTab(QString addr)
@@ -196,7 +190,10 @@ void WalletView::gotoVerifyMessageTab(QString addr)
 
 bool WalletView::handlePaymentRequest(const SendCoinsRecipient& recipient)
 {
-    return sendCoinsPage->handlePaymentRequest(recipient);
+	SendCoinsDialog dlg(this);
+	dlg.setModel(walletModel);
+	dlg.handlePaymentRequest(recipient);
+	return dlg.exec();
 }
 
 void WalletView::showOutOfSyncWarning(bool fShow)

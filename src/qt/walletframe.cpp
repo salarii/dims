@@ -128,9 +128,9 @@ void WalletFrame::gotoReceiveCoinsPage()
 
 void WalletFrame::gotoSendCoinsPage(QString addr)
 {
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoSendCoinsPage(addr);
+	WalletView *walletView = currentWalletView();
+	if (walletView)
+		walletView->gotoSendCoinsPage(addr);
 }
 
 void WalletFrame::gotoAddAddress()

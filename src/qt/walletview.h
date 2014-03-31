@@ -56,7 +56,6 @@ private:
     OverviewPage *overviewPage;
     QWidget *transactionsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
-    SendCoinsDialog *sendCoinsPage;
 
     TransactionView *transactionView;
 
