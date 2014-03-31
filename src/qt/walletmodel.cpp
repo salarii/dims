@@ -487,6 +487,28 @@ bool WalletModel::getPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const
     return wallet->GetPubKey(address, vchPubKeyOut);
 }
 
+bool WalletModel::addAddress( SecureString const & _privKey )
+{
+	CBitcoinSecret secret;
+
+	if ( !secret.SetString(_privKey.c_str()) )
+		return false;
+	
+	CKey priv = secret.GetKey();
+
+	CPubKey pubkey = priv.GetPubKey();
+
+	LOCK(wallet->cs_wallet);
+
+	if (!wallet->AddKeyPubKey(priv, pubkey))
+		return false;
+	
+	updateAddressBook(CBitcoinAddress(pubkey.GetID()).ToString().c_str(), QString("def"),true, QString(""),CT_NEW );
+
+	return true;
+}
+
+
 // returns a list of COutputs from COutPoints
 void WalletModel::getOutputs(const std::vector<COutPoint>& vOutpoints, std::vector<COutput>& vOutputs)
 {

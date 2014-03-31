@@ -77,6 +77,7 @@ QT_TS = \
 QT_FORMS_UI = \
   forms/aboutdialog.ui \
   forms/addressbookpage.ui \
+  forms/addAddressDialog.h \
   forms/askpassphrasedialog.ui \
   forms/coincontroldialog.ui \
   forms/editaddressdialog.ui \
@@ -95,6 +96,7 @@ QT_FORMS_UI = \
 QT_MOC_CPP = \
   moc_addressbookpage.cpp \
   moc_addresstablemodel.cpp \
+  moc_addAddressDialog.cpp \
   moc_askpassphrasedialog.cpp \
   moc_bitcoinaddressvalidator.cpp \
   moc_bitcoinamountfield.cpp \
@@ -168,6 +170,7 @@ PROTOBUF_PROTO = paymentrequest.proto
 BITCOIN_QT_H = \
   addressbookpage.h \
   addresstablemodel.h \
+  addAddressDialog.h \
   askpassphrasedialog.h \
   bitcoinaddressvalidator.h \
   bitcoinamountfield.h \
@@ -280,6 +283,7 @@ BITCOIN_QT_CPP = \
 if ENABLE_WALLET
 BITCOIN_QT_CPP += \
   addressbookpage.cpp \
+  addAddressDialog.cpp \
   addresstablemodel.cpp \
   askpassphrasedialog.cpp \
   coincontroldialog.cpp \

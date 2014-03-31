@@ -17,6 +17,7 @@
 #include "transactiontablemodel.h"
 #include "transactionview.h"
 #include "walletmodel.h"
+#include "addAddressDialog.h"
 
 #include "ui_interface.h"
 
@@ -236,6 +237,13 @@ void WalletView::backupWallet()
         emit message(tr("Backup Successful"), tr("The wallet data was successfully saved to %1.").arg(filename),
             CClientUIInterface::MSG_INFORMATION);
     }
+}
+
+void WalletView::addAddress()
+{
+	AddAddressDialog dlg(this);
+	dlg.setModel(walletModel);
+	dlg.exec();
 }
 
 void WalletView::changePassphrase()

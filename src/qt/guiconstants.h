@@ -11,6 +11,9 @@ static const int MODEL_UPDATE_DELAY = 250;
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
 
+/* AddAddressDialog */
+static const int MAX_ADDRESS_SIZE = 256;
+
 /* BitcoinGUI -- Size of icons in status bar */
 static const int STATUSBAR_ICONSIZE = 16;
 

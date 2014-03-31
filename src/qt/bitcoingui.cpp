@@ -225,6 +225,12 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(sendCoinsAction);
 
+    addAddressAction = new QAction(QIcon(""), tr("&Add new address"), this);
+    addAddressAction->setStatusTip(tr("Add new address manually, paste your private key in a window"));
+    addAddressAction->setToolTip(addAddressAction->statusTip());
+    addAddressAction->setCheckable(true);
+    tabGroup->addAction(addAddressAction);
+
     receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and bitcoin: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
@@ -249,6 +255,8 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
+    connect(addAddressAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(addAddressAction, SIGNAL(triggered()), this, SLOT(gotoAddAddress()));
 
     quitAction = new QAction(QIcon(":/icons/quit"), tr("E&xit"), this);
     quitAction->setStatusTip(tr("Quit application"));
@@ -378,6 +386,7 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
+	  toolbar->addAction(addAddressAction);
         overviewAction->setChecked(true);
     }
 }
@@ -579,6 +588,12 @@ void BitcoinGUI::gotoSendCoinsPage(QString addr)
 {
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
+}
+
+void BitcoinGUI::gotoAddAddress()
+{
+    addAddressAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoAddAddress();
 }
 
 void BitcoinGUI::gotoSignMessageTab(QString addr)

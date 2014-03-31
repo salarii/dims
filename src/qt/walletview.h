@@ -83,6 +83,8 @@ public slots:
     /** Encrypt the wallet */
     void encryptWallet(bool status);
     /** Backup the wallet */
+	void addAddress();
+
     void backupWallet();
     /** Change encrypted wallet passphrase */
     void changePassphrase();
