@@ -70,7 +70,6 @@ COriginAddressScaner::Thread()
 
 void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 {
-
 	unsigned int valueSum = 0;
 	for (unsigned int i = 0; i < _tx.vout.size(); i++)
 	{
@@ -89,8 +88,6 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 			pc++;
 		}
-
-
 		txnouttype type;
 
 		std::vector< std:: vector<unsigned char> > vSolutions;

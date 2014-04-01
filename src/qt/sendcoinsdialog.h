@@ -61,6 +61,7 @@ private:
     void processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg = QString());
 
     bool getCoinAmount(QString & _amountToSend ) const;
+    bool getWalletCoinAmount( QString & _walletCoinAmount ) const;
 private slots:
     void on_sendButton_clicked();
     void removeEntry(SendCoinsEntry* entry);

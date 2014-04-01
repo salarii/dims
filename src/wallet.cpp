@@ -1131,6 +1131,16 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
     }
 }
 
+unsigned CWallet::AvailableCoinsAmount(CKeyID const & _keyID) const
+{
+	return 0;
+}
+
+unsigned CWallet::AllAvailableCoinsAmount() const
+{
+	return 0;
+}
+
 static void ApproximateBestSubset(vector<pair<int64_t, pair<const CWalletTx*,unsigned int> > >vValue, int64_t nTotalLower, int64_t nTargetValue,
                                   vector<char>& vfBest, int64_t& nBest, int iterations = 1000)
 {
