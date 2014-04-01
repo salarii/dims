@@ -41,7 +41,8 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
 
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
-/*
+    connect(ui->setManual, SIGNAL(toggled ( bool )), this, SLOT(setAddressViewActive( bool )));
+    /*
     // Coin Control
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
@@ -110,6 +111,49 @@ void SendCoinsDialog::setModel(WalletModel *model)
 SendCoinsDialog::~SendCoinsDialog()
 {
     delete ui;
+}
+
+bool
+SendCoinsDialog::getCoinAmount( QString & _amountToSend ) const
+{
+	if(!model || !model->getOptionsModel())
+		return false;
+
+	QList<SendCoinsRecipient> recipients;
+	bool valid = true;
+
+	for(int i = 0; i < ui->entries->count(); ++i)
+	{
+		SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+		if(entry)
+		{
+			if(entry->validate())
+			{
+				recipients.append(entry->getValue());
+			}
+			else
+			{
+				valid = false;
+			}
+		}
+	}
+
+	if(!valid || recipients.isEmpty())
+	{
+		return false;
+	}
+
+	// Format confirmation message
+	QStringList formatted;
+	qint64 amountToSend = 0;
+
+	foreach(const SendCoinsRecipient &rcp, recipients)
+	{
+		amountToSend += rcp.amount;
+	}
+	_amountToSend = BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), amountToSend);
+
+	return true;
 }
 
 void SendCoinsDialog::on_sendButton_clicked()
@@ -272,6 +316,7 @@ void SendCoinsDialog::clear()
 void SendCoinsDialog::reject()
 {
     clear();
+    QDialog::reject();
 }
 
 void SendCoinsDialog::accept()
@@ -334,6 +379,8 @@ QWidget *SendCoinsDialog::setupTabChain(QWidget *prev)
     QWidget::setTabOrder(ui->clearButton, ui->addButton);
     return ui->addButton;
 }
+
+
 
 void SendCoinsDialog::setAddress(const QString &address)
 {
@@ -414,6 +461,33 @@ void SendCoinsDialog::setBalance(qint64 balance, qint64 unconfirmedBalance, qint
     {
         ui->labelBalance->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
     }
+}
+
+void
+SendCoinsDialog::setAddressViewActive( bool _enable )
+{
+	ui->tableView->setEnabled( _enable );
+}
+
+void SendCoinsDialog::setTransactionStatus()
+{
+	QStringList summary;
+	summary += "Transaction Summary";
+
+	QString amountToSend;
+	if ( getCoinAmount( amountToSend ) )
+	{
+		summary +="you want to send:" + amountToSend;
+	}
+	else
+	{
+		summary += "Improper transaction imputs";
+	}
+	ui->summaryLabel->clear();
+	foreach( QString const &part, summary)
+	{
+		ui->summaryLabel->setText(ui->summaryLabel->text()+ "\n" + part );
+	}
 }
 
 void SendCoinsDialog::updateDisplayUnit()

@@ -12,6 +12,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
@@ -33,8 +34,10 @@ public:
     QWidget *scrollAreaWidgetContents;
     QVBoxLayout *verticalLayout_2;
     QVBoxLayout *entries;
-    QTableView *tableView;
     QSpacerItem *verticalSpacer;
+    QCheckBox *setManual;
+    QTableView *tableView;
+    QLabel *summaryLabel;
     QHBoxLayout *horizontalLayout;
     QPushButton *sendButton;
     QPushButton *clearButton;
@@ -67,23 +70,33 @@ public:
 
         verticalLayout_2->addLayout(entries);
 
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_2->addItem(verticalSpacer);
+
+        setManual = new QCheckBox(scrollAreaWidgetContents);
+        setManual->setObjectName(QStringLiteral("setManual"));
+
+        verticalLayout_2->addWidget(setManual);
+
         tableView = new QTableView(scrollAreaWidgetContents);
         tableView->setObjectName(QStringLiteral("tableView"));
         tableView->setContextMenuPolicy(Qt::CustomContextMenu);
         tableView->setTabKeyNavigation(false);
         tableView->setAlternatingRowColors(true);
-        tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+        tableView->setSelectionMode(QAbstractItemView::MultiSelection);
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         tableView->setSortingEnabled(true);
         tableView->verticalHeader()->setVisible(false);
 
         verticalLayout_2->addWidget(tableView);
 
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        summaryLabel = new QLabel(scrollAreaWidgetContents);
+        summaryLabel->setObjectName(QStringLiteral("summaryLabel"));
 
-        verticalLayout_2->addItem(verticalSpacer);
+        verticalLayout_2->addWidget(summaryLabel);
 
-        verticalLayout_2->setStretch(2, 1);
+        verticalLayout_2->setStretch(1, 1);
         scrollArea->setWidget(scrollAreaWidgetContents);
 
         verticalLayout->addWidget(scrollArea);
@@ -160,9 +173,11 @@ public:
     void retranslateUi(QDialog *SendCoinsDialog)
     {
         SendCoinsDialog->setWindowTitle(QApplication::translate("SendCoinsDialog", "Send Coins", 0));
+        setManual->setText(QApplication::translate("SendCoinsDialog", "Set inputs of transaction manually", 0));
 #ifndef QT_NO_TOOLTIP
         tableView->setToolTip(QApplication::translate("SendCoinsDialog", "Double-click to edit address or label", 0));
 #endif // QT_NO_TOOLTIP
+        summaryLabel->setText(QApplication::translate("SendCoinsDialog", "transaction summary:", 0));
 #ifndef QT_NO_TOOLTIP
         sendButton->setToolTip(QApplication::translate("SendCoinsDialog", "Confirm the send action", 0));
 #endif // QT_NO_TOOLTIP

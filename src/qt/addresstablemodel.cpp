@@ -27,10 +27,11 @@ struct AddressTableEntry
     Type type;
     QString label;
     QString address;
+    QString balance;
 
     AddressTableEntry() {}
-    AddressTableEntry(Type type, const QString &label, const QString &address):
-        type(type), label(label), address(address) {}
+    AddressTableEntry(Type type, const QString &label, const QString &address, const QString &balance="0"):
+        type(type), label(label), address(address), balance(balance){}
 };
 
 struct AddressTableEntryLessThan
@@ -86,9 +87,17 @@ public:
                 AddressTableEntry::Type addressType = translateTransactionType(
                         QString::fromStdString(item.second.purpose), fMine);
                 const std::string& strName = item.second.name;
+
+			CBitcoinAddress bitcoinAddress;
+
+			bitcoinAddress.SetString( address.ToString() );
+			CKeyID keyID;
+			bitcoinAddress.GetKeyID(keyID);
+
                 cachedAddressTable.append(AddressTableEntry(addressType,
                                   QString::fromStdString(strName),
-                                  QString::fromStdString(address.ToString())));
+                                  QString::fromStdString(address.ToString()),
+                                  QString::number ( wallet->AvailableCoinsAmount(keyID) ) ));
             }
         }
         // qLowerBound() and qUpperBound() require our cachedAddressTable list to be sorted in asc order
@@ -109,6 +118,11 @@ public:
         bool inModel = (lower != upper);
         AddressTableEntry::Type newEntryType = translateTransactionType(purpose, isMine);
 
+		CBitcoinAddress bitcoinAddress;
+		bitcoinAddress.SetString( address.toStdString() );
+		CKeyID keyID;
+		bitcoinAddress.GetKeyID(keyID);
+
         switch(status)
         {
         case CT_NEW:
@@ -118,7 +132,8 @@ public:
                 break;
             }
             parent->beginInsertRows(QModelIndex(), lowerIndex, lowerIndex);
-            cachedAddressTable.insert(lowerIndex, AddressTableEntry(newEntryType, label, address));
+
+            cachedAddressTable.insert(lowerIndex, AddressTableEntry(newEntryType, label, address,QString::number ( wallet->AvailableCoinsAmount(keyID))));
             parent->endInsertRows();
             break;
         case CT_UPDATED:
@@ -165,7 +180,7 @@ public:
 AddressTableModel::AddressTableModel(CWallet *wallet, WalletModel *parent) :
     QAbstractTableModel(parent),walletModel(parent),wallet(wallet),priv(0)
 {
-    columns << tr("Label") << tr("Address");
+    columns << tr("Label") << tr("Address") << tr("Balance");
     priv = new AddressTablePriv(wallet, this);
     priv->refreshAddressTable();
 }
@@ -209,6 +224,8 @@ QVariant AddressTableModel::data(const QModelIndex &index, int role) const
             }
         case Address:
             return rec->address;
+	  case Balance:
+            return rec->balance;
         }
     }
     else if (role == Qt::FontRole)

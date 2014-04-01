@@ -48,7 +48,8 @@ public slots:
     SendCoinsEntry *addEntry();
     void updateTabsAndLabels();
     void setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 immatureBalance);
-
+	void setTransactionStatus();
+	void setAddressViewActive( bool _enable );
 private:
     Ui::SendCoinsDialog *ui;
     WalletModel *model;
@@ -59,6 +60,7 @@ private:
     // Additional parameter msgArg can be used via .arg(msgArg).
     void processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg = QString());
 
+    bool getCoinAmount(QString & _amountToSend ) const;
 private slots:
     void on_sendButton_clicked();
     void removeEntry(SendCoinsEntry* entry);
