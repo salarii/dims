@@ -62,6 +62,7 @@ private:
 
     bool getCoinAmount(QString & _amountToSend ) const;
     bool getWalletCoinAmount( QString & _walletCoinAmount ) const;
+    bool fillCoinControl(qint64 const _outputSum,CCoinControl &_coinControl ) const;
 private slots:
     void on_sendButton_clicked();
     void removeEntry(SendCoinsEntry* entry);

@@ -173,6 +173,8 @@ public:
     bool CanSupportFeature(enum WalletFeature wf) { AssertLockHeld(cs_wallet); return nWalletMaxVersion >= wf; }
 
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL) const;
+
+    void AvailableCoins(vector<COutput>& vCoins, CKeyID const & _keyID) const;
 	//this is new high level function
 	//I have to  consider proper  form and place for it
     unsigned AvailableCoinsAmount(CKeyID const & _keyID) const;

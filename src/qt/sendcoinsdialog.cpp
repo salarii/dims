@@ -236,6 +236,12 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
+	if ( ui->setManual->isChecked() )
+    {
+	    qint64 _outputSum;
+	    if (! fillCoinControl(_outputSum,*CoinControlDialog::coinControl ) )
+		return; // insuficient funds 
+    }
     // prepare transaction for getting txFee earlier
     WalletModelTransaction currentTransaction(recipients);
     WalletModel::SendCoinsReturn prepareStatus;
@@ -253,7 +259,8 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
-    qint64 txFee = currentTransaction.getTransactionFee();
+// 
+    qint64 txFee = currentTransaction.getTransactionFee(); // this replace  with fee of tracker
     QString questionString = tr("Are you sure you want to send?");
     questionString.append("<br /><br />%1");
 
@@ -302,6 +309,33 @@ void SendCoinsDialog::on_sendButton_clicked()
         coinControlUpdateLabels();
     }
     fNewRecipientAllowed = true;
+}
+
+bool
+SendCoinsDialog::fillCoinControl(qint64 const _outputSum,CCoinControl &_coinControl ) const
+{
+	qint64 outputSum = _outputSum;
+
+	QItemSelectionModel * selection = ui->tableView->selectionModel();
+	QModelIndexList balanceIndexes = selection->selectedRows ( AddressTableModel::Address );
+
+	QModelIndexList::iterator iterator = balanceIndexes.begin();
+	while( iterator != balanceIndexes.end() )
+	{
+		QVariant data = m_addressModel->data( *iterator, Qt::DisplayRole );
+		QString val = data.toString();
+
+		CBitcoinAddress bitcoinAddress;
+		bitcoinAddress.SetString(val.toStdString());
+		CKeyID keyId;
+		bitcoinAddress.GetKeyID(keyId);
+
+		if ( m_addressModel->serviceOutputAmountByAddress( outputSum, _coinControl,keyId ) )
+			return true;
+
+		iterator++;
+	}
+	return false;
 }
 
 void SendCoinsDialog::clear()

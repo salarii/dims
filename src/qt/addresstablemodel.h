@@ -10,8 +10,9 @@
 
 class AddressTablePriv;
 class WalletModel;
-
+class CCoinControl;
 class CWallet;
+class CKeyID;
 
 /**
    Qt model of the address book in the core. This allows views to access and modify the address book.
@@ -53,6 +54,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
+    bool serviceOutputAmountByAddress( qint64 & _outputSum, CCoinControl & _coinControl, CKeyID const & keyId ) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
