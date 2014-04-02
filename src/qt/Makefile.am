@@ -142,14 +142,16 @@ CLIENT_H = \
   ../node/networkAction.h \
   ../node/networkClient.h \
   ../node/requestHandler.h \
-  ../node/setResponseVisitor.h
+  ../node/setResponseVisitor.h \
+  ../node/trackerLocalRanking.h
 
 CLIENT_CPP = \
   ../node/actionHandler.cpp \
   ../node/networkAction.cpp \
   ../node/networkClient.cpp \
   ../node/requestHandler.cpp \
-  ../node/setResponseVisitor.cpp
+  ../node/setResponseVisitor.cpp \
+  ../node/trackerLocalRanking.cpp
 
 BITCOIN_MM = \
   macdockiconhandler.mm \

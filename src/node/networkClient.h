@@ -31,10 +31,6 @@ public:
 	bool serviced() const;
 	bool getResponse( CCommunicationBuffer & _outBuffor ) const;
 private:
-	QMutex m_mutex;
-	const QString m_ip;
-	const ushort m_port;
-
 	void setRunThread( bool newVal );
 	bool getRunThread();
 	void run();
@@ -44,6 +40,10 @@ private:
 private:
 	bool mRunThread;
 	static unsigned const m_timeout;
+
+	QMutex m_mutex;
+	const QString m_ip;
+	const ushort m_port;
 
 	CCommunicationBuffer m_inBuffor;
 	CCommunicationBuffer m_outBuffor;

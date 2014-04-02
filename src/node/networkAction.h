@@ -7,6 +7,7 @@
 
 #include "actionHandler.h"
 #include "tracker/validationManager.h"
+#include "requestHandler.h"
 
 namespace node
 {

@@ -163,4 +163,10 @@ CNetworkClient::send( CCommunicationBuffer const & _inBuffor )
 	m_inBuffor = _inBuffor;
 }
 
+bool
+CNetworkClient::serviced() const
+{
+	return true;
+}
+
 }

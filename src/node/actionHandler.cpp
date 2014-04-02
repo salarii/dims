@@ -13,7 +13,7 @@
 namespace node
 {
 
-unsigned int const CActionHandle::m_sleepTime = 2;
+unsigned int const CActionHandler::m_sleepTime = 2;
 
 self::TransactionsStatus::Enum m_status;
 
@@ -28,8 +28,14 @@ CAction::accept( CSetResponseVisitor & _visitor )
 
 typedef std::pair<node::CRequest* const, node::CAction*> ReqAction;
 
+void
+CActionHandler::shutDown()
+{
+
+}
+
 void 
-CActionHandle::run()
+CActionHandler::run()
 {
 	while(1)
 	{
@@ -51,7 +57,6 @@ CActionHandle::run()
 		{
 			if ( m_requestHandler->isProcessed( reqAction.first ) )
 			{
-				
 				CSetResponseVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
 				reqAction.second->accept( visitor );
 				

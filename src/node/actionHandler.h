@@ -5,8 +5,6 @@
 #ifndef ACTION_HANDLER_H
 #define ACTION_HANDLER_H
 
-#include "setResponseVisitor.h"
-
 #include <QThread>
 
 #include <QMutex>
@@ -17,6 +15,10 @@
 namespace node
 {
 
+class CSetResponseVisitor;
+class CRequestHandler;
+struct CRequest;
+
 class CAction
 {
 public:
@@ -25,12 +27,11 @@ public:
 	virtual CRequest* execute() = 0;
 };
 
-class CActionHandle : public QThread
+class CActionHandler : public QThread
 {
 public:
-
 	void run();
-
+	void shutDown();
 private:
 	QMutex m_mutex;
 	std::list< CAction* > m_actions;

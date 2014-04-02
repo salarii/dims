@@ -15,6 +15,7 @@
 #include "optionsmodel.h"
 #include "splashscreen.h"
 #include "utilitydialog.h"
+#include "node/actionHandler.h"
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
 #include "walletmodel.h"
@@ -199,6 +200,7 @@ private:
     ClientModel *clientModel;
     BitcoinGUI *window;
     QTimer *pollShutdownTimer;
+    node::CActionHandler * m_actionHandler;
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer;
     WalletModel *walletModel;
@@ -264,6 +266,7 @@ BitcoinApplication::BitcoinApplication(int &argc, char **argv):
     coreThread(0),
     optionsModel(0),
     clientModel(0),
+    m_actionHandler(0),
     window(0),
     pollShutdownTimer(0),
 #ifdef ENABLE_WALLET
@@ -362,6 +365,10 @@ void BitcoinApplication::requestShutdown()
     delete clientModel;
     clientModel = 0;
 
+    m_actionHandler->shutDown();
+    delete m_actionHandler;
+    m_actionHandler = 0;
+
     // Show a simple window indicating shutdown status
     ShutdownWindow::showShutdownWindow(window);
 
@@ -386,6 +393,9 @@ void BitcoinApplication::initializeResult(int retval)
         clientModel = new ClientModel(optionsModel);
         window->setClientModel(clientModel);
 
+	  m_actionHandler = new node::CActionHandler;
+
+	m_actionHandler->run();
 #ifdef ENABLE_WALLET
         if(pwalletMain)
         {

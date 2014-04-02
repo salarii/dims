@@ -44,14 +44,6 @@ public:
 	}
 };
 
-
-
-inline
-CSetResponseVisitor::CSetResponseVisitor( RequestRespond const & _requestRespond )
-	: m_requestRespond( _requestRespond )
-{
-}
-
 void 
 CSetResponseVisitor::visit( CSendTransaction & _sendTransaction )
 {

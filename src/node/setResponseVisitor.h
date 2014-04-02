@@ -30,6 +30,12 @@ private:
 	RequestRespond m_requestRespond;
 };
 
+inline
+CSetResponseVisitor::CSetResponseVisitor( RequestRespond const & _requestRespond )
+: m_requestRespond( _requestRespond )
+{
+}
+
 
 }
 
