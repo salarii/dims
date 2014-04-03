@@ -9,6 +9,8 @@
 #include <QString>
 #include <functional> 
 
+#include "connectionProvider.h"
+
 namespace node
 {
 
@@ -24,7 +26,7 @@ struct CTrackerStats
 
 };
 
-struct CompareTracker : public std::binary_function<CTrackerStats ,CTrackerStats ,bool>
+struct CompareBalancedTracker : public std::binary_function<CTrackerStats ,CTrackerStats ,bool>
 {
 	bool operator() ( CTrackerStats const & _tracker1, CTrackerStats const & _tracker2) const
 	{
@@ -32,13 +34,35 @@ struct CompareTracker : public std::binary_function<CTrackerStats ,CTrackerStats
 	}
 };
 
-class CTrackerLocalRanking
+struct CompareReputationTracker : public std::binary_function<CTrackerStats ,CTrackerStats ,bool>
+{
+	bool operator() ( CTrackerStats const & _tracker1, CTrackerStats const & _tracker2) const
+	{
+		return _tracker1.m_reputation < _tracker2.m_reputation;
+	}
+};
+
+class CTrackerLocalRanking : public CConnectionProvider
 {
 public:
-	CNetworkClient * connect();
+	virtual CNetworkClient * provideConnection( RequestKind::Enum const _actionKind );
+	// this  will be  rather  complex  stuff  leave  it  for  better  times
+	virtual std::list< CNetworkClient *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber );
+
 	float getPrice();
+
+	~CTrackerLocalRanking();
+
+	static CTrackerLocalRanking* getInstance();
+
 private:
-	std::set< CTrackerStats, CompareTracker > m_ranking;
+	CTrackerLocalRanking();
+private:
+	static CTrackerLocalRanking * ms_instance;
+	// those  sets should be repeatedly rebuild
+	std::set< CTrackerStats, CompareBalancedTracker > m_balancedRanking;
+
+	std::set< CTrackerStats, CompareReputationTracker > m_reputationRanking;
 };
 
 

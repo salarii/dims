@@ -64,6 +64,12 @@ CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _token )
 {
 }
 
+RequestKind::Enum 
+CTransactionStatusRequest::getKind() const
+{
+	return RequestKind::TransactionStatus;
+}
+
 void
 CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream )
 {
@@ -76,6 +82,12 @@ CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream )
 CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction )
 	: m_transaction( _transaction )
 {
+}
+
+RequestKind::Enum 
+CTransactionSendRequest::getKind() const
+{
+	return RequestKind::Transaction;
 }
 
 void 

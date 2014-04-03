@@ -11,10 +11,18 @@
 
 #include <map>
 
+#include "connectionProvider.h"
 
 namespace node
 {
-
+/*
+connect  with  seed
+connect  with  monitor or  tracker
+rebuild reputation  tables
+handle  requests
+rebuild  reputation  table  periodically
+?? put  this as permenent  action  with  counter ?? action 
+*/
 class CSetResponseVisitor;
 class CRequestHandler;
 struct CRequest;
@@ -32,7 +40,14 @@ class CActionHandler : public QThread
 public:
 	void run();
 	void shutDown();
+	~CActionHandler();
+	static CActionHandler* getInstance( );
 private:
+	CActionHandler();
+
+	CRequestHandler * provideHandler( RequestKind::Enum const _request );
+private:
+	static CActionHandler * ms_instance;
 	QMutex m_mutex;
 	std::list< CAction* > m_actions;
 
@@ -40,9 +55,15 @@ private:
 
 	CRequestHandler * m_requestHandler;
 
+	std::list<CConnectionProvider*> m_connectionProviders;
+
+	//this  will be  multimap one  day, this  should  be  periodically  cleanuped ,  don't  know  how  yet
+	std::map<RequestKind::Enum, CRequestHandler * > m_requestHandlers;
+	
 	static unsigned int const m_sleepTime;
 };
 
 }
+
 
 #endif

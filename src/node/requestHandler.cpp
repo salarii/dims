@@ -8,6 +8,11 @@
 namespace node
 {
 
+CRequestHandler::CRequestHandler( CNetworkClient * _networkClient )
+	:m_networkClient( _networkClient )
+{
+}
+
 RequestRespond
 CRequestHandler::getRespond( CRequest* _request ) const
 {

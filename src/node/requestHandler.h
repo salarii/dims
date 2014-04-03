@@ -11,9 +11,10 @@
 
 #include "networkClient.h"
 
+#include "connectionProvider.h"
+
 namespace node
 {
-
 
 struct CTransactionStatus
 {
@@ -31,11 +32,15 @@ typedef boost::variant< CTransactionStatus, CAccountBalance > RequestRespond;
 struct CRequest
 {
 	virtual void serialize( CBufferAsStream & _bufferStream ) = 0;
+
+	virtual RequestKind::Enum getKind() const = 0;
 };
 
 class CRequestHandler
 {
 public:
+	CRequestHandler( CNetworkClient * _networkClient );
+
 	RequestRespond getRespond( CRequest* _request ) const;
 
 	bool isProcessed( CRequest* _request ) const;

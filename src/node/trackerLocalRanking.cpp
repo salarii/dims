@@ -3,10 +3,37 @@
 namespace node
 {
 
+CTrackerLocalRanking * CTrackerLocalRanking::ms_instance = NULL;
+
+
+CTrackerLocalRanking::CTrackerLocalRanking()
+{
+}
+
+CTrackerLocalRanking::~CTrackerLocalRanking()
+{
+}
+
+CTrackerLocalRanking*
+CTrackerLocalRanking::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CTrackerLocalRanking();
+	};
+	return ms_instance;
+}
+
 CNetworkClient *
-CTrackerLocalRanking::connect()
+CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind )
 {
 	return 0;
+}
+
+std::list< CNetworkClient *> 
+CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber )
+{
+	return std::list< CNetworkClient *>();
 }
 
 float

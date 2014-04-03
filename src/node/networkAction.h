@@ -49,6 +49,7 @@ struct CTransactionStatusRequest : public CRequest
 public:
 	CTransactionStatusRequest( uint256 const & _token );
 	void serialize( CBufferAsStream & _bufferStream );
+	RequestKind::Enum getKind() const;
 	uint256 m_token;
 };
 
@@ -57,6 +58,7 @@ struct CTransactionSendRequest : public CRequest
 public:
 	CTransactionSendRequest( CTransaction const & _transaction );
 	void serialize( CBufferAsStream & _bufferStream );
+	RequestKind::Enum getKind() const;
 	CTransaction m_transaction;
 };
 

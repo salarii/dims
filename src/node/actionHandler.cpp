@@ -19,6 +19,10 @@ self::TransactionsStatus::Enum m_status;
 
 uint256 m_token;
 
+typedef std::pair<node::CRequest* const, node::CAction*> ReqAction;
+
+CActionHandler * CActionHandler::ms_instance = NULL;
+
 
 void
 CAction::accept( CSetResponseVisitor & _visitor )
@@ -26,7 +30,51 @@ CAction::accept( CSetResponseVisitor & _visitor )
 	_visitor.visit( *this );
 }
 
-typedef std::pair<node::CRequest* const, node::CAction*> ReqAction;
+CActionHandler::CActionHandler()
+{
+}
+
+CActionHandler::~CActionHandler()
+{
+}
+
+CActionHandler*
+CActionHandler::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CActionHandler();
+	};
+	return ms_instance;
+}
+
+CRequestHandler * 
+CActionHandler::provideHandler( RequestKind::Enum const _requestKind )
+{
+	{
+		std::map<RequestKind::Enum, CRequestHandler * >::iterator iterator =  m_requestHandlers.find( _requestKind );
+
+		if ( iterator != m_requestHandlers.end() )
+			return iterator->second;
+	}
+
+	std::list<CConnectionProvider*>::iterator iterator = m_connectionProviders.begin();
+
+	while( iterator != m_connectionProviders.end() )
+	{
+		CNetworkClient * networkClient = (*iterator)->provideConnection( _requestKind );
+
+		if ( networkClient != NULL )
+		{
+			CRequestHandler * requestHandler = new CRequestHandler( networkClient );
+			m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
+			return requestHandler;
+		}
+
+	}
+
+	return NULL;
+}
 
 void
 CActionHandler::shutDown()
@@ -55,7 +103,7 @@ CActionHandler::run()
 
 		BOOST_FOREACH(ReqAction & reqAction, m_reqToAction)
 		{
-			if ( m_requestHandler->isProcessed( reqAction.first ) )
+			if ( provideHandler( reqAction.first->getKind() )->isProcessed( reqAction.first ) )
 			{
 				CSetResponseVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
 				reqAction.second->accept( visitor );
@@ -66,6 +114,5 @@ CActionHandler::run()
 		QThread::sleep ( m_sleepTime );
 	}
 }
-
 
 }
