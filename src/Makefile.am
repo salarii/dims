@@ -28,7 +28,8 @@ DIST_SUBDIRS = . qt test
 TRACKER_CORE_H = \
   tracker/originAddressScaner.h \
   tracker/segmentFileStorage.h \
-  tracker/simpleBuddy.h
+  tracker/simpleBuddy.h \
+  tracker/accessFile.h
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -98,7 +99,8 @@ version.o: obj/build.h
 TRACKER_CORE_CPP = \
   tracker/originAddressScaner.cpp \
   tracker/segmentFileStorage.cpp \
-  tracker/simpleBuddy.cpp
+  tracker/simpleBuddy.cpp \
+  tracker/accessFile.cpp
 
 libbitcoin_server_a_SOURCES = \
   addrman.cpp \

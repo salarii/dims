@@ -70,9 +70,7 @@ CActionHandler::provideHandler( RequestKind::Enum const _requestKind )
 			m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
 			return requestHandler;
 		}
-
 	}
-
 	return NULL;
 }
 
