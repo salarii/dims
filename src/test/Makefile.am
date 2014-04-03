@@ -6,7 +6,8 @@ bin_PROGRAMS = test_bitcoin
 
 TESTS = test_bitcoin
 
-#JSON_TEST_FILES = 
+JSON_TEST_FILES = \
+	data/tx_valid.json
 #  data/script_valid.json \
 #  data/base58_keys_valid.json \
 #  data/sig_canonical.json \
@@ -32,8 +33,9 @@ test_bitcoin_LDADD += $(BDB_LIBS)
 
 test_bitcoin_SOURCES = \
   test_ratcoin.cpp \
-  uint256_tests.cpp
-#  $(JSON_TEST_FILES) 
+  uint256_tests.cpp \
+  segmentFileStorage_tests.cpp \
+  $(JSON_TEST_FILES) 
 
 if ENABLE_WALLET
 #test_bitcoin_SOURCES += \
