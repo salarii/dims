@@ -31,6 +31,7 @@ endif
 test_bitcoin_LDADD += $(BDB_LIBS)
 
 test_bitcoin_SOURCES = \
+  test_ratcoin.cpp \
   uint256_tests.cpp
 #  $(JSON_TEST_FILES) 
 

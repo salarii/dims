@@ -393,7 +393,7 @@ void BitcoinApplication::initializeResult(int retval)
         clientModel = new ClientModel(optionsModel);
         window->setClientModel(clientModel);
 
-	  m_actionHandler = new node::CActionHandler;
+	  m_actionHandler = node::CActionHandler::getInstance();
 
 	m_actionHandler->run();
 #ifdef ENABLE_WALLET

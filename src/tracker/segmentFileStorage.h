@@ -9,16 +9,12 @@
 separate headers  and  blocks?
 */
 #include <list>
+#include <boost/thread.hpp>
 
 #include "uint256.h"
 #include "serialize.h"
-
 #include "mruset.h"
-
 #include "simpleBuddy.h"
-
-#include "uglyTestHelper.h"
-
 #include "accessFile.h"
 
 class CTransaction;

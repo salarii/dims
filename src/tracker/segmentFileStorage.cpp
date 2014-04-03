@@ -1,8 +1,14 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include "segmentFileStorage.h"
 
 #include "simpleBuddy.h"
-
-#include "helper.h"
+#include "util.h"
+#include <boost/foreach.hpp>
+#include "core.h"
+#include "coins.h"
 
 namespace self
 {
@@ -252,7 +258,7 @@ CSegmentFileStorage::flushLoop()
 			boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
 
 			unsigned int index = 0;
-			BOOST_FOREACH( CSegmentHeader header, m_headersCache )
+			BOOST_FOREACH( CSegmentHeader & header, m_headersCache )
 			{
 				index++;
 				saveBlock(index,header);

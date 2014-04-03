@@ -143,6 +143,8 @@ CLIENT_H = \
   ../node/networkClient.h \
   ../node/requestHandler.h \
   ../node/setResponseVisitor.h \
+  ../node/seedProvider.h \
+  ../node/connectionProvider.h \
   ../node/trackerLocalRanking.h
 
 CLIENT_CPP = \
@@ -151,6 +153,7 @@ CLIENT_CPP = \
   ../node/networkClient.cpp \
   ../node/requestHandler.cpp \
   ../node/setResponseVisitor.cpp \
+  ../node/seedProvider.cpp \
   ../node/trackerLocalRanking.cpp
 
 BITCOIN_MM = \
