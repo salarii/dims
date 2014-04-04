@@ -7,22 +7,16 @@
 #define BITCOIN_CHAIN_PARAMS_H
 
 #include "bignum.h"
-#include "uint256.h"
+
+#include "networksParameters.h"
 
 #include <vector>
 
 using namespace std;
 
-#define MESSAGE_START_SIZE 4
-typedef unsigned char MessageStartChars[MESSAGE_START_SIZE];
-
-class CAddress;
 class CBlock;
 
-struct CDNSSeedData {
-    string name, host;
-    CDNSSeedData(const string &strName, const string &strHost) : name(strName), host(strHost) {}
-};
+
 
 /**
  * CChainParams defines various tweakable parameters of a given instance of the
@@ -31,27 +25,9 @@ struct CDNSSeedData {
  * a regression test mode which is intended for private networks only. It has
  * minimal difficulty to ensure that blocks can be found instantly.
  */
-class CChainParams
+class CChainParams : public CNetworkParams
 {
 public:
-    enum Network {
-        MAIN,
-        TESTNET,
-        REGTEST,
-
-        MAX_NETWORK_TYPES
-    };
-
-    enum Base58Type {
-        PUBKEY_ADDRESS,
-        SCRIPT_ADDRESS,
-        SECRET_KEY,
-        EXT_PUBLIC_KEY,
-        EXT_SECRET_KEY,
-
-        MAX_BASE58_TYPES
-    };
-
     const uint256& HashGenesisBlock() const { return hashGenesisBlock; }
     const MessageStartChars& MessageStart() const { return pchMessageStart; }
     const vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
@@ -64,10 +40,11 @@ public:
     virtual Network NetworkID() const = 0;
     const vector<CDNSSeedData>& DNSSeeds() const { return vSeeds; }
     const std::vector<unsigned char> &Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
-    virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
 
     std::string const & getOriginAddressAsString() const { return originAddress; }
+
+    static CNetworkParams const & getNetworkParameters();
 protected:
     CChainParams() {}
 
@@ -83,6 +60,8 @@ protected:
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::string originAddress;
+
+
 };
 
 /**
@@ -92,7 +71,7 @@ protected:
 const CChainParams &Params();
 
 /** Sets the params returned by Params() to those for the given network. */
-void SelectParams(CChainParams::Network network);
+void SelectParams(CNetworkParams::Network network);
 
 /**
  * Looks for -regtest or -testnet and then calls SelectParams as appropriate.
@@ -102,11 +81,11 @@ bool SelectParamsFromCommandLine();
 
 inline bool TestNet() {
     // Note: it's deliberate that this returns "false" for regression test mode.
-    return Params().NetworkID() == CChainParams::TESTNET;
+    return Params().NetworkID() == CNetworkParams::TESTNET;
 }
 
 inline bool RegTest() {
-    return Params().NetworkID() == CChainParams::REGTEST;
+    return Params().NetworkID() == CNetworkParams::REGTEST;
 }
 
 #endif

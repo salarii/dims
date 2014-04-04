@@ -24,6 +24,12 @@ SUBDIRS = . $(BUILD_QT) $(BUILD_TEST)
 DIST_SUBDIRS = . qt test
 .PHONY: FORCE
 
+COMMON_H = \
+  common/ratcoinParams.h
+
+COMMON_CPP = \
+  common/ratcoinParams.cpp
+  
 # tracker core #
 TRACKER_CORE_H = \
   tracker/originAddressScaner.h \
@@ -76,6 +82,7 @@ BITCOIN_CORE_H = \
   util.h \
   version.h \
   walletdb.h \
+  networksParameters.h \
   wallet.h
 
 JSON_H = \
@@ -127,7 +134,10 @@ libbitcoin_server_a_SOURCES = \
   $(JSON_H) \
   $(BITCOIN_CORE_H) \
   $(TRACKER_CORE_H) \
-  $(TRACKER_CORE_CPP)
+  $(TRACKER_CORE_CPP) \
+  $(COMMON_H) \
+  $(COMMON_CPP)
+
   
 libbitcoin_wallet_a_SOURCES = \
   db.cpp \

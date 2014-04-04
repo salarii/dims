@@ -195,10 +195,10 @@ bool PaymentServer::ipcParseCommandLine(int argc, char* argv[])
             {
                 CBitcoinAddress address(r.address.toStdString());
 
-                SelectParams(CChainParams::MAIN);
+                SelectParams(CNetworkParams::MAIN);
                 if (!address.IsValid())
                 {
-                    SelectParams(CChainParams::TESTNET);
+                    SelectParams(CNetworkParams::TESTNET);
                 }
             }
         }
@@ -210,9 +210,9 @@ bool PaymentServer::ipcParseCommandLine(int argc, char* argv[])
             if (readPaymentRequest(arg, request))
             {
                 if (request.getDetails().network() == "main")
-                    SelectParams(CChainParams::MAIN);
+                    SelectParams(CNetworkParams::MAIN);
                 else
-                    SelectParams(CChainParams::TESTNET);
+                    SelectParams(CNetworkParams::TESTNET);
             }
         }
         else

@@ -97,6 +97,13 @@ unsigned int pnSeed[] =
     0x13f5094c, 0x7ab32648, 0x542e9fd5, 0x53136bc1, 0x7fdf51c0, 0x802197b2, 0xa2d2cc5b, 0x6b5f4bc0,
 };
 
+CNetworkParams const & 
+CChainParams::getNetworkParameters()
+{
+	return Params();
+}
+
+
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
@@ -171,7 +178,7 @@ public:
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
-    virtual Network NetworkID() const { return CChainParams::MAIN; }
+    virtual Network NetworkID() const { return CNetworkParams::MAIN; }
 
     virtual const vector<CAddress>& FixedSeeds() const {
         return vFixedSeeds;
@@ -229,7 +236,7 @@ public:
 
         originAddress = "0f4c5c30a8de7517f444be23626d419322ed5589";
     }
-    virtual Network NetworkID() const { return CChainParams::TESTNET; }
+    virtual Network NetworkID() const { return CNetworkParams::TESTNET; }
 };
 static CTestNetParams testNetParams;
 
@@ -277,7 +284,7 @@ public:
 
 
     virtual bool RequireRPCPassword() const { return false; }
-    virtual Network NetworkID() const { return CChainParams::REGTEST; }
+    virtual Network NetworkID() const { return CNetworkParams::REGTEST; }
 };
 static CRegTestParams regTestParams;
 
@@ -287,15 +294,15 @@ const CChainParams &Params() {
     return *pCurrentParams;
 }
 
-void SelectParams(CChainParams::Network network) {
+void SelectParams(CNetworkParams::Network network) {
     switch (network) {
-        case CChainParams::MAIN:
+        case CNetworkParams::MAIN:
             pCurrentParams = &mainParams;
             break;
-        case CChainParams::TESTNET:
+        case CNetworkParams::TESTNET:
             pCurrentParams = &testNetParams;
             break;
-        case CChainParams::REGTEST:
+        case CNetworkParams::REGTEST:
             pCurrentParams = &regTestParams;
             break;
         default:
@@ -313,11 +320,11 @@ bool SelectParamsFromCommandLine() {
     }
 
     if (fRegTest) {
-        SelectParams(CChainParams::REGTEST);
+        SelectParams(CNetworkParams::REGTEST);
     } else if (fTestNet) {
-        SelectParams(CChainParams::TESTNET);
+        SelectParams(CNetworkParams::TESTNET);
     } else {
-        SelectParams(CChainParams::MAIN);
+        SelectParams(CNetworkParams::MAIN);
     }
     return true;
 }

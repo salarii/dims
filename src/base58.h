@@ -15,6 +15,7 @@
 #define BITCOIN_BASE58_H
 
 #include "bignum.h"
+#include "networksParameters.h"
 #include "chainparams.h"
 #include "hash.h"
 #include "key.h"
@@ -179,6 +180,8 @@ inline bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>
 /** Base class for all base58-encoded data */
 class CBase58Data
 {
+public:
+	CNetworkParams const * m_networkParams;
 protected:
     // the version byte(s)
     std::vector<unsigned char> vchVersion;
@@ -187,7 +190,8 @@ protected:
     typedef std::vector<unsigned char, zero_after_free_allocator<unsigned char> > vector_uchar;
     vector_uchar vchData;
 
-    CBase58Data()
+    CBase58Data( CNetworkParams const * _networkParams= &GetNetworkParams< CChainParams >() )
+	    : m_networkParams( _networkParams )
     {
         vchVersion.clear();
         vchData.clear();
@@ -275,12 +279,12 @@ class CBitcoinAddress : public CBase58Data
 {
 public:
     bool Set(const CKeyID &id) {
-        SetData(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS), &id, 20);
+        SetData(Params().Base58Prefix(CNetworkParams::PUBKEY_ADDRESS), &id, 20);
         return true;
     }
 
     bool Set(const CScriptID &id) {
-        SetData(Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS), &id, 20);
+        SetData(Params().Base58Prefix(CNetworkParams::SCRIPT_ADDRESS), &id, 20);
         return true;
     }
 
@@ -292,26 +296,30 @@ public:
     bool IsValid() const
     {
         bool fCorrectSize = vchData.size() == 20;
-        bool fKnownVersion = vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
-                             vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+        bool fKnownVersion = vchVersion == Params().Base58Prefix(CNetworkParams::PUBKEY_ADDRESS) ||
+                             vchVersion == Params().Base58Prefix(CNetworkParams::SCRIPT_ADDRESS);
         return fCorrectSize && fKnownVersion;
     }
 
-    CBitcoinAddress()
+    CBitcoinAddress( CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >() )
+	: CBase58Data( _networkParams )
     {
     }
 
-    CBitcoinAddress(const CTxDestination &dest)
+    CBitcoinAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >() )
+	: CBase58Data( _networkParams )
     {
         Set(dest);
     }
 
-    CBitcoinAddress(const std::string& strAddress)
+    CBitcoinAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	: CBase58Data( _networkParams )
     {
         SetString(strAddress);
     }
 
-    CBitcoinAddress(const char* pszAddress)
+    CBitcoinAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	: CBase58Data( _networkParams )
     {
         SetString(pszAddress);
     }
@@ -321,16 +329,16 @@ public:
             return CNoDestination();
         uint160 id;
         memcpy(&id, &vchData[0], 20);
-        if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
+        if (vchVersion == m_networkParams->Base58Prefix(CNetworkParams::PUBKEY_ADDRESS))
             return CKeyID(id);
-        else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
+        else if (vchVersion == m_networkParams->Base58Prefix(CNetworkParams::SCRIPT_ADDRESS))
             return CScriptID(id);
         else
             return CNoDestination();
     }
 
     bool GetKeyID(CKeyID &keyID) const {
-        if (!IsValid() || vchVersion != Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
+        if (!IsValid() || vchVersion != m_networkParams->Base58Prefix(CNetworkParams::PUBKEY_ADDRESS))
             return false;
         uint160 id;
         memcpy(&id, &vchData[0], 20);
@@ -339,7 +347,7 @@ public:
     }
 
     bool IsScript() const {
-        return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+        return IsValid() && vchVersion == m_networkParams->Base58Prefix(CNetworkParams::SCRIPT_ADDRESS);
     }
 };
 
@@ -354,7 +362,7 @@ public:
     void SetKey(const CKey& vchSecret)
     {
         assert(vchSecret.IsValid());
-        SetData(Params().Base58Prefix(CChainParams::SECRET_KEY), vchSecret.begin(), vchSecret.size());
+        SetData(m_networkParams->Base58Prefix(CNetworkParams::SECRET_KEY), vchSecret.begin(), vchSecret.size());
         if (vchSecret.IsCompressed())
             vchData.push_back(1);
     }
@@ -369,7 +377,7 @@ public:
     bool IsValid() const
     {
         bool fExpectedFormat = vchData.size() == 32 || (vchData.size() == 33 && vchData[32] == 1);
-        bool fCorrectVersion = vchVersion == Params().Base58Prefix(CChainParams::SECRET_KEY);
+        bool fCorrectVersion = vchVersion == m_networkParams->Base58Prefix(CNetworkParams::SECRET_KEY);
         return fExpectedFormat && fCorrectVersion;
     }
 
@@ -383,24 +391,26 @@ public:
         return SetString(strSecret.c_str());
     }
 
-    CBitcoinSecret(const CKey& vchSecret)
+    CBitcoinSecret(const CKey& vchSecret, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+    	: CBase58Data( _networkParams )
     {
         SetKey(vchSecret);
     }
 
-    CBitcoinSecret()
+    CBitcoinSecret( CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	: CBase58Data( _networkParams )
     {
     }
 };
 
 
-template<typename K, int Size, CChainParams::Base58Type Type> class CBitcoinExtKeyBase : public CBase58Data
+template<typename K, int Size, CNetworkParams::Base58Type Type> class CBitcoinExtKeyBase : public CBase58Data
 {
 public:
     void SetKey(const K &key) {
         unsigned char vch[Size];
         key.Encode(vch);
-        SetData(Params().Base58Prefix(Type), vch, vch+Size);
+        SetData(m_networkParams->Base58Prefix(Type), vch, vch+Size);
     }
 
     K GetKey() {
@@ -409,14 +419,17 @@ public:
         return ret;
     }
 
-    CBitcoinExtKeyBase(const K &key) {
+    CBitcoinExtKeyBase(const K &key, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	: CBase58Data( _networkParams )
+    {
         SetKey(key);
     }
-
-    CBitcoinExtKeyBase() {}
+    CBitcoinExtKeyBase( CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >() )
+	: CBase58Data( _networkParams )
+    {}
 };
 
-typedef CBitcoinExtKeyBase<CExtKey, 74, CChainParams::EXT_SECRET_KEY> CBitcoinExtKey;
-typedef CBitcoinExtKeyBase<CExtPubKey, 74, CChainParams::EXT_PUBLIC_KEY> CBitcoinExtPubKey;
+typedef CBitcoinExtKeyBase<CExtKey, 74, CNetworkParams::EXT_SECRET_KEY> CBitcoinExtKey;
+typedef CBitcoinExtKeyBase<CExtPubKey, 74, CNetworkParams::EXT_PUBLIC_KEY> CBitcoinExtPubKey;
 
 #endif // BITCOIN_BASE58_H
