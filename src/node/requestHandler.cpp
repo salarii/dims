@@ -4,12 +4,13 @@
 
 #include "requestHandler.h"
 #include "tracker/nodeMessages.h"
+#include "medium.h"
 
 namespace node
 {
 
-CRequestHandler::CRequestHandler( CNetworkClient * _networkClient )
-	:m_networkClient( _networkClient )
+CRequestHandler::CRequestHandler( CMedium * _medium )
+	:m_usedMedium( _medium )
 {
 }
 
@@ -35,24 +36,12 @@ CRequestHandler::setRequest( CRequest* _request ) const
 void
 CRequestHandler::runRequests()
 {
-	CCommunicationBuffer inBuffor;
-
-	CBufferAsStream stream(
-		(char*)inBuffor.m_buffer
-		, inBuffor.m_usedSize
-		, SER_DISK
-		, CLIENT_VERSION);
-
 	BOOST_FOREACH( CRequest* request, m_newRequest )
 	{
-//		m_networkClient
-//			request
-
-		request->serialize( stream );
-
+		m_usedMedium->add( request );
 	}
 
-	m_networkClient->send( inBuffor );
+	m_usedMedium->flush();
 
 	readLoop();
 }
@@ -60,10 +49,10 @@ CRequestHandler::runRequests()
 void
 CRequestHandler::readLoop()
 {
-	while(!m_networkClient->serviced());
+	while(!m_usedMedium->serviced());
 
 	CCommunicationBuffer response;
-	m_networkClient->getResponse(response);
+	m_usedMedium->getResponse(response);
 
 	CBufferAsStream stream(
 		  (char*)response.m_buffer

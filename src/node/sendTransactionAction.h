@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NETWORK_ACTION_H
-#define NETWORK_ACTION_H
+#ifndef SEND_TRANSACTION_ACTION_H
+#define SEND_TRANSACTION_ACTION_H
 
 #include "actionHandler.h"
 #include "tracker/validationManager.h"
@@ -24,10 +24,10 @@ struct ActionStatus
 	};
 };
 
-class CSendTransaction : public CAction
+class CSendTransactionAction : public CAction
 {
 public:
-	CSendTransaction( const CTransaction & _Transaction );
+	CSendTransactionAction( const CTransaction & _Transaction );
 
 	void accept( CSetResponseVisitor & _visitor );
 
@@ -48,7 +48,7 @@ struct CTransactionStatusRequest : public CRequest
 {
 public:
 	CTransactionStatusRequest( uint256 const & _token );
-	void serialize( CBufferAsStream & _bufferStream );
+	void serialize( CBufferAsStream & _bufferStream ) const;
 	RequestKind::Enum getKind() const;
 	uint256 m_token;
 };
@@ -57,7 +57,7 @@ struct CTransactionSendRequest : public CRequest
 {
 public:
 	CTransactionSendRequest( CTransaction const & _transaction );
-	void serialize( CBufferAsStream & _bufferStream );
+	void serialize( CBufferAsStream & _bufferStream ) const;
 	RequestKind::Enum getKind() const;
 	CTransaction m_transaction;
 };
@@ -65,4 +65,4 @@ public:
 
 }
 
-#endif
+#endif // SEND_TRANSACTION_ACTION_H

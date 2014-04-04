@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "networkAction.h"
+#include "sendTransactionAction.h"
 #include "tracker/nodeMessages.h"
 #include "setResponseVisitor.h"
 
@@ -13,26 +13,26 @@ namespace node
 
 
 void
-CSendTransaction::setTransactionStatus( self::TransactionsStatus::Enum const _transactionStatus )
+CSendTransactionAction::setTransactionStatus( self::TransactionsStatus::Enum const _transactionStatus )
 {
 
 }
 
 void 
-CSendTransaction::setTransactionToken( uint256 const & _token )
+CSendTransactionAction::setTransactionToken( uint256 const & _token )
 {
 
 }
 
 void
-CSendTransaction::accept( CSetResponseVisitor & _visitor )
+CSendTransactionAction::accept( CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
 
 
 CRequest *
-CSendTransaction::execute()
+CSendTransactionAction::execute()
 {
 	if ( m_actionStatus == ActionStatus::Unprepared )
 	{
@@ -71,7 +71,7 @@ CTransactionStatusRequest::getKind() const
 }
 
 void
-CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream )
+CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
 	int infoReq =  self::CClientMessageType::TrackerInfoReq;
 	_bufferStream << infoReq;
@@ -91,7 +91,7 @@ CTransactionSendRequest::getKind() const
 }
 
 void 
-CTransactionSendRequest::serialize( CBufferAsStream & _bufferStream )
+CTransactionSendRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
 	int transactionKind = self::CClientMessageType::Transaction;
 	_bufferStream << transactionKind;

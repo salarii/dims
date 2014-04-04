@@ -3,12 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "actionHandler.h"
-#include <exception> 
-
 #include "setResponseVisitor.h"
+#include "networkClient.h"
 
+#include <exception> 
 #include <boost/foreach.hpp>
-
 
 namespace node
 {
@@ -63,7 +62,6 @@ CActionHandler::provideHandler( RequestKind::Enum const _requestKind )
 	while( iterator != m_connectionProviders.end() )
 	{
 		CNetworkClient * networkClient = (*iterator)->provideConnection( _requestKind );
-
 		if ( networkClient != NULL )
 		{
 			CRequestHandler * requestHandler = new CRequestHandler( networkClient );

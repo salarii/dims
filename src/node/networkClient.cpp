@@ -3,6 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "networkClient.h"
+#include "serialize.h"
+#include "version.h"
+#include "requestHandler.h"
 
 #include <QHostAddress>
 
@@ -17,6 +20,9 @@ CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
 	, m_port( _port )
 {
 	mRunThread = false;
+
+	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_DISK, CLIENT_VERSION);
+	m_pushStream->SetPos(0);
 }
 
 
@@ -33,15 +39,15 @@ bool CNetworkClient::getRunThread()
 }
  
  
-int CNetworkClient::waitForInput( QTcpSocket *socket )
+int CNetworkClient::waitForInput()
 {
 	int bytesAvail = -1;
 
-	while ( socket->state() == QAbstractSocket::ConnectedState && getRunThread() && bytesAvail < 0 )
+	while ( m_socket->state() == QAbstractSocket::ConnectedState && getRunThread() && bytesAvail < 0 )
 	{
-		if (socket->waitForReadyRead( m_timeout ))
+		if (m_socket->waitForReadyRead( m_timeout ))
 		{
-			bytesAvail = socket->bytesAvailable();
+			bytesAvail = m_socket->bytesAvailable();
 		}
 		else
 		{
@@ -53,9 +59,9 @@ int CNetworkClient::waitForInput( QTcpSocket *socket )
 }
  
 unsigned int
-CNetworkClient::read(QTcpSocket *socket )
+CNetworkClient::read()
 {
-	int bytesAvail = waitForInput( socket );
+	int bytesAvail = waitForInput();
 	int bytesRead = 0;
 
 	if (bytesAvail > 0)
@@ -66,7 +72,7 @@ CNetworkClient::read(QTcpSocket *socket )
 
 		while ( bytesRead < bytesAvail && (!endOfLine) && (!endOfStream) )
 		{
-			bytesRead += socket->read( m_inBuffor.m_buffer + bytesRead, MaxBufferSize - bytesRead );
+			bytesRead += m_socket->read( m_pullBuffer.m_buffer + bytesRead, MaxBufferSize - bytesRead );
 			if ( MaxBufferSize == bytesRead )
 				return 0; // this is  error so handle it as such  at some point
 
@@ -76,13 +82,13 @@ CNetworkClient::read(QTcpSocket *socket )
 }
  
  
-void CNetworkClient::write(QTcpSocket *socket)
+void CNetworkClient::write()
 {
-	if (m_outBuffor.m_usedSize > 0)
+	if (m_pushBuffer.m_usedSize > 0)
 	{
-		socket->write( m_outBuffor.m_buffer, m_outBuffor.m_usedSize );
+		m_socket->write( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
 
-		if (! socket->waitForBytesWritten())
+		if (! m_socket->waitForBytesWritten())
 		{
 			// error handle it somehow
 		}
@@ -102,13 +108,12 @@ void CNetworkClient::stopThread()
 
 void CNetworkClient::run()
 {
-	QTcpSocket socket;
 	QHostAddress hostAddr( m_ip );
-	socket.connectToHost( hostAddr, m_port );
+	m_socket->connectToHost( hostAddr, m_port );
 
-	if ( socket.waitForConnected( m_timeout ) )
+	if ( m_socket->waitForConnected( m_timeout ) )
 	{
-		QHostAddress hostAddr = socket.localAddress();
+		QHostAddress hostAddr = m_socket->localAddress();
 		QString addr = "";
 		if (hostAddr != QHostAddress::Null)
 		{
@@ -118,16 +123,16 @@ void CNetworkClient::run()
 		if (addr.length() > 0)
 		{
 			//this  could be  somewhere in  gui
-			//printf(" on address %s:d", addr.toAscii().data(), socket.localPort() );
+			//printf(" on address %s:d", addr.toAscii().data(), m_socket.localPort() );
 		}
 		
 		// here send bytes to server
-		while (socket.state() == QAbstractSocket::ConnectedState )
+		while (m_socket->state() == QAbstractSocket::ConnectedState )
 		{
 			/*
 			QString line( mStrings[ix] );
-			writeLine(&socket, line);
-			QString echoedLine = readLine( &socket );
+			writeLine(&m_socket, line);
+			QString echoedLine = readLine( &m_socket );
 
 			if (echoedLine.length() > 0)
 			{
@@ -150,23 +155,31 @@ void CNetworkClient::run()
 }
 
 bool
-CNetworkClient::getResponse( CCommunicationBuffer & _outBuffor ) const
-{
-	_outBuffor = m_outBuffor;
-
-	return true;
-}
-
-void
-CNetworkClient::send( CCommunicationBuffer const & _inBuffor )
-{
-	m_inBuffor = _inBuffor;
-}
-
-bool
 CNetworkClient::serviced() const
 {
 	return true;
+}
+
+
+void 
+CNetworkClient::add( CRequest const * _request )
+{
+	_request->serialize( *m_pushStream );
+}
+
+bool
+CNetworkClient::flush()
+{
+	m_pushBuffer.m_usedSize = m_pushStream->GetPos();
+	write();
+	m_pushStream->SetPos( 0 );
+	read();
+}
+
+bool
+CNetworkClient::getResponse( CCommunicationBuffer & _outBuffor ) const
+{
+	_outBuffor = m_pullBuffer;
 }
 
 }

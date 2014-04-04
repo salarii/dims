@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "setResponseVisitor.h"
-#include "networkAction.h"
+#include "sendTransactionAction.h"
 #include "requestHandler.h"
 #include <boost/any.hpp>
 
@@ -45,7 +45,7 @@ public:
 };
 
 void 
-CSetResponseVisitor::visit( CSendTransaction & _sendTransaction )
+CSetResponseVisitor::visit( CSendTransactionAction & _sendTransaction )
 {
 	_sendTransaction.setTransactionStatus(boost::apply_visitor( (CResponseVisitorBase< self::TransactionsStatus::Enum > const &)CGetTransactionStatus(), m_requestRespond ));
 	_sendTransaction.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));

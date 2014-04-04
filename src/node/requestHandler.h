@@ -9,12 +9,12 @@
 
 #include "uint256.h"
 
-#include "networkClient.h"
-
 #include "connectionProvider.h"
 
 namespace node
 {
+
+class CMedium;
 
 struct CTransactionStatus
 {
@@ -31,7 +31,7 @@ typedef boost::variant< CTransactionStatus, CAccountBalance > RequestRespond;
 
 struct CRequest
 {
-	virtual void serialize( CBufferAsStream & _bufferStream ) = 0;
+	virtual void serialize( CBufferAsStream & _bufferStream ) const = 0;
 
 	virtual RequestKind::Enum getKind() const = 0;
 };
@@ -39,7 +39,7 @@ struct CRequest
 class CRequestHandler
 {
 public:
-	CRequestHandler( CNetworkClient * _networkClient );
+	CRequestHandler( CMedium * _medium );
 
 	RequestRespond getRespond( CRequest* _request ) const;
 
@@ -55,7 +55,7 @@ private:
 	std::map<CRequest*,uint256> m_pendingRequest;
 	std::map<CRequest*,RequestRespond> m_processedRequests;
 
-	CNetworkClient * m_networkClient;
+	CMedium * m_usedMedium;
 };
 
 

@@ -5,38 +5,34 @@
 #ifndef NETWORK_CLIENT_H
 #define NETWORK_CLIENT_H
 
-#define MaxBufferSize 1000
-
 #include "QMutex"
 #include "QThread"
 #include "QTcpSocket"
+#include "medium.h"
+class CBufferAsStream;
 
 namespace node
 {
 // in out 
-struct CCommunicationBuffer
-{
-	char m_buffer[ MaxBufferSize ];
-	unsigned int m_usedSize;
-};
 
-class CNetworkClient : public QThread
+class CNetworkClient : public QThread, public CMedium
 {
 public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
 	virtual void startThread();
 	virtual void stopThread();
 
-	void send( CCommunicationBuffer const & _inBuffor );
 	bool serviced() const;
+	void add( CRequest const * _request );
+	bool flush();
 	bool getResponse( CCommunicationBuffer & _outBuffor ) const;
 private:
 	void setRunThread( bool newVal );
 	bool getRunThread();
 	void run();
-	unsigned int read(QTcpSocket *socket );
-	int waitForInput( QTcpSocket *socket );
-	void write( QTcpSocket *client );
+	unsigned int read();
+	int waitForInput();
+	void write();
 private:
 	bool mRunThread;
 	static unsigned const m_timeout;
@@ -45,8 +41,12 @@ private:
 	const QString m_ip;
 	const ushort m_port;
 
-	CCommunicationBuffer m_inBuffor;
-	CCommunicationBuffer m_outBuffor;
+	CBufferAsStream * m_pushStream;
+// in prototype i split  those two buffer but most probably they could be merged to one
+	CCommunicationBuffer m_pushBuffer;
+	CCommunicationBuffer m_pullBuffer;
+
+	QTcpSocket * m_socket;
 };
 
 

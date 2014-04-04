@@ -13,7 +13,7 @@
 namespace node
 {
 
-class CSendTransaction;
+class CSendTransactionAction;
 
 class CAction;
 
@@ -22,7 +22,7 @@ class CSetResponseVisitor
 public:
 	CSetResponseVisitor( RequestRespond const & _requestRespond );
 
-	void visit( CSendTransaction & _sendTransaction );
+	void visit( CSendTransactionAction & _sendTransaction );
 
 	void visit( CAction & _action );
 private:
