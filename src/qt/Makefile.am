@@ -139,21 +139,24 @@ QT_MOC_CPP = \
 
 CLIENT_H = \
   ../node/actionHandler.h \
-  ../node/networkAction.h \
+  ../node/sendTransactionAction.h \
   ../node/networkClient.h \
   ../node/requestHandler.h \
   ../node/setResponseVisitor.h \
   ../node/seedProvider.h \
   ../node/connectionProvider.h \
+  ../node/sendInfoRequestAction.h \
+  ../node/medium.h \
   ../node/trackerLocalRanking.h
 
 CLIENT_CPP = \
   ../node/actionHandler.cpp \
-  ../node/networkAction.cpp \
+  ../node/sendTransactionAction.cpp \
   ../node/networkClient.cpp \
   ../node/requestHandler.cpp \
   ../node/setResponseVisitor.cpp \
   ../node/seedProvider.cpp \
+  ../node/sendInfoRequestAction.cpp \
   ../node/trackerLocalRanking.cpp
 
 BITCOIN_MM = \
