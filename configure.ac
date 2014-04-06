@@ -153,6 +153,17 @@ if test "x$enable_debug" = xyes; then
         CXXFLAGS="-g3 -O0 -DDEBUG"
     fi
 fi 
+
+if test "x$enable_debug" = xno; then
+    if test "x$GCC" = xyes; then
+        CFLAGS="-O2"
+    fi
+    
+    if test "x$GXX" = xyes; then
+        CXXFLAGS="-O2"
+    fi
+fi 
+
 #disable static
 AC_ARG_ENABLE([dynamic],
     [AS_HELP_STRING([--enable-dynamic],
@@ -202,10 +213,13 @@ case $host in
      AX_CHECK_LINK_FLAG([[-static]],[LDFLAGS="$LDFLAGS -static"])
      AX_CHECK_LINK_FLAG([[-static-libgcc]],[LDFLAGS="$LDFLAGS -static-libgcc"])
      AX_CHECK_LINK_FLAG([[-static-libstdc++]],[LDFLAGS="$LDFLAGS -static-libstdc++"])
-     else
-     AX_CHECK_LINK_FLAG([[-static]],[LDFLAGS="$LDFLAGS -shared"])
-     AX_CHECK_LINK_FLAG([[-static-libgcc]],[LDFLAGS="$LDFLAGS -shared-libgcc"])
-     AX_CHECK_LINK_FLAG([[-static-libstdc++]],[LDFLAGS="$LDFLAGS -shared-libstdc++"])
+     CPPFLAGS="$CPPFLAGS -D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB"
+     fi
+     if test "x$enable_dynamic" = xyes; then
+        LDFLAGS="$LDFLAGS -shared"
+#       LDFLAGS="$LDFLAGS -shared-libgcc"
+#       LDFLAGS="$LDFLAGS -shared-libstdc++"
+       CPPFLAGS="$CPPFLAGS -D_MD -DWIN32 -D_WINDOWS -DBOOST_ALL_DYN_LINK"
      fi 
 
      AC_PATH_PROG([MAKENSIS], [makensis], none)
@@ -218,7 +232,6 @@ case $host in
        AC_MSG_ERROR("windres not found")
      fi
 
-     CPPFLAGS="$CPPFLAGS -D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB"
      LEVELDB_TARGET_FLAGS="TARGET_OS=OS_WINDOWS_CROSSCOMPILE"
      if test "x$CXXFLAGS_overridden" = "xno"; then
        CXXFLAGS="$CXXFLAGS -w"
