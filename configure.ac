@@ -153,6 +153,12 @@ if test "x$enable_debug" = xyes; then
         CXXFLAGS="-g3 -O0 -DDEBUG"
     fi
 fi 
+#disable static
+AC_ARG_ENABLE([dynamic],
+    [AS_HELP_STRING([--enable-dynamic],
+                    [disable static building flags(default is no)])],
+    [enable_dynamic=$enableval],
+    [enable_dynamic=no])
 
 ## TODO: Remove these hard-coded paths and flags. They are here for the sake of
 ##       compatibility with the legacy buildsystem.
@@ -191,10 +197,16 @@ case $host in
      AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(lib missing))
-
+     
+     if test "x$enable_dynamic" = xno; then
      AX_CHECK_LINK_FLAG([[-static]],[LDFLAGS="$LDFLAGS -static"])
      AX_CHECK_LINK_FLAG([[-static-libgcc]],[LDFLAGS="$LDFLAGS -static-libgcc"])
      AX_CHECK_LINK_FLAG([[-static-libstdc++]],[LDFLAGS="$LDFLAGS -static-libstdc++"])
+     else
+     AX_CHECK_LINK_FLAG([[-static]],[LDFLAGS="$LDFLAGS -shared"])
+     AX_CHECK_LINK_FLAG([[-static-libgcc]],[LDFLAGS="$LDFLAGS -shared-libgcc"])
+     AX_CHECK_LINK_FLAG([[-static-libstdc++]],[LDFLAGS="$LDFLAGS -shared-libstdc++"])
+     fi 
 
      AC_PATH_PROG([MAKENSIS], [makensis], none)
      if test x$MAKENSIS = xnone; then
@@ -443,9 +455,11 @@ fi
 
 if test x$boost_sleep != xyes; then
 TEMP_LIBS="$LIBS"
-LIBS="$LIBS $BOOST_LIBS"
+LIBS="$LIBS $BOOST_LIBS -L/c/msys/1.0/home/Artur/dep/boost_1_55_0/stage/lib"
 TEMP_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+AC_MSG_NOTICE([$LIBS])
+AC_MSG_NOTICE([$CPPFLAGS])
 AC_TRY_LINK([
   #include <boost/version.hpp>
   #include <boost/thread.hpp>
