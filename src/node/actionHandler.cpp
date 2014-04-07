@@ -79,7 +79,7 @@ CActionHandler::shutDown()
 }
 
 void 
-CActionHandler::run()
+CActionHandler::loop()
 {
 	while(1)
 	{

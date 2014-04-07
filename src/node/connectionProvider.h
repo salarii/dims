@@ -16,7 +16,7 @@ struct RequestKind
 {
 	enum Enum
 	{
-		Info = 0,
+		NetworkInfo = 0,
 		Transaction,
 		TransactionStatus,
 		Seed

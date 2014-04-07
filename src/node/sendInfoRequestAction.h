@@ -12,6 +12,16 @@
 namespace node
 {
 
+struct TrackerInfo
+{
+	enum Enum
+	{
+		  Ip
+		, Price
+		, Rating
+	};
+};
+
 class CSetResponseVisitor;
 
 class CSendInfoRequestAction : public CAction
@@ -26,8 +36,10 @@ private:
 struct CTrackersInfoRequest : public CRequest
 {
 public:
-	CTrackersInfoRequest();
+	CTrackersInfoRequest( std::vector< TrackerInfo::Enum >& const _reqInfo = std::vector< TrackerInfo::Enum >() );
 	void serialize( CBufferAsStream & _bufferStream ) const;
+
+	std::vector< TrackerInfo::Enum > m_reqInfo;
 };
 
 struct CMonitorInfoRequest : public CRequest

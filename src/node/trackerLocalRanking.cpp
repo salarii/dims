@@ -12,6 +12,9 @@ CTrackerLocalRanking::CTrackerLocalRanking()
 
 CTrackerLocalRanking::~CTrackerLocalRanking()
 {
+	if ( ms_instance )
+		delete ms_instance;
+	ms_instance = 0;
 }
 
 CTrackerLocalRanking*

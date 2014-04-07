@@ -31,6 +31,8 @@
 #include <stdint.h>
 
 #include <boost/filesystem/operations.hpp>
+#include <boost/bind.hpp>
+
 #include <QApplication>
 #include <QLibraryInfo>
 #include <QLocale>
@@ -138,7 +140,7 @@ class BitcoinCore: public QObject
     Q_OBJECT
 public:
     explicit BitcoinCore();
-
+    ~BitcoinCore();
 public slots:
     void initialize();
     void shutdown();
@@ -150,7 +152,7 @@ signals:
 
 private:
     boost::thread_group threadGroup;
-
+    node::CActionHandler * m_actionHandler;
     /// Pass fatal exception message to UI thread
     void handleRunawayException(std::exception *e);
 };
@@ -200,7 +202,6 @@ private:
     ClientModel *clientModel;
     BitcoinGUI *window;
     QTimer *pollShutdownTimer;
-    node::CActionHandler * m_actionHandler;
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer;
     WalletModel *walletModel;
@@ -213,8 +214,15 @@ private:
 #include "bitcoin.moc"
 
 BitcoinCore::BitcoinCore():
-    QObject()
+     QObject()
+    , m_actionHandler(0)
 {
+}
+
+BitcoinCore::~BitcoinCore()
+{
+	if ( m_actionHandler )
+		delete m_actionHandler;
 }
 
 void BitcoinCore::handleRunawayException(std::exception *e)
@@ -228,7 +236,12 @@ void BitcoinCore::initialize()
     try
     {
         LogPrintf("Running AppInit2 in thread\n");
-        int rv = AppInit2(threadGroup);
+	  int rv = AppInit1(threadGroup);
+
+	  m_actionHandler = node::CActionHandler::getInstance();
+
+	  threadGroup.create_thread(boost::bind(&node::CActionHandler::loop, m_actionHandler));
+
         if(rv)
         {
             /* Start a dummy RPC thread if no RPC thread is active yet
@@ -266,7 +279,6 @@ BitcoinApplication::BitcoinApplication(int &argc, char **argv):
     coreThread(0),
     optionsModel(0),
     clientModel(0),
-    m_actionHandler(0),
     window(0),
     pollShutdownTimer(0),
 #ifdef ENABLE_WALLET
@@ -365,10 +377,6 @@ void BitcoinApplication::requestShutdown()
     delete clientModel;
     clientModel = 0;
 
-    m_actionHandler->shutDown();
-    delete m_actionHandler;
-    m_actionHandler = 0;
-
     // Show a simple window indicating shutdown status
     ShutdownWindow::showShutdownWindow(window);
 
@@ -384,8 +392,8 @@ void BitcoinApplication::initializeResult(int retval)
     if(retval)
     {
 #ifdef ENABLE_WALLET
-        PaymentServer::LoadRootCAs();
-        paymentServer->setOptionsModel(optionsModel);
+ //       PaymentServer::LoadRootCAs();
+  //      paymentServer->setOptionsModel(optionsModel);
 #endif
 
         emit splashFinished(window);
@@ -393,9 +401,6 @@ void BitcoinApplication::initializeResult(int retval)
         clientModel = new ClientModel(optionsModel);
         window->setClientModel(clientModel);
 
-	  m_actionHandler = node::CActionHandler::getInstance();
-
-	m_actionHandler->run();
 #ifdef ENABLE_WALLET
         if(pwalletMain)
         {
@@ -404,8 +409,8 @@ void BitcoinApplication::initializeResult(int retval)
             window->addWallet("~Default", walletModel);
             window->setCurrentWallet("~Default");
 
-            connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
-                             paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
+/*            connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
+                             paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));*/
         }
 #endif
 
@@ -493,9 +498,9 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("Bitcoin");
     QApplication::setOrganizationDomain("bitcoin.org");
     if (isaTestNet) // Separate UI settings for testnets
-        QApplication::setApplicationName("Bitcoin-Qt-testnet");
+        QApplication::setApplicationName("Ratcoin-client-testnet");
     else
-        QApplication::setApplicationName("Bitcoin-Qt");
+        QApplication::setApplicationName("Ratcoin-client");
 
     /// 4. Initialization of translations, so that intro dialog is in user's language
     // Now that QSettings are accessible, initialize translations
@@ -542,7 +547,7 @@ int main(int argc, char *argv[])
 
     // Start up the payment server early, too, so impatient users that click on
     // bitcoin: links repeatedly have their payment requests routed to this process:
-    app.createPaymentServer();
+//    app.createPaymentServer();
 #endif
 
     /// 8. Main GUI initialization

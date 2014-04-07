@@ -45,9 +45,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     setAddressViewActive( false );
 
     connect( ui->tableView->selectionModel(), SIGNAL(selectionChanged()), this, SLOT(setTransactionStatus()));
-    /*
 
-*/
     fNewRecipientAllowed = true;
 }
 
@@ -57,6 +55,7 @@ void SendCoinsDialog::setModel(WalletModel *model)
 
 	m_addressModel = model->getAddressTableModel();
 	ui->tableView->setModel ( m_addressModel );
+	ui->tableView->horizontalHeader()->setDefaultAlignment ( Qt::AlignHCenter );
 
     if(model && model->getOptionsModel())
     {

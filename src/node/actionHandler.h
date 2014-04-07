@@ -35,10 +35,10 @@ public:
 	virtual CRequest* execute() = 0;
 };
 
-class CActionHandler : public QThread
+class CActionHandler
 {
 public:
-	void run();
+	void loop();
 	void shutDown();
 	~CActionHandler();
 	static CActionHandler* getInstance( );
