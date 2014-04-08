@@ -155,6 +155,7 @@ CLIENT_H = \
   ../node/connectAction.h \
   ../node/request.h \
   ../node/support.h \
+  ../node/userConnectionProvider.h \
   ../node/requestRespond.h
 
 CLIENT_CPP = \
@@ -169,6 +170,7 @@ CLIENT_CPP = \
   ../node/dummyMedium.cpp \
   ../node/nodeConnectionManager.cpp \
   ../node/trackerLocalRanking.cpp \
+  ../node/userConnectionProvider.cpp \
   ../node/connectAction.cpp
 
 

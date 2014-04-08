@@ -55,6 +55,12 @@ CActionHandler::executeAction( CAction* _action )
 	m_actions.push_back( _action );
 }
 
+void
+CActionHandler::addConnectionProvider( CConnectionProvider* _connectionProvider )
+{
+	m_connectionProviders.push_back( _connectionProvider );
+}
+
 CRequestHandler * 
 CActionHandler::provideHandler( RequestKind::Enum const _requestKind )
 {
@@ -69,10 +75,10 @@ CActionHandler::provideHandler( RequestKind::Enum const _requestKind )
 
 	while( iterator != m_connectionProviders.end() )
 	{
-		CNetworkClient * networkClient = (*iterator)->provideConnection( _requestKind );
-		if ( networkClient != NULL )
+		CMedium * medium = (*iterator)->provideConnection( _requestKind );
+		if ( medium != NULL )
 		{
-			CRequestHandler * requestHandler = new CRequestHandler( networkClient );
+			CRequestHandler * requestHandler = new CRequestHandler( medium );
 			m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
 			return requestHandler;
 		}

@@ -8,14 +8,16 @@ namespace node
 
 CSeedProvider * CSeedProvider::ms_instance = NULL;
 
-CNetworkClient * 
+CMedium * 
 CSeedProvider::provideConnection( RequestKind::Enum const _actionKind )
 {
+	return 0;
 }
 
-std::list< CNetworkClient *>
+std::list< CMedium *>
 CSeedProvider::provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber )
 {
+	return std::list< CMedium *>();
 }
 
 CSeedProvider::~CSeedProvider()

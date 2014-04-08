@@ -47,9 +47,9 @@ struct CompareReputationTracker : public std::binary_function<CTrackerStats ,CTr
 class CTrackerLocalRanking : public CConnectionProvider
 {
 public:
-	virtual CNetworkClient * provideConnection( RequestKind::Enum const _actionKind );
+	virtual CMedium * provideConnection( RequestKind::Enum const _actionKind );
 	// this  will be  rather  complex  stuff  leave  it  for  better  times
-	virtual std::list< CNetworkClient *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber );
+	virtual std::list< CMedium *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber );
 
 	float getPrice();
 

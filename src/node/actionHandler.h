@@ -36,6 +36,8 @@ public:
 	static CActionHandler* getInstance( );
 
 	void executeAction( CAction* _action );
+
+	void addConnectionProvider( CConnectionProvider* _connectionProvider );
 private:
 	CActionHandler();
 

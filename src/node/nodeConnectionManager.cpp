@@ -1,6 +1,8 @@
 #include "nodeConnectionManager.h"
 #include "actionHandler.h"
 #include "sendInfoRequestAction.h"
+#include "userConnectionProvider.h"
+#include "trackerLocalRanking.h"
 
 namespace node
 {
@@ -20,6 +22,10 @@ CNodeConnectionManager::getInstance( )
 CNodeConnectionManager::CNodeConnectionManager()
 {
 	m_actionHandler = CActionHandler::getInstance();
+
+	m_actionHandler->addConnectionProvider( new CUserConnectionProvider() );
+	
+	m_actionHandler->addConnectionProvider( CTrackerLocalRanking::getInstance() );
 }
 
 

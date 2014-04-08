@@ -12,14 +12,14 @@
 namespace node
 {
 
-class CNetworkClient;
+class CMedium;
 
 class CConnectionProvider
 {
 public:
-	virtual CNetworkClient * provideConnection( RequestKind::Enum const _actionKind ) = 0;
+	virtual CMedium * provideConnection( RequestKind::Enum const _actionKind ) = 0;
 
-	virtual std::list< CNetworkClient *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber ) = 0;
+	virtual std::list< CMedium *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber ) = 0;
 };
 
 }

@@ -34,16 +34,16 @@ CTrackerLocalRanking::addTracker( CTrackerStats const & _trackerStats )
 	m_reputationRanking.insert( _trackerStats );
 }
 
-CNetworkClient *
+CMedium *
 CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind )
 {
 	return 0;
 }
 
-std::list< CNetworkClient *> 
+std::list< CMedium *> 
 CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber )
 {
-	return std::list< CNetworkClient *>();
+	return std::list< CMedium *>();
 }
 
 float
