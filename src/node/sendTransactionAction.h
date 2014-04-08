@@ -5,6 +5,8 @@
 #ifndef SEND_TRANSACTION_ACTION_H
 #define SEND_TRANSACTION_ACTION_H
 
+#include <boost/optional.hpp>
+
 #include "action.h"
 #include "tracker/validationManager.h"
 #include "request.h"
@@ -24,9 +26,9 @@ public:
 
 	CRequest * execute();
 
-	void setTransactionStatus( self::TransactionsStatus::Enum const _transactionStatus );
+	void setTransactionStatus( boost::optional< self::TransactionsStatus::Enum > const _transactionStatus );
 
-	void setTransactionToken( uint256 const & _token );
+	void setTransactionToken(  boost::optional< uint256 > const & _token );
 private:
 	ActionStatus::Enum m_actionStatus;
 	CTransaction m_transaction;

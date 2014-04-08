@@ -5,9 +5,13 @@
 #ifndef CONNECT_ACTION_H
 #define CONNECT_ACTION_H
 
+#include <boost/optional.hpp>
+
 #include "action.h"
 #include "uint256.h"
 
+#include "trackerLocalRanking.h"
+#include "sendInfoRequestAction.h"
 
 namespace node
 {
@@ -32,12 +36,24 @@ public:
 	void accept( CSetResponseVisitor & _visitor );
 
 	CRequest* execute();
+
+	void setTrackerInfo( boost::optional< std::vector< std::string > > const & _trackerInfo );
+
+	void setInProgressToken( boost::optional< uint256 > const & _trackerInfo );
+private:
+	CTrackerStats buildTrackerStatsFromData();
 private:
 	State::Enum m_state;
 
 	ActionStatus::Enum m_actionStatus;
 
-	uint256 m_token;
+	boost::optional< uint256 > m_token;
+
+	boost::optional< std::vector< std::string > > m_trackerInfo;
+
+	boost::optional< std::vector< std::string > > m_monitorInfo;
+
+	static std::vector< TrackerInfo::Enum > const ms_trackerDescription;
 };
 
 }

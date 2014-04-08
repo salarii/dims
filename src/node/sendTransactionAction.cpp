@@ -13,13 +13,13 @@ namespace node
 
 
 void
-CSendTransactionAction::setTransactionStatus( self::TransactionsStatus::Enum const _transactionStatus )
+CSendTransactionAction::setTransactionStatus( boost::optional< self::TransactionsStatus::Enum > const _transactionStatus )
 {
 
 }
 
 void 
-CSendTransactionAction::setTransactionToken( uint256 const & _token )
+CSendTransactionAction::setTransactionToken( boost::optional< uint256 > const & _token )
 {
 
 }

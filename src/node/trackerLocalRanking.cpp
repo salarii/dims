@@ -27,6 +27,13 @@ CTrackerLocalRanking::getInstance( )
 	return ms_instance;
 }
 
+void
+CTrackerLocalRanking::addTracker( CTrackerStats const & _trackerStats )
+{
+	m_balancedRanking.insert( _trackerStats ); 
+	m_reputationRanking.insert( _trackerStats );
+}
+
 CNetworkClient *
 CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind )
 {

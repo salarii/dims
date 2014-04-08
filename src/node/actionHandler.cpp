@@ -83,7 +83,6 @@ CActionHandler::provideHandler( RequestKind::Enum const _requestKind )
 void
 CActionHandler::shutDown()
 {
-
 }
 
 void 

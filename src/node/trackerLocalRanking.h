@@ -18,6 +18,8 @@ class CNetworkClient;
 
 struct CTrackerStats
 {
+	CTrackerStats( QString _publicKey = "", unsigned int  _reputation = 0, float _price = 0.0, QString _ip = "", unsigned int _port = 0 )
+		:m_publicKey( _publicKey ), m_reputation( _reputation ), m_price( _price ), m_ip( _ip ), m_port(_port){};
 	QString m_publicKey;
 	unsigned int  m_reputation;
 	float m_price;
@@ -55,6 +57,7 @@ public:
 
 	static CTrackerLocalRanking* getInstance();
 
+	void addTracker( CTrackerStats const & _trackerStats );
 private:
 	CTrackerLocalRanking();
 private:

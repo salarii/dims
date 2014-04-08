@@ -5,37 +5,39 @@
 #include "setResponseVisitor.h"
 #include "sendTransactionAction.h"
 #include "requestRespond.h"
+#include "connectAction.h"
 #include <boost/any.hpp>
+#include <boost/optional.hpp>
 
 namespace node
 {
 template < class T >
-class CResponseVisitorBase : public boost::static_visitor<T>
+class CResponseVisitorBase : public boost::static_visitor< boost::optional< T > >
 {
 public:
-	virtual T operator()(CTransactionStatus & _transactionStatus ) const
+	virtual boost::optional< T > operator()(CTransactionStatus & _transactionStatus ) const
 	{
-		throw std::exception();
+		return boost::optional< T >();
 	}
 
-	virtual T operator()(CAccountBalance & _accountBalance ) const
+	virtual boost::optional< T > operator()(CAccountBalance & _accountBalance ) const
 	{
-		throw std::exception();
+		return boost::optional< T >();
 	}
 
-	virtual T operator()(CTrackerInfo & _accountBalance ) const
+	virtual boost::optional< T > operator()(CTrackerInfo & _accountBalance ) const
 	{
-		throw std::exception();
+		return boost::optional< T >();
 	}
 
-	virtual T operator()(CMonitorInfo & _accountBalance ) const
+	virtual boost::optional< T > operator()(CMonitorInfo & _accountBalance ) const
 	{
-		throw std::exception();
+		return boost::optional< T >();
 	}
 
-	virtual T operator()(CPending & _accountBalance ) const
+	virtual boost::optional< T > operator()(CPending & _accountBalance ) const
 	{
-		throw std::exception();
+		return boost::optional< T >();
 	}
 
 };
@@ -43,7 +45,7 @@ public:
 class CGetTransactionStatus : public CResponseVisitorBase< self::TransactionsStatus::Enum >
 {
 public:
-	self::TransactionsStatus::Enum operator()(CTransactionStatus & _transactionStatus ) const
+	boost::optional< self::TransactionsStatus::Enum > operator()(CTransactionStatus & _transactionStatus ) const
 	{
 		return _transactionStatus.m_status;
 	}
@@ -53,24 +55,24 @@ public:
 class CGetToken : public CResponseVisitorBase< uint256 >
 {
 public:
-	uint256 operator()(CTransactionStatus & _transactionStatus ) const
+	boost::optional< uint256 > operator()(CTransactionStatus & _transactionStatus ) const
 	{
 		return _transactionStatus.m_token;
 	}
 };
 
 void 
-CSetResponseVisitor::visit( CSendTransactionAction & _sendTransaction )
+CSetResponseVisitor::visit( CSendTransactionAction & _action )
 {
-	_sendTransaction.setTransactionStatus(boost::apply_visitor( (CResponseVisitorBase< self::TransactionsStatus::Enum > const &)CGetTransactionStatus(), m_requestRespond ));
-	_sendTransaction.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+	_action.setTransactionStatus(boost::apply_visitor( (CResponseVisitorBase< self::TransactionsStatus::Enum > const &)CGetTransactionStatus(), m_requestRespond ));
+	_action.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 }
 
 
 void
 CSetResponseVisitor::visit( CConnectAction & _action )
 {
-
+	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 }
 
 void
