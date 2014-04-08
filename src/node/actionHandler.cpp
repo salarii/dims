@@ -5,6 +5,7 @@
 #include "actionHandler.h"
 #include "setResponseVisitor.h"
 #include "networkClient.h"
+#include "request.h"
 
 #include <exception> 
 #include <boost/foreach.hpp>

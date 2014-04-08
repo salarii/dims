@@ -16,6 +16,8 @@
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "node/actionHandler.h"
+#include "node/nodeConnectionManager.h"
+
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
 #include "walletmodel.h"
@@ -152,7 +154,7 @@ signals:
 
 private:
     boost::thread_group threadGroup;
-    node::CActionHandler * m_actionHandler;
+
     /// Pass fatal exception message to UI thread
     void handleRunawayException(std::exception *e);
 };
@@ -215,14 +217,11 @@ private:
 
 BitcoinCore::BitcoinCore():
      QObject()
-    , m_actionHandler(0)
 {
 }
 
 BitcoinCore::~BitcoinCore()
 {
-	if ( m_actionHandler )
-		delete m_actionHandler;
 }
 
 void BitcoinCore::handleRunawayException(std::exception *e)
@@ -238,10 +237,14 @@ void BitcoinCore::initialize()
         LogPrintf("Running AppInit2 in thread\n");
 	  int rv = AppInit1(threadGroup);
 
-	  m_actionHandler = node::CActionHandler::getInstance();
+	node::CActionHandler * actionHandler = node::CActionHandler::getInstance();
 
-	  threadGroup.create_thread(boost::bind(&node::CActionHandler::loop, m_actionHandler));
+	threadGroup.create_thread(boost::bind(&node::CActionHandler::loop, actionHandler));
 
+	node::CNodeConnectionManager * nodeConnectionManager = node::CNodeConnectionManager::getInstance();
+
+	nodeConnectionManager->connectToNetwork();
+ 
         if(rv)
         {
             /* Start a dummy RPC thread if no RPC thread is active yet

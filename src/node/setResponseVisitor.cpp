@@ -4,7 +4,7 @@
 
 #include "setResponseVisitor.h"
 #include "sendTransactionAction.h"
-#include "requestHandler.h"
+#include "requestRespond.h"
 #include <boost/any.hpp>
 
 namespace node
@@ -19,6 +19,21 @@ public:
 	}
 
 	virtual T operator()(CAccountBalance & _accountBalance ) const
+	{
+		throw std::exception();
+	}
+
+	virtual T operator()(CTrackerInfo & _accountBalance ) const
+	{
+		throw std::exception();
+	}
+
+	virtual T operator()(CMonitorInfo & _accountBalance ) const
+	{
+		throw std::exception();
+	}
+
+	virtual T operator()(CPending & _accountBalance ) const
 	{
 		throw std::exception();
 	}
@@ -49,6 +64,13 @@ CSetResponseVisitor::visit( CSendTransactionAction & _sendTransaction )
 {
 	_sendTransaction.setTransactionStatus(boost::apply_visitor( (CResponseVisitorBase< self::TransactionsStatus::Enum > const &)CGetTransactionStatus(), m_requestRespond ));
 	_sendTransaction.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+}
+
+
+void
+CSetResponseVisitor::visit( CConnectAction & _action )
+{
+
 }
 
 void

@@ -5,10 +5,10 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
+struct CBufferAsStream;
+
 namespace node
 {
-
-struct CBufferAsStream;
 
 struct RequestKind
 {

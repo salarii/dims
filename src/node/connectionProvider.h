@@ -7,6 +7,8 @@
 
 #include <list>
 
+#include "request.h"
+
 namespace node
 {
 

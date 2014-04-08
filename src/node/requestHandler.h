@@ -7,25 +7,14 @@
 
 #include "tracker/validationManager.h"
 
-#include "uint256.h"
-
 #include "connectionProvider.h"
+
+#include "requestRespond.h"
 
 namespace node
 {
 
 class CMedium;
-
-struct CTransactionStatus
-{
-	self::TransactionsStatus::Enum m_status;
-	uint256 m_token;
-};
-
-struct CAccountBalance
-{
-
-};
 
 class CRequestHandler
 {

@@ -7,13 +7,38 @@
 
 #include <boost/variant.hpp>
 
+#include "uint256.h"
+
 namespace node
 {
 
-struct CTransactionStatus;
-struct CAccountBalance;
+struct CTransactionStatus
+{
+	self::TransactionsStatus::Enum m_status;
+	uint256 m_token;
+};
 
-typedef boost::variant< CTransactionStatus, CAccountBalance > RequestRespond;
+struct CAccountBalance
+{
+
+};
+
+struct CTrackerInfo
+{
+	std::vector< std::string > m_info;
+};
+
+struct CMonitorInfo
+{
+	std::vector< std::string > m_info;
+};
+
+struct CPending
+{
+	uint256 m_token;
+};
+
+typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerInfo, CMonitorInfo, CPending > RequestRespond;
 
 }
 

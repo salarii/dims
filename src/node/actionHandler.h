@@ -11,6 +11,8 @@
 
 #include "connectionProvider.h"
 
+#include "action.h"
+
 namespace node
 {
 /*
@@ -24,23 +26,6 @@ rebuild  reputation  table  periodically
 class CSetResponseVisitor;
 class CRequestHandler;
 struct CRequest;
-
-struct ActionStatus
-{
-	enum Enum
-	{
-		Unprepared
-		,InProgress
-	};
-};
-
-class CAction
-{
-public:
-	virtual void accept( CSetResponseVisitor & _visitor );
-
-	virtual CRequest* execute() = 0;
-};
 
 class CActionHandler
 {

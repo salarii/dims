@@ -17,12 +17,16 @@ class CSendTransactionAction;
 
 class CAction;
 
+class CConnectAction;
+
 class CSetResponseVisitor
 {
 public:
 	CSetResponseVisitor( RequestRespond const & _requestRespond );
 
-	void visit( CSendTransactionAction & _sendTransaction );
+	void visit( CSendTransactionAction & _action );
+
+	void visit( CConnectAction & _action );
 
 	void visit( CAction & _action );
 private:

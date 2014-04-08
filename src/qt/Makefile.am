@@ -140,6 +140,7 @@ QT_MOC_CPP = \
 CLIENT_H = \
   ../node/actionHandler.h \
   ../node/sendTransactionAction.h \
+  ../node/sendInfoRequestAction.h \
   ../node/networkClient.h \
   ../node/requestHandler.h \
   ../node/setResponseVisitor.h \
@@ -147,17 +148,29 @@ CLIENT_H = \
   ../node/connectionProvider.h \
   ../node/sendInfoRequestAction.h \
   ../node/medium.h \
-  ../node/trackerLocalRanking.h
+  ../node/dummyMedium.h \
+  ../node/nodeConnectionManager.h \
+  ../node/trackerLocalRanking.h \
+  ../node/action.h \
+  ../node/connectAction.h \
+  ../node/request.h \
+  ../node/support.h \
+  ../node/requestRespond.h
 
 CLIENT_CPP = \
   ../node/actionHandler.cpp \
   ../node/sendTransactionAction.cpp \
+  ../node/sendInfoRequestAction.cpp \
   ../node/networkClient.cpp \
   ../node/requestHandler.cpp \
   ../node/setResponseVisitor.cpp \
   ../node/seedProvider.cpp \
   ../node/sendInfoRequestAction.cpp \
-  ../node/trackerLocalRanking.cpp
+  ../node/dummyMedium.cpp \
+  ../node/nodeConnectionManager.cpp \
+  ../node/trackerLocalRanking.cpp \
+  ../node/connectAction.cpp
+
 
 BITCOIN_MM = \
   macdockiconhandler.mm \

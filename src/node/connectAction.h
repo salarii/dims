@@ -5,7 +5,9 @@
 #ifndef CONNECT_ACTION_H
 #define CONNECT_ACTION_H
 
-#include "actionHandler.h"
+#include "action.h"
+#include "uint256.h"
+
 
 namespace node
 {
@@ -21,16 +23,17 @@ public:
 		, KnownSeed
 		, KnownMonitor
 		, KnownTracker
-		}
+		, Done
+		};
 	};
 public:
-	CConnectAction( State::Enum _state );
+	CConnectAction( State::Enum const _state );
 
 	void accept( CSetResponseVisitor & _visitor );
 
 	CRequest* execute();
 private:
-	State m_state;
+	State::Enum m_state;
 
 	ActionStatus::Enum m_actionStatus;
 

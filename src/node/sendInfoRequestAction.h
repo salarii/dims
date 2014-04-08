@@ -9,6 +9,7 @@
 #include "tracker/validationManager.h"
 #include "requestHandler.h"
 
+
 namespace node
 {
 
@@ -69,11 +70,12 @@ public:
 struct CInfoRequestContinue : public CRequest
 {
 public:
-	CInfoRequestContinue( uint256 & const _token );
+	CInfoRequestContinue( uint256 const & _token, RequestKind::Enum const _requestKind );
 	void serialize( CBufferAsStream & _bufferStream ) const;
 	RequestKind::Enum getKind() const;
 
 	uint256 const m_token;
+	RequestKind::Enum const m_requestKind;
 };
 
 }

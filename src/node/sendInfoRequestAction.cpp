@@ -2,6 +2,7 @@
 #include "sendInfoRequestAction.h"
 
 #include "serialize.h"
+#include "support.h"
 
 namespace node
 {
@@ -9,16 +10,6 @@ namespace node
 
 CSendInfoRequestAction::CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo )
 {
-	if ( _networkInfo == NetworkInfo::Tracker )
-	{
-		m_request = new 
-	}
-/*
-	
-
-	m_actionHandler
-
-*/	
 }
 
 void
@@ -30,20 +21,6 @@ CSendInfoRequestAction::accept( CSetResponseVisitor & _visitor )
 CRequest*
 CSendInfoRequestAction::execute()
 {
-	if ( m_status == ActionStatus::Unprepared )
-	{
-		if ( m_networkInfo )
-		{
-
-		}
-	}
-	else if( m_status == ActionStatus::InProgress )
-	{
-
-	}
-
-
-
 	return 0;
 }
 
@@ -87,7 +64,9 @@ CMonitorInfoRequest::getKind() const
 
 }
 
-CInfoRequestContinue::CInfoRequestContinue( uint256 & const _token )
+CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, RequestKind::Enum const _requestKind )
+: m_token( _token )
+,m_requestKind( _requestKind )
 {
 
 }
@@ -96,12 +75,14 @@ void
 CInfoRequestContinue::serialize( CBufferAsStream & _bufferStream ) const
 {
 
+	serializeEnum( _bufferStream, m_requestKind );
+	_bufferStream << m_token;
 }
 
 RequestKind::Enum
-getKind() const
+CInfoRequestContinue::getKind() const
 {
-
+	return m_requestKind;
 }
 
 }
