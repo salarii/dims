@@ -5,9 +5,7 @@
 #ifndef ACTION_HANDLER_H
 #define ACTION_HANDLER_H
 
-#include <QThread>
-
-#include <QMutex>
+#include <boost/thread.hpp>
 
 #include <map>
 
@@ -27,6 +25,15 @@ class CSetResponseVisitor;
 class CRequestHandler;
 struct CRequest;
 
+struct ActionStatus
+{
+	enum Enum
+	{
+		Unprepared
+		,InProgress
+	};
+};
+
 class CAction
 {
 public:
@@ -42,13 +49,17 @@ public:
 	void shutDown();
 	~CActionHandler();
 	static CActionHandler* getInstance( );
+
+	void executeAction( CAction* _action );
 private:
 	CActionHandler();
 
 	CRequestHandler * provideHandler( RequestKind::Enum const _request );
 private:
 	static CActionHandler * ms_instance;
-	QMutex m_mutex;
+
+	mutable boost::mutex m_mutex;
+
 	std::list< CAction* > m_actions;
 
 	std::map< CRequest*, CAction* > m_reqToAction;

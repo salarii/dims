@@ -2,9 +2,11 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "dummyMedium.h"
+#include <boost/foreach.hpp>
+#include <exception> 
 
-#include "boost/foreach.hpp"
+#include "dummyMedium.h"
+#include "sendInfoRequestAction.h"
 
 namespace node
 {
@@ -33,7 +35,7 @@ CDummyMedium::add( CRequest const * _request )
 		m_trackerInfoRequests.push_back( trackerInfoRequest );
 
 	}
-	catch (exception& _ex)
+	catch (std::exception& _ex)
 	{
 		// service it at some point
 	}
@@ -60,6 +62,7 @@ CDummyMedium::flush()
 					stream << m_trackerInfo.m_rating;
 					break;
 				default:
+					;
 			}
 		}
 	}
@@ -72,8 +75,5 @@ CDummyMedium::getResponse( CCommunicationBuffer & _outBuffor ) const
 {
 	_outBuffor = m_buffer;
 }
-
-};
-
 
 }

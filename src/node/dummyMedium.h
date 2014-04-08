@@ -6,17 +6,23 @@
 #define DUMMY_MEDIUM_H
 
 #include <list>
+#include <string>
 
-class CTrackersInfoRequest;
+#include "medium.h"
 
 namespace node
 {
 
-class CDummyMedium
+class CTrackersInfoRequest;
+struct CRequest;
+
+
+class CDummyMedium : public CMedium
 {
 	struct CTrackerInfo
 	{
-		CTrackerInfo( std::string const & _ip, std::string const & _price, std::string const & _rating ):m_ip( _ip ),m_price( _price ),m_rating( _rating ){};
+		CTrackerInfo( std::string const & _ip, std::string const & _price, std::string const & _rating )
+			:m_ip( _ip ),m_price( _price ),m_rating( _rating ){};
 		std::string m_ip;
 		std::string m_price;
 		std::string m_rating;
@@ -29,7 +35,7 @@ public:
 	bool flush();
 	bool getResponse( CCommunicationBuffer & _outBuffor ) const;
 private:
-	std::list< CTrackersInfoRequest * > m_trackerInfoRequests;
+	std::list< CTrackersInfoRequest const * > m_trackerInfoRequests;
 	bool m_serviced;
 
 	CCommunicationBuffer m_buffer;

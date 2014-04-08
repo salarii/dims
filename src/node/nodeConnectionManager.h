@@ -7,12 +7,13 @@
 
 #include <set>
 #include <QString>
-#include <functional> 
 
 #include "connectionProvider.h"
 
 namespace node
 {
+
+class CActionHandler;
 
 class CNodeConnectionManager
 {

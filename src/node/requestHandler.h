@@ -27,15 +27,6 @@ struct CAccountBalance
 
 };
 
-typedef boost::variant< CTransactionStatus, CAccountBalance > RequestRespond;
-
-struct CRequest
-{
-	virtual void serialize( CBufferAsStream & _bufferStream ) const = 0;
-
-	virtual RequestKind::Enum getKind() const = 0;
-};
-
 class CRequestHandler
 {
 public:

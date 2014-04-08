@@ -5,12 +5,22 @@
 #ifndef SEND_INFO_REQUEST_ACTION_H
 #define SEND_INFO_REQUEST_ACTION_H
 
-#include "actionHandler.h"
+#include "action.h"
 #include "tracker/validationManager.h"
 #include "requestHandler.h"
 
 namespace node
 {
+
+
+struct NetworkInfo
+{
+	enum Enum
+	{
+		  Monitor
+		, Tracker
+	};
+};
 
 struct TrackerInfo
 {
@@ -27,19 +37,25 @@ class CSetResponseVisitor;
 class CSendInfoRequestAction : public CAction
 {
 public:
-	CSendInfoRequestAction();
+	CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo );
 
 	void accept( CSetResponseVisitor & _visitor );
+
+	CRequest* execute();
 private:
+	CRequest* m_request;
+
+	ActionStatus::Enum m_status;
 };
 
 struct CTrackersInfoRequest : public CRequest
 {
 public:
-	CTrackersInfoRequest( std::vector< TrackerInfo::Enum >& const _reqInfo = std::vector< TrackerInfo::Enum >() );
+	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >() );
 	void serialize( CBufferAsStream & _bufferStream ) const;
+	RequestKind::Enum getKind() const;
 
-	std::vector< TrackerInfo::Enum > m_reqInfo;
+	std::vector< TrackerInfo::Enum >const  m_reqInfo;
 };
 
 struct CMonitorInfoRequest : public CRequest
@@ -47,8 +63,18 @@ struct CMonitorInfoRequest : public CRequest
 public:
 	CMonitorInfoRequest();
 	void serialize( CBufferAsStream & _bufferStream ) const;
+	RequestKind::Enum getKind() const;
 };
 
+struct CInfoRequestContinue : public CRequest
+{
+public:
+	CInfoRequestContinue( uint256 & const _token );
+	void serialize( CBufferAsStream & _bufferStream ) const;
+	RequestKind::Enum getKind() const;
+
+	uint256 const m_token;
+};
 
 }
 

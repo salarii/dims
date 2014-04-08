@@ -5,7 +5,7 @@
 #ifndef SEND_TRANSACTION_ACTION_H
 #define SEND_TRANSACTION_ACTION_H
 
-#include "actionHandler.h"
+#include "action.h"
 #include "tracker/validationManager.h"
 #include "requestHandler.h"
 
@@ -14,15 +14,6 @@ namespace node
 
 class CSetResponseVisitor;
 
-
-struct ActionStatus
-{
-	enum Enum
-	{
-		 Unprepared
-		,InProgress
-	};
-};
 
 class CSendTransactionAction : public CAction
 {

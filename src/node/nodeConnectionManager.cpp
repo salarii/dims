@@ -1,4 +1,6 @@
 #include "nodeConnectionManager.h"
+#include "actionHandler.h"
+#include "sendInfoRequestAction.h"
 
 namespace node
 {
@@ -28,13 +30,6 @@ CNodeConnectionManager::~CNodeConnectionManager()
 	ms_instance = 0;
 }
 
-CNodeConnectionManager* CNodeConnectionManager::getInstance()
-{
-	return ms_instance;
-}
-
-
-
 void
 CNodeConnectionManager::connectToNetwork()
 {
@@ -42,7 +37,11 @@ CNodeConnectionManager::connectToNetwork()
 // get monitors - not used yet 
 // get  trackers - not  used  yet 
 // get tracker
-	m_actionHandler
+
+	CSendInfoRequestAction * sendInfoRequestAction = new CSendInfoRequestAction( NetworkInfo::Tracker );
+
+	m_actionHandler->executeAction( sendInfoRequestAction );
+
 }
 
 void

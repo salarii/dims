@@ -47,6 +47,13 @@ CActionHandler::getInstance( )
 	return ms_instance;
 }
 
+void
+CActionHandler::executeAction( CAction* _action )
+{
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+	m_actions.push_back( _action );
+}
+
 CRequestHandler * 
 CActionHandler::provideHandler( RequestKind::Enum const _requestKind )
 {
@@ -84,7 +91,7 @@ CActionHandler::loop()
 	while(1)
 	{
 		{
-			QMutexLocker lock( &m_mutex );
+			boost::lock_guard<boost::mutex> lock( m_mutex );
 			BOOST_FOREACH(CAction* action, m_actions)
 			{
 				CRequest* request = action->execute();

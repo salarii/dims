@@ -12,17 +12,6 @@ namespace node
 
 class CNetworkClient;
 
-struct RequestKind
-{
-	enum Enum
-	{
-		NetworkInfo = 0,
-		Transaction,
-		TransactionStatus,
-		Seed
-	};
-};
-
 class CConnectionProvider
 {
 public:
