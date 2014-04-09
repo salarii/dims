@@ -27,12 +27,12 @@ public:
 	bool flush();
 	bool getResponse( CCommunicationBuffer & _outBuffor ) const;
 private:
-	std::list< CTrackersInfoRequest const * > m_trackerInfoRequests;
+	std::list< CTrackersInfoRequest const * > m_trackerStatsRequests;
 	bool m_serviced;
 
 	CCommunicationBuffer m_buffer;
 
-	CTrackerInfo const m_trackerInfo;
+	CTrackerStats const m_trackerStats;
 };
 
 

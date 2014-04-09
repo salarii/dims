@@ -37,39 +37,42 @@ struct CReadWrite
 
 template < class S, class T, class F >
 void
-readWriteTrackerInfo( S & _stream,T & _trackerInfo, F const & _operation, std::vector< TrackerInfo::Enum >const & _info )
+readWriteTrackerInfo( S & _stream,T & _trackerStats, F const & _operation, std::vector< TrackerInfo::Enum >const & _info )
 {
 	BOOST_FOREACH( TrackerInfo::Enum const info, _info )
 	{
 		switch ( info )
 		{
 		case TrackerInfo::Ip:
-			F()( _stream, _trackerInfo.m_ip );
+			F()( _stream, _trackerStats.m_ip );
 			break;
 		case TrackerInfo::Price:
-			F()( _stream, _trackerInfo.m_price );
+			F()( _stream, _trackerStats.m_price );
 			break;
 		case TrackerInfo::Rating:
-			F()( _stream, _trackerInfo.m_rating );
+			F()( _stream, _trackerStats.m_reputation );
+			break;
+		case TrackerInfo::publicKey:
+			F()( _stream, _trackerStats.m_publicKey );
 			break;
 		default:
-			;
+			break;
 		}
 	}
 }
 
 template < class S >
 void
-readTrackerInfo( S & _stream ,CTrackerInfo & _trackerInfo, std::vector< TrackerInfo::Enum >const & _info )
+readTrackerInfo( S & _stream ,CTrackerStats & _trackerStats, std::vector< TrackerInfo::Enum >const & _info )
 {
-	readWriteTrackerInfo( _stream,_trackerInfo, CReadString(), _info );
+	readWriteTrackerInfo( _stream,_trackerStats, CReadString(), _info );
 }
 
 template < class S >
 void
-writeTrackerInfo( S & _stream ,CTrackerInfo const & _trackerInfo, std::vector< TrackerInfo::Enum >const & _info )
+writeTrackerInfo( S & _stream ,CTrackerStats const & _trackerStats, std::vector< TrackerInfo::Enum >const & _info )
 {
-	readWriteTrackerInfo( _stream,_trackerInfo, CReadWrite(), _info );
+	readWriteTrackerInfo( _stream,_trackerStats, CReadWrite(), _info );
 }
 /*
 template < class S >

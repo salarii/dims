@@ -100,7 +100,7 @@ CRequestHandler::readLoop()
 		}
 		else if ( messageType == self::CServerMessageType::TrackerInfo )
 		{
-			 CTrackerInfo trackerInfo;
+			 CTrackerStats trackerInfo;
 			readTrackerInfo( stream, trackerInfo, TrackerDescription );
 			m_processedRequests.insert( std::make_pair( m_newRequest[counter], trackerInfo ) );
 

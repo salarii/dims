@@ -33,12 +33,11 @@ CConnectAction::execute()
 	{
 		if ( m_state == State::Manual )
 		{
-			if ( m_trackerInfo )
+			if ( m_trackerStats )
 			{
 				m_state = State::Done;
 
-				CTrackerLocalRanking::getInstance()->addTracker( buildTrackerStatsFromData() );
-				m_trackerInfo->begin();
+				CTrackerLocalRanking::getInstance()->addTracker( *m_trackerStats );
 			}
 			
 		}
@@ -61,9 +60,9 @@ CConnectAction::execute()
 }
 
 void
-CConnectAction::setTrackerInfo( boost::optional< std::vector< std::string > > const & _trackerInfo )
+CConnectAction::setTrackerInfo( boost::optional< CTrackerStats > const & _trackerStats )
 {
-	m_trackerInfo = _trackerInfo;
+	m_trackerStats = _trackerStats;
 }
 
 void
@@ -72,42 +71,21 @@ CConnectAction::setInProgressToken( boost::optional< uint256 > const & _trackerI
 	m_token = _trackerInfo;
 }
 
-CTrackerStats
-CConnectAction::buildTrackerStatsFromData()
-{
-	CTrackerStats trackerStats;
+/* this could be usefull at some  point 
 
-	if ( !m_trackerInfo )
-		return trackerStats;
-
-	std::vector< std::string > tempInfo = *m_trackerInfo;
-
-	BOOST_REVERSE_FOREACH( TrackerInfo::Enum trackerInfo, TrackerDescription )
-	{
-		assert( !tempInfo.empty() );
-		switch( trackerInfo )
-		{
-		case TrackerInfo::Ip :
-			trackerStats.m_ip = QString::fromStdString( tempInfo.back() );
-			break;
-		case TrackerInfo::Price :
-			trackerStats.m_price = QString::fromStdString( tempInfo.back() ).toDouble();
-			break;
-		case TrackerInfo::Rating :
-			trackerStats.m_reputation = QString::fromStdString( tempInfo.back() ).toUInt();
-			break;
-		case TrackerInfo::publicKey :
-			trackerStats.m_publicKey = QString::fromStdString( tempInfo.back() );
-			break;
-		default:
-			break;
-		}
-		tempInfo.pop_back();
-	}
-	
-	return trackerStats;
-}
-
+case TrackerInfo::Ip :
+trackerStats.m_ip = QString::fromStdString( tempInfo.back() );
+break;
+case TrackerInfo::Price :
+trackerStats.m_price = QString::fromStdString( tempInfo.back() ).toDouble();
+break;
+case TrackerInfo::Rating :
+trackerStats.m_reputation = QString::fromStdString( tempInfo.back() ).toUInt();
+break;
+case TrackerInfo::publicKey :
+trackerStats.m_publicKey = QString::fromStdString( tempInfo.back() );
+break;
+*/
 
 }
 

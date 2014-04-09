@@ -25,7 +25,7 @@ public:
 		return boost::optional< T >();
 	}
 
-	virtual boost::optional< T > operator()(CTrackerInfo & _accountBalance ) const
+	virtual boost::optional< T > operator()(CTrackerStats & _accountBalance ) const
 	{
 		return boost::optional< T >();
 	}
@@ -61,10 +61,10 @@ public:
 	}
 };
 
-class CGetTrackerInfo : public CResponseVisitorBase< CTrackerInfo >
+class CGetTrackerInfo : public CResponseVisitorBase< CTrackerStats >
 {
 public:
-	boost::optional< CTrackerInfo > operator()(CTrackerInfo & _transactionStatus ) const
+	boost::optional< CTrackerStats > operator()(CTrackerStats & _transactionStatus ) const
 	{
 		return _transactionStatus;
 	}

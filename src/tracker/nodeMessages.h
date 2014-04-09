@@ -36,7 +36,7 @@ struct CTransactionMessage
 	CTransaction m_transaction;
 };
 
-struct CTrackerInfoReq
+struct CTrackerStatsReq
 {
 	uint256 m_trackerPubKey;
 };

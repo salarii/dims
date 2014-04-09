@@ -16,7 +16,7 @@ namespace node
 
 CDummyMedium::CDummyMedium()
 	: m_serviced( true )
-	, m_trackerInfo( "127.0.0.1:10", "0.005", "100" )
+	, m_trackerStats( "dummy", 0.005, 100,"127.0.0.1:10" )
 {
 }
 
@@ -35,7 +35,7 @@ CDummyMedium::add( CRequest const * _request )
 
 		trackerInfoRequest = dynamic_cast< CTrackersInfoRequest const  *>(_request);
 
-		m_trackerInfoRequests.push_back( trackerInfoRequest );
+		m_trackerStatsRequests.push_back( trackerInfoRequest );
 
 		m_serviced = false;
 
@@ -51,17 +51,17 @@ CDummyMedium::flush()
 {
 	CBufferAsStream stream( (char*)m_buffer.m_buffer, MaxBufferSize, SER_DISK, CLIENT_VERSION);
 
-	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerInfoRequests )
+	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerStatsRequests )
 	{
 		serializeEnum( stream, self::CServerMessageType::TrackerInfo );
 
-		writeTrackerInfo( stream , m_trackerInfo, request->m_reqInfo );
+		writeTrackerInfo( stream , m_trackerStats, request->m_reqInfo );
 	}
 	m_serviced = true;
 
 	m_buffer.m_usedSize = stream.getMaxWritePosition();
 
-	m_trackerInfoRequests.clear();
+	m_trackerStatsRequests.clear();
 }
 
 bool

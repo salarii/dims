@@ -38,11 +38,9 @@ public:
 
 	CRequest* execute();
 
-	void setTrackerInfo( boost::optional< std::vector< std::string > > const & _trackerInfo );
+	void setTrackerInfo( boost::optional< CTrackerStats > const & _trackerInfo );
 
 	void setInProgressToken( boost::optional< uint256 > const & _trackerInfo );
-private:
-	CTrackerStats buildTrackerStatsFromData();
 private:
 	State::Enum m_state;
 
@@ -50,7 +48,7 @@ private:
 
 	boost::optional< uint256 > m_token;
 
-	boost::optional< CTrackerInfo > m_trackerInfo;
+	boost::optional< CTrackerStats > m_trackerStats;
 
 	boost::optional< std::vector< std::string > > m_monitorInfo;
 };

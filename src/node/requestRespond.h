@@ -24,13 +24,14 @@ struct CAccountBalance
 
 };
 
-struct CTrackerInfo
+struct CTrackerStats
 {
-	CTrackerInfo( std::string const & _ip = "", std::string const & _price = "", std::string const & _rating = "" )
-		:m_ip( _ip ),m_price( _price ),m_rating( _rating ){};
+	CTrackerStats( std::string _publicKey = "", unsigned int  _reputation = 0, float _price = 0.0, std::string _ip = "" )
+		:m_publicKey( _publicKey ), m_reputation( _reputation ), m_price( _price ), m_ip( _ip ){};
+	std::string m_publicKey;
+	unsigned int  m_reputation;
+	float m_price;
 	std::string m_ip;
-	std::string m_price;
-	std::string m_rating;
 };
 
 struct CMonitorInfo
@@ -43,7 +44,7 @@ struct CPending
 	uint256 m_token;
 };
 
-typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerInfo, CMonitorInfo, CPending > RequestRespond;
+typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerStats, CMonitorInfo, CPending > RequestRespond;
 
 }
 
