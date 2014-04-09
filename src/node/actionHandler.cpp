@@ -15,10 +15,6 @@ namespace node
 
 unsigned int const CActionHandler::m_sleepTime = 2;
 
-self::TransactionsStatus::Enum m_status;
-
-uint256 m_token;
-
 CActionHandler * CActionHandler::ms_instance = NULL;
 
 

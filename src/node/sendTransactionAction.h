@@ -7,9 +7,11 @@
 
 #include <boost/optional.hpp>
 
+#include "common/transactionStatus.h"
 #include "action.h"
-#include "tracker/validationManager.h"
 #include "request.h"
+
+#include "core.h"
 
 namespace node
 {
@@ -26,13 +28,13 @@ public:
 
 	CRequest * execute();
 
-	void setTransactionStatus( boost::optional< self::TransactionsStatus::Enum > const _transactionStatus );
+	void setTransactionStatus( boost::optional< common::TransactionsStatus::Enum > const _transactionStatus );
 
 	void setTransactionToken(  boost::optional< uint256 > const & _token );
 private:
 	ActionStatus::Enum m_actionStatus;
 	CTransaction m_transaction;
-	self::TransactionsStatus::Enum m_status;
+	common::TransactionsStatus::Enum m_status;
 	uint256 m_token;
 	
 };

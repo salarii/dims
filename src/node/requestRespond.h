@@ -8,13 +8,14 @@
 #include <boost/variant.hpp>
 
 #include "uint256.h"
+#include "common/transactionStatus.h"
 
 namespace node
 {
 
 struct CTransactionStatus
 {
-	self::TransactionsStatus::Enum m_status;
+	common::TransactionsStatus::Enum m_status;
 	uint256 m_token;
 };
 

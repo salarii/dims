@@ -42,10 +42,10 @@ public:
 
 };
 
-class CGetTransactionStatus : public CResponseVisitorBase< self::TransactionsStatus::Enum >
+class CGetTransactionStatus : public CResponseVisitorBase< common::TransactionsStatus::Enum >
 {
 public:
-	boost::optional< self::TransactionsStatus::Enum > operator()(CTransactionStatus & _transactionStatus ) const
+	boost::optional< common::TransactionsStatus::Enum > operator()(CTransactionStatus & _transactionStatus ) const
 	{
 		return _transactionStatus.m_status;
 	}
@@ -64,7 +64,7 @@ public:
 void 
 CSetResponseVisitor::visit( CSendTransactionAction & _action )
 {
-	_action.setTransactionStatus(boost::apply_visitor( (CResponseVisitorBase< self::TransactionsStatus::Enum > const &)CGetTransactionStatus(), m_requestRespond ));
+	_action.setTransactionStatus(boost::apply_visitor( (CResponseVisitorBase< common::TransactionsStatus::Enum > const &)CGetTransactionStatus(), m_requestRespond ));
 	_action.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 }
 

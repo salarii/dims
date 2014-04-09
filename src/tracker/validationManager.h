@@ -6,6 +6,7 @@
 #define VALIDATION_MANAGER_H
 
 #include "core.h"
+#include "common/transactionStatus.h"
 
 namespace self
 {
@@ -19,7 +20,7 @@ public:
 	
 	void serviceTransaction( CTransaction const & _tx );
 
-	TransactionsStatus::Enum pullCurrentTransactionStatus( CTransaction const & _tx );
+	common::TransactionsStatus::Enum pullCurrentTransactionStatus( CTransaction const & _tx );
 private:
 	void workLoop();
 

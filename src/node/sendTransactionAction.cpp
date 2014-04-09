@@ -13,7 +13,7 @@ namespace node
 
 
 void
-CSendTransactionAction::setTransactionStatus( boost::optional< self::TransactionsStatus::Enum > const _transactionStatus )
+CSendTransactionAction::setTransactionStatus( boost::optional< common::TransactionsStatus::Enum > const _transactionStatus )
 {
 
 }
@@ -41,9 +41,9 @@ CSendTransactionAction::execute()
 	}
 	else
 	{
-		if ( m_status == self::TransactionsStatus::DoubleSpend );
+		if ( m_status == common::TransactionsStatus::DoubleSpend );
 			// double spend
-		else if ( m_status == self::TransactionsStatus::Confirmed );
+		else if ( m_status == common::TransactionsStatus::Confirmed );
 			//confirmed 
 		else
 			return new CTransactionStatusRequest( m_token );
