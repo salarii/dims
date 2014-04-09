@@ -30,6 +30,9 @@ struct CRequest;
 class CActionHandler
 {
 public:
+	typedef std::map<RequestKind::Enum, CRequestHandler * > AvailableHandlers;
+	typedef std::map< CRequest*, CAction* > RequestToAction;
+public:
 	void loop();
 	void shutDown();
 	~CActionHandler();
@@ -49,14 +52,14 @@ private:
 
 	std::list< CAction* > m_actions;
 
-	std::map< CRequest*, CAction* > m_reqToAction;
+	RequestToAction m_reqToAction;
 
 	CRequestHandler * m_requestHandler;
 
 	std::list<CConnectionProvider*> m_connectionProviders;
 
 	//this  will be  multimap one  day, this  should  be  periodically  cleanuped ,  don't  know  how  yet
-	std::map<RequestKind::Enum, CRequestHandler * > m_requestHandlers;
+	AvailableHandlers m_requestHandlers;
 	
 	static unsigned int const m_sleepTime;
 };

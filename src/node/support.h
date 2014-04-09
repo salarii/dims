@@ -17,7 +17,66 @@ serializeEnum( T & _stream, Enum const _enum )
 	_stream << _enum;
 };
 
+struct CReadString
+{
+	template < class S, class T >
+	void operator()( S _stream, T & _object ) const
+	{
+		_stream >> _object;
+	}
+};
 
+struct CReadWrite
+{
+	template < class S, class T >
+	void operator()( S _stream, T const & _object ) const
+	{
+		_stream << _object;
+	}
+};
+
+template < class S, class T, class F >
+void
+readWriteTrackerInfo( S & _stream,T _trackerInfo, F const & _operation, std::vector< TrackerInfo::Enum >const & _info )
+{
+	BOOST_FOREACH( TrackerInfo::Enum const info, _info )
+	{
+		switch ( info )
+		{
+		case TrackerInfo::Ip:
+			F()( _stream, _trackerInfo.m_ip );
+			break;
+		case TrackerInfo::Price:
+			F()( _stream, _trackerInfo.m_price );
+			break;
+		case TrackerInfo::Rating:
+			F()( _stream, _trackerInfo.m_rating );
+			break;
+		default:
+			;
+		}
+	}
 }
 
+template < class S >
+void
+readTrackerInfo( S & _stream ,CTrackerInfo & _trackerInfo, std::vector< TrackerInfo::Enum >const & _info )
+{
+	readWriteTrackerInfo( _stream,_trackerInfo, CReadString(), _info );
+}
+
+template < class S >
+void
+writeTrackerInfo( S & _stream ,CTrackerInfo const & _trackerInfo, std::vector< TrackerInfo::Enum >const & _info )
+{
+	readWriteTrackerInfo( _stream,_trackerInfo, CReadWrite(), _info );
+}
+/*
+template < class S >
+void
+writeTrackerInfo( S & _stream ,std::vector< std::string > const, std::vector< TrackerInfo::Enum >const )
+{
+}
+*/
+}
 #endif

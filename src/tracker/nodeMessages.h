@@ -26,7 +26,7 @@ struct CServerMessageType
 		  ReferenceToken
 		, TransactionStatus
 		, MonitorInfo
-		, Trackernfo
+		, TrackerInfo
 		, RequestSatatus
 	};
 };

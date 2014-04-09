@@ -25,7 +25,8 @@ DIST_SUBDIRS = . qt test
 .PHONY: FORCE
 
 COMMON_H = \
-  common/ratcoinParams.h
+  common/ratcoinParams.h \
+  common/transactionStatus.h
 
 COMMON_CPP = \
   common/ratcoinParams.cpp

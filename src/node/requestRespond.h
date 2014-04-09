@@ -25,7 +25,11 @@ struct CAccountBalance
 
 struct CTrackerInfo
 {
-	std::vector< std::string > m_info;
+	CTrackerInfo( std::string const & _ip, std::string const & _price, std::string const & _rating )
+		:m_ip( _ip ),m_price( _price ),m_rating( _rating ){};
+	std::string m_ip;
+	std::string m_price;
+	std::string m_rating;
 };
 
 struct CMonitorInfo

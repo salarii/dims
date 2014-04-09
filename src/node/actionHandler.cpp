@@ -19,8 +19,6 @@ self::TransactionsStatus::Enum m_status;
 
 uint256 m_token;
 
-typedef std::pair<node::CRequest* const, node::CAction*> ReqAction;
-
 CActionHandler * CActionHandler::ms_instance = NULL;
 
 
@@ -105,21 +103,39 @@ CActionHandler::loop()
 				if ( request )
 					m_reqToAction.insert( std::make_pair( request, action ) );
 			}
-
 			m_actions.clear();
-
 		}
 
-		BOOST_FOREACH(ReqAction & reqAction, m_reqToAction)
+		BOOST_FOREACH( AvailableHandlers::value_type & reqAction, m_requestHandlers)
 		{
-			if ( provideHandler( reqAction.first->getKind() )->isProcessed( reqAction.first ) )
+			reqAction.second->readLoop();
+		}
+
+		BOOST_FOREACH(RequestToAction::value_type & reqAction, m_reqToAction)
+		{
+			CRequestHandler * requestHandler = provideHandler( reqAction.first->getKind() );
+			if ( requestHandler )
 			{
-				CSetResponseVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
-				reqAction.second->accept( visitor );
-				
-				m_actions.push_back( reqAction.second );
+				if ( requestHandler->isProcessed( reqAction.first ) )
+				{
+					CSetResponseVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
+					reqAction.second->accept( visitor );
+
+					m_actions.push_back( reqAction.second );
+					//m_reqToAction.erase();
+				}
+				else
+				{
+					requestHandler->setRequest( reqAction.first );
+				}
 			}
 		}
+
+		BOOST_FOREACH( AvailableHandlers::value_type & reqAction, m_requestHandlers)
+		{
+			reqAction.second->runRequests();
+		}
+
 		QThread::sleep ( m_sleepTime );
 	}
 }

@@ -8,11 +8,14 @@
 #include "dummyMedium.h"
 #include "sendInfoRequestAction.h"
 
+#include "support.h"
+#include "tracker/nodeMessages.h"
+
 namespace node
 {
 
 CDummyMedium::CDummyMedium()
-	: m_serviced( false )
+	: m_serviced( true )
 	, m_trackerInfo( "127.0.0.1:10", "0.005", "100" )
 {
 }
@@ -20,7 +23,7 @@ CDummyMedium::CDummyMedium()
 bool
 CDummyMedium::serviced() const
 {
-
+	return m_serviced;
 }
 
 void
@@ -33,6 +36,8 @@ CDummyMedium::add( CRequest const * _request )
 		trackerInfoRequest = dynamic_cast< CTrackersInfoRequest const  *>(_request);
 
 		m_trackerInfoRequests.push_back( trackerInfoRequest );
+
+		m_serviced = false;
 
 	}
 	catch (std::exception& _ex)
@@ -48,6 +53,8 @@ CDummyMedium::flush()
 
 	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerInfoRequests )
 	{
+		serializeEnum( stream, self::CServerMessageType::TrackerInfo );
+
 		BOOST_FOREACH( TrackerInfo::Enum const info, request->m_reqInfo )
 		{
 			switch ( info )
@@ -66,7 +73,7 @@ CDummyMedium::flush()
 			}
 		}
 	}
-
+	m_serviced = true;
 	m_trackerInfoRequests.clear();
 }
 

@@ -1369,6 +1369,8 @@ private:
 	char *src;
 	uint64_t const nSourceSize;
 	uint64_t nReadWritePos;    // how many bytes have been read from this
+
+	uint64_t m_maxPosition;
 protected:
 	// read data from the source to fill the buffer
 	void fill(void * _dest, void * _src,uint64_t size )
@@ -1386,6 +1388,7 @@ public:
 		, nSourceSize(_sourceSize)
 		, nType(nTypeIn)
 		, nVersion(nVersionIn) 
+		, m_maxPosition(0)
 	{
 	}
 
@@ -1402,6 +1405,8 @@ public:
 		memcpy(src+ nReadWritePos, pch, nSize);
 		nReadWritePos += nSize;
 
+		if ( m_maxPosition < nReadWritePos )
+			m_maxPosition = nReadWritePos;
 		return (*this);
 	}
 
@@ -1454,6 +1459,12 @@ public:
 				return;
 		}
 	}
+
+	uint64_t getMaxWritePosition() const
+	{
+		return m_maxPosition;
+	}
+
 };
 
 

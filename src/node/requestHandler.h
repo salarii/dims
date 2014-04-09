@@ -16,6 +16,9 @@ namespace node
 
 class CMedium;
 
+// for now  this will work in one thread in  blocking mode
+// I want to avoid creating to much thread when  existing amount seems  to be sufficient
+// this  class has to handle deny of  service somehow, most likely throwing  exception or  reloading  medium directly
 class CRequestHandler
 {
 public:
@@ -25,7 +28,7 @@ public:
 
 	bool isProcessed( CRequest* _request ) const;
 
-	bool setRequest( CRequest* _request ) const;
+	bool setRequest( CRequest* _request );
 
 	void runRequests();
 

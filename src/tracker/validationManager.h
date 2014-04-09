@@ -12,20 +12,6 @@ namespace self
 
 class CTransactionRecordManager;
 
-struct TransactionsStatus
-{
-	enum Enum
-	{
-		 Invalid = 0
-		, Valdated
-		, Unconfirmed
-		, Ack
-		, DoubleSpend
-		, Confirmed
-		, Investigated
-	};
-};
-
 class CValidationManager
 {
 public:

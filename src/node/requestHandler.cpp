@@ -23,13 +23,19 @@ CRequestHandler::getRespond( CRequest* _request ) const
 bool
 CRequestHandler::isProcessed( CRequest* _request ) const
 {
+	if ( m_pendingRequest.find( _request ) != m_pendingRequest.end() )
+		return true;
 
+	if ( m_processedRequests.find( _request ) != m_processedRequests.end() )
+		return true;
+	
+	return false;
 }
 
 bool 
-CRequestHandler::setRequest( CRequest* _request ) const
+CRequestHandler::setRequest( CRequest* _request )
 {
-
+	m_newRequest.push_back( _request );
 }
 
 
@@ -42,8 +48,6 @@ CRequestHandler::runRequests()
 	}
 
 	m_usedMedium->flush();
-
-	readLoop();
 }
 
 void
@@ -85,14 +89,16 @@ CRequestHandler::readLoop()
 			break;
 		case self::CServerMessageType::MonitorInfo:
 			break;
-		case self::CServerMessageType::Trackernfo:
+		case self::CServerMessageType::TrackerInfo:
 			break;
 		case self::CServerMessageType::RequestSatatus:
 			break;
 		default:
-			return;
+			throw;
 		}
 	}
+	m_newRequest.clear();
+
 }
 
 

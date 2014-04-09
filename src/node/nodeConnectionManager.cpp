@@ -1,6 +1,6 @@
 #include "nodeConnectionManager.h"
 #include "actionHandler.h"
-#include "sendInfoRequestAction.h"
+#include "connectAction.h"
 #include "userConnectionProvider.h"
 #include "trackerLocalRanking.h"
 
@@ -44,9 +44,9 @@ CNodeConnectionManager::connectToNetwork()
 // get  trackers - not  used  yet 
 // get tracker
 
-	CSendInfoRequestAction * sendInfoRequestAction = new CSendInfoRequestAction( NetworkInfo::Tracker );
+	CConnectAction * connectAction = new CConnectAction( CConnectAction::State::Manual );
 
-	m_actionHandler->executeAction( sendInfoRequestAction );
+	m_actionHandler->executeAction( connectAction );
 
 }
 
