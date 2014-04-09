@@ -4,9 +4,12 @@
 #include "serialize.h"
 #include "support.h"
 
+#include <boost/assign/list_of.hpp>
+
 namespace node
 {
 
+std::vector< TrackerInfo::Enum > const TrackerDescription = boost::assign::list_of< TrackerInfo::Enum >( TrackerInfo::Ip);//.convert_to_container<std::vector< TrackerInfo::Enum > >();
 
 CSendInfoRequestAction::CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo )
 {

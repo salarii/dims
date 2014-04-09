@@ -1363,6 +1363,8 @@ public:
     }
 };
 
+/* maybe  written buffor size  should  passed as  reference */
+
 class CBufferAsStream
 {
 private:

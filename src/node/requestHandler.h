@@ -33,6 +33,8 @@ public:
 	void runRequests();
 
 	void readLoop();
+
+	void deleteRequest( CRequest* );
 private:
 	std::vector<CRequest*> m_newRequest;
 	std::map<CRequest*,uint256> m_pendingRequest;

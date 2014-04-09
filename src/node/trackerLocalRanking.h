@@ -57,15 +57,15 @@ public:
 
 	static CTrackerLocalRanking* getInstance();
 
-	void addTracker( CTrackerStats const & _trackerStats );
+	void addTracker( CTrackerInfo const & _trackerStats );
 private:
 	CTrackerLocalRanking();
 private:
 	static CTrackerLocalRanking * ms_instance;
 	// those  sets should be repeatedly rebuild
-	std::set< CTrackerStats, CompareBalancedTracker > m_balancedRanking;
+	std::set< CTrackerInfo, CompareBalancedTracker > m_balancedRanking;
 
-	std::set< CTrackerStats, CompareReputationTracker > m_reputationRanking;
+	std::set< CTrackerInfo, CompareReputationTracker > m_reputationRanking;
 };
 
 

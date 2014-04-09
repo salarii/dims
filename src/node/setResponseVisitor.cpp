@@ -61,6 +61,15 @@ public:
 	}
 };
 
+class CGetTrackerInfo : public CResponseVisitorBase< CTrackerInfo >
+{
+public:
+	boost::optional< CTrackerInfo > operator()(CTrackerInfo & _transactionStatus ) const
+	{
+		return _transactionStatus;
+	}
+};
+
 void 
 CSetResponseVisitor::visit( CSendTransactionAction & _action )
 {

@@ -55,25 +55,12 @@ CDummyMedium::flush()
 	{
 		serializeEnum( stream, self::CServerMessageType::TrackerInfo );
 
-		BOOST_FOREACH( TrackerInfo::Enum const info, request->m_reqInfo )
-		{
-			switch ( info )
-			{
-				case TrackerInfo::Ip:
-					stream << m_trackerInfo.m_ip;
-					break;
-				case TrackerInfo::Price:
-					stream << m_trackerInfo.m_price;
-					break;
-				case TrackerInfo::Rating:
-					stream << m_trackerInfo.m_rating;
-					break;
-				default:
-					;
-			}
-		}
+		writeTrackerInfo( stream , m_trackerInfo, request->m_reqInfo );
 	}
 	m_serviced = true;
+
+	m_buffer.m_usedSize = stream.getMaxWritePosition();
+
 	m_trackerInfoRequests.clear();
 }
 

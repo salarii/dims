@@ -34,6 +34,8 @@ struct TrackerInfo
 	};
 };
 
+extern std::vector< TrackerInfo::Enum > const TrackerDescription;
+
 class CSetResponseVisitor;
 
 class CSendInfoRequestAction : public CAction
@@ -54,6 +56,7 @@ struct CTrackersInfoRequest : public CRequest
 {
 public:
 	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >() );
+	~CTrackersInfoRequest(){};
 	void serialize( CBufferAsStream & _bufferStream ) const;
 	RequestKind::Enum getKind() const;
 

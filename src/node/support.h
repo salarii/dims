@@ -20,7 +20,7 @@ serializeEnum( T & _stream, Enum const _enum )
 struct CReadString
 {
 	template < class S, class T >
-	void operator()( S _stream, T & _object ) const
+	void operator()( S & _stream, T & _object ) const
 	{
 		_stream >> _object;
 	}
@@ -29,7 +29,7 @@ struct CReadString
 struct CReadWrite
 {
 	template < class S, class T >
-	void operator()( S _stream, T const & _object ) const
+	void operator()( S & _stream, T const & _object ) const
 	{
 		_stream << _object;
 	}
@@ -37,7 +37,7 @@ struct CReadWrite
 
 template < class S, class T, class F >
 void
-readWriteTrackerInfo( S & _stream,T _trackerInfo, F const & _operation, std::vector< TrackerInfo::Enum >const & _info )
+readWriteTrackerInfo( S & _stream,T & _trackerInfo, F const & _operation, std::vector< TrackerInfo::Enum >const & _info )
 {
 	BOOST_FOREACH( TrackerInfo::Enum const info, _info )
 	{

@@ -114,11 +114,15 @@ CActionHandler::loop()
 			{
 				if ( requestHandler->isProcessed( reqAction.first ) )
 				{
-					CSetResponseVisitor visitor( m_requestHandler->getRespond( reqAction.first ) );
+					CSetResponseVisitor visitor( requestHandler->getRespond( reqAction.first ) );
 					reqAction.second->accept( visitor );
 
 					m_actions.push_back( reqAction.second );
-					//m_reqToAction.erase();
+
+					requestHandler->deleteRequest( reqAction.first );
+					
+					m_reqToAction.erase( reqAction.first );
+					delete reqAction.first;
 				}
 				else
 				{

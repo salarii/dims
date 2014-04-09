@@ -26,7 +26,7 @@ struct CAccountBalance
 
 struct CTrackerInfo
 {
-	CTrackerInfo( std::string const & _ip, std::string const & _price, std::string const & _rating )
+	CTrackerInfo( std::string const & _ip = "", std::string const & _price = "", std::string const & _rating = "" )
 		:m_ip( _ip ),m_price( _price ),m_rating( _rating ){};
 	std::string m_ip;
 	std::string m_price;

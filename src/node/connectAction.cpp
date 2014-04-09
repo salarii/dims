@@ -6,12 +6,9 @@
 
 #include "setResponseVisitor.h"
 
-#include <boost/assign/list_of.hpp>
-
 namespace node
 {
 
-std::vector< TrackerInfo::Enum > const CConnectAction::ms_trackerDescription = boost::assign::list_of< TrackerInfo::Enum >( TrackerInfo::Ip);//.convert_to_container<std::vector< TrackerInfo::Enum > >();
 
 CConnectAction::CConnectAction( State::Enum const _state )
 :m_state( _state )
@@ -27,6 +24,8 @@ CConnectAction::accept( CSetResponseVisitor & _visitor )
 CRequest*
 CConnectAction::execute()
 {
+
+	// this  crap serves only  temporary in  such ugly way
 	if ( m_state == State::Done )
 		return 0;
 
@@ -50,7 +49,8 @@ CConnectAction::execute()
 
 	if ( m_state == State::Manual )
 	{
-		return new CTrackersInfoRequest( ms_trackerDescription );
+		m_actionStatus = ActionStatus::InProgress;
+		return new CTrackersInfoRequest( TrackerDescription );
 	}
 	else
 	{
@@ -82,7 +82,7 @@ CConnectAction::buildTrackerStatsFromData()
 
 	std::vector< std::string > tempInfo = *m_trackerInfo;
 
-	BOOST_REVERSE_FOREACH( TrackerInfo::Enum trackerInfo, ms_trackerDescription )
+	BOOST_REVERSE_FOREACH( TrackerInfo::Enum trackerInfo, TrackerDescription )
 	{
 		assert( !tempInfo.empty() );
 		switch( trackerInfo )

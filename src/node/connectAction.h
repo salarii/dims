@@ -12,6 +12,7 @@
 
 #include "trackerLocalRanking.h"
 #include "sendInfoRequestAction.h"
+#include "requestRespond.h"
 
 namespace node
 {
@@ -49,11 +50,9 @@ private:
 
 	boost::optional< uint256 > m_token;
 
-	boost::optional< std::vector< std::string > > m_trackerInfo;
+	boost::optional< CTrackerInfo > m_trackerInfo;
 
 	boost::optional< std::vector< std::string > > m_monitorInfo;
-
-	static std::vector< TrackerInfo::Enum > const ms_trackerDescription;
 };
 
 }

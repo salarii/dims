@@ -5,7 +5,8 @@
 #include "requestHandler.h"
 #include "tracker/nodeMessages.h"
 #include "medium.h"
-
+#include "sendInfoRequestAction.h"
+#include "support.h"
 namespace node
 {
 
@@ -16,6 +17,13 @@ CRequestHandler::CRequestHandler( CMedium * _medium )
 
 RequestRespond
 CRequestHandler::getRespond( CRequest* _request ) const
+{
+	assert( m_processedRequests.find( _request ) != m_processedRequests.end() );
+	return m_processedRequests.find( _request )->second;
+}
+
+void
+CRequestHandler::deleteRequest( CRequest* )
 {
 
 }
@@ -72,30 +80,40 @@ CRequestHandler::readLoop()
 
 		stream >> messageType;
 
-		counter++;
-
-		uint256 token;
-		int status;
-
-		switch( (self::CServerMessageType::Enum)messageType )
+		if ( messageType == self::CServerMessageType::ReferenceToken )
 		{
-		case self::CServerMessageType::ReferenceToken:
+			uint256 token;
 			stream >> token;
 			m_pendingRequest.insert( std::make_pair( m_newRequest[counter], token ) );
-			break;
-		case self::CServerMessageType::TransactionStatus:
+
+		}
+		else if ( messageType == self::CServerMessageType::TransactionStatus )
+		{
+			int status;
 			stream >> status;
 			//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (self::TransactionsStatus::Enum )status ) ) );
-			break;
-		case self::CServerMessageType::MonitorInfo:
-			break;
-		case self::CServerMessageType::TrackerInfo:
-			break;
-		case self::CServerMessageType::RequestSatatus:
-			break;
-		default:
+
+		}
+		else if ( messageType == self::CServerMessageType::MonitorInfo )
+		{
+
+		}
+		else if ( messageType == self::CServerMessageType::TrackerInfo )
+		{
+			 CTrackerInfo trackerInfo;
+			readTrackerInfo( stream, trackerInfo, TrackerDescription );
+			m_processedRequests.insert( std::make_pair( m_newRequest[counter], trackerInfo ) );
+
+		}
+		else if ( messageType == self::CServerMessageType::RequestSatatus )
+		{
+
+		}
+		else
+		{
 			throw;
 		}
+		counter++;
 	}
 	m_newRequest.clear();
 

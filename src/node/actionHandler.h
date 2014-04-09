@@ -54,8 +54,6 @@ private:
 
 	RequestToAction m_reqToAction;
 
-	CRequestHandler * m_requestHandler;
-
 	std::list<CConnectionProvider*> m_connectionProviders;
 
 	//this  will be  multimap one  day, this  should  be  periodically  cleanuped ,  don't  know  how  yet
