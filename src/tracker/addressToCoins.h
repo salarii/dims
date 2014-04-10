@@ -10,8 +10,8 @@
 namespace tracker
 {
 
-uint256
-uint160
+class CBatchWrite;
+
 struct CCoinsStats
 {
 	uint64_t nTransactions;
@@ -36,7 +36,7 @@ protected:
 	bool getCoin(const uint256 &_keyId, uint256 &coin);
 	bool setCoin(const uint256 &_keyId, uint256 &coin);
 	bool haveCoin(const uint256 &_keyId);
-	bool BatchWrite(const std::map<uint256, CCoins> &mapCoins, const uint256 &hashBlock);
+	bool batchWrite( CBatchWrite & _batchWrite );
 	bool GetStats(CCoinsStats &stats);
 };
 
@@ -46,6 +46,8 @@ public:
 	CAddressToCoins();
 	bool getCoins( uint256 const &_keyId, std::vector< uint256 > &_coins );
 	bool setCoins( uint256 const &_keyId, uint256 const & _coin );
+
+	bool batchWrite( std::multimap<uint160,uint256> const &mapCoins );
 };
 
 
@@ -62,12 +64,9 @@ public:
 	bool setCoins( uint256 const &_keyId, uint256 const & _coin );
 	bool haveCoins( uint256 const &_keyId );
 
-	bool BatchWrite( std::multimap<uint160,uint256> const &mapCoins, uint256 const & hashBlock);
-	std::map<uint256,CCoins>::iterator CCoinsViewCache::FetchCoins(const uint256 &txid);
-    // Return a modifiable reference to a CCoins. Check HaveCoins first.
-    // Many methods explicitly require a CCoinsViewCache because of this method, to reduce
-    // copying.
-    CCoins &GetCoins(const uint256 &txid);
+//	bool BatchWrite( std::multimap<uint160,uint256> const &mapCoins );
+private:
+	std::map<uint160,uint256>::iterator CCoinsViewCache::fetchCoins(const uint256 &_keyId);
 
     // Push the modifications applied to this cache to its base.
     // Failure to call this method before destruction will cause the changes to be forgotten.

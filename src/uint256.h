@@ -572,7 +572,7 @@ public:
     uint256& operator=(uint160 const & b)
     {
 		*this = 0;
-		*(static_cast< uint160 *>this) = b;
+		*(static_cast< uint160 *const>((void * const)this)) = b;
 		return *this;
     }
 
