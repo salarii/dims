@@ -4,7 +4,7 @@
 
 #include "authenticationProvider.h"
 
-namespace self
+namespace tracker
 {
 
 CAuthenticationProvider::CAuthenticationProvider()

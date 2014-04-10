@@ -73,7 +73,7 @@ CTransactionStatusRequest::getKind() const
 void
 CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-	signed int infoReq =  self::CClientMessageType::TrackerInfoReq;
+	signed int infoReq =  tracker::CClientMessageType::TrackerInfoReq;
 	_bufferStream << infoReq;
 	_bufferStream << m_token;
 }
@@ -93,7 +93,7 @@ CTransactionSendRequest::getKind() const
 void 
 CTransactionSendRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-	signed int transactionKind = self::CClientMessageType::Transaction;
+	signed int transactionKind = tracker::CClientMessageType::Transaction;
 	_bufferStream << transactionKind;
 	_bufferStream << m_transaction;
 }

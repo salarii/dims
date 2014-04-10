@@ -10,7 +10,7 @@
 #include "wallet.h"
 
 
-namespace self
+namespace tracker
 {
 
 class CTransactionRecordManager;

@@ -2,11 +2,10 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
 #ifndef AUTHENTICATION_PROVIDER_H
 #define AUTHENTICATION_PROVIDER_H
 
-namespace self
+namespace tracker
 {
 
 class CAuthenticationProvider

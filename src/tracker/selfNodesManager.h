@@ -5,7 +5,7 @@
 #ifndef SELF_NODES_MANAGER_H
 #define SELF_NODES_MANAGER_H
 
-namespace self
+namespace tracker
 {
 /*
 this  should  store  addresses  and  manage  conections  to other  nodes,  such  like  other  trackers  and  monitors 

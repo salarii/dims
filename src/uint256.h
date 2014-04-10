@@ -569,6 +569,13 @@ public:
         return *this;
     }
 
+    uint256& operator=(uint160 const & b)
+    {
+		*this = 0;
+		*(static_cast< uint160 *>this) = b;
+		return *this;
+    }
+
     explicit uint256(const std::string& str)
     {
         SetHex(str);

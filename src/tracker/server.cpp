@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace self
+namespace tracker
 {
 
 class server_error : public std::runtime_error

@@ -53,7 +53,7 @@ CDummyMedium::flush()
 
 	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerStatsRequests )
 	{
-		serializeEnum( stream, self::CServerMessageType::TrackerInfo );
+		serializeEnum( stream, tracker::CServerMessageType::TrackerInfo );
 
 		writeTrackerInfo( stream , m_trackerStats, request->m_reqInfo );
 	}

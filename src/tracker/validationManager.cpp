@@ -1,6 +1,6 @@
 #include "validationManager.h"
 
-namespace self
+namespace tracker
 {
 
 CValidationManager::CValidationManager()

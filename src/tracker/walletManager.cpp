@@ -6,7 +6,7 @@
 
 #include "base58.h"
 
-namespace self
+namespace tracker
 {
 
 CWalletManager::CWalletManager()

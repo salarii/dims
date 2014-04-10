@@ -1,6 +1,6 @@
 #include "accessFile.h"
 
-namespace self
+namespace tracker
 {
 
 class CDiskBlock;

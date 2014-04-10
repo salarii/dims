@@ -6,7 +6,7 @@
 
 #include "main.h"
 
-namespace self
+namespace tracker
 {
 
 // -dbcache default (MiB)

@@ -5,7 +5,7 @@
 #ifndef NODE_MESSAGES_H
 #define NODE_MESSAGES_H
 
-namespace self
+namespace tracker
 {
 
 struct CClientMessageType

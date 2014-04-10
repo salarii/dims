@@ -14,7 +14,7 @@
 
 #include "simpleBuddy.h"
 
-namespace self
+namespace tracker
 {
 
 template < class T >

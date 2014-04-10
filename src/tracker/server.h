@@ -12,7 +12,7 @@
 #include "Poco/Net/TCPServerConnection.h"
 #include "Poco/Net/Socket.h"
 
-namespace self
+namespace tracker
 {
 
 class CTcpServerConnection : public Poco::Net::TCPServerConnection

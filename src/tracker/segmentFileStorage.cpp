@@ -10,7 +10,7 @@
 #include "core.h"
 #include "coins.h"
 
-namespace self
+namespace tracker
 {
 /*
 split to two files

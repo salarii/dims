@@ -23,7 +23,7 @@ class CCoinsViewCache;
 
 class CCoins;
 
-namespace self
+namespace tracker
 {
 
 #define BLOCK_SIZE ( 1 << 12 )

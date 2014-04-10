@@ -63,9 +63,9 @@ getTransactionArray()
 
 BOOST_AUTO_TEST_CASE( basics )
 {
-	self::CSegmentFileStorage fileStorage;
+	tracker::CSegmentFileStorage fileStorage;
 
-	boost::thread( boost::bind(&self::CSegmentFileStorage::loop, &fileStorage) );
+	boost::thread( boost::bind(&tracker::CSegmentFileStorage::loop, &fileStorage) );
 
 	fileStorage.includeTransactions( getTransactionArray() );
 	//BOOST_CHECK(uint160(std::vector<unsigned char>(OneArray,OneArray+19)) == 0);

@@ -5,7 +5,7 @@
 #ifndef COMMUNICATION_PROTOCOL_H
 #define COMMUNICATION_PROTOCOL_H
 
-namespace self
+namespace tracker
 {
 
 struct CPayloadKind

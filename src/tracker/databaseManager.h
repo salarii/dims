@@ -5,7 +5,7 @@
 #ifndef DATABASE_MANAGER_H
 #define DATABASE_MANAGER_H
 
-namespace self
+namespace tracker
 {
 
 

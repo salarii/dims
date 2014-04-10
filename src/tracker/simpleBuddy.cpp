@@ -13,7 +13,7 @@
 #include <string.h>
 
 #define assert(a) ;
-namespace self
+namespace tracker
 {
 
 inline

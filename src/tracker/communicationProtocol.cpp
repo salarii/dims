@@ -1,6 +1,6 @@
 #include "communicationProtocol.h"
 
-namespace self
+namespace tracker
 {
 
 struct CTransactionBundle

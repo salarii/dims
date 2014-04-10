@@ -8,7 +8,7 @@
 #include "core.h"
 #include "common/transactionStatus.h"
 
-namespace self
+namespace tracker
 {
 
 class CTransactionRecordManager;

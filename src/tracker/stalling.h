@@ -9,7 +9,7 @@
 #include <vector>
 #include <algorithm> 
 
-namespace self
+namespace tracker
 {
 
 bool condition( unsigned int _leadinZeroNumber,unsigned char const (&_hash)[SHA256_DIGEST_LENGTH])

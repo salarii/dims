@@ -17,7 +17,7 @@ class CCoinsViewCache;
 
 class CTxMemPool;
 
-namespace self
+namespace tracker
 {
 
 class CValidationManager;

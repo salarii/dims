@@ -1,6 +1,6 @@
 #include "manageNetwork.h"
 
-namespace self
+namespace tracker
 {
 
 CSemaphore * CManageNetwork::ms_semOutbound = NULL
