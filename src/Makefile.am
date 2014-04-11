@@ -36,7 +36,8 @@ TRACKER_CORE_H = \
   tracker/originAddressScaner.h \
   tracker/segmentFileStorage.h \
   tracker/simpleBuddy.h \
-  tracker/accessFile.h
+  tracker/accessFile.h \
+  tracker/addressToCoins.h
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -108,7 +109,8 @@ TRACKER_CORE_CPP = \
   tracker/originAddressScaner.cpp \
   tracker/segmentFileStorage.cpp \
   tracker/simpleBuddy.cpp \
-  tracker/accessFile.cpp
+  tracker/accessFile.cpp \
+  tracker/addressToCoins.cpp
 
 libbitcoin_server_a_SOURCES = \
   addrman.cpp \

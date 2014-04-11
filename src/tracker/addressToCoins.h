@@ -6,11 +6,10 @@
 #define ADDRESS_TO_COINS_H
 
 #include "leveldbwrapper.h"
+#include "uint256.h"
 
 namespace tracker
 {
-
-class CBatchWrite;
 
 struct CCoinsStats
 {
@@ -29,23 +28,31 @@ class CAddressToCoinsDatabase
 protected:
 	CLevelDBWrapper db;
 
-	CAddressToCoinsDatabase(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
+	CAddressToCoinsDatabase(size_t _cacheSize, bool fMemory = false, bool fWipe = false);
 
-	bool getCoinsAmount(const uint160 &_keyId, uint64_t const _amount );
-	bool setCoinsAmount(const uint256 &_keyId, uint64_t & _amount);
-	bool getCoin(const uint256 &_keyId, uint256 &coin);
-	bool setCoin(const uint256 &_keyId, uint256 &coin);
-	bool haveCoin(const uint256 &_keyId);
-	bool batchWrite( CBatchWrite & _batchWrite );
+	bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount );
+	bool setCoinsAmount( uint160 const &_keyId, uint64_t const _amount);
+	bool getCoin(uint256 const &_keyId, uint256 &coin);
+	bool setCoin(uint256 const &_keyId, uint256 const &coin);
+	bool haveCoin(uint256 const &_keyId);
+	template< class Batch >
+	bool batchWrite( Batch& _batchWrite );
 	bool GetStats(CCoinsStats &stats);
 };
+
+template< class Batch >
+bool 
+CAddressToCoinsDatabase::batchWrite( Batch & _batchWrite )
+{
+	return db.WriteBatch(_batchWrite.getBatch());
+}
 
 class CAddressToCoins : public CAddressToCoinsDatabase
 {
 public:
-	CAddressToCoins();
-	bool getCoins( uint256 const &_keyId, std::vector< uint256 > &_coins );
-	bool setCoins( uint256 const &_keyId, uint256 const & _coin );
+	CAddressToCoins(size_t _cacheSize);
+	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
+	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
 
 	bool batchWrite( std::multimap<uint160,uint256> const &mapCoins );
 };
@@ -59,18 +66,14 @@ protected:
     std::multimap<uint160,uint256> cacheCoins;
 
 public:
-	CAddressToCoinsViewCache(){};
-	bool getCoins( uint256 const &_keyId, std::vector< uint256 > &_coins );
-	bool setCoins( uint256 const &_keyId, uint256 const & _coin );
-	bool haveCoins( uint256 const &_keyId );
+	CAddressToCoinsViewCache(size_t _cacheSize):m_addressToCoins(_cacheSize){};
+	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
+	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
+	bool haveCoins( uint160 const &_keyId );
 
-//	bool BatchWrite( std::multimap<uint160,uint256> const &mapCoins );
+	bool flush();
 private:
-	std::map<uint160,uint256>::iterator CCoinsViewCache::fetchCoins(const uint256 &_keyId);
-
-    // Push the modifications applied to this cache to its base.
-    // Failure to call this method before destruction will cause the changes to be forgotten.
-    bool Flush();
+	std::map<uint160,uint256>::iterator fetchCoins( uint160 const &_keyId);
 };
 
 }
