@@ -5,7 +5,7 @@
 #ifndef SELF_NODE_H
 #define SELF_NODE_H
 
-namespace Self
+namespace tracker
 {
 
 class CSelfNode : public CNode

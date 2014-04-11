@@ -14,20 +14,22 @@ class CTxMemPool;
 #include "txmempool.h"
 #include <map>
 
-namespace Self
+namespace tracker
 {
 
 class COriginAddressScaner
 {
 public:
-	COriginAddressScaner();
-
 	void resumeScaning();
 
 	void addTransaction(long long const _indexHeight, CTransaction const&  _tx);
 
 	void Thread();
+
+	static COriginAddressScaner* getInstance( );
 private:
+	COriginAddressScaner();
+
 	void lock();
 
 	void unlock();
@@ -39,9 +41,10 @@ private:
 	void createCoinBaseTransaction();
 
 	void getHeightOfLastScanedBlock();
-
-
 private:
+	static COriginAddressScaner * ms_instance;
+
+	std::list< uint160 > m_BalancesToStore;
 
 	CTxMemPool m_mempool;
 

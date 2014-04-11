@@ -1,6 +1,6 @@
 #include "selfNodeManager.h"
 
-namespace Self
+namespace tracker
 {
 
 CSelfNodesManager::CSelfNodesManager()

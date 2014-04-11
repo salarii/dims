@@ -1,7 +1,7 @@
 #ifndef TASK_QUEUE_CONTAINER_H
 #define TASK_QUEUE_CONTAINER_H
 
-namespace Self
+namespace tracker
 {
 
 struct CQueueType

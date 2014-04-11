@@ -3,6 +3,18 @@
 namespace tracker
 {
 
+CValidationManager * CValidationManager::ms_instance = NULL;
+	
+CValidationManager*
+CValidationManager::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CValidationManager();
+	};
+	return ms_instance;
+}
+
 CValidationManager::CValidationManager()
 {
 }

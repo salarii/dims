@@ -54,11 +54,11 @@ bool fBenchmark = false;
 bool fTxIndex = false;
 unsigned int nCoinCacheSize = 5000;
 
-	std::map< uint256, long long > askedMerkle;
+std::map< uint256, long long > askedMerkle;
 
-	long long currentHeight = 0;
+long long currentHeight = 0;
 
-Self::COriginAddressScaner originAddressScaner;
+tracker::COriginAddressScaner * originAddressScaner = tracker::COriginAddressScaner::getInstance();
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
 int64_t CTransaction::nMinTxFee = 10000;  // Override with -mintxfee
@@ -1641,7 +1641,7 @@ void ThreadScriptCheck() {
 
 void ThreadTempWhile()
 {
-	originAddressScaner.Thread();
+	originAddressScaner->Thread();
 }
 
 
@@ -3674,7 +3674,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         bool fMissingInputs = false;
         CValidationState state;
-        originAddressScaner.addTransaction(0,tx);
+        originAddressScaner->addTransaction(0,tx);
         /*
         if (AcceptToMemoryPool(mempool, state, tx, true, &fMissingInputs))
         {

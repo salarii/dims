@@ -6,6 +6,17 @@
 
 namespace tracker
 {
+CAuthenticationProvider * CAuthenticationProvider::ms_instance = NULL;
+	
+CAuthenticationProvider*
+CAuthenticationProvider::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CAuthenticationProvider();
+	};
+	return ms_instance;
+}
 
 CAuthenticationProvider::CAuthenticationProvider()
 {

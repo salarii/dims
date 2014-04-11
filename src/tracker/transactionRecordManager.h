@@ -26,8 +26,6 @@ class CValidationManager;
 class CTransactionRecordManager
 {
 public:
-	CTransactionRecordManager();
-
 	~CTransactionRecordManager();
 
 	void addCoinbaseTransaction( CTransaction const & _tx );
@@ -38,10 +36,16 @@ public:
 	bool validateTransactionBundle( std::vector< CTransaction > const & _transaction );
 
 	void loop( std::vector< CTransaction > const & _transaction );
+
+	static CTransactionRecordManager* getInstance( );
+
 private:
 	void synchronize();
 	void askForTokens();
+	CTransactionRecordManager();
 private:
+	static CTransactionRecordManager * ms_instance;
+
 	// mutex
 	CCoinsViewCache * m_coinsViewCache;
 

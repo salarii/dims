@@ -1,7 +1,7 @@
 #ifndef MESSAGE_ENCRYPTION_LAYER_H
 #define MESSAGE_ENCRYPTION_LAYER_H
 
-namespace Self
+namespace tracker
 {
 
 class CAuthenticationProvider;

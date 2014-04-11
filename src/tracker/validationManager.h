@@ -16,12 +16,14 @@ class CTransactionRecordManager;
 class CValidationManager
 {
 public:
-	CValidationManager();
-	
 	void serviceTransaction( CTransaction const & _tx );
 
 	common::TransactionsStatus::Enum pullCurrentTransactionStatus( CTransaction const & _tx );
+
+	static CValidationManager* getInstance( );
 private:
+	CValidationManager();
+
 	void workLoop();
 
 //	void  passTransactionBundleToNetwork( std::vector< CTransaction > _transactionBundle , TransactionStatus::Enum _status );
@@ -30,6 +32,8 @@ private:
 
 	CTransactionRecordManager * m_transactionRecordManager;
 private:
+	static CValidationManager * ms_instance;
+
 	boost::mutex buffMutex;
 	std::vector< CTransaction > m_transactionsCandidates;
 

@@ -13,9 +13,20 @@
 
 #include <vector>
 
-namespace Self
+namespace tracker
 {
 
+COriginAddressScaner * COriginAddressScaner::ms_instance = NULL;
+	
+COriginAddressScaner*
+COriginAddressScaner::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new COriginAddressScaner();
+	};
+	return ms_instance;
+}
 
 COriginAddressScaner::COriginAddressScaner()
 {
@@ -98,14 +109,15 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 			while( it != vSolutions.end() )
 			{
+				 uint160 originId( ParseHex( Params().getOriginAddressAsString() ) );
 				if ( type == TX_PUBKEY )
 				{
-					if ( uint160(ParseHex(Params().getOriginAddressAsString())) == Hash160( *it ) )
+					if ( originId == Hash160( *it ) )
 						valueSum += txout.nValue;
 				}
 				else
 				{
-					if ( uint160(ParseHex(Params().getOriginAddressAsString())) == uint160( ( *it ) ) )
+					if ( originId == uint160( ( *it ) ) )
 						valueSum += txout.nValue;
 				}
 				it++;
@@ -159,6 +171,7 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 				txNew.vin[0].prevout.SetNull();
 				txNew.vout.resize(1);
 				txNew.vout[0].scriptPubKey = script;
+				// this is  buggy right now
 				txNew.vout[0].nValue = valueSum;
 				//add transaction  to  pool and   view
 				return;

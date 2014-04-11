@@ -17,6 +17,18 @@ static const int64_t nMaxDbCache = sizeof(void*) > 4 ? 4096 : 1024;
 static const int64_t nMinDbCache = 4;
 
 
+CTransactionRecordManager * CTransactionRecordManager::ms_instance = NULL;
+
+CTransactionRecordManager*
+CTransactionRecordManager::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CTransactionRecordManager();
+	};
+	return ms_instance;
+}
+
 CTransactionRecordManager::CTransactionRecordManager()
 :scriptcheckqueue(32)
 {

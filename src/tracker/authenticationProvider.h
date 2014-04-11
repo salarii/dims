@@ -11,8 +11,6 @@ namespace tracker
 class CAuthenticationProvider
 {
 public:
-	CAuthenticationProvider();
-
 	void setPassword( SecureString const & _strWalletPassphrase );
 
 	bool hasKey( CKeyID const & _key ) const;
@@ -30,9 +28,15 @@ public:
 	void load();
 
 	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
+
+	static CAuthenticationProvider* getInstance( );
 private:
 	bool isCrypted();
+
+	CAuthenticationProvider();
 private:
+	static CAuthenticationProvider * ms_instance;
+
 	CCryptoKeyStore * m_keyStore;
 	
 	std::map< CKeyID, CPubKey > m_pairsPubKeyStore;
