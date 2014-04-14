@@ -36,6 +36,8 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <openssl/crypto.h>
 
+#include "tracker/server.h"
+
 using namespace std;
 using namespace boost;
 
@@ -1031,6 +1033,8 @@ bool AppInit2(boost::thread_group& threadGroup)
     }
     threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
 
+	
+
     threadGroup.create_thread(&ThreadTempWhile);
     // ********************************************************* Step 10: load peers
 
@@ -1065,10 +1069,10 @@ bool AppInit2(boost::thread_group& threadGroup)
     LogPrintf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
     LogPrintf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
-
-    StartNode(threadGroup);
+    tracker::runServer();
+    //StartNode(threadGroup);
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
-    InitRPCMining();
+  //  InitRPCMining();
     if (fServer)
         StartRPCThreads();
 

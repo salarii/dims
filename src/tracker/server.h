@@ -25,7 +25,7 @@ class CTcpServerConnection : public Poco::Net::TCPServerConnection
 public:
 	CTcpServerConnection(Poco::Net::StreamSocket const & _serverConnection );
 
-	bool handleIncommingBuffor( unsigned char* _buffor, unsigned int _size );
+	bool handleIncommingBuffor();
 
 	void run();
 private:

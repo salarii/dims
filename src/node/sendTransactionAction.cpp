@@ -11,7 +11,6 @@
 namespace node
 {
 
-
 void
 CSendTransactionAction::setTransactionStatus( boost::optional< common::TransactionsStatus::Enum > const _transactionStatus )
 {
@@ -73,7 +72,7 @@ CTransactionStatusRequest::getKind() const
 void
 CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-	signed int infoReq =  tracker::CClientMessageType::TrackerInfoReq;
+	signed int infoReq =  tracker::CMainRequestType::TrackerInfoReq;
 	_bufferStream << infoReq;
 	_bufferStream << m_token;
 }
@@ -93,7 +92,7 @@ CTransactionSendRequest::getKind() const
 void 
 CTransactionSendRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-	signed int transactionKind = tracker::CClientMessageType::Transaction;
+	signed int transactionKind = tracker::CMainRequestType::Transaction;
 	_bufferStream << transactionKind;
 	_bufferStream << m_transaction;
 }

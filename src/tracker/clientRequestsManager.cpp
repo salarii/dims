@@ -16,7 +16,7 @@ class CHandleClientRequestVisitor : public boost::static_visitor< void >
 public:
 	CHandleClientRequestVisitor(){};
 
-	void operator()( CTrackerStatsReq const & _transactionStatus )
+	void operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
 
 	}

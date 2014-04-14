@@ -60,7 +60,7 @@ CTcpServerConnection::run()
 			{
 				isOpen = false;
 			}
-			// handle  incomming  connections 
+			handleIncommingBuffor();
 			
 			// answare  to  incomming  connections 
 		}
@@ -97,7 +97,7 @@ CTcpServerConnection::checkSignature( CBufferAsStream const & _stream )
 }
 
 bool
-CTcpServerConnection::handleIncommingBuffor( unsigned char* _buffor, unsigned int _size )
+CTcpServerConnection::handleIncommingBuffor()
 {
 //MessageStartChars const & messageStart = m_networkParams->MessageStart();
 

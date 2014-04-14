@@ -83,34 +83,33 @@ CRequestHandler::readLoop()
 
 		stream >> messageType;
 
-		if ( messageType == tracker::CServerMessageType::ReferenceToken )
+		if ( messageType == tracker::CMainRequestType::ContinueReq )
 		{
 			uint256 token;
 			stream >> token;
 			m_pendingRequest.insert( std::make_pair( m_newRequest[counter], token ) );
 
 		}
-		else if ( messageType == tracker::CServerMessageType::TransactionStatus )
+		else if ( messageType == tracker::CMainRequestType::TransactionStatusReq )
 		{
 			int status;
 			stream >> status;
 			//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (tracker::TransactionsStatus::Enum )status ) ) );
 
 		}
-		else if ( messageType == tracker::CServerMessageType::MonitorInfo )
+		else if ( messageType == tracker::CMainRequestType::MonitorInfoReq )
 		{
 
 		}
-		else if ( messageType == tracker::CServerMessageType::TrackerInfo )
+		else if ( messageType == tracker::CMainRequestType::TrackerInfoReq )
 		{
 			 CTrackerStats trackerInfo;
 			readTrackerInfo( stream, trackerInfo, TrackerDescription );
 			m_processedRequests.insert( std::make_pair( m_newRequest[counter], trackerInfo ) );
 
 		}
-		else if ( messageType == tracker::CServerMessageType::RequestSatatus )
+		else if ( messageType == tracker::CMainRequestType::RequestSatatusReq )
 		{
-
 		}
 		else
 		{
@@ -119,8 +118,6 @@ CRequestHandler::readLoop()
 		counter++;
 	}
 	m_newRequest.clear();
-
 }
-
 
 }
