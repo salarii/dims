@@ -177,7 +177,7 @@ CNetworkClient::flush()
 }
 
 bool
-CNetworkClient::getResponse( CCommunicationBuffer & _outBuffor ) const
+CNetworkClient::getResponse( common::CCommunicationBuffer & _outBuffor ) const
 {
 	_outBuffor = m_pullBuffer;
 }

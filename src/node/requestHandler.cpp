@@ -7,6 +7,9 @@
 #include "medium.h"
 #include "sendInfoRequestAction.h"
 #include "support.h"
+
+#include "common/communicationBuffer.h"
+
 namespace node
 {
 
@@ -63,7 +66,7 @@ CRequestHandler::readLoop()
 {
 	while(!m_usedMedium->serviced());
 
-	CCommunicationBuffer response;
+	common::CCommunicationBuffer response;
 	m_usedMedium->getResponse(response);
 
 	CBufferAsStream stream(

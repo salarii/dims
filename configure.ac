@@ -208,6 +208,7 @@ case $host in
      AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([PocoNet], [main],, AC_MSG_ERROR(lib missing))
      
      if test "x$enable_dynamic" = xno; then
      AX_CHECK_LINK_FLAG([[-static]],[LDFLAGS="$LDFLAGS -static"])

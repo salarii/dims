@@ -6,28 +6,24 @@
 #define SERVER_H
 
 #include <iostream>
-#include "Poco/Net/TCPServer.h"
+
 #include "Poco/Net/TCPServerParams.h"
-#include "Poco/Net/TCPServerConnectionFactory.h"
 #include "Poco/Net/TCPServerConnection.h"
 #include "Poco/Net/Socket.h"
+
+#include "common/communicationBuffer.h"
+
+class CBufferAsStream;
 
 namespace tracker
 {
 
+void runServer();
+
 class CTcpServerConnection : public Poco::Net::TCPServerConnection
 {
 public:
-	struct CBuffor
-	{
-		unsigned char  m_buffor;
-		unsigned int m_size;
-	};
-public:
-	CTcpServerConnection(Poco::Net::StreamSocket const & _serverConnection ) :
-	Poco::Net::TCPServerConnection( _serverConnection )
-	{
-	}
+	CTcpServerConnection(Poco::Net::StreamSocket const & _serverConnection );
 
 	bool handleIncommingBuffor( unsigned char* _buffor, unsigned int _size );
 
@@ -36,21 +32,23 @@ private:
 	void writeSignature( CBufferAsStream & _stream );
 
 	bool checkSignature( CBufferAsStream const & _stream );
-
+/*
 	template < class T >
 	void
 	handleMessage( std::vector< T > const & _messages, RespondBuffor & _respondBuffor );
-
-	CBufferAsStream createStream( CBuffor & _buffor );
+*/
 private:
-	CBuffor m_incommingBuffer;
+	common::CCommunicationBuffer m_pullBuffer;
 
-	CBuffor m_outgoingBuffer;
+	common::CCommunicationBuffer m_pushBuffer;
 
-	CNetworkParams * m_networkParams;
-	CValidationManager * m_validationManager;
+	//CNetworkParams * m_networkParams;
+	//CValidationManager * m_validationManager;
 };
+
+
+
 //create identification token 
 // send back identification token 
-
+}
 #endif

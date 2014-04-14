@@ -65,7 +65,7 @@ CDummyMedium::flush()
 }
 
 bool
-CDummyMedium::getResponse( CCommunicationBuffer & _outBuffor ) const
+CDummyMedium::getResponse( common::CCommunicationBuffer & _outBuffor ) const
 {
 	_outBuffor = m_buffer;
 }

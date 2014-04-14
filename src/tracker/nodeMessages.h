@@ -5,29 +5,22 @@
 #ifndef NODE_MESSAGES_H
 #define NODE_MESSAGES_H
 
+#include "uint256.h"
+#include "core.h"
+
 namespace tracker
 {
 
-struct CClientMessageType
+struct CMainRequestType
 {
 	enum Enum
 	{
-		  Transaction
-		, TrackerInfoReq
+		  ContinueReq
+		, Transaction
+		, TransactionStatusReq
 		, MonitorInfoReq
-		, TransactionInfoReq
-	};
-};
-
-struct CServerMessageType
-{
-	enum Enum
-	{
-		  ReferenceToken
-		, TransactionStatus
-		, MonitorInfo
-		, TrackerInfo
-		, RequestSatatus
+		, TrackerInfoReq
+		, RequestSatatusReq
 	};
 };
 

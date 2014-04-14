@@ -9,6 +9,8 @@
 #include "QThread"
 #include "QTcpSocket"
 #include "medium.h"
+#include "common/communicationBuffer.h"
+
 class CBufferAsStream;
 
 namespace node
@@ -25,7 +27,7 @@ public:
 	bool serviced() const;
 	void add( CRequest const * _request );
 	bool flush();
-	bool getResponse( CCommunicationBuffer & _outBuffor ) const;
+	bool getResponse( common::CCommunicationBuffer & _outBuffor ) const;
 private:
 	void setRunThread( bool newVal );
 	bool getRunThread();
@@ -43,8 +45,8 @@ private:
 
 	CBufferAsStream * m_pushStream;
 // in prototype i split  those two buffer but most probably they could be merged to one
-	CCommunicationBuffer m_pushBuffer;
-	CCommunicationBuffer m_pullBuffer;
+	common::CCommunicationBuffer m_pushBuffer;
+	common::CCommunicationBuffer m_pullBuffer;
 
 	QTcpSocket * m_socket;
 };

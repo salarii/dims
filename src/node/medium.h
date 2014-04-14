@@ -5,20 +5,15 @@
 #ifndef	MEDIUM_H
 #define MEDIUM_H
 
-#define MaxBufferSize 1000
+namespace common
+{
+	struct CCommunicationBuffer;
+}
 
 namespace node
 {
 
-struct CCommunicationBuffer;
 struct CRequest;
-
-struct CCommunicationBuffer
-{
-	CCommunicationBuffer():m_usedSize(0){}
-	char m_buffer[ MaxBufferSize ];
-	unsigned int m_usedSize;
-};
 
 class CMedium
 {
@@ -26,7 +21,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual void add( CRequest const * _request ) = 0;
 	virtual bool flush() = 0;
-	virtual bool getResponse( CCommunicationBuffer & _outBuffor ) const = 0;
+	virtual bool getResponse( common::CCommunicationBuffer & _outBuffor ) const = 0;
 };
 
 

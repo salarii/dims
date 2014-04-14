@@ -10,6 +10,7 @@
 
 #include "medium.h"
 #include "requestRespond.h"
+#include "common/communicationBuffer.h"
 
 namespace node
 {
@@ -25,12 +26,12 @@ public:
 	bool serviced() const;
 	void add( CRequest const * _request );
 	bool flush();
-	bool getResponse( CCommunicationBuffer & _outBuffor ) const;
+	bool getResponse( common::CCommunicationBuffer & _outBuffor ) const;
 private:
 	std::list< CTrackersInfoRequest const * > m_trackerStatsRequests;
 	bool m_serviced;
 
-	CCommunicationBuffer m_buffer;
+	common::CCommunicationBuffer m_buffer;
 
 	CTrackerStats const m_trackerStats;
 };
