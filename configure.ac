@@ -189,6 +189,7 @@ case $host in
      use_pkgconfig=no
 
      TARGET_OS=windows
+
      AC_CHECK_LIB([mingwthrd],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([kernel32],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([user32],      [main],, AC_MSG_ERROR(lib missing))
@@ -208,8 +209,10 @@ case $host in
      AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([PocoUtil], [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([PocoFoundation], [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([PocoNet], [main],, AC_MSG_ERROR(lib missing))
-     
+        
      if test "x$enable_dynamic" = xno; then
      AX_CHECK_LINK_FLAG([[-static]],[LDFLAGS="$LDFLAGS -static"])
      AX_CHECK_LINK_FLAG([[-static-libgcc]],[LDFLAGS="$LDFLAGS -static-libgcc"])

@@ -25,7 +25,7 @@ CRequest*
 CConnectAction::execute()
 {
 
-	// this  crap serves only  temporary in  such ugly way
+	// this  crap serves only  temporary
 	if ( m_state == State::Done )
 		return 0;
 
