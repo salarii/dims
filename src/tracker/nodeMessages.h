@@ -7,6 +7,7 @@
 
 #include "uint256.h"
 #include "core.h"
+#include <boost/variant.hpp>
 
 namespace tracker
 {
@@ -31,7 +32,7 @@ struct CTransactionMessage
 
 struct CTrackerStatsReq
 {
-	uint256 m_trackerPubKey;
+	std::vector< int > m_requestedInfo;
 };
 
 struct CMonitorInfoReq
@@ -44,6 +45,7 @@ struct CTransactionInfoReq
 	uint256 m_transactionPubKey;
 };
 
+typedef boost::variant< CTrackerStatsReq > NodeRequest;
 
 }
 

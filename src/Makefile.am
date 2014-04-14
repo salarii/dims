@@ -39,6 +39,7 @@ TRACKER_CORE_H = \
   tracker/accessFile.h \
   tracker/transactionRecordManager.h \
   tracker/addressToCoins.h \
+  tracker/clientRequestsManager.h \
   tracker/server.h
   
 # bitcoin core #
@@ -114,6 +115,7 @@ TRACKER_CORE_CPP = \
   tracker/accessFile.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/addressToCoins.cpp \
+  tracker/clientRequestsManager.cpp \
   tracker/server.cpp
 
 libbitcoin_server_a_SOURCES = \

@@ -11,6 +11,7 @@
 
 namespace node
 {
+
 template < class T >
 class CResponseVisitorBase : public boost::static_visitor< boost::optional< T > >
 {
