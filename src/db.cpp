@@ -237,7 +237,7 @@ CDB::CDB(const char *pszFile, const char* pszMode) :
 
     {
         LOCK(bitdb.cs_db);
-        if (!bitdb.Open(GetDataDir()))
+        if (!bitdb.Open(GetDataDir(common::AppType::Tracker)))
             throw runtime_error("env open failed");
 
         strFile = pszFile;

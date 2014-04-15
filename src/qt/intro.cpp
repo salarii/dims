@@ -143,7 +143,7 @@ void Intro::setDataDirectory(const QString &dataDir)
 
 QString Intro::getDefaultDataDirectory()
 {
-    return QString::fromStdString(GetDefaultDataDir().string());
+	return QString::fromStdString(GetDefaultDataDir( common::AppType::Client ).string());
 }
 
 void Intro::pickDataDirectory(bool fIsTestnet)

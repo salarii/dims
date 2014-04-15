@@ -107,6 +107,8 @@ CActionHandler::loop()
 			reqAction.second->readLoop();
 		}
 
+		std::list< CRequest* > requestsToErase;
+
 		BOOST_FOREACH(RequestToAction::value_type & reqAction, m_reqToAction)
 		{
 			CRequestHandler * requestHandler = provideHandler( reqAction.first->getKind() );
@@ -121,7 +123,7 @@ CActionHandler::loop()
 
 					requestHandler->deleteRequest( reqAction.first );
 					
-					m_reqToAction.erase( reqAction.first );
+					requestsToErase.push_back( reqAction.first );
 					delete reqAction.first;
 				}
 				else
@@ -130,6 +132,14 @@ CActionHandler::loop()
 				}
 			}
 		}
+
+		BOOST_FOREACH( CRequest* & request, requestsToErase)
+		{
+			m_reqToAction.erase( request );
+		}
+
+		if ( m_reqToAction.empty() )
+			boost::this_thread::interruption_point();
 
 		BOOST_FOREACH( AvailableHandlers::value_type & reqAction, m_requestHandlers)
 		{

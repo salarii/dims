@@ -9,15 +9,43 @@
 
 #include "bignum.h"
 #include "uint256.h"
-
+#include "networksParameters.h"
 #include <vector>
 
 #include <boost/thread/mutex.hpp>
+#include <map>
+#include <boost/assign.hpp>
 
 using namespace std;
 
 namespace common
 {
+struct AppType
+{
+	enum Enum
+	{
+		  Client
+		, Tracker
+		, Monitor
+	};
+};
+
+struct TargetType
+{
+	enum Enum
+	{
+		  ClientWindows
+		, TrackerWindows
+		, MonitorWindows
+		, ClientLinux
+		, TrackerLinux
+		, MonitorLinux
+		, ClientMac
+		, TrackerMac
+		, MonitorMac
+	};
+};
+
 
 class CRatcoinParams : public CNetworkParams
 {
@@ -34,8 +62,23 @@ public:
     virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
     static CNetworkParams const & getNetworkParameters();
+    std::string getDefaultDirectory(AppType::Enum _targetType ) const;
 protected:
-    CRatcoinParams() {}
+
+
+    CRatcoinParams()
+    {
+	 m_defaultDirectory = boost::assign::map_list_of< TargetType::Enum, std::string >
+								(TargetType::ClientWindows, "RatcoinClient")
+								(TargetType::TrackerWindows, "RatcoinTracker")
+								(TargetType::MonitorWindows, "RatcoinMonitor")
+								(TargetType::ClientLinux, ".ratcoinClient")
+								(TargetType::TrackerLinux, ".ratcoinTracker")
+								(TargetType::MonitorLinux, ".ratcoinMonitor")
+								(TargetType::ClientMac, "RatcoinClient")
+								(TargetType::TrackerMac, "RatcoinTracker")
+								(TargetType::MonitorMac, "RatcoinMonitor");
+    }
 
     uint256 hashGenesisBlock;
     MessageStartChars pchMessageStart;
@@ -48,13 +91,14 @@ protected:
     string strDataDir;
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
+    std::map< TargetType::Enum, std::string > m_defaultDirectory;
 };
 
 /**
  * Return the currently selected parameters. This won't change after app startup
  * outside of the unit tests.
  */
-const CRatcoinParams &ratcoinParams();
+CRatcoinParams const &ratcoinParams();
 
 /** Sets the params returned by Params() to those for the given network. */
 void SelectRatcoinParams(CNetworkParams::Network network);
@@ -68,13 +112,16 @@ bool SelectRatcoinParamsFromCommandLine();
 inline bool TestNet()
 {
     // Note: it's deliberate that this returns "false" for regression test mode.
-    return Params().NetworkID() == CNetworkParams::TESTNET;
+    return ratcoinParams().NetworkID() == CNetworkParams::TESTNET;
 }
 
 inline bool RegTest()
 {
-    return Params().NetworkID() == CNetworkParams::REGTEST;
+    return ratcoinParams().NetworkID() == CNetworkParams::REGTEST;
 }
+
+TargetType::Enum
+convertAppType( AppType::Enum _appType );
 
 }
 

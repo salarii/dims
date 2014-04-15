@@ -2654,7 +2654,7 @@ bool AbortNode(const std::string &strMessage) {
 
 bool CheckDiskSpace(uint64_t nAdditionalBytes)
 {
-    uint64_t nFreeBytesAvailable = filesystem::space(GetDataDir()).available;
+    uint64_t nFreeBytesAvailable = filesystem::space(GetDataDir(common::AppType::Tracker)).available;
 
     // Check for nMinDiskSpace bytes (currently 50MB)
     if (nFreeBytesAvailable < nMinDiskSpace + nAdditionalBytes)
@@ -2667,7 +2667,7 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
 {
     if (pos.IsNull())
         return NULL;
-    boost::filesystem::path path = GetDataDir() / "blocks" / strprintf("%s%05u.dat", prefix, pos.nFile);
+    boost::filesystem::path path = GetDataDir(common::AppType::Tracker) / "blocks" / strprintf("%s%05u.dat", prefix, pos.nFile);
     boost::filesystem::create_directories(path.parent_path());
     FILE* file = fopen(path.string().c_str(), "rb+");
     if (!file && !fReadOnly)
@@ -2688,7 +2688,7 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
 
 bool FileExist(const char *prefix)
 {
-    boost::filesystem::path path = GetDataDir() / "blocks" / strprintf("%s%05u.dat", prefix, 0);
+    boost::filesystem::path path = GetDataDir(common::AppType::Tracker) / "blocks" / strprintf("%s%05u.dat", prefix, 0);
 
     return filesystem::exists(path);
 

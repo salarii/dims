@@ -331,12 +331,12 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
     }
 
     // hardcoded $DATADIR/bootstrap.dat
-    filesystem::path pathBootstrap = GetDataDir() / "bootstrap.dat";
+    filesystem::path pathBootstrap = GetDataDir( common::AppType::Tracker ) / "bootstrap.dat";
     if (filesystem::exists(pathBootstrap)) {
         FILE *file = fopen(pathBootstrap.string().c_str(), "rb");
         if (file) {
             CImportingNow imp;
-            filesystem::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
+            filesystem::path pathBootstrapOld = GetDataDir( common::AppType::Tracker ) / "bootstrap.dat.old";
             LogPrintf("Importing bootstrap.dat...\n");
             LoadExternalBlockFile(file);
             RenameOver(pathBootstrap, pathBootstrapOld);
@@ -559,14 +559,14 @@ bool AppInit2(boost::thread_group& threadGroup)
 #endif
     // ********************************************************* Step 4: application initialization: dir lock, daemonize, pidfile, debug log
 
-    std::string strDataDir = GetDataDir().string();
+    std::string strDataDir = GetDataDir( common::AppType::Tracker ).string();
 #ifdef ENABLE_WALLET
     // Wallet file must be a plain filename without a directory
     if (strWalletFile != boost::filesystem::basename(strWalletFile) + boost::filesystem::extension(strWalletFile))
         return InitError(strprintf(_("Wallet %s resides outside data directory %s"), strWalletFile, strDataDir));
 #endif
     // Make sure only a single Bitcoin process is using the data directory.
-    boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
+    boost::filesystem::path pathLockFile = GetDataDir(common::AppType::Tracker) / ".lock";
     FILE* file = fopen(pathLockFile.string().c_str(), "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
     static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
@@ -580,7 +580,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     LogPrintf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
     if (!fLogTimestamps)
         LogPrintf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()));
-    LogPrintf("Default data directory %s\n", GetDefaultDataDir().string());
+    LogPrintf("Default data directory %s\n", GetDefaultDataDir(common::AppType::Tracker).string());
     LogPrintf("Using data directory %s\n", strDataDir);
     LogPrintf("Using at most %i connections (%i file descriptors available)\n", nMaxConnections, nFD);
     std::ostringstream strErrors;
@@ -598,11 +598,11 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (!fDisableWallet) {
         uiInterface.InitMessage(_("Verifying wallet..."));
 
-        if (!bitdb.Open(GetDataDir()))
+        if (!bitdb.Open(GetDataDir(common::AppType::Tracker)))
         {
             // try moving the database env out of the way
-            boost::filesystem::path pathDatabase = GetDataDir() / "database";
-            boost::filesystem::path pathDatabaseBak = GetDataDir() / strprintf("database.%"PRId64".bak", GetTime());
+            boost::filesystem::path pathDatabase = GetDataDir(common::AppType::Tracker) / "database";
+            boost::filesystem::path pathDatabaseBak = GetDataDir(common::AppType::Tracker) / strprintf("database.%"PRId64".bak", GetTime());
             try {
                 boost::filesystem::rename(pathDatabase, pathDatabaseBak);
                 LogPrintf("Moved old %s to %s. Retrying.\n", pathDatabase.string(), pathDatabaseBak.string());
@@ -611,7 +611,7 @@ bool AppInit2(boost::thread_group& threadGroup)
             }
 
             // try again
-            if (!bitdb.Open(GetDataDir())) {
+            if (!bitdb.Open(GetDataDir(common::AppType::Tracker))) {
                 // if it still fails, it probably means we can't even create the database env
                 string msg = strprintf(_("Error initializing wallet database environment %s!"), strDataDir);
                 return InitError(msg);
@@ -625,7 +625,7 @@ bool AppInit2(boost::thread_group& threadGroup)
                 return false;
         }
 
-        if (filesystem::exists(GetDataDir() / strWalletFile))
+        if (filesystem::exists(GetDataDir(common::AppType::Tracker) / strWalletFile))
         {
             CDBEnv::VerifyResult r = bitdb.Verify(strWalletFile, CWalletDB::Recover);
             if (r == CDBEnv::RECOVER_OK)
@@ -751,13 +751,13 @@ bool AppInit2(boost::thread_group& threadGroup)
     fReindex = GetBoolArg("-reindex", false);
 
     // Upgrading to 0.8; hard-link the old blknnnn.dat files into /blocks/
-    filesystem::path blocksDir = GetDataDir() / "blocks";
+    filesystem::path blocksDir = GetDataDir(common::AppType::Tracker) / "blocks";
     if (!filesystem::exists(blocksDir))
     {
         filesystem::create_directories(blocksDir);
         bool linked = false;
         for (unsigned int i = 1; i < 10000; i++) {
-            filesystem::path source = GetDataDir() / strprintf("blk%04u.dat", i);
+            filesystem::path source = GetDataDir(common::AppType::Tracker) / strprintf("blk%04u.dat", i);
             if (!filesystem::exists(source)) break;
             filesystem::path dest = blocksDir / strprintf("blk%05u.dat", i-1);
             try {
@@ -1073,8 +1073,8 @@ bool AppInit2(boost::thread_group& threadGroup)
     //StartNode(threadGroup);
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
-    if (fServer)
-        StartRPCThreads();
+//    if (fServer)
+//        StartRPCThreads();
 
 #ifdef ENABLE_WALLET
     // Generate coins in the background
@@ -1187,14 +1187,14 @@ bool AppInit1(boost::thread_group& threadGroup)
 #endif
     // ********************************************************* Step 4: application initialization: dir lock, daemonize, pidfile, debug log
 
-    std::string strDataDir = GetDataDir().string();
+    std::string strDataDir = GetDataDir(common::AppType::Client).string();
 #ifdef ENABLE_WALLET
     // Wallet file must be a plain filename without a directory
     if (strWalletFile != boost::filesystem::basename(strWalletFile) + boost::filesystem::extension(strWalletFile))
         return InitError(strprintf(_("Wallet %s resides outside data directory %s"), strWalletFile, strDataDir));
 #endif
     // Make sure only a single Bitcoin process is using the data directory.
-    boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
+    boost::filesystem::path pathLockFile = GetDataDir(common::AppType::Client) / ".lock";
     FILE* file = fopen(pathLockFile.string().c_str(), "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
     static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
@@ -1208,7 +1208,7 @@ bool AppInit1(boost::thread_group& threadGroup)
     LogPrintf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
     if (!fLogTimestamps)
         LogPrintf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()));
-    LogPrintf("Default data directory %s\n", GetDefaultDataDir().string());
+    LogPrintf("Default data directory %s\n", GetDefaultDataDir(common::AppType::Client).string());
     LogPrintf("Using data directory %s\n", strDataDir);
     std::ostringstream strErrors;
 
@@ -1225,11 +1225,11 @@ bool AppInit1(boost::thread_group& threadGroup)
     if (!fDisableWallet) {
         uiInterface.InitMessage(_("Verifying wallet..."));
 
-        if (!bitdb.Open(GetDataDir()))
+        if (!bitdb.Open(GetDataDir(common::AppType::Client)))
         {
             // try moving the database env out of the way
-            boost::filesystem::path pathDatabase = GetDataDir() / "database";
-            boost::filesystem::path pathDatabaseBak = GetDataDir() / strprintf("database.%"PRId64".bak", GetTime());
+            boost::filesystem::path pathDatabase = GetDataDir(common::AppType::Client) / "database";
+            boost::filesystem::path pathDatabaseBak = GetDataDir(common::AppType::Client) / strprintf("database.%"PRId64".bak", GetTime());
             try {
                 boost::filesystem::rename(pathDatabase, pathDatabaseBak);
                 LogPrintf("Moved old %s to %s. Retrying.\n", pathDatabase.string(), pathDatabaseBak.string());
@@ -1238,7 +1238,7 @@ bool AppInit1(boost::thread_group& threadGroup)
             }
 
             // try again
-            if (!bitdb.Open(GetDataDir())) {
+            if (!bitdb.Open(GetDataDir(common::AppType::Client))) {
                 // if it still fails, it probably means we can't even create the database env
                 string msg = strprintf(_("Error initializing wallet database environment %s!"), strDataDir);
                 return InitError(msg);
@@ -1252,7 +1252,7 @@ bool AppInit1(boost::thread_group& threadGroup)
                 return false;
         }
 
-        if (filesystem::exists(GetDataDir() / strWalletFile))
+        if (filesystem::exists(GetDataDir(common::AppType::Client) / strWalletFile))
         {
             CDBEnv::VerifyResult r = bitdb.Verify(strWalletFile, CWalletDB::Recover);
             if (r == CDBEnv::RECOVER_OK)

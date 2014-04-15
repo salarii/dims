@@ -143,9 +143,7 @@ libbitcoin_server_a_SOURCES = \
   $(JSON_H) \
   $(BITCOIN_CORE_H) \
   $(TRACKER_CORE_H) \
-  $(TRACKER_CORE_CPP) \
-  $(COMMON_H) \
-  $(COMMON_CPP)
+  $(TRACKER_CORE_CPP)
 
   
 libbitcoin_wallet_a_SOURCES = \
@@ -170,7 +168,9 @@ libbitcoin_common_a_SOURCES = \
   sync.cpp \
   util.cpp \
   version.cpp \
-  $(BITCOIN_CORE_H)
+  $(BITCOIN_CORE_H) \
+  $(COMMON_H) \
+  $(COMMON_CPP)
 
 libbitcoin_cli_a_SOURCES = \
   rpcclient.cpp \

@@ -34,9 +34,9 @@ public:
 		vAlertPubKey = ParseHex("");
 		nDefaultPort = 20010;
 		nRPCPort = 20011;
-/*
-		vSeeds.push_back(CDNSSeedData("ratcoin.beacon.org", "dnsseed.ratcoin.beacon.org"));
-*/
+
+//		vSeeds.push_back(CDNSSeedData("ratcoin.beacon.org", "dnsseed.ratcoin.beacon.org"));
+
 		base58Prefixes[PUBKEY_ADDRESS] = list_of(58);//R
 		base58Prefixes[SCRIPT_ADDRESS] = list_of(0x75);//r
 		base58Prefixes[SECRET_KEY] =     list_of(0x75);//
@@ -111,6 +111,18 @@ CRatcoinParams::getNetworkParameters()
 	return *pCurrentParams;
 }
 
+CRatcoinParams const &ratcoinParams()
+{
+	return *pCurrentParams;
+}
+
+std::string
+CRatcoinParams::getDefaultDirectory(AppType::Enum _targetType ) const
+{
+	assert( m_defaultDirectory.find(convertAppType( _targetType )) != m_defaultDirectory.end() );
+	return m_defaultDirectory.find(convertAppType( _targetType ))->second;
+};
+
 bool 
 SelectRatcoinParamsFromCommandLine()
 {
@@ -155,8 +167,54 @@ SelectRatcoinParams(CNetworkParams::Network network)
 	}
 }
 
+TargetType::Enum
+convertAppType( AppType::Enum _appType )
+{
+#ifdef WIN32
+	switch ( _appType )
+	{
+	case AppType::Client :
+		return TargetType::ClientWindows;
+	case AppType::Tracker:
+		return TargetType::TrackerWindows;
+	case AppType::Monitor:
+		return TargetType::MonitorWindows;
+	default:
+		break;
+	}
+#else
+#ifdef MAC_OSX
+	switch ( _appType )
+	{
+	case AppType::Client :
+		return TargetType::ClientMac;
+	case AppType::Tracker:
+		return TargetType::TrackerMac;
+	case AppType::Monitor:
+		return TargetType::MonitorMac;
+	default:
+		break;
+	}
+#else
+	switch ( _appType )
+	{
+	case AppType::Client :
+		return TargetType::ClientLinux;
+	case AppType::Tracker:
+		return TargetType::TrackerLinux;
+	case AppType::Monitor:
+		return TargetType::MonitorLinux;
+	default:
+		break;
+	}
+#endif
+#endif
+}
 
 }
+
+
+
 /*
 tracer bublic number  t
 monitor  public  number  m

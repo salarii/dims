@@ -228,7 +228,7 @@ static void DebugPrintInit()
     assert(fileout == NULL);
     assert(mutexDebugLog == NULL);
 
-    boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
+    boost::filesystem::path pathDebug = GetDataDir(common::AppType::Tracker) / "debug.log";
     fileout = fopen(pathDebug.string().c_str(), "a");
     if (fileout) setbuf(fileout, NULL); // unbuffered
 
@@ -284,7 +284,7 @@ int LogPrintStr(const std::string &str)
         // reopen the log file, if requested
         if (fReopenDebugLog) {
             fReopenDebugLog = false;
-            boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
+            boost::filesystem::path pathDebug = GetDataDir(common::AppType::Tracker) / "debug.log";
             if (freopen(pathDebug.string().c_str(),"a",fileout) != NULL)
                 setbuf(fileout, NULL); // unbuffered
         }
@@ -965,7 +965,7 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
     strMiscWarning = message;
 }
 
-boost::filesystem::path GetDefaultDataDir()
+boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
 {
     namespace fs = boost::filesystem;
     // Windows < Vista: C:\Documents and Settings\Username\Application Data\Bitcoin
@@ -974,7 +974,7 @@ boost::filesystem::path GetDefaultDataDir()
     // Unix: ~/.bitcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Ratcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / common::ratcoinParams().getDefaultDirectory( _appType );
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -986,10 +986,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "Ratcoin";
+    return pathRet / common::ratcoinParams().getDefaultDirectory( _appType );
 #else
     // Unix
-    return pathRet / ".ratcoin";
+    return pathRet / common::ratcoinParams().getDefaultDirectory( _appType );
 #endif
 #endif
 }
@@ -997,7 +997,7 @@ boost::filesystem::path GetDefaultDataDir()
 static boost::filesystem::path pathCached[CChainParams::MAX_NETWORK_TYPES+1];
 static CCriticalSection csPathCached;
 
-const boost::filesystem::path &GetDataDir(bool fNetSpecific)
+const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
 
@@ -1020,7 +1020,7 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
             return path;
         }
     } else {
-        path = GetDefaultDataDir();
+        path = GetDefaultDataDir(  _appType );
     }
     if (fNetSpecific)
         path /= Params().DataDir();
@@ -1039,7 +1039,7 @@ void ClearDatadirCache()
 boost::filesystem::path GetConfigFile()
 {
     boost::filesystem::path pathConfigFile(GetArg("-conf", "bitcoin.conf"));
-    if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir(false) / pathConfigFile;
+    if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir(common::AppType::Tracker,false) / pathConfigFile;
     return pathConfigFile;
 }
 
@@ -1072,7 +1072,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 boost::filesystem::path GetPidFile()
 {
     boost::filesystem::path pathPidFile(GetArg("-pid", "bitcoind.pid"));
-    if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
+    if (!pathPidFile.is_complete()) pathPidFile = GetDataDir(common::AppType::Tracker) / pathPidFile;
     return pathPidFile;
 }
 
@@ -1202,7 +1202,7 @@ void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length) {
 void ShrinkDebugFile()
 {
     // Scroll debug.log if it's getting too big
-    boost::filesystem::path pathLog = GetDataDir() / "debug.log";
+    boost::filesystem::path pathLog = GetDataDir(common::AppType::Tracker) / "debug.log";
     FILE* file = fopen(pathLog.string().c_str(), "r");
     if (file && GetFilesize(file) > 10 * 1000000)
     {

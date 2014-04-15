@@ -21,7 +21,7 @@ static bool AppInitRPC(int argc, char* argv[])
     // Parameters
     //
     ParseParameters(argc, argv);
-    if (!boost::filesystem::is_directory(GetDataDir(false)))
+    if (!boost::filesystem::is_directory(GetDataDir(common::AppType::Tracker, false)))
     {
         fprintf(stderr, "Error: Specified data directory \"%s\" does not exist.\n", mapArgs["-datadir"].c_str());
         return false;
