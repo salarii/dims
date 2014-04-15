@@ -38,8 +38,9 @@ CConnectAction::execute()
 				m_state = State::Done;
 
 				CTrackerLocalRanking::getInstance()->addTracker( *m_trackerStats );
+				return 0;
 			}
-			
+
 		}
 
 		assert( m_token );

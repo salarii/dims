@@ -7,11 +7,14 @@
 
 #include <set>
 #include <QString>
+#include <boost/thread.hpp>
 
 #include "connectionProvider.h"
 
 namespace node
 {
+
+class CAction;
 
 class CActionHandler;
 
@@ -24,7 +27,11 @@ public:
 
 	void connectToNetwork();
 
+	void periodicActionLoop();
+
 	void executeAction();
+
+	void addPeriodicAction( CAction* _action );
 
 private:
 	CNodeConnectionManager();
@@ -32,6 +39,12 @@ private:
 	static CNodeConnectionManager * ms_instance;
 
 	CActionHandler * m_actionHandler;
+
+	static unsigned int const m_sleepTime;
+
+	boost::mutex m_mutex;
+
+	std::list< CAction * > m_periodicActions;
 };
 
 

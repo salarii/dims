@@ -67,11 +67,18 @@ bool CWallet::AddKeyPubKey(const CKey& secret, const CPubKey &pubkey)
         return false;
     if (!fFileBacked)
         return true;
-    if (!IsCrypted()) {
-        return CWalletDB(strWalletFile).WriteKey(pubkey,
+    if (!IsCrypted())
+    {
+        if ( !CWalletDB(strWalletFile).WriteKey(pubkey,
                                                  secret.GetPrivKey(),
-                                                 mapKeyMetadata[pubkey.GetID()]);
+                                                 mapKeyMetadata[pubkey.GetID()]) )
+	  {
+								 return false;
+	  }
     }
+
+    if (!SetAddressBook(pubkey.GetID(), "", "receive"))
+	   return false;
     return true;
 }
 

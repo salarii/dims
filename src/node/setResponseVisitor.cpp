@@ -83,6 +83,7 @@ void
 CSetResponseVisitor::visit( CConnectAction & _action )
 {
 	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+	_action.setTrackerInfo(boost::apply_visitor( (CResponseVisitorBase< CTrackerStats > const &)CGetTrackerInfo(), m_requestRespond ));
 }
 
 void

@@ -37,7 +37,17 @@ CTrackerLocalRanking::addTracker( CTrackerStats const & _trackerStats )
 CMedium *
 CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind )
 {
-	return 0;
+/*	switch (_actionKind)
+	{
+	case RequestKind::Transaction:
+		return m_balancedRanking.begin() != m_balancedRanking.end() ? *m_balancedRanking.begin() : 0;
+	case RequestKind::TransactionStatus:
+		return m_reputationRanking.begin() != m_reputationRanking.end() ? *m_reputationRanking.begin() : 0;
+	case RequestKind::Balance:
+		return m_reputationRanking.begin() != m_reputationRanking.end() ? *m_reputationRanking.begin() : 0;
+	default:*/
+		return 0;
+	//}
 }
 
 std::list< CMedium *> 

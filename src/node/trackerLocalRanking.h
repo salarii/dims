@@ -55,6 +55,7 @@ private:
 	std::set< CTrackerStats, CompareBalancedTracker > m_balancedRanking;
 
 	std::set< CTrackerStats, CompareReputationTracker > m_reputationRanking;
+
 };
 
 

@@ -17,6 +17,7 @@ struct RequestKind
 		NetworkInfo = 0,
 		Transaction,
 		TransactionStatus,
+		Balance,
 		Seed
 	};
 };
