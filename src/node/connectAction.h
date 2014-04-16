@@ -40,7 +40,7 @@ public:
 
 	void setTrackerInfo( boost::optional< CTrackerStats > const & _trackerInfo );
 
-	void setInProgressToken( boost::optional< uint256 > const & _trackerInfo );
+	void setInProgressToken( boost::optional< uint256 > const & _token );
 private:
 	State::Enum m_state;
 
