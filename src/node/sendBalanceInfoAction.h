@@ -6,8 +6,8 @@
 #define SEND_BALANCE_INFO_ACTION_H
 
 #include "action.h"
-#include "tracker/validationManager.h"
-#include "requestHandler.h"
+#include  <boost/optional.hpp>
+#include "uint256.h"
 
 namespace node
 {

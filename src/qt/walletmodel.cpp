@@ -18,6 +18,10 @@
 #include "wallet.h"
 #include "walletdb.h" // for BackupWallet
 
+//node
+#include "node/nodeConnectionManager.h"
+#include "node/sendBalanceInfoAction.h"
+
 #include <stdint.h>
 
 #include <QDebug>
@@ -131,6 +135,8 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
 {
     if(addressTableModel)
         addressTableModel->updateEntry(address, label, isMine, purpose, status);
+
+    node::CNodeConnectionManager::getInstance()->addPeriodicAction( new node::CSendBalanceInfoAction( address.toStdString() ) );
 }
 
 bool WalletModel::validateAddress(const QString &address)

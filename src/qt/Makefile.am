@@ -156,6 +156,7 @@ CLIENT_H = \
   ../node/request.h \
   ../node/support.h \
   ../node/userConnectionProvider.h \
+  ../node/sendBalanceInfoAction.h \
   ../node/requestRespond.h
 
 CLIENT_CPP = \
@@ -171,6 +172,7 @@ CLIENT_CPP = \
   ../node/nodeConnectionManager.cpp \
   ../node/trackerLocalRanking.cpp \
   ../node/userConnectionProvider.cpp \
+  ../node/sendBalanceInfoAction.cpp \
   ../node/connectAction.cpp
 
 
