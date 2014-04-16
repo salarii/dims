@@ -1384,13 +1384,14 @@ public:
 	int nType;
 	int nVersion;
 
-	CBufferAsStream(char *_src, uint64_t _sourceSize, int nTypeIn, int nVersionIn)
+	CBufferAsStream(char *_src, uint64_t const _sourceSize, int nTypeIn, int nVersionIn)
 		: src(_src)
-		, nReadWritePos(0)
 		, nSourceSize(_sourceSize)
+		, nReadWritePos(0)
+		, m_maxPosition(0)
 		, nType(nTypeIn)
 		, nVersion(nVersionIn) 
-		, m_maxPosition(0)
+
 	{
 	}
 

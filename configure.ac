@@ -209,9 +209,7 @@ case $host in
      AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(lib missing))
      AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([PocoUtil], [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([PocoFoundation], [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([PocoNet], [main],, AC_MSG_ERROR(lib missing))
+
         
      if test "x$enable_dynamic" = xno; then
      AX_CHECK_LINK_FLAG([[-static]],[LDFLAGS="$LDFLAGS -static"])
@@ -400,6 +398,12 @@ if test x$use_upnp != xno; then
   )
 fi
 
+
+  AC_CHECK_LIB([PocoUtil], [main],, AC_MSG_ERROR(lib missing))
+  AC_CHECK_LIB([PocoFoundation], [main],, AC_MSG_ERROR(lib missing))
+  AC_CHECK_LIB([PocoNet], [main],, AC_MSG_ERROR(lib missing))
+  
+  
 dnl Check for boost libs
 AX_BOOST_BASE
 AX_BOOST_SYSTEM
@@ -531,6 +535,7 @@ if test x$use_pkgconfig = xyes; then
     ]
   )
 else
+
   AC_CHECK_HEADER([openssl/crypto.h],,AC_MSG_ERROR(libcrypto headers missing))
   AC_CHECK_LIB([crypto],      [main],, AC_MSG_ERROR(libcrypto missing))
 
