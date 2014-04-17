@@ -11,12 +11,14 @@
 #include "support.h"
 #include "tracker/nodeMessages.h"
 
+#include "common/ratcoinParams.h"
+
 namespace node
 {
 
 CDummyMedium::CDummyMedium()
 	: m_serviced( true )
-	, m_trackerStats( "dummy", 0.005, 100,"127.0.0.1:10" )
+    , m_trackerStats( "dummy", 0.005, 100,"127.0.0.1", common::ratcoinParams().getDefaultClientPort() )
 {
 }
 

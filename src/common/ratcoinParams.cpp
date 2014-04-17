@@ -23,6 +23,8 @@ class CMainRatcoinParams : public CRatcoinParams
 {
 public:
 	CMainRatcoinParams() {
+
+        m_defaultClientPort = 40;
 		unsigned int pnSeed[] ={};
 		// The message start string is designed to be unlikely to occur in normal data.
 		// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -64,8 +66,14 @@ public:
 	virtual const vector<CAddress>& FixedSeeds() const {
 		return vFixedSeeds;
 	}
+
+    virtual unsigned int getDefaultClientPort() const
+    {
+        return m_defaultClientPort;
+    }
 protected:
 	vector<CAddress> vFixedSeeds;
+    unsigned int m_defaultClientPort;
 };
 static CMainRatcoinParams mainParams;
 
@@ -76,6 +84,8 @@ static CMainRatcoinParams mainParams;
 class CTestRatcoinParams : public CMainRatcoinParams {
 public:
 	CTestRatcoinParams() {
+
+        m_defaultClientPort = 60;
 		// The message start string is designed to be unlikely to occur in normal data.
 		// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 		// a large 4-byte int at any alignment.

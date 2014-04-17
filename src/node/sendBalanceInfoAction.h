@@ -6,6 +6,8 @@
 #define SEND_BALANCE_INFO_ACTION_H
 
 #include "action.h"
+#include "request.h"
+
 #include  <boost/optional.hpp>
 #include "uint256.h"
 
@@ -32,6 +34,20 @@ private:
 	boost::optional< std::string > m_balance;
 
 	boost::optional< uint256 > m_token;
+
+    //boost::optional< CTxOut > m_token;
+    ActionStatus::Enum m_status;
+};
+
+struct CBalanceRequest : public CRequest
+{
+public:
+    CBalanceRequest( std::string _address );
+    void serialize( CBufferAsStream & _bufferStream ) const;
+    RequestKind::Enum getKind() const;
+
+    std::string const m_address;
+
 };
 
 }

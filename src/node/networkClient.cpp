@@ -106,6 +106,16 @@ void CNetworkClient::stopThread()
 	setRunThread( false );
 }
 
+/*
+run will go instantly
+whenever write come
+do following
+connect  send
+receive
+  disconnect
+sign  serviced
+
+*/
 void CNetworkClient::run()
 {
 	QHostAddress hostAddr( m_ip );

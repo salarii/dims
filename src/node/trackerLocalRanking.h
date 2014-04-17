@@ -6,6 +6,7 @@
 #define TRACKER_LOCAL_RANKING_H
 
 #include <set>
+#include <map>
 #include <QString>
 #include <functional> 
 
@@ -49,6 +50,8 @@ public:
 	void addTracker( CTrackerStats const & _trackerStats );
 private:
 	CTrackerLocalRanking();
+
+    CMedium * getNetworkConnection( CTrackerStats const & _trackerStats );
 private:
 	static CTrackerLocalRanking * ms_instance;
 	// those  sets should be repeatedly rebuild
@@ -56,6 +59,7 @@ private:
 
 	std::set< CTrackerStats, CompareReputationTracker > m_reputationRanking;
 
+    std::map< std::string, CMedium * > m_createdMediums;
 };
 
 

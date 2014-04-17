@@ -215,11 +215,8 @@ void AddTimeData(const CNetAddr& ip, int64_t nTime);
 void runCommand(std::string strCommand);
 
 
-
-
-
-
-
+unsigned int
+getDefaultClientPort();
 
 
 inline std::string i64tostr(int64_t n)

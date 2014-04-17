@@ -63,6 +63,7 @@ public:
     int RPCPort() const { return nRPCPort; }
     static CNetworkParams const & getNetworkParameters();
     std::string getDefaultDirectory(AppType::Enum _targetType ) const;
+    virtual unsigned int getDefaultClientPort() const = 0;
 protected:
 
 

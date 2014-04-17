@@ -243,6 +243,8 @@ void BitcoinCore::initialize()
 
 	node::CNodeConnectionManager * nodeConnectionManager = node::CNodeConnectionManager::getInstance();
 
+    threadGroup.create_thread(boost::bind(&node::CNodeConnectionManager::periodicActionLoop, nodeConnectionManager));
+
 	nodeConnectionManager->connectToNetwork();
  
         if(rv)
