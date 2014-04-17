@@ -42,7 +42,7 @@ private:
 
 	static unsigned int const m_sleepTime;
 
-	boost::mutex m_mutex;
+    mutable boost::mutex m_mutex;
 
 	std::list< CAction * > m_periodicActions;
 };

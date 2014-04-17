@@ -26,6 +26,8 @@ CConnectAction::execute()
 {
 
 	// this  crap serves only  temporary
+    // in final version it should be  some kind of state machine, fency style, because at the end we  can end up with quite complex code
+
 	if ( m_state == State::Done )
 		return 0;
 
@@ -42,9 +44,22 @@ CConnectAction::execute()
 			}
 
 		}
-
-		assert( m_token );
-		return new CInfoRequestContinue( *m_token, RequestKind::NetworkInfo );
+        else if ( m_token )
+        {
+            return new CInfoRequestContinue( *m_token, RequestKind::NetworkInfo );
+        }
+        else if ( m_error )
+        {
+            if ( *m_error == ErrorType::ServiceDenial )
+            {
+                // for now  simply repeat
+                // it is not clear where should I place  code responsible  for such kind of errors
+                // is seems that it is much  better  to pass it a little bit higher than  this
+                // but since there is no method  to process errors at this point  I will react  where I am
+                //
+                return new CTrackersInfoRequest( TrackerDescription );
+            }
+        }
 	}
 
 	if ( m_state == State::Manual )
@@ -72,6 +87,12 @@ CConnectAction::setInProgressToken( boost::optional< uint256 > const & _trackerI
 	m_token = _trackerInfo;
 }
 
+
+void
+CConnectAction::setMediumError( boost::optional< ErrorType::Enum > const & _error )
+{
+    m_error = _error;
+}
 /* this could be usefull at some  point 
 
 case TrackerInfo::Ip :

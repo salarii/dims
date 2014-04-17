@@ -52,9 +52,11 @@ readWriteTrackerInfo( S & _stream,T & _trackerStats, F const & _operation, std::
 		case TrackerInfo::Rating:
 			F()( _stream, _trackerStats.m_reputation );
 			break;
-		case TrackerInfo::publicKey:
+        case TrackerInfo::PublicKey:
 			F()( _stream, _trackerStats.m_publicKey );
-			break;
+        case TrackerInfo::Port:
+            F()( _stream, _trackerStats.m_port );
+            break;
 		default:
 			break;
 		}

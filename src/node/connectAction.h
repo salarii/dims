@@ -13,6 +13,7 @@
 #include "trackerLocalRanking.h"
 #include "sendInfoRequestAction.h"
 #include "requestRespond.h"
+#include "errorRespond.h"
 
 namespace node
 {
@@ -41,6 +42,8 @@ public:
 	void setTrackerInfo( boost::optional< CTrackerStats > const & _trackerInfo );
 
 	void setInProgressToken( boost::optional< uint256 > const & _token );
+
+    void setMediumError( boost::optional< ErrorType::Enum > const & _error );
 private:
 	State::Enum m_state;
 
@@ -51,6 +54,8 @@ private:
 	boost::optional< CTrackerStats > m_trackerStats;
 
 	boost::optional< std::vector< std::string > > m_monitorInfo;
+
+    boost::optional< ErrorType::Enum > m_error;
 };
 
 }

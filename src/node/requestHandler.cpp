@@ -64,60 +64,75 @@ CRequestHandler::runRequests()
 void
 CRequestHandler::readLoop()
 {
-	while(!m_usedMedium->serviced());
+    try
+    {
+        while(!m_usedMedium->serviced());
 
-	common::CCommunicationBuffer response;
-	m_usedMedium->getResponse(response);
+        common::CCommunicationBuffer response;
+        m_usedMedium->getResponse(response);
 
-	CBufferAsStream stream(
-		  (char*)response.m_buffer
-		, response.m_usedSize
-		, SER_DISK
-		, CLIENT_VERSION);
+        CBufferAsStream stream(
+              (char*)response.m_buffer
+            , response.m_usedSize
+            , SER_DISK
+            , CLIENT_VERSION);
 
-	unsigned int counter = 0;
+        unsigned int counter = 0;
+// this  logic  in bad, there is  no strict  relation between stream and request
+        while( !stream.eof() )
+        {
+            int messageType;
 
-	while( !stream.eof() )
-	{
-		int messageType;
+            stream >> messageType;
 
-		stream >> messageType;
+            if ( messageType == tracker::CMainRequestType::ContinueReq )
+            {
+                uint256 token;
+                stream >> token;
+                m_pendingRequest.insert( std::make_pair( m_newRequest[counter], token ) );
 
-		if ( messageType == tracker::CMainRequestType::ContinueReq )
-		{
-			uint256 token;
-			stream >> token;
-			m_pendingRequest.insert( std::make_pair( m_newRequest[counter], token ) );
+            }
+            else if ( messageType == tracker::CMainRequestType::TransactionStatusReq )
+            {
+                int status;
+                stream >> status;
+                //m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (tracker::TransactionsStatus::Enum )status ) ) );
 
-		}
-		else if ( messageType == tracker::CMainRequestType::TransactionStatusReq )
-		{
-			int status;
-			stream >> status;
-			//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (tracker::TransactionsStatus::Enum )status ) ) );
+            }
+            else if ( messageType == tracker::CMainRequestType::MonitorInfoReq )
+            {
 
-		}
-		else if ( messageType == tracker::CMainRequestType::MonitorInfoReq )
-		{
+            }
+            else if ( messageType == tracker::CMainRequestType::TrackerInfoReq )
+            {
+                 CTrackerStats trackerInfo;
+                readTrackerInfo( stream, trackerInfo, TrackerDescription );
+                m_processedRequests.insert( std::make_pair( m_newRequest[counter], trackerInfo ) );
 
-		}
-		else if ( messageType == tracker::CMainRequestType::TrackerInfoReq )
-		{
-			 CTrackerStats trackerInfo;
-			readTrackerInfo( stream, trackerInfo, TrackerDescription );
-			m_processedRequests.insert( std::make_pair( m_newRequest[counter], trackerInfo ) );
+            }
+            else if ( messageType == tracker::CMainRequestType::RequestSatatusReq )
+            {
+            }
+            else
+            {
+                throw;
+            }
+            counter++;
+        }
+        m_newRequest.clear();
+    }
+     catch (CMediumException & _mediumException)
+    {
+// maybe  here pass global errors  like  problems  with  network
+// pass it here  but keep in mind that at least for now every single  action is responsible  for handling errors
 
-		}
-		else if ( messageType == tracker::CMainRequestType::RequestSatatusReq )
-		{
-		}
-		else
-		{
-			throw;
-		}
-		counter++;
-	}
-	m_newRequest.clear();
+        BOOST_FOREACH( CRequest* request, m_newRequest )
+        {
+            m_processedRequests.insert( std::make_pair( request, CSystemError( _mediumException.m_error ) ) );
+        }
+        m_newRequest.clear();
+    }
+
 }
 
 }

@@ -45,6 +45,8 @@ private:
 	CActionHandler();
 
 	CRequestHandler * provideHandler( RequestKind::Enum const _request );
+
+    void findAction( CAction* _action ) const;
 private:
 	static CActionHandler * ms_instance;
 

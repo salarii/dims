@@ -9,6 +9,7 @@
 
 #include "uint256.h"
 #include "common/transactionStatus.h"
+#include "errorRespond.h"
 
 namespace node
 {
@@ -45,7 +46,13 @@ struct CPending
 	uint256 m_token;
 };
 
-typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerStats, CMonitorInfo, CPending > RequestRespond;
+struct CSystemError
+{
+    CSystemError( ErrorType::Enum _errorType ):m_errorType(_errorType){};
+    ErrorType::Enum m_errorType;
+};
+
+typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerStats, CMonitorInfo, CPending, CSystemError > RequestRespond;
 
 }
 

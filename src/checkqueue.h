@@ -27,7 +27,7 @@ template<typename T> class CCheckQueueControl;
 template<typename T> class CCheckQueue {
 private:
     // Mutex to protect the inner state
-    boost::mutex mutex;
+    mutable boost::mutex mutex;
 
     // Worker threads block on this when out of work
     boost::condition_variable condWorker;

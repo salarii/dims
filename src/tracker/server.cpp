@@ -143,7 +143,7 @@ void runServer()
 {
 	Poco::Net::TCPServer * server = new Poco::Net::TCPServer(
 												  new Poco::Net::TCPServerConnectionFactoryImpl<CTcpServerConnection>()
-												, Poco::Net::ServerSocket(1)
+                                                , Poco::Net::ServerSocket(40)
 												);
 
 	server->start();

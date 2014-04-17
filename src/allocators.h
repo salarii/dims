@@ -97,7 +97,7 @@ public:
 
 private:
     Locker locker;
-    boost::mutex mutex;
+    mutable boost::mutex mutex;
     size_t page_size, page_mask;
     // map of page base address to lock count
     typedef std::map<size_t,int> Histogram;

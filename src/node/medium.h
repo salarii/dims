@@ -5,6 +5,8 @@
 #ifndef	MEDIUM_H
 #define MEDIUM_H
 
+#include "errorRespond.h"
+
 namespace common
 {
 	struct CCommunicationBuffer;
@@ -14,6 +16,13 @@ namespace node
 {
 
 struct CRequest;
+
+class CMediumException : public std::exception
+{
+public:
+    CMediumException(ErrorType::Enum _error):m_error(_error){};
+    ErrorType::Enum m_error;
+};
 
 class CMedium
 {

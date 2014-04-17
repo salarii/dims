@@ -10,15 +10,25 @@
 #include "QTcpSocket"
 #include "medium.h"
 #include "common/communicationBuffer.h"
+#include <exception>
 
 class CBufferAsStream;
 
 namespace node
 {
-// in out 
 
 class CNetworkClient : public QThread, public CMedium
 {
+public:
+    enum ConnectionInfo
+    {
+          ServiceDenial
+        , NoResponse
+        , NoActivity
+        , Processing
+        , Processed
+    };
+
 public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
 
@@ -26,7 +36,7 @@ public:
     virtual void startThread();
 	virtual void stopThread();
 
-	bool serviced() const;
+    bool serviced() const throw(CMediumException);
 	void add( CRequest const * _request );
 	bool flush();
 	bool getResponse( common::CCommunicationBuffer & _outBuffor ) const;
@@ -46,13 +56,14 @@ private:
 	const QString m_ip;
 	const ushort m_port;
 
-    bool m_flushBuffor;
 	CBufferAsStream * m_pushStream;
 // in prototype i split  those two buffer but most probably they could be merged to one
 	common::CCommunicationBuffer m_pushBuffer;
 	common::CCommunicationBuffer m_pullBuffer;
 
 	QTcpSocket * m_socket;
+
+    ConnectionInfo m_connectionInfo;
 };
 
 

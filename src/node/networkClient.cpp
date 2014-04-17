@@ -17,9 +17,10 @@ CNetworkClient::m_timeout = 5000;
 
 CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
 	: m_ip( _ipAddr )
-	, m_port( _port )
-    , m_flushBuffor(false)
+    , m_port( _port )
+    , m_connectionInfo( NoActivity )
 {
+    m_socket = new QTcpSocket(this);
 	mRunThread = false;
 
 	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_DISK, CLIENT_VERSION);
@@ -67,8 +68,7 @@ CNetworkClient::read()
 	int bytesRead = 0;
 
 	if (bytesAvail > 0)
-	{
-		int cnt = 0;
+    {
 		bool endOfLine = false;
 		bool endOfStream = false;
 
@@ -123,7 +123,7 @@ void CNetworkClient::run()
     while(1)
     {
         QMutexLocker lock( &m_writeMutex );
-        if ( m_flushBuffor == true )
+        if ( m_connectionInfo = Processing )
         {
             QHostAddress hostAddr( m_ip );
             m_socket->connectToHost( hostAddr, m_port );
@@ -131,21 +131,28 @@ void CNetworkClient::run()
             {
                 write();
                 read();
+                m_connectionInfo = Processed;
             }
             else
             {
-                printf("Client socket failed to connect\n");
+                m_connectionInfo = ServiceDenial;
             }
-
             m_socket->disconnectFromHost();
         }
     }
 }
 
 bool
-CNetworkClient::serviced() const
+CNetworkClient::serviced() const throw(CMediumException)
 {
-	return true;
+    if (m_connectionInfo == Processing )
+        return false;
+    else if ( m_connectionInfo == Processed )
+        return true;
+    else if ( m_connectionInfo == ServiceDenial )
+        throw CMediumException(ErrorType::ServiceDenial );
+
+    return false;
 }
 
 
@@ -162,10 +169,10 @@ CNetworkClient::flush()
 	m_pushStream->SetPos( 0 );
 
     QMutexLocker lock( &m_writeMutex );
-    if ( m_flushBuffor != false )
+    if ( m_connectionInfo != NoActivity && m_connectionInfo != Processed )
         return false;
 
-    m_flushBuffor = true;
+     m_connectionInfo = Processing;
 }
 
 bool
@@ -180,7 +187,6 @@ CNetworkClient::~CNetworkClient()
     stopThread();
     terminate();
     delete m_pushStream;
-    delete m_socket;
 }
 
 }

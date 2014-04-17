@@ -69,7 +69,7 @@ CTrackerLocalRanking::getNetworkConnection( CTrackerStats const & _trackerStats 
     if ( iterator != m_createdMediums.end() )
         return iterator->second;
 
-    CMedium * medium = static_cast<CMedium *>( new CNetworkClient( QString::fromStdString( _trackerStats.m_publicKey ), _trackerStats.m_port ) );
+    CMedium * medium = static_cast<CMedium *>( new CNetworkClient( QString::fromStdString( _trackerStats.m_ip ), _trackerStats.m_port ) );
     m_createdMediums.insert( std::make_pair( _trackerStats.m_publicKey, medium ) );
 
     return medium;

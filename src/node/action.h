@@ -15,8 +15,9 @@ struct ActionStatus
 {
 	enum Enum
 	{
-		Unprepared
-		,InProgress
+         Unprepared
+        , InProgress
+        , Done
 	};
 };
 
@@ -26,6 +27,10 @@ public:
 	virtual void accept( CSetResponseVisitor & _visitor );
 
 	virtual CRequest* execute() = 0;
+
+    virtual ActionStatus::Enum state() = 0;
+
+    virtual void reset() = 0;
 };
 
 }

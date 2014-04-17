@@ -41,6 +41,11 @@ public:
 		return boost::optional< T >();
 	}
 
+    virtual boost::optional< T > operator()(CSystemError & _systemError ) const
+    {
+        return boost::optional< T >();
+    }
+
 };
 
 class CGetTransactionStatus : public CResponseVisitorBase< common::TransactionsStatus::Enum >
@@ -71,6 +76,15 @@ public:
 	}
 };
 
+class CGetMediumError : public CResponseVisitorBase< ErrorType::Enum >
+{
+public:
+    boost::optional< ErrorType::Enum > operator()(CSystemError & _systemError ) const
+    {
+        return _systemError.m_errorType;
+    }
+};
+
 void 
 CSetResponseVisitor::visit( CSendTransactionAction & _action )
 {
@@ -84,6 +98,7 @@ CSetResponseVisitor::visit( CConnectAction & _action )
 {
 	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 	_action.setTrackerInfo(boost::apply_visitor( (CResponseVisitorBase< CTrackerStats > const &)CGetTrackerInfo(), m_requestRespond ));
+    _action.setMediumError(boost::apply_visitor( (CResponseVisitorBase< ErrorType::Enum > const &)CGetMediumError(), m_requestRespond ));
 }
 
 void
