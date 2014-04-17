@@ -30,7 +30,8 @@ struct TrackerInfo
 		  Ip
 		, Price
 		, Rating
-		, publicKey
+        , PublicKey
+        , Port
 	};
 };
 

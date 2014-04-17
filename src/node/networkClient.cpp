@@ -18,11 +18,13 @@ CNetworkClient::m_timeout = 5000;
 CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
 	: m_ip( _ipAddr )
 	, m_port( _port )
+    , m_flushBuffor(false)
 {
 	mRunThread = false;
 
 	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_DISK, CLIENT_VERSION);
 	m_pushStream->SetPos(0);
+    startThread();
 }
 
 
@@ -118,50 +120,26 @@ sign  serviced
 */
 void CNetworkClient::run()
 {
-	QHostAddress hostAddr( m_ip );
-	m_socket->connectToHost( hostAddr, m_port );
+    while(1)
+    {
+        QMutexLocker lock( &m_writeMutex );
+        if ( m_flushBuffor == true )
+        {
+            QHostAddress hostAddr( m_ip );
+            m_socket->connectToHost( hostAddr, m_port );
+            if ( m_socket->waitForConnected( m_timeout ) )
+            {
+                write();
+                read();
+            }
+            else
+            {
+                printf("Client socket failed to connect\n");
+            }
 
-	if ( m_socket->waitForConnected( m_timeout ) )
-	{
-		QHostAddress hostAddr = m_socket->localAddress();
-		QString addr = "";
-		if (hostAddr != QHostAddress::Null)
-		{
-			addr = hostAddr.toString();
-		}
-
-		if (addr.length() > 0)
-		{
-			//this  could be  somewhere in  gui
-			//printf(" on address %s:d", addr.toAscii().data(), m_socket.localPort() );
-		}
-		
-		// here send bytes to server
-		while (m_socket->state() == QAbstractSocket::ConnectedState )
-		{
-			/*
-			QString line( mStrings[ix] );
-			writeLine(&m_socket, line);
-			QString echoedLine = readLine( &m_socket );
-
-			if (echoedLine.length() > 0)
-			{
-				if (line != echoedLine)
-				{
-				printf("line and echoed line doesn't match\n");
-				}
-				else
-				{
-				printf("%s\n", line.toAscii().data() );
-				}
-			}
-			ix++;*/
-		} 
-	}
-	else
-	{
-		printf("Client socket failed to connect\n");
-	}
+            m_socket->disconnectFromHost();
+        }
+    }
 }
 
 bool
@@ -181,15 +159,28 @@ bool
 CNetworkClient::flush()
 {
 	m_pushBuffer.m_usedSize = m_pushStream->GetPos();
-	write();
 	m_pushStream->SetPos( 0 );
-	read();
+
+    QMutexLocker lock( &m_writeMutex );
+    if ( m_flushBuffor != false )
+        return false;
+
+    m_flushBuffor = true;
 }
 
 bool
 CNetworkClient::getResponse( common::CCommunicationBuffer & _outBuffor ) const
 {
 	_outBuffor = m_pullBuffer;
+}
+
+CNetworkClient::~CNetworkClient()
+{
+    // this is  not  right,  invent clean  way  to  terminate
+    stopThread();
+    terminate();
+    delete m_pushStream;
+    delete m_socket;
 }
 
 }

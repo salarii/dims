@@ -21,7 +21,9 @@ class CNetworkClient : public QThread, public CMedium
 {
 public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
-	virtual void startThread();
+
+    ~CNetworkClient();
+    virtual void startThread();
 	virtual void stopThread();
 
 	bool serviced() const;
@@ -39,10 +41,12 @@ private:
 	bool mRunThread;
 	static unsigned const m_timeout;
 
-	QMutex m_mutex;
+    QMutex m_mutex;
+    QMutex m_writeMutex;
 	const QString m_ip;
 	const ushort m_port;
 
+    bool m_flushBuffor;
 	CBufferAsStream * m_pushStream;
 // in prototype i split  those two buffer but most probably they could be merged to one
 	common::CCommunicationBuffer m_pushBuffer;

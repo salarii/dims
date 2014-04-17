@@ -10,10 +10,12 @@
 #include <exception> 
 #include <boost/foreach.hpp>
 
+#include "util.h"
+
 namespace node
 {
 
-unsigned int const CActionHandler::m_sleepTime = 2;
+unsigned int const CActionHandler::m_sleepTime = 2000;
 
 CActionHandler * CActionHandler::ms_instance = NULL;
 
@@ -147,7 +149,7 @@ CActionHandler::loop()
 			reqAction.second->runRequests();
 		}
 
-		QThread::sleep ( m_sleepTime );
+        MilliSleep( m_sleepTime );
 	}
 }
 
