@@ -63,7 +63,13 @@ CNodeConnectionManager::periodicActionLoop()
 			boost::lock_guard<boost::mutex> lock( m_mutex );
 			BOOST_FOREACH(CAction* action, m_periodicActions)
 			{
-				m_actionHandler->executeAction( action );
+				if ( action->getState() != ActionStatus::InProgress )
+				{
+					if ( action->getState() == ActionStatus::Done )
+						action->reset();
+
+					m_actionHandler->executeAction( action );
+				}
 			}
 		}
 		MilliSleep(m_sleepTime );

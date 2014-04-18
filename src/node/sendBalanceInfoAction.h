@@ -26,6 +26,8 @@ public:
 	void setBalance( boost::optional< std::string > const & _balance );
 
 	void setInProgressToken( boost::optional< uint256 > const & _token );
+
+	void reset();
 private:
 	CRequest* m_request;
 

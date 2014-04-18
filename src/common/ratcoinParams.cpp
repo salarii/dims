@@ -24,7 +24,7 @@ class CMainRatcoinParams : public CRatcoinParams
 public:
 	CMainRatcoinParams() {
 
-        m_defaultClientPort = 40;
+		m_defaultClientPort = 0x1000;
 		unsigned int pnSeed[] ={};
 		// The message start string is designed to be unlikely to occur in normal data.
 		// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -85,7 +85,7 @@ class CTestRatcoinParams : public CMainRatcoinParams {
 public:
 	CTestRatcoinParams() {
 
-        m_defaultClientPort = 60;
+		m_defaultClientPort = 0x1400;
 		// The message start string is designed to be unlikely to occur in normal data.
 		// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 		// a large 4-byte int at any alignment.

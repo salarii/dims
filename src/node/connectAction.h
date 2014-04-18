@@ -39,6 +39,10 @@ public:
 
 	CRequest* execute();
 
+	ActionStatus::Enum state();
+
+	void reset();
+
 	void setTrackerInfo( boost::optional< CTrackerStats > const & _trackerInfo );
 
 	void setInProgressToken( boost::optional< uint256 > const & _token );
@@ -46,8 +50,6 @@ public:
     void setMediumError( boost::optional< ErrorType::Enum > const & _error );
 private:
 	State::Enum m_state;
-
-	ActionStatus::Enum m_actionStatus;
 
 	boost::optional< uint256 > m_token;
 

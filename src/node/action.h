@@ -24,13 +24,17 @@ struct ActionStatus
 class CAction
 {
 public:
+	CAction(): m_actionStatus( ActionStatus::Unprepared ){};
+
 	virtual void accept( CSetResponseVisitor & _visitor );
 
 	virtual CRequest* execute() = 0;
 
-    virtual ActionStatus::Enum state() = 0;
+	ActionStatus::Enum getState(){ return m_actionStatus; }
 
-    virtual void reset() = 0;
+	virtual void reset(){ m_actionStatus = ActionStatus::Unprepared; }
+protected:
+	ActionStatus::Enum m_actionStatus;
 };
 
 }

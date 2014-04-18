@@ -10,7 +10,7 @@
 #include "serialize.h"
 
 #include "nodeMessages.h"
-
+#include "common/ratcoinParams.h"
 namespace tracker
 {
 
@@ -143,7 +143,7 @@ void runServer()
 {
 	Poco::Net::TCPServer * server = new Poco::Net::TCPServer(
 												  new Poco::Net::TCPServerConnectionFactoryImpl<CTcpServerConnection>()
-                                                , Poco::Net::ServerSocket(40)
+												, Poco::Net::ServerSocket(common::ratcoinParams().getDefaultClientPort())
 												);
 
 	server->start();

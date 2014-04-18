@@ -58,6 +58,7 @@ CSendTransactionAction::execute()
 // maybe   visitor  needed  to  load  message  data 
 }
 
+
 CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _token )
 	: m_token( _token )
 {
@@ -96,5 +97,7 @@ CTransactionSendRequest::serialize( CBufferAsStream & _bufferStream ) const
 	_bufferStream << transactionKind;
 	_bufferStream << m_transaction;
 }
+
+
 
 }

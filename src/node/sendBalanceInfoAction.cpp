@@ -58,7 +58,15 @@ CSendBalanceInfoAction::setInProgressToken( boost::optional< uint256 > const & _
 	m_token = _token;
 }
 
+void
+CSendBalanceInfoAction::reset()
+{
+	CAction::reset();
 
+	m_balance.reset();
+
+	m_token.reset();
+}
 
 CBalanceRequest::CBalanceRequest( std::string _address )
     : m_address( _address )
@@ -76,6 +84,5 @@ RequestKind::Enum CBalanceRequest::getKind() const
 {
     return RequestKind::Balance;
 }
-
 
 }

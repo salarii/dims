@@ -31,6 +31,7 @@ public:
 	void setTransactionStatus( boost::optional< common::TransactionsStatus::Enum > const _transactionStatus );
 
 	void setTransactionToken(  boost::optional< uint256 > const & _token );
+
 private:
 	ActionStatus::Enum m_actionStatus;
 	CTransaction m_transaction;

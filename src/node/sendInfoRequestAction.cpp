@@ -87,4 +87,6 @@ CInfoRequestContinue::getKind() const
 	return m_requestKind;
 }
 
+
+
 }

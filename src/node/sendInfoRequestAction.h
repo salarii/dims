@@ -47,6 +47,7 @@ public:
 	void accept( CSetResponseVisitor & _visitor );
 
 	CRequest* execute();
+
 private:
 	CRequest* m_request;
 

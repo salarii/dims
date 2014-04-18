@@ -11,6 +11,9 @@
 #include "wallet.h"
 #include "coincontrol.h"
 
+#include "node/nodeConnectionManager.h"
+#include "node/sendBalanceInfoAction.h"
+
 #include <QFont>
 #include <QDebug>
 

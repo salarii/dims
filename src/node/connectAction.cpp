@@ -76,6 +76,22 @@ CConnectAction::execute()
 }
 
 void
+CConnectAction::reset()
+{
+	CAction::reset();
+
+	m_token.reset();
+
+	m_trackerStats.reset();
+
+	m_monitorInfo.reset();
+
+	m_error.reset();
+
+}
+
+
+void
 CConnectAction::setTrackerInfo( boost::optional< CTrackerStats > const & _trackerStats )
 {
 	m_trackerStats = _trackerStats;

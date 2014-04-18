@@ -34,14 +34,14 @@ private:
 private:
 	static CValidationManager * ms_instance;
 
-	boost::mutex buffMutex;
+    mutable boost::mutex buffMutex;
 	std::vector< CTransaction > m_transactionsCandidates;
 
-	boost::mutex processedMutex;
+    mutable boost::mutex processedMutex;
 
 	//std::list< std::pair< TransactionStatus::Enum, std::vector< CTransaction > > > m_bundlePipe;
 
-	boost::mutex validateTransLock;
+    mutable boost::mutex validateTransLock;
 	std::map< uint256, std::vector< CTransaction > > m_relayedTransactions;
 
 	std::set< uint256 > m_validated;
