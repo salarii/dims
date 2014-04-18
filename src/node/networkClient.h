@@ -33,22 +33,18 @@ public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
 
     ~CNetworkClient();
-    virtual void startThread();
-	virtual void stopThread();
+	virtual void startThread();
 
     bool serviced() const throw(CMediumException);
 	void add( CRequest const * _request );
 	bool flush();
 	bool getResponse( common::CCommunicationBuffer & _outBuffor ) const;
 private:
-	void setRunThread( bool newVal );
-	bool getRunThread();
 	void run();
 	unsigned int read();
 	int waitForInput();
 	void write();
 private:
-	bool mRunThread;
 	static unsigned const m_timeout;
 
     QMutex m_mutex;

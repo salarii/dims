@@ -1373,6 +1373,7 @@ private:
 	uint64_t nReadWritePos;    // how many bytes have been read from this
 
 	uint64_t m_maxPosition;
+	uint64_t & m_dummyMaxPosition;
 protected:
 	// read data from the source to fill the buffer
 	void fill(void * _dest, void * _src,uint64_t size )
@@ -1389,10 +1390,26 @@ public:
 		, nSourceSize(_sourceSize)
 		, nReadWritePos(0)
 		, m_maxPosition(0)
+		, m_dummyMaxPosition( m_maxPosition )
 		, nType(nTypeIn)
 		, nVersion(nVersionIn) 
-
 	{
+	}
+
+	CBufferAsStream(char *_src, uint64_t const _sourceSize, int nTypeIn, int nVersionIn, uint64_t & _maxPosition)
+		: src(_src)
+		, nSourceSize(_sourceSize)
+		, nReadWritePos(0)
+		, m_maxPosition(0)
+		, m_dummyMaxPosition( _maxPosition )
+		, nType(nTypeIn)
+		, nVersion(nVersionIn)
+	{
+	}
+
+	~CBufferAsStream()
+	{
+		m_dummyMaxPosition = m_maxPosition;
 	}
 
 	// check whether we're at the end of the buffor

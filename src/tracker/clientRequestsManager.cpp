@@ -9,7 +9,7 @@
 namespace tracker
 {
 
-uint256 CClientRequestsManager::ms_currentToken = 0;
+
 
 class CHandleClientRequestVisitor : public boost::static_visitor< void >
 {
@@ -20,7 +20,32 @@ public:
 	{
 
 	}
+
+	void operator()( CAddressBalanceReq const & _addressBalanceReq ) const
+	{
+
+	}
 };
+
+
+uint256 CClientRequestsManager::ms_currentToken = 0;
+
+CClientRequestsManager * CClientRequestsManager::ms_instance = NULL;
+
+CClientRequestsManager::CClientRequestsManager()
+{
+
+}
+
+CClientRequestsManager*
+CClientRequestsManager::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CClientRequestsManager();
+	};
+	return ms_instance;
+}
 
 uint256
 CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )

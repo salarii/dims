@@ -17,6 +17,7 @@ class CBufferAsStream;
 
 namespace tracker
 {
+class CClientRequestsManager;
 
 void runServer();
 
@@ -42,6 +43,7 @@ private:
 
 	common::CCommunicationBuffer m_pushBuffer;
 
+	CClientRequestsManager * m_clientRequestManager;
 	//CNetworkParams * m_networkParams;
 	//CValidationManager * m_validationManager;
 };

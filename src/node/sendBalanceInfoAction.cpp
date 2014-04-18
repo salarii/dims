@@ -7,7 +7,9 @@
 #include "sendInfoRequestAction.h"
 
 #include "serialize.h"
+#include "support.h"
 
+#include "tracker/nodeMessages.h"
 namespace node
 {
 
@@ -76,7 +78,8 @@ CBalanceRequest::CBalanceRequest( std::string _address )
 void
 CBalanceRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-    _bufferStream << m_address;
+	serializeEnum(_bufferStream, tracker::CMainRequestType::BalanceInfoReq );
+	_bufferStream << m_address;
 }
 
 inline

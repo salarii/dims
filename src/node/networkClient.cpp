@@ -20,33 +20,18 @@ CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
     , m_port( _port )
     , m_connectionInfo( NoActivity )
 {
-    m_socket = new QTcpSocket(this);
-	mRunThread = false;
+	m_socket = new QTcpSocket(this);
 
 	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_DISK, CLIENT_VERSION);
 	m_pushStream->SetPos(0);
     startThread();
 }
-
-
-void CNetworkClient::setRunThread(bool newVal )
-{
-	QMutexLocker lock( &m_mutex );
-	mRunThread = newVal;
-}
- 
-bool CNetworkClient::getRunThread()
-{
-	QMutexLocker lock( &m_mutex );
-	return mRunThread;
-}
- 
  
 int CNetworkClient::waitForInput()
 {
 	int bytesAvail = -1;
 
-	while ( m_socket->state() == QAbstractSocket::ConnectedState && getRunThread() && bytesAvail < 0 )
+	while ( m_socket->state() == QAbstractSocket::ConnectedState && m_connectionInfo == Processing && bytesAvail < 0 )
 	{
 		if (m_socket->waitForReadyRead( m_timeout ))
 		{
@@ -65,22 +50,26 @@ unsigned int
 CNetworkClient::read()
 {
 	int bytesAvail = waitForInput();
-	int bytesRead = 0;
+	m_pullBuffer.m_usedSize = 0;
 
 	if (bytesAvail > 0)
     {
 		bool endOfLine = false;
 		bool endOfStream = false;
 
-		while ( bytesRead < bytesAvail && (!endOfLine) && (!endOfStream) )
+		if ( MaxBufferSize <= bytesAvail )
 		{
-			bytesRead += m_socket->read( m_pullBuffer.m_buffer + bytesRead, MaxBufferSize - bytesRead );
-			if ( MaxBufferSize == bytesRead )
-				return 0; // this is  error so handle it as such  at some point
+			//throw error
+			return 0; // this is  error so handle it as such  at some point
+		}
+
+		while ( m_pullBuffer.m_usedSize < bytesAvail && (!endOfLine) && (!endOfStream) )
+		{
+			m_pullBuffer.m_usedSize += m_socket->read( m_pullBuffer.m_buffer + m_pullBuffer.m_usedSize, MaxBufferSize - m_pullBuffer.m_usedSize );
 
 		}
 	}
-	return bytesRead;
+	return m_pullBuffer.m_usedSize;
 }
  
  
@@ -99,13 +88,7 @@ void CNetworkClient::write()
  
 void CNetworkClient::startThread()
 {
-	setRunThread( true );
 	start();
-}
- 
-void CNetworkClient::stopThread()
-{
-	setRunThread( false );
 }
 
 /*
@@ -123,7 +106,7 @@ void CNetworkClient::run()
     while(1)
     {
         QMutexLocker lock( &m_writeMutex );
-        if ( m_connectionInfo = Processing )
+		if ( m_connectionInfo == Processing )
         {
             QHostAddress hostAddr( m_ip );
             m_socket->connectToHost( hostAddr, m_port );
@@ -184,7 +167,6 @@ CNetworkClient::getResponse( common::CCommunicationBuffer & _outBuffor ) const
 CNetworkClient::~CNetworkClient()
 {
     // this is  not  right,  invent clean  way  to  terminate
-    stopThread();
     terminate();
     delete m_pushStream;
 }

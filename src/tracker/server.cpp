@@ -10,7 +10,11 @@
 #include "serialize.h"
 
 #include "nodeMessages.h"
+#include "clientRequestsManager.h"
+
 #include "common/ratcoinParams.h"
+#include "node/support.h"
+
 namespace tracker
 {
 
@@ -30,41 +34,44 @@ CTcpServerConnection::CTcpServerConnection(Poco::Net::StreamSocket const & _serv
 		, SER_DISK
 		, CLIENT_VERSION)*/
 {
+	m_clientRequestManager = CClientRequestsManager::getInstance();
 }
 
 void
 CTcpServerConnection::run()
 {
-	bool isOpen = true;
 	Poco::Timespan timeOut(10,0);
-	while( isOpen )
+
+	if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ) == false)
 	{
-		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ) == false){
-			throw server_error(std::string( "TIMEOUT!" ));
-		}
-		else{
-			int nBytes = -1;
-
-			try 
-			{
-				nBytes = socket().receiveBytes( m_pullBuffer.m_buffer, MaxBufferSize );
-			}
-			catch (Poco::Exception& exc) {
-				//Handle your network errors.
-				throw server_error(std::string( "Network error:" ) + exc.displayText() );
-				isOpen = false;
-			}
-
-
-			if (nBytes==0)
-			{
-				isOpen = false;
-			}
-			handleIncommingBuffor();
-			
-			// answare  to  incomming  connections 
-		}
+		throw server_error(std::string( "TIMEOUT!" ));
 	}
+	else
+	{
+
+		try
+		{
+			m_pullBuffer.m_usedSize = socket().receiveBytes( m_pullBuffer.m_buffer, MaxBufferSize );
+		}
+		catch (Poco::Exception& exc) {
+			//Handle your network errors.
+			throw server_error(std::string( "Network error:" ) + exc.displayText() );
+		}
+
+		handleIncommingBuffor();
+		int bytes;
+		try
+		{
+			bytes = socket().sendBytes( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
+		}
+		catch (Poco::Exception& exc)
+		{
+			//Handle your network errors.
+			throw server_error(std::string( "Network error:" ) + exc.displayText() );
+		}
+bytes--;
+	}
+
 }
 
 void
@@ -106,9 +113,18 @@ CTcpServerConnection::handleIncommingBuffor()
 //	writeSignature( outStream );
 	CBufferAsStream pullStream(
 		(char*)m_pullBuffer.m_buffer
-		, MaxBufferSize
+		, m_pullBuffer.m_usedSize
 		, SER_DISK
 		, CLIENT_VERSION);
+
+	CBufferAsStream pushStream(
+		(char*)m_pushBuffer.m_buffer
+		, MaxBufferSize
+		, SER_DISK
+		, CLIENT_VERSION
+		, (uint64_t &)m_pushBuffer.m_usedSize
+		);
+
 
 	while( !pullStream.eof() )
 	{
@@ -117,23 +133,39 @@ CTcpServerConnection::handleIncommingBuffor()
 		pullStream >> messageType;
 
 		CTransaction transaction;
-		switch( (CMainRequestType::Enum)messageType )
+		if( messageType == CMainRequestType::Transaction )
 		{
-			case CMainRequestType::Transaction:
-				pullStream >> transaction;
-				/*outStream << transaction.GetHash();
+			pullStream >> transaction;
+			/*outStream << transaction.GetHash();
 				m_validationManager->serviceTransaction( transaction );*/
-				break;
-			case CMainRequestType::TrackerInfoReq:
-				break;
-			case CMainRequestType::MonitorInfoReq:
-				break;
-			case CMainRequestType::TransactionStatusReq:
-				break;
-			case CMainRequestType::ContinueReq:
-				break;
-			default:
-				return false;
+		}
+		else if ( messageType == CMainRequestType::TrackerInfoReq )
+		{
+
+		}
+		else if ( messageType == CMainRequestType::MonitorInfoReq )
+		{
+
+		}
+		else if ( messageType == CMainRequestType::TransactionStatusReq )
+		{
+
+		}
+		else if ( messageType == CMainRequestType::BalanceInfoReq )
+		{
+			std::string address;
+			pullStream >> address;
+			node::serializeEnum( pushStream, CMainRequestType::ContinueReq );
+			uint256 token = m_clientRequestManager->addRequest( address );
+			pushStream << token;
+		}
+		else if ( messageType == CMainRequestType::ContinueReq )
+		{
+
+		}
+		else
+		{
+			return false;
 		}
 	}
 

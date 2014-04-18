@@ -21,6 +21,7 @@ struct CMainRequestType
 		, TransactionStatusReq
 		, MonitorInfoReq
 		, TrackerInfoReq
+		, BalanceInfoReq
 		, RequestSatatusReq
 	};
 };
@@ -45,7 +46,13 @@ struct CTransactionInfoReq
 	uint256 m_transactionPubKey;
 };
 
-typedef boost::variant< CTrackerStatsReq > NodeRequest;
+struct CAddressBalanceReq
+{
+	CAddressBalanceReq( std::string const & _address ):m_address(_address){};
+	std::string m_address;
+};
+
+typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq > NodeRequest;
 
 }
 

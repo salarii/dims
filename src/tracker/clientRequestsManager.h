@@ -16,10 +16,16 @@ public:
 	uint256 addRequest( NodeRequest const & _nodeRequest );
 
 	void processRequestLoop();
+
+	static CClientRequestsManager* getInstance();
 private:
 	typedef std::map< uint256, NodeRequest > InfoRequestElement;
 private:
-    mutable boost::mutex m_lock;
+	CClientRequestsManager();
+private:
+	static CClientRequestsManager * ms_instance;
+
+	mutable boost::mutex m_lock;
 	InfoRequestElement m_getInfoRequest;
 
 	static uint256 ms_currentToken;
