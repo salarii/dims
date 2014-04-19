@@ -16,7 +16,7 @@ namespace tracker
 CAuthenticationProvider * CAuthenticationProvider::ms_instance = NULL;
 
 CAuthenticationProvider*
-CAuthenticationProvider::getInstance( )
+CAuthenticationProvider::getInstance()
 {
 	if ( !ms_instance )
 	{
@@ -114,7 +114,7 @@ CAuthenticationProvider::enableAccess() const
 }
 
 bool
-CAuthenticationProvider::sign( CKeyID const & _key, uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const
+CAuthenticationProvider::sign( uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const
 {
 /*	CKey privKey;
 	

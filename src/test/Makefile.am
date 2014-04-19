@@ -35,6 +35,7 @@ test_bitcoin_SOURCES = \
   test_ratcoin.cpp \
   uint256_tests.cpp \
   segmentFileStorage_tests.cpp \
+  communicationProtocol_tests.cpp \
   $(JSON_TEST_FILES) 
 
 if ENABLE_WALLET

@@ -22,7 +22,7 @@ public:
 
 	void enableAccess() const;
 
-	bool sign( CKeyID const & _key, uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const;
+	bool sign( uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const;
 
 	bool verify( CKeyID const & _key, uint256 const & _hash, std::vector<unsigned char> const & _vchSig ) const;
 

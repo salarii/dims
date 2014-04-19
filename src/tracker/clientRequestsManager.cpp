@@ -9,8 +9,6 @@
 namespace tracker
 {
 
-
-
 class CHandleClientRequestVisitor : public boost::static_visitor< void >
 {
 public:

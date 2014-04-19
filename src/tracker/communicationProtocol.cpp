@@ -1,10 +1,10 @@
 #include "communicationProtocol.h"
-
+#include "authenticationProvider.h"
 #include "util.h"
 #include "version.h"
 namespace tracker
 {
-
+CAuthenticationProvider * authenticationProvider = CAuthenticationProvider::getInstance();
 bool
 CommunicationProtocol::unwindMessage( CMessage const & _message, CPubKey const &  _pubKey, Payload const & _payload, int64_t const _time )
 {
@@ -48,9 +48,10 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 	CBufferAsStream stream( (char*)&m_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
 	stream << _bundle;
 
+	uint256 hash = Hash( &m_payload.front(), &m_payload.back() );
 
-	/*
-	m_payload = (void *)new CTransactionBundle( _bundle );*/
+	authenticationProvider->sign( hash, m_header.m_signedHash );
+
 }
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash )

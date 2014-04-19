@@ -100,7 +100,7 @@ struct CHeader
 */
 	CHeader( CPayloadKind::Enum _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey );
 	CPayloadKind::Enum m_payloadKind;
-	std::vector<unsigned char> const m_signedHash;
+	std::vector<unsigned char> m_signedHash;
 	int64_t m_time;
 	CPubKey const m_prevKey;
 };
@@ -115,7 +115,7 @@ public:
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);
-	//	READWRITE(determinePayload());
+	//	READWRITE(m_payload);
 	//	READWRITE();
 	)
 
