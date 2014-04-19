@@ -5,6 +5,10 @@
 #ifndef COMMUNICATION_PROTOCOL_H
 #define COMMUNICATION_PROTOCOL_H
 
+#include <boost/variant.hpp>
+#include "serialize.h"
+#include "core.h"
+
 namespace tracker
 {
 
@@ -18,20 +22,35 @@ struct CPayloadKind
 	};
 };
 
+struct CTransactionBundle
+{
+	CTransactionBundle( std::vector< CTransaction > const & _bundle );
+	std::vector< CTransaction > m_bundle;
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_bundle);
+	)
+};
+
 typedef boost::variant< CTransactionBundle > Payload;
+
+class CMessage;
+
+class CAuthenticationProvider;
 
 class CommunicationProtocol
 {
 public:
-	send( CMessage const & _message );
+	void send( CMessage const & _message );
 
 	Payload retrieveData();
-private:
-	void unwindMessage( CMessage const & _message, CPubKey const &  _pubKey, Payload & _payload );
+
+	static bool unwindMessage( CMessage const & _message, CPubKey const &  _pubKey, Payload const & _payload, int64_t const _time );
 private:
 	CAuthenticationProvider * m_authenticationProvider;
 };
-
+/*
 CommunicationProtocol::prepareForSend( std::vector )
 {
 	uint256 messageHash = Hash(BEGIN(_message), END(_message));
@@ -39,10 +58,7 @@ CommunicationProtocol::prepareForSend( std::vector )
 
 
 }
-
-template<typename S>
-void Serialize(S &s, int nType, int nVersion) const;
-
+*/
 struct CHeader
 {
 	IMPLEMENT_SERIALIZE
@@ -82,33 +98,32 @@ struct CHeader
 		m_prevKey.Serialize( s, nType, nVersion );
 	}
 */
-	private:
+	CHeader( CPayloadKind::Enum _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey );
 	CPayloadKind::Enum m_payloadKind;
-	std::vector<unsigned char> m_signedHash;
+	std::vector<unsigned char> const m_signedHash;
 	int64_t m_time;
-	CPubKey m_prevKey;
+	CPubKey const m_prevKey;
 };
 
 	
 
-class CMessage
+struct CMessage
 {
 public:
-	CMessage( std::vector< CTransaction > _bundle );
-	CMessage( CMessage const & _message, uint256 const & _prevKey );
+	CMessage( std::vector< CTransaction > const & _bundle );
+	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);
-		READWRITE(determinePayload());
-		READWRITE();
+	//	READWRITE(determinePayload());
+	//	READWRITE();
 	)
 
 	~CMessage();
-private:
-	Payload determinePayload();
-private:
+
+	//Payload determinePayload();
 	CHeader m_header;
-	void* m_payload;
+	std::vector< char > m_payload;
 };
 
 

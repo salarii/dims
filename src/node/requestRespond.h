@@ -43,6 +43,7 @@ struct CMonitorInfo
 
 struct CPending
 {
+	CPending( uint256 const & _token ):m_token(_token){};
 	uint256 m_token;
 };
 
