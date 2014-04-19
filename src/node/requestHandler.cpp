@@ -21,8 +21,8 @@ CRequestHandler::CRequestHandler( CMedium * _medium )
 RequestRespond
 CRequestHandler::getRespond( CRequest* _request ) const
 {
-	assert( m_processedRequests.find( _request ) != m_processedRequests.end() );
-	return m_processedRequests.find( _request )->second;
+	if( m_processedRequests.find( _request ) != m_processedRequests.end() )
+		return m_processedRequests.find( _request )->second;
 }
 
 void
@@ -34,9 +34,6 @@ CRequestHandler::deleteRequest( CRequest* )
 bool
 CRequestHandler::isProcessed( CRequest* _request ) const
 {
-	if ( m_pendingRequest.find( _request ) != m_pendingRequest.end() )
-		return true;
-
 	if ( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return true;
 	
@@ -89,7 +86,7 @@ CRequestHandler::readLoop()
             {
                 uint256 token;
                 stream >> token;
-                m_pendingRequest.insert( std::make_pair( m_newRequest[counter], token ) );
+				m_processedRequests.insert( std::make_pair( m_newRequest[counter], CPending(token) ) );
 
             }
             else if ( messageType == tracker::CMainRequestType::TransactionStatusReq )

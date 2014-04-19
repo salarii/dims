@@ -30,6 +30,7 @@ CSendBalanceInfoAction::execute()
 {
     if ( m_status == ActionStatus::Unprepared )
     {
+		m_status = ActionStatus::InProgress;
         return new CBalanceRequest( m_pubKey );
     }
     else
