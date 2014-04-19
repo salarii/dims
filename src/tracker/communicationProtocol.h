@@ -123,7 +123,7 @@ public:
 
 	//Payload determinePayload();
 	CHeader m_header;
-	std::vector< char > m_payload;
+	std::vector< unsigned char > m_payload;
 };
 
 

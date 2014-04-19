@@ -2,12 +2,19 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <openssl/rand.h>
+
 #include "authenticationProvider.h"
+#include "script.h"
+#include "crypter.h"
+#include "util.h"
+#include "db.h"
+#include "serialize.h"
 
 namespace tracker
 {
 CAuthenticationProvider * CAuthenticationProvider::ms_instance = NULL;
-	
+
 CAuthenticationProvider*
 CAuthenticationProvider::getInstance( )
 {
@@ -20,20 +27,20 @@ CAuthenticationProvider::getInstance( )
 
 CAuthenticationProvider::CAuthenticationProvider()
 {
-	m_keyStore = new CCryptoKeyStore();
+	//m_keyStore = new CCryptoKeyStore();
 }
-
+/*
 bool
 CAuthenticationProvider::hasKeys( CKeyID const & _key ) const
 {
 	return m_keyStore->HaveKey( _key );
 }
-
+*/
 void
 CAuthenticationProvider::setPassword( SecureString const & _strWalletPassphrase )
 {
 	if (isCrypted())
-		return false;
+		return;
 
 	CKeyingMaterial vMasterKey;
 	RandAddSeedPerfmon();
@@ -62,15 +69,14 @@ CAuthenticationProvider::setPassword( SecureString const & _strWalletPassphrase 
 	LogPrintf("Encrypting Wallet with an nDeriveIterations of %i\n", kMasterKey.nDeriveIterations);
 
 	if (!crypter.SetKeyFromPassphrase(_strWalletPassphrase, kMasterKey.vchSalt, kMasterKey.nDeriveIterations, kMasterKey.nDerivationMethod))
-		return false;
+		return;
 	if (!crypter.Encrypt(vMasterKey, kMasterKey.vchCryptedKey))
-		return false;
+		return;
 
 	{
-		LOCK(cs_wallet);
 	//	mapMasterKeys[++nMasterKeyMaxID] = kMasterKey;
-
-		m_keyStorageDataBase = new CWalletDB(m_authenticationProviderFile);
+/*
+		CWalletDB * m_keyStorageDataBase = new CWalletDB(m_authenticationProviderFile);
 		if (!m_keyStorageDataBase->TxnBegin())
 			return false;
 		m_keyStorageDataBase->WriteMasterKey(nMasterKeyMaxID, kMasterKey);
@@ -91,14 +97,14 @@ CAuthenticationProvider::setPassword( SecureString const & _strWalletPassphrase 
 	/*	Lock();
 		Unlock(strWalletPassphrase);
 		NewKeyPool();
-		Lock();*/
+		Lock();
 
 		// Need to completely rewrite the wallet file; if we don't, bdb might keep
 		// bits of the unencrypted private key in slack space in the database file.
-		CDB::Rewrite(m_authenticationProviderFile);
+		CDB::Rewrite(m_authenticationProviderFile);*/
 	}
 
-	return true;	
+	return;
 }
 
 void 
@@ -110,12 +116,12 @@ CAuthenticationProvider::enableAccess() const
 bool
 CAuthenticationProvider::sign( CKeyID const & _key, uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const
 {
-	CKey privKey;
+/*	CKey privKey;
 	
 	if ( !m_keyStore->GetKey( _key, privKey ) )
 		return false;
 
-	return privKey.Sign( _hash, _vchSig );
+	return privKey.Sign( _hash, _vchSig );*/
 }
 
 bool
@@ -123,34 +129,34 @@ CAuthenticationProvider::verify( CKeyID const & _key, uint256 const & _hash, std
 {
 	CKey privKey;
 
-	std::map< CKeyID, CPubKey >::iterator iterator = m_pairsPubKeyStore.find( _key );
+/*	std::map< CKeyID, CPubKey >::iterator iterator = m_pairsPubKeyStore.find( _key );
 	if ( iterator == m_pairsPubKeyStore.end() )
 		return false;
-
-	return iterator->second.Verify( _hash, _vchSig );
+*/
+	return false;//iterator->second.Verify( _hash, _vchSig );
 }
 
-CKeyID
+bool
 CAuthenticationProvider::generateKeyPair()
 {
 	CKey priv;
-	priv.MakeNewKey( false );
+//	priv.MakeNewKey( false );
 	
-	m_keyStore.AddKey( priv );
+	//m_keyStore.AddKey( priv );
 
-	return priv->GetPubKey()->GetID();
+	return true;//priv->GetPubKey()->GetID();
 }
 
-CKeyID
+bool
 CAuthenticationProvider::addAddress( char * _privPlain )
 {
 	CKey priv;
 	
-	priv.Set( _privPlain[0], _privPlain[size-1] );
+	//priv.Set( _privPlain[0], _privPlain[size-1] );
 
-	m_keyStore.AddKey(priv);
+	//m_keyStore.AddKey(priv);
 
-	return priv->GetPubKey()->GetID();
+	return false;//priv->GetPubKey()->GetID();
 }
 
 
@@ -166,8 +172,5 @@ CAuthenticationProvider::load()
 
 }
 
-
-
-	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
 
 }

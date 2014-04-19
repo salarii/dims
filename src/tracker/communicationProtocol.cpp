@@ -1,7 +1,7 @@
 #include "communicationProtocol.h"
 
 #include "util.h"
-
+#include "version.h"
 namespace tracker
 {
 
@@ -43,7 +43,13 @@ CHeader::CHeader( CPayloadKind::Enum _payloadKind, std::vector<unsigned char> co
 CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 	: m_header( CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
-	/*m_payload
+	unsigned int size = ::GetSerializeSize( _bundle, SER_NETWORK, PROTOCOL_VERSION );
+	m_payload.resize( size );
+	CBufferAsStream stream( (char*)&m_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
+	stream << _bundle;
+
+
+	/*
 	m_payload = (void *)new CTransactionBundle( _bundle );*/
 }
 

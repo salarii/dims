@@ -5,6 +5,11 @@
 #ifndef AUTHENTICATION_PROVIDER_H
 #define AUTHENTICATION_PROVIDER_H
 
+#include "allocators.h"
+#include "key.h"
+
+class CCryptoKeyStore;
+
 namespace tracker
 {
 
@@ -17,17 +22,17 @@ public:
 
 	void enableAccess() const;
 
-	uint256 sign( std::vector<unsigned char>& _vchSig ) const;
+	bool sign( CKeyID const & _key, uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const;
 
-	void verify( ) const;
+	bool verify( CKeyID const & _key, uint256 const & _hash, std::vector<unsigned char> const & _vchSig ) const;
 
 	bool generateKeyPair();
-	void addAddress( char * );
+	bool addAddress( char * );
 
 	void save();
 	void load();
 
-	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
+//	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
 
 	static CAuthenticationProvider* getInstance( );
 private:
@@ -40,8 +45,6 @@ private:
 	CCryptoKeyStore * m_keyStore;
 	
 	std::map< CKeyID, CPubKey > m_pairsPubKeyStore;
-
-	CWalletDB *m_keyStorageDataBase;
 	
 	std::string m_authenticationProviderFile;
 };
