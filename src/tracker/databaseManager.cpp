@@ -42,7 +42,7 @@ CIdentificationDB::writeKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivK
 	vchKey.insert(vchKey.end(), vchPubKey.begin(), vchPubKey.end());
 	vchKey.insert(vchKey.end(), vchPrivKey.begin(), vchPrivKey.end());
 
-	return Write(std::make_pair(transalteToMnemonic(_type), vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
+	return Write(std::make_pair((int)_type, vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
 }
 
 std::string
@@ -55,7 +55,7 @@ CIdentificationDB::transalteToMnemonic( CIdentificationDB::Enum const _enum )
 bool
 CIdentificationDB::eraseKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type)
 {
-	return Erase(std::make_pair(transalteToMnemonic(_type), vchPubKey));
+	return Erase(std::make_pair( (int)_type, vchPubKey));
 }
 /*
 bool CIdentificationDB::WriteCryptedKey(const CPubKey& vchPubKey,
@@ -123,17 +123,17 @@ public:
 };
 
 bool
-ReadKeyValue( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore* _keyStore, CDataStream& _ssKey, CDataStream& _ssValue,
+ReadKeyValue( std::multimap< CIdentificationDB::Enum, CKeyID > & _indicator, CCryptoKeyStore* _keyStore, CDataStream& _ssKey, CDataStream& _ssValue,
 			 CWalletScanState &_wss, string& _strErr)
 {
 	try {
 		// Unserialize
 		// Taking advantage of the fact that pair serialization
 		// is just the two items serialized one after the other
-		string strType;
+		int strType;
 		_ssKey >> strType;
 
-		if (strType == "self" || strType == "tracker" || strType == "monitor")
+		if (strType == CIdentificationDB::Tracker || strType == CIdentificationDB::Self || strType == CIdentificationDB::Monitor)
 		{
 			CPubKey vchPubKey;
 			_ssKey >> vchPubKey;
@@ -146,15 +146,15 @@ ReadKeyValue( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore
 			CPrivKey pkey;
 			uint256 hash = 0;
 
-			if (strType == "key")
+			//if (strType == "key")
 			{
 				_wss.nKeys++;
 				_ssValue >> pkey;
-			} else {
+			}/* else {
 				CWalletKey wkey;
 				_ssValue >> wkey;
 				pkey = wkey.vchPrivKey;
-			}
+			}*/
 
 			// Old wallets store keys as "key" [pubkey] => [privkey]
 			// ... which was slow for wallets with lots of keys, because the public key is re-derived from the private key
@@ -196,7 +196,7 @@ ReadKeyValue( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore
 				_strErr = "Error reading wallet database: LoadKey failed";
 				return false;
 			}
-			_indicator.insert( std::make_pair( strType, vchPubKey.GetID() ) );
+			_indicator.insert( std::make_pair( (CIdentificationDB::Enum)strType, vchPubKey.GetID() ) );
 		}
 		/*else if (strType == "mkey")
 		{
@@ -251,7 +251,7 @@ ReadKeyValue( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore
 	return true;
 }
 
-DBErrors CIdentificationDB::loadIdentificationDatabase( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore * _store )
+DBErrors CIdentificationDB::loadIdentificationDatabase( std::multimap< CIdentificationDB::Enum, CKeyID > & _indicator, CCryptoKeyStore * _store )
 {
 	CWalletScanState wss;
 	bool fNoncriticalErrors = false;
@@ -292,7 +292,7 @@ DBErrors CIdentificationDB::loadIdentificationDatabase( std::multimap< std::stri
 			}
 
 			// Try to be tolerant of single corrupt records:
-			string strType, strErr;
+			string strErr;
 			if (!ReadKeyValue(_indicator, _store, ssKey, ssValue, wss, strErr))
 			{
 				// losing keys is considered a catastrophic error, anything else

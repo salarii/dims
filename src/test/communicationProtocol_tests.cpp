@@ -53,6 +53,7 @@ getTransactionArray()
 	return transactions;
 }
 
+
 BOOST_AUTO_TEST_CASE( basics )
 {
 	tracker::CMessage  message( getTransactionArray() );

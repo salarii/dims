@@ -52,7 +52,7 @@ public:
 
 	bool WriteMinVersion(int nVersion);
 */
-	DBErrors loadIdentificationDatabase( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore * _store );
+	DBErrors loadIdentificationDatabase( std::multimap< CIdentificationDB::Enum, CKeyID > & _indicator, CCryptoKeyStore * _store );
 private:
 	CIdentificationDB(const CIdentificationDB&);
 	void operator=(const CIdentificationDB&);

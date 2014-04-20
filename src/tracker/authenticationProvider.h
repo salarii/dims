@@ -53,7 +53,7 @@ private:
 
 	CIdentificationDB * m_identificatonDB;
 
-	std::multimap< std::string, CKeyID > m_indicator;
+	std::multimap< CIdentificationDB::Enum, CKeyID > m_indicator;
 };
 
 }

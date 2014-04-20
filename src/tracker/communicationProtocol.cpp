@@ -4,7 +4,7 @@
 #include "version.h"
 namespace tracker
 {
-CAuthenticationProvider * authenticationProvider = CAuthenticationProvider::getInstance();
+
 bool
 CommunicationProtocol::unwindMessage( CMessage const & _message, CPubKey const &  _pubKey, Payload const & _payload, int64_t const _time )
 {
@@ -50,7 +50,7 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 
 	uint256 hash = Hash( &m_payload.front(), &m_payload.back() );
 
-	authenticationProvider->sign( hash, m_header.m_signedHash );
+	CAuthenticationProvider::getInstance()->sign( hash, m_header.m_signedHash );
 
 }
 

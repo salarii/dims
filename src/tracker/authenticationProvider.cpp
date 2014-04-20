@@ -13,6 +13,7 @@
 
 namespace tracker
 {
+
 std::string const CAuthenticationProvider::m_identificationFile = "identification";
 
 CAuthenticationProvider * CAuthenticationProvider::ms_instance = NULL;
@@ -31,11 +32,11 @@ CAuthenticationProvider::CAuthenticationProvider()
 {
 	m_keyStore = new CCryptoKeyStore();
 
-	m_identificatonDB = new CIdentificationDB( m_identificationFile );
+	m_identificatonDB = new CIdentificationDB( m_identificationFile, "rc+" );
 
 	m_identificatonDB->loadIdentificationDatabase( m_indicator, m_keyStore );
 
-	if ( m_indicator.find("self" ) == m_indicator.end() )
+	if ( m_indicator.find( CIdentificationDB::Self ) == m_indicator.end() )
 	{
 		CKey priv;
 		CPubKey pubKey;
@@ -140,7 +141,7 @@ CAuthenticationProvider::sign( uint256 const &_hash, std::vector<unsigned char> 
 {
 	CKey privKey;
 
-	std::multimap< std::string, CKeyID >::iterator iterator = m_indicator.find("self" );
+	std::multimap< CIdentificationDB::Enum, CKeyID >::const_iterator iterator = m_indicator.find(CIdentificationDB::Self );
 	if ( iterator == m_indicator.end() )
 		return false;
 
@@ -167,11 +168,11 @@ CAuthenticationProvider::generateKeyPair( CKey & _priv, CPubKey & _pubKey )
 {
 	_priv.MakeNewKey( false );
 
-	_pubKey = _priv->GetPubKey();
+	_pubKey = _priv.GetPubKey();
 
 	return true;
 }
-
+/*
 bool
 CAuthenticationProvider::addAddress( char * _privPlain )
 {
@@ -183,7 +184,7 @@ CAuthenticationProvider::addAddress( char * _privPlain )
 
 	return false;//priv->GetPubKey()->GetID();
 }
-
+*/
 
 void
 CAuthenticationProvider::save()
