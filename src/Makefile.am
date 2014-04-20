@@ -42,6 +42,7 @@ TRACKER_CORE_H = \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/authenticationProvider.h \
+  tracker/databaseManager.h \
   tracker/server.h
   
 # bitcoin core #
@@ -120,6 +121,7 @@ TRACKER_CORE_CPP = \
   tracker/clientRequestsManager.cpp \
   tracker/communicationProtocol.cpp \
   tracker/authenticationProvider.cpp \
+  tracker/databaseManager.cpp \
   tracker/server.cpp
 
 libbitcoin_server_a_SOURCES = \

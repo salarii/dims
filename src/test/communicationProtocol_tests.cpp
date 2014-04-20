@@ -53,6 +53,7 @@ getTransactionArray()
 
 BOOST_AUTO_TEST_CASE( basics )
 {
+
 	tracker::CMessage( getTransactionArray() );
 	//BOOST_CHECK(uint160(std::vector<unsigned char>(OneArray,OneArray+19)) == 0);
 }
