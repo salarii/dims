@@ -125,6 +125,8 @@ TRACKER_CORE_CPP = \
   tracker/server.cpp
 
 libbitcoin_server_a_SOURCES = \
+  db.cpp \
+  crypter.cpp \
   addrman.cpp \
   alert.cpp \
   rpcserver.cpp \
@@ -153,8 +155,6 @@ libbitcoin_server_a_SOURCES = \
 
   
 libbitcoin_wallet_a_SOURCES = \
-  db.cpp \
-  crypter.cpp \
   rpcdump.cpp \
   rpcwallet.cpp \
   wallet.cpp \

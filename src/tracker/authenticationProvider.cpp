@@ -13,6 +13,8 @@
 
 namespace tracker
 {
+std::string const CAuthenticationProvider::m_identificationFile = "identification";
+
 CAuthenticationProvider * CAuthenticationProvider::ms_instance = NULL;
 
 CAuthenticationProvider*
@@ -27,7 +29,27 @@ CAuthenticationProvider::getInstance()
 
 CAuthenticationProvider::CAuthenticationProvider()
 {
-	//m_keyStore = new CCryptoKeyStore();
+	m_keyStore = new CCryptoKeyStore();
+
+	m_identificatonDB = new CIdentificationDB( m_identificationFile );
+
+	m_identificatonDB->loadIdentificationDatabase( m_indicator, m_keyStore );
+
+	if ( m_indicator.find("self" ) == m_indicator.end() )
+	{
+		CKey priv;
+		CPubKey pubKey;
+
+		generateKeyPair( priv, pubKey );
+
+		m_identificatonDB->writeKey( pubKey, priv.GetPrivKey(), CIdentificationDB::Self );
+
+		m_indicator.insert( std::make_pair( CIdentificationDB::Self, pubKey.GetID() ) );
+
+		m_keyStore->AddKeyPubKey(priv, pubKey);
+
+	}
+
 }
 /*
 bool
@@ -116,12 +138,16 @@ CAuthenticationProvider::enableAccess() const
 bool
 CAuthenticationProvider::sign( uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const
 {
-/*	CKey privKey;
-	
-	if ( !m_keyStore->GetKey( _key, privKey ) )
+	CKey privKey;
+
+	std::multimap< std::string, CKeyID >::iterator iterator = m_indicator.find("self" );
+	if ( iterator == m_indicator.end() )
 		return false;
 
-	return privKey.Sign( _hash, _vchSig );*/
+	if ( !m_keyStore->GetKey( iterator->second, privKey ) )
+		return false;
+
+	return privKey.Sign( _hash, _vchSig );
 }
 
 bool
@@ -137,14 +163,13 @@ CAuthenticationProvider::verify( CKeyID const & _key, uint256 const & _hash, std
 }
 
 bool
-CAuthenticationProvider::generateKeyPair()
+CAuthenticationProvider::generateKeyPair( CKey & _priv, CPubKey & _pubKey )
 {
-	CKey priv;
-//	priv.MakeNewKey( false );
-	
-	//m_keyStore.AddKey( priv );
+	_priv.MakeNewKey( false );
 
-	return true;//priv->GetPubKey()->GetID();
+	_pubKey = _priv->GetPubKey();
+
+	return true;
 }
 
 bool

@@ -39,9 +39,9 @@ public:
 	CIdentificationDB(std::string strFilename, const char* pszMode="r+") : CDB(strFilename.c_str(), pszMode)
 	{
 	}
-	bool WriteKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type);
+	bool writeKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type);
 
-	bool EraseKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type);
+	bool eraseKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type);
 //	bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
 //	bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey);
 
@@ -52,7 +52,7 @@ public:
 
 	bool WriteMinVersion(int nVersion);
 */
-	DBErrors LoadIdentificationDatabase( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore * _store );
+	DBErrors loadIdentificationDatabase( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore * _store );
 private:
 	CIdentificationDB(const CIdentificationDB&);
 	void operator=(const CIdentificationDB&);

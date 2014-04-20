@@ -34,7 +34,7 @@ std::map< CIdentificationDB::Enum, std::string > CIdentificationDB::ms_enumToMne
 		boost::assign::map_list_of
 			(CIdentificationDB::Self, "self")(CIdentificationDB::Tracker, "tracker")(CIdentificationDB::Monitor, "monitor");
 bool
-CIdentificationDB::WriteKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type )
+CIdentificationDB::writeKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type )
 {
 	// hash pubkey/privkey to accelerate wallet load
 	std::vector<unsigned char> vchKey;
@@ -53,7 +53,7 @@ CIdentificationDB::transalteToMnemonic( CIdentificationDB::Enum const _enum )
 }
 
 bool
-CIdentificationDB::EraseKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type)
+CIdentificationDB::eraseKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type)
 {
 	return Erase(std::make_pair(transalteToMnemonic(_type), vchPubKey));
 }
@@ -251,7 +251,7 @@ ReadKeyValue( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore
 	return true;
 }
 
-DBErrors CIdentificationDB::LoadIdentificationDatabase( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore * _store )
+DBErrors CIdentificationDB::loadIdentificationDatabase( std::multimap< std::string, CKeyID > & _indicator, CCryptoKeyStore * _store )
 {
 	CWalletScanState wss;
 	bool fNoncriticalErrors = false;

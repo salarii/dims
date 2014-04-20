@@ -119,7 +119,7 @@ public:
 	//	READWRITE();
 	)
 
-	~CMessage();
+	~CMessage(){};
 
 	//Payload determinePayload();
 	CHeader m_header;

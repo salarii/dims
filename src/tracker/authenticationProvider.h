@@ -7,11 +7,14 @@
 
 #include "allocators.h"
 #include "key.h"
+#include "databaseManager.h"
 
 class CCryptoKeyStore;
 
 namespace tracker
 {
+
+class CIdentificationDB;
 
 class CAuthenticationProvider
 {
@@ -26,17 +29,19 @@ public:
 
 	bool verify( CKeyID const & _key, uint256 const & _hash, std::vector<unsigned char> const & _vchSig ) const;
 
-	bool generateKeyPair();
-	bool addAddress( char * );
+	bool generateKeyPair( CKey & _priv, CPubKey & _pubKey );
+	//bool addAddress( char * );
 
 	void save();
 	void load();
 
 //	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
 
-	static CAuthenticationProvider* getInstance( );
+	static CAuthenticationProvider* getInstance();
+
+	~CAuthenticationProvider(){};
 private:
-	bool isCrypted();
+	bool isCrypted(){ return false; }
 
 	CAuthenticationProvider();
 private:
@@ -44,9 +49,11 @@ private:
 
 	CCryptoKeyStore * m_keyStore;
 	
-	std::map< CKeyID, CPubKey > m_pairsPubKeyStore;
-	
-	std::string m_authenticationProviderFile;
+	static std::string const m_identificationFile;
+
+	CIdentificationDB * m_identificatonDB;
+
+	std::multimap< std::string, CKeyID > m_indicator;
 };
 
 }

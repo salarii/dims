@@ -49,12 +49,13 @@ getTransactionArray()
 			transactions.push_back( tx );
 		}
 	}
+
+	return transactions;
 }
 
 BOOST_AUTO_TEST_CASE( basics )
 {
-
-	tracker::CMessage( getTransactionArray() );
+	tracker::CMessage  message( getTransactionArray() );
 	//BOOST_CHECK(uint160(std::vector<unsigned char>(OneArray,OneArray+19)) == 0);
 }
 
