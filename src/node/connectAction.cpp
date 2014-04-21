@@ -6,13 +6,68 @@
 
 #include "setResponseVisitor.h"
 
+#include <boost/statechart/custom_reaction.hpp>
+#include <boost/statechart/state_machine.hpp>
+#include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/transition.hpp>
+#include <boost/statechart/event.hpp>
+
 namespace node
 {
+
+struct CUninitiated;
+
+struct CSetupEvent : boost::statechart::event< CSetupEvent >
+{
+	CSetupEvent( bool _manual ):m_manual( _manual ){};
+	bool const m_manual;
+};
+
+struct CResetEvent : boost::statechart::event< CResetEvent > {};
+struct CGenerateRequest : boost::statechart::event< CGenerateRequest > {};
+
+struct CConnectActionState : boost::statechart::state_machine< CConnectActionState, CUninitiated >
+{
+	CConnectActionState():m_request(0){};
+
+	CRequest* m_request;
+};
+
+struct CManual : boost::statechart::simple_state< CManual, CConnectActionState >
+{
+	typedef boost::statechart::custom_reaction< CGenerateRequest > reactions;
+
+	boost::statechart::result react( const CGenerateRequest & _generateRequest )
+	{
+		context< CConnectActionState >().m_request = new CTrackersInfoRequest( TrackerDescription );
+	}
+
+};
+struct CAutomatic : boost::statechart::simple_state< CAutomatic, CConnectActionState >
+{
+
+
+};
+
+
+struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectActionState >
+{
+	typedef boost::statechart::custom_reaction< CSetupEvent > reactions;
+
+	boost::statechart::result react( const CSetupEvent & _setupEvent )
+	{
+		if ( _setupEvent.m_manual )
+			return transit< CManual >();
+		else
+			return transit< CAutomatic >();
+	}
+};
 
 
 CConnectAction::CConnectAction( State::Enum const _state )
 :m_state( _state )
 {
+
 }
 
 void

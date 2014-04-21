@@ -15,8 +15,12 @@
 #include "requestRespond.h"
 #include "errorRespond.h"
 
+
+
 namespace node
 {
+
+struct CConnectActionState;
 
 class CConnectAction : public CAction
 {
@@ -58,6 +62,8 @@ private:
 	boost::optional< std::vector< std::string > > m_monitorInfo;
 
     boost::optional< ErrorType::Enum > m_error;
+
+	CConnectActionState * m_actionState;
 };
 
 }
