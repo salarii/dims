@@ -5,13 +5,16 @@
 #ifndef SELF_NODE_H
 #define SELF_NODE_H
 
+#include "net.h"
+#include "key.h"
+
 namespace tracker
 {
 
 class CSelfNode : public CNode
 {
 public:
-	CSelfNode();
+	CSelfNode(SOCKET hSocketIn, CAddress addrIn, std::string addrNameIn = "", bool fInboundIn=false):CNode( hSocketIn, addrIn, addrNameIn, fInboundIn ){};
 	CKeyID getPubKeyId();
 private:
 	CPubKey m_pubKey;

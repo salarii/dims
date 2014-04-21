@@ -3,23 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 /*
-This is  obvious crap 
-network managment  should be managed in  the way:
-
+Redesign it this way:
 		base managment
 		/				\
 ratcoin managment     bitcoin management
-
-
-right  now  it is
-net.h net.ccp  -  bitcoin  network
-
-and 
-
-this ( which is in most part  copy  paste from  above ) for  ratcoin  management
-
-
-this  is ultra  ugly  and it has  to change, but  since  I have  more important  things to  do , I let it be
 
 */
 
@@ -27,14 +14,44 @@ this  is ultra  ugly  and it has  to change, but  since  I have  more important 
 #ifndef MANAGE_NETWORK_H
 #define MANAGE_NETWORK_H 
 
+#include <list>
+#include <vector>
+
+#include <boost/thread.hpp>
+#include <boost/signals2.hpp>
+#include "netbase.h"
+#include "addrman.h"
+
+class CNode;
+
+namespace tracker
+{
+
+class CSelfNode;
+
+class CSelfNodesManager;
+
 class CManageNetwork
 {
 public:
+	struct LocalServiceInfo
+	{
+		int nScore;
+		int nPort;
+	};
+	typedef int NodeId;
+	struct CNodeSignals
+	{
+		boost::signals2::signal<int ()> GetHeight;
+		boost::signals2::signal<bool (CNode*)> ProcessMessages;
+		boost::signals2::signal<bool (CNode*, bool)> SendMessages;
+		boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
+		boost::signals2::signal<void (NodeId)> FinalizeNode;
+	};
+public:
 	CManageNetwork();
 
-	void startClientServer();
-
-	mainLoop();
+	void mainLoop();
 
 	/*
 	validate  buffer 
@@ -43,7 +60,7 @@ public:
 private:
 // some  of  this  is  copy paste from  net.cpp but it have to serve right now   
 
-	void connectToNetwork();
+	void connectToNetwork( boost::thread_group& threadGroup );
 	void negotiateWithMonitor();// if  at  all, not here
 
 	void discover(boost::thread_group& threadGroup);
@@ -52,7 +69,8 @@ private:
 
 	bool addLocal(const CNetAddr &addr, int nScore);
 
-	bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot);
+	bool
+	openNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot);
 
 	void advertizeLocal();
 
@@ -61,32 +79,43 @@ private:
 	void threadOpenConnections();
 
 	void threadMessageHandler();
+
+	void threadOpenAddedConnections();
+
+	void StartSync(const vector<CNode*> &vNodes);
 private:
 
-	static CSemaphore *ms_semOutbound;
+	CSemaphore *ms_semOutbound;
 
-	static unsigned int m_maxConnections;
+	unsigned int m_maxConnections;
 
 	CNetworkParams * m_networkParams;
-
-	Poco::Net::TCPServer  * m_tcpServer;
 
 	CSelfNode * m_nodeLocalHost;
 
 	CSelfNodesManager * m_nodesManager;
 
 	CCriticalSection cs_vNodes;
+	CCriticalSection cs_mapLocalHost;
+	CCriticalSection cs_setservAddNodeAddresses;
 
-	vector<CNode*> m_nodes;
+	set<CNetAddr> setservAddNodeAddresses;
+	std::vector<CNode*> m_nodes;
 
-	static list<CNode*> m_nodesDisconnected;
+	std::list<CNode*> m_nodesDisconnected;
 
-	static std::vector<SOCKET> m_listenSocket;
+	std::vector<SOCKET> m_listenSocket;
+
+	map<CNetAddr, LocalServiceInfo> mapLocalHost;
 
 	CSemaphore *m_semOutbound;
 
-	 CAddrMan addrman;
+	uint64_t nLocalServices;
+	CNode* pnodeSync;
+	CAddrMan addrman;
+	CNodeSignals g_signals;
 };
 
+}
 
 #endif // MANAGE_NETWORK_H

@@ -1,16 +1,29 @@
+// Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2009-2014 The Bitcoin developers
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+
 #include "manageNetwork.h"
+#include "sync.h"
+#include "protocol.h"
+#include "selfNode.h"
+
+static const int MAX_OUTBOUND_CONNECTIONS = 128;
 
 namespace tracker
 {
 
-CSemaphore * CManageNetwork::ms_semOutbound = NULL
-
-unsigned int CManageNetwork::m_maxConnections = 16; // this  should be read from network parameters
 
 CManageNetwork::CManageNetwork()
+	: ms_semOutbound( NULL )
+	, m_maxConnections( 16 )
+	, nLocalServices( NODE_NETWORK )
+	, pnodeSync( NULL )
 {
 }
-
+/*
 void 
 CManageNetwork::startClientServer()
 {
@@ -26,9 +39,9 @@ CManageNetwork::startClientServer()
 	m_tcpServer = new Poco::Net::TCPServer(new Poco::Net::TCPServerConnectionFactoryImpl<newConnection>(), serverSocket, pParams);
 	m_tcpServer->start();
 }
-
+*/
 void
-CManageNetwork::connectToNetwork()
+CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 {
 	if (ms_semOutbound == NULL) {
 		// initialize semaphore
@@ -56,16 +69,17 @@ CManageNetwork::connectToNetwork()
 #endif
 */
 	// Send and receive from sockets, accept connections
-	threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &threadSocketHandler));
+
+	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadSocketHandler, this));
 
 	// Initiate outbound connections from -addnode
-	threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "addcon", &threadOpenAddedConnections));
+//	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenAddedConnections, this));
 
 	// Initiate outbound connections
-	threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "opencon", &threadOpenConnections));
+	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenConnections, this));
 
 	// Process messages
-	threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
+	//threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::ThreadMessageHandler, this, &));
 
 	// Dump network addresses
 //	threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
@@ -124,8 +138,8 @@ CManageNetwork::discover(boost::thread_group& threadGroup)
 #endif
 
 	// Don't use external IPv4 discovery, when -onlynet="IPv6"
-	if (!IsLimited(NET_IPV4))
-		threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "ext-ip", &ThreadGetMyExternalIP));
+//	if (!IsLimited(NET_IPV4))
+//		threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "ext-ip", &ThreadGetMyExternalIP));
 }
 
 // learn a new local address
@@ -200,7 +214,7 @@ CManageNetwork::threadSocketHandler()
 			{
 				if (pnode->fDisconnect ||
 					(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())
-					|| !m_nodesManager->isNodeHonest( pnode ))
+				/*	|| !m_nodesManager->isNodeHonest( pnode )*/)
 				{
 					// remove from m_nodes
 					m_nodes.erase(remove(m_nodes.begin(), m_nodes.end(), pnode), m_nodes.end());
@@ -377,11 +391,11 @@ CManageNetwork::threadSocketHandler()
 							closesocket(hSocket);
 					}
 				}
-				else if (m_nodesManager->isBanned( addr ))
+			/*	else if (m_nodesManager->isBanned( addr ))
 				{
 					LogPrintf("connection from %s dropped (banned)\n", addr.ToString());
 					closesocket(hSocket);
-				}
+				}*/
 				else
 				{
 					LogPrint("net", "accepted connection %s\n", addr.ToString());
@@ -519,7 +533,7 @@ CManageNetwork::threadOpenAddedConnections()
 			BOOST_FOREACH(string& strAddNode, lAddresses) {
 				CAddress addr;
 				CSemaphoreGrant grant(*m_semOutbound);
-				OpenNetworkConnection(addr, &grant, strAddNode.c_str());
+				//OpenNetworkConnection(addr, &grant, strAddNode.c_str());
 				MilliSleep(500);
 			}
 			MilliSleep(120000); // Retry every 2 minutes
@@ -566,7 +580,7 @@ CManageNetwork::threadOpenAddedConnections()
 		BOOST_FOREACH(vector<CService>& vserv, lservAddressesToAdd)
 		{
 			CSemaphoreGrant grant(*m_semOutbound);
-			OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
+//			OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
 			MilliSleep(500);
 		}
 		MilliSleep(120000); // Retry every 2 minutes
@@ -582,11 +596,11 @@ CManageNetwork::threadOpenConnections()
 	{
 		for (int64_t nLoop = 0;; nLoop++)
 		{
-			ProcessOneShot();
+//			ProcessOneShot();
 			BOOST_FOREACH(string strAddr, mapMultiArgs["-connect"])
 			{
 				CAddress addr;
-				OpenNetworkConnection(addr, NULL, strAddr.c_str());
+//				OpenNetworkConnection(addr, NULL, strAddr.c_str());
 				for (int i = 0; i < 10 && i < nLoop; i++)
 				{
 					MilliSleep(500);
@@ -670,25 +684,25 @@ CManageNetwork::threadOpenConnections()
 			break;
 		}
 
-		if (addrConnect.IsValid())
-			OpenNetworkConnection(addrConnect, &grant);
+	//	if (addrConnect.IsValid())
+	//		openNetworkConnection(addrConnect, &grant);
 	}
 }
 
 bool
-CManageNetwork::::OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot)
+CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot)
 {
 	//
 	// Initiate outbound network connection
 	//
 	boost::this_thread::interruption_point();
-	if (!strDest)
+/*	if (!strDest)
 		if (IsLocal(addrConnect) ||
 			FindNode((CNetAddr)addrConnect) || CNode::IsBanned(addrConnect) ||
 			FindNode(addrConnect.ToStringIPPort().c_str()))
-			return false;
-	if (strDest && FindNode(strDest))
-		return false;
+			return false;*/
+//	if (strDest && FindNode(strDest))
+//		return false;
 
 	CNode* pnode = ConnectNode(addrConnect, strDest);
 	boost::this_thread::interruption_point();
@@ -702,6 +716,36 @@ CManageNetwork::::OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreG
 		pnode->fOneShot = true;
 
 	return true;
+}
+
+void
+CManageNetwork::StartSync(const vector<CNode*> &vNodes)
+{
+	CNode *pnodeNewSync = NULL;
+	double dBestScore = 0;
+
+	int nBestHeight = g_signals.GetHeight().get_value_or(0);
+
+	// Iterate over all nodes
+	BOOST_FOREACH(CNode* pnode, vNodes) {
+		// check preconditions for allowing a sync
+		if (!pnode->fClient && !pnode->fOneShot &&
+			!pnode->fDisconnect && pnode->fSuccessfullyConnected &&
+			(pnode->nStartingHeight > (nBestHeight - 144)) &&
+			(pnode->nVersion < NOBLKS_VERSION_START || pnode->nVersion >= NOBLKS_VERSION_END)) {
+			// if ok, compare node's score with the best so far
+		//	double dScore = NodeSyncScore(pnode);
+/*			if (pnodeNewSync == NULL || dScore > dBestScore) {
+				pnodeNewSync = pnode;
+				dBestScore = dScore;
+			}*/
+		}
+	}
+	// if a new sync candidate was found, start sync!
+	if (pnodeNewSync) {
+		pnodeNewSync->fStartSync = true;
+		pnodeSync = pnodeNewSync;
+	}
 }
 
 void 
