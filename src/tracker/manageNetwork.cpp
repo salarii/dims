@@ -11,7 +11,7 @@
 #include "selfNode.h"
 #include "common/ratcoinParams.h"
 
-static const int MAX_OUTBOUND_CONNECTIONS = 128;
+static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
 namespace tracker
 {
@@ -100,7 +100,7 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenConnections, this));
 
 	// Process messages
-	//threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::ThreadMessageHandler, this, &));
+	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadMessageHandler, this, &));
 
 	// Dump network addresses
 //	threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
@@ -716,7 +716,7 @@ CNode*
 CManageNetwork::findNode(const CNetAddr& ip)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, vNodes)
+	BOOST_FOREACH(CNode* pnode, m_nodes)
 		if ((CNetAddr)pnode->addr == ip)
 			return (pnode);
 	return NULL;
@@ -729,7 +729,7 @@ CManageNetwork::bind(const CService &addr, unsigned int flags)
 	if (!(flags & BF_EXPLICIT) && IsLimited(addr))
 		return false;
 	std::string strError;
-	if (!BindListenPort(addr, strError)) {
+	if (!bindListenPort(addr, strError)) {
 		if (flags & BF_REPORT_ERROR)
 			return false;
 		return false;
@@ -841,7 +841,7 @@ CNode*
 CManageNetwork::findNode(std::string addrName)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, vNodes)
+	BOOST_FOREACH(CNode* pnode, m_nodes)
 		if (pnode->addrName == addrName)
 			return (pnode);
 	return NULL;
@@ -851,7 +851,7 @@ CNode*
 CManageNetwork::findNode(const CService& addr)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, vNodes)
+	BOOST_FOREACH(CNode* pnode, m_nodes)
 		if ((CService)pnode->addr == addr)
 			return (pnode);
 	return NULL;
@@ -932,7 +932,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 
 		{
 			LOCK(cs_vNodes);
-			vNodes.push_back(pnode);
+			m_nodes.push_back(pnode);
 		}
 
 		pnode->nTimeConnected = GetTime();
@@ -953,7 +953,7 @@ CManageNetwork::StartSync(const vector<CNode*> &vNodes)
 	int nBestHeight = g_signals.GetHeight().get_value_or(0);
 
 	// Iterate over all nodes
-	BOOST_FOREACH(CNode* pnode, vNodes) {
+	BOOST_FOREACH(CNode* pnode, m_nodes) {
 		// check preconditions for allowing a sync
 		if (!pnode->fClient && !pnode->fOneShot &&
 			!pnode->fDisconnect && pnode->fSuccessfullyConnected &&
