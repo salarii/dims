@@ -48,19 +48,26 @@ public:
 		boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
 		boost::signals2::signal<void (NodeId)> FinalizeNode;
 	};
-public:
-	CManageNetwork();
 
+	enum BindFlags {
+		BF_NONE         = 0,
+		BF_EXPLICIT     = (1U << 0),
+		BF_REPORT_ERROR = (1U << 1)
+	};
+public:
 	void mainLoop();
 
 	/*
 	validate  buffer 
 	
 	*/
+	static CManageNetwork* getInstance();
+
+	bool connectToNetwork( boost::thread_group& threadGroup );
 private:
+	CManageNetwork();
 // some  of  this  is  copy paste from  net.cpp but it have to serve right now   
 
-	void connectToNetwork( boost::thread_group& threadGroup );
 	void negotiateWithMonitor();// if  at  all, not here
 
 	void discover(boost::thread_group& threadGroup);
@@ -70,7 +77,19 @@ private:
 	bool addLocal(const CNetAddr &addr, int nScore);
 
 	bool
-	openNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot);
+	openNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot = false);
+
+	CNode* connectNode(CAddress addrConnect, const char *pszDest);
+
+	CNode* findNode(const CNetAddr& ip);
+
+	bool bindListenPort(const CService &addrBind, string& strError);
+
+	bool bind(const CService &addr, unsigned int flags);
+
+	CNode* findNode(std::string addrName);
+
+	CNode* findNode(const CService& addr);
 
 	void advertizeLocal();
 
@@ -84,8 +103,9 @@ private:
 
 	void StartSync(const vector<CNode*> &vNodes);
 private:
+	static CManageNetwork * ms_instance;
 
-	CSemaphore *ms_semOutbound;
+	CSemaphore *m_semOutbound;
 
 	unsigned int m_maxConnections;
 
@@ -107,8 +127,6 @@ private:
 	std::vector<SOCKET> m_listenSocket;
 
 	map<CNetAddr, LocalServiceInfo> mapLocalHost;
-
-	CSemaphore *m_semOutbound;
 
 	uint64_t nLocalServices;
 	CNode* pnodeSync;

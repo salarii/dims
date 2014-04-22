@@ -9,15 +9,27 @@
 #include "sync.h"
 #include "protocol.h"
 #include "selfNode.h"
+#include "common/ratcoinParams.h"
 
 static const int MAX_OUTBOUND_CONNECTIONS = 128;
 
 namespace tracker
 {
 
+CManageNetwork * CManageNetwork::ms_instance = NULL;
+
+CManageNetwork*
+CManageNetwork::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CManageNetwork();
+	};
+	return ms_instance;
+}
 
 CManageNetwork::CManageNetwork()
-	: ms_semOutbound( NULL )
+	: m_semOutbound( NULL )
 	, m_maxConnections( 16 )
 	, nLocalServices( NODE_NETWORK )
 	, pnodeSync( NULL )
@@ -40,12 +52,21 @@ CManageNetwork::startClientServer()
 	m_tcpServer->start();
 }
 */
-void
+bool
 CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 {
-	if (ms_semOutbound == NULL) {
+	bool bound = false;
+	struct in_addr inaddr_any;
+	inaddr_any.s_addr = INADDR_ANY;
+
+#ifdef USE_IPV6
+	bound = bind(CService(in6addr_any, GetListenPort< common::CRatcoinParams >()), BF_NONE);
+#endif
+	bound = bind(CService(inaddr_any, GetListenPort< common::CRatcoinParams >()), BF_REPORT_ERROR );
+
+	if (m_semOutbound == NULL) {
 		// initialize semaphore
-		ms_semOutbound = new CSemaphore(m_maxConnections);
+		m_semOutbound = new CSemaphore(m_maxConnections);
 	}
 
 	if (m_nodeLocalHost == NULL)
@@ -83,6 +104,8 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 
 	// Dump network addresses
 //	threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
+
+	return bound;
 }
 
 void
@@ -176,7 +199,7 @@ CManageNetwork::addLocal(const CService& addr, int nScore)
 bool 
 CManageNetwork::addLocal(const CNetAddr &addr, int nScore)
 {
-	return AddLocal(CService(addr, GetListenPort()), nScore);
+	return AddLocal(CService(addr, GetListenPort< common::CRatcoinParams >()), nScore);
 }
 
 void
@@ -553,7 +576,7 @@ CManageNetwork::threadOpenAddedConnections()
 		BOOST_FOREACH(string& strAddNode, lAddresses)
 		{
 			vector<CService> vservNode(0);
-			if(Lookup(strAddNode.c_str(), vservNode, Params().GetDefaultPort(), fNameLookup, 0))
+			if(Lookup(strAddNode.c_str(), vservNode, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort(), fNameLookup, 0))
 			{
 				lservAddressesToAdd.push_back(vservNode);
 				{
@@ -600,7 +623,7 @@ CManageNetwork::threadOpenConnections()
 			BOOST_FOREACH(string strAddr, mapMultiArgs["-connect"])
 			{
 				CAddress addr;
-//				OpenNetworkConnection(addr, NULL, strAddr.c_str());
+				openNetworkConnection(addr, NULL, strAddr.c_str());
 				for (int i = 0; i < 10 && i < nLoop; i++)
 				{
 					MilliSleep(500);
@@ -677,7 +700,7 @@ CManageNetwork::threadOpenConnections()
 				continue;
 
 			// do not allow non-default ports, unless after 50 invalid addresses selected already
-			if (addr.GetPort() != Params().GetDefaultPort() && nTries < 50)
+			if (addr.GetPort() != GetNetworkParams< common::CRatcoinParams >().GetDefaultPort() && nTries < 50)
 				continue;
 
 			addrConnect = addr;
@@ -687,6 +710,151 @@ CManageNetwork::threadOpenConnections()
 	//	if (addrConnect.IsValid())
 	//		openNetworkConnection(addrConnect, &grant);
 	}
+}
+
+CNode*
+CManageNetwork::findNode(const CNetAddr& ip)
+{
+	LOCK(cs_vNodes);
+	BOOST_FOREACH(CNode* pnode, vNodes)
+		if ((CNetAddr)pnode->addr == ip)
+			return (pnode);
+	return NULL;
+}
+
+
+bool
+CManageNetwork::bind(const CService &addr, unsigned int flags)
+{
+	if (!(flags & BF_EXPLICIT) && IsLimited(addr))
+		return false;
+	std::string strError;
+	if (!BindListenPort(addr, strError)) {
+		if (flags & BF_REPORT_ERROR)
+			return false;
+		return false;
+	}
+	return true;
+}
+
+bool
+CManageNetwork::bindListenPort(const CService &addrBind, string& strError)
+{
+	strError = "";
+	int nOne = 1;
+
+	// Create socket for listening for incoming connections
+#ifdef USE_IPV6
+	struct sockaddr_storage sockaddr;
+#else
+	struct sockaddr sockaddr;
+#endif
+	socklen_t len = sizeof(sockaddr);
+	if (!addrBind.GetSockAddr((struct sockaddr*)&sockaddr, &len))
+	{
+		strError = strprintf("Error: bind address family for %s not supported", addrBind.ToString());
+		LogPrintf("%s\n", strError);
+		return false;
+	}
+
+	SOCKET hListenSocket = socket(((struct sockaddr*)&sockaddr)->sa_family, SOCK_STREAM, IPPROTO_TCP);
+	if (hListenSocket == INVALID_SOCKET)
+	{
+		strError = strprintf("Error: Couldn't open socket for incoming connections (socket returned error %d)", WSAGetLastError());
+		LogPrintf("%s\n", strError);
+		return false;
+	}
+
+#ifdef SO_NOSIGPIPE
+	// Different way of disabling SIGPIPE on BSD
+	setsockopt(hListenSocket, SOL_SOCKET, SO_NOSIGPIPE, (void*)&nOne, sizeof(int));
+#endif
+
+#ifndef WIN32
+	// Allow binding if the port is still in TIME_WAIT state after
+	// the program was closed and restarted.  Not an issue on windows.
+	setsockopt(hListenSocket, SOL_SOCKET, SO_REUSEADDR, (void*)&nOne, sizeof(int));
+#endif
+
+
+#ifdef WIN32
+	// Set to non-blocking, incoming connections will also inherit this
+	if (ioctlsocket(hListenSocket, FIONBIO, (u_long*)&nOne) == SOCKET_ERROR)
+#else
+	if (fcntl(hListenSocket, F_SETFL, O_NONBLOCK) == SOCKET_ERROR)
+#endif
+	{
+		strError = strprintf("Error: Couldn't set properties on socket for incoming connections (error %d)", WSAGetLastError());
+		LogPrintf("%s\n", strError);
+		return false;
+	}
+
+#ifdef USE_IPV6
+	// some systems don't have IPV6_V6ONLY but are always v6only; others do have the option
+	// and enable it by default or not. Try to enable it, if possible.
+	if (addrBind.IsIPv6()) {
+#ifdef IPV6_V6ONLY
+#ifdef WIN32
+		setsockopt(hListenSocket, IPPROTO_IPV6, IPV6_V6ONLY, (const char*)&nOne, sizeof(int));
+#else
+		setsockopt(hListenSocket, IPPROTO_IPV6, IPV6_V6ONLY, (void*)&nOne, sizeof(int));
+#endif
+#endif
+#ifdef WIN32
+		int nProtLevel = 10 /* PROTECTION_LEVEL_UNRESTRICTED */;
+		int nParameterId = 23 /* IPV6_PROTECTION_LEVEl */;
+		// this call is allowed to fail
+		setsockopt(hListenSocket, IPPROTO_IPV6, nParameterId, (const char*)&nProtLevel, sizeof(int));
+#endif
+	}
+#endif
+
+	if (::bind(hListenSocket, (struct sockaddr*)&sockaddr, len) == SOCKET_ERROR)
+	{
+		int nErr = WSAGetLastError();
+		if (nErr == WSAEADDRINUSE)
+			strError = strprintf("Unable to bind to %s on this computer. Bitcoin is probably already running. %s", addrBind.ToString());
+		else
+			strError = strprintf("Unable to bind to %s on this computer (bind returned error %d, %s)", addrBind.ToString(), nErr, strerror(nErr));
+		LogPrintf("%s\n", strError);
+		return false;
+	}
+	LogPrintf("Bound to %s\n", addrBind.ToString());
+
+	// Listen for incoming connections
+	if (listen(hListenSocket, SOMAXCONN) == SOCKET_ERROR)
+	{
+		strError = strprintf("Error: Listening for incoming connections failed (listen returned error %d)", WSAGetLastError());
+		LogPrintf("%s\n", strError);
+		return false;
+	}
+
+	m_listenSocket.push_back(hListenSocket);
+
+	if (addrBind.IsRoutable() && fDiscover)
+		AddLocal(addrBind, LOCAL_BIND);
+
+	return true;
+}
+
+CNode*
+CManageNetwork::findNode(std::string addrName)
+{
+	LOCK(cs_vNodes);
+	BOOST_FOREACH(CNode* pnode, vNodes)
+		if (pnode->addrName == addrName)
+			return (pnode);
+	return NULL;
+}
+
+CNode*
+CManageNetwork::findNode(const CService& addr)
+{
+	LOCK(cs_vNodes);
+	BOOST_FOREACH(CNode* pnode, vNodes)
+		if ((CService)pnode->addr == addr)
+			return (pnode);
+	return NULL;
 }
 
 bool
@@ -704,7 +872,7 @@ CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGra
 //	if (strDest && FindNode(strDest))
 //		return false;
 
-	CNode* pnode = ConnectNode(addrConnect, strDest);
+	CNode* pnode = connectNode(addrConnect, strDest);
 	boost::this_thread::interruption_point();
 
 	if (!pnode)
@@ -716,6 +884,64 @@ CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGra
 		pnode->fOneShot = true;
 
 	return true;
+}
+
+CNode*
+CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
+{
+	if (pszDest == NULL) {
+		if (IsLocal(addrConnect))
+			return NULL;
+
+		// Look for an existing connection
+		CNode* pnode = FindNode((CService)addrConnect);
+		if (pnode)
+		{
+			pnode->AddRef();
+			return pnode;
+		}
+	}
+
+
+	/// debug print
+	LogPrint("net", "trying connection %s lastseen=%.1fhrs\n",
+		pszDest ? pszDest : addrConnect.ToString(),
+		pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
+
+	// Connect
+	SOCKET hSocket;
+	if (pszDest ? ConnectSocketByName(addrConnect, hSocket, pszDest, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort()) : ConnectSocket(addrConnect, hSocket))
+	{
+		addrman.Attempt(addrConnect);
+
+		LogPrint("net", "connected %s\n", pszDest ? pszDest : addrConnect.ToString());
+
+		// Set to non-blocking
+#ifdef WIN32
+		u_long nOne = 1;
+		if (ioctlsocket(hSocket, FIONBIO, &nOne) == SOCKET_ERROR)
+			LogPrintf("ConnectSocket() : ioctlsocket non-blocking setting failed, error %d\n", WSAGetLastError());
+#else
+		if (fcntl(hSocket, F_SETFL, O_NONBLOCK) == SOCKET_ERROR)
+			LogPrintf("ConnectSocket() : fcntl non-blocking setting failed, error %d\n", errno);
+#endif
+
+		// Add node
+		CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
+		pnode->AddRef();
+
+		{
+			LOCK(cs_vNodes);
+			vNodes.push_back(pnode);
+		}
+
+		pnode->nTimeConnected = GetTime();
+		return pnode;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 void

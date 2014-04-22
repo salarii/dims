@@ -37,7 +37,7 @@
 #include <openssl/crypto.h>
 
 #include "tracker/server.h"
-
+#include "tracker/manageNetwork.h"
 using namespace std;
 using namespace boost;
 
@@ -717,7 +717,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         if (mapArgs.count("-bind")) {
             BOOST_FOREACH(std::string strBind, mapMultiArgs["-bind"]) {
                 CService addrBind;
-                if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false))
+				if (!Lookup(strBind.c_str(), addrBind, GetListenPort<CChainParams>(), false))
                     return InitError(strprintf(_("Cannot resolve -bind address: '%s'"), strBind));
                 fBound |= Bind(addrBind, (BF_EXPLICIT | BF_REPORT_ERROR));
             }
@@ -726,9 +726,9 @@ bool AppInit2(boost::thread_group& threadGroup)
             struct in_addr inaddr_any;
             inaddr_any.s_addr = INADDR_ANY;
 #ifdef USE_IPV6
-            fBound |= Bind(CService(in6addr_any, GetListenPort()), BF_NONE);
+			fBound |= Bind(CService(in6addr_any, GetListenPort<CChainParams>()), BF_NONE);
 #endif
-            fBound |= Bind(CService(inaddr_any, GetListenPort()), !fBound ? BF_REPORT_ERROR : BF_NONE);
+			fBound |= Bind(CService(inaddr_any, GetListenPort<CChainParams>()), !fBound ? BF_REPORT_ERROR : BF_NONE);
         }
         if (!fBound)
             return InitError(_("Failed to listen on any port. Use -listen=0 if you want this."));
@@ -736,10 +736,10 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     if (mapArgs.count("-externalip")) {
         BOOST_FOREACH(string strAddr, mapMultiArgs["-externalip"]) {
-            CService addrLocal(strAddr, GetListenPort(), fNameLookup);
+			CService addrLocal(strAddr, GetListenPort<CChainParams>(), fNameLookup);
             if (!addrLocal.IsValid())
                 return InitError(strprintf(_("Cannot resolve -externalip address: '%s'"), strAddr));
-            AddLocal(CService(strAddr, GetListenPort(), fNameLookup), LOCAL_MANUAL);
+			AddLocal(CService(strAddr, GetListenPort<CChainParams>(), fNameLookup), LOCAL_MANUAL);
         }
     }
 
@@ -1069,7 +1069,12 @@ bool AppInit2(boost::thread_group& threadGroup)
     LogPrintf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
     LogPrintf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
+	// run this in main thread ??
     tracker::runServer();
+
+
+	tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
+
     //StartNode(threadGroup);
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();

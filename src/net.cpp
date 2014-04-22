@@ -94,11 +94,6 @@ void AddOneShot(string strDest)
     vOneShots.push_back(strDest);
 }
 
-unsigned short GetListenPort()
-{
-    return (unsigned short)(GetArg("-port", Params().GetDefaultPort()));
-}
-
 // find 'best' local address for a particular peer
 bool GetLocal(CService& addr, const CNetAddr *paddrPeer)
 {
@@ -247,7 +242,7 @@ bool AddLocal(const CService& addr, int nScore)
 
 bool AddLocal(const CNetAddr &addr, int nScore)
 {
-    return AddLocal(CService(addr, GetListenPort()), nScore);
+	return AddLocal(CService(addr, GetListenPort<CChainParams>()), nScore);
 }
 
 /** Make a particular network entirely off-limits (no automatic connects to it) */

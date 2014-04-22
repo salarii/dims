@@ -51,7 +51,12 @@ CNode* FindNode(const CNetAddr& ip);
 CNode* FindNode(const CService& ip);
 CNode* ConnectNode(CAddress addrConnect, const char *strDest = NULL);
 void MapPort(bool fUseUPnP);
-unsigned short GetListenPort();
+
+template < class T >
+unsigned short GetListenPort()
+{
+	return (unsigned short)(GetArg("-port", GetNetworkParams< T >().GetDefaultPort()));
+}
 bool BindListenPort(const CService &bindAddr, std::string& strError=REF(std::string()));
 void StartNode(boost::thread_group& threadGroup);
 bool StopNode();

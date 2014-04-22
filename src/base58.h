@@ -296,8 +296,8 @@ public:
     bool IsValid() const
     {
         bool fCorrectSize = vchData.size() == 20;
-        bool fKnownVersion = vchVersion == Params().Base58Prefix(CNetworkParams::PUBKEY_ADDRESS) ||
-                             vchVersion == Params().Base58Prefix(CNetworkParams::SCRIPT_ADDRESS);
+		bool fKnownVersion = vchVersion == GetNetworkParams< CChainParams >().Base58Prefix(CNetworkParams::PUBKEY_ADDRESS) ||
+							 vchVersion == GetNetworkParams< CChainParams >().Base58Prefix(CNetworkParams::SCRIPT_ADDRESS);
         return fCorrectSize && fKnownVersion;
     }
 
