@@ -45,6 +45,7 @@ TRACKER_CORE_H = \
   tracker/databaseManager.h \
   tracker/manageNetwork.h \
   tracker/selfNode.h \
+  tracker/nodesManager.h \
   tracker/server.h
   
 # bitcoin core #
@@ -125,6 +126,7 @@ TRACKER_CORE_CPP = \
   tracker/authenticationProvider.cpp \
   tracker/databaseManager.cpp \
   tracker/manageNetwork.cpp \
+  tracker/nodesManager.cpp \
   tracker/server.cpp
 
 libbitcoin_server_a_SOURCES = \

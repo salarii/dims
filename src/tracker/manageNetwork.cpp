@@ -10,7 +10,7 @@
 #include "protocol.h"
 #include "selfNode.h"
 #include "common/ratcoinParams.h"
-
+#include "main.h"
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
 namespace tracker
@@ -100,7 +100,7 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenConnections, this));
 
 	// Process messages
-	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadMessageHandler, this, &));
+	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadMessageHandler, this));
 
 	// Dump network addresses
 //	threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
@@ -1027,7 +1027,14 @@ CManageNetwork::threadMessageHandler()
 			}
 			boost::this_thread::interruption_point();
 
-			// Send messages
+
+/*
+ * // Send messages
+nodes manager
+- trackers
+- monitors
+*/
+
 			{
 				TRY_LOCK(pnode->cs_vSend, lockSend);
 				if (lockSend)
@@ -1046,5 +1053,545 @@ CManageNetwork::threadMessageHandler()
 			MilliSleep(100);
 	}
 }
+
+
+
+
+void
+CManageNetwork::processGetData(CNode* pfrom)
+{
+
+	std::deque<CInv>::iterator it = pfrom->vRecvGetData.begin();
+	pfrom->vRecvGetData.erase(pfrom->vRecvGetData.begin(), it);
+
+
+	pfrom->PushMessage("notfound",  vector<CInv>());
+
+}
+
+bool
+CManageNetwork::processMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
+{
+	/*
+
+	RandAddSeedPerfmon();
+	LogPrint("net", "received: %s (%"PRIszu" bytes)\n", strCommand, vRecv.size());
+	if (mapArgs.count("-dropmessagestest") && GetRand(atoi(mapArgs["-dropmessagestest"])) == 0)
+	{
+		LogPrintf("dropmessagestest DROPPING RECV MESSAGE\n");
+		return true;
+	}
+
+
+
+
+
+	if (strCommand == "version")
+	{
+		// Each connection can only send one version message
+		if (pfrom->nVersion != 0)
+		{
+		//	pfrom->PushMessage("reject", strCommand, REJECT_DUPLICATE, string("Duplicate version message"));
+		//	Misbehaving(pfrom->GetId(), 1);
+			return false;
+		}
+
+
+
+		pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
+
+
+		// Relay alerts
+		{
+			LOCK(cs_mapAlerts);
+			BOOST_FOREACH(PAIRTYPE(const uint256, CAlert)& item, mapAlerts)
+				item.second.RelayTo(pfrom);
+		}
+
+		pfrom->fSuccessfullyConnected = true;
+
+		LogPrintf("receive version message: %s: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", pfrom->cleanSubVer, pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString(), addrFrom.ToString(), pfrom->addr.ToString());
+
+		AddTimeData(pfrom->addr, nTime);
+
+		LOCK(cs_main);
+		cPeerBlockCounts.input(pfrom->nStartingHeight);
+	}
+
+
+	else if (pfrom->nVersion == 0)
+	{
+		// Must have a version message before anything else
+		Misbehaving(pfrom->GetId(), 1);
+		return false;
+	}
+
+
+	else if (strCommand == "verack")
+	{
+		pfrom->SetRecvVersion(min(pfrom->nVersion, PROTOCOL_VERSION));
+	}
+
+
+	else if (strCommand == "addr")
+	{
+		vector<CAddress> vAddr;
+		vRecv >> vAddr;
+
+		// Don't want addr from older versions unless seeding
+		if (pfrom->nVersion < CADDR_TIME_VERSION && addrman.size() > 1000)
+			return true;
+		if (vAddr.size() > 1000)
+		{
+			Misbehaving(pfrom->GetId(), 20);
+			return error("message addr size() = %"PRIszu"", vAddr.size());
+		}
+
+		// Store the new addresses
+		vector<CAddress> vAddrOk;
+		int64_t nNow = GetAdjustedTime();
+		int64_t nSince = nNow - 10 * 60;
+		BOOST_FOREACH(CAddress& addr, vAddr)
+		{
+			boost::this_thread::interruption_point();
+
+			if (addr.nTime <= 100000000 || addr.nTime > nNow + 10 * 60)
+				addr.nTime = nNow - 5 * 24 * 60 * 60;
+			pfrom->AddAddressKnown(addr);
+			bool fReachable = IsReachable(addr);
+			if (addr.nTime > nSince && !pfrom->fGetAddr && vAddr.size() <= 10 && addr.IsRoutable())
+			{
+				// Relay to a limited number of other nodes
+				{
+					LOCK(cs_vNodes);
+					// Use deterministic randomness to send to the same nodes for 24 hours
+					// at a time so the setAddrKnowns of the chosen nodes prevent repeats
+					static uint256 hashSalt;
+					if (hashSalt == 0)
+						hashSalt = GetRandHash();
+					uint64_t hashAddr = addr.GetHash();
+					uint256 hashRand = hashSalt ^ (hashAddr<<32) ^ ((GetTime()+hashAddr)/(24*60*60));
+					hashRand = Hash(BEGIN(hashRand), END(hashRand));
+					multimap<uint256, CNode*> mapMix;
+					BOOST_FOREACH(CNode* pnode, vNodes)
+					{
+						if (pnode->nVersion < CADDR_TIME_VERSION)
+							continue;
+						unsigned int nPointer;
+						memcpy(&nPointer, &pnode, sizeof(nPointer));
+						uint256 hashKey = hashRand ^ nPointer;
+						hashKey = Hash(BEGIN(hashKey), END(hashKey));
+						mapMix.insert(make_pair(hashKey, pnode));
+					}
+					int nRelayNodes = fReachable ? 2 : 1; // limited relaying of addresses outside our network(s)
+					for (multimap<uint256, CNode*>::iterator mi = mapMix.begin(); mi != mapMix.end() && nRelayNodes-- > 0; ++mi)
+						((*mi).second)->PushAddress(addr);
+				}
+			}
+			// Do not store addresses outside our network
+			if (fReachable)
+				vAddrOk.push_back(addr);
+		}
+		addrman.Add(vAddrOk, pfrom->addr, 2 * 60 * 60);
+		if (vAddr.size() < 1000)
+			pfrom->fGetAddr = false;
+		if (pfrom->fOneShot)
+			pfrom->fDisconnect = true;
+	}
+
+
+	else if (strCommand == "getaddr")
+	{
+		pfrom->vAddrToSend.clear();
+		vector<CAddress> vAddr = addrman.GetAddr();
+		BOOST_FOREACH(const CAddress &addr, vAddr)
+			pfrom->PushAddress(addr);
+	}
+
+
+	else if (strCommand == "ping")
+	{
+		if (pfrom->nVersion > BIP0031_VERSION)
+		{
+			uint64_t nonce = 0;
+			vRecv >> nonce;
+			// Echo the message back with the nonce. This allows for two useful features:
+			//
+			// 1) A remote node can quickly check if the connection is operational
+			// 2) Remote nodes can measure the latency of the network thread. If this node
+			//    is overloaded it won't respond to pings quickly and the remote node can
+			//    avoid sending us more work, like chain download requests.
+			//
+			// The nonce stops the remote getting confused between different pings: without
+			// it, if the remote node sends a ping once per second and this node takes 5
+			// seconds to respond to each, the 5th ping the remote sends would appear to
+			// return very quickly.
+			pfrom->PushMessage("pong", nonce);
+		}
+	}
+
+
+	else if (strCommand == "pong")
+	{
+		int64_t pingUsecEnd = GetTimeMicros();
+		uint64_t nonce = 0;
+		size_t nAvail = vRecv.in_avail();
+		bool bPingFinished = false;
+		std::string sProblem;
+
+		if (nAvail >= sizeof(nonce)) {
+			vRecv >> nonce;
+
+			// Only process pong message if there is an outstanding ping (old ping without nonce should never pong)
+			if (pfrom->nPingNonceSent != 0) {
+				if (nonce == pfrom->nPingNonceSent) {
+					// Matching pong received, this ping is no longer outstanding
+					bPingFinished = true;
+					int64_t pingUsecTime = pingUsecEnd - pfrom->nPingUsecStart;
+					if (pingUsecTime > 0) {
+						// Successful ping time measurement, replace previous
+						pfrom->nPingUsecTime = pingUsecTime;
+					} else {
+						// This should never happen
+						sProblem = "Timing mishap";
+					}
+				} else {
+					// Nonce mismatches are normal when pings are overlapping
+					sProblem = "Nonce mismatch";
+					if (nonce == 0) {
+						// This is most likely a bug in another implementation somewhere, cancel this ping
+						bPingFinished = true;
+						sProblem = "Nonce zero";
+					}
+				}
+			} else {
+				sProblem = "Unsolicited pong without ping";
+			}
+		} else {
+			// This is most likely a bug in another implementation somewhere, cancel this ping
+			bPingFinished = true;
+			sProblem = "Short payload";
+		}
+
+		if (!(sProblem.empty())) {
+			LogPrint("net", "pong %s %s: %s, %"PRIx64" expected, %"PRIx64" received, %"PRIszu" bytes\n",
+				pfrom->addr.ToString(),
+				pfrom->cleanSubVer,
+				sProblem,
+				pfrom->nPingNonceSent,
+				nonce,
+				nAvail);
+		}
+		if (bPingFinished) {
+			pfrom->nPingNonceSent = 0;
+		}
+	}
+
+
+	else if (strCommand == "alert")
+	{
+		CAlert alert;
+		vRecv >> alert;
+
+		uint256 alertHash = alert.GetHash();
+		if (pfrom->setKnown.count(alertHash) == 0)
+		{
+			if (alert.ProcessAlert())
+			{
+				// Relay
+				pfrom->setKnown.insert(alertHash);
+				{
+					LOCK(cs_vNodes);
+					BOOST_FOREACH(CNode* pnode, vNodes)
+						alert.RelayTo(pnode);
+				}
+			}
+			else {
+				// Small DoS penalty so peers that send us lots of
+				// duplicate/expired/invalid-signature/whatever alerts
+				// eventually get banned.
+				// This isn't a Misbehaving(100) (immediate ban) because the
+				// peer might be an older or different implementation with
+				// a different signature key, etc.
+				Misbehaving(pfrom->GetId(), 10);
+			}
+		}
+	}
+
+
+
+	// Update the last seen time for this node's address
+	if (pfrom->fNetworkNode)
+		if (strCommand == "version" || strCommand == "addr" || strCommand == "inv" || strCommand == "getdata" || strCommand == "ping")
+			AddressCurrentlyConnected(pfrom->addr);
+
+*/
+	return true;
+}
+
+// requires LOCK(cs_vRecvMsg)
+bool
+CManageNetwork::processMessages(CNode* pfrom)
+{
+	//if (fDebug)
+	//    LogPrintf("ProcessMessages(%"PRIszu" messages)\n", pfrom->vRecvMsg.size());
+
+	//
+	// Message format
+	//  (4) message start
+	//  (12) command
+	//  (4) size
+	//  (4) checksum
+	//  (x) data
+	//
+	bool fOk = true;
+
+	if (!pfrom->vRecvGetData.empty())
+		processGetData(pfrom);
+
+	// this maintains the order of responses
+	if (!pfrom->vRecvGetData.empty()) return fOk;
+
+	std::deque<CNetMessage>::iterator it = pfrom->vRecvMsg.begin();
+	while (!pfrom->fDisconnect && it != pfrom->vRecvMsg.end()) {
+		// Don't bother if send buffer is too full to respond anyway
+		if (pfrom->nSendSize >= SendBufferSize())
+			break;
+
+		// get next message
+		CNetMessage& msg = *it;
+
+		//if (fDebug)
+		//    LogPrintf("ProcessMessages(message %u msgsz, %"PRIszu" bytes, complete:%s)\n",
+		//            msg.hdr.nMessageSize, msg.vRecv.size(),
+		//            msg.complete() ? "Y" : "N");
+
+		// end, if an incomplete message is found
+		if (!msg.complete())
+			break;
+
+		// at this point, any failure means we can delete the current message
+		it++;
+
+		// Scan for message start
+		if (memcmp(msg.hdr.pchMessageStart, Params().MessageStart(), MESSAGE_START_SIZE) != 0) {
+			LogPrintf("\n\nPROCESSMESSAGE: INVALID MESSAGESTART\n\n");
+			fOk = false;
+			break;
+		}
+
+		// Read header
+		CMessageHeader& hdr = msg.hdr;
+		if (!hdr.IsValid())
+		{
+			LogPrintf("\n\nPROCESSMESSAGE: ERRORS IN HEADER %s\n\n\n", hdr.GetCommand());
+			continue;
+		}
+		string strCommand = hdr.GetCommand();
+
+		// Message size
+		unsigned int nMessageSize = hdr.nMessageSize;
+
+		// Checksum
+		CDataStream& vRecv = msg.vRecv;
+		uint256 hash = Hash(vRecv.begin(), vRecv.begin() + nMessageSize);
+		unsigned int nChecksum = 0;
+		memcpy(&nChecksum, &hash, sizeof(nChecksum));
+		if (nChecksum != hdr.nChecksum)
+		{
+			LogPrintf("ProcessMessages(%s, %u bytes) : CHECKSUM ERROR nChecksum=%08x hdr.nChecksum=%08x\n",
+			   strCommand, nMessageSize, nChecksum, hdr.nChecksum);
+			continue;
+		}
+
+		// Process message
+		bool fRet = false;
+		try
+		{
+			fRet = processMessage(pfrom, strCommand, vRecv);
+			boost::this_thread::interruption_point();
+		}
+		catch (std::ios_base::failure& e)
+		{
+			pfrom->PushMessage("reject", strCommand, REJECT_MALFORMED, string("error parsing message"));
+			if (strstr(e.what(), "end of data"))
+			{
+				// Allow exceptions from under-length message on vRecv
+				LogPrintf("ProcessMessages(%s, %u bytes) : Exception '%s' caught, normally caused by a message being shorter than its stated length\n", strCommand, nMessageSize, e.what());
+			}
+			else if (strstr(e.what(), "size too large"))
+			{
+				// Allow exceptions from over-long size
+				LogPrintf("ProcessMessages(%s, %u bytes) : Exception '%s' caught\n", strCommand, nMessageSize, e.what());
+			}
+			else
+			{
+				PrintExceptionContinue(&e, "ProcessMessages()");
+			}
+		}
+		catch (boost::thread_interrupted) {
+			throw;
+		}
+		catch (std::exception& e) {
+			PrintExceptionContinue(&e, "ProcessMessages()");
+		} catch (...) {
+			PrintExceptionContinue(NULL, "ProcessMessages()");
+		}
+
+		if (!fRet)
+			LogPrintf("ProcessMessage(%s, %u bytes) FAILED\n", strCommand, nMessageSize);
+
+		break;
+	}
+
+	// In case the connection got shut down, its receive buffer was wiped
+	if (!pfrom->fDisconnect)
+		pfrom->vRecvMsg.erase(pfrom->vRecvMsg.begin(), it);
+
+	return fOk;
+}
+
+
+bool
+CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
+{
+	/*
+	{
+		// Don't send anything until we get their version message
+		if (pto->nVersion == 0)
+			return true;
+
+		//
+		// Message: ping
+		//
+		bool pingSend = false;
+		if (pto->fPingQueued) {
+			// RPC ping request by user
+			pingSend = true;
+		}
+		if (pto->nLastSend && GetTime() - pto->nLastSend > 30 * 60 && pto->vSendMsg.empty()) {
+			// Ping automatically sent as a keepalive
+			pingSend = true;
+		}
+		if (pingSend) {
+			uint64_t nonce = 0;
+			while (nonce == 0) {
+				RAND_bytes((unsigned char*)&nonce, sizeof(nonce));
+			}
+			pto->nPingNonceSent = nonce;
+			pto->fPingQueued = false;
+			if (pto->nVersion > BIP0031_VERSION) {
+				// Take timestamp as close as possible before transmitting ping
+				pto->nPingUsecStart = GetTimeMicros();
+				pto->PushMessage("ping", nonce);
+			} else {
+				// Peer is too old to support ping command with nonce, pong will never arrive, disable timing
+				pto->nPingUsecStart = 0;
+				pto->PushMessage("ping");
+			}
+		}
+
+		// Address refresh broadcast
+		static int64_t nLastRebroadcast;
+		if (!IsInitialBlockDownload() && (GetTime() - nLastRebroadcast > 24 * 60 * 60))
+		{
+			{
+				LOCK(cs_vNodes);
+				BOOST_FOREACH(CNode* pnode, vNodes)
+				{
+					// Periodically clear setAddrKnown to allow refresh broadcasts
+					if (nLastRebroadcast)
+						pnode->setAddrKnown.clear();
+				}
+			}
+			nLastRebroadcast = GetTime();
+		}
+
+		//
+		// Message: addr
+		//
+		if (fSendTrickle)
+		{
+			vector<CAddress> vAddr;
+			vAddr.reserve(pto->vAddrToSend.size());
+			BOOST_FOREACH(const CAddress& addr, pto->vAddrToSend)
+			{
+				// returns true if wasn't already contained in the set
+				if (pto->setAddrKnown.insert(addr).second)
+				{
+					vAddr.push_back(addr);
+					// receiver rejects addr messages larger than 1000
+					if (vAddr.size() >= 1000)
+					{
+						pto->PushMessage("addr", vAddr);
+						vAddr.clear();
+					}
+				}
+			}
+			pto->vAddrToSend.clear();
+			if (!vAddr.empty())
+				pto->PushMessage("addr", vAddr);
+		}
+
+		TRY_LOCK(cs_main, lockMain);
+		if (!lockMain)
+			return true;
+
+		CNodeState &state = *State(pto->GetId());
+		if (state.fShouldBan) {
+			if (pto->addr.IsLocal())
+				LogPrintf("Warning: not banning local node %s!\n", pto->addr.ToString());
+			else {
+				pto->fDisconnect = true;
+				CNode::Ban(pto->addr);
+			}
+			state.fShouldBan = false;
+		}
+
+		BOOST_FOREACH(const CBlockReject& reject, state.rejects)
+			pto->PushMessage("reject", (string)"block", reject.chRejectCode, reject.strRejectReason, reject.hashBlock);
+		state.rejects.clear();
+
+
+	 //
+
+		// Start block sync
+		if (pto->fStartSync && !fImporting && !fReindex) {
+			pto->fStartSync = false;
+			CBloomFilter bloomFilter =  CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_P2PUBKEY_ONLY);
+			bloomFilter.insert(ParseHex(Params().getOriginAddressAsString()));
+			pto->PushMessage("filterload", bloomFilter);
+
+			PushGetHeaders(pto, chainActive.Tip(), uint256(0));
+		}
+
+		//
+		// Message: getdata
+		//
+		vector<CInv> vGetData;
+		int64_t nNow = GetTime() * 1000000;
+		while (!pto->mapAskFor.empty() && (*pto->mapAskFor.begin()).first <= nNow)
+		{
+			const CInv& inv = (*pto->mapAskFor.begin()).second;
+			if (!AlreadyHave(inv))
+			{
+				if (fDebug)
+					LogPrint("net", "sending getdata: %s\n", inv.ToString());
+				vGetData.push_back(inv);
+				if (vGetData.size() >= 1000)
+				{
+					pto->PushMessage("getdata", vGetData);
+					vGetData.clear();
+				}
+			}
+			pto->mapAskFor.erase(pto->mapAskFor.begin());
+		}
+		if (!vGetData.empty())
+			pto->PushMessage("getdata", vGetData);
+
+	}*/
+	return true;
+}
+
 
 }

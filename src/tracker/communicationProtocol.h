@@ -42,11 +42,13 @@ class CAuthenticationProvider;
 class CommunicationProtocol
 {
 public:
-	void send( CMessage const & _message );
+	bool createMessage( Payload const & _payload, CMessage & _message ) const;
+
+	bool createMessage( CMessage const & _inMessage, CMessage & _outMessage ) const;
 
 	Payload retrieveData();
 
-	static bool unwindMessage( CMessage const & _message, CPubKey const &  _pubKey, Payload const & _payload, int64_t const _time );
+	static bool unwindMessage( CMessage const & _message, CPubKey const & _pubKey, Payload const & _payload, int64_t const _time );
 private:
 	CAuthenticationProvider * m_authenticationProvider;
 };

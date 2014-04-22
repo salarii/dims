@@ -76,7 +76,7 @@ public:
 	bool connectToNetwork( boost::thread_group& threadGroup );
 private:
 	CManageNetwork();
-// some  of  this  is  copy paste from  net.cpp but it have to serve right now   
+// some  of  this  is  copy paste from  net.cpp
 
 	void negotiateWithMonitor();// if  at  all, not here
 
@@ -112,6 +112,14 @@ private:
 	void threadOpenAddedConnections();
 
 	void StartSync(const vector<CNode*> &vNodes);
+
+	bool sendMessages(CNode* pto, bool fSendTrickle);
+
+	bool processMessages(CNode* pfrom);
+
+	bool processMessage(CNode* pfrom, string strCommand, CDataStream& vRecv);
+
+	void processGetData(CNode* pfrom);
 private:
 	static CManageNetwork * ms_instance;
 

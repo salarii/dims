@@ -26,6 +26,19 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CPubKey const &
 	return true;
 }
 
+bool
+CommunicationProtocol::createMessage( Payload const & _payload, CMessage & _message ) const
+{
+	return true;
+}
+
+
+bool
+CommunicationProtocol::createMessage( CMessage const & _inMessage, CMessage & _outMessage ) const
+{
+	return true;
+}
+
 inline
 CTransactionBundle::CTransactionBundle( std::vector< CTransaction > const & _bundle )
 : m_bundle( _bundle )

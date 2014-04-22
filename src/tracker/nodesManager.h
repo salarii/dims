@@ -2,8 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef SELF_NODES_MANAGER_H
-#define SELF_NODES_MANAGER_H
+#ifndef NODES_MANAGER_H
+#define NODES_MANAGER_H
+
+#include "communicationProtocol.h"
+
+class CNode;
 
 namespace tracker
 {
@@ -15,16 +19,18 @@ this in case when  nodes  can't  access  monitor because  of  huge  congestion
 the effort  should be  made  to  decrease monitors overhead  since  thay  may be  performing  quite heavy  auditing  operations
 
 */
-class CSelfNodesManager
+
+
+class CNodesManager
 {
 public:
-	CSelfNodesManager();
+	CNodesManager();
 
-	void PropagateBundle( std::vector< CTransactions > _bundle );
-
-	void handleMessages();
+	void PropagateBundle( std::vector< CTransaction > _bundle );
 	
-	void manageNodes();
+	bool getMessagesForNode( CNode * _node, std::vector< CMessage > & _messages );
+
+	bool setMessagesForNode( CNode * _node, std::vector< CMessage > const & _messages );
 
 	void connectNodes();
 
@@ -32,10 +38,12 @@ public:
 
 	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
 private:
+	void handleMessages();
 
 	void propagateMessage();
 	
 	void analyseMessage();
+private:
 };
 
 }
