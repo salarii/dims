@@ -10,7 +10,7 @@
 
 #include "requestHandler.h"
 
-namespace node
+namespace common
 {
 
 class CSendTransactionAction;

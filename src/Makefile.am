@@ -26,10 +26,17 @@ DIST_SUBDIRS = . qt test
 
 COMMON_H = \
   common/ratcoinParams.h \
+  common/actionHandler.h \
+  common/requestHandler.h \
+  common/request.h \
+  common/action.h \
+  common/requestResponse.h \
   common/transactionStatus.h
 
 COMMON_CPP = \
-  common/ratcoinParams.cpp
+  common/ratcoinParams.cpp \
+  common/actionHandler.cpp \
+  common/requestHandler.cpp
   
 # tracker core #
 TRACKER_CORE_H = \

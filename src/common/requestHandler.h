@@ -9,9 +9,9 @@
 
 #include "connectionProvider.h"
 
-#include "requestRespond.h"
+#include "requestResponse.h"
 
-namespace node
+namespace common
 {
 
 class CMedium;

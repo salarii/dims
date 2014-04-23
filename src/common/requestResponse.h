@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef REQUEST_RESPOND_H
-#define REQUEST_RESPOND_H
+#ifndef REQUEST_RESPONSE_H
+#define REQUEST_RESPONSE_H
 
 #include <boost/variant.hpp>
 
@@ -11,7 +11,7 @@
 #include "common/transactionStatus.h"
 #include "errorRespond.h"
 
-namespace node
+namespace common
 {
 
 struct CTransactionStatus
@@ -57,4 +57,4 @@ typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerStats, CMon
 
 }
 
-#endif
+#endif // REQUEST_RESPONSE_H
