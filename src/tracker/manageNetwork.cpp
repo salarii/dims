@@ -9,8 +9,13 @@
 #include "sync.h"
 #include "protocol.h"
 #include "selfNode.h"
-#include "common/ratcoinParams.h"
 #include "main.h"
+
+#include "common/ratcoinParams.h"
+
+#include "communicationProtocol.h"
+#include "nodesManager.h"
+
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
 namespace tracker
@@ -950,14 +955,11 @@ CManageNetwork::StartSync(const vector<CNode*> &vNodes)
 	CNode *pnodeNewSync = NULL;
 	double dBestScore = 0;
 
-	int nBestHeight = g_signals.GetHeight().get_value_or(0);
-
 	// Iterate over all nodes
 	BOOST_FOREACH(CNode* pnode, m_nodes) {
 		// check preconditions for allowing a sync
 		if (!pnode->fClient && !pnode->fOneShot &&
 			!pnode->fDisconnect && pnode->fSuccessfullyConnected &&
-			(pnode->nStartingHeight > (nBestHeight - 144)) &&
 			(pnode->nVersion < NOBLKS_VERSION_START || pnode->nVersion >= NOBLKS_VERSION_END)) {
 			// if ok, compare node's score with the best so far
 		//	double dScore = NodeSyncScore(pnode);
@@ -1013,7 +1015,7 @@ CManageNetwork::threadMessageHandler()
 				TRY_LOCK(pnode->cs_vRecvMsg, lockRecv);
 				if (lockRecv)
 				{
-					if (!g_signals.ProcessMessages(pnode))
+					if (!m_signals.ProcessMessages(pnode))
 						pnode->CloseSocketDisconnect();
 
 					if (pnode->nSendSize < SendBufferSize())
@@ -1038,7 +1040,7 @@ nodes manager
 			{
 				TRY_LOCK(pnode->cs_vSend, lockSend);
 				if (lockSend)
-					g_signals.SendMessages(pnode, pnode == pnodeTrickle);
+					m_signals.SendMessages(pnode, pnode == pnodeTrickle);
 			}
 			boost::this_thread::interruption_point();
 		}
@@ -1069,9 +1071,33 @@ CManageNetwork::processGetData(CNode* pfrom)
 
 }
 
-bool
-CManageNetwork::processMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
+void
+CManageNetwork::registerNodeSignals(CNodeSignals& nodeSignals)
 {
+	boost::bind( &CManageNetwork::processMessages, this );
+
+	m_signals.ProcessMessages.connect(boost::bind( &CManageNetwork::processMessages, this, _1 ));
+	m_signals.SendMessages.connect(boost::bind( &CManageNetwork::sendMessages, this, _1, _2 ) );
+//	m_signals.InitializeNode.connect(boost::bind( &CManageNetwork::initializeNode, this ));
+//	m_signals.FinalizeNode.connect(boost::bind( &CManageNetwork::finalizeNode, this ));
+}
+
+void
+CManageNetwork::unregisterNodeSignals(CNodeSignals& nodeSignals)
+{
+	m_signals.ProcessMessages.disconnect(boost::bind( &CManageNetwork::processMessages, this, _1 ));
+	m_signals.SendMessages.disconnect(boost::bind( &CManageNetwork::sendMessages, this, _1, _2 ) );
+//	m_signals.InitializeNode.disconnect(boost::bind( &CManageNetwork::initializeNode, this ));
+//	m_signals.FinalizeNode.disconnect(boost::bind( &CManageNetwork::finalizeNode, this ));
+}
+
+bool
+CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
+{
+	std::vector< CMessage > messages;
+	vRecv >> messages;
+	CNodesManager::getInstance()->processMessagesFormNode( pfrom, messages );
+
 	/*
 
 	RandAddSeedPerfmon();
@@ -1408,7 +1434,7 @@ CManageNetwork::processMessages(CNode* pfrom)
 		bool fRet = false;
 		try
 		{
-			fRet = processMessage(pfrom, strCommand, vRecv);
+			fRet = processMessage(pfrom, vRecv);
 			boost::this_thread::interruption_point();
 		}
 		catch (std::ios_base::failure& e)
@@ -1455,6 +1481,9 @@ CManageNetwork::processMessages(CNode* pfrom)
 bool
 CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
 {
+	std::vector< CMessage > messages;
+	CNodesManager::getInstance()->getMessagesForNode( pto, messages );
+	pto->PushMessage("", messages);
 	/*
 	{
 		// Don't send anything until we get their version message

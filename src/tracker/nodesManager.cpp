@@ -3,6 +3,19 @@
 namespace tracker
 {
 
+CNodesManager * CNodesManager::ms_instance = NULL;
+
+CNodesManager*
+CNodesManager::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CNodesManager();
+	};
+	return ms_instance;
+}
+
+
 CNodesManager::CNodesManager()
 {
 
@@ -20,12 +33,14 @@ CNodesManager::handleMessages()
 
 }
 
-bool getMessagesForNode( CNode * _node, std::vector< CMessage > & _messages )
+bool
+CNodesManager::getMessagesForNode( CNode * _node, std::vector< CMessage > & _messages )
 {
 	return true;
 }
 
-bool setMessagesForNode( CNode * _node, std::vector< CMessage > const & _messages )
+bool
+CNodesManager::processMessagesFormNode( CNode * _node, std::vector< CMessage > const & _messages )
 {
 	return true;
 }

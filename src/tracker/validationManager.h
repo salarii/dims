@@ -46,23 +46,12 @@ private:
 
 	std::set< uint256 > m_validated;
 /*
-pyramid
-	char dirtyTable
-	CTransaction 
+
 
 	*/
 };
 
 
 }
-/*
-char [ n ]
 
-mutex  with 
-
-for nodes dirty table 
-and  pointers  to it 
-
-
-*/
 #endif

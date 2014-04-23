@@ -52,7 +52,6 @@ public:
 	typedef int NodeId;
 	struct CNodeSignals
 	{
-		boost::signals2::signal<int ()> GetHeight;
 		boost::signals2::signal<bool (CNode*)> ProcessMessages;
 		boost::signals2::signal<bool (CNode*, bool)> SendMessages;
 		boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
@@ -117,9 +116,14 @@ private:
 
 	bool processMessages(CNode* pfrom);
 
-	bool processMessage(CNode* pfrom, string strCommand, CDataStream& vRecv);
+	bool processMessage(CNode* pfrom, CDataStream& vRecv);
 
 	void processGetData(CNode* pfrom);
+
+	void registerNodeSignals(CNodeSignals& nodeSignals);
+
+	void
+	unregisterNodeSignals(CNodeSignals& nodeSignals);
 private:
 	static CManageNetwork * ms_instance;
 
@@ -149,7 +153,7 @@ private:
 	uint64_t nLocalServices;
 	CNode* pnodeSync;
 	CAddrMan addrman;
-	CNodeSignals g_signals;
+	CNodeSignals m_signals;
 };
 
 }

@@ -24,26 +24,29 @@ the effort  should be  made  to  decrease monitors overhead  since  thay  may be
 class CNodesManager
 {
 public:
-	CNodesManager();
-
 	void PropagateBundle( std::vector< CTransaction > _bundle );
 	
 	bool getMessagesForNode( CNode * _node, std::vector< CMessage > & _messages );
 
-	bool setMessagesForNode( CNode * _node, std::vector< CMessage > const & _messages );
+	bool processMessagesFormNode( CNode * _node, std::vector< CMessage > const & _messages );
 
 	void connectNodes();
 
 	bool isNodeHonest();
 
 	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
+
+	static CNodesManager * getInstance( );
 private:
+	CNodesManager();
+
 	void handleMessages();
 
 	void propagateMessage();
 	
 	void analyseMessage();
 private:
+	static CNodesManager * ms_instance;
 };
 
 }

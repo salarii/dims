@@ -18,7 +18,8 @@ struct CPayloadKind
 	{
 		Transactions,
 		InfoRequest,
-		Introduction
+		Introduction,
+		Uninitiated
 	};
 };
 
@@ -100,11 +101,11 @@ struct CHeader
 		m_prevKey.Serialize( s, nType, nVersion );
 	}
 */
-	CHeader( CPayloadKind::Enum _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey );
-	CPayloadKind::Enum m_payloadKind;
+	CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey );
+	int m_payloadKind;
 	std::vector<unsigned char> m_signedHash;
 	int64_t m_time;
-	CPubKey const m_prevKey;
+	CPubKey m_prevKey;
 };
 
 	
@@ -112,6 +113,7 @@ struct CHeader
 struct CMessage
 {
 public:
+	CMessage();
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
 	IMPLEMENT_SERIALIZE

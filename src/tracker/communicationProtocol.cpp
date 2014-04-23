@@ -45,16 +45,21 @@ CTransactionBundle::CTransactionBundle( std::vector< CTransaction > const & _bun
 {
 }
 
-CHeader::CHeader( CPayloadKind::Enum _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey )
-	: m_payloadKind( _payloadKind )
+CHeader::CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey )
+	: m_payloadKind( (int)_payloadKind )
 	, m_signedHash( _signedHash )
 	, m_time( _time )
 	, m_prevKey( _prevKey )
 {
 }
 
+CMessage::CMessage()
+	: m_header( (int)CPayloadKind::Uninitiated, std::vector<unsigned char>(), 0, CPubKey() )
+{
+}
+
 CMessage::CMessage( std::vector< CTransaction > const & _bundle )
-	: m_header( CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey() )
+	: m_header( (int)CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
 	unsigned int size = ::GetSerializeSize( _bundle, SER_NETWORK, PROTOCOL_VERSION );
 	m_payload.resize( size );
