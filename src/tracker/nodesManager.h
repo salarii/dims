@@ -6,6 +6,7 @@
 #define NODES_MANAGER_H
 
 #include "communicationProtocol.h"
+#include "common/connectionProvider.h"
 
 class CNode;
 
@@ -21,7 +22,7 @@ the effort  should be  made  to  decrease monitors overhead  since  thay  may be
 */
 
 
-class CNodesManager
+class CNodesManager : public common::CConnectionProvider
 {
 public:
 	void PropagateBundle( std::vector< CTransaction > _bundle );
@@ -35,6 +36,8 @@ public:
 	bool isNodeHonest();
 
 	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
+
+	std::list< common::CMedium *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ){ return std::list< common::CMedium *>();}
 
 	static CNodesManager * getInstance( );
 private:

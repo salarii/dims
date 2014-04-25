@@ -17,9 +17,7 @@ class CMedium;
 class CConnectionProvider
 {
 public:
-	virtual CMedium * provideConnection( int const _actionKind ) = 0;
-
-	virtual std::list< CMedium *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber ) = 0;
+	virtual std::list< CMedium *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ) = 0;
 };
 
 }

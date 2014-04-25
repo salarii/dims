@@ -1,5 +1,7 @@
 #include "validationManager.h"
 
+#include "common/actionHandler.h"
+
 namespace tracker
 {
 
@@ -80,6 +82,9 @@ CValidationManager::workLoop()
 		}
 		*/
 	}
+
+	common::CActionHandler::getInstance()->executeAction( new CValidateTransactionsAction() );
+
 }
 
 }

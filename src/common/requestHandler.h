@@ -24,7 +24,7 @@ class CRequestHandler
 public:
 	CRequestHandler( CMedium * _medium );
 
-	RequestResponse getRespond( CRequest* _request ) const;
+	RequestResponse getResponse( CRequest* _request ) const;
 
 	bool isProcessed( CRequest* _request ) const;
 

@@ -22,7 +22,7 @@ class CConnectAction;
 class CSetResponseVisitor
 {
 public:
-	CSetResponseVisitor( RequestResponse const & _requestRespond );
+	CSetResponseVisitor( std::list< RequestResponse > const & _requestRespond );
 
 	void visit( CSendTransactionAction & _action );
 
@@ -31,11 +31,11 @@ public:
 	void visit( CAction & _action );
 private:
 
-	RequestResponse m_requestRespond;
+	std::list< RequestResponse > m_requestRespond;
 };
 
 inline
-CSetResponseVisitor::CSetResponseVisitor( RequestResponse const & _requestRespond )
+CSetResponseVisitor::CSetResponseVisitor( std::list< RequestResponse > const & _requestRespond )
 : m_requestRespond( _requestRespond )
 {
 }

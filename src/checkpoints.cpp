@@ -12,6 +12,13 @@
 #include <boost/assign/list_of.hpp> // for 'map_list_of()'
 #include <boost/foreach.hpp>
 
+namespace common
+{
+
+extern unsigned char ratcoinOriginPublicAddress[65];
+
+}
+
 namespace Checkpoints
 {
     typedef std::map<int, uint256> MapCheckpoints;

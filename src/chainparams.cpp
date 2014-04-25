@@ -17,6 +17,7 @@ using namespace boost::assign;
 //
 // Main network
 //
+unsigned char ratcoinOriginPublicAddress[65] = "HeyThisIsRatcoinOriginAddressItIsThePlaceWhereNewRatcoinsAreBorn";
 
 unsigned int pnSeed[] =
 {
@@ -173,8 +174,7 @@ public:
             addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
             vFixedSeeds.push_back(addr);
         }
-
-        originAddress = "";
+		m_originAddress = CPubKey(ratcoinOriginPublicAddress, &ratcoinOriginPublicAddress[65]).GetID();
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -185,7 +185,7 @@ public:
     }
 protected:
     CBlock genesis;
-    vector<CAddress> vFixedSeeds;
+	vector<CAddress> vFixedSeeds;
 };
 static CMainParams mainParams;
 
@@ -212,16 +212,16 @@ public:
         // Modify the testnet genesis block so the timestamp is valid for a later start.
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 32);
         genesis.nVersion =2;
-        genesis.nTime = 0x5313825b;
-        genesis.hashPrevBlock = uint256("0x00000000007b823211a953cb1642e2593d93c73c5f7e96d61cf50fe9fa4951f0");
+		genesis.nTime = 1398416844;
+		genesis.hashPrevBlock = uint256("0x000000007b35f82798dcf2fe4bc39af96911ef5224778710403d6d7b43b01e30");
 
-        genesis.hashMerkleRoot = uint256("0x1a94a1c664d7b2f15e1d0a94ac6e1f3f9b613d31c406278665979ceaf39b0b31");
+		genesis.hashMerkleRoot = uint256("0xd7a9a034b65a1334431fce9667176634d0b1d20c37bb5feec7c99691f8c87839");
 
-        genesis.nBits = 0x1d00ffff;
-        genesis.nNonce = 0xf21f2100;
+		genesis.nBits = 486604799;
+		genesis.nNonce = 1861716224;
         hashGenesisBlock = genesis.GetHash();
 
-        assert(hashGenesisBlock == uint256("0x0000000007fd08f5a1a0f3f3f38bfa0e0f7ec747954a3a5f6cc677b46e7a6b37"));
+		assert(hashGenesisBlock == uint256("0x000000000045f2135f5ed826c4b131b32014ac266dd9792415a6f03a31096960"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -234,7 +234,7 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x35)(0x87)(0xCF);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x35)(0x83)(0x94);
 
-        originAddress = "0f4c5c30a8de7517f444be23626d419322ed5589";
+
     }
     virtual Network NetworkID() const { return CNetworkParams::TESTNET; }
 };
@@ -288,7 +288,7 @@ public:
 };
 static CRegTestParams regTestParams;
 
-static CChainParams *pCurrentParams = &mainParams;
+static CChainParams *pCurrentParams = &testNetParams;
 
 const CChainParams &Params() {
     return *pCurrentParams;

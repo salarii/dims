@@ -56,30 +56,44 @@ CActionHandler::addConnectionProvider( CConnectionProvider* _connectionProvider 
 	m_connectionProviders.push_back( _connectionProvider );
 }
 
-CRequestHandler * 
+std::list< CRequestHandler * >
 CActionHandler::provideHandler( int const _requestKind )
 {
-	{
-		std::map<int, CRequestHandler * >::iterator iterator =  m_requestHandlers.find( _requestKind );
+	std::list< CRequestHandler * > requestHandelers;
 
-		if ( iterator != m_requestHandlers.end() )
-			return iterator->second;
+	{
+		std::pair< std::map<int, CRequestHandler * >::iterator, std::map<int, CRequestHandler * >::iterator > range;
+
+		 range = m_requestHandlers.equal_range( _requestKind );
+
+		 for ( std::map<int, CRequestHandler * >::iterator it = range.first; it != range.second; ++it )
+			 requestHandelers.push_back( it->second );
+
+		if ( range.first != m_requestHandlers.end() )
+			return requestHandelers;
 	}
 
 	std::list<CConnectionProvider*>::iterator iterator = m_connectionProviders.begin();
 
 	while( iterator != m_connectionProviders.end() )
 	{
-		CMedium * medium = (*iterator)->provideConnection( _requestKind );
-		if ( medium != NULL )
+		std::list< CMedium *> mediums= (*iterator)->provideConnection( _requestKind );
+
+		if ( !mediums.empty() )
 		{
-			CRequestHandler * requestHandler = new CRequestHandler( medium );
-			m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
-			return requestHandler;
+			BOOST_FOREACH( CMedium * medium, mediums )
+			{
+				CRequestHandler * requestHandler = new CRequestHandler( medium );
+				m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
+				requestHandelers.push_back( requestHandler );
+
+			}
+			return requestHandelers;
 		}
-        iterator++;
+
+		iterator++;
 	}
-	return NULL;
+	return std::list< CRequestHandler * >();
 }
 
 void
@@ -113,16 +127,14 @@ CActionHandler::loop()
 
 		BOOST_FOREACH(RequestToAction::value_type & reqAction, m_reqToAction)
 		{
-			CRequestHandler * requestHandler = provideHandler( reqAction.first->getKind() );
-			if ( requestHandler )
+			std::list< CRequestHandler * > requestHandlers = provideHandler( reqAction.first->getKind() );
+
+			std::list< RequestResponse > responses;
+			BOOST_FOREACH( CRequestHandler * requestHandler, requestHandlers )
 			{
 				if ( requestHandler->isProcessed( reqAction.first ) )
 				{
-					CSetResponseVisitor visitor( requestHandler->getRespond( reqAction.first ) );
-					reqAction.second->accept( visitor );
-
-					m_actions.push_back( reqAction.second );
-
+					responses.push_back( requestHandler->getResponse( reqAction.first ) );
 					requestHandler->deleteRequest( reqAction.first );
 					
 					requestsToErase.push_back( reqAction.first );
@@ -133,6 +145,11 @@ CActionHandler::loop()
 					requestHandler->setRequest( reqAction.first );
 				}
 			}
+
+				CSetResponseVisitor visitor( responses );
+				reqAction.second->accept( visitor );
+
+				m_actions.push_back( reqAction.second );
 		}
 
 		BOOST_FOREACH( CRequest* & request, requestsToErase)

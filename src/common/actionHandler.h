@@ -30,7 +30,7 @@ struct CRequest;
 class CActionHandler
 {
 public:
-	typedef std::map<int, CRequestHandler * > AvailableHandlers;
+	typedef std::multimap<int, CRequestHandler * > AvailableHandlers;
 	typedef std::map< CRequest*, CAction* > RequestToAction;
 public:
 	void loop();
@@ -44,7 +44,7 @@ public:
 private:
 	CActionHandler();
 
-	CRequestHandler * provideHandler( int const _request );
+	std::list< CRequestHandler * > provideHandler( int const _request );
 
     void findAction( CAction* _action ) const;
 private:

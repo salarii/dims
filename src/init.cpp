@@ -38,6 +38,8 @@
 
 #include "tracker/server.h"
 #include "tracker/manageNetwork.h"
+
+#include "common/actionHandler.h"
 using namespace std;
 using namespace boost;
 
@@ -1034,7 +1036,9 @@ bool AppInit2(boost::thread_group& threadGroup)
     threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
 
 	
+/* create  threads of  action  handler */
 
+	//threadGroup.create_thread( boost::bind( &common::CActionHandler::loop, common::CActionHandler::getInstance() ) );
     threadGroup.create_thread(&ThreadTempWhile);
     // ********************************************************* Step 10: load peers
 
@@ -1073,9 +1077,9 @@ bool AppInit2(boost::thread_group& threadGroup)
     tracker::runServer();
 
 
-	tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
+	//tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-    //StartNode(threadGroup);
+	StartNode(threadGroup);
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
 //    if (fServer)

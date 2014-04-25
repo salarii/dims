@@ -15,9 +15,6 @@
 using namespace std;
 
 class CBlock;
-
-
-
 /**
  * CChainParams defines various tweakable parameters of a given instance of the
  * Bitcoin system. There are three: the main network on which people trade goods
@@ -42,7 +39,7 @@ public:
     const std::vector<unsigned char> &Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
     int RPCPort() const { return nRPCPort; }
 
-    std::string const & getOriginAddressAsString() const { return originAddress; }
+	vector<unsigned char> const getOriginAddressKeyId() const{ return vector<unsigned char>(m_originAddress.begin(), m_originAddress.end()); }
 
     static CNetworkParams const & getNetworkParameters();
 protected:
@@ -59,8 +56,8 @@ protected:
     string strDataDir;
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
-    std::string originAddress;
 
+	uint160 m_originAddress;
 
 };
 

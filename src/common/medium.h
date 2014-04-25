@@ -27,7 +27,6 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 	virtual bool getResponse( std::vector< RequestResponse > & _requestResponse ) const = 0;
-protected:
 	virtual void add( CRequest const * _request ) = 0;
 };
 

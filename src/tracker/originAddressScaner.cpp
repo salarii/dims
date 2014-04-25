@@ -10,7 +10,6 @@
 
 #include "hash.h"
 
-
 #include <vector>
 
 namespace tracker
@@ -109,7 +108,7 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 			while( it != vSolutions.end() )
 			{
-				 uint160 originId( ParseHex( Params().getOriginAddressAsString() ) );
+				 uint160 originId( Params().getOriginAddressKeyId() );
 				if ( type == TX_PUBKEY )
 				{
 					if ( originId == Hash160( *it ) )

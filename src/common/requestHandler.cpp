@@ -18,7 +18,7 @@ CRequestHandler::CRequestHandler( CMedium * _medium )
 }
 
 RequestResponse
-CRequestHandler::getRespond( CRequest* _request ) const
+CRequestHandler::getResponse( CRequest* _request ) const
 {
 	if( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return m_processedRequests.find( _request )->second;
