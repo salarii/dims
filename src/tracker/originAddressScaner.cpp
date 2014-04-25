@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "tracker/originAddressScaner.h"
+#include "tracker/transactionRecordManager.h"
 
 #include "chainparams.h"
 
@@ -80,7 +81,7 @@ COriginAddressScaner::Thread()
 
 void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 {
-	unsigned int valueSum = 0;
+	unsigned int valueSum = 0, totalInputSum = 0;
 	for (unsigned int i = 0; i < _tx.vout.size(); i++)
 	{
 		const CTxOut& txout = _tx.vout[i];
@@ -126,7 +127,7 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 	}
 	if ( valueSum == 0 )
 		return;
-
+// first which apear gets all because  it is a little bit tricky to find out real contribution of each address
 	for (unsigned int i = 0; i < _tx.vin.size(); i++)
 	{
 		const CTxIn& txin = _tx.vin[i];
@@ -146,14 +147,15 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 		}
 
 		txnouttype type;
-		unsigned int valueSum = 0;
 		std::vector< std:: vector<unsigned char> > vSolutions;
+
 		if (Solver(txin.scriptSig, type, vSolutions) &&
 			(type == TX_PUBKEY || type == TX_PUBKEYHASH))
 		{
 			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
 
 			CScript script;
+
 			while( it != vSolutions.end() )
 			{
 				if ( type == TX_PUBKEY )
@@ -173,8 +175,19 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 				// this is  buggy right now
 				txNew.vout[0].nValue = valueSum;
 				//add transaction  to  pool and   view
+
+				CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew );
 				return;
 			}
+
+
+			/*
+			 *
+			 *
+
+
+
+			*/
 		}
 
 		break;

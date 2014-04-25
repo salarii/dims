@@ -17,7 +17,22 @@ using namespace boost::assign;
 //
 // Main network
 //
-unsigned char ratcoinOriginPublicAddress[65] = "HeyThisIsRatcoinOriginAddressItIsThePlaceWhereNewRatcoinsAreBorn";
+std::string & getRatcoinOriginPublicAddress()
+{
+	static std::string ratcoinOriginPublicAddress;
+
+	if ( !ratcoinOriginPublicAddress.empty() )
+		return ratcoinOriginPublicAddress;
+
+	ratcoinOriginPublicAddress.resize(1);
+	*ratcoinOriginPublicAddress.begin() = 4; //means 65 bytes
+
+	char ratcoinOriginPublicAddressPayload[64] = "HiThisIsRatcoinOriginAddressItIsThePlaceWhereNewRatcoinsAreBorn";
+
+	ratcoinOriginPublicAddress += ratcoinOriginPublicAddressPayload;
+
+	return ratcoinOriginPublicAddress;
+}
 
 unsigned int pnSeed[] =
 {
@@ -174,7 +189,7 @@ public:
             addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
             vFixedSeeds.push_back(addr);
         }
-		m_originAddress = CPubKey(ratcoinOriginPublicAddress, &ratcoinOriginPublicAddress[65]).GetID();
+		m_originAddress = CPubKey(getRatcoinOriginPublicAddress().c_str(), &getRatcoinOriginPublicAddress().c_str()[65]).GetID();
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
