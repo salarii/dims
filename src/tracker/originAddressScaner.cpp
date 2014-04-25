@@ -6,7 +6,7 @@
 #include "tracker/transactionRecordManager.h"
 
 #include "chainparams.h"
-
+#include "base58.h"
 #include "core.h"
 
 #include "hash.h"
@@ -71,7 +71,7 @@ COriginAddressScaner::Thread()
 					createBaseTransaction( it->second );
 					it++;
 				}
-
+				m_transactionToProcess.clear();
 			}
 		}
 		boost::this_thread::interruption_point();
@@ -91,14 +91,14 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 		std::vector<unsigned char> data;
 
 		CScript::const_iterator pc = txout.scriptPubKey.begin();
-
+/*
 		while( pc != txout.scriptPubKey.end() )
 		{
 			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
 				return;
 
 			pc++;
-		}
+		}*/
 		txnouttype type;
 
 		std::vector< std:: vector<unsigned char> > vSolutions;
@@ -138,34 +138,23 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 		std::vector<unsigned char> data;
 
-		while( pc != txin.scriptSig.end() )
+		while( pc < txin.scriptSig.end() )
 		{
 			if (!txin.scriptSig.GetOp(pc, opcode, data))
 				return;
 
-			pc++;
-		}
-
-		txnouttype type;
-		std::vector< std:: vector<unsigned char> > vSolutions;
-
-		if (Solver(txin.scriptSig, type, vSolutions) &&
-			(type == TX_PUBKEY || type == TX_PUBKEYHASH))
-		{
-			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
-
-			CScript script;
-
-			while( it != vSolutions.end() )
+			if ( data.size() == 33 || data.size() == 65 )
 			{
-				if ( type == TX_PUBKEY )
-				{
-					script = CScript() << *it << OP_CHECKSIG;
-				}
-				else
-				{
-					script = CScript()  << OP_DUP << OP_HASH160 << *it << OP_EQUALVERIFY << OP_CHECKSIG;
-				}
+				//make  hash
+				CBitcoinAddress  address;
+				CKeyID publicKey = CPubKey(data ).GetID();
+				address.Set( publicKey );
+
+				std::string key = address.ToString();
+
+				CScript script;
+				script = CScript() << CPubKey(data ) << OP_CHECKSIG;
+				// optional solution script = CScript()  << OP_DUP << OP_HASH160 << *it << OP_EQUALVERIFY << OP_CHECKSIG;
 
 				CTransaction txNew;
 				txNew.vin.resize(1);
@@ -179,20 +168,10 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 				CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew );
 				return;
 			}
-
-
-			/*
-			 *
-			 *
-
-
-
-			*/
 		}
 
-		break;
-	}
 
+	}
 }
 
 }
