@@ -66,13 +66,17 @@ protected:
     std::multimap<uint160,uint256> cacheCoins;
 
 public:
-	CAddressToCoinsViewCache(size_t _cacheSize):m_addressToCoins(_cacheSize){};
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
 	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
 	bool haveCoins( uint160 const &_keyId );
 
 	bool flush();
+
+	static CAddressToCoinsViewCache* getInstance();
 private:
+	CAddressToCoinsViewCache(size_t _cacheSize = 1 << 26):m_addressToCoins(_cacheSize){};
+
+	static CAddressToCoinsViewCache * ms_instance;
 	std::map<uint160,uint256>::iterator fetchCoins( uint160 const &_keyId);
 };
 

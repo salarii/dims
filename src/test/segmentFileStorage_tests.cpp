@@ -10,7 +10,7 @@
 #include "json/json_spirit_writer_template.h"
 #include "json/json_spirit_reader_template.h"
 #include "data/tx_valid.json.h"
-
+#include "base58.h"
 using namespace std;
 using namespace json_spirit;
 
@@ -60,9 +60,32 @@ getTransactionArray()
 		}
 	}
 }
+std::string & getRatcoinOriginPublicAddress()
+{
+	static std::string ratcoinOriginPublicAddress;
+
+	if ( !ratcoinOriginPublicAddress.empty() )
+		return ratcoinOriginPublicAddress;
+
+	ratcoinOriginPublicAddress.resize(1);
+	*ratcoinOriginPublicAddress.begin() = 4; //means 65 bytes
+
+	char ratcoinOriginPublicAddressPayload[64] = "HiThisIsRatcoinOriginAddressItIsThePlaceWhereNewRatcoinsAreBorn";
+
+	ratcoinOriginPublicAddress += ratcoinOriginPublicAddressPayload;
+
+	return ratcoinOriginPublicAddress;
+}
 
 BOOST_AUTO_TEST_CASE( basics )
 {
+	CBitcoinAddress  address;
+
+	address.Set( CPubKey(getRatcoinOriginPublicAddress().c_str(), &getRatcoinOriginPublicAddress().c_str()[65]).GetID() );
+
+	std::string key = address.ToString();
+
+	int i = 0;
 /*	tracker::CSegmentFileStorage fileStorage;
 
 	boost::thread( boost::bind(&tracker::CSegmentFileStorage::loop, &fileStorage) );

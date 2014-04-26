@@ -131,6 +131,18 @@ CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 	CAddressToCoinsDatabase::batchWrite( coinsBatch );
 }
 
+CAddressToCoinsViewCache * CAddressToCoinsViewCache::ms_instance = NULL;
+
+CAddressToCoinsViewCache*
+CAddressToCoinsViewCache::getInstance()
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CAddressToCoinsViewCache();
+	};
+	return ms_instance;
+}
+
 bool CAddressToCoinsViewCache::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins )
 {
 	std::map<uint160,uint256>::iterator it = fetchCoins(_keyId);

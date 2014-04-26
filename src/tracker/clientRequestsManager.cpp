@@ -9,17 +9,19 @@
 namespace tracker
 {
 
-class CHandleClientRequestVisitor : public boost::static_visitor< void >
+
+
+class CHandleClientRequestVisitor : public boost::static_visitor< ClientResponse >
 {
 public:
 	CHandleClientRequestVisitor(){};
 
-	void operator()( CTrackerStatsReq const & _transactionStatus ) const
+	ClientResponse operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
 
 	}
 
-	void operator()( CAddressBalanceReq const & _addressBalanceReq ) const
+	ClientResponse operator()( CAddressBalanceReq const & _addressBalanceReq ) const
 	{
 
 	}
@@ -63,10 +65,12 @@ CClientRequestsManager::processRequestLoop()
 		{
 			boost::lock_guard<boost::mutex> lock( m_lock );
 
-			BOOST_FOREACH( InfoRequestElement::value_type request, m_getInfoRequest )
+			BOOST_FOREACH( InfoRequestRecord::value_type request, m_getInfoRequest )
 			{
-				boost::apply_visitor( CHandleClientRequestVisitor(), request.second );
+				m_infoResponseRecord.insert( std::make_pair( request.first,boost::apply_visitor( CHandleClientRequestVisitor(), request.second ) ) );
 			}
+
+			m_getInfoRequest.clear();
 		}
 		
 	}

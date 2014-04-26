@@ -145,12 +145,7 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 			if ( data.size() == 33 || data.size() == 65 )
 			{
-				//make  hash
-				CBitcoinAddress  address;
-				CKeyID publicKey = CPubKey(data ).GetID();
-				address.Set( publicKey );
-
-				std::string key = address.ToString();
+				CKeyID publicKey = CPubKey( data ).GetID();
 
 				CScript script;
 				script = CScript() << CPubKey(data ) << OP_CHECKSIG;
@@ -165,7 +160,7 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 				txNew.vout[0].nValue = valueSum;
 				//add transaction  to  pool and   view
 
-				CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew );
+				CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew, publicKey);
 				return;
 			}
 		}

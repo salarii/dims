@@ -12,7 +12,6 @@
 #include "addrman.h"
 #include "checkpoints.h"
 #include "main.h"
-#include "miner.h"
 #include "net.h"
 #include "rpcserver.h"
 #include "txdb.h"
@@ -117,12 +116,10 @@ void Shutdown()
 
     RenameThread("bitcoin-shutoff");
     mempool.AddTransactionsUpdated(1);
-    StopRPCThreads();
-    ShutdownRPCMining();
+	StopRPCThreads();
 #ifdef ENABLE_WALLET
     if (pwalletMain)
-        bitdb.Flush(false);
-    GenerateBitcoins(false, NULL, 0);
+		bitdb.Flush(false);
 #endif
     StopNode();
     UnregisterNodeSignals(GetNodeSignals());
@@ -1085,11 +1082,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 //    if (fServer)
 //        StartRPCThreads();
 
-#ifdef ENABLE_WALLET
-    // Generate coins in the background
-    if (pwalletMain)
-        GenerateBitcoins(GetBoolArg("-gen", false), pwalletMain, GetArg("-genproclimit", -1));
-#endif
+
 
     // ********************************************************* Step 12: finished
 

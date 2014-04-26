@@ -7,8 +7,12 @@
 
 #include "nodeMessages.h"
 
+#include "coins.h"
+
 namespace tracker
 {
+
+typedef boost::variant< std::vector< CCoins > > ClientResponse;
 
 class CClientRequestsManager
 {
@@ -19,15 +23,16 @@ public:
 
 	static CClientRequestsManager* getInstance();
 private:
-	typedef std::map< uint256, NodeRequest > InfoRequestElement;
+	typedef std::map< uint256, NodeRequest > InfoRequestRecord;
+	typedef std::map< uint256, ClientResponse > InfoResponseRecord;
 private:
 	CClientRequestsManager();
 private:
 	static CClientRequestsManager * ms_instance;
 
 	mutable boost::mutex m_lock;
-	InfoRequestElement m_getInfoRequest;
-
+	InfoRequestRecord m_getInfoRequest;
+	InfoResponseRecord m_infoResponseRecord;
 	static uint256 ms_currentToken;
 };
 

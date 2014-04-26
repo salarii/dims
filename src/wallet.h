@@ -439,13 +439,12 @@ static void WriteOrderPos(const int64_t& nOrderPos, mapValue_t& mapValue)
 /** A transaction with a bunch of additional info that only the owner cares about.
  * It includes any unrecorded transactions needed to link it back to the block chain.
  */
-class CWalletTx : public CMerkleTx
+class CWalletTx : public CTransaction
 {
 private:
     const CWallet* pwallet;
 
 public:
-    std::vector<CMerkleTx> vtxPrev;
     mapValue_t mapValue;
     std::vector<std::pair<std::string, std::string> > vOrderForm;
     unsigned int fTimeReceivedIsTxTime;
@@ -478,20 +477,14 @@ public:
         Init(pwalletIn);
     }
 
-    CWalletTx(const CWallet* pwalletIn, const CMerkleTx& txIn) : CMerkleTx(txIn)
-    {
-        Init(pwalletIn);
-    }
-
-    CWalletTx(const CWallet* pwalletIn, const CTransaction& txIn) : CMerkleTx(txIn)
+	CWalletTx(const CWallet* pwalletIn, const CTransaction& txIn)
     {
         Init(pwalletIn);
     }
 
     void Init(const CWallet* pwalletIn)
     {
-        pwallet = pwalletIn;
-        vtxPrev.clear();
+		pwallet = pwalletIn;
         mapValue.clear();
         vOrderForm.clear();
         fTimeReceivedIsTxTime = false;
@@ -539,8 +532,7 @@ public:
                 pthis->mapValue["timesmart"] = strprintf("%u", nTimeSmart);
         }
 
-        nSerSize += SerReadWrite(s, *(CMerkleTx*)this, nType, nVersion,ser_action);
-        READWRITE(vtxPrev);
+		nSerSize += SerReadWrite(s, *(CTransaction*)this, nType, nVersion,ser_action);
         READWRITE(mapValue);
         READWRITE(vOrderForm);
         READWRITE(fTimeReceivedIsTxTime);
@@ -640,7 +632,7 @@ public:
     int64_t GetCredit(bool fUseCache=true) const
     {
         // Must wait until coinbase is safely deep enough in the chain before valuing it
-        if (IsCoinBase() && GetBlocksToMaturity() > 0)
+		if (IsCoinBase() > 0)
             return 0;
 
         // GetBalance can assume transactions in mapWallet won't change
@@ -653,42 +645,13 @@ public:
 
     int64_t GetImmatureCredit(bool fUseCache=true) const
     {
-        if (IsCoinBase() && GetBlocksToMaturity() > 0 && IsInMainChain())
-        {
-            if (fUseCache && fImmatureCreditCached)
-                return nImmatureCreditCached;
-            nImmatureCreditCached = pwallet->GetCredit(*this);
-            fImmatureCreditCached = true;
-            return nImmatureCreditCached;
-        }
-
         return 0;
     }
 
     int64_t GetAvailableCredit(bool fUseCache=true) const
     {
-        // Must wait until coinbase is safely deep enough in the chain before valuing it
-        if (IsCoinBase() && GetBlocksToMaturity() > 0)
-            return 0;
 
-        if (fUseCache && fAvailableCreditCached)
-            return nAvailableCreditCached;
-
-        int64_t nCredit = 0;
-        for (unsigned int i = 0; i < vout.size(); i++)
-        {
-            if (!IsSpent(i))
-            {
-                const CTxOut &txout = vout[i];
-                nCredit += pwallet->GetCredit(txout);
-                if (!MoneyRange(nCredit))
-                    throw std::runtime_error("CWalletTx::GetAvailableCredit() : value out of range");
-            }
-        }
-
-        nAvailableCreditCached = nCredit;
-        fAvailableCreditCached = true;
-        return nCredit;
+		return 0;
     }
 
 
@@ -717,47 +680,10 @@ public:
         // Quick answer in most cases
         if (!IsFinalTx(*this))
             return false;
-        int nDepth = GetDepthInMainChain();
-        if (nDepth >= 1)
-            return true;
-        if (nDepth < 0)
-            return false;
+
         if (!bSpendZeroConfChange || !IsFromMe()) // using wtx's cached debit
             return false;
 
-        // If no confirmations but it's from us, we can still
-        // consider it confirmed if all dependencies are confirmed
-        std::map<uint256, const CMerkleTx*> mapPrev;
-        std::vector<const CMerkleTx*> vWorkQueue;
-        vWorkQueue.reserve(vtxPrev.size()+1);
-        vWorkQueue.push_back(this);
-        for (unsigned int i = 0; i < vWorkQueue.size(); i++)
-        {
-            const CMerkleTx* ptx = vWorkQueue[i];
-
-            if (!IsFinalTx(*ptx))
-                return false;
-            int nPDepth = ptx->GetDepthInMainChain();
-            if (nPDepth >= 1)
-                continue;
-            if (nPDepth < 0)
-                return false;
-            if (!pwallet->IsFromMe(*ptx))
-                return false;
-
-            if (mapPrev.empty())
-            {
-                BOOST_FOREACH(const CMerkleTx& tx, vtxPrev)
-                    mapPrev[tx.GetHash()] = &tx;
-            }
-
-            BOOST_FOREACH(const CTxIn& txin, ptx->vin)
-            {
-                if (!mapPrev.count(txin.prevout.hash))
-                    return false;
-                vWorkQueue.push_back(mapPrev[txin.prevout.hash]);
-            }
-        }
         return true;
     }
 

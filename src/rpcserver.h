@@ -96,7 +96,6 @@ extern std::vector<unsigned char> ParseHexV(const json_spirit::Value& v, std::st
 extern std::vector<unsigned char> ParseHexO(const json_spirit::Object& o, std::string strKey);
 
 extern void InitRPCMining();
-extern void ShutdownRPCMining();
 
 extern int64_t nWalletUnlockTime;
 extern int64_t AmountFromValue(const json_spirit::Value& value);

@@ -21,14 +21,14 @@ namespace tracker
 {
 
 class CValidationManager;
-
+class CAddressToCoinsViewCache;
 
 class CTransactionRecordManager
 {
 public:
 	~CTransactionRecordManager();
 
-	void addCoinbaseTransaction( CTransaction const & _tx );
+	void addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  );
 
 	bool checkIfCoinsAvailable( CTransaction const & _tx ) const;
 	//time  stamp or  something needed
@@ -46,9 +46,9 @@ private:
 private:
 	static CTransactionRecordManager * ms_instance;
 
-	// mutex
+	mutable boost::mutex m_coinsViewLock;
 	CCoinsViewCache * m_coinsViewCache;
-
+	CAddressToCoinsViewCache * m_addressToCoinsViewCache;
 	// mutex
 	CTxMemPool * m_memPool;
 //	transaction history  section

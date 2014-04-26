@@ -13,14 +13,7 @@
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 {
-    if (wtx.IsCoinBase())
-    {
-        // Ensures we show generated coins / mined transactions at depth 1
-        if (!wtx.IsInMainChain())
-        {
-            return false;
-        }
-    }
+
     return true;
 }
 
@@ -154,9 +147,6 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
 
     // Find the block the tx is in
     CBlockIndex* pindex = NULL;
-    std::map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(wtx.hashBlock);
-    if (mi != mapBlockIndex.end())
-        pindex = (*mi).second;
 
     // Sort order, unrecorded transactions sort to the top
     status.sortKey = strprintf("%010d-%01d-%010u-%03d",
@@ -165,7 +155,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
         wtx.nTimeReceived,
         idx);
     status.confirmed = wtx.IsTrusted();
-    status.depth = wtx.GetDepthInMainChain();
+
     status.cur_num_blocks = chainActive.Height();
 
     if (!IsFinalTx(wtx, chainActive.Height() + 1))
@@ -183,22 +173,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
     }
     else
     {
-        if (status.depth < 0)
-        {
-            status.status = TransactionStatus::Conflicted;
-        }
-        else if (GetAdjustedTime() - wtx.nTimeReceived > 2 * 60 && wtx.GetRequestCount() == 0)
-        {
-            status.status = TransactionStatus::Offline;
-        }
-        else if (status.depth < NumConfirmations)
-        {
-            status.status = TransactionStatus::Unconfirmed;
-        }
-        else
-        {
-            status.status = TransactionStatus::HaveConfirmations;
-        }
+
     }
 
     // For generated transactions, determine maturity
@@ -209,18 +184,6 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
         {
             status.maturity = TransactionStatus::Immature;
 
-            if (wtx.IsInMainChain())
-            {
-                status.matures_in = wtx.GetBlocksToMaturity();
-
-                // Check if the block was requested by anyone
-                if (GetAdjustedTime() - wtx.nTimeReceived > 2 * 60 && wtx.GetRequestCount() == 0)
-                    status.maturity = TransactionStatus::MaturesWarning;
-            }
-            else
-            {
-                status.maturity = TransactionStatus::NotAccepted;
-            }
         }
         else
         {

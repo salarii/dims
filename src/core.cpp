@@ -74,7 +74,11 @@ void CTxOut::print() const
 
 uint256 CTransaction::GetHash() const
 {
-    return SerializeHash(*this);
+	if ( m_hash )
+		return *m_hash;
+
+	m_hash.reset( SerializeHash(*this) );
+	return *m_hash;
 }
 
 bool CTransaction::IsNewerThan(const CTransaction& old) const

@@ -9,7 +9,7 @@
 #include "script.h"
 #include "serialize.h"
 #include "uint256.h"
-
+#include <boost/optional.hpp>
 #include <stdint.h>
 
 class CTransaction;
@@ -190,7 +190,7 @@ public:
     std::vector<CTxIn> vin;
     std::vector<CTxOut> vout;
     unsigned int nLockTime;
-
+	mutable boost::optional< uint256 > m_hash;
     CTransaction()
     {
         SetNull();

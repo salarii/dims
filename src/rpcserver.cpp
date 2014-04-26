@@ -225,37 +225,19 @@ static const CRPCCommand vRPCCommands[] =
   //  ------------------------  -----------------------  ---------- ---------- ---------
     { "help",                   &help,                   true,      true,       false },
     { "stop",                   &stop,                   true,      true,       false },
-    { "getblockcount",          &getblockcount,          true,      false,      false },
-    { "getbestblockhash",       &getbestblockhash,       true,      false,      false },
     { "getconnectioncount",     &getconnectioncount,     true,      false,      false },
     { "getpeerinfo",            &getpeerinfo,            true,      false,      false },
     { "ping",                   &ping,                   true,      false,      false },
     { "addnode",                &addnode,                true,      true,       false },
     { "getaddednodeinfo",       &getaddednodeinfo,       true,      true,       false },
     { "getnettotals",           &getnettotals,           true,      true,       false },
-    { "getdifficulty",          &getdifficulty,          true,      false,      false },
-    { "getinfo",                &getinfo,                true,      false,      false },
-    { "getrawmempool",          &getrawmempool,          true,      false,      false },
-    { "getblock",               &getblock,               false,     false,      false },
-    { "getblockhash",           &getblockhash,           false,     false,      false },
     { "getrawtransaction",      &getrawtransaction,      false,     false,      false },
     { "createrawtransaction",   &createrawtransaction,   false,     false,      false },
     { "decoderawtransaction",   &decoderawtransaction,   false,     false,      false },
     { "decodescript",           &decodescript,           false,     false,      false },
     { "signrawtransaction",     &signrawtransaction,     false,     false,      false },
     { "sendrawtransaction",     &sendrawtransaction,     false,     false,      false },
-    { "gettxoutsetinfo",        &gettxoutsetinfo,        true,      false,      false },
-    { "gettxout",               &gettxout,               true,      false,      false },
-    { "verifychain",            &verifychain,            true,      false,      false },
 
-    /* Mining */
-    { "getnetworkhashps",       &getnetworkhashps,       true,      false,      false },
-    { "getmininginfo",          &getmininginfo,          true,      false,      false },
-    { "getblocktemplate",       &getblocktemplate,       true,      false,      false },
-    { "submitblock",            &submitblock,            false,     false,      false },
-    { "validateaddress",        &validateaddress,        true,      false,      false },
-    { "createmultisig",         &createmultisig,         true,      true ,      false },
-    { "verifymessage",          &verifymessage,          false,     false,      false },
 
 #ifdef ENABLE_WALLET
     /* Wallet */
@@ -281,7 +263,6 @@ static const CRPCCommand vRPCCommands[] =
     { "move",                   &movecmd,                false,     false,      true },
     { "sendfrom",               &sendfrom,               false,     false,      true },
     { "sendmany",               &sendmany,               false,     false,      true },
-    { "addmultisigaddress",     &addmultisigaddress,     false,     false,      true },
     { "gettransaction",         &gettransaction,         false,     false,      true },
     { "listtransactions",       &listtransactions,       false,     false,      true },
     { "listaddressgroupings",   &listaddressgroupings,   false,     false,      true },
@@ -297,11 +278,6 @@ static const CRPCCommand vRPCCommands[] =
     { "listlockunspent",        &listlockunspent,        false,     false,      true },
     { "settxfee",               &settxfee,               false,     false,      true },
 
-    /* Wallet-enabled mining */
-    { "getgenerate",            &getgenerate,            true,      false,      false },
-    { "setgenerate",            &setgenerate,            true,      true,       false },
-    { "gethashespersec",        &gethashespersec,        true,      false,      false },
-    { "getwork",                &getwork,                true,      false,      true },
 #endif // ENABLE_WALLET
 };
 

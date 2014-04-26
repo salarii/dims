@@ -5,6 +5,8 @@
 #include "txmempool.h"
 
 #include "main.h"
+#include "addressToCoins.h"
+
 
 namespace tracker
 {
@@ -48,6 +50,9 @@ CTransactionRecordManager::CTransactionRecordManager()
 
 	m_coinsViewCache = new CCoinsViewCache(*(new CCoinsViewDB(nCoinDBCache, false, fReindex)));
 	m_memPool = new CTxMemPool;
+
+//add  passing  cache  size ??
+	m_addressToCoinsViewCache = CAddressToCoinsViewCache::getInstance(  );
 }
 
 CTransactionRecordManager::~CTransactionRecordManager()
@@ -57,10 +62,13 @@ CTransactionRecordManager::~CTransactionRecordManager()
 }
 
 void
-CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx )
+CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  )
 {
 	CCoins coins(_tx, 0);
+	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
+
 	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
+	m_addressToCoinsViewCache->setCoins( _keyId, _tx.GetHash() );
 
 	bool* pfMissingInputs;
 	CValidationState state;
