@@ -16,7 +16,7 @@ void
 serializeEnum( T & _stream, Enum const _enum )
 {
 	int i = _enum;
-	_stream << _enum;
+	_stream << i;
 };
 
 struct CReadString

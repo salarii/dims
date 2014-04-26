@@ -1455,7 +1455,7 @@ public:
 
 
 	template<typename T>
-	CBufferAsStream& operator>>(T& obj) {
+	CBufferAsStream& operator>>(T & obj) {
 		// Unserialize from this stream
 		::Unserialize(*this, obj, nType, nVersion);
 		return (*this);
@@ -1463,7 +1463,7 @@ public:
 
 
 	template<typename T>
-	CBufferAsStream& operator<<(T& obj) {
+	CBufferAsStream& operator<<(T const & obj) {
 		// Serialize to this stream
 		::Serialize(*this, obj, nType, nVersion);
 		return (*this);

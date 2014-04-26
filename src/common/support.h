@@ -14,7 +14,7 @@ template < class T, class Enum >
 void 
 serializeEnum( T & _stream, Enum const _enum )
 {
-	int i = _enum;
+	signed int i = _enum;
 	_stream << _enum;
 };
 

@@ -23,6 +23,7 @@ struct CMainRequestType
 		, TrackerInfoReq
 		, BalanceInfoReq
 		, RequestSatatusReq
+		, None
 	};
 };
 

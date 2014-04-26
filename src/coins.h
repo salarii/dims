@@ -134,7 +134,7 @@ public:
 
     unsigned int GetSerializeSize(int nType, int nVersion) const {
         unsigned int nSize = 0;
-        unsigned int nMaskSize = 0, nMaskCode = 0;
+		unsigned int nMaskSize = 0, nMaskCode = 0;
         CalcMaskSize(nMaskSize, nMaskCode);
         bool fFirst = vout.size() > 0 && !vout[0].IsNull();
         bool fSecond = vout.size() > 1 && !vout[1].IsNull();
@@ -151,13 +151,13 @@ public:
             if (!vout[i].IsNull())
                 nSize += ::GetSerializeSize(CTxOutCompressor(REF(vout[i])), nType, nVersion);
         // height
-        nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
+		nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
         return nSize;
     }
 
     template<typename Stream>
     void Serialize(Stream &s, int nType, int nVersion) const {
-        unsigned int nMaskSize = 0, nMaskCode = 0;
+		unsigned int nMaskSize = 0, nMaskCode = 0;
         CalcMaskSize(nMaskSize, nMaskCode);
         bool fFirst = vout.size() > 0 && !vout[0].IsNull();
         bool fSecond = vout.size() > 1 && !vout[1].IsNull();
@@ -168,7 +168,7 @@ public:
         // header code
         ::Serialize(s, VARINT(nCode), nType, nVersion);
         // spentness bitmask
-        for (unsigned int b = 0; b<nMaskSize; b++) {
+		for (unsigned int b = 0; b<nMaskSize; b++) {
             unsigned char chAvail = 0;
             for (unsigned int i = 0; i < 8 && 2+b*8+i < vout.size(); i++)
                 if (!vout[2+b*8+i].IsNull())
@@ -176,12 +176,12 @@ public:
             ::Serialize(s, chAvail, nType, nVersion);
         }
         // txouts themself
-        for (unsigned int i = 0; i < vout.size(); i++) {
+		for (unsigned int i = 0; i < vout.size(); i++) {
             if (!vout[i].IsNull())
                 ::Serialize(s, CTxOutCompressor(REF(vout[i])), nType, nVersion);
         }
-        // coinbase height
-        ::Serialize(s, VARINT(nHeight), nType, nVersion);
+	/*    // coinbase height
+		::Serialize(s, VARINT(nHeight), nType, nVersion);*/
     }
 
     template<typename Stream>

@@ -10,7 +10,6 @@ namespace tracker
 {
 
 
-
 class CHandleClientRequestVisitor : public boost::static_visitor< ClientResponse >
 {
 public:
@@ -54,6 +53,19 @@ CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_getInfoRequest.insert( std::make_pair( ms_currentToken, _nodeRequest ) );
 	return ms_currentToken++;
+}
+
+ClientResponse
+CClientRequestsManager::getResponse( uint256 const & _token ) const
+{
+	// for transaction may use getHash in  the future??
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	InfoResponseRecord::const_iterator iterator = m_infoResponseRecord.find( _token );
+	if ( iterator != m_infoResponseRecord.end() )
+		return iterator->second;
+	else
+		return CDummy();
 }
 
 void

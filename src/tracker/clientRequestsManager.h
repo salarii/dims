@@ -6,18 +6,17 @@
 #define TASK_QUEUE_H
 
 #include "nodeMessages.h"
-
-#include "coins.h"
+#include "trackerResponses.h"
 
 namespace tracker
 {
-
-typedef boost::variant< std::vector< CCoins > > ClientResponse;
 
 class CClientRequestsManager
 {
 public:
 	uint256 addRequest( NodeRequest const & _nodeRequest );
+
+	ClientResponse getResponse( uint256 const & _token ) const;
 
 	void processRequestLoop();
 

@@ -18,6 +18,26 @@
 namespace tracker
 {
 
+class CHandleResponseVisitor : public boost::static_visitor< void >
+{
+public:
+	CHandleResponseVisitor( CBufferAsStream * _pushStream ):m_pushStream( _pushStream ){};
+
+	void operator()( CAvailableCoins const & _availableCoins ) const
+	{
+		*m_pushStream << _availableCoins;
+	}
+
+	void operator()( CDummy const & _dummy ) const
+	{
+		*m_pushStream << _dummy;
+	}
+private:
+	CBufferAsStream * const m_pushStream;
+
+};
+
+
 class server_error : public std::runtime_error
 {
 public:
@@ -69,7 +89,7 @@ CTcpServerConnection::run()
 			//Handle your network errors.
 			throw server_error(std::string( "Network error:" ) + exc.displayText() );
 		}
-bytes--;
+		bytes--;
 	}
 
 }
@@ -114,13 +134,13 @@ CTcpServerConnection::handleIncommingBuffor()
 	CBufferAsStream pullStream(
 		(char*)m_pullBuffer.m_buffer
 		, m_pullBuffer.m_usedSize
-		, SER_DISK
+		, SER_NETWORK
 		, CLIENT_VERSION);
 
 	CBufferAsStream pushStream(
 		(char*)m_pushBuffer.m_buffer
 		, MaxBufferSize
-		, SER_DISK
+		, SER_NETWORK
 		, CLIENT_VERSION
 		, (uint64_t &)m_pushBuffer.m_usedSize
 		);
@@ -161,7 +181,11 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::ContinueReq )
 		{
+			uint256 token;
+			pullStream >> token;
 
+			ClientResponse clientResponse = m_clientRequestManager->getResponse( token );
+			boost::apply_visitor( CHandleResponseVisitor( &pushStream ), clientResponse );
 		}
 		else
 		{
