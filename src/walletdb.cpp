@@ -913,7 +913,7 @@ bool CWalletDB::Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys)
         LogPrintf("Cannot create database file %s\n", filename);
         return false;
     }
-    CWallet dummyWallet;
+	CWallet * dummyWallet = CWallet::getInstance("dummy");
     CWalletScanState wss;
 
     DbTxn* ptxn = dbenv.TxnBegin();
@@ -924,7 +924,7 @@ bool CWalletDB::Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys)
             CDataStream ssKey(row.first, SER_DISK, CLIENT_VERSION);
             CDataStream ssValue(row.second, SER_DISK, CLIENT_VERSION);
             string strType, strErr;
-            bool fReadOK = ReadKeyValue(&dummyWallet, ssKey, ssValue,
+			bool fReadOK = ReadKeyValue(dummyWallet, ssKey, ssValue,
                                         wss, strType, strErr);
             if (!IsKeyType(strType))
                 continue;

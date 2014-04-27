@@ -21,30 +21,30 @@ public:
 		return boost::optional< T >();
 	}
 
-	virtual boost::optional< T > operator()(CAccountBalance & _accountBalance ) const
+	virtual boost::optional< T > operator()(CTrackerStats & _trackerStats ) const
 	{
 		return boost::optional< T >();
 	}
 
-	virtual boost::optional< T > operator()(CTrackerStats & _accountBalance ) const
+	virtual boost::optional< T > operator()(CMonitorInfo & _monitorInfo ) const
 	{
 		return boost::optional< T >();
 	}
 
-	virtual boost::optional< T > operator()(CMonitorInfo & _accountBalance ) const
+	virtual boost::optional< T > operator()(CPending & _peding ) const
 	{
 		return boost::optional< T >();
 	}
 
-	virtual boost::optional< T > operator()(CPending & _accountBalance ) const
+
+	virtual boost::optional< T > operator()(tracker::CAvailableCoins & _availableCoins ) const
 	{
 		return boost::optional< T >();
 	}
-
-    virtual boost::optional< T > operator()(CSystemError & _systemError ) const
-    {
-        return boost::optional< T >();
-    }
+	virtual boost::optional< T > operator()(CSystemError & _systemError ) const
+	{
+		return boost::optional< T >();
+	}
 
 };
 
@@ -85,6 +85,16 @@ public:
     }
 };
 
+class CGetBalance : public CResponseVisitorBase< std::vector< CCoins > >
+{
+public:
+	boost::optional< std::vector< CCoins > > operator()(tracker::CAvailableCoins & _availableCoins ) const
+	{
+
+		return _availableCoins.m_availableCoins;
+	}
+};
+
 void 
 CSetResponseVisitor::visit( CSendTransactionAction & _action )
 {
@@ -99,6 +109,12 @@ CSetResponseVisitor::visit( CConnectAction & _action )
 	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 	_action.setTrackerInfo(boost::apply_visitor( (CResponseVisitorBase< CTrackerStats > const &)CGetTrackerInfo(), m_requestRespond ));
     _action.setMediumError(boost::apply_visitor( (CResponseVisitorBase< ErrorType::Enum > const &)CGetMediumError(), m_requestRespond ));
+}
+
+void
+CSetResponseVisitor::visit( CSendBalanceInfoAction & _action )
+{
+	_action.(boost::apply_visitor( (CResponseVisitorBase< std::vector< CCoins > > const &)CGetBalance(), m_requestRespond ));
 }
 
 void

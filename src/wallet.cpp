@@ -835,6 +835,26 @@ set<uint256> CWalletTx::GetConflicts() const
     return result;
 }
 
+
+
+CWallet * CWallet::ms_instance = NULL;
+
+CWallet*
+CWallet::getInstance( std::string const & _fileName )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = CWallet::getInstance( _fileName );
+	};
+	return ms_instance;
+}
+
+CWallet*
+CWallet::getInstance( )
+{
+	return ms_instance;
+}
+
 void CWallet::ResendWalletTransactions()
 {
     // Do this infrequently and randomly to avoid giving away

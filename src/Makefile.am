@@ -6,9 +6,6 @@ noinst_LIBRARIES = \
   libbitcoin_server.a \
   libbitcoin_common.a \
   libbitcoin_cli.a
-if ENABLE_WALLET
-noinst_LIBRARIES += libbitcoin_wallet.a
-endif
 
 bin_PROGRAMS =
 
@@ -160,18 +157,14 @@ libbitcoin_server_a_SOURCES = \
   rpcrawtransaction.cpp \
   txdb.cpp \
   txmempool.cpp \
-  $(JSON_H) \
-  $(BITCOIN_CORE_H) \
-  $(TRACKER_CORE_H) \
-  $(TRACKER_CORE_CPP)
-
-  
-libbitcoin_wallet_a_SOURCES = \
   rpcdump.cpp \
   rpcwallet.cpp \
   wallet.cpp \
   walletdb.cpp \
-  $(BITCOIN_CORE_H)
+  $(JSON_H) \
+  $(BITCOIN_CORE_H) \
+  $(TRACKER_CORE_H) \
+  $(TRACKER_CORE_CPP)
 
 libbitcoin_common_a_SOURCES = \
   allocators.cpp \
@@ -204,9 +197,6 @@ bitcoind_LDADD = \
   libbitcoin_common.a \
   $(LIBLEVELDB) \
   $(LIBMEMENV)
-if ENABLE_WALLET
-bitcoind_LDADD += libbitcoin_wallet.a
-endif
 bitcoind_SOURCES = bitcoind.cpp
 #
 

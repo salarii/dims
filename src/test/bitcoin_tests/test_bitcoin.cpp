@@ -40,7 +40,7 @@ struct TestingSetup {
         InitBlockIndex();
 #ifdef ENABLE_WALLET
         bool fFirstRun;
-        pwalletMain = new CWallet("wallet.dat");
+		pwalletMain = CWalletManager::getInstance("wallet.dat");
         pwalletMain->LoadWallet(fFirstRun);
         RegisterWallet(pwalletMain);
 #endif
