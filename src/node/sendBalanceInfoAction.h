@@ -10,6 +10,7 @@
 
 #include  <boost/optional.hpp>
 #include "uint256.h"
+#include "coins.h"
 
 namespace node
 {
@@ -23,7 +24,7 @@ public:
 
 	CRequest* execute();
 
-	void setBalance( boost::optional< std::string > const & _balance );
+	void setBalance( boost::optional< std::vector< CCoins > > const & _balance );
 
 	void setInProgressToken( boost::optional< uint256 > const & _token );
 

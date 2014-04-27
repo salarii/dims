@@ -26,13 +26,21 @@ struct CAvailableCoins
 {
 	CAvailableCoins( std::vector< CCoins > const & _availableCoins, uint256 const & _hash );
 
-	template < class Stream >
-	void Serialize(Stream &s, int nType, int nVersion) const
-	{
-		node::serializeEnum( s, m_requestType );
-		s << m_hash;
-		s << m_availableCoins;
-	}
+
+	IMPLEMENT_SERIALIZE
+	(
+		int type;
+		if ( !fRead )
+			type = m_requestType;
+
+		READWRITE(type);
+		READWRITE(m_hash);
+		READWRITE(m_availableCoins);
+
+		if ( fRead )
+			type = m_requestType;
+
+	)
 
 	static CMainRequestType::Enum const  m_requestType;
 	uint256 m_hash;

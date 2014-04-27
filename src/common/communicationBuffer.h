@@ -3,7 +3,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#define MaxBufferSize 1000
+#define MaxBufferSize ( 1 << 14 )
 
 namespace common
 {

@@ -111,9 +111,36 @@ private:
     // Used to detect and report conflicted transactions:
     typedef std::multimap<COutPoint, uint256> TxConflicts;
     TxConflicts mapTxConflicts;
-    void AddToConflicts(const uint256& wtxhash);
+
+	static CWallet * ms_instance;
+private:
+	void AddToConflicts(const uint256& wtxhash);
     void SyncMetaData(std::pair<TxConflicts::iterator, TxConflicts::iterator>);
 
+
+	CWallet()
+	{
+		nWalletVersion = FEATURE_BASE;
+		nWalletMaxVersion = FEATURE_BASE;
+		fFileBacked = false;
+		nMasterKeyMaxID = 0;
+		pwalletdbEncryption = NULL;
+		nOrderPosNext = 0;
+		nNextResend = 0;
+		nLastResend = 0;
+	}
+	CWallet(std::string strWalletFileIn)
+	{
+		nWalletVersion = FEATURE_BASE;
+		nWalletMaxVersion = FEATURE_BASE;
+		strWalletFile = strWalletFileIn;
+		fFileBacked = true;
+		nMasterKeyMaxID = 0;
+		pwalletdbEncryption = NULL;
+		nOrderPosNext = 0;
+		nNextResend = 0;
+		nLastResend = 0;
+	}
 public:
     /// Main wallet lock.
     /// This lock protects all the fields added by CWallet
@@ -132,29 +159,8 @@ public:
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
 
-    CWallet()
-    {
-        nWalletVersion = FEATURE_BASE;
-        nWalletMaxVersion = FEATURE_BASE;
-        fFileBacked = false;
-        nMasterKeyMaxID = 0;
-        pwalletdbEncryption = NULL;
-        nOrderPosNext = 0;
-        nNextResend = 0;
-        nLastResend = 0;
-    }
-    CWallet(std::string strWalletFileIn)
-    {
-        nWalletVersion = FEATURE_BASE;
-        nWalletMaxVersion = FEATURE_BASE;
-        strWalletFile = strWalletFileIn;
-        fFileBacked = true;
-        nMasterKeyMaxID = 0;
-        pwalletdbEncryption = NULL;
-        nOrderPosNext = 0;
-        nNextResend = 0;
-        nLastResend = 0;
-    }
+	static CWallet* getInstance();
+	static CWallet* getInstance( std::string const & _fileName );
 
     std::map<uint256, CWalletTx> mapWallet;
 

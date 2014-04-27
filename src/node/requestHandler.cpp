@@ -110,6 +110,12 @@ CRequestHandler::readLoop()
             else if ( messageType == tracker::CMainRequestType::RequestSatatusReq )
             {
             }
+			else if ( messageType == tracker::CMainRequestType::BalanceInfoReq )
+			{
+				tracker::CAvailableCoins availableCoins;
+				stream >> availableCoins;
+				m_processedRequests.insert( std::make_pair( m_newRequest[counter], availableCoins ) );
+			}
             else
             {
                 throw;
