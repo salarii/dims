@@ -164,6 +164,8 @@ public:
 
     std::map<uint256, CWalletTx> mapWallet;
 
+	std::map< uint160, std::vector< CCoins > > m_availableCoins;
+
     int64_t nOrderPosNext;
     std::map<uint256, int> mapRequestCount;
 
@@ -192,6 +194,8 @@ public:
     void UnlockCoin(COutPoint& output);
     void UnlockAllCoins();
     void ListLockedCoins(std::vector<COutPoint>& vOutpts);
+
+	void setAvailableCoins( CKeyID const & _keyId, std::vector< CCoins > const & _availableCoins );
 
     // keystore implementation
     // Generate a new key
@@ -722,7 +726,7 @@ public:
 
     std::string ToString() const
     {
-        return strprintf("COutput(%s, %d, %d) [%s]", tx->GetHash().ToString().c_str(), i, nDepth, FormatMoney(tx->vout[i].nValue).c_str());
+		return "";//strprintf("COutput(%s, %d, %d) [%s]", tx->GetHash().ToString().c_str(), i, nDepth, FormatMoney(tx->vout[i].nValue).c_str());
     }
 
     void print() const

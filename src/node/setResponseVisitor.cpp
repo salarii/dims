@@ -6,8 +6,12 @@
 #include "sendTransactionAction.h"
 #include "requestRespond.h"
 #include "connectAction.h"
+#include "sendBalanceInfoAction.h"
+
 #include <boost/any.hpp>
 #include <boost/optional.hpp>
+
+using namespace  common;
 
 namespace node
 {
@@ -37,7 +41,7 @@ public:
 	}
 
 
-	virtual boost::optional< T > operator()(tracker::CAvailableCoins & _availableCoins ) const
+	virtual boost::optional< T > operator()(CAvailableCoins & _availableCoins ) const
 	{
 		return boost::optional< T >();
 	}
@@ -88,7 +92,7 @@ public:
 class CGetBalance : public CResponseVisitorBase< std::vector< CCoins > >
 {
 public:
-	boost::optional< std::vector< CCoins > > operator()(tracker::CAvailableCoins & _availableCoins ) const
+	boost::optional< std::vector< CCoins > > operator()(CAvailableCoins & _availableCoins ) const
 	{
 
 		return _availableCoins.m_availableCoins;
@@ -114,7 +118,7 @@ CSetResponseVisitor::visit( CConnectAction & _action )
 void
 CSetResponseVisitor::visit( CSendBalanceInfoAction & _action )
 {
-	_action.(boost::apply_visitor( (CResponseVisitorBase< std::vector< CCoins > > const &)CGetBalance(), m_requestRespond ));
+	_action.setBalance(boost::apply_visitor( (CResponseVisitorBase< std::vector< CCoins > > const &)CGetBalance(), m_requestRespond ));
 }
 
 void

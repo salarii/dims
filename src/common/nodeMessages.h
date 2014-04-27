@@ -9,7 +9,7 @@
 #include "core.h"
 #include <boost/variant.hpp>
 
-namespace tracker
+namespace common
 {
 
 struct CMainRequestType

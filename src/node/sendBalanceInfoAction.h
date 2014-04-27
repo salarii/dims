@@ -34,7 +34,7 @@ private:
 
 	std::string const m_pubKey;
 
-	boost::optional< std::string > m_balance;
+	boost::optional< std::vector< CCoins > > m_balance;
 
 	boost::optional< uint256 > m_token;
 

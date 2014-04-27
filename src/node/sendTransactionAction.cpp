@@ -3,10 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "sendTransactionAction.h"
-#include "tracker/nodeMessages.h"
+#include "common/nodeMessages.h"
 #include "setResponseVisitor.h"
 
 #include "serialize.h"
+
+using namespace common;
 
 namespace node
 {
@@ -73,7 +75,7 @@ CTransactionStatusRequest::getKind() const
 void
 CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-	signed int infoReq =  tracker::CMainRequestType::TrackerInfoReq;
+	signed int infoReq =  CMainRequestType::TrackerInfoReq;
 	_bufferStream << infoReq;
 	_bufferStream << m_token;
 }
@@ -93,7 +95,7 @@ CTransactionSendRequest::getKind() const
 void 
 CTransactionSendRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-	signed int transactionKind = tracker::CMainRequestType::Transaction;
+	signed int transactionKind = CMainRequestType::Transaction;
 	_bufferStream << transactionKind;
 	_bufferStream << m_transaction;
 }

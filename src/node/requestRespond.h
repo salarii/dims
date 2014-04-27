@@ -10,7 +10,8 @@
 #include "uint256.h"
 #include "common/transactionStatus.h"
 #include "errorRespond.h"
-#include "trackerResponses.h"
+#include "common/trackerResponses.h"
+
 namespace node
 {
 
@@ -48,7 +49,7 @@ struct CSystemError
     ErrorType::Enum m_errorType;
 };
 
-typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerStats, CMonitorInfo, CPending, CSystemError, tracker::CAvailableCoins > RequestResponse;
+typedef boost::variant< CTransactionStatus, CTrackerStats, CMonitorInfo, CPending, CSystemError, common::CAvailableCoins > RequestResponse;
 
 }
 

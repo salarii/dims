@@ -1849,6 +1849,12 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
     }
 }
 
+void
+CWallet::setAvailableCoins( CKeyID const & _keyId, std::vector< CCoins > const & _availableCoins )
+{
+	m_availableCoins.insert( std::make_pair( _keyId, _availableCoins ) );
+}
+
 void CWallet::GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const {
     AssertLockHeld(cs_wallet); // mapKeyMetadata
     mapKeyBirth.clear();

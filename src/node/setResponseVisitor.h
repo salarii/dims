@@ -19,6 +19,8 @@ class CAction;
 
 class CConnectAction;
 
+class CSendBalanceInfoAction;
+
 class CSetResponseVisitor
 {
 public:
@@ -29,6 +31,8 @@ public:
 	void visit( CConnectAction & _action );
 
 	void visit( CAction & _action );
+
+	void visit( CSendBalanceInfoAction & _action );
 private:
 
 	RequestResponse m_requestRespond;

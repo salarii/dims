@@ -1,6 +1,6 @@
 #include "trackerResponses.h"
 
-namespace tracker
+namespace common
 {
 
 CMainRequestType::Enum const CDummy::m_requestType = CMainRequestType::None;
@@ -13,5 +13,9 @@ CAvailableCoins::CAvailableCoins( std::vector< CCoins > const & _availableCoins,
 {
 }
 
+CAvailableCoins::CAvailableCoins()
+{
+
+}
 
 }

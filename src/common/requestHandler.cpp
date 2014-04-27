@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "requestHandler.h"
-#include "tracker/nodeMessages.h"
+#include "common/nodeMessages.h"
 #include "medium.h"
 #include "support.h"
 

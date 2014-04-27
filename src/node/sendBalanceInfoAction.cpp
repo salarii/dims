@@ -8,8 +8,13 @@
 
 #include "serialize.h"
 #include "support.h"
+#include "base58.h"
+#include "common/nodeMessages.h"
 
-#include "tracker/nodeMessages.h"
+#include "wallet.h"
+
+using namespace  common;
+
 namespace node
 {
 
@@ -37,12 +42,16 @@ CSendBalanceInfoAction::execute()
     {
         if ( m_balance )
         {
-            // set data  like it should be
+			CBitcoinAddress address;
+			address.SetString( m_pubKey );
+
+			CKeyID keyId;
+			address.GetKeyID( keyId );
+			CWallet::getInstance()->setAvailableCoins( keyId, *m_balance );
             return 0;
         }
         else if ( m_token )
         {
-
             return new CInfoRequestContinue( *m_token, RequestKind::Balance );
         }
     }
@@ -50,7 +59,7 @@ CSendBalanceInfoAction::execute()
 }
 
 void
-CSendBalanceInfoAction::setBalance( boost::optional< std::string > const & _balance )
+CSendBalanceInfoAction::setBalance( boost::optional< std::vector< CCoins > > const & _balance )
 {
 	m_balance = _balance;
 }
@@ -79,7 +88,7 @@ CBalanceRequest::CBalanceRequest( std::string _address )
 void
 CBalanceRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
-	serializeEnum(_bufferStream, tracker::CMainRequestType::BalanceInfoReq );
+	serializeEnum(_bufferStream, CMainRequestType::BalanceInfoReq );
 	_bufferStream << m_address;
 }
 

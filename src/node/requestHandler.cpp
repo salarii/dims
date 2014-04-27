@@ -3,12 +3,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "requestHandler.h"
-#include "tracker/nodeMessages.h"
+#include "common/nodeMessages.h"
 #include "medium.h"
 #include "sendInfoRequestAction.h"
 #include "support.h"
 
 #include "common/communicationBuffer.h"
+
+using namespace common;
 
 namespace node
 {
@@ -82,37 +84,37 @@ CRequestHandler::readLoop()
 
             stream >> messageType;
 
-            if ( messageType == tracker::CMainRequestType::ContinueReq )
+			if ( messageType == CMainRequestType::ContinueReq )
             {
                 uint256 token;
                 stream >> token;
 				m_processedRequests.insert( std::make_pair( m_newRequest[counter], CPending(token) ) );
 
             }
-            else if ( messageType == tracker::CMainRequestType::TransactionStatusReq )
+			else if ( messageType == CMainRequestType::TransactionStatusReq )
             {
                 int status;
                 stream >> status;
-                //m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (tracker::TransactionsStatus::Enum )status ) ) );
+				//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (TransactionsStatus::Enum )status ) ) );
 
             }
-            else if ( messageType == tracker::CMainRequestType::MonitorInfoReq )
+			else if ( messageType == CMainRequestType::MonitorInfoReq )
             {
 
             }
-            else if ( messageType == tracker::CMainRequestType::TrackerInfoReq )
+			else if ( messageType == CMainRequestType::TrackerInfoReq )
             {
                  CTrackerStats trackerInfo;
                 readTrackerInfo( stream, trackerInfo, TrackerDescription );
                 m_processedRequests.insert( std::make_pair( m_newRequest[counter], trackerInfo ) );
 
             }
-            else if ( messageType == tracker::CMainRequestType::RequestSatatusReq )
+			else if ( messageType == CMainRequestType::RequestSatatusReq )
             {
             }
-			else if ( messageType == tracker::CMainRequestType::BalanceInfoReq )
+			else if ( messageType == CMainRequestType::BalanceInfoReq )
 			{
-				tracker::CAvailableCoins availableCoins;
+				CAvailableCoins availableCoins;
 				stream >> availableCoins;
 				m_processedRequests.insert( std::make_pair( m_newRequest[counter], availableCoins ) );
 			}

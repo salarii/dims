@@ -5,8 +5,8 @@
 #ifndef TASK_QUEUE_H
 #define TASK_QUEUE_H
 
-#include "nodeMessages.h"
-#include "trackerResponses.h"
+#include "common/nodeMessages.h"
+#include "common/trackerResponses.h"
 
 namespace tracker
 {
@@ -14,16 +14,16 @@ namespace tracker
 class CClientRequestsManager
 {
 public:
-	uint256 addRequest( NodeRequest const & _nodeRequest );
+	uint256 addRequest( common::NodeRequest const & _nodeRequest );
 
-	ClientResponse getResponse( uint256 const & _token ) const;
+	common::ClientResponse getResponse( uint256 const & _token ) const;
 
 	void processRequestLoop();
 
 	static CClientRequestsManager* getInstance();
 private:
-	typedef std::map< uint256, NodeRequest > InfoRequestRecord;
-	typedef std::map< uint256, ClientResponse > InfoResponseRecord;
+	typedef std::map< uint256, common::NodeRequest > InfoRequestRecord;
+	typedef std::map< uint256, common::ClientResponse > InfoResponseRecord;
 private:
 	CClientRequestsManager();
 private:

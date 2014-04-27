@@ -6,6 +6,8 @@
 
 #include <boost/foreach.hpp>
 
+using namespace common;
+
 namespace tracker
 {
 

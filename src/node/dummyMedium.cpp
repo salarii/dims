@@ -9,9 +9,11 @@
 #include "sendInfoRequestAction.h"
 
 #include "support.h"
-#include "tracker/nodeMessages.h"
+#include "common/nodeMessages.h"
 
 #include "common/ratcoinParams.h"
+
+using namespace common;
 
 namespace node
 {
@@ -55,7 +57,7 @@ CDummyMedium::flush()
 
 	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerStatsRequests )
 	{
-		serializeEnum( stream, tracker::CMainRequestType::TrackerInfoReq );
+		serializeEnum( stream, CMainRequestType::TrackerInfoReq );
 
 		writeTrackerInfo( stream , m_trackerStats, request->m_reqInfo );
 	}

@@ -9,11 +9,13 @@
 
 #include "serialize.h"
 
-#include "nodeMessages.h"
+#include "common/nodeMessages.h"
 #include "clientRequestsManager.h"
 
 #include "common/ratcoinParams.h"
 #include "node/support.h"
+
+using namespace common;
 
 namespace tracker
 {
