@@ -805,10 +805,6 @@ bool AppInit2(boost::thread_group& threadGroup)
                 delete pcoinsdbview;
                 delete pblocktree;
 
-                pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex);
-                pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex);
-                pcoinsTip = new CCoinsViewCache(*pcoinsdbview);
-
                 if (fReindex)
                     pblocktree->WriteReindexing(true);
 

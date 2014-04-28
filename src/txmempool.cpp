@@ -10,13 +10,11 @@ using namespace std;
 
 CTxMemPoolEntry::CTxMemPoolEntry()
 {
-    nHeight = MEMPOOL_HEIGHT;
 }
 
-CTxMemPoolEntry::CTxMemPoolEntry(const CTransaction& _tx, int64_t _nFee,
-                                 int64_t _nTime, double _dPriority,
-                                 unsigned int _nHeight):
-    tx(_tx), nFee(_nFee), nTime(_nTime), dPriority(_dPriority), nHeight(_nHeight)
+CTxMemPoolEntry::CTxMemPoolEntry(const CTransaction& _tx,
+								 int64_t _nTime, double _dPriority):
+	tx(_tx), nTime(_nTime), dPriority(_dPriority)
 {
     nTxSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
 }
@@ -29,10 +27,7 @@ CTxMemPoolEntry::CTxMemPoolEntry(const CTxMemPoolEntry& other)
 double
 CTxMemPoolEntry::GetPriority(unsigned int currentHeight) const
 {
-    int64_t nValueIn = tx.GetValueOut()+nFee;
-    double deltaPriority = ((double)(currentHeight-nHeight)*nValueIn)/nTxSize;
-    double dResult = dPriority + deltaPriority;
-    return dResult;
+	return 0;
 }
 
 CTxMemPool::CTxMemPool()

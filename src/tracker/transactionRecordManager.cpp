@@ -70,9 +70,9 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uin
 	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
 	m_addressToCoinsViewCache->setCoins( _keyId, _tx.GetHash() );
 
-	bool* pfMissingInputs;
+	bool pfMissingInputs;
 	CValidationState state;
-	AcceptToMemoryPool(*m_memPool, state, _tx, false, pfMissingInputs, false);
+	AcceptToMemoryPool(*m_memPool, state, _tx, false, &pfMissingInputs, false);
 
 }
 

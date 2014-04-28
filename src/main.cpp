@@ -636,10 +636,10 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 
     if (tx.IsCoinBase())
     {
-        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
+/*        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
             return state.DoS(100, error("CheckTransaction() : coinbase script size"),
                              REJECT_INVALID, "bad-cb-length");
-    }
+*/    }
     else
     {
         BOOST_FOREACH(const CTxIn& txin, tx.vin)
@@ -696,10 +696,10 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         return error("AcceptToMemoryPool: : CheckTransaction failed");
 
     // Coinbase is only valid in a block, not as a loose transaction
-    if (tx.IsCoinBase())
+ /*   if (tx.IsCoinBase())
         return state.DoS(100, error("AcceptToMemoryPool: : coinbase as individual tx"),
                          REJECT_INVALID, "coinbase");
-
+*/
     // Rather not work on nonstandard transactions (unless -testnet/-regtest)
     string reason;
     if (Params().NetworkID() == CNetworkParams::MAIN && !IsStandardTx(tx, reason))
@@ -729,8 +729,8 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
     {
         CCoinsView dummy;
         CCoinsViewCache view(dummy);
-
-        {
+//this logic probably needed but in  different form and place
+		/*{
         LOCK(pool.cs);
         CCoinsViewMemPool viewMemPool(*pcoinsTip, pool);
         view.SetBackend(viewMemPool);
@@ -755,12 +755,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
             return state.Invalid(error("AcceptToMemoryPool : inputs already spent"),
                                  REJECT_DUPLICATE, "bad-txns-inputs-spent");
 
-        // Bring the best block into scope
-        view.GetBestBlock();
-
         // we have all inputs cached now, so switch back to dummy, so we don't need to keep lock on mempool
         view.SetBackend(dummy);
-        }
+		}*/
 
         // Check for non-standard pay-to-script-hash in inputs
         if (Params().NetworkID() == CNetworkParams::MAIN && !AreInputsStandard(tx, view))
@@ -775,44 +772,13 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         int64_t nFees = nValueIn-nValueOut;
         double dPriority = view.GetPriority(tx, chainActive.Height());
 
-        CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainActive.Height());
+		CTxMemPoolEntry entry(tx, GetTime(), dPriority);
         unsigned int nSize = entry.GetTxSize();
-
-        // Don't accept it if it can't get into a block
-        int64_t txMinFee = GetMinFee(tx, nSize, true, GMF_RELAY);
-        if (fLimitFree && nFees < txMinFee)
-            return state.DoS(0, error("AcceptToMemoryPool : not enough fees %s, %"PRId64" < %"PRId64,
-                                      hash.ToString(), nFees, txMinFee),
-                             REJECT_INSUFFICIENTFEE, "insufficient fee");
 
         // Continuously rate-limit free transactions
         // This mitigates 'penny-flooding' -- sending thousands of free transactions just to
         // be annoying or make others' transactions take longer to confirm.
-        if (fLimitFree && nFees < CTransaction::nMinRelayTxFee)
-        {
-            static CCriticalSection csFreeLimiter;
-            static double dFreeCount;
-            static int64_t nLastTime;
-            int64_t nNow = GetTime();
 
-            LOCK(csFreeLimiter);
-
-            // Use an exponentially decaying ~10-minute window:
-            dFreeCount *= pow(1.0 - 1.0/600.0, (double)(nNow - nLastTime));
-            nLastTime = nNow;
-            // -limitfreerelay unit is thousand-bytes-per-minute
-            // At default rate it would take over a month to fill 1GB
-            if (dFreeCount >= GetArg("-limitfreerelay", 15)*10*1000)
-                return state.DoS(0, error("AcceptToMemoryPool : free transaction rejected by rate limiter"),
-                                 REJECT_INSUFFICIENTFEE, "insufficient priority");
-            LogPrint("mempool", "Rate limit dFreeCount: %g => %g\n", dFreeCount, dFreeCount+nSize);
-            dFreeCount += nSize;
-        }
-
-        if (fRejectInsaneFee && nFees > CTransaction::nMinRelayTxFee * 10000)
-            return error("AcceptToMemoryPool: : insane fees %s, %"PRId64" > %"PRId64,
-                         hash.ToString(),
-                         nFees, CTransaction::nMinRelayTxFee * 10000);
 
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
@@ -824,7 +790,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         pool.addUnchecked(hash, entry);
     }
 
-    g_signals.SyncTransaction(hash, tx, NULL);
+	//g_signals.SyncTransaction(hash, tx, NULL);
 
     return true;
 }
@@ -1959,9 +1925,6 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
     setBlockIndexValid.insert(pindexNew);
 
-    if (!pblocktree->WriteBlockIndex(CDiskBlockIndex(pindexNew)))
-        return state.Abort(_("Failed to write block index"));
-
     // New best?
     if (!ActivateBestChain(state))
         return false;
@@ -2022,11 +1985,6 @@ bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAdd
                 return state.Error("out of disk space");
         }
     }
-
-    if (!pblocktree->WriteBlockFileInfo(nLastBlockFile, infoLastBlockFile))
-        return state.Abort(_("Failed to write file info"));
-    if (fUpdatedLast)
-        pblocktree->WriteLastBlockFile(nLastBlockFile);
 
     return true;
 }
@@ -2799,9 +2757,8 @@ bool InitBlockIndex() {
     if (chainActive.Genesis() != NULL)
         return true;
 
-    // Use the provided setting for -txindex in the new database
-    fTxIndex = GetBoolArg("-txindex", false);
-    pblocktree->WriteFlag("txindex", fTxIndex);
+	// Use the provided setting for -txindex in the new database
+	fTxIndex = GetBoolArg("-txindex", false);
     LogPrintf("Initializing databases...\n");
 
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)
@@ -3069,8 +3026,7 @@ bool static AlreadyHave(const CInv& inv)
         {
             bool txInMap = false;
             txInMap = mempool.exists(inv.hash);
-            return txInMap || mapOrphanTransactions.count(inv.hash) ||
-                pcoinsTip->HaveCoins(inv.hash);
+			return true;
         }
     case MSG_BLOCK:
         return mapBlockIndex.count(inv.hash) ||

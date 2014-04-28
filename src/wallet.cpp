@@ -852,7 +852,7 @@ CWallet::getInstance( std::string const & _fileName )
 {
 	if ( !ms_instance )
 	{
-		ms_instance = CWallet::getInstance( _fileName );
+		ms_instance = new CWallet( _fileName );
 	};
 	return ms_instance;
 }
