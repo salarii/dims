@@ -8,7 +8,7 @@
 namespace common
 {
 
-class CSetResponseVisitor;
+class CSetResponseVisitorBase;
 struct CRequest;
 
 struct ActionStatus
@@ -26,7 +26,7 @@ class CAction
 public:
 	CAction(): m_actionStatus( ActionStatus::Unprepared ){};
 
-	virtual void accept( CSetResponseVisitor & _visitor );
+	virtual void accept( CSetResponseVisitorBase & _visitor );
 
 	virtual CRequest* execute() = 0;
 
@@ -36,6 +36,8 @@ public:
 protected:
 	ActionStatus::Enum m_actionStatus;
 };
+
+
 
 }
 

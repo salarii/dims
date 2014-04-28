@@ -30,13 +30,14 @@ COMMON_H = \
   common/requestResponse.h \
   common/trackerResponses.h \
   common/nodeMessages.h \
+  common/visitorConfigurationUtilities.h \
+  common/responseVisitorInternal.h \
   common/transactionStatus.h
 
 COMMON_CPP = \
   common/ratcoinParams.cpp \
-  common/actionHandler.cpp \
-  common/trackerResponses.cpp \
-  common/requestHandler.cpp
+  common/action.cpp \
+  common/trackerResponses.cpp
   
 # tracker core #
 TRACKER_CORE_H = \

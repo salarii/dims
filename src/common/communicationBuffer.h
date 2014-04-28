@@ -3,6 +3,9 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#ifndef COMMUNICATION_BUFFER_H
+#define COMMUNICATION_BUFFER_H
+
 #define MaxBufferSize ( 1 << 14 )
 
 namespace common
@@ -14,5 +17,7 @@ struct CCommunicationBuffer
 	char m_buffer[ MaxBufferSize ];
 	unsigned int m_usedSize;
 };
+
 }
 
+#endif
