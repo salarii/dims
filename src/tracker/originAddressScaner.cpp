@@ -91,14 +91,12 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 		std::vector<unsigned char> data;
 
 		CScript::const_iterator pc = txout.scriptPubKey.begin();
-/*
+//sanity check
 		while( pc != txout.scriptPubKey.end() )
 		{
 			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
 				return;
-
-			pc++;
-		}*/
+		}
 		txnouttype type;
 
 		std::vector< std:: vector<unsigned char> > vSolutions;

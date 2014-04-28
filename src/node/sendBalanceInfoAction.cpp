@@ -47,8 +47,11 @@ CSendBalanceInfoAction::execute()
 
 			CKeyID keyId;
 			address.GetKeyID( keyId );
-			CWallet::getInstance()->setAvailableCoins( keyId, *m_balance );
-            return 0;
+			BOOST_FOREACH( CCoins const & coins, *m_balance)
+			{
+				CWallet::getInstance()->setAvailableCoins( keyId, getAvailableCoins( coins, keyId ) );
+			}
+			return 0;
         }
         else if ( m_token )
         {
@@ -80,8 +83,55 @@ CSendBalanceInfoAction::reset()
 	m_token.reset();
 }
 
+std::vector< CAvailableCoin >
+CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const & _pubId ) const
+{
+	std::vector< CAvailableCoin > availableCoins;
+	unsigned int valueSum = 0, totalInputSum = 0;
+	for (unsigned int i = 0; i < _coins.vout.size(); i++)
+	{
+		const CTxOut& txout = _coins.vout[i];
+
+		opcodetype opcode;
+
+		std::vector<unsigned char> data;
+
+		CScript::const_iterator pc = txout.scriptPubKey.begin();
+		//sanity check
+		while( pc != txout.scriptPubKey.end() )
+		{
+			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
+				return std::vector< CAvailableCoin >();
+		}
+		txnouttype type;
+
+		std::vector< std:: vector<unsigned char> > vSolutions;
+		if (Solver(txout.scriptPubKey, type, vSolutions) &&
+				(type == TX_PUBKEY || type == TX_PUBKEYHASH))
+		{
+			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
+
+			while( it != vSolutions.end() )
+			{
+
+				if (
+						( ( type == TX_PUBKEY ) && ( _pubId == Hash160( *it ) ) )
+					||	( ( type == TX_PUBKEYHASH ) && ( _pubId == uint160( *it ) ) )
+					)
+				{
+					availableCoins.push_back( CAvailableCoin( txout, i, _coins.m_hash ) );
+					break;
+				}
+				it++;
+			}
+		}
+	}
+	return availableCoins;
+}
+
+
 CBalanceRequest::CBalanceRequest( std::string _address )
-    : m_address( _address )
+	: m_address( _address )
 {
 }
 
@@ -95,7 +145,7 @@ CBalanceRequest::serialize( CBufferAsStream & _bufferStream ) const
 inline
 RequestKind::Enum CBalanceRequest::getKind() const
 {
-    return RequestKind::Balance;
+	return RequestKind::Balance;
 }
 
 }

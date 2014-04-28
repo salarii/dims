@@ -81,6 +81,8 @@ public:
     // as new tx version will probably only be introduced at certain heights
     int nVersion;
 
+	//experimental but I may need it
+	uint256 m_hash;
     // construct a CCoins from a CTransaction, at a given height
     CCoins(const CTransaction &tx, int nHeightIn) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), nHeight(nHeightIn), nVersion(tx.nVersion) {
         ClearUnspendable();
@@ -353,6 +355,14 @@ public:
 
 private:
     std::map<uint256,CCoins>::iterator FetchCoins(const uint256 &txid);
+};
+
+struct CAvailableCoin
+{
+	CAvailableCoin( CTxOut const & _coin, unsigned int _position,uint256 const & _hash ):m_coin( _coin ), m_position(_position),m_hash( _hash ){};
+	CTxOut m_coin;
+	unsigned int m_position;
+	uint256 m_hash;
 };
 
 #endif

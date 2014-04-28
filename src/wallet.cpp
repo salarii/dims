@@ -25,13 +25,21 @@ bool bSpendZeroConfChange = true;
 // mapWallet
 //
 
+struct CompareValueOnly2
+{
+	bool operator()(CAvailableCoin const & t1,
+					CAvailableCoin const & t2) const
+    {
+		return t1.m_coin.nValue < t2.m_coin.nValue;
+    }
+};
 struct CompareValueOnly
 {
-    bool operator()(const pair<int64_t, pair<const CWalletTx*, unsigned int> >& t1,
-                    const pair<int64_t, pair<const CWalletTx*, unsigned int> >& t2) const
-    {
-        return t1.first < t2.first;
-    }
+	bool operator()(const pair<int64_t, pair<const CWalletTx*, unsigned int> >& t1,
+					const pair<int64_t, pair<const CWalletTx*, unsigned int> >& t2) const
+	{
+		return t1.first < t2.first;
+	}
 };
 
 CPubKey CWallet::GenerateNewKey()
@@ -1143,8 +1151,209 @@ bool CWallet::SelectCoins(int64_t nTargetValue, set<pair<const CWalletTx*,unsign
             (bSpendZeroConfChange && SelectCoinsMinConf(nTargetValue, 0, 1, vCoins, setCoinsRet, nValueRet)));
 }
 
+bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & setCoinsRet, int64_t& nValueRet, const CCoinControl* coinControl) const
+{
+		setCoinsRet.clear();
+		nValueRet = 0;
+
+		// List of values less than target
+		pair<int64_t,CAvailableCoin*> coinLowestLarger;
+		coinLowestLarger.first = std::numeric_limits<int64_t>::max();
+		coinLowestLarger.second = NULL;
+		std::vector< CAvailableCoin > vValue;
+		int64_t nTotalLower = 0;
+//reference here is important
+		typedef std::multimap< uint160, CAvailableCoin >::value_type valueType;
+		BOOST_FOREACH( valueType const & coinPair, m_availableCoins)
+		{
+			int64_t n = coinPair.second.m_coin.nValue;
+
+			CAvailableCoin coin = coinPair.second;
+
+			if (n == nTargetValue)
+			{
+				setCoinsRet.push_back(coin);
+				nValueRet += coin.m_coin.nValue;
+				return true;
+			}
+			else if (n < nTargetValue )
+			{
+				vValue.push_back(coin);
+				nTotalLower += n;
+			}
+			else if (n < coinLowestLarger.first)
+			{
+				coinLowestLarger = std::make_pair(n, &coin);
+			}
+		}
+
+		if (nTotalLower == nTargetValue)
+		{
+			setCoinsRet = vValue;
+
+			nValueRet = nTargetValue;
+			return true;
+		}
+
+		if (nTotalLower < nTargetValue)
+		{
+			if (coinLowestLarger.second == NULL)
+				return false;
+			setCoinsRet.push_back(*coinLowestLarger.second);
+			nValueRet += coinLowestLarger.first;
+			return true;
+		}
+
+		// Solve subset sum by stochastic approximation
+		sort(vValue.rbegin(), vValue.rend(), CompareValueOnly2());
+		//vector<char> vfBest;
+		//int64_t nBest;
+
+		//disable fency stuff in order  to make  debuging/development easier/faster
+		/*
+		ApproximateBestSubset(vValue, nTotalLower, nTargetValue, vfBest, nBest, 1000);
+		if (nBest != nTargetValue && nTotalLower >= nTargetValue + CENT)
+			ApproximateBestSubset(vValue, nTotalLower, nTargetValue + CENT, vfBest, nBest, 1000);
+*/
+		// If we have a bigger coin and (either the stochastic approximation didn't find a good solution,
+		//                                   or the next bigger coin is closer), return the bigger coin
+		/*if (coinLowestLarger.second.first &&
+			((nBest != nTargetValue && nBest < nTargetValue + CENT) || coinLowestLarger.first <= nBest))
+		{
+			setCoinsRet.insert(coinLowestLarger.second);
+			nValueRet += coinLowestLarger.first;
+		}
+		else {*/
+		std::vector< CAvailableCoin >::iterator iterator = vValue.begin();
+		while( iterator != vValue.end() )
+		{
+			if (nTargetValue >= nValueRet )
+			{
+				setCoinsRet.push_back(*iterator);
+				nValueRet += iterator->m_coin.nValue;
+			}
+			else
+			{
+				return true;
+			}
+			iterator++;
+		}
+/*
+			LogPrint("selectcoins", "SelectCoins() best subset: ");
+			for (unsigned int i = 0; i < vValue.size(); i++)
+				if (vfBest[i])
+					LogPrint("selectcoins", "%s ", FormatMoney(vValue[i].first));
+			LogPrint("selectcoins", "total %s\n", FormatMoney(nBest));
+
+			*/
+
+		return false;
+}
+
+bool
+CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
+					   CWalletTx& wtxNew, std::string& strFailReason, const CCoinControl *coinControl )
+{
+	int64_t nValue = 0;
+	BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
+	{
+		if (nValue < 0)
+		{
+			strFailReason = _("Transaction amounts must be positive");
+			return false;
+		}
+		nValue += s.second;
+	}
+	if (vecSend.empty() || nValue < 0)
+	{
+		strFailReason = _("Transaction amounts must be positive");
+		return false;
+	}
 
 
+	{
+		LOCK2(cs_main, cs_wallet);
+		{
+			while (true)
+			{
+				wtxNew.vin.clear();
+				wtxNew.vout.clear();
+				wtxNew.fFromMe = true;
+
+				int64_t nTotalValue = nValue;
+				// vouts to the payees
+				BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
+				{
+					CTxOut txout(s.second, s.first);
+					wtxNew.vout.push_back(txout);
+				}
+
+				// Choose coins to use
+				std::vector< CAvailableCoin > setCoins;
+				int64_t nValueIn = 0;
+				if (!SelectCoins(nTotalValue, setCoins, nValueIn, coinControl))
+				{
+					strFailReason = _("Insufficient funds");
+					return false;
+				}
+
+
+				int64_t nChange = nValueIn - nValue;
+//this  I will fix later
+				if (nChange > 0)
+				{
+					// Fill a vout to ourself
+					// TODO: pass in scriptChange instead of reservekey so
+					// change transaction isn't always pay-to-bitcoin-address
+		/*			CScript scriptChange;
+
+					// coin control: send change to custom address
+					if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange))
+						scriptChange.SetDestination(coinControl->destChange);
+
+					CTxOut newTxOut(nChange, scriptChange);
+
+				  // Insert change txn at random position:
+				  vector<CTxOut>::iterator position = wtxNew.vout.begin()+GetRandInt(wtxNew.vout.size()+1);
+				  wtxNew.vout.insert(position, newTxOut);
+*/
+				}
+		//		else
+		//			reservekey.ReturnKey();
+
+				// Fill vin
+				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
+					wtxNew.vin.push_back(CTxIn(coin.m_hash,coin.m_position));
+
+				// Sign
+				int nIn = 0;
+				BOOST_FOREACH(CAvailableCoin const & coin, setCoins)
+				if (!SignSignature(*this, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
+				{
+						strFailReason = _("Signing transaction failed");
+						return false;
+				}
+
+				// Limit size
+				unsigned int nBytes = ::GetSerializeSize(*(CTransaction*)&wtxNew, SER_NETWORK, PROTOCOL_VERSION);
+				if (nBytes >= MAX_STANDARD_TX_SIZE)
+				{
+					strFailReason = _("Transaction too large");
+					return false;
+				}
+
+			/*
+			// don't know  what for is logic below
+
+				wtxNew.AddSupportingTransactions();
+				wtxNew.fTimeReceivedIsTxTime = true;
+			*/
+				break;
+			}
+		}
+	}
+	return true;
+}
 
 bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend,
                                 CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, std::string& strFailReason, const CCoinControl* coinControl)
@@ -1850,9 +2059,12 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
 }
 
 void
-CWallet::setAvailableCoins( CKeyID const & _keyId, std::vector< CCoins > const & _availableCoins )
+CWallet::setAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins )
 {
-	m_availableCoins.insert( std::make_pair( _keyId, _availableCoins ) );
+	BOOST_FOREACH( CAvailableCoin const & availableCoin, _availableCoins )
+	{
+		m_availableCoins.insert( std::make_pair( _keyId, availableCoin ) );
+	}
 }
 
 void CWallet::GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const {

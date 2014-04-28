@@ -30,6 +30,8 @@ public:
 
 	void reset();
 private:
+	std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId ) const;
+private:
 	CRequest* m_request;
 
 	std::string const m_pubKey;

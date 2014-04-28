@@ -92,11 +92,12 @@ public:
 /** A CWallet is an extension of a keystore, which also maintains a set of transactions and balances,
  * and provides the ability to create new transactions.
  */
+
 class CWallet : public CCryptoKeyStore, public CWalletInterface
 {
 private:
-    bool SelectCoins(int64_t nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet, const CCoinControl *coinControl = NULL) const;
-
+	bool SelectCoins(int64_t nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet, const CCoinControl *coinControl = NULL) const;
+	bool SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & setCoinsRet, int64_t& nValueRet, const CCoinControl* coinControl) const;
     CWalletDB *pwalletdbEncryption;
 
     // the current wallet version: clients below this version are not able to load the wallet
@@ -164,7 +165,7 @@ public:
 
     std::map<uint256, CWalletTx> mapWallet;
 
-	std::map< uint160, std::vector< CCoins > > m_availableCoins;
+	std::map< uint160, CAvailableCoin > m_availableCoins;
 
     int64_t nOrderPosNext;
     std::map<uint256, int> mapRequestCount;
@@ -195,7 +196,7 @@ public:
     void UnlockAllCoins();
     void ListLockedCoins(std::vector<COutPoint>& vOutpts);
 
-	void setAvailableCoins( CKeyID const & _keyId, std::vector< CCoins > const & _availableCoins );
+	void setAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
 
     // keystore implementation
     // Generate a new key
@@ -257,7 +258,10 @@ public:
     int64_t GetBalance() const;
     int64_t GetUnconfirmedBalance() const;
     int64_t GetImmatureBalance() const;
-    bool CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
+	//create transaction from outputs, this may be dead end but I will follow it anyway
+	bool CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
+						   CWalletTx& wtxNew, std::string& strFailReason, const CCoinControl *coinControl = NULL);
+	bool CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
                            CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, std::string& strFailReason, const CCoinControl *coinControl = NULL);
     bool CreateTransaction(CScript scriptPubKey, int64_t nValue,
                            CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, std::string& strFailReason, const CCoinControl *coinControl = NULL);
