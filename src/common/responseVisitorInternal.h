@@ -6,93 +6,93 @@
 namespace common
 {
 
-template < class _Action >
+template < class _Action, class _ParamList >
 class CResponseVisitorBase : public boost::static_visitor< void >
 {
 public:
 	CResponseVisitorBase( _Action const * _action ):m_action( _action ){};
 
-	virtual void operator()(VisitorParam( 0 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 0 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 1 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 1 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 2 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 2 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 3 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 3 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 4 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 4 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 5 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 5 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 6 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 6 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 7 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 7 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 8 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 8 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 9 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 9 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 10 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 10 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 11 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 11 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 12 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 12 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 13 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 13 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 14 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 14 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 15 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 15 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 16 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 16 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 17 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 17 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 18 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 18 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 19 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 19 )  & _param ) const
 	{
 	}
 
-	virtual void operator()(VisitorParam( 20 )  & _param ) const
+	virtual void operator()(VisitorParam( _ParamList, 20 )  & _param ) const
 	{
 	}
 

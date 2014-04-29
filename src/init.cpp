@@ -37,6 +37,7 @@
 
 #include "tracker/server.h"
 #include "tracker/manageNetwork.h"
+#include "tracker/configureTrackerActionHandler.h"
 
 #include "common/actionHandler.h"
 using namespace std;
@@ -1031,7 +1032,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 	
 /* create  threads of  action  handler */
 
-	//threadGroup.create_thread( boost::bind( &common::CActionHandler::loop, common::CActionHandler::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler< typename tracker::TrackerResponses >::loop, common::CActionHandler< typename tracker::TrackerResponses >::getInstance() ) );
     threadGroup.create_thread(&ThreadTempWhile);
     // ********************************************************* Step 10: load peers
 

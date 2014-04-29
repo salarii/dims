@@ -11,7 +11,7 @@
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/if.hpp>
 
-#define VisitorParam( num )  if_< less< int_< num >, size< ParametersList >::type >::type, at< ParametersList ,if_< less< int_< num >, size< ParametersList >::type >::type, int_< num >, int_< 0 > >::type >::type ,at< DummyList ,int_< num > >::type  >::type
+#define VisitorParam( paramListType ,num )  if_< less< int_< num >, size< paramListType >::type >::type, at< paramListType ,if_< less< int_< num >, size< paramListType >::type >::type, int_< num >, int_< 0 > >::type >::type ,at< DummyList ,int_< num > >::type  >::type
 
 namespace common
 {

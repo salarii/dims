@@ -11,7 +11,7 @@
 
 namespace common
 {
-
+template < class _RequestResponses >
 struct CRequest;
 
 class CMediumException : public std::exception
@@ -21,13 +21,14 @@ public:
     ErrorType::Enum m_error;
 };
 
+template < class _RequestResponses >
 class CMedium
 {
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
-	virtual bool getResponse( std::vector< RequestResponse > & _requestResponse ) const = 0;
-	virtual void add( CRequest const * _request ) = 0;
+	virtual bool getResponse( std::vector< _RequestResponses > & _requestResponse ) const = 0;
+	virtual void add( CRequest< _RequestResponses > const * _request ) = 0;
 };
 
 

@@ -2,37 +2,24 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
 #ifndef SET_RESPONSE_VISITOR_H
 #define SET_RESPONSE_VISITOR_H
 
 #include <boost/variant.hpp> 
 
 #include "requestHandler.h"
-
+#include "setResponseVisitorBase.h"
 namespace common
 {
 
 class CSendTransactionAction;
 
-class CAction;
+template < class _RequestResponses > class CAction;
 
 class CConnectAction;
 
-class CSetResponseVisitorBase
-{
-public:
-	virtual void visit( CAction & _action );
-};
-
-void
-CSetResponseVisitorBase::visit( CAction & _action )
-{
-}
-
-
 template < class _RequestResponses >
-class CSetResponseVisitor : public CSetResponseVisitorBase
+class CSetResponseVisitor : public CSetResponseVisitorBase< _RequestResponses >
 {
 public:
 	CSetResponseVisitor( std::list< _RequestResponses > const & _requestRespond );

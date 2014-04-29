@@ -11,13 +11,14 @@
 
 namespace common
 {
-
+template < class _RequestResponses >
 class CMedium;
 
+template < class _RequestResponses >
 class CConnectionProvider
 {
 public:
-	virtual std::list< CMedium *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ) = 0;
+	virtual std::list< CMedium< _RequestResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ) = 0;
 };
 
 }

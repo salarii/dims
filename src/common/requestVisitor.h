@@ -11,7 +11,7 @@ namespace common
 class CRequestVisitor
 {
 public:
-	virtual void visit( CRequest* _request ){};
+	virtual void visit( CRequest< _RequestResponses >* _request ){};
 };
 
 

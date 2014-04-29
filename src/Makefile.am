@@ -5,6 +5,7 @@ AM_CPPFLAGS += -I$(builddir)
 noinst_LIBRARIES = \
   libbitcoin_server.a \
   libbitcoin_common.a \
+  libratcoin_tracker.a \
   libbitcoin_cli.a
 
 bin_PROGRAMS =
@@ -36,7 +37,6 @@ COMMON_H = \
 
 COMMON_CPP = \
   common/ratcoinParams.cpp \
-  common/action.cpp \
   common/trackerResponses.cpp
   
 # tracker core #
@@ -55,6 +55,7 @@ TRACKER_CORE_H = \
   tracker/selfNode.h \
   tracker/nodesManager.h \
   tracker/validateTransactionsAction.h \
+  tracker/configureTrackerActionHandler.h \
   tracker/server.h
   
 # bitcoin core #
@@ -136,8 +137,11 @@ TRACKER_CORE_CPP = \
   tracker/manageNetwork.cpp \
   tracker/nodesManager.cpp \
   tracker/validateTransactionsAction.cpp \
+  tracker/actionHandlerDefinitions.cpp \
   tracker/server.cpp
 
+  
+  
 libbitcoin_server_a_SOURCES = \
   db.cpp \
   crypter.cpp \
@@ -164,9 +168,7 @@ libbitcoin_server_a_SOURCES = \
   wallet.cpp \
   walletdb.cpp \
   $(JSON_H) \
-  $(BITCOIN_CORE_H) \
-  $(TRACKER_CORE_H) \
-  $(TRACKER_CORE_CPP)
+  $(BITCOIN_CORE_H)
 
 libbitcoin_common_a_SOURCES = \
   allocators.cpp \
@@ -185,16 +187,24 @@ libbitcoin_common_a_SOURCES = \
   $(COMMON_H) \
   $(COMMON_CPP)
 
+  libratcoin_tracker_a_SOURCES = \
+  $(BITCOIN_CORE_H) \
+  $(TRACKER_CORE_H) \
+  $(TRACKER_CORE_CPP)
+  
+  
 libbitcoin_cli_a_SOURCES = \
   rpcclient.cpp \
   $(BITCOIN_CORE_H)
 
 nodist_libbitcoin_common_a_SOURCES = $(top_srcdir)/src/obj/build.h
 #
-
+# this repetition is temporary work around
 # bitcoind binary #
 bitcoind_LDADD = \
+  libratcoin_tracker.a \
   libbitcoin_server.a \
+  libratcoin_tracker.a \
   libbitcoin_cli.a \
   libbitcoin_common.a \
   $(LIBLEVELDB) \

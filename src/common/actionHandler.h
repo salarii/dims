@@ -21,49 +21,42 @@
 
 namespace common
 {
-/*
-connect  with  seed
-connect  with  monitor or  tracker
-rebuild reputation  tables
-handle  requests
-rebuild  reputation  table  periodically
-?? put  this as permenent  action  with  counter ?? action 
-*/
+
 template < class _RequestResponses > class CSetResponseVisitor;
 template < class _RequestResponses > class CRequestHandler;
-struct CRequest;
+template < class _RequestResponses > struct CRequest;
 
 template < class _RequestResponses >
 class CActionHandler
 {
 public:
 	typedef std::multimap<int, CRequestHandler< _RequestResponses > * > AvailableHandlers;
-	typedef std::map< CRequest*, CAction* > RequestToAction;
+	typedef std::map< CRequest< _RequestResponses >*, CAction< _RequestResponses >* > RequestToAction;
 public:
 	void loop();
 	void shutDown();
 	~CActionHandler();
 	static CActionHandler* getInstance( );
 
-	void executeAction( CAction* _action );
+	void executeAction( CAction< _RequestResponses >* _action );
 
-	void addConnectionProvider( CConnectionProvider* _connectionProvider );
+	void addConnectionProvider( CConnectionProvider< _RequestResponses >* _connectionProvider );
 private:
 	CActionHandler();
 
 	std::list< CRequestHandler< _RequestResponses > * > provideHandler( int const _request );
 
-    void findAction( CAction* _action ) const;
+	void findAction( CAction< _RequestResponses >* _action ) const;
 private:
 	static CActionHandler * ms_instance;
 
 	mutable boost::mutex m_mutex;
 
-	std::list< CAction* > m_actions;
+	std::list< CAction< _RequestResponses >* > m_actions;
 
 	RequestToAction m_reqToAction;
 
-	std::list<CConnectionProvider*> m_connectionProviders;
+	std::list<CConnectionProvider< _RequestResponses >*> m_connectionProviders;
 
 	//this  will be  multimap one  day, this  should  be  periodically  cleanuped ,  don't  know  how  yet
 	AvailableHandlers m_requestHandlers;
@@ -94,7 +87,7 @@ CActionHandler< _RequestResponses >::getInstance( )
 
 template < class _RequestResponses >
 void
-CActionHandler< _RequestResponses >::executeAction( CAction* _action )
+CActionHandler< _RequestResponses >::executeAction( CAction< _RequestResponses >* _action )
 {
 	boost::lock_guard<boost::mutex> lock(m_mutex);
 	m_actions.push_back( _action );
@@ -102,7 +95,7 @@ CActionHandler< _RequestResponses >::executeAction( CAction* _action )
 
 template < class _RequestResponses >
 void
-CActionHandler< _RequestResponses >::addConnectionProvider( CConnectionProvider* _connectionProvider )
+CActionHandler< _RequestResponses >::addConnectionProvider( CConnectionProvider< _RequestResponses >* _connectionProvider )
 {
 	m_connectionProviders.push_back( _connectionProvider );
 }
@@ -125,15 +118,15 @@ CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
 			return requestHandelers;
 	}
 
-	std::list<CConnectionProvider*>::iterator iterator = m_connectionProviders.begin();
+	typename std::list< CConnectionProvider< _RequestResponses >*>::iterator iterator = m_connectionProviders.begin();
 
 	while( iterator != m_connectionProviders.end() )
 	{
-		std::list< CMedium *> mediums= (*iterator)->provideConnection( _requestKind );
+		std::list< CMedium< _RequestResponses >*> mediums= (*iterator)->provideConnection( _requestKind );
 
 		if ( !mediums.empty() )
 		{
-			BOOST_FOREACH( CMedium * medium, mediums )
+			BOOST_FOREACH( CMedium< _RequestResponses > * medium, mediums )
 			{
 				CRequestHandler< _RequestResponses > * requestHandler = new CRequestHandler< _RequestResponses >( medium );
 				m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
@@ -162,9 +155,9 @@ CActionHandler< _RequestResponses >::loop()
 	{
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
-			BOOST_FOREACH(CAction* action, m_actions)
+			BOOST_FOREACH(CAction< _RequestResponses >* action, m_actions)
 			{
-				CRequest* request = action->execute();
+				CRequest< _RequestResponses >* request = action->execute();
 
 				if ( request )
 					m_reqToAction.insert( std::make_pair( request, action ) );
@@ -177,9 +170,9 @@ CActionHandler< _RequestResponses >::loop()
 			reqAction.second->readLoop();
 		}
 
-		std::list< CRequest* > requestsToErase;
+		std::list< CRequest< _RequestResponses >* > requestsToErase;
 
-		BOOST_FOREACH(RequestToAction::value_type & reqAction, m_reqToAction)
+		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
 			std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( reqAction.first->getKind() );
 
@@ -206,7 +199,7 @@ CActionHandler< _RequestResponses >::loop()
 				m_actions.push_back( reqAction.second );
 		}
 
-		BOOST_FOREACH( CRequest* & request, requestsToErase)
+		BOOST_FOREACH( CRequest< _RequestResponses >* & request, requestsToErase)
 		{
 			m_reqToAction.erase( request );
 		}

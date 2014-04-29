@@ -7,8 +7,6 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
   $(QR_CFLAGS)
 bin_PROGRAMS = bitcoin-qt
 noinst_LIBRARIES = libbitcoinqt.a
-SUBDIRS = $(BUILD_TEST_QT)
-DIST_SUBDIRS = test
 
 # bitcoin qt core #
 QT_TS = \
@@ -370,7 +368,7 @@ endif
 if TARGET_WINDOWS
   bitcoin_qt_SOURCES += $(BITCOIN_RC)
 endif
-bitcoin_qt_LDADD = libbitcoinqt.a $(LIBBITCOIN_SERVER)
+bitcoin_qt_LDADD = libbitcoinqt.a $(LIBRATCOIN_TRACKER) $(LIBBITCOIN_SERVER) $(LIBRATCOIN_TRACKER)
 if ENABLE_WALLET
 bitcoin_qt_LDADD += $(LIBBITCOIN_WALLET)
 endif

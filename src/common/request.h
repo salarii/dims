@@ -23,15 +23,18 @@ struct RequestKind
 	};
 };
 
+template < class _RequestResponses >
 class CMedium;
 
 class CRequestVisitor;
 
+template < class _RequestResponses >
 struct CRequest
 {
-	virtual void accept( CMedium * _medium ) const = 0;
+	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
 // reconsider this  int
 	virtual int getKind() = 0;
+	virtual ~CRequest(){};
 };
 
 

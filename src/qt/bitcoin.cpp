@@ -234,7 +234,7 @@ void BitcoinCore::initialize()
 {
     try
     {
-        LogPrintf("Running AppInit2 in thread\n");
+		LogPrintf("Running AppInit1 in thread\n");
 	  int rv = AppInit1(threadGroup);
 
 	node::CActionHandler * actionHandler = node::CActionHandler::getInstance();
