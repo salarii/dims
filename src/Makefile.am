@@ -56,6 +56,10 @@ TRACKER_CORE_H = \
   tracker/nodesManager.h \
   tracker/validateTransactionsAction.h \
   tracker/configureTrackerActionHandler.h \
+  tracker/getBalanceAction.h \
+  tracker/getBalanceRequest.h \
+  tracker/internalOperationsMedium.h \
+  tracker/trackerSetResponseVisitor.h \
   tracker/server.h
   
 # bitcoin core #
@@ -138,6 +142,10 @@ TRACKER_CORE_CPP = \
   tracker/nodesManager.cpp \
   tracker/validateTransactionsAction.cpp \
   tracker/actionHandlerDefinitions.cpp \
+  tracker/getBalanceRequest.cpp \
+  tracker/internalOperationsMedium.cpp \
+  tracker/getBalanceAction.cpp \
+  tracker/trackerSetResponseVisitor.cpp \
   tracker/server.cpp
 
   

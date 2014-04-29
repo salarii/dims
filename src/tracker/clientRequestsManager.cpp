@@ -3,8 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "clientRequestsManager.h"
-
+#include "common/actionHandler.h"
 #include <boost/foreach.hpp>
+#include "getBalanceAction.h"
 
 using namespace common;
 
@@ -24,7 +25,7 @@ public:
 
 	ClientResponse operator()( CAddressBalanceReq const & _addressBalanceReq ) const
 	{
-
+		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction );
 	}
 };
 

@@ -190,7 +190,7 @@ protected:
     typedef std::vector<unsigned char, zero_after_free_allocator<unsigned char> > vector_uchar;
     vector_uchar vchData;
 
-    CBase58Data( CNetworkParams const * _networkParams= &GetNetworkParams< CChainParams >() )
+	CBase58Data( CNetworkParams const * _networkParams= &GetNetworkParams< common::CRatcoinParams >() )
 	    : m_networkParams( _networkParams )
     {
         vchVersion.clear();
@@ -279,12 +279,12 @@ class CBitcoinAddress : public CBase58Data
 {
 public:
     bool Set(const CKeyID &id) {
-        SetData(Params().Base58Prefix(CNetworkParams::PUBKEY_ADDRESS), &id, 20);
+		SetData(m_networkParams->Base58Prefix(CNetworkParams::PUBKEY_ADDRESS), &id, 20);
         return true;
     }
 
     bool Set(const CScriptID &id) {
-        SetData(Params().Base58Prefix(CNetworkParams::SCRIPT_ADDRESS), &id, 20);
+		SetData(m_networkParams->Base58Prefix(CNetworkParams::SCRIPT_ADDRESS), &id, 20);
         return true;
     }
 
@@ -296,29 +296,29 @@ public:
     bool IsValid() const
     {
         bool fCorrectSize = vchData.size() == 20;
-		bool fKnownVersion = vchVersion == GetNetworkParams< CChainParams >().Base58Prefix(CNetworkParams::PUBKEY_ADDRESS) ||
-							 vchVersion == GetNetworkParams< CChainParams >().Base58Prefix(CNetworkParams::SCRIPT_ADDRESS);
+		bool fKnownVersion = vchVersion == m_networkParams->Base58Prefix(CNetworkParams::PUBKEY_ADDRESS) ||
+							 vchVersion == m_networkParams->Base58Prefix(CNetworkParams::SCRIPT_ADDRESS);
         return fCorrectSize && fKnownVersion;
     }
 
-    CBitcoinAddress( CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >() )
+	CBitcoinAddress( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
 	: CBase58Data( _networkParams )
     {
     }
 
-    CBitcoinAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >() )
+	CBitcoinAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
 	: CBase58Data( _networkParams )
     {
         Set(dest);
     }
 
-    CBitcoinAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	CBitcoinAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(strAddress);
     }
 
-    CBitcoinAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	CBitcoinAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(pszAddress);
@@ -391,13 +391,13 @@ public:
         return SetString(strSecret.c_str());
     }
 
-    CBitcoinSecret(const CKey& vchSecret, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	CBitcoinSecret(const CKey& vchSecret, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
     	: CBase58Data( _networkParams )
     {
         SetKey(vchSecret);
     }
 
-    CBitcoinSecret( CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	CBitcoinSecret( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
 	: CBase58Data( _networkParams )
     {
     }
@@ -419,12 +419,12 @@ public:
         return ret;
     }
 
-    CBitcoinExtKeyBase(const K &key, CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >())
+	CBitcoinExtKeyBase(const K &key, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
 	: CBase58Data( _networkParams )
     {
         SetKey(key);
     }
-    CBitcoinExtKeyBase( CNetworkParams const * _networkParams = &GetNetworkParams< CChainParams >() )
+	CBitcoinExtKeyBase( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
 	: CBase58Data( _networkParams )
     {}
 };

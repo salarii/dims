@@ -17,7 +17,7 @@ static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnop
 
 #include  <boost/variant.hpp>
 
-/*
+
 bool matchAll( long long si, long long n )
 {
 	int  pat;
@@ -81,7 +81,7 @@ return false;
 
 
 
-long long oper( std::string _ananas )
+long long oper( std::string _ananas, std::vector< long long > & _result )
 {
 std::reverse(_ananas.begin(),_ananas.end());
 	std::string base(pszBase58);
@@ -107,7 +107,11 @@ check *= 58;
 			it++;
 
 			if ( it == _ananas.end())
-				return check;
+			{
+				if ( check > 1000 )
+					return 0;
+				_result.push_back( check );
+			}
 			si=base.find(*it);
 
 			loop++;
@@ -121,127 +125,16 @@ check *= 58;
 
 }
 
-*/
-/*
-bool condition( unsigned int _leadinZeroNumber,unsigned char const (&_hash)[SHA256_DIGEST_LENGTH])
-{
-	for ( unsigned int i = SHA256_DIGEST_LENGTH - 1; i >= 0; --i )
-	{
-		if ( _leadinZeroNumber >= 8 )
-		{
-			if ( _hash[ i ] != 0 )
-				return false;
-			_leadinZeroNumber -= 8;
-		}
-		else
-		{
-			unsigned char compare = 0xff;
-			compare >>= _leadinZeroNumber;
-			if ( compare < _hash[ i ] )
-				return false;
-			else
-				return true;
-		}
-	}
-	return true;
-
-}
-
-
-bool
-proofOfWorkChecking(std::vector< unsigned char > & _payload, unsigned int _leadinZeroNumber )
-{
-	SHA256_CTX sha256;
-	SHA256_Init(&sha256);
-	SHA256_Update(&sha256, &_payload[0], _payload.size());
-	SHA256_Final(hash, &sha256);
-
-	return condition( _leadinZeroNumber, hash);
-}
-
-
-struct CIncreaseCell
-{
-	static bool m_increase;
-	CIncreaseCell(){}
-	unsigned char operator() ( unsigned char & _cell ) const
-	{
-		if ( m_increase )
-		{
-			_cell = ++_cell % 0x100;
-
-			m_increase = !_cell;
-		}
-		return _cell;
-	}
-};
-
-bool CIncreaseCell::m_increase = false;
-
-
-
-void
-sha256(std::vector< unsigned char > & _payload, unsigned int _leadinZeroNumber )
-{
-	unsigned char hash[SHA256_DIGEST_LENGTH];
-
-	do
-	{	
-		CIncreaseCell::m_increase = true;
-		std::transform (_payload.rbegin(), _payload.rend(), _payload.rbegin(), CIncreaseCell());
-		if ( CIncreaseCell::m_increase )
-			_payload.push_back( 0 );
-
-		SHA256_CTX sha256;
-		SHA256_Init(&sha256);
-		SHA256_Update(&sha256, &_payload[0], _payload.size());
-		SHA256_Final(hash, &sha256);
-
-	}
-	while( !condition( _leadinZeroNumber, hash) );
-
-}
-*/
-
-boost::variant< int  , float  >  emu((float)1.1);
-
-template < class T >
-class CResponseVisitorBase : public boost::static_visitor<int>
-{
-public:
-	virtual T operator()(int _transactionStatus ) const
-	{
-		throw std::exception();
-	}
-
-	virtual T operator()(float _accountBalance ) const
-	{
-		throw std::exception();
-	}
-
-};
-
-class CGetTransactionStatus : public CResponseVisitorBase< bool >
-{
-public:
-	virtual bool operator()(float _accountBalance ) const
-	{
-		return true;
-	}
-
-};
-
-
-
 
 
 int main()
 {
-	CResponseVisitorBase< bool > const & responseVisitorBase((CResponseVisitorBase< bool > const &)CGetTransactionStatus());
-	boost::apply_visitor( responseVisitorBase, emu );
 
-  //long long  zen =oper("R");
+	std::vector<  long long  > result;
+  long long  zen =oper("r",result);
 
+
+  std::string  dance ="";
 	// std::vector<unsigned char> vec;
 	 //sha256(vec,0);
 

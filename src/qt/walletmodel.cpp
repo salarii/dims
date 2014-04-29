@@ -486,10 +486,10 @@ bool WalletModel::getPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const
 {
     return wallet->GetPubKey(address, vchPubKeyOut);
 }
-
+//this  is  unsufficient
 bool WalletModel::addAddress( SecureString const & _privKey )
 {
-	CBitcoinSecret secret;
+	CBitcoinSecret secret( &GetNetworkParams< CChainParams >() );
 
 	if ( !secret.SetString(_privKey.c_str()) )
 		return false;
@@ -503,7 +503,7 @@ bool WalletModel::addAddress( SecureString const & _privKey )
 	if (!wallet->AddKeyPubKey(priv, pubkey))
 		return false;
 	
-	updateAddressBook(CBitcoinAddress(pubkey.GetID()).ToString().c_str(), QString("def"),true, QString(""),CT_NEW );
+	updateAddressBook(CBitcoinAddress(pubkey.GetID() ).ToString().c_str(), QString("def"),true, QString(""),CT_NEW );
 
 	return true;
 }

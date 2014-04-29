@@ -195,10 +195,10 @@ bool PaymentServer::ipcParseCommandLine(int argc, char* argv[])
             {
                 CBitcoinAddress address(r.address.toStdString());
 
-                SelectParams(CNetworkParams::MAIN);
+				SelectParams(CNetworkParams::MAIN);
                 if (!address.IsValid())
                 {
-                    SelectParams(CNetworkParams::TESTNET);
+					SelectParams(CNetworkParams::TESTNET);
                 }
             }
         }

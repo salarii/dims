@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
     // Command-line options take precedence:
     ParseParameters(argc, argv);
     // Check for -testnet or -regtest parameter (TestNet() calls are only valid after this clause)
-    if (!SelectParamsFromCommandLine()) {
+	if (!SelectParamsFromCommandLine() || !common::SelectRatcoinParamsFromCommandLine() ) {
         fSelParFromCLFailed = true;
     }
 #ifdef ENABLE_WALLET
