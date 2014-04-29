@@ -8,15 +8,16 @@
 #include <boost/statechart/state_machine.hpp>
 
 #include "common/action.h"
+#include "configureTrackerActionHandler.h"
 
 namespace tracker
 {
 struct CTransactionValidationStatemachine;
 
-class CValidateTransactionsAction : public common::CAction
+class CValidateTransactionsAction : public common::CAction< TrackerResponses >
 {
 public:
-	virtual common::CRequest* execute(){ return 0; }
+	virtual common::CRequest< TrackerResponses >* execute(){ return 0; }
 private:
 	CTransactionValidationStatemachine * m_transactionValidationState;
 };

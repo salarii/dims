@@ -7,6 +7,7 @@
 
 #include "communicationProtocol.h"
 #include "common/connectionProvider.h"
+#include "configureTrackerActionHandler.h"
 
 class CNode;
 
@@ -22,7 +23,7 @@ the effort  should be  made  to  decrease monitors overhead  since  thay  may be
 */
 
 
-class CNodesManager : public common::CConnectionProvider
+class CNodesManager : public common::CConnectionProvider< TrackerResponses >
 {
 public:
 	void PropagateBundle( std::vector< CTransaction > _bundle );
@@ -37,7 +38,7 @@ public:
 
 	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
 
-	std::list< common::CMedium *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ){ return std::list< common::CMedium *>();}
+	std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ){ return std::list< common::CMedium< TrackerResponses > *>();}
 
 	static CNodesManager * getInstance( );
 private:

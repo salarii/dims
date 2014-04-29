@@ -182,7 +182,7 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 
 #ifdef ENABLE_WALLET
         case Fee:
-            // Attention: Init() is called before nTransactionFee is set in AppInit2()!
+			// Attention: Init() is called before nTransactionFee is set in AppInit1()!
             // To ensure we can change the fee on-the-fly update our QSetting when
             // opening OptionsDialog, which queries Fee via the mapper.
             if (nTransactionFee != settings.value("nTransactionFee").toLongLong())
