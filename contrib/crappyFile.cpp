@@ -18,111 +18,22 @@ static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnop
 #include  <boost/variant.hpp>
 
 
-bool matchAll( long long si, long long n )
-{
-	int  pat;
-	int i = 0;
-	while(1)
-	{
-
-
-		if ( si && !n || !si && n )
-			return false;
-		else if( si == 0 && n == 0 )
-			return true;
-
-		pat  = si % 10;
-		si /= 10;
-
-		if ( pat != n%10 )
-			return false;
-		n /=10;
-	}
-
-}
-
-
-bool comp( char sign, int check, int loop )
-{
-
-	long long workSi =sign;
-long long n = check * 1000000;
-for ( int i = 0;i<28 + loop; i++ )
-{
-	n /= 58;
-if ( n < 1000000 )
-{
-	n *= 1000;
-}
-}
-
-int  pat = workSi % 10;
-workSi /= 10;
-
-bool flag =false;
-while ( 1 )
-{
-	
-	if ( pat == n%10  )
-	{
-		if( matchAll( workSi, n/10 ) )
-			return true;
-	}
-
-	n/=10;
-	if ( n == 0 )
-		break;
-
-}
-
-return false;
-}
-
-
-
-
 long long oper( std::string _ananas, std::vector< long long > & _result )
 {
-std::reverse(_ananas.begin(),_ananas.end());
+//std::reverse(_ananas.begin(),_ananas.end());
 	std::string base(pszBase58);
 	std::string::iterator it = _ananas.begin();
-	long long si= 0;
-	int  loop =0;
-	int check = 1 ;
-	
-for ( int j = 1; j <  _ananas.size(); j++ )
-{
-check *= 58;
-}
-
-	while( 1 )
+	long long number = 0;
+	while ( it != _ananas.end() )
 	{
-		si=base.find(*it);
-		
+		number *=58;
+		number +=base.find(*it);
 
-		if ( it == _ananas.end() )
-			break;
-		while ( comp( si,check, loop  ) )
-		{
-			it++;
-
-			if ( it == _ananas.end())
-			{
-				if ( check > 1000 )
-					return 0;
-				_result.push_back( check );
-			}
-			si=base.find(*it);
-
-			loop++;
-
-		}
-
-		it = _ananas.begin();
-
-		check++;
+		it++;
 	}
 
+	number *= 0.42;
+	return  number;
 }
 
 
@@ -131,7 +42,7 @@ int main()
 {
 
 	std::vector<  long long  > result;
-  long long  zen =oper("r",result);
+  long long  zen =oper("Rat",result);
 
 
   std::string  dance ="";

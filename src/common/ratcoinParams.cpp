@@ -39,9 +39,9 @@ public:
 
 //		vSeeds.push_back(CDNSSeedData("ratcoin.beacon.org", "dnsseed.ratcoin.beacon.org"));
 
-		base58Prefixes[PUBKEY_ADDRESS] = list_of(58);//R
-		base58Prefixes[SCRIPT_ADDRESS] = list_of(0x75);//r
-		base58Prefixes[SECRET_KEY] =     list_of(0x75);//
+		base58Prefixes[PUBKEY_ADDRESS] = list_of(60);//R
+		base58Prefixes[SCRIPT_ADDRESS] = list_of(60);//r
+		base58Prefixes[SECRET_KEY] =     list_of(60);//
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);//
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);//
 
@@ -102,9 +102,9 @@ public:
 		vSeeds.clear();
 		vSeeds.push_back(CDNSSeedData("ratcoin.testnet.beacon.org", "dnsseed.ratcoin.testnet.beacon.org"));
 
-		base58Prefixes[PUBKEY_ADDRESS] = list_of(0x75);  // time to set this ??
-		base58Prefixes[SCRIPT_ADDRESS] = list_of(0x75);
-		base58Prefixes[SECRET_KEY]     = list_of(0x75);
+		base58Prefixes[PUBKEY_ADDRESS] = list_of(0x7a);  // time to set this ??
+		base58Prefixes[SCRIPT_ADDRESS] = list_of(0x7a);
+		base58Prefixes[SECRET_KEY]     = list_of(0x7a);
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
 	}
