@@ -38,12 +38,14 @@ struct CAvailableCoins
 		READWRITE(type);
 		READWRITE(m_hash);
 		READWRITE(m_availableCoins);
-
+		READWRITE(m_availableCoins2);
 	)
 
 	static CMainRequestType::Enum const  m_requestType;
 	uint256 m_hash;
 	std::vector< CCoins > m_availableCoins;
+
+	std::map< uint256, CCoins > m_availableCoins2;
 };
 
 typedef boost::variant< CDummy, CAvailableCoins > ClientResponse;

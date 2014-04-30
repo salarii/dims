@@ -13,10 +13,10 @@
 
 #define VisitorParam( paramListType ,num ) \
 	boost::mpl::if_< \
-	boost::mpl::less< \
-		  boost::mpl::int_< num > \
-		  , boost::mpl::size< paramListType >::type >::type \
-		  , boost::mpl::at< paramListType ,boost::mpl::if_< boost::mpl::less< boost::mpl::int_< num >, boost::mpl::size< paramListType >::type >::type, boost::mpl::int_< num >, boost::mpl::int_< 0 > >::type >::type \
+	typename boost::mpl::less< \
+	boost::mpl::int_< num > \
+	, typename boost::mpl::size< paramListType >::type >::type \
+	, typename boost::mpl::at< paramListType , typename boost::mpl::if_< typename boost::mpl::less< boost::mpl::int_< num >::type, typename boost::mpl::size< paramListType >::type >::type, boost::mpl::int_< num >::type, boost::mpl::int_< 0 > >::type >::type \
 	,boost::mpl::at< DummyList \
 	,boost::mpl::int_< num > >::type  >::type
 

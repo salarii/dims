@@ -6,9 +6,13 @@
 #define SET_RESPONSE_VISITOR_H
 
 #include <boost/variant.hpp> 
+#include "tracker/configureTrackerActionHandler.h"
 
-#include "requestHandler.h"
-#include "setResponseVisitorBase.h"
+namespace tracker
+{
+class CGetBalanceAction;
+}
+
 namespace common
 {
 
@@ -19,10 +23,11 @@ template < class _RequestResponses > class CAction;
 class CConnectAction;
 
 template < class _RequestResponses >
-class CSetResponseVisitor : public CSetResponseVisitorBase< _RequestResponses >
+class CSetResponseVisitor
 {
 public:
 	CSetResponseVisitor( std::list< _RequestResponses > const & _requestRespond );
+	virtual void visit( CAction< _RequestResponses > & _action );
 private:
 
 	std::list< _RequestResponses > m_requestRespond;
@@ -35,6 +40,28 @@ CSetResponseVisitor< _RequestResponses >::CSetResponseVisitor( std::list< _Reque
 {
 }
 
+
+template < class _RequestResponses >
+inline
+void
+CSetResponseVisitor< _RequestResponses >::visit( CAction< _RequestResponses > & _action )
+{
+}
+
+/*
+template<>
+class CSetResponseVisitor< tracker::TrackerResponses >
+{
+public:
+	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses ){};
+
+	virtual void visit( common::CAction< tracker::TrackerResponses > & _action ){};
+
+	virtual void visit( tracker::CGetBalanceAction & _action ){};
+
+};
+
+*/
 
 }
 

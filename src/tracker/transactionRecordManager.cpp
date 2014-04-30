@@ -101,6 +101,18 @@ CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction 
 	return control.Wait();
 }
 
+bool
+CTransactionRecordManager::getCoins( std::vector< uint256 > const & _transaction,  std::vector< CCoins > & _coins ) const
+{
+	CCoins coins;
+	BOOST_FOREACH( uint256 const & hash, _transaction )
+	{
+		if ( m_coinsViewCache->GetCoins( hash, coins ) )
+			return false;
+		_coins.push_back( coins );
+	}
+	return true;
+}
 
 void
 CTransactionRecordManager::loop( std::vector< CTransaction > const & _transaction )

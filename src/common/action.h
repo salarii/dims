@@ -5,10 +5,13 @@
 #ifndef ACTION_H
 #define ACTION_H
 
-#include "setResponseVisitorBase.h"
+#include "setResponseVisitor.h"
 
 namespace common
 {
+
+template < class _RequestResponses >
+class CSetResponseVisitor;
 
 template < class _RequestResponses > class CSetResponseVisitorBase;
 template < class _RequestResponses > struct CRequest;
@@ -29,7 +32,7 @@ class CAction
 public:
 	CAction(): m_actionStatus( ActionStatus::Unprepared ){};
 
-	virtual void accept( CSetResponseVisitorBase< _RequestResponses > & _visitor );
+	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor );
 
 	virtual CRequest< _RequestResponses >* execute() = 0;
 
@@ -45,9 +48,8 @@ protected:
 template < class _RequestResponses >
 inline
 void
-CAction<_RequestResponses>::accept(CSetResponseVisitorBase<_RequestResponses> &_visitor )
+CAction<_RequestResponses>::accept(CSetResponseVisitor<_RequestResponses> &_visitor )
 {
-	_visitor.visit( *this );
 }
 
 

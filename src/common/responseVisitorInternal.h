@@ -3,16 +3,31 @@
 
 #include "visitorConfigurationUtilities.h"
 
+#include <boost/variant.hpp>
 namespace common
 {
 
-template < class _Action, class _ParamList >
+template < class _Action, typename _ParamList >
 class CResponseVisitorBase : public boost::static_visitor< void >
 {
 public:
 	CResponseVisitorBase( _Action const * _action ):m_action( _action ){};
+/*
+	virtual void operator()(VisitorParam(  _ParamList, 0 )  & _param ) const
+	{
+	}
+*/
+	typename
 
-	virtual void operator()(VisitorParam( _ParamList, 0 )  & _param ) const
+	boost::mpl::if_<
+	typename boost::mpl::less<
+		  boost::mpl::int_< 0 >
+		  , typename boost::mpl::size< _ParamList >::type >::type
+		  , typename boost::mpl::at< _ParamList , typename boost::mpl::if_< typename boost::mpl::less< boost::mpl::int_< 0 >::type, typename boost::mpl::size< _ParamList >::type >::type, boost::mpl::int_< 0 >::type, boost::mpl::int_< 0 > >::type >::type
+	,boost::mpl::at< DummyList
+	,boost::mpl::int_< 0 > >::type  >::type  stefi;
+/*
+	virtual void operator()(VisitorParam( typename _ParamList, 0 )  & _param ) const
 	{
 	}
 
@@ -95,7 +110,7 @@ public:
 	virtual void operator()(VisitorParam( _ParamList, 20 )  & _param ) const
 	{
 	}
-
+*/
 protected:
 	_Action * const m_action;
 };

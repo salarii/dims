@@ -15,4 +15,9 @@ CGetBalanceAction::execute()
 }
 
 
+void
+CGetBalanceAction::passBalance()
+{
+}
+
 }

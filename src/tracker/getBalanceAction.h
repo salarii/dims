@@ -22,6 +22,8 @@ public:
 	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void reset(){}
+
+	void passBalance();
 };
 
 }

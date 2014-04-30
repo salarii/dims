@@ -18,4 +18,10 @@ CGetBalanceRequest::getKind()
 	return 0;
 }
 
+uint160
+CGetBalanceRequest::getKey() const
+{
+	return m_key;
+}
+
 }

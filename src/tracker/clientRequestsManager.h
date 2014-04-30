@@ -20,6 +20,7 @@ public:
 
 	void processRequestLoop();
 
+// set  from  outside
 	static CClientRequestsManager* getInstance();
 private:
 	typedef std::map< uint256, common::NodeRequest > InfoRequestRecord;

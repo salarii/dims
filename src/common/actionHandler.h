@@ -12,6 +12,7 @@
 #include "connectionProvider.h"
 #include "setResponseVisitor.h"
 #include "request.h"
+#include "requestHandler.h"
 
 #include <exception>
 #include <boost/foreach.hpp>

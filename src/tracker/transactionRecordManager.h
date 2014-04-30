@@ -37,6 +37,8 @@ public:
 
 	void loop( std::vector< CTransaction > const & _transaction );
 
+	bool getCoins( std::vector< uint256 > const & _transaction,  std::vector< CCoins > & _coins ) const;
+
 	static CTransactionRecordManager* getInstance( );
 
 private:

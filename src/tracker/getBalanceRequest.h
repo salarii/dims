@@ -9,14 +9,21 @@
 #include "common/request.h"
 #include "configureTrackerActionHandler.h"
 
+#include "uint256.h"
+
 namespace tracker
 {
 
 class  CGetBalanceRequest : public common::CRequest< TrackerResponses >
 {
+public:
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	virtual int getKind();
+
+	uint160 getKey() const;
+private:
+	uint160 m_key;
 };
 
 

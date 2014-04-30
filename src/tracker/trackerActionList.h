@@ -2,18 +2,16 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#define TRANSACTION_INFORMATION_PROVIDER_H
-#endif TRANSACTION_INFORMATION_PROVIDER_H
+
+#ifndef TRACKER_ACTION_LIST_H
+#define TRACKER_ACTION_LIST_H
 
 namespace tracker
 {
+class CGetBalanceAction;
 
-class CTransactionInformationProvider
-{
-public:
-	void checkTransactionExistance();
-};
+typedef boost::mpl::list< CGetBalanceAction > TrackerActionList;
 
 }
 
-#endif
+#endif // TRACKER_ACTION_LIST_H

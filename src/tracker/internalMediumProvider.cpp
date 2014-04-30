@@ -15,7 +15,7 @@ CInternalMediumProvider::CInternalMediumProvider()
 std::list< CMedium< TrackerResponses > *>
 CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
-
+	return m_mediumProviders;
 }
 
 }
