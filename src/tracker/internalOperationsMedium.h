@@ -6,6 +6,7 @@
 #define INTERNAL_OPERATIONS_MEDIUM_H
 
 #include "common/medium.h"
+#include "configureTrackerActionHandler.h"
 
 namespace tracker
 {
@@ -16,8 +17,13 @@ public:
 	virtual bool serviced() const;
 	virtual bool flush(){ return true; }
 	virtual bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const{ return true; }
-	virtual void add( common::CRequest< TrackerResponses > const * _request ){};
+	virtual void add(CGetBalanceRequest const * _request );
 
+	CInternalOperationsMedium* getInstance();
+private:
+	std::vector< TrackerResponses > m_trackerResponses;
+	CInternalOperationsMedium();
+	static CInternalOperationsMedium * ms_instance;
 };
 
 

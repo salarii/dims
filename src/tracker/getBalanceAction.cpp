@@ -3,9 +3,16 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "getBalanceAction.h"
+#include "getBalanceRequest.h"
+
 namespace tracker
 {
 
+common::CRequest< TrackerResponses >*
+CGetBalanceAction::execute()
+{
+	return new CGetBalanceRequest();
+}
 
 
 }

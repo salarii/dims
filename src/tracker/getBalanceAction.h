@@ -19,8 +19,7 @@ public:
 
 	}
 
-	virtual common::CRequest< TrackerResponses >* execute()
-	{ return 0; }
+	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void reset(){}
 };

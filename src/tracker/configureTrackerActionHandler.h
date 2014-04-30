@@ -8,12 +8,14 @@
 #include <boost/mpl/list.hpp>
 #include <boost/variant/variant.hpp>
 
+#include "common/trackerResponses.h"
+
 namespace tracker
 {
 struct CDummyResponse{};
 
 // list all desired types
-typedef boost::mpl::list< CDummyResponse > TrackerResponseList;
+typedef boost::mpl::list< CDummyResponse, common::CAvailableCoins > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 
