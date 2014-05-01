@@ -18,7 +18,6 @@ struct CDummyResponse{};
 typedef boost::mpl::list< CDummyResponse, common::CAvailableCoins > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
-
 }
 
 #endif // CONFIGURE_TRACKER_ACTION_HANDLER_H

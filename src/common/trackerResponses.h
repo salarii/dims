@@ -50,8 +50,6 @@ struct CAvailableCoins
 
 typedef boost::variant< CDummy, CAvailableCoins > ClientResponse;
 
-
-
 }
 
 #endif // TRACKER_RESPONSES_H

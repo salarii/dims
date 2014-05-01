@@ -182,7 +182,13 @@ CActionHandler< _RequestResponses >::loop()
 			{
 				if ( requestHandler->isProcessed( reqAction.first ) )
 				{
-					responses.push_back( requestHandler->getResponse( reqAction.first ) );
+					_RequestResponses response = requestHandler->getResponse( reqAction.first );
+
+					CSetResponseVisitor< _RequestResponses > visitor( response );
+					reqAction.second->accept( visitor );
+
+					m_actions.push_back( reqAction.second );
+
 					requestHandler->deleteRequest( reqAction.first );
 
 					requestsToErase.push_back( reqAction.first );
@@ -193,11 +199,6 @@ CActionHandler< _RequestResponses >::loop()
 					requestHandler->setRequest( reqAction.first );
 				}
 			}
-
-				CSetResponseVisitor< _RequestResponses > visitor( responses );
-				reqAction.second->accept( visitor );
-
-				m_actions.push_back( reqAction.second );
 		}
 
 		BOOST_FOREACH( CRequest< _RequestResponses >* & request, requestsToErase)

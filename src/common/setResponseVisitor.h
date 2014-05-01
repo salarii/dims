@@ -13,6 +13,10 @@ namespace tracker
 class CGetBalanceAction;
 }
 
+typedef boost::mpl::list<  common::CAvailableCoins > TrackerResponseList;
+
+typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
+
 namespace common
 {
 
@@ -48,20 +52,19 @@ CSetResponseVisitor< _RequestResponses >::visit( CAction< _RequestResponses > & 
 {
 }
 
-/*
+
 template<>
 class CSetResponseVisitor< tracker::TrackerResponses >
 {
 public:
 	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses ){};
+/*
+	virtual void visit( common::CAction< tracker::TrackerResponses > & _action );
 
-	virtual void visit( common::CAction< tracker::TrackerResponses > & _action ){};
-
-	virtual void visit( tracker::CGetBalanceAction & _action ){};
-
+	virtual void visit( tracker::CGetBalanceAction & _action );
+*/
 };
 
-*/
 
 }
 
