@@ -16,7 +16,7 @@ class CBatchWrite
 public:
 	void insert( K _key, T _object )
 	{
-		m_batch.Write( std::make_pair('a', _key), _object );
+		m_batch.Write( std::make_pair(_prefix, _key), _object );
 	}
 	CLevelDBBatch & getBatch(){ return m_batch; }
 private:

@@ -4,7 +4,7 @@
 
 #include "getBalanceAction.h"
 #include "getBalanceRequest.h"
-
+#include "common/setResponseVisitor.h"
 namespace tracker
 {
 
@@ -35,9 +35,9 @@ CGetBalanceAction::passBalance()
 }
 
 void
-CGetBalanceAction::accept( common::CSetResponseVisitorBase< TrackerResponses > & _visitor )
+CGetBalanceAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
 {
-
+	_visitor.visit( *this );
 }
 
 

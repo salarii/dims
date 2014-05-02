@@ -16,7 +16,7 @@ class CGetBalanceAction : public common::CAction< TrackerResponses >
 public:
 	CGetBalanceAction( uint160 const & _keyId );
 
-	virtual void accept( common::CSetResponseVisitorBase< TrackerResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 

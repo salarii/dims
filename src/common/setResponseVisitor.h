@@ -58,11 +58,11 @@ class CSetResponseVisitor< tracker::TrackerResponses >
 {
 public:
 	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses ){};
-/*
-	virtual void visit( common::CAction< tracker::TrackerResponses > & _action );
 
-	virtual void visit( tracker::CGetBalanceAction & _action );
-*/
+	virtual void visit( common::CAction< tracker::TrackerResponses > & _action ){};
+
+	virtual void visit( tracker::CGetBalanceAction & _action ){};
+
 };
 
 

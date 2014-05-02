@@ -5,7 +5,7 @@
 #ifndef ACTION_H
 #define ACTION_H
 
-#include "setResponseVisitor.h"
+//#include "setResponseVisitor.h"
 
 namespace common
 {
@@ -13,7 +13,6 @@ namespace common
 template < class _RequestResponses >
 class CSetResponseVisitor;
 
-template < class _RequestResponses > class CSetResponseVisitorBase;
 template < class _RequestResponses > struct CRequest;
 
 struct ActionStatus
@@ -32,7 +31,7 @@ class CAction
 public:
 	CAction(): m_actionStatus( ActionStatus::Unprepared ){};
 
-	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor );
+	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor ) = 0;
 
 	virtual CRequest< _RequestResponses >* execute() = 0;
 
@@ -44,13 +43,6 @@ public:
 protected:
 	ActionStatus::Enum m_actionStatus;
 };
-
-template < class _RequestResponses >
-inline
-void
-CAction<_RequestResponses>::accept(CSetResponseVisitor<_RequestResponses> &_visitor )
-{
-}
 
 
 }
