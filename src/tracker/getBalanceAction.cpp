@@ -8,10 +8,24 @@
 namespace tracker
 {
 
+CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId )
+	: m_keyId( _keyId )
+{
+}
+
 common::CRequest< TrackerResponses >*
 CGetBalanceAction::execute()
 {
-	return new CGetBalanceRequest();
+	if ( common::ActionStatus::Unprepared == m_actionStatus )
+	{
+		m_actionStatus = common::ActionStatus::InProgress;
+		return new CGetBalanceRequest( m_keyId );
+	}
+	else
+	{
+		return 0;
+	}
+
 }
 
 
@@ -19,5 +33,12 @@ void
 CGetBalanceAction::passBalance()
 {
 }
+
+void
+CGetBalanceAction::accept( common::CSetResponseVisitorBase< TrackerResponses > & _visitor )
+{
+
+}
+
 
 }

@@ -73,7 +73,7 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uin
 	bool pfMissingInputs;
 	CValidationState state;
 	AcceptToMemoryPool(*m_memPool, state, _tx, false, &pfMissingInputs, false);
-
+	m_addressToCoinsViewCache->flush();
 }
 
 bool
@@ -107,7 +107,7 @@ CTransactionRecordManager::getCoins( std::vector< uint256 > const & _transaction
 	CCoins coins;
 	BOOST_FOREACH( uint256 const & hash, _transaction )
 	{
-		if ( m_coinsViewCache->GetCoins( hash, coins ) )
+		if ( !m_coinsViewCache->GetCoins( hash, coins ) )
 			return false;
 		_coins.push_back( coins );
 	}

@@ -16,13 +16,14 @@ class CInternalOperationsMedium : public common::CMedium< TrackerResponses >
 public:
 	virtual bool serviced() const;
 	virtual bool flush(){ return true; }
-	virtual bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const{ return true; }
+	virtual bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
 	virtual void add(CGetBalanceRequest const * _request );
 
-	CInternalOperationsMedium* getInstance();
+	static CInternalOperationsMedium* getInstance();
+		CInternalOperationsMedium();
 private:
 	std::vector< TrackerResponses > m_trackerResponses;
-	CInternalOperationsMedium();
+
 	static CInternalOperationsMedium * ms_instance;
 };
 

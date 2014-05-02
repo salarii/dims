@@ -23,6 +23,16 @@ CInternalOperationsMedium::getInstance()
 	return ms_instance;
 }
 
+CInternalOperationsMedium::CInternalOperationsMedium()
+{
+}
+
+bool
+CInternalOperationsMedium::serviced() const
+{
+	return true;
+}
+
 void
 CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 {
@@ -36,6 +46,15 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 
 	std::transform( coinsHashes.begin(), coinsHashes.end(), coins.begin(),
 		   std::inserter(availableCoins.m_availableCoins2, availableCoins.m_availableCoins2.end() ), std::make_pair<uint256,CCoins> );
+
+	m_trackerResponses.push_back( availableCoins );
+}
+
+bool
+CInternalOperationsMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
+{
+	_requestResponse = m_trackerResponses;
+	return true;
 }
 
 }

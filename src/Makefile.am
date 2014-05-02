@@ -60,6 +60,8 @@ TRACKER_CORE_H = \
   tracker/getBalanceRequest.h \
   tracker/internalOperationsMedium.h \
   tracker/setResponseVisitor.h \
+  tracker/nternalMediumProvider.h \
+  tracker/internalOperationsMedium.h \
   tracker/server.h
   
 # bitcoin core #
@@ -146,6 +148,8 @@ TRACKER_CORE_CPP = \
   tracker/internalOperationsMedium.cpp \
   tracker/getBalanceAction.cpp \
   tracker/setResponseVisitor.cpp \
+  tracker/internalMediumProvider.cpp \
+  tracker/internalOperationsMedium.cpp \
   tracker/server.cpp
 
   

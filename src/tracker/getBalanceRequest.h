@@ -17,6 +17,8 @@ namespace tracker
 class  CGetBalanceRequest : public common::CRequest< TrackerResponses >
 {
 public:
+	CGetBalanceRequest( uint160 const & _key );
+
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	virtual int getKind();

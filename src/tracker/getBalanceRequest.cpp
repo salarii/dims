@@ -3,13 +3,18 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "getBalanceRequest.h"
-
+#include "common/medium.h"
 namespace tracker
 {
 
+CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
+	: m_key( _key )
+{
+}
+
 void CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {
-
+	_medium->add( this );
 }
 
 int

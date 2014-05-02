@@ -12,7 +12,7 @@ CInternalMediumProvider::CInternalMediumProvider()
 	m_mediumProviders.push_back( CInternalOperationsMedium::getInstance() );
 }
 
-std::list< CMedium< TrackerResponses > *>
+std::list< common::CMedium< TrackerResponses > *>
 CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
 	return m_mediumProviders;

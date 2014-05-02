@@ -14,16 +14,17 @@ namespace tracker
 class CGetBalanceAction : public common::CAction< TrackerResponses >
 {
 public:
-	virtual void accept( common::CSetResponseVisitorBase< TrackerResponses > & _visitor )
-	{
+	CGetBalanceAction( uint160 const & _keyId );
 
-	}
+	virtual void accept( common::CSetResponseVisitorBase< TrackerResponses > & _visitor );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void reset(){}
 
 	void passBalance();
+
+	uint160 const m_keyId;
 };
 
 }

@@ -4,8 +4,10 @@
 
 #include "clientRequestsManager.h"
 #include "common/actionHandler.h"
-#include <boost/foreach.hpp>
 #include "getBalanceAction.h"
+#include "base58.h"
+
+#include <boost/foreach.hpp>
 
 using namespace common;
 
@@ -25,7 +27,9 @@ public:
 
 	ClientResponse operator()( CAddressBalanceReq const & _addressBalanceReq ) const
 	{
-		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction );
+		CKeyID keyId;
+		CBitcoinAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
+		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction( keyId ) );
 	}
 };
 

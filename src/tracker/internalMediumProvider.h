@@ -6,17 +6,18 @@
 #define INTERNAL_MEDIUM_PROVIDER_H
 
 #include "common/connectionProvider.h"
-
+#include "common/medium.h"
 namespace tracker
 {
 // singleton??
-class CInternalMediumProvider : public  common::CConnectionProvider
+
+class CInternalMediumProvider : public  common::CConnectionProvider< TrackerResponses >
 {
 public:
 	CInternalMediumProvider();
-	virtual std::list< CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+	virtual std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 private:
-	std::list< CMedium< TrackerResponses > *> m_mediumProviders;
+	std::list< common::CMedium< TrackerResponses > *> m_mediumProviders;
 };
 
 }

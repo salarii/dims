@@ -22,6 +22,16 @@ struct CCoinsStats
 	CCoinsStats() : nTransactions(0), nTransactionOutputs(0), nSerializedSize(0), hashSerialized(0), nTotalAmount(0) {}
 };
 
+struct CKeyType : public uint256
+{
+	CKeyType( uint160 const & _key )
+	{
+		uint256 temp;
+		temp = _key;
+		temp <<= 96;
+		((uint256 &)*this) = temp;
+	}
+};
 
 class CAddressToCoinsDatabase
 {
@@ -32,9 +42,10 @@ protected:
 
 	bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount );
 	bool setCoinsAmount( uint160 const &_keyId, uint64_t const _amount);
-	bool getCoin(uint256 const &_keyId, uint256 &coin);
-	bool setCoin(uint256 const &_keyId, uint256 const &coin);
-	bool haveCoin(uint256 const &_keyId);
+	bool getCoin(CKeyType const &_keyId, uint256 &coin);
+	bool setCoin(CKeyType const &_keyId, uint256 const &coin);
+	bool haveCoin(CKeyType const &_keyId);
+	bool haveCoin(uint160 const &_keyId);
 	template< class Batch >
 	bool batchWrite( Batch& _batchWrite );
 	bool GetStats(CCoinsStats &stats);

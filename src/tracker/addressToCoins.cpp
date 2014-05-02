@@ -43,17 +43,22 @@ bool CAddressToCoinsDatabase::setCoinsAmount(uint160 const &_keyId, uint64_t con
 	return db.Write( std::make_pair('a', _keyId), _amount );
 }
 
-bool CAddressToCoinsDatabase::getCoin(uint256 const &_keyId, uint256 &coins)
+bool CAddressToCoinsDatabase::getCoin(CKeyType const &_keyId, uint256 &coins)
 {
 	return db.Read( std::make_pair('c', _keyId), coins );
 }
 
-bool CAddressToCoinsDatabase::setCoin(uint256 const &_keyId, uint256 const &coins)
+bool CAddressToCoinsDatabase::setCoin(CKeyType const &_keyId, uint256 const &coins)
 {
 	return db.Write( std::make_pair('c', _keyId), coins );
 }
 
-bool CAddressToCoinsDatabase::haveCoin(uint256 const &_keyId)
+bool CAddressToCoinsDatabase::haveCoin(uint160 const &_keyId)
+{
+	return db.Exists( std::make_pair( 'a', _keyId ) );
+}
+
+bool CAddressToCoinsDatabase::haveCoin(CKeyType const &_keyId)
 {
 	return db.Exists( std::make_pair( 'c', _keyId ) );
 }
@@ -67,19 +72,26 @@ CAddressToCoins::CAddressToCoins(size_t _cacheSize)
 bool
 CAddressToCoins::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins )
 {
-	uint256 key ;
-	key =_keyId;
+	CKeyType key( _keyId );
 	uint64_t amount;
+
+	if ( !haveCoin(_keyId) )
+		return false;
+
 	if ( !getCoinsAmount(_keyId, amount) )
 		return false;
 
 	while( amount-- )
 	{
 		uint256 coin;
-		if ( haveCoin(++key) )
+		if ( haveCoin((CKeyType&)++key) )
 		{
 			getCoin( key, coin );
 			_coins.push_back( coin );
+		}
+		else
+		{
+			return false;
 		}
 	}
 	return true;
@@ -92,12 +104,11 @@ CAddressToCoins::setCoins( uint160 const &_keyId, uint256 const & _coin )
 	if ( !getCoinsAmount(_keyId, amount) )
 		amount = 0;
 
-	if ( !setCoinsAmount(_keyId, amount ) )
+	if ( !setCoinsAmount(_keyId, ++amount ) )
 		return false;
 
-	uint256 key;
-	key = _keyId;
-	if ( !setCoin(++key, _coin ) )
+	CKeyType key( _keyId );
+	if ( !setCoin((CKeyType &)++key, _coin ) )
 	{
 		setCoinsAmount(_keyId, --amount );
 		return false;
@@ -109,23 +120,24 @@ bool
 CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 {
 	CBatchWrite< uint160, uint64_t, 'a' > amountBatch;
-	CBatchWrite< uint256, uint256, 'c' > coinsBatch;
+	CBatchWrite< CKeyType, uint256, 'c' > coinsBatch;
 	std::multimap<uint160,uint256>::const_iterator iterator = mapCoins.begin(), end;
 
 	while( iterator != mapCoins.end() )
 	{
 		end = mapCoins.upper_bound( iterator->first );
 		uint64_t amount = 0;
-		uint256 key;
-		key = iterator->first;
+		CKeyType key( iterator->first );
+		uint160 firstKey = iterator->first;
+
 		while( iterator != end )
 		{
 			amount++;
-			coinsBatch.insert( ++key, iterator->second );
-		}
-		amountBatch.insert( iterator->first, amount );
+			coinsBatch.insert( (CKeyType&)++key, iterator->second );
 
-		iterator = end;
+			iterator++;
+		}
+		amountBatch.insert( firstKey, amount );
 	}
 	CAddressToCoinsDatabase::batchWrite( amountBatch );
 	CAddressToCoinsDatabase::batchWrite( coinsBatch );
@@ -146,10 +158,11 @@ CAddressToCoinsViewCache::getInstance()
 bool CAddressToCoinsViewCache::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins )
 {
 	std::map<uint160,uint256>::iterator it = fetchCoins(_keyId);
-	assert(it != cacheCoins.end());
+
 	while(it != cacheCoins.end() && it->first == _keyId)
 	{
 		_coins.push_back( it->second );
+		it++;
 	}
 	
 	return !_coins.empty();
