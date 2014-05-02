@@ -150,6 +150,7 @@ TRACKER_CORE_CPP = \
   tracker/setResponseVisitor.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
+  tracker/setResponseVisitor.cpp \
   tracker/server.cpp
 
   

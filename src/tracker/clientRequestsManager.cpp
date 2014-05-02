@@ -63,16 +63,36 @@ CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )
 }
 
 ClientResponse
-CClientRequestsManager::getResponse( uint256 const & _token ) const
+CClientRequestsManager::getResponse( uint256 const & _token )
 {
 	// for transaction may use getHash in  the future??
 	boost::lock_guard<boost::mutex> lock( m_lock );
 
-	InfoResponseRecord::const_iterator iterator = m_infoResponseRecord.find( _token );
+	InfoResponseRecord::iterator iterator = m_infoResponseRecord.find( _token );
+
+	common::ClientResponse response;
 	if ( iterator != m_infoResponseRecord.end() )
-		return iterator->second;
+	{
+		response = iterator->second;
+	}
 	else
-		return CDummy();
+	{
+		CDummy dummy;
+		dummy.m_token = _token;
+		response = dummy;
+	}
+
+	m_infoResponseRecord.erase( iterator );
+
+	return response;
+}
+
+void
+CClientRequestsManager::setClientResponse( uint256 const & _hash, common::ClientResponse const & _clientResponse )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_infoResponseRecord.insert( std::make_pair( _hash, _clientResponse ) );
 }
 
 void

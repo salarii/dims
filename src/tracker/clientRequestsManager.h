@@ -16,11 +16,12 @@ class CClientRequestsManager
 public:
 	uint256 addRequest( common::NodeRequest const & _nodeRequest );
 
-	common::ClientResponse getResponse( uint256 const & _token ) const;
+	common::ClientResponse getResponse( uint256 const & _token );
 
 	void processRequestLoop();
 
-// set  from  outside
+	void setClientResponse( uint256 const & _hash, common::ClientResponse const & _clientResponse );
+
 	static CClientRequestsManager* getInstance();
 private:
 	typedef std::map< uint256, common::NodeRequest > InfoRequestRecord;

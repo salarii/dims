@@ -32,6 +32,7 @@ public:
 
 	void operator()( CDummy const & _dummy ) const
 	{
+		node::serializeEnum( *m_pushStream, CMainRequestType::ContinueReq );
 		*m_pushStream << _dummy;
 	}
 private:

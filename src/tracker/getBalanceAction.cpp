@@ -30,7 +30,7 @@ CGetBalanceAction::execute()
 
 
 void
-CGetBalanceAction::passBalance()
+CGetBalanceAction::passBalance(  )
 {
 }
 

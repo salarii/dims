@@ -30,38 +30,21 @@ template < class _RequestResponses >
 class CSetResponseVisitor
 {
 public:
-	CSetResponseVisitor( std::list< _RequestResponses > const & _requestRespond );
+	CSetResponseVisitor( _RequestResponses const & _requestRespond );
 	virtual void visit( CAction< _RequestResponses > & _action );
-private:
 
-	std::list< _RequestResponses > m_requestRespond;
 };
-
-template < class _RequestResponses >
-inline
-CSetResponseVisitor< _RequestResponses >::CSetResponseVisitor( std::list< _RequestResponses > const & _requestRespond )
-: m_requestRespond( _requestRespond )
-{
-}
-
-
-template < class _RequestResponses >
-inline
-void
-CSetResponseVisitor< _RequestResponses >::visit( CAction< _RequestResponses > & _action )
-{
-}
 
 
 template<>
 class CSetResponseVisitor< tracker::TrackerResponses >
 {
 public:
-	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses ){};
+	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses );
 
-	virtual void visit( common::CAction< tracker::TrackerResponses > & _action ){};
+	virtual void visit( common::CAction< tracker::TrackerResponses > & _action );
 
-	virtual void visit( tracker::CGetBalanceAction & _action ){};
+	virtual void visit( tracker::CGetBalanceAction & _action );
 
 };
 
