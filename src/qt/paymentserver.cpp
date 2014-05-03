@@ -4,7 +4,7 @@
 
 #include "paymentserver.h"
 
-#include "bitcoinunits.h"
+#include "ratcoinUnits.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
@@ -511,7 +511,7 @@ bool PaymentServer::processPaymentRequest(PaymentRequestPlus& request, SendCoins
         CTxOut txOut(sendingTo.second, sendingTo.first);
         if (txOut.IsDust(CTransaction::nMinRelayTxFee)) {
             QString msg = tr("Requested payment amount of %1 is too small (considered dust).")
-                .arg(BitcoinUnits::formatWithUnit(optionsModel->getDisplayUnit(), sendingTo.second));
+                .arg(CRatcoinUnits::formatWithUnit(optionsModel->getDisplayUnit(), sendingTo.second));
 
             qDebug() << "PaymentServer::processPaymentRequest : " << msg;
             emit message(tr("Payment request error"), msg, CClientUIInterface::MSG_ERROR);

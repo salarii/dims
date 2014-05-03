@@ -117,6 +117,7 @@ QT_MOC_CPP = \
   moc_overviewpage.cpp \
   moc_paymentserver.cpp \
   moc_qvalidatedlineedit.cpp \
+  moc_ratcoinUnits.cpp \
   moc_qvaluecombobox.cpp \
   moc_receivecoinsdialog.cpp \
   moc_receiverequestdialog.cpp \
@@ -219,6 +220,7 @@ BITCOIN_QT_H = \
   paymentserver.h \
   qvalidatedlineedit.h \
   qvaluecombobox.h \
+  ratcoinUnits.h \
   receivecoinsdialog.h \
   receiverequestdialog.h \
   recentrequeststablemodel.h \
@@ -316,6 +318,7 @@ BITCOIN_QT_CPP += \
   overviewpage.cpp \
   paymentrequestplus.cpp \
   paymentserver.cpp \
+  ratcoinUnits.cpp \
   receivecoinsdialog.cpp \
   receiverequestdialog.cpp \
   recentrequeststablemodel.cpp \

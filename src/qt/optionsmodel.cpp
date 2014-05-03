@@ -8,7 +8,7 @@
 
 #include "optionsmodel.h"
 
-#include "bitcoinunits.h"
+#include "ratcoinUnits.h"
 #include "guiutil.h"
 
 #include "init.h"
@@ -51,7 +51,7 @@ void OptionsModel::Init()
 
     // Display
     if (!settings.contains("nDisplayUnit"))
-        settings.setValue("nDisplayUnit", BitcoinUnits::BTC);
+        settings.setValue("nDisplayUnit", CRatcoinUnits::rat);
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
 
     if (!settings.contains("bDisplayAddresses"))
