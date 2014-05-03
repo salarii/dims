@@ -32,7 +32,6 @@ class CSetResponseVisitor
 public:
 	CSetResponseVisitor( _RequestResponses const & _requestRespond );
 	virtual void visit( CAction< _RequestResponses > & _action );
-
 };
 
 
@@ -45,7 +44,8 @@ public:
 	virtual void visit( common::CAction< tracker::TrackerResponses > & _action );
 
 	virtual void visit( tracker::CGetBalanceAction & _action );
-
+private:
+	tracker::TrackerResponses m_trackerResponses;
 };
 
 

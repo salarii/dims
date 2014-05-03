@@ -69,6 +69,11 @@ public:
 	{
 		return _transactionStatus.m_token;
 	}
+
+	virtual boost::optional< uint256 > operator()(CPending & _peding ) const
+	{
+		return _peding.m_token;
+	}
 };
 
 class CGetTrackerInfo : public CResponseVisitorBase< CTrackerStats >
@@ -119,6 +124,7 @@ void
 CSetResponseVisitor::visit( CSendBalanceInfoAction & _action )
 {
 	_action.setBalance(boost::apply_visitor( (CResponseVisitorBase< std::vector< CCoins > > const &)CGetBalance(), m_requestRespond ));
+	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 }
 
 void

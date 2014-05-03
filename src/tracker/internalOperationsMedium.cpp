@@ -39,10 +39,18 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 	common::CAvailableCoins availableCoins;
 
 	std::vector< uint256 > coinsHashes;
-	CAddressToCoinsViewCache::getInstance()->getCoins( _request->getKey(), coinsHashes );
 
 	std::vector< CCoins > coins;
-	CTransactionRecordManager::getInstance()->getCoins( coinsHashes, coins );
+
+	if (
+		   !CAddressToCoinsViewCache::getInstance()->getCoins( _request->getKey(), coinsHashes )
+		|| !CTransactionRecordManager::getInstance()->getCoins( coinsHashes, coins )
+		)
+	{
+		m_trackerResponses.push_back( availableCoins );
+		return;
+	}
+
 
 	std::transform( coinsHashes.begin(), coinsHashes.end(), coins.begin(),
 		   std::inserter(availableCoins.m_availableCoins2, availableCoins.m_availableCoins2.end() ), std::make_pair<uint256,CCoins> );

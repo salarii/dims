@@ -10,30 +10,33 @@ namespace common
 {
 
 template < class _Action >
-class GetBalance : public CResponseVisitorBase< _Action, tracker::TrackerResponses >
+class GetBalance : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
 {
-	GetBalance( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponses >( _action ){};
+public:
+	GetBalance( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
 
 	virtual void operator()( common::CAvailableCoins & _param ) const
 	{
-		_param;
+		this->m_action->passBalance( _param );
 	}
 };
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
+	: m_trackerResponses( _trackerResponse )
 {
 }
 
 void
 CSetResponseVisitor< tracker::TrackerResponses >::visit( common::CAction< tracker::TrackerResponses > & _action )
 {
+
 }
 
 
 void
 CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CGetBalanceAction & _action )
 {
-	_action.passBalance();
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList > const &)GetBalance< tracker::CGetBalanceAction >( &_action ), m_trackerResponses );
 }
 
 }

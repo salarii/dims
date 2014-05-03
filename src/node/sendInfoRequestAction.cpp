@@ -77,7 +77,7 @@ CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, RequestKind:
 void
 CInfoRequestContinue::serialize( CBufferAsStream & _bufferStream ) const
 {
-	serializeEnum( _bufferStream, m_requestKind );
+	serializeEnum( _bufferStream, common::CMainRequestType::ContinueReq );
 	_bufferStream << m_token;
 }
 

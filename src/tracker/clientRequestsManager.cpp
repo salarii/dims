@@ -18,7 +18,7 @@ namespace tracker
 class CHandleClientRequestVisitor : public boost::static_visitor< ClientResponse >
 {
 public:
-	CHandleClientRequestVisitor(){};
+	CHandleClientRequestVisitor(uint256 const & _hash):m_hash( _hash ){};
 
 	ClientResponse operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
@@ -29,8 +29,11 @@ public:
 	{
 		CKeyID keyId;
 		CBitcoinAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
-		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction( keyId ) );
+		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction( keyId, m_hash ) );
 	}
+
+private:
+	uint256 const m_hash;
 };
 
 
@@ -74,6 +77,9 @@ CClientRequestsManager::getResponse( uint256 const & _token )
 	if ( iterator != m_infoResponseRecord.end() )
 	{
 		response = iterator->second;
+		m_infoResponseRecord.erase( iterator );
+		CAvailableCoins available;
+		response = available;
 	}
 	else
 	{
@@ -82,8 +88,6 @@ CClientRequestsManager::getResponse( uint256 const & _token )
 		response = dummy;
 	}
 
-	m_infoResponseRecord.erase( iterator );
-
 	return response;
 }
 
@@ -91,7 +95,8 @@ void
 CClientRequestsManager::setClientResponse( uint256 const & _hash, common::ClientResponse const & _clientResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-
+	if ( m_infoResponseRecord.find( _hash ) != m_infoResponseRecord.end() )
+		m_infoResponseRecord.erase(_hash);
 	m_infoResponseRecord.insert( std::make_pair( _hash, _clientResponse ) );
 }
 
@@ -106,7 +111,7 @@ CClientRequestsManager::processRequestLoop()
 
 			BOOST_FOREACH( InfoRequestRecord::value_type request, m_getInfoRequest )
 			{
-				m_infoResponseRecord.insert( std::make_pair( request.first,boost::apply_visitor( CHandleClientRequestVisitor(), request.second ) ) );
+				m_infoResponseRecord.insert( std::make_pair( request.first,boost::apply_visitor( CHandleClientRequestVisitor( request.first ), request.second ) ) );
 			}
 
 			m_getInfoRequest.clear();

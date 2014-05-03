@@ -5,11 +5,14 @@
 #include "getBalanceAction.h"
 #include "getBalanceRequest.h"
 #include "common/setResponseVisitor.h"
+#include "clientRequestsManager.h"
+
 namespace tracker
 {
 
-CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId )
+CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash )
 	: m_keyId( _keyId )
+	, m_hash( _hash )
 {
 }
 
@@ -30,8 +33,9 @@ CGetBalanceAction::execute()
 
 
 void
-CGetBalanceAction::passBalance(  )
+CGetBalanceAction::passBalance( common::CAvailableCoins const & _availableCoins )
 {
+	CClientRequestsManager::getInstance()->setClientResponse( m_hash, _availableCoins );
 }
 
 void
