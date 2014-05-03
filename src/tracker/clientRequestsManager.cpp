@@ -78,8 +78,6 @@ CClientRequestsManager::getResponse( uint256 const & _token )
 	{
 		response = iterator->second;
 		m_infoResponseRecord.erase( iterator );
-		CAvailableCoins available;
-		response = available;
 	}
 	else
 	{

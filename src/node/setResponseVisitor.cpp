@@ -94,13 +94,13 @@ public:
     }
 };
 
-class CGetBalance : public CResponseVisitorBase< std::vector< CCoins > >
+class CGetBalance : public CResponseVisitorBase< std::map< uint256, CCoins > >
 {
 public:
-	boost::optional< std::vector< CCoins > > operator()(CAvailableCoins & _availableCoins ) const
+	boost::optional< std::map< uint256, CCoins > > operator()(CAvailableCoins & _availableCoins ) const
 	{
 
-		return _availableCoins.m_availableCoins;
+		return _availableCoins.m_availableCoins2;
 	}
 };
 
@@ -123,7 +123,7 @@ CSetResponseVisitor::visit( CConnectAction & _action )
 void
 CSetResponseVisitor::visit( CSendBalanceInfoAction & _action )
 {
-	_action.setBalance(boost::apply_visitor( (CResponseVisitorBase< std::vector< CCoins > > const &)CGetBalance(), m_requestRespond ));
+	_action.setBalance(boost::apply_visitor( (CResponseVisitorBase< std::map< uint256, CCoins > > const &)CGetBalance(), m_requestRespond ));
 	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 }
 

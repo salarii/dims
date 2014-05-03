@@ -16,11 +16,12 @@ class CBasicKeyStore;
 class CWallet;
 class uint256;
 
-/** General change type (added, updated, removed). */
+/** General change type (added, updated, balance,removed). */
 enum ChangeType
 {
     CT_NEW,
     CT_UPDATED,
+	CT_BALANCE,
     CT_DELETED
 };
 

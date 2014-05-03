@@ -978,6 +978,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, CKeyID const & _keyID) con
 
 unsigned CWallet::AvailableCoinsAmount(CKeyID const & _keyID) const
 {
+	m_availableCoins.find
 	return 0;
 }
 
@@ -2061,10 +2062,14 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
 void
 CWallet::setAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins )
 {
+	AssertLockHeld(cs_wallet);
+
 	BOOST_FOREACH( CAvailableCoin const & availableCoin, _availableCoins )
 	{
 		m_availableCoins.insert( std::make_pair( _keyId, availableCoin ) );
 	}
+
+	NotifyAddressBookChanged(this, _keyId, "", true, "", CT_BALANCE);
 }
 
 void CWallet::GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const {

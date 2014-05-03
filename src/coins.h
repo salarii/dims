@@ -81,8 +81,6 @@ public:
     // as new tx version will probably only be introduced at certain heights
     int nVersion;
 
-	//experimental but I may need it
-	uint256 m_hash;
     // construct a CCoins from a CTransaction, at a given height
     CCoins(const CTransaction &tx, int nHeightIn) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), nHeight(nHeightIn), nVersion(tx.nVersion) {
         ClearUnspendable();
@@ -153,7 +151,7 @@ public:
             if (!vout[i].IsNull())
                 nSize += ::GetSerializeSize(CTxOutCompressor(REF(vout[i])), nType, nVersion);
         // height
-		nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
+		//nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
         return nSize;
     }
 
@@ -216,7 +214,7 @@ public:
                 ::Unserialize(s, REF(CTxOutCompressor(vout[i])), nType, nVersion);
         }
         // coinbase height
-        ::Unserialize(s, VARINT(nHeight), nType, nVersion);
+	   // ::Unserialize(s, VARINT(nHeight), nType, nVersion);
         Cleanup();
     }
 

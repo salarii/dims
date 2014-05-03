@@ -27,11 +27,6 @@ struct CAvailableCoins
 
 	IMPLEMENT_SERIALIZE
 	(
-		int type;
-		if ( !fRead )
-			type = m_requestType;
-
-		READWRITE(type);
 		READWRITE(m_hash);
 		READWRITE(m_availableCoins);
 		READWRITE(m_availableCoins2);

@@ -24,19 +24,19 @@ public:
 
 	CRequest* execute();
 
-	void setBalance( boost::optional< std::vector< CCoins > > const & _balance );
+	void setBalance( boost::optional< std::map< uint256, CCoins > > const & _balance );
 
 	void setInProgressToken( boost::optional< uint256 > const & _token );
 
 	void reset();
 private:
-	std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId ) const;
+	std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash ) const;
 private:
 	CRequest* m_request;
 
 	std::string const m_pubKey;
 
-	boost::optional< std::vector< CCoins > > m_balance;
+	boost::optional< std::map< uint256, CCoins > > m_balance;
 
 	boost::optional< uint256 > m_token;
 

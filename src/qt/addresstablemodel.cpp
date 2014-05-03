@@ -152,6 +152,15 @@ public:
             lower->label = label;
             parent->emitDataChanged(lowerIndex);
             break;
+		case CT_BALANCE:
+			if(!inModel)
+			{
+				qDebug() << "AddressTablePriv::updateEntry : Warning: Got CT_UPDATED, but entry is not in model";
+				break;
+			}
+			lower->balance = QString::number ( wallet->AvailableCoinsAmount(keyID));
+			parent->emitDataChanged(lowerIndex);
+			break;
         case CT_DELETED:
             if(!inModel)
             {

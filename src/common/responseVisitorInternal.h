@@ -11,7 +11,7 @@ template < class _Action, typename _ParamList >
 class CResponseVisitorBase : public boost::static_visitor< void >
 {
 public:
-	CResponseVisitorBase( _Action const * _action ):m_action( _action ){};
+	CResponseVisitorBase( _Action * const _action ):m_action( _action ){};
 
 	virtual void operator()(typename VisitorParam(  _ParamList, 0 )  & _param ) const
 	{

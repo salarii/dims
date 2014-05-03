@@ -26,7 +26,7 @@ namespace common
 struct D1{};struct D2{};struct D3{};struct D4{};struct D5{};struct D6{};struct D7{};struct D8{};struct D9{};struct D10{};
 struct D11{};struct D12{};struct D13{};struct D14{};struct D15{};struct D16{};struct D17{};struct D18{};struct D19{};struct D20{};
 
-typedef boost::mpl::list< D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,D12,D13,D14,D15,D16,D17,D18,D18,D20 >  DummyList;
+typedef boost::mpl::list< D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,D12,D13,D14,D15,D16,D17,D18,D19,D20 >  DummyList;
 
 }
 

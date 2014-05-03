@@ -165,7 +165,7 @@ public:
 
     std::map<uint256, CWalletTx> mapWallet;
 
-	std::map< uint160, CAvailableCoin > m_availableCoins;
+	std::multimap< uint160, CAvailableCoin > m_availableCoins;
 
     int64_t nOrderPosNext;
     std::map<uint256, int> mapRequestCount;

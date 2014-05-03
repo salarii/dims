@@ -47,9 +47,10 @@ CSendBalanceInfoAction::execute()
 
 			CKeyID keyId;
 			address.GetKeyID( keyId );
-			BOOST_FOREACH( CCoins const & coins, *m_balance)
+			typedef std::map< uint256, CCoins >::value_type  MapElement;
+			BOOST_FOREACH( MapElement & coins, *m_balance)
 			{
-				CWallet::getInstance()->setAvailableCoins( keyId, getAvailableCoins( coins, keyId ) );
+				CWallet::getInstance()->setAvailableCoins( keyId, getAvailableCoins( coins.second, keyId, coins.first ) );
 			}
 			return 0;
         }
@@ -62,7 +63,7 @@ CSendBalanceInfoAction::execute()
 }
 
 void
-CSendBalanceInfoAction::setBalance( boost::optional< std::vector< CCoins > > const & _balance )
+CSendBalanceInfoAction::setBalance( boost::optional< std::map< uint256, CCoins > > const & _balance )
 {
 	m_balance = _balance;
 }
@@ -84,7 +85,7 @@ CSendBalanceInfoAction::reset()
 }
 
 std::vector< CAvailableCoin >
-CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const & _pubId ) const
+CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash ) const
 {
 	std::vector< CAvailableCoin > availableCoins;
 	unsigned int valueSum = 0, totalInputSum = 0;
@@ -119,7 +120,7 @@ CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const 
 					||	( ( type == TX_PUBKEYHASH ) && ( _pubId == uint160( *it ) ) )
 					)
 				{
-					availableCoins.push_back( CAvailableCoin( txout, i, _coins.m_hash ) );
+					availableCoins.push_back( CAvailableCoin( txout, i, _hash ) );
 					break;
 				}
 				it++;

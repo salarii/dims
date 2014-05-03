@@ -74,6 +74,7 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uin
 	CValidationState state;
 	AcceptToMemoryPool(*m_memPool, state, _tx, false, &pfMissingInputs, false);
 	m_addressToCoinsViewCache->flush();
+	m_coinsViewCache->Flush();
 }
 
 bool

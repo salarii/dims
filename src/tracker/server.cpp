@@ -27,6 +27,7 @@ public:
 
 	void operator()( CAvailableCoins const & _availableCoins ) const
 	{
+		node::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
 		*m_pushStream << _availableCoins;
 	}
 
