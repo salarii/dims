@@ -976,10 +976,18 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, CKeyID const & _keyID) con
 {
 }
 
-unsigned CWallet::AvailableCoinsAmount(CKeyID const & _keyID) const
+uint64_t CWallet::AvailableCoinsAmount(CKeyID const & _keyID) const
 {
-	m_availableCoins.find
-	return 0;
+	std::multimap< uint160, CAvailableCoin >::const_iterator low = m_availableCoins.lower_bound(_keyID), up = m_availableCoins.upper_bound(_keyID);
+
+	uint64_t balance = 0;
+
+	while( low != up )
+	{
+		balance += low->second.m_coin.nValue;
+		low++;
+	}
+	return balance;
 }
 
 unsigned CWallet::AllAvailableCoinsAmount() const

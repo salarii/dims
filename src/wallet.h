@@ -186,7 +186,7 @@ public:
     void AvailableCoins(vector<COutput>& vCoins, CKeyID const & _keyID) const;
 	//this is new high level function
 	//I have to  consider proper  form and place for it
-    unsigned AvailableCoinsAmount(CKeyID const & _keyID) const;
+	uint64_t AvailableCoinsAmount(CKeyID const & _keyID) const;
     unsigned AllAvailableCoinsAmount() const;
     bool SelectCoinsMinConf(int64_t nTargetValue, int nConfMine, int nConfTheirs, std::vector<COutput> vCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet) const;
 

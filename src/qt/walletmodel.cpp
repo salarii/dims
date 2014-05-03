@@ -135,7 +135,7 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
 {
     if(addressTableModel)
         addressTableModel->updateEntry(address, label, isMine, purpose, status);
-
+	if ( status == CT_NEW )
     node::CNodeConnectionManager::getInstance()->addPeriodicAction( new node::CSendBalanceInfoAction( address.toStdString() ) );
 }
 
