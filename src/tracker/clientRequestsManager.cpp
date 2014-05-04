@@ -9,6 +9,8 @@
 
 #include <boost/foreach.hpp>
 
+#include "transactionRecordManager.h"
+
 using namespace common;
 
 namespace tracker
@@ -23,6 +25,11 @@ public:
 	ClientResponse operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
 
+	}
+
+	ClientResponse operator()( CTransactionMessage const & _transactionMessage ) const
+	{
+		CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
 	}
 
 	ClientResponse operator()( CAddressBalanceReq const & _addressBalanceReq ) const
@@ -59,10 +66,16 @@ CClientRequestsManager::getInstance( )
 uint256
 CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )
 {
-	// for transaction may use getHash in  the future??
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_getInfoRequest.insert( std::make_pair( ms_currentToken, _nodeRequest ) );
 	return ms_currentToken++;
+}
+
+void
+CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest, uint256 const & _hash )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_getInfoRequest.insert( std::make_pair( _hash, _nodeRequest ) );
 }
 
 ClientResponse

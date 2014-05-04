@@ -35,12 +35,13 @@ public:
 	//
 	bool validateTransactionBundle( std::vector< CTransaction > const & _transaction );
 
-	void loop( std::vector< CTransaction > const & _transaction );
+	void loop();
 
 	bool getCoins( std::vector< uint256 > const & _transaction,  std::vector< CCoins > & _coins ) const;
 
 	static CTransactionRecordManager* getInstance( );
 
+	void addClientTransaction( CTransaction const & _tx );
 private:
 	void synchronize();
 	void askForTokens();
@@ -54,8 +55,11 @@ private:
 	// mutex
 	CTxMemPool * m_memPool;
 //	transaction history  section
-
 	CCheckQueue<CScriptCheck> scriptcheckqueue;
+
+	mutable boost::mutex m_transactionLock;
+	std::vector< CTransaction > m_transactionPool;
+
 };
 
 

@@ -15,7 +15,7 @@ class CClientRequestsManager
 {
 public:
 	uint256 addRequest( common::NodeRequest const & _nodeRequest );
-
+	void addRequest( common::NodeRequest const & _nodeRequest, uint256 const & _hash );
 	common::ClientResponse getResponse( uint256 const & _token );
 
 	void processRequestLoop();
@@ -35,6 +35,7 @@ private:
 	InfoRequestRecord m_getInfoRequest;
 	InfoResponseRecord m_infoResponseRecord;
 	static uint256 ms_currentToken;
+
 };
 
 

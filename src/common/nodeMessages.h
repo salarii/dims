@@ -29,6 +29,7 @@ struct CMainRequestType
 
 struct CTransactionMessage
 {
+	CTransactionMessage(  );
 	CTransaction m_transaction;
 };
 
@@ -53,7 +54,7 @@ struct CAddressBalanceReq
 	std::string m_address;
 };
 
-typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq > NodeRequest;
+typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq, CTransactionMessage > NodeRequest;
 
 }
 

@@ -13,7 +13,9 @@ using namespace common;
 namespace node
 {
 
-CSendTransactionAction::CSendTransactionAction( const CTransaction & _Transaction )
+CSendTransactionAction::CSendTransactionAction( const CTransaction & _transaction )
+	: CAction()
+	, m_transaction( _transaction )
 {
 }
 

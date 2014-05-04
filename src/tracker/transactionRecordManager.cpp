@@ -7,6 +7,10 @@
 #include "main.h"
 #include "addressToCoins.h"
 
+#include "common/actionHandler.h"
+
+#include "validateTransactionsAction.h"
+
 
 namespace tracker
 {
@@ -115,18 +119,24 @@ CTransactionRecordManager::getCoins( std::vector< uint256 > const & _transaction
 	return true;
 }
 
+void CTransactionRecordManager::addClientTransaction( CTransaction const & _tx )
+{
+	boost::lock_guard<boost::mutex> lock( m_transactionLock );
+	m_transactionPool.push_back( _tx );
+}
+
 void
-CTransactionRecordManager::loop( std::vector< CTransaction > const & _transaction )
+CTransactionRecordManager::loop()
 {
 	while(1)
 	{
-
-		//update  pool  and view  with valid transaction
-		// send  those to storage
-
+		{
+			boost::lock_guard<boost::mutex> lock( m_transactionLock );
+			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CValidateTransactionsAction( m_transactionPool ) );
+		}
+		MilliSleep(500);
 		boost::this_thread::interruption_point();
 	}
-
 }
 
 void

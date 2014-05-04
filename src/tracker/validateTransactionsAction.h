@@ -12,14 +12,16 @@
 
 namespace tracker
 {
-struct CTransactionValidationStatemachine;
 
-class CValidateTransactionsAction : public common::CAction< TrackerResponses >
+struct CUninitiated;
+
+class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CUninitiated >
 {
 public:
+	CValidateTransactionsAction( std::vector< CTransaction > const & _transactions );
 	virtual common::CRequest< TrackerResponses >* execute(){ return 0; }
-private:
-	CTransactionValidationStatemachine * m_transactionValidationState;
+
+	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 };
 
 }

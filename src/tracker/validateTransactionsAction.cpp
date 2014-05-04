@@ -5,23 +5,20 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/event.hpp>
 
+#include "common/setResponseVisitor.h"
+
 namespace tracker
 {
-
-// states
-// uninitiated
-//propagate bundle
-//ack bundle
-// confirm bundle
-// double spend
-// invalid transaction bundle
-
-
-struct CUninitiated;
 
 struct CSetupEvent : boost::statechart::event< CSetupEvent >
 {
 };
+
+struct CValidateTransactionsEvent
+{
+};
+
+
 
 struct CPropagationSummaryEvent : boost::statechart::event< CPropagationSummaryEvent >
 {
@@ -29,32 +26,18 @@ struct CPropagationSummaryEvent : boost::statechart::event< CPropagationSummaryE
 
 struct CErrorEvent : boost::statechart::event< CErrorEvent >
 {
-
 };
 
-struct CTransactionValidationStatemachine : boost::statechart::state_machine< CTransactionValidationStatemachine, CUninitiated >
-{
-	CTransactionValidationStatemachine(){};
+struct CNoTransaction : boost::statechart::simple_state< CNoTransaction, CValidateTransactionsAction >
+{};
 
-};
+struct CNetworkPresent : boost::statechart::simple_state< CNetworkPresent, CValidateTransactionsAction >
+{};
 
-struct CPropagate : boost::statechart::simple_state< CPropagate, CTransactionValidationStatemachine >
-{
-/*	typedef boost::statechart::custom_reaction< CGenerateRequest > reactions;
+struct CStandAlone : boost::statechart::simple_state< CStandAlone, CValidateTransactionsAction >
+{};
 
-	boost::statechart::result react( const CGenerateRequest & _generateRequest )
-	{
-		context< CConnectActionState >().m_request = new CTrackersInfoRequest( TrackerDescription );
-	}
-*/
-};
-struct CAck : boost::statechart::simple_state< CAck, CTransactionValidationStatemachine >
-{
-
-};
-
-
-struct CUninitiated : boost::statechart::simple_state< CUninitiated, CTransactionValidationStatemachine >
+struct CUninitiated : boost::statechart::simple_state< CUninitiated, CValidateTransactionsAction >
 {
 /*	typedef boost::statechart::custom_reaction< CSetupEvent > reactions;
 
@@ -67,9 +50,17 @@ struct CUninitiated : boost::statechart::simple_state< CUninitiated, CTransactio
 	}*/
 };
 
-struct CConfirm
+CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransaction > const & _transactions )
+	:common::CAction< TrackerResponses >()
 {
-};
+}
+
+void
+CValidateTransactionsAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+{
+	_visitor.visit( *this );
+}
+
 
 
 }
