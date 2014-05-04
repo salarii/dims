@@ -39,9 +39,6 @@ private:
 	boost::optional< std::map< uint256, CCoins > > m_balance;
 
 	boost::optional< uint256 > m_token;
-
-    //boost::optional< CTxOut > m_token;
-    ActionStatus::Enum m_status;
 };
 
 struct CBalanceRequest : public CRequest

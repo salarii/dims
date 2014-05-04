@@ -29,7 +29,7 @@ struct CMainRequestType
 
 struct CTransactionMessage
 {
-	CTransactionMessage(  );
+	CTransactionMessage( CTransaction const & _transaction ):m_transaction( _transaction ){};
 	CTransaction m_transaction;
 };
 

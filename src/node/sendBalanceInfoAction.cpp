@@ -20,7 +20,6 @@ namespace node
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( std::string const _pubKey )
 	: m_pubKey( _pubKey )
-    , m_status( ActionStatus::Unprepared )
 {
 }
 
@@ -33,12 +32,12 @@ CSendBalanceInfoAction::accept( CSetResponseVisitor & _visitor )
 CRequest*
 CSendBalanceInfoAction::execute()
 {
-    if ( m_status == ActionStatus::Unprepared )
+	if ( m_actionStatus == ActionStatus::Unprepared )
     {
-		m_status = ActionStatus::InProgress;
+		m_actionStatus = ActionStatus::InProgress;
         return new CBalanceRequest( m_pubKey );
     }
-    else
+	else if ( m_actionStatus == ActionStatus::InProgress )
     {
         if ( m_balance )
         {
@@ -52,6 +51,7 @@ CSendBalanceInfoAction::execute()
 			{
 				CWallet::getInstance()->setAvailableCoins( keyId, getAvailableCoins( coins.second, keyId, coins.first ) );
 			}
+			m_actionStatus = ActionStatus::Done;
 			return 0;
         }
         else if ( m_token )

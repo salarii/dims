@@ -105,10 +105,11 @@ void CNetworkClient::run()
 {
     while(1)
     {
-        QMutexLocker lock( &m_writeMutex );
+
 		if ( m_connectionInfo == Processing )
         {
-            QHostAddress hostAddr( m_ip );
+			QMutexLocker lock( &m_writeMutex );
+			QHostAddress hostAddr( m_ip );
             m_socket->connectToHost( hostAddr, m_port );
             if ( m_socket->waitForConnected( m_timeout ) )
             {
@@ -142,16 +143,17 @@ CNetworkClient::serviced() const throw(CMediumException)
 void 
 CNetworkClient::add( CRequest const * _request )
 {
+	QMutexLocker lock( &m_writeMutex );
 	_request->serialize( *m_pushStream );
 }
 
 bool
 CNetworkClient::flush()
 {
+	QMutexLocker lock( &m_writeMutex );
 	m_pushBuffer.m_usedSize = m_pushStream->GetPos();
 	m_pushStream->SetPos( 0 );
 
-    QMutexLocker lock( &m_writeMutex );
     if ( m_connectionInfo != NoActivity && m_connectionInfo != Processed )
         return false;
 

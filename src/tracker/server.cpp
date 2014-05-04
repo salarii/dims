@@ -17,6 +17,9 @@
 
 using namespace common;
 
+/*
+there is no  synchronization  fix  it
+*/
 namespace tracker
 {
 
@@ -93,7 +96,7 @@ CTcpServerConnection::run()
 			//Handle your network errors.
 			throw server_error(std::string( "Network error:" ) + exc.displayText() );
 		}
-		bytes--;
+		socket().close();
 	}
 
 }
@@ -160,8 +163,10 @@ CTcpServerConnection::handleIncommingBuffor()
 		if( messageType == CMainRequestType::Transaction )
 		{
 			pullStream >> transaction;
-			/*outStream << transaction.GetHash();
-				m_validationManager->serviceTransaction( transaction );*/
+			node::serializeEnum( pushStream, CMainRequestType::ContinueReq );
+			uint256 token = transaction.GetHash();
+			m_clientRequestManager->addRequest( transaction, token );
+			pushStream << token;
 		}
 		else if ( messageType == CMainRequestType::TrackerInfoReq )
 		{
