@@ -13,6 +13,10 @@ using namespace common;
 namespace node
 {
 
+CSendTransactionAction::CSendTransactionAction( const CTransaction & _Transaction )
+{
+}
+
 void
 CSendTransactionAction::setTransactionStatus( boost::optional< common::TransactionsStatus::Enum > const _transactionStatus )
 {

@@ -914,6 +914,17 @@ void CWallet::ResendWalletTransactions()
 
 int64_t CWallet::GetBalance() const
 {
+	std::multimap< uint160, CAvailableCoin >::const_iterator iterator = m_availableCoins.begin();
+
+	uint64_t balance = 0;
+
+	while( iterator != m_availableCoins.end() )
+	{
+		balance += iterator->second.m_coin.nValue;
+		iterator++;
+	}
+	return balance;
+	/*
     int64_t nTotal = 0;
     {
         LOCK(cs_wallet);
@@ -925,7 +936,7 @@ int64_t CWallet::GetBalance() const
         }
     }
 
-    return nTotal;
+	return nTotal;*/
 }
 
 int64_t CWallet::GetUnconfirmedBalance() const
@@ -1173,11 +1184,12 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 		int64_t nTotalLower = 0;
 //reference here is important
 		typedef std::multimap< uint160, CAvailableCoin >::value_type valueType;
+		CAvailableCoin coin;
 		BOOST_FOREACH( valueType const & coinPair, m_availableCoins)
 		{
 			int64_t n = coinPair.second.m_coin.nValue;
 
-			CAvailableCoin coin = coinPair.second;
+			coin = coinPair.second;
 
 			if (n == nTargetValue)
 			{
@@ -1314,21 +1326,29 @@ CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecS
 					// Fill a vout to ourself
 					// TODO: pass in scriptChange instead of reservekey so
 					// change transaction isn't always pay-to-bitcoin-address
-		/*			CScript scriptChange;
+					CScript scriptChange;
 
 					// coin control: send change to custom address
 					if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange))
+					{
 						scriptChange.SetDestination(coinControl->destChange);
+					}
+					else
+					{
+						CKeyID keyId;
+						if ( !determineChangeAddress( setCoins, keyId ) )
+							return false;
+						scriptChange.SetDestination(keyId);
+					}
+
 
 					CTxOut newTxOut(nChange, scriptChange);
 
 				  // Insert change txn at random position:
 				  vector<CTxOut>::iterator position = wtxNew.vout.begin()+GetRandInt(wtxNew.vout.size()+1);
 				  wtxNew.vout.insert(position, newTxOut);
-*/
+
 				}
-		//		else
-		//			reservekey.ReturnKey();
 
 				// Fill vin
 				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
@@ -1362,6 +1382,24 @@ CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecS
 		}
 	}
 	return true;
+}
+bool CWallet::determineChangeAddress( std::vector< CAvailableCoin > const & _coinsForTransaction, CKeyID & _keyId )
+{
+
+	std::multimap< uint160, CAvailableCoin >::const_iterator iterator = m_availableCoins.begin();
+
+	uint64_t balance = 0;
+
+	while( iterator != m_availableCoins.end() )
+	{
+		if ( std::find(_coinsForTransaction.begin(), _coinsForTransaction.end(), iterator->second ) != _coinsForTransaction.end() )
+		{
+			_keyId = iterator->first;
+			return true;
+		}
+		iterator++;
+	}
+	return false;
 }
 
 bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend,

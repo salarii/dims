@@ -8,7 +8,8 @@
 #include "guiconstants.h"
 #include "recentrequeststablemodel.h"
 #include "transactiontablemodel.h"
-
+#include "node/actionHandler.h"
+#include "node/sendTransactionAction.h"
 #include "base58.h"
 #include "db.h"
 #include "keystore.h"
@@ -232,9 +233,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         std::string strFailReason;
 
         CWalletTx *newTx = transaction.getTransaction();
-        CReserveKey *keyChange = transaction.getPossibleKeyChange();
-        bool fCreated = wallet->CreateTransaction(vecSend, *newTx, *keyChange, nFeeRequired, strFailReason, coinControl);
-        transaction.setTransactionFee(nFeeRequired);
+
+		bool fCreated = wallet->CreateTransaction(vecSend,*newTx, strFailReason, coinControl );
 
         if(!fCreated)
         {
@@ -274,9 +274,11 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         }
 
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
-        if(!wallet->CommitTransaction(*newTx, *keyChange))
-            return TransactionCommitFailed;
 
+		// disable this  for time beeing
+		/*  if(!wallet->CommitTransaction(*newTx, *keyChange))
+            return TransactionCommitFailed;
+*/
         CTransaction* t = (CTransaction*)newTx;
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << *t;
@@ -309,9 +311,10 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
                 }
             }
         }
-        emit coinsSent(wallet, rcp, transaction_array);
+	  //  emit coinsSent(wallet, rcp, transaction_array);
     }
-
+/* create send  transaction  action */
+	node::CActionHandler::getInstance()->executeAction( new node::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
     return SendCoinsReturn(OK);
 }
 
