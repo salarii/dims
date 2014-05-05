@@ -8,7 +8,7 @@ namespace tracker
 {
 
 CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions )
-	: m_transactions( m_transactions )
+	: m_transactions( _transactions )
 {
 }
 

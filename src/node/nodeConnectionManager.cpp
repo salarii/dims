@@ -8,7 +8,43 @@
 
 namespace node
 {
-// for testing purposes low value, so maybe  use  some  macro  defined in  makefile at some  point  to  implement  different  values  for  test and main
+// any periodic  acton should be ecapsulated in  this  way
+/*
+class CDefferAction
+{
+public:
+CDefferAction( CAction*, unsigned int _deffer )
+{
+
+}
+
+bool isReady();
+
+void execute();
+private:
+unsigned int m_deffer;
+unsigned int m_cnt;
+};
+
+bool
+CDefferAction::isReady()
+{
+if(!m_cnt--)
+{
+m_cnt = m_deffer
+return true;
+}
+return false;
+}
+
+void
+CDefferAction::execute()
+{
+
+
+}
+
+*/
 unsigned int const CNodeConnectionManager::m_sleepTime = 10000;
 
 CNodeConnectionManager * CNodeConnectionManager::ms_instance = NULL;

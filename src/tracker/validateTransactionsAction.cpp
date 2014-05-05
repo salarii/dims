@@ -2,6 +2,7 @@
 
 #include <boost/statechart/custom_reaction.hpp>
 #include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/event.hpp>
 
@@ -32,11 +33,11 @@ struct CNetworkPresent : boost::statechart::simple_state< CNetworkPresent, CVali
 struct CStandAlone : boost::statechart::simple_state< CStandAlone, CValidateTransactionsAction >
 {};
 
-struct CInitial : boost::statechart::simple_state< CInitial, CValidateTransactionsAction >
+struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsAction >
 {
 	typedef boost::statechart::custom_reaction< CValidateTransactionsResultEvent > reactions;
 
-	CInitial()
+	CInitial( my_context ctx ) : my_base( ctx )
 	{
 		context< CValidateTransactionsAction >().m_request =
 				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().m_transactions );
@@ -56,6 +57,7 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 	, m_request( 0 )
 	, m_transactions( _transactions )
 {
+	initiate();
 }
 
 common::CRequest< TrackerResponses >*

@@ -134,7 +134,10 @@ CTransactionRecordManager::loop()
 			boost::lock_guard<boost::mutex> lock( m_transactionLock );
 
 			if ( !m_transactionPool.empty() )
+			{
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CValidateTransactionsAction( m_transactionPool ) );
+				m_transactionPool.clear();
+			}
 		}
 		MilliSleep(500);
 		boost::this_thread::interruption_point();

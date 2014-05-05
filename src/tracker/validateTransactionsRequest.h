@@ -23,7 +23,7 @@ public:
 
 	std::vector< CTransaction > const & getTransactions() const;
 private:
-	std::vector< CTransaction > const & m_transactions;
+	std::vector< CTransaction > const m_transactions;
 };
 
 
