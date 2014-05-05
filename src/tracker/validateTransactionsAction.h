@@ -13,15 +13,20 @@
 namespace tracker
 {
 
-struct CUninitiated;
+struct CInitial;
 
-class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CUninitiated >
+class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >
 {
 public:
+	friend class CInitial;
+public:
 	CValidateTransactionsAction( std::vector< CTransaction > const & _transactions );
-	virtual common::CRequest< TrackerResponses >* execute(){ return 0; }
+	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+private:
+	common::CRequest< TrackerResponses >* m_request;
+	std::vector< CTransaction > m_transactions;
 };
 
 }

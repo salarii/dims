@@ -41,29 +41,29 @@ COMMON_CPP = \
   
 # tracker core #
 TRACKER_CORE_H = \
-  tracker/originAddressScaner.h \
-  tracker/segmentFileStorage.h \
-  tracker/simpleBuddy.h \
   tracker/accessFile.h \
-  tracker/transactionRecordManager.h \
   tracker/addressToCoins.h \
+  tracker/authenticationProvider.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
-  tracker/authenticationProvider.h \
-  tracker/databaseManager.h \
-  tracker/manageNetwork.h \
-  tracker/selfNode.h \
-  tracker/nodesManager.h \
-  tracker/validateTransactionsAction.h \
   tracker/configureTrackerActionHandler.h \
+  tracker/databaseManager.h \
   tracker/getBalanceAction.h \
   tracker/getBalanceRequest.h \
+  tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
+  tracker/manageNetwork.h \
+  tracker/originAddressScaner.h \
+  tracker/nodesManager.h \
+  tracker/segmentFileStorage.h \
+  tracker/selfNode.h \
+  tracker/server.h \
   tracker/setResponseVisitor.h \
-  tracker/nternalMediumProvider.h \
-  tracker/internalOperationsMedium.h \
-  tracker/server.h
-  
+  tracker/simpleBuddy.h \
+  tracker/transactionRecordManager.h \
+  tracker/validateTransactionsAction.h \
+  tracker/validateTransactionsRequest.h
+
 # bitcoin core #
 BITCOIN_CORE_H = \
   addrman.h \
@@ -130,30 +130,27 @@ version.o: obj/build.h
 
 # tracker core #
 TRACKER_CORE_CPP = \
-  tracker/originAddressScaner.cpp \
-  tracker/segmentFileStorage.cpp \
-  tracker/simpleBuddy.cpp \
   tracker/accessFile.cpp \
-  tracker/transactionRecordManager.cpp \
-  tracker/addressToCoins.cpp \
-  tracker/clientRequestsManager.cpp \
-  tracker/communicationProtocol.cpp \
-  tracker/authenticationProvider.cpp \
-  tracker/databaseManager.cpp \
-  tracker/manageNetwork.cpp \
-  tracker/nodesManager.cpp \
-  tracker/validateTransactionsAction.cpp \
   tracker/actionHandlerDefinitions.cpp \
-  tracker/getBalanceRequest.cpp \
-  tracker/internalOperationsMedium.cpp \
+  tracker/addressToCoins.cpp \
+  tracker/authenticationProvider.cpp \
+  tracker/communicationProtocol.cpp \
+  tracker/clientRequestsManager.cpp \
+  tracker/databaseManager.cpp \
   tracker/getBalanceAction.cpp \
-  tracker/setResponseVisitor.cpp \
+  tracker/getBalanceRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
+  tracker/manageNetwork.cpp \
+  tracker/nodesManager.cpp \
+  tracker/originAddressScaner.cpp \
+  tracker/segmentFileStorage.cpp \
+  tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
-  tracker/server.cpp
-
-  
+  tracker/simpleBuddy.cpp \
+  tracker/transactionRecordManager.cpp \
+  tracker/validateTransactionsAction.cpp \
+  tracker/validateTransactionsRequest.cpp
   
 libbitcoin_server_a_SOURCES = \
   db.cpp \

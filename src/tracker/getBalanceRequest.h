@@ -14,7 +14,7 @@
 namespace tracker
 {
 
-class  CGetBalanceRequest : public common::CRequest< TrackerResponses >
+class CGetBalanceRequest : public common::CRequest< TrackerResponses >
 {
 public:
 	CGetBalanceRequest( uint160 const & _key );

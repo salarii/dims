@@ -5,8 +5,9 @@
 
 namespace tracker
 {
+class CValidateTransactionsRequest;
 
-typedef boost::mpl::list< CGetBalanceRequest > TrackerRequestsList;
+typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest > TrackerRequestsList;
 
 }
 

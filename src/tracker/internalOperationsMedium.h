@@ -10,14 +10,19 @@
 
 namespace tracker
 {
-
+/* for now  I am doing  everything in same  thread, do I need to  change  this behavior?? */
 class CInternalOperationsMedium : public common::CMedium< TrackerResponses >
 {
 public:
 	virtual bool serviced() const;
+
 	virtual bool flush(){ return true; }
+
 	virtual bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
+
 	virtual void add(CGetBalanceRequest const * _request );
+
+	virtual void add(CValidateTransactionsRequest const * _request );
 
 	static CInternalOperationsMedium* getInstance();
 		CInternalOperationsMedium();

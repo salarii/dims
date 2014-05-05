@@ -5,6 +5,7 @@
 #include "internalOperationsMedium.h"
 #include "addressToCoins.h"
 #include "transactionRecordManager.h"
+#include "validateTransactionsRequest.h"
 
 #include <algorithm>
 
@@ -57,6 +58,13 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 
 	m_trackerResponses.push_back( availableCoins );
 }
+
+void
+CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
+{
+	CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions() );
+}
+
 
 bool
 CInternalOperationsMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const

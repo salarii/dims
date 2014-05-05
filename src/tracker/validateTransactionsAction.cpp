@@ -6,19 +6,14 @@
 #include <boost/statechart/event.hpp>
 
 #include "common/setResponseVisitor.h"
+#include "validateTransactionsRequest.h"
 
 namespace tracker
 {
 
-struct CSetupEvent : boost::statechart::event< CSetupEvent >
+struct CValidateTransactionsResultEvent : boost::statechart::event< CValidateTransactionsResultEvent >
 {
 };
-
-struct CValidateTransactionsEvent
-{
-};
-
-
 
 struct CPropagationSummaryEvent : boost::statechart::event< CPropagationSummaryEvent >
 {
@@ -37,22 +32,36 @@ struct CNetworkPresent : boost::statechart::simple_state< CNetworkPresent, CVali
 struct CStandAlone : boost::statechart::simple_state< CStandAlone, CValidateTransactionsAction >
 {};
 
-struct CUninitiated : boost::statechart::simple_state< CUninitiated, CValidateTransactionsAction >
+struct CInitial : boost::statechart::simple_state< CInitial, CValidateTransactionsAction >
 {
-/*	typedef boost::statechart::custom_reaction< CSetupEvent > reactions;
+	typedef boost::statechart::custom_reaction< CValidateTransactionsResultEvent > reactions;
 
-	boost::statechart::result react( const CSetupEvent & _setupEvent )
+	CInitial()
 	{
-		if ( _setupEvent.m_manual )
-			return transit< CManual >();
-		else
-			return transit< CAutomatic >();
-	}*/
+		context< CValidateTransactionsAction >().m_request =
+				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().m_transactions );
+	}
+
+	boost::statechart::result react( const CValidateTransactionsResultEvent & _event )
+	{
+		//if ( _event )
+			return transit< CStandAlone >();
+	//	else
+	//		return transit< CAutomatic >();
+	}
 };
 
 CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransaction > const & _transactions )
-	:common::CAction< TrackerResponses >()
+	: common::CAction< TrackerResponses >()
+	, m_request( 0 )
+	, m_transactions( _transactions )
 {
+}
+
+common::CRequest< TrackerResponses >*
+CValidateTransactionsAction::execute()
+{
+	return m_request;
 }
 
 void

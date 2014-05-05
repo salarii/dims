@@ -83,7 +83,6 @@ CValidationManager::workLoop()
 		*/
 	}
 
-	common::CActionHandler::getInstance()->executeAction( new CValidateTransactionsAction() );
 
 }
 
