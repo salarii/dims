@@ -72,7 +72,7 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 	boost::statechart::result react( const CValidationEvent & _event )
 	{
 		if ( _event.m_valid )
-			return transit< CStandAlone >();
+			return transit< CApproved >();
 		else
 			return transit< CRejected >();
 	}

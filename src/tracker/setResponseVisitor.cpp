@@ -5,7 +5,7 @@
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
 #include "getBalanceAction.h"
-
+#include "validateTransactionsAction.h"
 #include "validateTransactionActionEvents.h"
 
 namespace common
@@ -54,6 +54,12 @@ void
 CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CGetBalanceAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList > const &)GetBalance< tracker::CGetBalanceAction >( &_action ), m_trackerResponses );
+}
+
+void
+CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CValidateTransactionsAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList > const &)CSetValidationResult< tracker::CValidateTransactionsAction >( &_action ), m_trackerResponses );
 }
 
 }

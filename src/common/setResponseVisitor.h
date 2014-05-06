@@ -11,6 +11,7 @@
 namespace tracker
 {
 class CGetBalanceAction;
+class CValidateTransactionsAction;
 }
 
 typedef boost::mpl::list<  common::CAvailableCoins > TrackerResponseList;
@@ -34,7 +35,7 @@ public:
 	virtual void visit( CAction< _RequestResponses > & _action );
 };
 
-
+// weak spot because one have to remembar to ad function for  every new action refactor it??
 template<>
 class CSetResponseVisitor< tracker::TrackerResponses >
 {
@@ -44,6 +45,8 @@ public:
 	virtual void visit( common::CAction< tracker::TrackerResponses > & _action );
 
 	virtual void visit( tracker::CGetBalanceAction & _action );
+
+	virtual void visit( tracker::CValidateTransactionsAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };

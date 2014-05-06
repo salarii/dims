@@ -112,8 +112,8 @@ void
 		std::vector< _RequestResponses > requestResponses;
 
 		m_usedMedium->getResponse(requestResponses);
-
-		// this i thing is temporary
+		m_usedMedium->clearResponses();
+		// this i looks  ugly
 		int i = 0;
 		BOOST_FOREACH( _RequestResponses const & response, requestResponses )
 		{

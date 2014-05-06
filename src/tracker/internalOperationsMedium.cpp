@@ -75,4 +75,11 @@ CInternalOperationsMedium::getResponse( std::vector< TrackerResponses > & _reque
 	return true;
 }
 
+void
+CInternalOperationsMedium::clearResponses()
+{
+	m_trackerResponses.clear();
+}
+
+
 }

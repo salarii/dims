@@ -20,9 +20,12 @@ public:
 
 	virtual bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
 
+	virtual void clearResponses();
+
 	virtual void add(CGetBalanceRequest const * _request );
 
 	virtual void add(CValidateTransactionsRequest const * _request );
+
 
 	static CInternalOperationsMedium* getInstance();
 		CInternalOperationsMedium();

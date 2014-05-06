@@ -32,6 +32,7 @@ class CMedium
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
+	virtual void clearResponses() = 0;
 	virtual bool getResponse( std::vector< _RequestResponses > & _requestResponse ) const = 0;
 	virtual void add( CRequest< _RequestResponses > const * _request ) = 0;
 	virtual ~CMedium(){};
@@ -45,6 +46,7 @@ public:
 	virtual bool flush() = 0;
 
 	virtual bool getResponse( std::vector< tracker::TrackerResponses > & _requestResponse ) const = 0;
+	virtual void clearResponses() = 0;
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,0 ) const * _request ){};
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,1 ) const * _request ){};
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,2 ) const * _request ){};

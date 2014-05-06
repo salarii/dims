@@ -48,6 +48,7 @@ CSendTransactionAction::execute()
 	}
 	else
 	{
+		return 0;
 		if ( m_status == common::TransactionsStatus::DoubleSpend );
 			// double spend
 		else if ( m_status == common::TransactionsStatus::Confirmed );
