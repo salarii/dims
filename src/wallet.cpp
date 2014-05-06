@@ -2110,6 +2110,8 @@ CWallet::setAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin >
 {
 	AssertLockHeld(cs_wallet);
 
+	m_availableCoins.erase(_keyId);
+
 	BOOST_FOREACH( CAvailableCoin const & availableCoin, _availableCoins )
 	{
 		m_availableCoins.insert( std::make_pair( _keyId, availableCoin ) );

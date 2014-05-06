@@ -76,9 +76,51 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uin
 
 	bool pfMissingInputs;
 	CValidationState state;
-	AcceptToMemoryPool(*m_memPool, state, _tx, false, &pfMissingInputs, false);
+
+	// this  is  needed  but does not work like it should, so I commented it out
+	//AcceptToMemoryPool(*m_memPool, state, _tx, false, &pfMissingInputs, false);
 	m_addressToCoinsViewCache->flush();
 	m_coinsViewCache->Flush();
+}
+
+bool
+CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransaction > const & _transaction )
+{
+
+	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
+
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	{
+		BOOST_FOREACH( CTxIn const & txIn, transaction.vin )
+		{
+			CCoins coins;
+			if ( !m_coinsViewCache->GetCoins(txIn.prevout.hash, coins) )
+				return false;
+
+			coins.vout.at( txIn.prevout.n ).SetNull();
+			if ( !m_coinsViewCache->SetCoins(txIn.prevout.hash, coins) )
+				return false;
+		}
+
+	}
+
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	{
+		CCoins coins(transaction, 0);
+		m_coinsViewCache->SetCoins( transaction.GetHash(), coins);
+		std::vector< uint160 > keyIds;
+		if ( !retrieveKeyIds( coins, keyIds ) )
+			return false;
+
+		BOOST_FOREACH( uint160 const & keyId, keyIds )
+		{
+			m_addressToCoinsViewCache->setCoins( keyId, transaction.GetHash() );
+		}
+	}
+	m_addressToCoinsViewCache->flush();
+	m_coinsViewCache->Flush();
+
+	return true;
 }
 
 bool
@@ -124,6 +166,56 @@ void CTransactionRecordManager::addClientTransaction( CTransaction const & _tx )
 	boost::lock_guard<boost::mutex> lock( m_transactionLock );
 	m_transactionPool.push_back( _tx );
 }
+
+bool
+CTransactionRecordManager::retrieveKeyIds( CCoins const & _coins, std::vector< uint160 > & _keyIds ) const
+{
+
+	for (unsigned int i = 0; i < _coins.vout.size(); i++)
+	{
+		const CTxOut& txout = _coins.vout[i];
+
+		opcodetype opcode;
+
+		std::vector<unsigned char> data;
+
+		CScript::const_iterator pc = txout.scriptPubKey.begin();
+		//sanity check
+		while( pc != txout.scriptPubKey.end() )
+		{
+			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
+				return false;
+		}
+		txnouttype type;
+
+		std::vector< std:: vector<unsigned char> > vSolutions;
+		if (Solver(txout.scriptPubKey, type, vSolutions) &&
+				(type == TX_PUBKEY || type == TX_PUBKEYHASH))
+		{
+			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
+
+			while( it != vSolutions.end() )
+			{
+				if ( type == TX_PUBKEY )
+				{
+					if ( !txout.IsNull() )
+						_keyIds.push_back( Hash160( *it ) );
+					break;
+				}
+				else if( type == TX_PUBKEYHASH )
+				{
+					if ( !txout.IsNull() )
+						_keyIds.push_back( uint160( *it ) );
+					break;
+				}
+				it++;
+			}
+		}
+	}
+	return true;
+}
+
+
 
 void
 CTransactionRecordManager::loop()

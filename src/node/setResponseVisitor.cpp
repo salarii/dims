@@ -100,7 +100,7 @@ public:
 	boost::optional< std::map< uint256, CCoins > > operator()(CAvailableCoins & _availableCoins ) const
 	{
 
-		return _availableCoins.m_availableCoins2;
+		return _availableCoins.m_availableCoins;
 	}
 };
 

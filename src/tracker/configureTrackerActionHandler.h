@@ -14,8 +14,15 @@ namespace tracker
 {
 struct CDummyResponse{};
 
+struct CValidationResult
+{
+	CValidationResult( bool _valid ):m_valid( _valid ){};
+	bool m_valid;
+};
+
+
 // list all desired types
-typedef boost::mpl::list< CDummyResponse, common::CAvailableCoins > TrackerResponseList;
+typedef boost::mpl::list< CDummyResponse, common::CAvailableCoins, CValidationResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

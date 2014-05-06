@@ -62,6 +62,7 @@ TRACKER_CORE_H = \
   tracker/simpleBuddy.h \
   tracker/transactionRecordManager.h \
   tracker/validateTransactionsAction.h \
+  tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
 
 # bitcoin core #

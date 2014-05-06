@@ -6,6 +6,8 @@
 #include "common/responseVisitorInternal.h"
 #include "getBalanceAction.h"
 
+#include "validateTransactionActionEvents.h"
+
 namespace common
 {
 
@@ -20,6 +22,21 @@ public:
 		this->m_action->passBalance( _param );
 	}
 };
+
+template < class _Action >
+class CSetValidationResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+{
+public:
+	CSetValidationResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( tracker::CValidationResult & _param ) const
+	{
+		this->m_action->process_event( tracker::CValidationEvent( _param.m_valid ) );
+	}
+};
+
+
+
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
 	: m_trackerResponses( _trackerResponse )

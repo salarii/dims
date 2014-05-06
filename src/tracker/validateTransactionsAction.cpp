@@ -9,13 +9,18 @@
 #include "common/setResponseVisitor.h"
 #include "validateTransactionsRequest.h"
 
+#include "validateTransactionActionEvents.h"
+#include "transactionRecordManager.h"
+
 namespace tracker
 {
+// this is  conceptualy not clear  piece of  code
+/*
+ I see it  in this  fashion  in  future
+initial
+stand alone     network mode
 
-struct CValidateTransactionsResultEvent : boost::statechart::event< CValidateTransactionsResultEvent >
-{
-};
-
+*/
 struct CPropagationSummaryEvent : boost::statechart::event< CPropagationSummaryEvent >
 {
 };
@@ -33,9 +38,30 @@ struct CNetworkPresent : boost::statechart::simple_state< CNetworkPresent, CVali
 struct CStandAlone : boost::statechart::simple_state< CStandAlone, CValidateTransactionsAction >
 {};
 
+struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAction >
+{
+	CApproved( my_context ctx ) : my_base( ctx )
+	{
+// instead of  calling  some  sort of request I will try to include  new transaction directly
+		context< CValidateTransactionsAction >().m_request = 0;
+		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
+			context< CValidateTransactionsAction >().m_transactions );
+	}
+
+};
+
+struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAction >
+{
+	CRejected( my_context ctx ) : my_base( ctx )
+	{
+// error should be indicated, at some point
+		context< CValidateTransactionsAction >().m_request = 0;
+	}
+};
+
 struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsAction >
 {
-	typedef boost::statechart::custom_reaction< CValidateTransactionsResultEvent > reactions;
+	typedef boost::statechart::custom_reaction< CValidationEvent > reactions;
 
 	CInitial( my_context ctx ) : my_base( ctx )
 	{
@@ -43,12 +69,12 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().m_transactions );
 	}
 
-	boost::statechart::result react( const CValidateTransactionsResultEvent & _event )
+	boost::statechart::result react( const CValidationEvent & _event )
 	{
-		//if ( _event )
+		if ( _event.m_valid )
 			return transit< CStandAlone >();
-	//	else
-	//		return transit< CAutomatic >();
+		else
+			return transit< CRejected >();
 	}
 };
 

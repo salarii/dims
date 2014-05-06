@@ -13,12 +13,15 @@
 namespace tracker
 {
 
-struct CInitial;
+struct CInitial; struct CApproved; struct CRejected;
 
 class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >
 {
 public:
+	// loks ugly but I don't want to allow anyone else than machine internal states to modify its private data
 	friend class CInitial;
+	friend class CApproved;
+	friend class CRejected;
 public:
 	CValidateTransactionsAction( std::vector< CTransaction > const & _transactions );
 	virtual common::CRequest< TrackerResponses >* execute();

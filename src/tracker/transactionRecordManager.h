@@ -28,20 +28,26 @@ class CTransactionRecordManager
 public:
 	~CTransactionRecordManager();
 
-	void addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  );
+	static CTransactionRecordManager* getInstance( );
+
 
 	bool checkIfCoinsAvailable( CTransaction const & _tx ) const;
 	//time  stamp or  something needed
 	//
 	bool validateTransactionBundle( std::vector< CTransaction > const & _transaction );
 
+
+	void addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  );
+
+	bool addValidatedTransactionBundle( std::vector< CTransaction > const & _transaction );
+
 	void loop();
 
 	bool getCoins( std::vector< uint256 > const & _transaction,  std::vector< CCoins > & _coins ) const;
 
-	static CTransactionRecordManager* getInstance( );
-
 	void addClientTransaction( CTransaction const & _tx );
+
+	bool retrieveKeyIds( CCoins const & _coins, std::vector< uint160 > & _keyIds ) const;
 private:
 	void synchronize();
 	void askForTokens();

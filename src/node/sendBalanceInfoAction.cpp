@@ -120,7 +120,8 @@ CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const 
 					||	( ( type == TX_PUBKEYHASH ) && ( _pubId == uint160( *it ) ) )
 					)
 				{
-					availableCoins.push_back( CAvailableCoin( txout, i, _hash ) );
+					if ( !txout.IsNull() )
+						availableCoins.push_back( CAvailableCoin( txout, i, _hash ) );
 					break;
 				}
 				it++;

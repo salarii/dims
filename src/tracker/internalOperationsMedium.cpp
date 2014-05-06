@@ -54,7 +54,7 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 
 
 	std::transform( coinsHashes.begin(), coinsHashes.end(), coins.begin(),
-		   std::inserter(availableCoins.m_availableCoins2, availableCoins.m_availableCoins2.end() ), std::make_pair<uint256,CCoins> );
+		   std::inserter(availableCoins.m_availableCoins, availableCoins.m_availableCoins.end() ), std::make_pair<uint256,CCoins> );
 
 	m_trackerResponses.push_back( availableCoins );
 }
@@ -62,7 +62,9 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 void
 CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 {
-	CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions() );
+	//this is  simplified to maximum, hence correct only in some cases
+	bool valid = CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions() );
+	m_trackerResponses.push_back( CValidationResult( valid ) );
 }
 
 
