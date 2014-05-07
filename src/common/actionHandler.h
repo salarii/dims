@@ -101,6 +101,9 @@ CActionHandler< _RequestResponses >::addConnectionProvider( CConnectionProvider<
 	m_connectionProviders.push_back( _connectionProvider );
 }
 
+/*
+reconsider  how  to  get  the  same  handler  every  time
+*/
 template < class _RequestResponses >
 std::list< CRequestHandler< _RequestResponses > * >
 CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )

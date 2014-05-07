@@ -7,26 +7,32 @@
 
 #include <boost/optional.hpp>
 
-#include "common/transactionStatus.h"
-#include "action.h"
-#include "request.h"
 
+#include "common/action.h"
+#include "common/request.h"
+#include "configureNodeActionHadler.h"
 #include "core.h"
+#include "common/transactionStatus.h"
+
+namespace common
+{
+
+template < class _RequestResponses >
+class CSetResponseVisitor;
+
+}
 
 namespace node
 {
 
-class CSetResponseVisitor;
-
-
-class CSendTransactionAction : public CAction
+class CSendTransactionAction : public common::CAction< NodeResponses >
 {
 public:
 	CSendTransactionAction( const CTransaction & _Transaction );
 
-	void accept( CSetResponseVisitor & _visitor );
+	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	CRequest * execute();
+	common::CRequest< NodeResponses > * execute();
 
 	void setTransactionStatus( boost::optional< common::TransactionsStatus::Enum > const _transactionStatus );
 
@@ -39,21 +45,21 @@ private:
 	
 };
 
-struct CTransactionStatusRequest : public CRequest
+struct CTransactionStatusRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CTransactionStatusRequest( uint256 const & _token );
-	void serialize( CBufferAsStream & _bufferStream ) const;
-	RequestKind::Enum getKind() const;
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
+	int getKind() const;
 	uint256 m_token;
 };
 
-struct CTransactionSendRequest : public CRequest
+struct CTransactionSendRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CTransactionSendRequest( CTransaction const & _transaction );
-	void serialize( CBufferAsStream & _bufferStream ) const;
-	RequestKind::Enum getKind() const;
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
+	int getKind() const;
 	CTransaction m_transaction;
 };
 

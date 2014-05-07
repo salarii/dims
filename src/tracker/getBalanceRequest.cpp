@@ -18,7 +18,7 @@ void CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium )
 }
 
 int
-CGetBalanceRequest::getKind()
+CGetBalanceRequest::getKind() const
 {
 	return 0;
 }

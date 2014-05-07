@@ -15,8 +15,9 @@
 #include "optionsmodel.h"
 #include "splashscreen.h"
 #include "utilitydialog.h"
-#include "node/actionHandler.h"
+#include "common/actionHandler.h"
 #include "node/nodeConnectionManager.h"
+#include "node/configureNodeActionHadler.h"
 
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
@@ -237,9 +238,9 @@ void BitcoinCore::initialize()
 		LogPrintf("Running AppInit1 in thread\n");
 	  int rv = AppInit1(threadGroup);
 
-	node::CActionHandler * actionHandler = node::CActionHandler::getInstance();
+	common::CActionHandler< node::NodeResponses > * actionHandler = common::CActionHandler< node::NodeResponses >::getInstance();
 
-	threadGroup.create_thread(boost::bind(&node::CActionHandler::loop, actionHandler));
+	threadGroup.create_thread(boost::bind(&common::CActionHandler< node::NodeResponses >::loop, actionHandler));
 
 	node::CNodeConnectionManager * nodeConnectionManager = node::CNodeConnectionManager::getInstance();
 

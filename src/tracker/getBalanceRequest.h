@@ -21,7 +21,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind();
+	virtual int getKind() const;
 
 	uint160 getKey() const;
 private:

@@ -5,10 +5,10 @@
 #ifndef SEND_INFO_REQUEST_ACTION_H
 #define SEND_INFO_REQUEST_ACTION_H
 
-#include "action.h"
+#include "common/action.h"
 #include "tracker/validationManager.h"
-#include "requestHandler.h"
-
+#include "common/requestHandler.h"
+#include "configureNodeActionHadler.h"
 
 namespace node
 {
@@ -39,49 +39,49 @@ extern std::vector< TrackerInfo::Enum > const TrackerDescription;
 
 class CSetResponseVisitor;
 
-class CSendInfoRequestAction : public CAction
+class CSendInfoRequestAction : public common::CAction< NodeResponses >
 {
 public:
 	CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo );
 
 	void accept( CSetResponseVisitor & _visitor );
 
-	CRequest* execute();
+	common::CRequest< NodeResponses >* execute();
 
 private:
-	CRequest* m_request;
+	common::CRequest< NodeResponses >* m_request;
 
-	ActionStatus::Enum m_status;
+	common::ActionStatus::Enum m_status;
 };
 
-struct CTrackersInfoRequest : public CRequest
+struct CTrackersInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >() );
 	~CTrackersInfoRequest(){};
 	void serialize( CBufferAsStream & _bufferStream ) const;
-	RequestKind::Enum getKind() const;
+	int getKind() const;
 
 	std::vector< TrackerInfo::Enum >const  m_reqInfo;
 };
 
-struct CMonitorInfoRequest : public CRequest
+struct CMonitorInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CMonitorInfoRequest();
 	void serialize( CBufferAsStream & _bufferStream ) const;
-	RequestKind::Enum getKind() const;
+	int getKind() const;
 };
 
-struct CInfoRequestContinue : public CRequest
+struct CInfoRequestContinue : public common::CRequest< NodeResponses >
 {
 public:
-	CInfoRequestContinue( uint256 const & _token, RequestKind::Enum const _requestKind );
+	CInfoRequestContinue( uint256 const & _token, common::RequestKind::Enum const _requestKind );
 	void serialize( CBufferAsStream & _bufferStream ) const;
-	RequestKind::Enum getKind() const;
+	int getKind() const;
 
 	uint256 const m_token;
-	RequestKind::Enum const m_requestKind;
+	common::RequestKind::Enum const m_requestKind;
 };
 
 }

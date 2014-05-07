@@ -2,7 +2,7 @@
 #include "sendInfoRequestAction.h"
 
 #include "serialize.h"
-#include "support.h"
+#include "common/support.h"
 
 #include <boost/assign/list_of.hpp>
 
@@ -21,7 +21,7 @@ CSendInfoRequestAction::accept( CSetResponseVisitor & _visitor )
 	
 }
 
-CRequest*
+common::CRequest< NodeResponses >*
 CSendInfoRequestAction::execute()
 {
 	return 0;
@@ -43,10 +43,10 @@ CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 	
 }
 
-RequestKind::Enum
+int
 CTrackersInfoRequest::getKind() const
 {
-	return RequestKind::NetworkInfo;
+	return common::RequestKind::NetworkInfo;
 }
 
 
@@ -61,13 +61,12 @@ CMonitorInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 
 }
 
-RequestKind::Enum
-CMonitorInfoRequest::getKind() const
+int CMonitorInfoRequest::getKind() const
 {
-
+	return 0;
 }
 
-CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, RequestKind::Enum const _requestKind )
+CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::RequestKind::Enum const _requestKind )
 : m_token( _token )
 ,m_requestKind( _requestKind )
 {
@@ -77,11 +76,11 @@ CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, RequestKind:
 void
 CInfoRequestContinue::serialize( CBufferAsStream & _bufferStream ) const
 {
-	serializeEnum( _bufferStream, common::CMainRequestType::ContinueReq );
+	common::serializeEnum( _bufferStream, common::CMainRequestType::ContinueReq );
 	_bufferStream << m_token;
 }
 
-RequestKind::Enum
+int
 CInfoRequestContinue::getKind() const
 {
 	return m_requestKind;

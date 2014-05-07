@@ -12,6 +12,8 @@
 
 // this is  weak point of  this implementation I don't know  how to get rid of this at the moment
 #include "tracker/trackerRequestsList.h"
+#include "node/nodeRequestList.h"
+#include "node/configureNodeActionHadler.h"
 
 namespace common
 {
@@ -61,7 +63,28 @@ public:
 	virtual ~CMedium(){};
 };
 
+template <>
+class CMedium< node::NodeResponses >
+{
+public:
+	virtual bool serviced() const = 0;
+	virtual bool flush() = 0;
 
+	virtual bool getResponse( std::vector< node::NodeResponses > & _requestResponse ) const = 0;
+	virtual void clearResponses() = 0;
+	virtual void add( VisitorParam( node::NodeRequestsList ,0 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,1 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,2 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,3 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,4 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,5 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,6 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,7 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,8 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,9 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,10 ) const * _request ){};
+	virtual ~CMedium(){};
+};
 }
 
 #endif // MEDIUM_H

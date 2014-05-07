@@ -13,7 +13,7 @@
 #include "clientRequestsManager.h"
 
 #include "common/ratcoinParams.h"
-#include "node/support.h"
+#include "common/support.h"
 
 using namespace common;
 
@@ -30,13 +30,13 @@ public:
 
 	void operator()( CAvailableCoins const & _availableCoins ) const
 	{
-		node::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
+		common::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
 		*m_pushStream << _availableCoins;
 	}
 
 	void operator()( CDummy const & _dummy ) const
 	{
-		node::serializeEnum( *m_pushStream, CMainRequestType::ContinueReq );
+		common::serializeEnum( *m_pushStream, CMainRequestType::ContinueReq );
 		*m_pushStream << _dummy;
 	}
 private:
@@ -163,7 +163,7 @@ CTcpServerConnection::handleIncommingBuffor()
 		if( messageType == CMainRequestType::Transaction )
 		{
 			pullStream >> transaction;
-			node::serializeEnum( pushStream, CMainRequestType::ContinueReq );
+			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token = transaction.GetHash();
 			m_clientRequestManager->addRequest( transaction, token );
 			pushStream << token;
@@ -184,7 +184,7 @@ CTcpServerConnection::handleIncommingBuffor()
 		{
 			std::string address;
 			pullStream >> address;
-			node::serializeEnum( pushStream, CMainRequestType::ContinueReq );
+			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token = m_clientRequestManager->addRequest( address );
 			pushStream << token;
 		}

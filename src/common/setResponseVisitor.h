@@ -7,16 +7,23 @@
 
 #include <boost/variant.hpp> 
 #include "tracker/configureTrackerActionHandler.h"
+#include "node/configureNodeActionHadler.h"
 
 namespace tracker
 {
+
 class CGetBalanceAction;
+
 class CValidateTransactionsAction;
+
 }
 
-typedef boost::mpl::list<  common::CAvailableCoins > TrackerResponseList;
+namespace node
+{
 
-typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
+class CSendBalanceInfoAction;
+
+}
 
 namespace common
 {
@@ -49,6 +56,24 @@ public:
 	virtual void visit( tracker::CValidateTransactionsAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
+};
+
+template<>
+class CSetResponseVisitor< node::NodeResponses >
+{
+public:
+	CSetResponseVisitor( node::NodeResponses const & _requestRespond );
+
+	void visit( CSendTransactionAction & _action );
+
+	void visit( CConnectAction & _action );
+
+	void visit( CAction< node::NodeResponses > & _action );
+
+	void visit( node::CSendBalanceInfoAction & _action );
+private:
+
+	node::NodeResponses m_requestRespond;
 };
 
 

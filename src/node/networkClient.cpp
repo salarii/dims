@@ -5,7 +5,11 @@
 #include "networkClient.h"
 #include "serialize.h"
 #include "version.h"
-#include "requestHandler.h"
+#include "common/requestHandler.h"
+#include "sendBalanceInfoAction.h"
+#include "sendTransactionAction.h"
+#include "sendInfoRequestAction.h"
+#include "helper.h"
 
 #include <QHostAddress>
 
@@ -91,16 +95,7 @@ void CNetworkClient::startThread()
 	start();
 }
 
-/*
-run will go instantly
-whenever write come
-do following
-connect  send
-receive
-  disconnect
-sign  serviced
 
-*/
 void CNetworkClient::run()
 {
     while(1)
@@ -108,7 +103,7 @@ void CNetworkClient::run()
 
 		if ( m_connectionInfo == Processing )
         {
-			QMutexLocker lock( &m_writeMutex );
+			QMutexLocker lock( &m_mutex );
 			QHostAddress hostAddr( m_ip );
             m_socket->connectToHost( hostAddr, m_port );
             if ( m_socket->waitForConnected( m_timeout ) )
@@ -127,31 +122,49 @@ void CNetworkClient::run()
 }
 
 bool
-CNetworkClient::serviced() const throw(CMediumException)
+CNetworkClient::serviced() const throw(common::CMediumException)
 {
     if (m_connectionInfo == Processing )
         return false;
     else if ( m_connectionInfo == Processed )
         return true;
     else if ( m_connectionInfo == ServiceDenial )
-        throw CMediumException(ErrorType::ServiceDenial );
+		throw common::CMediumException(common::ErrorType::ServiceDenial );
 
     return false;
 }
 
 
 void 
-CNetworkClient::add( CRequest const * _request )
+CNetworkClient::add( common::CRequest< NodeResponses > const * _request )
 {
-	QMutexLocker lock( &m_writeMutex );
-	_request->serialize( *m_pushStream );
 }
+
+void
+CNetworkClient::add( CBalanceRequest const * _request )
+{
+	QMutexLocker lock( &m_mutex );
+	serializeEnum(*m_pushStream, common::CMainRequestType::BalanceInfoReq );
+	*m_pushStream << _request->m_address;
+}
+
+void
+CNetworkClient::add( CTransactionSendRequest const * _request )
+{
+	QMutexLocker lock( &m_mutex );
+	serializeEnum(*m_pushStream, common::CMainRequestType::Transaction );
+	*m_pushStream  << _request->m_transaction;
+}
+
 
 bool
 CNetworkClient::flush()
 {
-	QMutexLocker lock( &m_writeMutex );
+	QMutexLocker lock( &m_mutex );
 	m_pushBuffer.m_usedSize = m_pushStream->GetPos();
+
+	if ( !m_pushBuffer.m_usedSize )
+		return true;
 	m_pushStream->SetPos( 0 );
 
     if ( m_connectionInfo != NoActivity && m_connectionInfo != Processed )
@@ -161,9 +174,63 @@ CNetworkClient::flush()
 }
 
 bool
-CNetworkClient::getResponse( common::CCommunicationBuffer & _outBuffor ) const
+CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) const
 {
-	_outBuffor = m_pullBuffer;
+	QMutexLocker lock( &m_mutex );
+	CBufferAsStream stream(
+		  (char*)m_pullBuffer.m_buffer
+		, m_pullBuffer.m_usedSize
+		, SER_DISK
+		, CLIENT_VERSION);
+
+	while( !stream.eof() )
+	{
+		int messageType;
+
+		stream >> messageType;
+
+		if ( messageType == common::CMainRequestType::ContinueReq )
+		{
+			uint256 token;
+			stream >> token;
+			_requestResponse.push_back( common::CPending(token) );
+
+		}
+		else if ( messageType == common::CMainRequestType::TransactionStatusReq )
+		{
+			int status;
+			stream >> status;
+			//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (TransactionsStatus::Enum )status ) ) );
+
+		}
+		else if ( messageType == common::CMainRequestType::MonitorInfoReq )
+		{
+
+		}
+		else if ( messageType == common::CMainRequestType::TrackerInfoReq )
+		{
+			common::CTrackerStats trackerInfo;
+
+			readTrackerInfo( stream, trackerInfo, TrackerDescription );
+			_requestResponse.push_back( trackerInfo );
+
+		}
+		else if ( messageType == common::CMainRequestType::RequestSatatusReq )
+		{
+		}
+		else if ( messageType == common::CMainRequestType::BalanceInfoReq )
+		{
+			common::CAvailableCoins availableCoins;
+			stream >> availableCoins;
+			_requestResponse.push_back( availableCoins );
+		}
+		else
+		{
+			throw;
+		}
+	}
+
+
 }
 
 CNetworkClient::~CNetworkClient()

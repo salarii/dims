@@ -33,7 +33,7 @@ struct CRequest
 {
 	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
 // reconsider this  int
-	virtual int getKind() = 0;
+	virtual int getKind() const = 0;
 	virtual ~CRequest(){};
 };
 

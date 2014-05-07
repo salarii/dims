@@ -8,8 +8,9 @@
 #include "guiconstants.h"
 #include "recentrequeststablemodel.h"
 #include "transactiontablemodel.h"
-#include "node/actionHandler.h"
+#include "common/actionHandler.h"
 #include "node/sendTransactionAction.h"
+#include "node/configureNodeActionHadler.h"
 #include "base58.h"
 #include "db.h"
 #include "keystore.h"
@@ -314,7 +315,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 	  //  emit coinsSent(wallet, rcp, transaction_array);
     }
 /* create send  transaction  action */
-	node::CActionHandler::getInstance()->executeAction( new node::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
+	common::CActionHandler< node::NodeResponses >::getInstance()->executeAction( new node::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
     return SendCoinsReturn(OK);
 }
 

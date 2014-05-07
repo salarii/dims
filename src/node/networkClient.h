@@ -8,8 +8,9 @@
 #include "QMutex"
 #include "QThread"
 #include "QTcpSocket"
-#include "medium.h"
 #include "common/communicationBuffer.h"
+#include "common/medium.h"
+#include "configureNodeActionHadler.h"
 #include <exception>
 
 class CBufferAsStream;
@@ -17,7 +18,7 @@ class CBufferAsStream;
 namespace node
 {
 
-class CNetworkClient : public QThread, public CMedium
+class CNetworkClient : public QThread, public common::CMedium< NodeResponses >
 {
 public:
     enum ConnectionInfo
@@ -35,10 +36,16 @@ public:
     ~CNetworkClient();
 	virtual void startThread();
 
-    bool serviced() const throw(CMediumException);
-	void add( CRequest const * _request );
+	bool serviced() const throw(common::CMediumException);
+
+	void add( common::CRequest< NodeResponses > const * _request );
+
+	void add( CBalanceRequest const * _request );
+
+	void add( CTransactionSendRequest const * _request );
+
 	bool flush();
-	bool getResponse( common::CCommunicationBuffer & _outBuffor ) const;
+	virtual bool getResponse( std::vector< NodeResponses > & _requestResponse ) const;
 private:
 	void run();
 	unsigned int read();
@@ -47,8 +54,7 @@ private:
 private:
 	static unsigned const m_timeout;
 
-    QMutex m_mutex;
-    QMutex m_writeMutex;
+	mutable QMutex m_mutex;
 	const QString m_ip;
 	const ushort m_port;
 

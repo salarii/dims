@@ -5,8 +5,10 @@
 #ifndef SEND_BALANCE_INFO_ACTION_H
 #define SEND_BALANCE_INFO_ACTION_H
 
-#include "action.h"
-#include "request.h"
+#include "common/action.h"
+#include "common/request.h"
+#include "configureNodeActionHadler.h"
+#include "common/setResponseVisitor.h"
 
 #include  <boost/optional.hpp>
 #include "uint256.h"
@@ -15,14 +17,14 @@
 namespace node
 {
 
-class CSendBalanceInfoAction : public CAction
+class CSendBalanceInfoAction : public common::CAction< NodeResponses >
 {
 public:
 	CSendBalanceInfoAction( std::string const _pubKey );
 
-	void accept( CSetResponseVisitor & _visitor );
+	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	CRequest* execute();
+	common::CRequest< NodeResponses >* execute();
 
 	void setBalance( boost::optional< std::map< uint256, CCoins > > const & _balance );
 
@@ -32,7 +34,7 @@ public:
 private:
 	std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash ) const;
 private:
-	CRequest* m_request;
+	common::CRequest< NodeResponses >* m_request;
 
 	std::string const m_pubKey;
 
@@ -41,13 +43,12 @@ private:
 	boost::optional< uint256 > m_token;
 };
 
-struct CBalanceRequest : public CRequest
+struct CBalanceRequest : public common::CRequest< NodeResponses >
 {
 public:
-    CBalanceRequest( std::string _address );
-    void serialize( CBufferAsStream & _bufferStream ) const;
-    RequestKind::Enum getKind() const;
-
+	CBalanceRequest( std::string _address );
+	int getKind() const;
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
     std::string const m_address;
 
 };

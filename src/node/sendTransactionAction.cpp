@@ -4,7 +4,9 @@
 
 #include "sendTransactionAction.h"
 #include "common/nodeMessages.h"
-#include "setResponseVisitor.h"
+#include "common/setResponseVisitor.h"
+#include "configureNodeActionHadler.h"
+#include "common/medium.h"
 
 #include "serialize.h"
 
@@ -32,13 +34,13 @@ CSendTransactionAction::setTransactionToken( boost::optional< uint256 > const & 
 }
 
 void
-CSendTransactionAction::accept( CSetResponseVisitor & _visitor )
+CSendTransactionAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }
 
 
-CRequest *
+CRequest< NodeResponses > *
 CSendTransactionAction::execute()
 {
 	if ( m_actionStatus == ActionStatus::Unprepared )
@@ -73,12 +75,18 @@ CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _token )
 {
 }
 
-RequestKind::Enum 
+void
+CTransactionStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
 CTransactionStatusRequest::getKind() const
 {
 	return RequestKind::TransactionStatus;
 }
-
+/*
 void
 CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
@@ -86,27 +94,22 @@ CTransactionStatusRequest::serialize( CBufferAsStream & _bufferStream ) const
 	_bufferStream << infoReq;
 	_bufferStream << m_token;
 }
-
+*/
+void
+CTransactionSendRequest::accept( CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
 
 CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction )
 	: m_transaction( _transaction )
 {
 }
 
-RequestKind::Enum 
-CTransactionSendRequest::getKind() const
+int CTransactionSendRequest::getKind() const
 {
 	return RequestKind::Transaction;
 }
-
-void 
-CTransactionSendRequest::serialize( CBufferAsStream & _bufferStream ) const
-{
-	signed int transactionKind = CMainRequestType::Transaction;
-	_bufferStream << transactionKind;
-	_bufferStream << m_transaction;
-}
-
 
 
 }

@@ -18,7 +18,7 @@ void CValidateTransactionsRequest::accept( common::CMedium< TrackerResponses > *
 }
 
 int
-CValidateTransactionsRequest::getKind()
+CValidateTransactionsRequest::getKind() const
 {
 	return 0;
 }

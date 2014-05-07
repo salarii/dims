@@ -138,14 +138,13 @@ CBalanceRequest::CBalanceRequest( std::string _address )
 }
 
 void
-CBalanceRequest::serialize( CBufferAsStream & _bufferStream ) const
+CBalanceRequest::accept( common::CMedium< NodeResponses > * _medium ) const
 {
-	serializeEnum(_bufferStream, CMainRequestType::BalanceInfoReq );
-	_bufferStream << m_address;
+	_medium->add( this );
 }
 
 inline
-RequestKind::Enum CBalanceRequest::getKind() const
+int CBalanceRequest::getKind() const
 {
 	return RequestKind::Balance;
 }

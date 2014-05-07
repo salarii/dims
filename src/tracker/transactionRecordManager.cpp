@@ -88,7 +88,7 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 {
 
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
-
+/*
 	BOOST_FOREACH( CTransaction const & transaction, _transaction )
 	{
 		BOOST_FOREACH( CTxIn const & txIn, transaction.vin )
@@ -119,7 +119,7 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 	}
 	m_addressToCoinsViewCache->flush();
 	m_coinsViewCache->Flush();
-
+*/
 	return true;
 }
 

@@ -10,13 +10,20 @@
 #include <boost/thread.hpp>
 
 #include "connectionProvider.h"
+#include "configureNodeActionHadler.h"
+
+namespace common
+{
+
+template < class _RequestResponses >
+class CActionHandler;
+
+template < class _RequestResponses >
+class CAction;
+}
 
 namespace node
 {
-
-class CAction;
-
-class CActionHandler;
 
 class CNodeConnectionManager
 {
@@ -31,20 +38,20 @@ public:
 
 	void executeAction();
 
-	void addPeriodicAction( CAction* _action );
+	void addPeriodicAction( common::CAction< NodeResponses >* _action );
 
 private:
 	CNodeConnectionManager();
 private:
 	static CNodeConnectionManager * ms_instance;
 
-	CActionHandler * m_actionHandler;
+	common::CActionHandler< NodeResponses > * m_actionHandler;
 
 	static unsigned int const m_sleepTime;
 
     mutable boost::mutex m_mutex;
 
-	std::list< CAction * > m_periodicActions;
+	std::list< common::CAction< NodeResponses > * > m_periodicActions;
 };
 
 

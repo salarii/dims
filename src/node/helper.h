@@ -3,39 +3,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 
-#ifndef SUPPORT_H
-#define SUPPORT_H
+#ifndef HELPER_H
+#define HELPER_H
 
 #include "sendInfoRequestAction.h"
+#include "common/support.h"
 
 namespace  node 
 {
-
-template < class T, class Enum >
-void 
-serializeEnum( T & _stream, Enum const _enum )
-{
-	int i = _enum;
-	_stream << i;
-};
-
-struct CReadString
-{
-	template < class S, class T >
-	void operator()( S & _stream, T & _object ) const
-	{
-		_stream >> _object;
-	}
-};
-
-struct CReadWrite
-{
-	template < class S, class T >
-	void operator()( S & _stream, T const & _object ) const
-	{
-		_stream << _object;
-	}
-};
 
 template < class S, class T, class F >
 void
@@ -67,23 +42,17 @@ readWriteTrackerInfo( S & _stream,T & _trackerStats, F const & _operation, std::
 
 template < class S >
 void
-readTrackerInfo( S & _stream ,CTrackerStats & _trackerStats, std::vector< TrackerInfo::Enum >const & _info )
+readTrackerInfo( S & _stream ,common::CTrackerStats & _trackerStats, std::vector< TrackerInfo::Enum >const & _info )
 {
-	readWriteTrackerInfo( _stream,_trackerStats, CReadString(), _info );
+	readWriteTrackerInfo( _stream,_trackerStats, common::CReadString(), _info );
 }
 
 template < class S >
 void
-writeTrackerInfo( S & _stream ,CTrackerStats const & _trackerStats, std::vector< TrackerInfo::Enum >const & _info )
+writeTrackerInfo( S & _stream ,common::CTrackerStats const & _trackerStats, std::vector< TrackerInfo::Enum >const & _info )
 {
-	readWriteTrackerInfo( _stream,_trackerStats, CReadWrite(), _info );
+	readWriteTrackerInfo( _stream,_trackerStats, common::CReadWrite(), _info );
 }
-/*
-template < class S >
-void
-writeTrackerInfo( S & _stream ,std::vector< std::string > const, std::vector< TrackerInfo::Enum >const )
-{
+
 }
-*/
-}
-#endif
+#endif //HELPER_H

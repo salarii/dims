@@ -53,7 +53,7 @@ struct CSystemError
     ErrorType::Enum m_errorType;
 };
 
-typedef boost::variant< CTransactionStatus, CAccountBalance, CTrackerStats, CMonitorInfo, CPending, CSystemError > RequestResponse;
+
 
 }
 

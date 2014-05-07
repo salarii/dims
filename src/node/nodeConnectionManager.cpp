@@ -93,6 +93,7 @@ CNodeConnectionManager::connectToNetwork()
 void
 CNodeConnectionManager::periodicActionLoop()
 {
+	static  int i = 2;
 	while(1)
 	{
 		{
@@ -104,6 +105,9 @@ CNodeConnectionManager::periodicActionLoop()
 					if ( action->getState() == ActionStatus::Done )
 						action->reset();
 
+					if ( i == 0 )
+						return;
+					i--;
 					m_actionHandler->executeAction( action );
 				}
 			}

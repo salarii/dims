@@ -11,6 +11,7 @@
 #include "medium.h"
 #include "requestRespond.h"
 #include "common/communicationBuffer.h"
+#include "configureNodeActionHadler.h"
 
 namespace node
 {
@@ -19,14 +20,14 @@ class CTrackersInfoRequest;
 struct CRequest;
 
 
-class CDummyMedium : public CMedium
+class CDummyMedium : public common::CMedium< NodeResponses >
 {
 public:
 	CDummyMedium();
 	bool serviced() const;
 	void add( CRequest const * _request );
 	bool flush();
-	bool getResponse( common::CCommunicationBuffer & _outBuffor ) const;
+	virtual bool getResponse( std::vector< NodeResponses > & _requestResponse ) const;
 private:
 	std::list< CTrackersInfoRequest const * > m_trackerStatsRequests;
 	bool m_serviced;

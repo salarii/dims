@@ -19,7 +19,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind();
+	virtual int getKind() const;
 
 	std::vector< CTransaction > const & getTransactions() const;
 private:

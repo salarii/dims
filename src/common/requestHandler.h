@@ -67,9 +67,9 @@ _RequestResponses
 
 template < class _RequestResponses >
 void
- CRequestHandler< _RequestResponses >::deleteRequest( CRequest< _RequestResponses >* )
+ CRequestHandler< _RequestResponses >::deleteRequest( CRequest< _RequestResponses >* _request )
 {
-
+	m_processedRequests.erase( _request );
 }
 
 template < class _RequestResponses >

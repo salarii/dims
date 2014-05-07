@@ -137,33 +137,25 @@ QT_MOC_CPP = \
   moc_walletview.cpp
 
 CLIENT_H = \
-  ../node/actionHandler.h \
   ../node/sendTransactionAction.h \
   ../node/sendInfoRequestAction.h \
   ../node/networkClient.h \
-  ../node/requestHandler.h \
-  ../node/setResponseVisitor.h \
   ../node/seedProvider.h \
   ../node/connectionProvider.h \
   ../node/sendInfoRequestAction.h \
-  ../node/medium.h \
   ../node/dummyMedium.h \
   ../node/nodeConnectionManager.h \
   ../node/trackerLocalRanking.h \
-  ../node/action.h \
   ../node/connectAction.h \
-  ../node/request.h \
   ../node/support.h \
   ../node/userConnectionProvider.h \
   ../node/sendBalanceInfoAction.h \
   ../node/requestRespond.h
 
 CLIENT_CPP = \
-  ../node/actionHandler.cpp \
   ../node/sendTransactionAction.cpp \
   ../node/sendInfoRequestAction.cpp \
   ../node/networkClient.cpp \
-  ../node/requestHandler.cpp \
   ../node/setResponseVisitor.cpp \
   ../node/seedProvider.cpp \
   ../node/sendInfoRequestAction.cpp \

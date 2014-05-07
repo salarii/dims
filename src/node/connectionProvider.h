@@ -7,7 +7,7 @@
 
 #include <list>
 
-#include "request.h"
+#include "common/request.h"
 
 namespace node
 {
@@ -17,9 +17,9 @@ class CMedium;
 class CConnectionProvider
 {
 public:
-	virtual CMedium * provideConnection( RequestKind::Enum const _actionKind ) = 0;
+	virtual CMedium * provideConnection( common::RequestKind::Enum const _actionKind ) = 0;
 
-	virtual std::list< CMedium *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber ) = 0;
+	virtual std::list< CMedium *> provideConnection( common::RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber ) = 0;
 };
 
 }
