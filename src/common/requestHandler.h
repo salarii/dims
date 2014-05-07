@@ -36,13 +36,15 @@ public:
 
 	bool isProcessed( CRequest< _RequestResponses >* _request ) const;
 
-	bool setRequest( CRequest< _RequestResponses >* _request );
+	void setRequest( CRequest< _RequestResponses >* _request );
 
 	void runRequests();
 
 	void readLoop();
 
 	void deleteRequest( CRequest< _RequestResponses >* );
+
+	bool operator==( CMedium< _RequestResponses > const * _medium ) const;
 private:
 	std::vector<CRequest< _RequestResponses >*> m_newRequest;
 	std::map<CRequest< _RequestResponses >*,uint256> m_pendingRequest;
@@ -74,7 +76,14 @@ void
 
 template < class _RequestResponses >
 bool
- CRequestHandler< _RequestResponses >::isProcessed( CRequest< _RequestResponses >* _request ) const
+CRequestHandler< _RequestResponses >::operator==( CMedium< _RequestResponses > const * _medium ) const
+{
+	return m_usedMedium == _medium;
+}
+
+template < class _RequestResponses >
+bool
+CRequestHandler< _RequestResponses >::isProcessed( CRequest< _RequestResponses >* _request ) const
 {
 	if ( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return true;
@@ -83,7 +92,7 @@ bool
 }
 
 template < class _RequestResponses >
-bool
+void
  CRequestHandler< _RequestResponses >::setRequest( CRequest< _RequestResponses >* _request )
 {
 	m_newRequest.push_back( _request );

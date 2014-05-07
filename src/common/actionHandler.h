@@ -31,7 +31,35 @@ template < class _RequestResponses >
 class CActionHandler
 {
 public:
-	typedef std::multimap<int, CRequestHandler< _RequestResponses > * > AvailableHandlers;
+	struct CMatcher
+	{
+		CMatcher( int _key )
+		{
+			m_match.push_back( _key );
+		}
+		void add( int _key )
+		{
+			BOOST_FOREACH( int key, m_match )
+			{
+				if ( key == _key )
+					return;
+			}
+
+			m_match.push_back( _key );
+		}
+		bool operator!=( CMatcher const & _matcher ) const
+		{
+			return m_match != _matcher.m_match;
+		}
+		bool operator<( CMatcher const & _matcher ) const
+		{
+			return m_match < _matcher.m_match;
+		}
+		std::vector< int > m_match;
+	};
+
+public:
+	typedef std::multimap< CMatcher, CRequestHandler< _RequestResponses > * > AvailableHandlers;
 	typedef std::map< CRequest< _RequestResponses >*, CAction< _RequestResponses >* > RequestToAction;
 public:
 	void loop();
@@ -61,7 +89,7 @@ private:
 
 	//this  will be  multimap one  day, this  should  be  periodically  cleanuped ,  don't  know  how  yet
 	AvailableHandlers m_requestHandlers;
-	
+
 	static unsigned int const m_sleepTime;
 };
 
@@ -111,11 +139,11 @@ CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
 	std::list< CRequestHandler< _RequestResponses > * > requestHandelers;
 
 	{
-		std::pair< typename std::map<int, CRequestHandler< _RequestResponses > * >::iterator, typename std::map<int, CRequestHandler< _RequestResponses > * >::iterator > range;
+		std::pair< typename AvailableHandlers::iterator, typename AvailableHandlers::iterator > range;
 
 		 range = m_requestHandlers.equal_range( _requestKind );
 
-		 for ( typename std::map<int, CRequestHandler< _RequestResponses > * >::iterator it = range.first; it != range.second; ++it )
+		 for ( typename AvailableHandlers::iterator it = range.first; it != range.second; ++it )
 			 requestHandelers.push_back( it->second );
 
 		if ( range.first != m_requestHandlers.end() )
@@ -130,12 +158,43 @@ CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
 
 		if ( !mediums.empty() )
 		{
+			typedef std::pair< CMatcher, CRequestHandler< _RequestResponses > * > MatchedHandler;
 			BOOST_FOREACH( CMedium< _RequestResponses > * medium, mediums )
 			{
-				CRequestHandler< _RequestResponses > * requestHandler = new CRequestHandler< _RequestResponses >( medium );
-				m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
-				requestHandelers.push_back( requestHandler );
+				typename AvailableHandlers::iterator iterator = m_requestHandlers.begin();
 
+
+				std::vector< MatchedHandler >matchedHandlers;
+				while ( iterator != m_requestHandlers.end() )
+				{
+					typename AvailableHandlers::iterator previous = iterator;
+
+					iterator++;
+					if ( *previous->second == medium )
+					{
+						std::pair< CMatcher, CRequestHandler< _RequestResponses > * > value = *previous;
+						matchedHandlers.push_back( *previous );
+						m_requestHandlers.erase( previous );
+					}
+				}
+
+				if ( !matchedHandlers.empty() )
+				{
+
+					BOOST_FOREACH( MatchedHandler & matched, matchedHandlers )
+					{
+						CMatcher newMatch = matched.first;
+						newMatch.add( _requestKind );
+						m_requestHandlers.insert( std::make_pair( newMatch, matched.second ) );
+						requestHandelers.push_back( matched.second );
+					}
+				}
+				else
+				{
+					CRequestHandler< _RequestResponses > * requestHandler = new CRequestHandler< _RequestResponses >( medium );
+					m_requestHandlers.insert( std::make_pair( _requestKind, requestHandler ) );
+					requestHandelers.push_back( requestHandler );
+				}
 			}
 			return requestHandelers;
 		}
