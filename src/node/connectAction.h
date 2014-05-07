@@ -7,22 +7,21 @@
 
 #include <boost/optional.hpp>
 
-#include "action.h"
+#include "common/action.h"
 #include "uint256.h"
 
 #include "trackerLocalRanking.h"
 #include "sendInfoRequestAction.h"
-#include "requestRespond.h"
+#include "common/requestResponse.h"
 #include "errorRespond.h"
-
-
+#include "configureNodeActionHadler.h"
 
 namespace node
 {
 
 struct CConnectActionState;
 
-class CConnectAction : public CAction
+class CConnectAction : public common::CAction< NodeResponses >
 {
 public:
 	struct State
@@ -39,29 +38,29 @@ public:
 public:
 	CConnectAction( State::Enum const _state );
 
-	void accept( CSetResponseVisitor & _visitor );
+	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	CRequest* execute();
+	common::CRequest< NodeResponses >* execute();
 
-	ActionStatus::Enum state();
+	common::ActionStatus::Enum state();
 
 	void reset();
 
-	void setTrackerInfo( boost::optional< CTrackerStats > const & _trackerInfo );
+	void setTrackerInfo( boost::optional< common::CTrackerStats > const & _trackerInfo );
 
 	void setInProgressToken( boost::optional< uint256 > const & _token );
 
-    void setMediumError( boost::optional< ErrorType::Enum > const & _error );
+	void setMediumError( boost::optional< common::ErrorType::Enum > const & _error );
 private:
 	State::Enum m_state;
 
 	boost::optional< uint256 > m_token;
 
-	boost::optional< CTrackerStats > m_trackerStats;
+	boost::optional< common::CTrackerStats > m_trackerStats;
 
 	boost::optional< std::vector< std::string > > m_monitorInfo;
 
-    boost::optional< ErrorType::Enum > m_error;
+	boost::optional< common::ErrorType::Enum > m_error;
 
 	CConnectActionState * m_actionState;
 };

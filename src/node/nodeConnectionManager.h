@@ -9,7 +9,7 @@
 #include <QString>
 #include <boost/thread.hpp>
 
-#include "connectionProvider.h"
+
 #include "configureNodeActionHadler.h"
 
 namespace common

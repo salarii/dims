@@ -5,12 +5,13 @@
 #ifndef SEED_PROVIDER_H
 #define SEED_PROVIDER_H
 
-#include "connectionProvider.h"
+#include "common/connectionProvider.h"
+#include "configureNodeActionHadler.h"
 
 namespace node
 {
 
-class CSeedProvider : public CConnectionProvider
+class CSeedProvider : public common::CConnectionProvider< NodeResponses >
 {
 public:
 	CMedium * provideConnection( RequestKind::Enum const _actionKind );

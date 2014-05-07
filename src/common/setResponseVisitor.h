@@ -23,16 +23,15 @@ namespace node
 
 class CSendBalanceInfoAction;
 
+class CSendTransactionAction;
+
+class CConnectAction;
 }
 
 namespace common
 {
 
-class CSendTransactionAction;
-
 template < class _RequestResponses > class CAction;
-
-class CConnectAction;
 
 template < class _RequestResponses >
 class CSetResponseVisitor
@@ -64,16 +63,16 @@ class CSetResponseVisitor< node::NodeResponses >
 public:
 	CSetResponseVisitor( node::NodeResponses const & _requestRespond );
 
-	void visit( CSendTransactionAction & _action );
+	void visit( node::CSendTransactionAction & _action );
 
-	void visit( CConnectAction & _action );
+	void visit( node::CConnectAction & _action );
 
 	void visit( CAction< node::NodeResponses > & _action );
 
 	void visit( node::CSendBalanceInfoAction & _action );
 private:
 
-	node::NodeResponses m_requestRespond;
+	node::NodeResponses m_requestResponse;
 };
 
 

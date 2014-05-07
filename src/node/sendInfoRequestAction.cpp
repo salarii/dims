@@ -3,6 +3,7 @@
 
 #include "serialize.h"
 #include "common/support.h"
+#include "common/setResponseVisitor.h"
 
 #include <boost/assign/list_of.hpp>
 
@@ -16,9 +17,9 @@ CSendInfoRequestAction::CSendInfoRequestAction( NetworkInfo::Enum const _network
 }
 
 void
-CSendInfoRequestAction::accept( CSetResponseVisitor & _visitor )
+CSendInfoRequestAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
 {
-	
+	_visitor.visit( *this );
 }
 
 common::CRequest< NodeResponses >*

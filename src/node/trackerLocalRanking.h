@@ -10,36 +10,35 @@
 #include <QString>
 #include <functional> 
 
-#include "connectionProvider.h"
-#include "requestRespond.h"
+#include "common/connectionProvider.h"
+#include "common/requestResponse.h"
+#include "configureNodeActionHadler.h"
 
 namespace node
 {
 
 class CNetworkClient;
 
-struct CompareBalancedTracker : public std::binary_function<CTrackerStats ,CTrackerStats ,bool>
+struct CompareBalancedTracker : public std::binary_function< common::CTrackerStats , common::CTrackerStats ,bool>
 {
-	bool operator() ( CTrackerStats const & _tracker1, CTrackerStats const & _tracker2) const
+	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
 	{
 		return true;
 	}
 };
 
-struct CompareReputationTracker : public std::binary_function<CTrackerStats ,CTrackerStats ,bool>
+struct CompareReputationTracker : public std::binary_function< common::CTrackerStats ,common::CTrackerStats ,bool>
 {
-	bool operator() ( CTrackerStats const & _tracker1, CTrackerStats const & _tracker2) const
+	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
 	{
 		return _tracker1.m_reputation < _tracker2.m_reputation;
 	}
 };
 
-class CTrackerLocalRanking : public CConnectionProvider
+class CTrackerLocalRanking : public common::CConnectionProvider< NodeResponses >
 {
 public:
-	virtual CMedium * provideConnection( RequestKind::Enum const _actionKind );
-	// this  will be  rather  complex  stuff  leave  it  for  better  times
-	virtual std::list< CMedium *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber );
+	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 
 	float getPrice();
 
@@ -47,19 +46,19 @@ public:
 
 	static CTrackerLocalRanking* getInstance();
 
-	void addTracker( CTrackerStats const & _trackerStats );
+	void addTracker( common::CTrackerStats const & _trackerStats );
 private:
 	CTrackerLocalRanking();
 
-    CMedium * getNetworkConnection( CTrackerStats const & _trackerStats );
+	common::CMedium< NodeResponses > * getNetworkConnection( common::CTrackerStats const & _trackerStats );
 private:
 	static CTrackerLocalRanking * ms_instance;
 	// those  sets should be repeatedly rebuild
-	std::set< CTrackerStats, CompareBalancedTracker > m_balancedRanking;
+	std::set< common::CTrackerStats, CompareBalancedTracker > m_balancedRanking;
 
-	std::set< CTrackerStats, CompareReputationTracker > m_reputationRanking;
+	std::set< common::CTrackerStats, CompareReputationTracker > m_reputationRanking;
 
-    std::map< std::string, CMedium * > m_createdMediums;
+	std::map< std::string, common::CMedium< NodeResponses > * > m_createdMediums;
 };
 
 

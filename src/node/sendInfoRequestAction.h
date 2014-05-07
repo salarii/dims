@@ -37,14 +37,12 @@ struct TrackerInfo
 
 extern std::vector< TrackerInfo::Enum > const TrackerDescription;
 
-class CSetResponseVisitor;
-
 class CSendInfoRequestAction : public common::CAction< NodeResponses >
 {
 public:
 	CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo );
 
-	void accept( CSetResponseVisitor & _visitor );
+	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
 	common::CRequest< NodeResponses >* execute();
 

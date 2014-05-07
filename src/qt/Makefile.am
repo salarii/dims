@@ -141,7 +141,6 @@ CLIENT_H = \
   ../node/sendInfoRequestAction.h \
   ../node/networkClient.h \
   ../node/seedProvider.h \
-  ../node/connectionProvider.h \
   ../node/sendInfoRequestAction.h \
   ../node/dummyMedium.h \
   ../node/nodeConnectionManager.h \

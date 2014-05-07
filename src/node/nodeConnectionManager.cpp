@@ -4,7 +4,7 @@
 #include "userConnectionProvider.h"
 #include "trackerLocalRanking.h"
 #include "util.h"
-
+#include "common/connectionProvider.h"
 
 namespace node
 {

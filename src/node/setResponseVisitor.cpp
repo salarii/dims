@@ -2,133 +2,110 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "setResponseVisitor.h"
+#include "common/setResponseVisitor.h"
 #include "sendTransactionAction.h"
-#include "requestRespond.h"
+#include "common/requestResponse.h"
 #include "connectAction.h"
 #include "sendBalanceInfoAction.h"
+#include "common/responseVisitorInternal.h"
+#include "configureNodeActionHadler.h"
 
 #include <boost/any.hpp>
 #include <boost/optional.hpp>
 
-using namespace  common;
-
-namespace node
+namespace common
 {
 
-template < class T >
-class CResponseVisitorBase : public boost::static_visitor< boost::optional< T > >
+template < class _Action >
+class CGetTransactionStatus : public CResponseVisitorBase< _Action, node::NodeResponseList >
 {
 public:
-	virtual boost::optional< T > operator()(CTransactionStatus & _transactionStatus ) const
-	{
-		return boost::optional< T >();
-	}
+	CGetTransactionStatus( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
 
-	virtual boost::optional< T > operator()(CTrackerStats & _trackerStats ) const
+	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
-		return boost::optional< T >();
-	}
-
-	virtual boost::optional< T > operator()(CMonitorInfo & _monitorInfo ) const
-	{
-		return boost::optional< T >();
-	}
-
-	virtual boost::optional< T > operator()(CPending & _peding ) const
-	{
-		return boost::optional< T >();
-	}
-
-
-	virtual boost::optional< T > operator()(CAvailableCoins & _availableCoins ) const
-	{
-		return boost::optional< T >();
-	}
-	virtual boost::optional< T > operator()(CSystemError & _systemError ) const
-	{
-		return boost::optional< T >();
+		this->m_action->setTransactionStatus( _transactionStatus.m_status );
 	}
 
 };
 
-class CGetTransactionStatus : public CResponseVisitorBase< common::TransactionsStatus::Enum >
+template < class _Action >
+class CGetToken : public CResponseVisitorBase< _Action, node::NodeResponseList >
 {
 public:
-	boost::optional< common::TransactionsStatus::Enum > operator()(CTransactionStatus & _transactionStatus ) const
-	{
-		return _transactionStatus.m_status;
-	}
+	CGetToken( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
 
-};
-
-class CGetToken : public CResponseVisitorBase< uint256 >
-{
-public:
-	boost::optional< uint256 > operator()(CTransactionStatus & _transactionStatus ) const
+	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
 		return _transactionStatus.m_token;
 	}
 
-	virtual boost::optional< uint256 > operator()(CPending & _peding ) const
+	void operator()(CPending & _peding ) const
 	{
 		return _peding.m_token;
 	}
 };
 
-class CGetTrackerInfo : public CResponseVisitorBase< CTrackerStats >
+template < class _Action >
+class CGetTrackerInfo : public CResponseVisitorBase< _Action, node::NodeResponseList >
 {
 public:
-	boost::optional< CTrackerStats > operator()(CTrackerStats & _transactionStatus ) const
+	CGetTrackerInfo( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
+
+	void operator()(CTrackerStats & _transactionStatus ) const
 	{
 		return _transactionStatus;
 	}
 };
 
-class CGetMediumError : public CResponseVisitorBase< ErrorType::Enum >
+template < class _Action >
+class CGetMediumError : public CResponseVisitorBase< _Action, node::NodeResponseList >
 {
 public:
-    boost::optional< ErrorType::Enum > operator()(CSystemError & _systemError ) const
+	CGetMediumError( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
+
+	void operator()(CSystemError & _systemError ) const
     {
         return _systemError.m_errorType;
     }
 };
 
-class CGetBalance : public CResponseVisitorBase< std::map< uint256, CCoins > >
+template < class _Action >
+class CGetBalance : public CResponseVisitorBase< _Action, node::NodeResponseList >
 {
 public:
-	boost::optional< std::map< uint256, CCoins > > operator()(CAvailableCoins & _availableCoins ) const
-	{
+	CGetBalance( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
 
+	void operator()(CAvailableCoins & _availableCoins ) const
+	{
 		return _availableCoins.m_availableCoins;
 	}
 };
 
 void 
-CSetResponseVisitor::visit( CSendTransactionAction & _action )
+CSetResponseVisitor< node::NodeResponses >::visit( node::CSendTransactionAction & _action )
 {
-	_action.setTransactionStatus(boost::apply_visitor( (CResponseVisitorBase< common::TransactionsStatus::Enum > const &)CGetTransactionStatus(), m_requestRespond ));
-	_action.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
-}
-
-
-void
-CSetResponseVisitor::visit( CConnectAction & _action )
-{
-	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
-	_action.setTrackerInfo(boost::apply_visitor( (CResponseVisitorBase< CTrackerStats > const &)CGetTrackerInfo(), m_requestRespond ));
-    _action.setMediumError(boost::apply_visitor( (CResponseVisitorBase< ErrorType::Enum > const &)CGetMediumError(), m_requestRespond ));
+	boost::apply_visitor( (CResponseVisitorBase< node::CSendTransactionAction, node::NodeResponseList > const &)CGetTransactionStatus< node::CSendTransactionAction >( &_action ), m_requestResponse );
+//	_action.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
 }
 
 void
-CSetResponseVisitor::visit( CSendBalanceInfoAction & _action )
+CSetResponseVisitor< node::NodeResponses >::visit( node::CConnectAction & _action )
 {
-	_action.setBalance(boost::apply_visitor( (CResponseVisitorBase< std::map< uint256, CCoins > > const &)CGetBalance(), m_requestRespond ));
-	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+//	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+//	_action.setTrackerInfo(boost::apply_visitor( (CResponseVisitorBase< CTrackerStats > const &)CGetTrackerInfo(), m_requestRespond ));
+//    _action.setMediumError(boost::apply_visitor( (CResponseVisitorBase< ErrorType::Enum > const &)CGetMediumError(), m_requestRespond ));
 }
 
 void
-CSetResponseVisitor::visit( CAction & _action )
+CSetResponseVisitor< node::NodeResponses >::visit( node::CSendBalanceInfoAction & _action )
+{
+//	_action.setBalance(boost::apply_visitor( (CResponseVisitorBase< std::map< uint256, CCoins > > const &)CGetBalance(), m_requestRespond ));
+//	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+}
+
+void
+CSetResponseVisitor< node::NodeResponses >::visit( CAction< node::NodeResponses > & _action )
 {
 
 }
