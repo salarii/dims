@@ -2,22 +2,18 @@
 
 #include <set>
 #include <QString>
+#include "common/trackerResponses.h"
 
 namespace node
 {
 
 CSeedProvider * CSeedProvider::ms_instance = NULL;
 
-CMedium * 
-CSeedProvider::provideConnection( RequestKind::Enum const _actionKind )
-{
-	return 0;
-}
 
-std::list< CMedium *>
-CSeedProvider::provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber )
+std::list< common::CMedium< NodeResponses > *>
+CSeedProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
-	return std::list< CMedium *>();
+	return std::list< common::CMedium< NodeResponses > *>();
 }
 
 CSeedProvider::~CSeedProvider()

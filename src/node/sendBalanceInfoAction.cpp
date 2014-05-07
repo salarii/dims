@@ -3,11 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "sendBalanceInfoAction.h"
-#include "setResponseVisitor.h"
+#include "common/setResponseVisitor.h"
 #include "sendInfoRequestAction.h"
 
 #include "serialize.h"
-#include "support.h"
+#include "helper.h"
 #include "base58.h"
 #include "common/nodeMessages.h"
 
@@ -24,12 +24,12 @@ CSendBalanceInfoAction::CSendBalanceInfoAction( std::string const _pubKey )
 }
 
 void
-CSendBalanceInfoAction::accept( CSetResponseVisitor & _visitor )
+CSendBalanceInfoAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }
 
-CRequest*
+common::CRequest< NodeResponses >*
 CSendBalanceInfoAction::execute()
 {
 	if ( m_actionStatus == ActionStatus::Unprepared )

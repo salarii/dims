@@ -1,5 +1,5 @@
 #include "nodeConnectionManager.h"
-#include "actionHandler.h"
+#include "common/actionHandler.h"
 #include "connectAction.h"
 #include "userConnectionProvider.h"
 #include "trackerLocalRanking.h"
@@ -61,7 +61,7 @@ CNodeConnectionManager::getInstance( )
 
 CNodeConnectionManager::CNodeConnectionManager()
 {
-	m_actionHandler = CActionHandler::getInstance();
+	m_actionHandler = common::CActionHandler< NodeResponses >::getInstance();
 
 	m_actionHandler->addConnectionProvider( new CUserConnectionProvider() );
 	
@@ -98,11 +98,11 @@ CNodeConnectionManager::periodicActionLoop()
 	{
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
-			BOOST_FOREACH(CAction* action, m_periodicActions)
+			BOOST_FOREACH(common::CAction< NodeResponses >* action, m_periodicActions)
 			{
-				if ( action->getState() != ActionStatus::InProgress )
+				if ( action->getState() != common::ActionStatus::InProgress )
 				{
-					if ( action->getState() == ActionStatus::Done )
+					if ( action->getState() == common::ActionStatus::Done )
 						action->reset();
 
 					if ( i == 0 )
@@ -117,7 +117,7 @@ CNodeConnectionManager::periodicActionLoop()
 }
 	
 void
-CNodeConnectionManager::addPeriodicAction( CAction* _action )
+CNodeConnectionManager::addPeriodicAction( common::CAction< NodeResponses >* _action )
 {
 	boost::lock_guard<boost::mutex> lock(m_mutex);
 	m_periodicActions.push_back( _action );

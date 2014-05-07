@@ -45,6 +45,9 @@ public:
 	void add( CTransactionSendRequest const * _request );
 
 	bool flush();
+
+	void clearResponses();
+
 	virtual bool getResponse( std::vector< NodeResponses > & _requestResponse ) const;
 private:
 	void run();

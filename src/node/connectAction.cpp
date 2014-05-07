@@ -4,7 +4,7 @@
 
 #include "connectAction.h"
 
-#include "setResponseVisitor.h"
+#include "common/setResponseVisitor.h"
 
 #include <boost/statechart/custom_reaction.hpp>
 #include <boost/statechart/state_machine.hpp>
@@ -14,7 +14,7 @@
 
 namespace node
 {
-
+/*
 struct CUninitiated;
 
 struct CSetupEvent : boost::statechart::event< CSetupEvent >
@@ -63,7 +63,7 @@ struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectAct
 	}
 };
 
-
+*/
 CConnectAction::CConnectAction( State::Enum const _state )
 :m_state( _state )
 {
@@ -71,12 +71,12 @@ CConnectAction::CConnectAction( State::Enum const _state )
 }
 
 void
-CConnectAction::accept( CSetResponseVisitor & _visitor )
+CConnectAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }
 
-CRequest*
+common::CRequest< NodeResponses >*
 CConnectAction::execute()
 {
 
@@ -86,7 +86,7 @@ CConnectAction::execute()
 	if ( m_state == State::Done )
 		return 0;
 
-	if ( m_actionStatus == ActionStatus::InProgress )
+	if ( m_actionStatus == common::ActionStatus::InProgress )
 	{
 		if ( m_state == State::Manual )
 		{
@@ -101,11 +101,11 @@ CConnectAction::execute()
 		}
         else if ( m_token )
         {
-            return new CInfoRequestContinue( *m_token, RequestKind::NetworkInfo );
+			return new CInfoRequestContinue( *m_token, common::RequestKind::NetworkInfo );
         }
         else if ( m_error )
         {
-            if ( *m_error == ErrorType::ServiceDenial )
+			if ( *m_error == common::ErrorType::ServiceDenial )
             {
                 // for now  simply repeat
                 // it is not clear where should I place  code responsible  for such kind of errors
@@ -119,7 +119,7 @@ CConnectAction::execute()
 
 	if ( m_state == State::Manual )
 	{
-		m_actionStatus = ActionStatus::InProgress;
+		m_actionStatus = common::ActionStatus::InProgress;
 		return new CTrackersInfoRequest( TrackerDescription );
 	}
 	else
@@ -147,7 +147,7 @@ CConnectAction::reset()
 
 
 void
-CConnectAction::setTrackerInfo( boost::optional< CTrackerStats > const & _trackerStats )
+CConnectAction::setTrackerInfo( boost::optional< common::CTrackerStats > const & _trackerStats )
 {
 	m_trackerStats = _trackerStats;
 }
@@ -160,7 +160,7 @@ CConnectAction::setInProgressToken( boost::optional< uint256 > const & _trackerI
 
 
 void
-CConnectAction::setMediumError( boost::optional< ErrorType::Enum > const & _error )
+CConnectAction::setMediumError( boost::optional< common::ErrorType::Enum > const & _error )
 {
     m_error = _error;
 }

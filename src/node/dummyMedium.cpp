@@ -8,7 +8,7 @@
 #include "dummyMedium.h"
 #include "sendInfoRequestAction.h"
 
-#include "support.h"
+#include "helper.h"
 #include "common/nodeMessages.h"
 
 #include "common/ratcoinParams.h"
@@ -33,13 +33,14 @@ CDummyMedium::serviced() const
 void
 CDummyMedium::add( CRequest const * _request )
 {
+}
+
+void
+CDummyMedium::add( CTrackersInfoRequest const * _request )
+{
 	try
 	{
-		CTrackersInfoRequest const * trackerInfoRequest;
-
-		trackerInfoRequest = dynamic_cast< CTrackersInfoRequest const  *>(_request);
-
-		m_trackerStatsRequests.push_back( trackerInfoRequest );
+		m_trackerStatsRequests.push_back( _request );
 
 		m_serviced = false;
 
@@ -53,25 +54,26 @@ CDummyMedium::add( CRequest const * _request )
 bool
 CDummyMedium::flush()
 {
-	CBufferAsStream stream( (char*)m_buffer.m_buffer, MaxBufferSize, SER_DISK, CLIENT_VERSION);
 
 	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerStatsRequests )
 	{
-		serializeEnum( stream, CMainRequestType::TrackerInfoReq );
-
-		writeTrackerInfo( stream , m_trackerStats, request->m_reqInfo );
+		m_requestResponse.push_back( m_trackerStats );
 	}
 	m_serviced = true;
-
-	m_buffer.m_usedSize = stream.getMaxWritePosition();
 
 	m_trackerStatsRequests.clear();
 }
 
 bool
-CDummyMedium::getResponse( common::CCommunicationBuffer & _outBuffor ) const
+CDummyMedium::getResponse( std::vector< node::NodeResponses > & _requestResponse ) const
 {
-	_outBuffor = m_buffer;
+	_requestResponse = m_requestResponse;
+}
+
+void
+CDummyMedium::clearResponses()
+{
+	m_requestResponse.clear();
 }
 
 }

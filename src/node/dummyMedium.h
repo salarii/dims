@@ -8,8 +8,8 @@
 #include <list>
 #include <string>
 
-#include "medium.h"
-#include "requestRespond.h"
+#include "common/medium.h"
+#include "common/requestResponse.h"
 #include "common/communicationBuffer.h"
 #include "configureNodeActionHadler.h"
 
@@ -24,17 +24,24 @@ class CDummyMedium : public common::CMedium< NodeResponses >
 {
 public:
 	CDummyMedium();
+
 	bool serviced() const;
+
 	void add( CRequest const * _request );
+
+	void add( CTrackersInfoRequest const * _request );
+
 	bool flush();
-	virtual bool getResponse( std::vector< NodeResponses > & _requestResponse ) const;
+
+	bool getResponse( std::vector< node::NodeResponses > & _requestResponse ) const;
+
+	void clearResponses();
 private:
 	std::list< CTrackersInfoRequest const * > m_trackerStatsRequests;
 	bool m_serviced;
 
-	common::CCommunicationBuffer m_buffer;
-
-	CTrackerStats const m_trackerStats;
+	common::CTrackerStats const m_trackerStats;
+	std::vector< node::NodeResponses > m_requestResponse;
 };
 
 

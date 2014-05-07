@@ -15,7 +15,8 @@
 
 namespace common
 {
-
+// I belive  this  crap will look and work much better when I will convert all action into  state machines
+// optionally I can always fix some  issues with partial specialisations ( this  will be  even uglier though )
 template < class _Action >
 class CGetTransactionStatus : public CResponseVisitorBase< _Action, node::NodeResponseList >
 {
@@ -37,12 +38,12 @@ public:
 
 	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
-		return _transactionStatus.m_token;
+		this->m_action->setInProgressToken( _transactionStatus.m_token );
 	}
 
 	void operator()(CPending & _peding ) const
 	{
-		return _peding.m_token;
+		this->m_action->setInProgressToken( _peding.m_token );
 	}
 };
 
@@ -54,7 +55,7 @@ public:
 
 	void operator()(CTrackerStats & _transactionStatus ) const
 	{
-		return _transactionStatus;
+		this->m_action->setTrackerInfo( _transactionStatus );
 	}
 };
 
@@ -66,7 +67,7 @@ public:
 
 	void operator()(CSystemError & _systemError ) const
     {
-        return _systemError.m_errorType;
+		this->m_action->setMediumError( _systemError.m_errorType );
     }
 };
 
@@ -78,36 +79,40 @@ public:
 
 	void operator()(CAvailableCoins & _availableCoins ) const
 	{
-		return _availableCoins.m_availableCoins;
+		this->m_action->setBalance( _availableCoins.m_availableCoins );
 	}
 };
+
+CSetResponseVisitor< node::NodeResponses >::CSetResponseVisitor( node::NodeResponses const & _requestRespond )
+	:m_requestResponse( _requestRespond )
+{
+}
 
 void 
 CSetResponseVisitor< node::NodeResponses >::visit( node::CSendTransactionAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< node::CSendTransactionAction, node::NodeResponseList > const &)CGetTransactionStatus< node::CSendTransactionAction >( &_action ), m_requestResponse );
-//	_action.setTransactionToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+	boost::apply_visitor( (CResponseVisitorBase< node::CSendTransactionAction, node::NodeResponseList > const &)CGetToken< node::CSendTransactionAction >( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< node::NodeResponses >::visit( node::CConnectAction & _action )
 {
-//	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
-//	_action.setTrackerInfo(boost::apply_visitor( (CResponseVisitorBase< CTrackerStats > const &)CGetTrackerInfo(), m_requestRespond ));
-//    _action.setMediumError(boost::apply_visitor( (CResponseVisitorBase< ErrorType::Enum > const &)CGetMediumError(), m_requestRespond ));
+	boost::apply_visitor( (CResponseVisitorBase< node::CConnectAction, node::NodeResponseList > const &)CGetToken< node::CConnectAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< node::CConnectAction, node::NodeResponseList > const &)CGetTrackerInfo< node::CConnectAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< node::CConnectAction, node::NodeResponseList > const &)CGetMediumError< node::CConnectAction >( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< node::NodeResponses >::visit( node::CSendBalanceInfoAction & _action )
 {
-//	_action.setBalance(boost::apply_visitor( (CResponseVisitorBase< std::map< uint256, CCoins > > const &)CGetBalance(), m_requestRespond ));
-//	_action.setInProgressToken(boost::apply_visitor( (CResponseVisitorBase< uint256 > const &)CGetToken(), m_requestRespond ));
+	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetBalance< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetToken< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< node::NodeResponses >::visit( CAction< node::NodeResponses > & _action )
 {
-
 }
 
 

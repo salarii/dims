@@ -5,20 +5,19 @@
 #ifndef USER_CONNECTION_PROVIDER_H
 #define USER_CONNECTION_PROVIDER_H
 
-#include "connectionProvider.h"
+#include "common/connectionProvider.h"
+#include "configureNodeActionHadler.h"
 
 namespace node
 {
 class CDummyMedium;
 
-class CUserConnectionProvider : public CConnectionProvider
+class CUserConnectionProvider : public common::CConnectionProvider< NodeResponses >
 {
 public:
 	CUserConnectionProvider();
 
-	virtual CMedium * provideConnection( RequestKind::Enum const _actionKind );
-
-	virtual std::list< CMedium *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber );
+	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 private:
 	CDummyMedium * m_dummyMedium;
 };

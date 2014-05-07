@@ -13,8 +13,8 @@ template < class T, class Enum >
 void 
 serializeEnum( T & _stream, Enum const _enum )
 {
-	signed int i = _enum;
-	_stream << _enum;
+	signed int i = (signed int )_enum;
+	_stream << i;
 };
 
 struct CReadString
@@ -35,12 +35,5 @@ struct CReadWrite
 	}
 };
 
-/*
-template < class S >
-void
-writeTrackerInfo( S & _stream ,std::vector< std::string > const, std::vector< TrackerInfo::Enum >const )
-{
-}
-*/
 }
 #endif

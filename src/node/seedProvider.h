@@ -14,9 +14,7 @@ namespace node
 class CSeedProvider : public common::CConnectionProvider< NodeResponses >
 {
 public:
-	CMedium * provideConnection( RequestKind::Enum const _actionKind );
-	// this  will be  rather  complex  stuff  leave  it  for  better  times
-	virtual std::list< CMedium *> provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber );
+	std::list< common::CMedium< NodeResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 
 	~CSeedProvider();
 

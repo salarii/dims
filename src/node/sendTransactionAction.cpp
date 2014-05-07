@@ -28,7 +28,7 @@ CSendTransactionAction::setTransactionStatus( boost::optional< common::Transacti
 }
 
 void 
-CSendTransactionAction::setTransactionToken( boost::optional< uint256 > const & _token )
+CSendTransactionAction::setInProgressToken( boost::optional< uint256 > const & _token )
 {
 
 }

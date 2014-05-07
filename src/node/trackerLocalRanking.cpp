@@ -28,32 +28,46 @@ CTrackerLocalRanking::getInstance( )
 }
 
 void
-CTrackerLocalRanking::addTracker( CTrackerStats const & _trackerStats )
+CTrackerLocalRanking::addTracker( common::CTrackerStats const & _trackerStats )
 {
 	m_balancedRanking.insert( _trackerStats ); 
 	m_reputationRanking.insert( _trackerStats );
 }
 
-CMedium *
-CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind )
+std::list< common::CMedium< NodeResponses > *>
+CTrackerLocalRanking::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber)
 {
+	std::list< common::CMedium< NodeResponses > *> mediums;
 
-    switch (_actionKind)
+	switch (_actionKind)
 	{
-	case RequestKind::Transaction:
-        return m_balancedRanking.begin() != m_balancedRanking.end() ? getNetworkConnection( *m_balancedRanking.begin() ) : 0;
-	case RequestKind::TransactionStatus:
-    case RequestKind::Balance:
-        return m_reputationRanking.begin() != m_reputationRanking.end() ? getNetworkConnection( *m_reputationRanking.begin() ): 0;
-    default:
-		return 0;
-    }
-}
-
-std::list< CMedium *> 
-CTrackerLocalRanking::provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber )
-{
-	return std::list< CMedium *>();
+	case common::RequestKind::Transaction:
+		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
+		{
+			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
+			{
+				mediums.push_back( getNetworkConnection( stats ) );
+			}
+		}
+		break;
+	case common::RequestKind::TransactionStatus:
+	case common::RequestKind::Balance:
+		if ( m_reputationRanking.begin() != m_reputationRanking.end() )
+		{
+			BOOST_FOREACH( common::CTrackerStats const  & stats, m_balancedRanking )
+			{
+				mediums.push_back( getNetworkConnection( stats ) );
+			}
+		}
+		break;
+		break;
+	default:
+		;
+	}
+	// there will be  not many  mediums  I belive
+	if ( _requestedConnectionNumber != -1 && mediums.size() > _requestedConnectionNumber )
+		mediums.resize( _requestedConnectionNumber );
+	return mediums;
 }
 
 float
@@ -62,14 +76,14 @@ CTrackerLocalRanking::getPrice()
 	return 0.0;
 }
 
-CMedium *
-CTrackerLocalRanking::getNetworkConnection( CTrackerStats const & _trackerStats )
+common::CMedium< NodeResponses > *
+CTrackerLocalRanking::getNetworkConnection( common::CTrackerStats const & _trackerStats )
 {
-    std::map< std::string, CMedium * >::iterator iterator = m_createdMediums.find( _trackerStats.m_publicKey );
+	std::map< std::string, common::CMedium< NodeResponses > * >::iterator iterator = m_createdMediums.find( _trackerStats.m_publicKey );
     if ( iterator != m_createdMediums.end() )
         return iterator->second;
 
-    CMedium * medium = static_cast<CMedium *>( new CNetworkClient( QString::fromStdString( _trackerStats.m_ip ), _trackerStats.m_port ) );
+	common::CMedium< NodeResponses > * medium = static_cast<common::CMedium< NodeResponses > *>( new CNetworkClient( QString::fromStdString( _trackerStats.m_ip ), _trackerStats.m_port ) );
     m_createdMediums.insert( std::make_pair( _trackerStats.m_publicKey, medium ) );
 
     return medium;

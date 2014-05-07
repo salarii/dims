@@ -10,16 +10,10 @@ CUserConnectionProvider::CUserConnectionProvider()
 	m_dummyMedium = new CDummyMedium();
 }
 
-CMedium *
-CUserConnectionProvider::provideConnection( RequestKind::Enum const _actionKind )
+std::list< common::CMedium< NodeResponses > *>
+CUserConnectionProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
-	return _actionKind == RequestKind::NetworkInfo ? m_dummyMedium : 0;
-}
-
-std::list< CMedium *>
-CUserConnectionProvider::provideConnection( RequestKind::Enum const _actionKind, unsigned _requestedConnectionNumber )
-{
-	return std::list< CMedium *>();
+	return std::list< common::CMedium< NodeResponses > *>();
 }
 
 }

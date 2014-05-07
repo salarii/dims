@@ -57,7 +57,7 @@ struct CTrackersInfoRequest : public common::CRequest< NodeResponses >
 public:
 	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >() );
 	~CTrackersInfoRequest(){};
-	void serialize( CBufferAsStream & _bufferStream ) const;
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	int getKind() const;
 
 	std::vector< TrackerInfo::Enum >const  m_reqInfo;
@@ -75,7 +75,7 @@ struct CInfoRequestContinue : public common::CRequest< NodeResponses >
 {
 public:
 	CInfoRequestContinue( uint256 const & _token, common::RequestKind::Enum const _requestKind );
-	void serialize( CBufferAsStream & _bufferStream ) const;
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	int getKind() const;
 
 	uint256 const m_token;

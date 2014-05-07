@@ -173,6 +173,12 @@ CNetworkClient::flush()
      m_connectionInfo = Processing;
 }
 
+void
+CNetworkClient::clearResponses()
+{
+	m_pullBuffer.m_usedSize = 0;
+}
+
 bool
 CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) const
 {
@@ -235,7 +241,7 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 
 CNetworkClient::~CNetworkClient()
 {
-    // this is  not  right,  invent clean  way  to  terminate
+	//  is this right??, maybe invent some other  way  to  terminate?
     terminate();
     delete m_pushStream;
 }

@@ -61,8 +61,6 @@ private:
 	boost::optional< std::vector< std::string > > m_monitorInfo;
 
 	boost::optional< common::ErrorType::Enum > m_error;
-
-	CConnectActionState * m_actionState;
 };
 
 }

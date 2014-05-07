@@ -34,6 +34,13 @@ CTrackersInfoRequest::CTrackersInfoRequest( std::vector< TrackerInfo::Enum > con
 }
 
 void
+CTrackersInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+/*
+void
 CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 {
 	BOOST_FOREACH( TrackerInfo::Enum const info, m_reqInfo )
@@ -43,7 +50,7 @@ CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 	}
 	
 }
-
+*/
 int
 CTrackersInfoRequest::getKind() const
 {
@@ -73,12 +80,18 @@ CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::Requ
 {
 
 }
-
+/*
 void
 CInfoRequestContinue::serialize( CBufferAsStream & _bufferStream ) const
 {
 	common::serializeEnum( _bufferStream, common::CMainRequestType::ContinueReq );
 	_bufferStream << m_token;
+}
+*/
+void
+CInfoRequestContinue::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
 }
 
 int

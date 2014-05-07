@@ -163,6 +163,7 @@ CLIENT_CPP = \
   ../node/trackerLocalRanking.cpp \
   ../node/userConnectionProvider.cpp \
   ../node/sendBalanceInfoAction.cpp \
+  ../node/actionHandlerDefinitions.cpp \
   ../node/connectAction.cpp
 
 
