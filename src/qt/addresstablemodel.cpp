@@ -11,7 +11,7 @@
 #include "wallet.h"
 #include "coincontrol.h"
 
-#include "node/nodeConnectionManager.h"
+#include "common/periodicActionExecutor.h"
 #include "node/sendBalanceInfoAction.h"
 
 #include <QFont>
@@ -98,7 +98,7 @@ public:
 			CKeyID keyID;
 			bitcoinAddress.GetKeyID(keyID);
 
-                node::CNodeConnectionManager::getInstance()->addPeriodicAction( new node::CSendBalanceInfoAction( address.ToString() ) );
+				common::CPeriodicActionExecutor< node::NodeResponses >::getInstance()->addAction( new node::CSendBalanceInfoAction( address.ToString() ), 60000 );
 
                 cachedAddressTable.append(AddressTableEntry(addressType,
                                   QString::fromStdString(strName),

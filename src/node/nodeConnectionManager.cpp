@@ -8,44 +8,6 @@
 
 namespace node
 {
-// any periodic  acton should be ecapsulated in  this  way
-/*
-class CDefferAction
-{
-public:
-CDefferAction( CAction*, unsigned int _deffer )
-{
-
-}
-
-bool isReady();
-
-void execute();
-private:
-unsigned int m_deffer;
-unsigned int m_cnt;
-};
-
-bool
-CDefferAction::isReady()
-{
-if(!m_cnt--)
-{
-m_cnt = m_deffer
-return true;
-}
-return false;
-}
-
-void
-CDefferAction::execute()
-{
-
-
-}
-
-*/
-unsigned int const CNodeConnectionManager::m_sleepTime = 10000;
 
 CNodeConnectionManager * CNodeConnectionManager::ms_instance = NULL;
 
@@ -88,39 +50,6 @@ CNodeConnectionManager::connectToNetwork()
 
 	m_actionHandler->executeAction( connectAction );
 
-}
-
-void
-CNodeConnectionManager::periodicActionLoop()
-{
-	static  int i = 2;
-	while(1)
-	{
-		{
-			boost::lock_guard<boost::mutex> lock( m_mutex );
-			BOOST_FOREACH(common::CAction< NodeResponses >* action, m_periodicActions)
-			{
-				if ( action->getState() != common::ActionStatus::InProgress )
-				{
-					if ( action->getState() == common::ActionStatus::Done )
-						action->reset();
-
-					if ( i == 0 )
-						return;
-					i--;
-					m_actionHandler->executeAction( action );
-				}
-			}
-		}
-		MilliSleep(m_sleepTime );
-	}
-}
-	
-void
-CNodeConnectionManager::addPeriodicAction( common::CAction< NodeResponses >* _action )
-{
-	boost::lock_guard<boost::mutex> lock(m_mutex);
-	m_periodicActions.push_back( _action );
 }
 
 void

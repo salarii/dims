@@ -38,20 +38,12 @@ public:
 
 	void executeAction();
 
-	void addPeriodicAction( common::CAction< NodeResponses >* _action );
-
 private:
 	CNodeConnectionManager();
 private:
 	static CNodeConnectionManager * ms_instance;
 
 	common::CActionHandler< NodeResponses > * m_actionHandler;
-
-	static unsigned int const m_sleepTime;
-
-    mutable boost::mutex m_mutex;
-
-	std::list< common::CAction< NodeResponses > * > m_periodicActions;
 };
 
 

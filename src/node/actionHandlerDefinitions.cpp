@@ -4,6 +4,8 @@
 
 #include "configureNodeActionHadler.h"
 #include "common/actionHandler.h"
+#include "common/periodicActionExecutor.h"
+
 namespace node
 {
 template<>
@@ -11,4 +13,9 @@ unsigned int const common::CActionHandler< NodeResponses >::m_sleepTime = 500;
 template<>
 common::CActionHandler< NodeResponses > * common::CActionHandler< NodeResponses >::ms_instance = NULL;
 
+template<>
+common::CPeriodicActionExecutor< NodeResponses > * common::CPeriodicActionExecutor< NodeResponses >::ms_instance = NULL;
+
+template<>
+unsigned int const common::CPeriodicActionExecutor< NodeResponses >::m_sleepTime = 100;
 }

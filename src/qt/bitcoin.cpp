@@ -18,6 +18,7 @@
 #include "common/actionHandler.h"
 #include "node/nodeConnectionManager.h"
 #include "node/configureNodeActionHadler.h"
+#include "common/periodicActionExecutor.h"
 
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
@@ -242,9 +243,11 @@ void BitcoinCore::initialize()
 
 	threadGroup.create_thread(boost::bind(&common::CActionHandler< node::NodeResponses >::loop, actionHandler));
 
-	node::CNodeConnectionManager * nodeConnectionManager = node::CNodeConnectionManager::getInstance();
+	common::CPeriodicActionExecutor< node::NodeResponses > * periodicActionExecutor
+			= common::CPeriodicActionExecutor< node::NodeResponses >::getInstance();
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< node::NodeResponses >::processingLoop, periodicActionExecutor ));
 
-    threadGroup.create_thread(boost::bind(&node::CNodeConnectionManager::periodicActionLoop, nodeConnectionManager));
+	node::CNodeConnectionManager * nodeConnectionManager = node::CNodeConnectionManager::getInstance();
 
 	nodeConnectionManager->connectToNetwork();
  

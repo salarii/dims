@@ -33,6 +33,7 @@ COMMON_H = \
   common/nodeMessages.h \
   common/visitorConfigurationUtilities.h \
   common/responseVisitorInternal.h \
+  common/periodicActionExecutor.h \
   common/transactionStatus.h
 
 COMMON_CPP = \

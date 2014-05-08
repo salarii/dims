@@ -21,7 +21,7 @@
 #include "walletdb.h" // for BackupWallet
 
 //node
-#include "node/nodeConnectionManager.h"
+#include "common/periodicActionExecutor.h"
 #include "node/sendBalanceInfoAction.h"
 
 #include <stdint.h>
@@ -138,7 +138,7 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
     if(addressTableModel)
         addressTableModel->updateEntry(address, label, isMine, purpose, status);
 	if ( status == CT_NEW )
-    node::CNodeConnectionManager::getInstance()->addPeriodicAction( new node::CSendBalanceInfoAction( address.toStdString() ) );
+		common::CPeriodicActionExecutor< node::NodeResponses >::getInstance()->addAction( new node::CSendBalanceInfoAction( address.toStdString() ), 60000 );
 }
 
 bool WalletModel::validateAddress(const QString &address)
