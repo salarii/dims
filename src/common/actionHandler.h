@@ -19,6 +19,7 @@
 
 #include "util.h"
 #include "action.h"
+#include <algorithm>
 
 namespace common
 {
@@ -27,39 +28,44 @@ template < class _RequestResponses > class CSetResponseVisitor;
 template < class _RequestResponses > class CRequestHandler;
 template < class _RequestResponses > struct CRequest;
 
+
+struct CMatcher
+{
+	CMatcher( int _key )
+	{
+		m_match.push_back( _key );
+	}
+	bool add( int _key )
+	{
+		BOOST_FOREACH( int key, m_match )
+		{
+			if ( key == _key )
+				return false;
+		}
+
+		m_match.push_back( _key );
+		std::sort( m_match.begin(), m_match.end() );
+		return true;
+	}
+
+	bool operator!=( CMatcher const & _matcher ) const
+	{
+		return m_match != _matcher.m_match;
+	}
+	bool operator<( CMatcher const & _matcher ) const
+	{
+		bool less = m_match < _matcher.m_match;
+		return m_match < _matcher.m_match;
+	}
+	std::vector< int > m_match;
+};
+
 template < class _RequestResponses >
 class CActionHandler
 {
 public:
-	struct CMatcher
-	{
-		CMatcher( int _key )
-		{
-			m_match.push_back( _key );
-		}
-		void add( int _key )
-		{
-			BOOST_FOREACH( int key, m_match )
-			{
-				if ( key == _key )
-					return;
-			}
-
-			m_match.push_back( _key );
-		}
-		bool operator!=( CMatcher const & _matcher ) const
-		{
-			return m_match != _matcher.m_match;
-		}
-		bool operator<( CMatcher const & _matcher ) const
-		{
-			return m_match < _matcher.m_match;
-		}
-		std::vector< int > m_match;
-	};
-
-public:
 	typedef std::multimap< CMatcher, CRequestHandler< _RequestResponses > * > AvailableHandlers;
+	std::set< CMatcher > m_complexMatchers;
 	typedef std::map< CRequest< _RequestResponses >*, CAction< _RequestResponses >* > RequestToAction;
 public:
 	void loop();
@@ -76,6 +82,8 @@ private:
 	std::list< CRequestHandler< _RequestResponses > * > provideHandler( int const _request );
 
 	void findAction( CAction< _RequestResponses >* _action ) const;
+
+	std::vector< CMatcher > findComplexMatchers( int _key );
 private:
 	static CActionHandler * ms_instance;
 
@@ -129,9 +137,28 @@ CActionHandler< _RequestResponses >::addConnectionProvider( CConnectionProvider<
 	m_connectionProviders.push_back( _connectionProvider );
 }
 
-/*
-reconsider  how  to  get  the  same  handler  every  time
-*/
+struct CFindMatcher : unary_function < CMatcher, bool >
+{
+	CFindMatcher( int _key ):m_key(_key){};
+	bool operator() ( CMatcher const & _matcher ) const
+	{
+		return std::find (_matcher.m_match.begin(), _matcher.m_match.end(), m_key) == _matcher.m_match.end();
+	}
+
+	int const m_key;
+};
+
+
+//hate logic like this, but it seems I need it
+template < class _RequestResponses >
+std::vector< CMatcher >
+CActionHandler< _RequestResponses >::findComplexMatchers( int _key )
+{
+	std::vector< CMatcher > matchers;
+	std::remove_copy_if( m_complexMatchers.begin(),m_complexMatchers.end(), matchers.begin(), CFindMatcher( _key ) );
+	return matchers;
+}
+
 template < class _RequestResponses >
 std::list< CRequestHandler< _RequestResponses > * >
 CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
@@ -139,14 +166,21 @@ CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
 	std::list< CRequestHandler< _RequestResponses > * > requestHandelers;
 
 	{
-		std::pair< typename AvailableHandlers::iterator, typename AvailableHandlers::iterator > range;
 
-		 range = m_requestHandlers.equal_range( _requestKind );
+		std::vector< CMatcher > complexMatchers = findComplexMatchers( _requestKind );
+		complexMatchers.push_back( _requestKind );
+		BOOST_FOREACH( CMatcher const & matcher, complexMatchers )
+		{
+			std::pair< typename AvailableHandlers::iterator, typename AvailableHandlers::iterator > range;
 
-		 for ( typename AvailableHandlers::iterator it = range.first; it != range.second; ++it )
-			 requestHandelers.push_back( it->second );
+			 range = m_requestHandlers.equal_range( matcher );
 
-		if ( range.first != m_requestHandlers.end() )
+			 for ( typename AvailableHandlers::iterator it = range.first; it != range.second; ++it )
+				 requestHandelers.push_back( it->second );
+		}
+
+
+		if ( !requestHandelers.empty() )
 			return requestHandelers;
 	}
 
@@ -184,7 +218,9 @@ CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
 					BOOST_FOREACH( MatchedHandler & matched, matchedHandlers )
 					{
 						CMatcher newMatch = matched.first;
-						newMatch.add( _requestKind );
+						if ( newMatch.add( _requestKind ) )
+							m_complexMatchers.insert( newMatch );
+
 						m_requestHandlers.insert( std::make_pair( newMatch, matched.second ) );
 						requestHandelers.push_back( matched.second );
 					}
