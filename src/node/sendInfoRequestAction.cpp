@@ -80,14 +80,7 @@ CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::Requ
 {
 
 }
-/*
-void
-CInfoRequestContinue::serialize( CBufferAsStream & _bufferStream ) const
-{
-	common::serializeEnum( _bufferStream, common::CMainRequestType::ContinueReq );
-	_bufferStream << m_token;
-}
-*/
+
 void
 CInfoRequestContinue::accept( common::CMedium< NodeResponses > * _medium ) const
 {

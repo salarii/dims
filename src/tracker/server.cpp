@@ -96,7 +96,6 @@ CTcpServerConnection::run()
 			//Handle your network errors.
 			throw server_error(std::string( "Network error:" ) + exc.displayText() );
 		}
-		socket().close();
 	}
 
 }
@@ -130,6 +129,8 @@ CTcpServerConnection::checkSignature( CBufferAsStream const & _stream )
 
 }
 
+
+// annoying inconsistency below
 bool
 CTcpServerConnection::handleIncommingBuffor()
 {
@@ -190,9 +191,17 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::ContinueReq )
 		{
+			static int i = 0;
+			if ( i == 2 )
+			{
+				i++;
+				i--;
+
+			}
+			i++;
+
 			uint256 token;
 			pullStream >> token;
-
 			ClientResponse clientResponse = m_clientRequestManager->getResponse( token );
 			boost::apply_visitor( CHandleResponseVisitor( &pushStream ), clientResponse );
 		}

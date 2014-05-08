@@ -156,6 +156,12 @@ CNetworkClient::add( CTransactionSendRequest const * _request )
 	*m_pushStream  << _request->m_transaction;
 }
 
+void
+CNetworkClient::add( CInfoRequestContinue const * _request )
+{
+	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
+	*m_pushStream << _request->m_token;
+}
 
 bool
 CNetworkClient::flush()

@@ -54,6 +54,12 @@ CSendBalanceInfoAction::execute()
 			m_actionStatus = ActionStatus::Done;
 			return 0;
         }
+		else if ( m_mediumError )
+		{
+			// handle medium error somehow
+			m_actionStatus = ActionStatus::Done;
+			return 0;
+		}
         else if ( m_token )
         {
             return new CInfoRequestContinue( *m_token, RequestKind::Balance );
@@ -62,6 +68,11 @@ CSendBalanceInfoAction::execute()
     return 0;
 }
 
+void
+CSendBalanceInfoAction::setMediumError( boost::optional< common::ErrorType::Enum > const & _error )
+{
+	m_mediumError = _error;
+}
 void
 CSendBalanceInfoAction::setBalance( boost::optional< std::map< uint256, CCoins > > const & _balance )
 {

@@ -13,7 +13,6 @@ namespace common
 struct CDummy
 {
 	uint256 m_token;
-	static CMainRequestType::Enum const  m_requestType;
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_token );

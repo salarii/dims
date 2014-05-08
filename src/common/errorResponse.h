@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef ERROR_RESPOND_H
-#define ERROR_RESPOND_H
+#ifndef ERROR_RESPONSE_H
+#define ERROR_RESPONSE_H
 
 namespace common
 {
@@ -19,4 +19,4 @@ struct ErrorType
 
 }
 
-#endif // ERROR_RESPOND_H
+#endif // ERROR_RESPONSE_H

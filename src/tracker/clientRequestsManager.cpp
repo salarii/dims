@@ -17,22 +17,22 @@ namespace tracker
 {
 
 
-class CHandleClientRequestVisitor : public boost::static_visitor< ClientResponse >
+class CHandleClientRequestVisitor : public boost::static_visitor< void >
 {
 public:
 	CHandleClientRequestVisitor(uint256 const & _hash):m_hash( _hash ){};
 
-	ClientResponse operator()( CTrackerStatsReq const & _transactionStatus ) const
+	void operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
 
 	}
 
-	ClientResponse operator()( CTransactionMessage const & _transactionMessage ) const
+	void operator()( CTransactionMessage const & _transactionMessage ) const
 	{
 		CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
 	}
 
-	ClientResponse operator()( CAddressBalanceReq const & _addressBalanceReq ) const
+	void operator()( CAddressBalanceReq const & _addressBalanceReq ) const
 	{
 		CKeyID keyId;
 		CBitcoinAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
@@ -122,7 +122,7 @@ CClientRequestsManager::processRequestLoop()
 
 			BOOST_FOREACH( InfoRequestRecord::value_type request, m_getInfoRequest )
 			{
-				m_infoResponseRecord.insert( std::make_pair( request.first,boost::apply_visitor( CHandleClientRequestVisitor( request.first ), request.second ) ) );
+				boost::apply_visitor( CHandleClientRequestVisitor( request.first ), request.second );
 			}
 
 			m_getInfoRequest.clear();

@@ -5,9 +5,9 @@
 #ifndef	MEDIUM_H
 #define MEDIUM_H
 
-#include "errorRespond.h"
 #include "requestResponse.h"
-#include <vector>
+#include "mediumException.h"
+
 #include "visitorConfigurationUtilities.h"
 
 // this is  weak point of  this implementation I don't know  how to get rid of this at the moment
@@ -20,13 +20,6 @@ namespace common
 
 template < class _RequestResponses >
 struct CRequest;
-
-class CMediumException : public std::exception
-{
-public:
-    CMediumException(ErrorType::Enum _error):m_error(_error){};
-    ErrorType::Enum m_error;
-};
 
 template < class _RequestResponses >
 class CMedium

@@ -9,7 +9,7 @@
 
 #include "uint256.h"
 #include "common/transactionStatus.h"
-#include "errorRespond.h"
+#include "errorResponse.h"
 
 namespace common
 {

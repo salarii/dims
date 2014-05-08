@@ -65,9 +65,9 @@ class CGetMediumError : public CResponseVisitorBase< _Action, node::NodeResponse
 public:
 	CGetMediumError( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
 
-	void operator()(CSystemError & _systemError ) const
+	void operator()(CMediumException & _systemError ) const
     {
-		this->m_action->setMediumError( _systemError.m_errorType );
+		this->m_action->setMediumError( _systemError.m_error );
     }
 };
 
@@ -106,8 +106,17 @@ CSetResponseVisitor< node::NodeResponses >::visit( node::CConnectAction & _actio
 void
 CSetResponseVisitor< node::NodeResponses >::visit( node::CSendBalanceInfoAction & _action )
 {
+	static int i = 0;
+	if ( i == 2 )
+	{
+		i++;
+		i--;
+
+	}
+	i++;
 	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetBalance< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
 	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetToken< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetMediumError< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
 }
 
 void

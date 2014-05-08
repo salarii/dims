@@ -10,6 +10,8 @@
 
 #include "common/trackerResponses.h"
 
+#include "common/mediumException.h"
+
 namespace tracker
 {
 struct CDummyResponse{};
@@ -22,7 +24,7 @@ struct CValidationResult
 
 
 // list all desired types
-typedef boost::mpl::list< CDummyResponse, common::CAvailableCoins, CValidationResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

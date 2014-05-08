@@ -44,6 +44,8 @@ public:
 
 	void add( CTransactionSendRequest const * _request );
 
+	void add( CInfoRequestContinue const * _request );
+
 	bool flush();
 
 	void clearResponses();

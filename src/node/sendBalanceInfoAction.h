@@ -30,6 +30,8 @@ public:
 
 	void setInProgressToken( boost::optional< uint256 > const & _token );
 
+	void setMediumError( boost::optional< common::ErrorType::Enum > const & _error );
+
 	void reset();
 private:
 	std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash ) const;
@@ -41,6 +43,8 @@ private:
 	boost::optional< std::map< uint256, CCoins > > m_balance;
 
 	boost::optional< uint256 > m_token;
+
+	boost::optional< common::ErrorType::Enum > m_mediumError;
 };
 
 struct CBalanceRequest : public common::CRequest< NodeResponses >

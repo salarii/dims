@@ -132,12 +132,13 @@ void
 	}
 	 catch (CMediumException & _mediumException)
 	{
-// maybe  here pass global errors  like  problems  with  network
-// pass it here  but keep in mind that at least for now every single  action is responsible  for handling errors
+//CSystemError is now  common for  every  action handler, it is neither  flexible  not  good
+// in order to change    this  I have  to redesign global error passing  functionality
+//right now, keep in mind that every single  action is responsible  for handling errors
 
 		BOOST_FOREACH( CRequest< _RequestResponses >* request, m_newRequest )
 		{
-			//m_processedRequests.insert( std::make_pair( request, CSystemError( _mediumException.m_error ) ) );
+			m_processedRequests.insert( std::make_pair( request, _mediumException ) );
 		}
 		m_newRequest.clear();
 	}
