@@ -101,9 +101,10 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 			if ( !m_coinsViewCache->SetCoins(txIn.prevout.hash, coins) )
 				return false;
 
-			uint160 keyIds;
-			retrieveInputIds( txIn, keyId );
-			eraseCoins( keyId );
+			uint160 keyId;
+			if ( !retrieveInputIds( txIn, keyId ) )
+				return false;
+			m_addressToCoinsViewCache->eraseCoins( keyId );
 		}
 
 	}
@@ -113,8 +114,19 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 		CCoins coins(transaction, 0);
 		m_coinsViewCache->SetCoins( transaction.GetHash(), coins);
 		std::vector< uint160 > keyIds;
-		if ( !retrieveKeyIds( coins, keyIds ) )
-			return false;
+
+		CAllowedTypes allowedTypes;
+		allowedTypes.m_allowed.insert( TX_PUBKEY );
+		allowedTypes.m_allowed.insert( TX_PUBKEYHASH );
+		for (unsigned int i = 0; i < coins.vout.size(); i++)
+		{
+			uint160 keyId;
+
+			if ( !retrieveKeyIds( coins.vout[i], keyId, allowedTypes ) )
+				return false;
+
+			keyIds.push_back( keyId );
+		}
 
 		BOOST_FOREACH( uint160 const & keyId, keyIds )
 		{
@@ -183,43 +195,48 @@ CTransactionRecordManager::retrieveInputIds( CTxIn const & _txin, uint160 & _key
 
 	while( pc < _txin.scriptSig.end() )
 	{
-		if (!txin.scriptSig.GetOp(pc, opcode, data))
-			return;
+		if (!_txin.scriptSig.GetOp(pc, opcode, data))
+			return false;
 
 		if ( data.size() == 33 || data.size() == 65 )
 		{
-			_keyIds.push_back( CPubKey( data ).GetID() );
+			_keyIds = CPubKey( data ).GetID();
 
 			break;
 		}
 	}
+
+	CAllowedTypes allowedTypes;
+	allowedTypes.m_allowed.insert( TX_PUBKEY );
+
+	CCoins coins;
+	if ( !m_coinsViewCache->GetCoins( _txin.prevout.hash, coins ) )
+		return false;
+
+	retrieveKeyIds( coins.vout[_txin.prevout.n], _keyIds, allowedTypes );
+
+	return true;
 }
 
 
 bool
-CTransactionRecordManager::retrieveKeyIds( CCoins const & _coins, std::vector< uint160 > & _keyIds ) const
+CTransactionRecordManager::retrieveKeyIds( CTxOut const & _txout, uint160 & _keyId, CAllowedTypes const & _allowedType ) const
 {
-
-	for (unsigned int i = 0; i < _coins.vout.size(); i++)
-	{
-		const CTxOut& txout = _coins.vout[i];
-
 		opcodetype opcode;
 
 		std::vector<unsigned char> data;
 
-		CScript::const_iterator pc = txout.scriptPubKey.begin();
+		CScript::const_iterator pc = _txout.scriptPubKey.begin();
 		//sanity check
-		while( pc != txout.scriptPubKey.end() )
+		while( pc != _txout.scriptPubKey.end() )
 		{
-			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
+			if (!_txout.scriptPubKey.GetOp(pc, opcode, data))
 				return false;
 		}
 		txnouttype type;
 
 		std::vector< std:: vector<unsigned char> > vSolutions;
-		if (Solver(txout.scriptPubKey, type, vSolutions) &&
-				(type == TX_PUBKEY || type == TX_PUBKEYHASH))
+		if (Solver(_txout.scriptPubKey, type, vSolutions) && _allowedType.isAllowed( type ) )
 		{
 			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
 
@@ -227,20 +244,20 @@ CTransactionRecordManager::retrieveKeyIds( CCoins const & _coins, std::vector< u
 			{
 				if ( type == TX_PUBKEY )
 				{
-					if ( !txout.IsNull() )
-						_keyIds.push_back( Hash160( *it ) );
+					if ( !_txout.IsNull() )
+						_keyId = Hash160( *it );
 					break;
 				}
 				else if( type == TX_PUBKEYHASH )
 				{
-					if ( !txout.IsNull() )
-						_keyIds.push_back( uint160( *it ) );
+					if ( !_txout.IsNull() )
+						_keyId = uint160( *it );
 					break;
 				}
 				it++;
 			}
 		}
-	}
+
 	return true;
 }
 

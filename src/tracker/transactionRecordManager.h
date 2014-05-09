@@ -23,6 +23,16 @@ namespace tracker
 class CValidationManager;
 class CAddressToCoinsViewCache;
 
+struct CAllowedTypes
+{
+	bool isAllowed( txnouttype _type ) const
+	{
+		return m_allowed.find( _type ) != m_allowed.end();
+	}
+
+	std::set< txnouttype > m_allowed;
+};
+
 class CTransactionRecordManager
 {
 public:
@@ -47,9 +57,9 @@ public:
 
 	void addClientTransaction( CTransaction const & _tx );
 
-	bool retrieveInputIds( CTxIn const & _txin, std::vector< uint160 > & _keyIds );
+	bool retrieveInputIds( CTxIn const & _txin, uint160 & _keyIds );
 
-	bool retrieveKeyIds( CCoins const & _coins, std::vector< uint160 > & _keyIds ) const;
+	bool retrieveKeyIds( CTxOut const & _txout, uint160 & _keyId, CAllowedTypes const & _allowedType ) const;
 private:
 	void synchronize();
 	void askForTokens();
