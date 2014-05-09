@@ -41,6 +41,7 @@
 #include "tracker/clientRequestsManager.h"
 #include "tracker/internalMediumProvider.h"
 #include "tracker/transactionRecordManager.h"
+#include "tracker/originAddressScaner.h"
 
 #include "common/actionHandler.h"
 using namespace std;
@@ -1034,11 +1035,10 @@ bool AppInit2(boost::thread_group& threadGroup)
 
 	
 /* create  threads of  action  handler */
-
+	threadGroup.create_thread( boost::bind( &tracker::COriginAddressScaner::loop, tracker::COriginAddressScaner::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< tracker::TrackerResponses >::loop, common::CActionHandler< tracker::TrackerResponses >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
-	threadGroup.create_thread(&ThreadTempWhile);
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
 	// ********************************************************* Step 10: load peers

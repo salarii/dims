@@ -130,6 +130,10 @@ CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 		CKeyType key( iterator->first );
 		uint160 firstKey = iterator->first;
 
+		getCoinsAmount(firstKey, amount);
+
+		key += amount;
+
 		while( iterator != end )
 		{
 			amount++;
@@ -141,6 +145,8 @@ CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 	}
 	CAddressToCoinsDatabase::batchWrite( amountBatch );
 	CAddressToCoinsDatabase::batchWrite( coinsBatch );
+
+	return true;
 }
 
 CAddressToCoinsViewCache * CAddressToCoinsViewCache::ms_instance = NULL;
@@ -196,6 +202,13 @@ CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId)
 		cacheCoins.insert(it, std::make_pair(_keyId, coin));
 	}
 	return fetchCoins(_keyId);
+}
+
+bool
+CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId )
+{
+	cacheCoins.erase( _keyId );
+	// full erase from database should oges here
 }
 
 bool 

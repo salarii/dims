@@ -13,7 +13,7 @@ class CTxMemPool;
 
 #include "txmempool.h"
 #include <map>
-
+#include <set>
 namespace tracker
 {
 
@@ -24,7 +24,7 @@ public:
 
 	void addTransaction(long long const _indexHeight, CTransaction const&  _tx);
 
-	void Thread();
+	void loop();
 
 	static COriginAddressScaner* getInstance( );
 private:
@@ -51,6 +51,7 @@ private:
 	mutable boost::mutex m_lock;
 
 	std::map< long long, CTransaction > m_transactionToProcess;
+	std::set< uint256 > m_alreadyProcessed;
 };
 
 }

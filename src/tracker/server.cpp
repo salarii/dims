@@ -191,15 +191,6 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::ContinueReq )
 		{
-			static int i = 0;
-			if ( i == 2 )
-			{
-				i++;
-				i--;
-
-			}
-			i++;
-
 			uint256 token;
 			pullStream >> token;
 			ClientResponse clientResponse = m_clientRequestManager->getResponse( token );

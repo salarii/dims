@@ -47,6 +47,8 @@ public:
 
 	void addClientTransaction( CTransaction const & _tx );
 
+	bool retrieveInputIds( CTxIn const & _txin, std::vector< uint160 > & _keyIds );
+
 	bool retrieveKeyIds( CCoins const & _coins, std::vector< uint160 > & _keyIds ) const;
 private:
 	void synchronize();

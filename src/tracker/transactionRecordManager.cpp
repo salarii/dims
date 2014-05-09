@@ -88,7 +88,7 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 {
 
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
-/*
+
 	BOOST_FOREACH( CTransaction const & transaction, _transaction )
 	{
 		BOOST_FOREACH( CTxIn const & txIn, transaction.vin )
@@ -100,6 +100,10 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 			coins.vout.at( txIn.prevout.n ).SetNull();
 			if ( !m_coinsViewCache->SetCoins(txIn.prevout.hash, coins) )
 				return false;
+
+			uint160 keyIds;
+			retrieveInputIds( txIn, keyId );
+			eraseCoins( keyId );
 		}
 
 	}
@@ -119,7 +123,7 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 	}
 	m_addressToCoinsViewCache->flush();
 	m_coinsViewCache->Flush();
-*/
+
 	return true;
 }
 
@@ -166,6 +170,31 @@ void CTransactionRecordManager::addClientTransaction( CTransaction const & _tx )
 	boost::lock_guard<boost::mutex> lock( m_transactionLock );
 	m_transactionPool.push_back( _tx );
 }
+
+bool
+CTransactionRecordManager::retrieveInputIds( CTxIn const & _txin, uint160 & _keyIds )
+{
+
+	CScript::const_iterator pc = _txin.scriptSig.begin();
+
+	opcodetype opcode;
+
+	std::vector<unsigned char> data;
+
+	while( pc < _txin.scriptSig.end() )
+	{
+		if (!txin.scriptSig.GetOp(pc, opcode, data))
+			return;
+
+		if ( data.size() == 33 || data.size() == 65 )
+		{
+			_keyIds.push_back( CPubKey( data ).GetID() );
+
+			break;
+		}
+	}
+}
+
 
 bool
 CTransactionRecordManager::retrieveKeyIds( CCoins const & _coins, std::vector< uint160 > & _keyIds ) const

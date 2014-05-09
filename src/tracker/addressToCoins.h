@@ -80,7 +80,7 @@ public:
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
 	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
 	bool haveCoins( uint160 const &_keyId );
-
+	bool eraseCoins( uint160 const &_keyId );
 	bool flush();
 
 	static CAddressToCoinsViewCache* getInstance();

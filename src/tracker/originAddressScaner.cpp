@@ -52,11 +52,19 @@ COriginAddressScaner::addTransaction( long long const _indexHeight, CTransaction
 {
 	boost::lock_guard<boost::mutex> lock(m_lock);
 
+	uint256 hash = _tx.GetHash();
+	if ( m_alreadyProcessed.find( hash ) != m_alreadyProcessed.end() )
+		return;
+
+	m_alreadyProcessed.insert( hash );
+
 	m_transactionToProcess.insert( std::make_pair(_indexHeight, _tx) );
+
+
 }
 
 void
-COriginAddressScaner::Thread()
+COriginAddressScaner::loop()
 {
 	while(1)
 	{

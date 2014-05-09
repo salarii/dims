@@ -1464,12 +1464,6 @@ void ThreadScriptCheck() {
     scriptcheckqueue.Thread();
 }
 
-void ThreadTempWhile()
-{
-	originAddressScaner->Thread();
-}
-
-
 bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck)
 {
 

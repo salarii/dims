@@ -35,6 +35,7 @@ struct CMatcher
 	{
 		m_match.push_back( _key );
 	}
+
 	bool add( int _key )
 	{
 		BOOST_FOREACH( int key, m_match )
@@ -46,6 +47,11 @@ struct CMatcher
 		m_match.push_back( _key );
 		std::sort( m_match.begin(), m_match.end() );
 		return true;
+	}
+	CMatcher & operator=( CMatcher const & _matcher )
+	{
+		m_match = _matcher.m_match;
+		return *this;
 	}
 
 	bool operator!=( CMatcher const & _matcher ) const
@@ -155,7 +161,8 @@ std::vector< CMatcher >
 CActionHandler< _RequestResponses >::findComplexMatchers( int _key )
 {
 	std::vector< CMatcher > matchers;
-	std::remove_copy_if( m_complexMatchers.begin(),m_complexMatchers.end(), matchers.begin(), CFindMatcher( _key ) );
+	std::copy(m_complexMatchers.begin(), m_complexMatchers.end(), std::back_inserter(matchers));
+	std::remove_if( matchers.begin(),matchers.end(), CFindMatcher( _key ) );
 	return matchers;
 }
 
