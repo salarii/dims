@@ -86,7 +86,6 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uin
 bool
 CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransaction > const & _transaction )
 {
-
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
 
 	BOOST_FOREACH( CTransaction const & transaction, _transaction )
@@ -97,14 +96,15 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 			if ( !m_coinsViewCache->GetCoins(txIn.prevout.hash, coins) )
 				return false;
 
+			uint160 keyId;
+			if ( !retrieveInputIds( txIn, keyId, coins ) )
+				return false;
+
+			m_addressToCoinsViewCache->eraseCoins( keyId, txIn.prevout.hash );
+
 			coins.vout.at( txIn.prevout.n ).SetNull();
 			if ( !m_coinsViewCache->SetCoins(txIn.prevout.hash, coins) )
 				return false;
-
-			uint160 keyId;
-			if ( !retrieveInputIds( txIn, keyId ) )
-				return false;
-			m_addressToCoinsViewCache->eraseCoins( keyId );
 		}
 
 	}
@@ -184,7 +184,7 @@ void CTransactionRecordManager::addClientTransaction( CTransaction const & _tx )
 }
 
 bool
-CTransactionRecordManager::retrieveInputIds( CTxIn const & _txin, uint160 & _keyIds )
+CTransactionRecordManager::retrieveInputIds( CTxIn const & _txin, uint160 & _keyIds, CCoins const & _prevCoins )
 {
 
 	CScript::const_iterator pc = _txin.scriptSig.begin();
@@ -209,11 +209,7 @@ CTransactionRecordManager::retrieveInputIds( CTxIn const & _txin, uint160 & _key
 	CAllowedTypes allowedTypes;
 	allowedTypes.m_allowed.insert( TX_PUBKEY );
 
-	CCoins coins;
-	if ( !m_coinsViewCache->GetCoins( _txin.prevout.hash, coins ) )
-		return false;
-
-	retrieveKeyIds( coins.vout[_txin.prevout.n], _keyIds, allowedTypes );
+	retrieveKeyIds( _prevCoins.vout[_txin.prevout.n], _keyIds, allowedTypes );
 
 	return true;
 }

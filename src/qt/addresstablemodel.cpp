@@ -98,7 +98,7 @@ public:
 			CKeyID keyID;
 			bitcoinAddress.GetKeyID(keyID);
 
-				common::CPeriodicActionExecutor< node::NodeResponses >::getInstance()->addAction( new node::CSendBalanceInfoAction( address.ToString() ), 60000 );
+				common::CPeriodicActionExecutor< node::NodeResponses >::getInstance()->addAction( new node::CSendBalanceInfoAction( address.ToString() ), 6000 );
 
                 cachedAddressTable.append(AddressTableEntry(addressType,
                                   QString::fromStdString(strName),

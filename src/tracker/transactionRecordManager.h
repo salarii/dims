@@ -57,7 +57,7 @@ public:
 
 	void addClientTransaction( CTransaction const & _tx );
 
-	bool retrieveInputIds( CTxIn const & _txin, uint160 & _keyIds );
+	bool retrieveInputIds( CTxIn const & _txin, uint160 & _keyIds, CCoins const & _prevCoins  );
 
 	bool retrieveKeyIds( CTxOut const & _txout, uint160 & _keyId, CAllowedTypes const & _allowedType ) const;
 private:

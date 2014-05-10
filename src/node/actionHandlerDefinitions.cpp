@@ -17,5 +17,5 @@ template<>
 common::CPeriodicActionExecutor< NodeResponses > * common::CPeriodicActionExecutor< NodeResponses >::ms_instance = NULL;
 
 template<>
-unsigned int const common::CPeriodicActionExecutor< NodeResponses >::m_sleepTime = 1000;
+unsigned int const common::CPeriodicActionExecutor< NodeResponses >::m_sleepTime = 100;
 }

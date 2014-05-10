@@ -53,6 +53,11 @@ bool CAddressToCoinsDatabase::setCoin(CKeyType const &_keyId, uint256 const &coi
 	return db.Write( std::make_pair('c', _keyId), coins );
 }
 
+bool CAddressToCoinsDatabase::eraseCoin( uint256 const &_keyId )
+{
+	return db.Erase( std::make_pair('c', _keyId) );
+}
+
 bool CAddressToCoinsDatabase::haveCoin(uint160 const &_keyId)
 {
 	return db.Exists( std::make_pair( 'a', _keyId ) );
@@ -69,8 +74,85 @@ CAddressToCoins::CAddressToCoins(size_t _cacheSize)
 
 }
 
+bool CAddressToCoins::getCoinsAmount( uint160 const &_keyId, uint64_t & _amount )
+{
+	_amount = 0;
+	CKeyType key( _keyId );
+
+	if ( !haveCoin(_keyId) )
+		return false;
+
+	uint64_t potential;
+	if ( !CAddressToCoinsDatabase::getCoinsAmount(_keyId, potential) )
+		return false;
+
+	while( potential-- )
+	{
+		uint256 coin;
+		if ( haveCoin((CKeyType&)++key) )
+		{
+			_amount++;
+		}
+	}
+	return true;
+}
+
 bool
 CAddressToCoins::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins )
+{
+	CKeyType key( _keyId );
+	uint64_t amount;
+
+	if ( !haveCoin(_keyId) )
+		return false;
+
+	if ( !CAddressToCoinsDatabase::getCoinsAmount(_keyId, amount) )
+		return false;
+
+	while( amount-- )
+	{
+		uint256 coin;
+		if ( haveCoin((CKeyType&)++key) )
+		{
+			getCoin( key, coin );
+			_coins.push_back( coin );
+		}
+	}
+	return true;
+}
+
+typedef std::map< uint256, uint256 > KeyToCoins;
+
+bool CAddressToCoins::eraseCoin( uint160 const &_keyId, uint256 const & _coin )
+{
+	KeyToCoins keyToCoins;
+	if ( !getCoins(_keyId, keyToCoins ) )
+		return false;
+
+	KeyToCoins::iterator iterator = keyToCoins.begin();
+
+	while( iterator != keyToCoins.end() )
+	{
+		if( iterator->second != _coin )
+		{
+			keyToCoins.erase(iterator++);
+		}
+		else
+		{
+			++iterator;
+		}
+	}
+
+
+	BOOST_FOREACH( KeyToCoins::value_type & coins, keyToCoins )
+	{
+		CAddressToCoinsDatabase::eraseCoin( coins.first );
+	}
+	return true;
+}
+
+bool
+CAddressToCoins::getCoins( uint160 const &_keyId, std::map< uint256 , uint256 > &_coins )
 {
 	CKeyType key( _keyId );
 	uint64_t amount;
@@ -87,11 +169,7 @@ CAddressToCoins::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins
 		if ( haveCoin((CKeyType&)++key) )
 		{
 			getCoin( key, coin );
-			_coins.push_back( coin );
-		}
-		else
-		{
-			return false;
+			_coins.insert(std::make_pair( key, coin ) );
 		}
 	}
 	return true;
@@ -176,7 +254,7 @@ bool CAddressToCoinsViewCache::getCoins( uint160 const &_keyId, std::vector< uin
 
 bool CAddressToCoinsViewCache::setCoins( uint160 const &_keyId, uint256 const & _coin )
 {
-	cacheCoins.insert( std::make_pair( _keyId, _coin ) );
+	insertCacheCoins.insert( std::make_pair( _keyId, _coin ) );
 	return true;
 }
 
@@ -186,12 +264,24 @@ bool CAddressToCoinsViewCache::haveCoins(const uint160 &txid)
 }
 
 std::map<uint160,uint256>::iterator
-CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId)
+CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 {
 	std::map<uint160,uint256>::iterator it = cacheCoins.lower_bound(_keyId);
-	if (it != cacheCoins.end() && it->first == _keyId)
-		return it;
 
+	if ( it != cacheCoins.end() && it->first == _keyId )
+	{
+		unsigned int distance = std::distance( it, cacheCoins.upper_bound(_keyId));
+
+		uint64_t amount;
+
+		m_addressToCoins.getCoinsAmount( _keyId, amount );
+
+		if ( distance == amount )
+			return it;
+
+		if ( secondPass )//  ugly  way to indicate error
+			throw;
+	}
 	std::vector< uint256 > tmp;
 
 	if ( !m_addressToCoins.getCoins(_keyId,tmp) )
@@ -199,24 +289,31 @@ CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId)
 	
 	BOOST_FOREACH( uint256 & coin, tmp )
 	{
-		cacheCoins.insert(it, std::make_pair(_keyId, coin));
+		if ( cacheCoins.find( _keyId ) == cacheCoins.end() )
+			cacheCoins.insert(it, std::make_pair(_keyId, coin));
 	}
-	return fetchCoins(_keyId);
+	return fetchCoins(_keyId, true);
+
 }
 
 bool
-CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId )
+CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId, uint256 const & _coin )
 {
-	cacheCoins.erase( _keyId );
-	// full erase from database should oges here
+	std::multimap<uint160,uint256>::iterator iterator = cacheCoins.find( _keyId );
+
+	if ( iterator != cacheCoins.end() && iterator->second == _coin )
+		cacheCoins.erase( _keyId );
+
+	m_addressToCoins.eraseCoin( _keyId, _coin );
+	return true;
 }
 
 bool 
 CAddressToCoinsViewCache::flush()
 {
-	bool ok = m_addressToCoins.batchWrite(cacheCoins);
+	bool ok = m_addressToCoins.batchWrite(insertCacheCoins);
 	if (ok)
-		cacheCoins.clear();
+		insertCacheCoins.clear();
 	return ok;
 }
 

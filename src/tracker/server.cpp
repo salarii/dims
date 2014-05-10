@@ -97,6 +97,7 @@ CTcpServerConnection::run()
 			throw server_error(std::string( "Network error:" ) + exc.displayText() );
 		}
 	}
+	socket().close();
 
 }
 
