@@ -289,8 +289,29 @@ CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 	
 	BOOST_FOREACH( uint256 & coin, tmp )
 	{
-		if ( cacheCoins.find( _keyId ) == cacheCoins.end() )
+		it = cacheCoins.lower_bound( _keyId );
+
+		if ( it == cacheCoins.end() )
 			cacheCoins.insert(it, std::make_pair(_keyId, coin));
+		else
+		{
+			bool insert = true;
+
+			std::map<uint160,uint256>::iterator upper = cacheCoins.upper_bound(_keyId);
+			while( it!= upper )
+			{
+				if ( it->second == coin )
+				{
+					insert =false;
+					break;
+				}
+
+				it++;
+			}
+
+			if ( insert )
+				cacheCoins.insert(it, std::make_pair(_keyId, coin));
+		}
 	}
 	return fetchCoins(_keyId, true);
 

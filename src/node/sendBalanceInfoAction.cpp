@@ -47,10 +47,13 @@ CSendBalanceInfoAction::execute()
 			CKeyID keyId;
 			address.GetKeyID( keyId );
 			typedef std::map< uint256, CCoins >::value_type  MapElement;
+			std::vector< CAvailableCoin > availableCoins;
 			BOOST_FOREACH( MapElement & coins, *m_balance)
 			{
-				CWallet::getInstance()->setAvailableCoins( keyId, getAvailableCoins( coins.second, keyId, coins.first ) );
+				std::vector< CAvailableCoin > tempCoins = getAvailableCoins( coins.second, keyId, coins.first );
+				availableCoins.insert(availableCoins.end(), tempCoins.begin(), tempCoins.end());
 			}
+			CWallet::getInstance()->setAvailableCoins( keyId, availableCoins );
 			m_actionStatus = ActionStatus::Done;
 			return 0;
         }
