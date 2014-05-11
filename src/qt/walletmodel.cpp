@@ -291,7 +291,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     foreach(const SendCoinsRecipient &rcp, transaction.getRecipients())
     {
         // Don't touch the address book when we have a payment request
-        if (!rcp.paymentRequest.IsInitialized())
+	  /*  if (!rcp.paymentRequest.IsInitialized())
         {
             std::string strAddress = rcp.address.toStdString();
             CTxDestination dest = CBitcoinAddress(strAddress).Get();
@@ -311,7 +311,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
                     wallet->SetAddressBook(dest, strLabel, ""); // "" means don't change purpose
                 }
             }
-        }
+		}*/
 	  //  emit coinsSent(wallet, rcp, transaction_array);
     }
 /* create send  transaction  action */
