@@ -5,7 +5,7 @@
 #include <boost/foreach.hpp>
 #include <exception> 
 
-#include "dummyMedium.h"
+#include "settingsMedium.h"
 #include "sendInfoRequestAction.h"
 
 #include "helper.h"
@@ -18,25 +18,31 @@ using namespace common;
 namespace node
 {
 
-CDummyMedium::CDummyMedium()
+CSettingsMedium::CSettingsMedium()
 	: m_serviced( true )
-    , m_trackerStats( "dummy", 0.005, 100,"127.0.0.1", common::ratcoinParams().getDefaultClientPort() )
+	, m_trackerStats( "local", 0, 0,"127.0.0.1", common::ratcoinParams().getDefaultClientPort() )
 {
 }
 
+void
+CSettingsMedium::setTrackerIp( std::string const & _ip )
+{
+	m_trackerStats.m_ip = _ip;
+}
+
 bool
-CDummyMedium::serviced() const
+CSettingsMedium::serviced() const
 {
 	return m_serviced;
 }
 
 void
-CDummyMedium::add( CRequest const * _request )
+CSettingsMedium::add( CRequest const * _request )
 {
 }
 
 void
-CDummyMedium::add( CTrackersInfoRequest const * _request )
+CSettingsMedium::add( CTrackersInfoRequest const * _request )
 {
 	try
 	{
@@ -52,7 +58,7 @@ CDummyMedium::add( CTrackersInfoRequest const * _request )
 }
 
 bool
-CDummyMedium::flush()
+CSettingsMedium::flush()
 {
 
 	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerStatsRequests )
@@ -65,13 +71,13 @@ CDummyMedium::flush()
 }
 
 bool
-CDummyMedium::getResponse( std::vector< node::NodeResponses > & _requestResponse ) const
+CSettingsMedium::getResponse( std::vector< node::NodeResponses > & _requestResponse ) const
 {
 	_requestResponse = m_requestResponse;
 }
 
 void
-CDummyMedium::clearResponses()
+CSettingsMedium::clearResponses()
 {
 	m_requestResponse.clear();
 }

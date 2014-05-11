@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef	DUMMY_MEDIUM_H
-#define DUMMY_MEDIUM_H
+#ifndef	SETTINGS_MEDIUM_H
+#define SETTINGS_MEDIUM_H
 
 #include <list>
 #include <string>
@@ -20,10 +20,10 @@ class CTrackersInfoRequest;
 struct CRequest;
 
 
-class CDummyMedium : public common::CMedium< NodeResponses >
+class CSettingsMedium : public common::CMedium< NodeResponses >
 {
 public:
-	CDummyMedium();
+	CSettingsMedium();
 
 	bool serviced() const;
 
@@ -36,15 +36,17 @@ public:
 	bool getResponse( std::vector< node::NodeResponses > & _requestResponse ) const;
 
 	void clearResponses();
+
+	void setTrackerIp( std::string const & _ip );
 private:
 	std::list< CTrackersInfoRequest const * > m_trackerStatsRequests;
 	bool m_serviced;
 
-	common::CTrackerStats const m_trackerStats;
+	common::CTrackerStats m_trackerStats;
 	std::vector< node::NodeResponses > m_requestResponse;
 };
 
 
 }
 
-#endif // DUMMY_MEDIUM_H
+#endif // SETTINGS_MEDIUM_H

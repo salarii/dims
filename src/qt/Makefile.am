@@ -137,36 +137,36 @@ QT_MOC_CPP = \
   moc_walletview.cpp
 
 CLIENT_H = \
-  ../node/sendTransactionAction.h \
-  ../node/sendInfoRequestAction.h \
+  ../node/connectAction.h \
+  ../node/init.h \
   ../node/networkClient.h \
+  ../node/nodeConnectionManager.h \
+  ../node/requestRespond.h \
   ../node/seedProvider.h \
   ../node/sendInfoRequestAction.h \
-  ../node/dummyMedium.h \
-  ../node/nodeConnectionManager.h \
-  ../node/trackerLocalRanking.h \
-  ../node/connectAction.h \
+  ../node/settingsMedium.h \
+  ../node/sendTransactionAction.h \
   ../node/support.h \
-  ../node/userConnectionProvider.h \
+  ../node/settingsConnectionProvider.h \
   ../node/sendBalanceInfoAction.h \
-  ../node/requestRespond.h
+  ../node/trackerLocalRanking.h 
+  
 
 CLIENT_CPP = \
-  ../node/sendTransactionAction.cpp \
-  ../node/sendInfoRequestAction.cpp \
+  ../node/actionHandlerDefinitions.cpp \
+  ../node/connectAction.cpp \
+  ../node/init.cpp \
   ../node/networkClient.cpp \
-  ../node/setResponseVisitor.cpp \
+  ../node/nodeConnectionManager.cpp \
+  ../node/sendTransactionAction.cpp \
   ../node/seedProvider.cpp \
   ../node/sendInfoRequestAction.cpp \
-  ../node/dummyMedium.cpp \
-  ../node/nodeConnectionManager.cpp \
-  ../node/trackerLocalRanking.cpp \
-  ../node/userConnectionProvider.cpp \
+  ../node/settingsMedium.cpp \
+  ../node/setResponseVisitor.cpp \
+  ../node/settingsConnectionProvider.cpp \
   ../node/sendBalanceInfoAction.cpp \
-  ../node/actionHandlerDefinitions.cpp \
-  ../node/connectAction.cpp
-
-
+  ../node/trackerLocalRanking.cpp
+  
 BITCOIN_MM = \
   macdockiconhandler.mm \
   macnotificationhandler.mm

@@ -25,7 +25,7 @@
 #include "walletmodel.h"
 #endif
 
-#include "init.h"
+#include "node/init.h"
 #include "main.h"
 #include "rpcserver.h"
 #include "ui_interface.h"
@@ -237,7 +237,7 @@ void BitcoinCore::initialize()
     try
     {
 		LogPrintf("Running AppInit1 in thread\n");
-	  int rv = AppInit1(threadGroup);
+	  int rv = node::AppInit1(threadGroup);
 
 	common::CActionHandler< node::NodeResponses > * actionHandler = common::CActionHandler< node::NodeResponses >::getInstance();
 
@@ -273,7 +273,7 @@ void BitcoinCore::shutdown()
         LogPrintf("Running Shutdown in thread\n");
         threadGroup.interrupt_all();
         threadGroup.join_all();
-        Shutdown();
+		node::Shutdown();
         LogPrintf("Shutdown finished\n");
         emit shutdownResult(1);
     } catch (std::exception& e) {

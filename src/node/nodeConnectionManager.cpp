@@ -1,7 +1,7 @@
 #include "nodeConnectionManager.h"
 #include "common/actionHandler.h"
 #include "connectAction.h"
-#include "userConnectionProvider.h"
+#include "settingsConnectionProvider.h"
 #include "trackerLocalRanking.h"
 #include "util.h"
 #include "common/connectionProvider.h"
@@ -25,7 +25,7 @@ CNodeConnectionManager::CNodeConnectionManager()
 {
 	m_actionHandler = common::CActionHandler< NodeResponses >::getInstance();
 
-	m_actionHandler->addConnectionProvider( new CUserConnectionProvider() );
+	m_actionHandler->addConnectionProvider( CSettingsConnectionProvider::getInstance() );
 	
 	m_actionHandler->addConnectionProvider( CTrackerLocalRanking::getInstance() );
 }

@@ -47,6 +47,7 @@ public:
 	static CTrackerLocalRanking* getInstance();
 
 	void addTracker( common::CTrackerStats const & _trackerStats );
+
 private:
 	CTrackerLocalRanking();
 
