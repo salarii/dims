@@ -4,8 +4,8 @@ SUBDIRS = src
 
 GZIP_ENV="-9n"
 
-BITCOIND_BIN=$(top_builddir)/src/bitcoind$(EXEEXT)
-BITCOIN_QT_BIN=$(top_builddir)/src/qt/bitcoin-qt$(EXEEXT)
+BITCOIND_BIN=$(top_builddir)/src/ratcoin_tracker(EXEEXT)
+BITCOIN_QT_BIN=$(top_builddir)/src/qt/ratcoin_client$(EXEEXT)
 BITCOIN_CLI_BIN=$(top_builddir)/src/bitcoin-cli$(EXEEXT)
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
