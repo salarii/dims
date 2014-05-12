@@ -35,7 +35,7 @@ public:
 		pchMessageStart[3] = 0xd9;
 		vAlertPubKey = ParseHex("");
 		nDefaultPort = 20010;
-		nRPCPort = 20011;
+		nRPCPort = 20100;
 
 //		vSeeds.push_back(CDNSSeedData("ratcoin.beacon.org", "dnsseed.ratcoin.beacon.org"));
 
@@ -95,7 +95,6 @@ public:
 		pchMessageStart[3] = 0x07;
 		vAlertPubKey = ParseHex("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
 		nDefaultPort = 20020;
-		nRPCPort = 20021;
 		strDataDir = "testnet3";
 
 		vFixedSeeds.clear();
@@ -230,9 +229,5 @@ tracer bublic number  t
 monitor  public  number  m
 
 
-m - 0x69
-t - 0x7a
-
-r - 0x75
 */
 

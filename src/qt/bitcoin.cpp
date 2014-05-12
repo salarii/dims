@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
     // User language is set up: pick a data directory
     Intro::pickDataDirectory(isaTestNet);
 
-    /// 6. Determine availability of data directory and parse bitcoin.conf
+	/// 6. Determine availability of data directory and parse tracker.conf
     if (!boost::filesystem::is_directory(GetDataDir(common::AppType::Client, false)))
     {
         QMessageBox::critical(0, QObject::tr("Bitcoin"),

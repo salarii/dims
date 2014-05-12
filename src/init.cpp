@@ -199,7 +199,7 @@ std::string HelpMessage(HelpMessageMode hmm)
 {
     string strUsage = _("Options:") + "\n";
     strUsage += "  -?                     " + _("This help message") + "\n";
-    strUsage += "  -conf=<file>           " + _("Specify configuration file (default: bitcoin.conf)") + "\n";
+	strUsage += "  -conf=<file>           " + _("Specify configuration file (default: tracker.conf)") + "\n";
     strUsage += "  -datadir=<dir>         " + _("Specify data directory") + "\n";
     strUsage += "  -testnet               " + _("Use the test network") + "\n";
     strUsage += "  -pid=<file>            " + _("Specify pid file (default: bitcoind.pid)") + "\n";
@@ -509,7 +509,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     else if (nScriptCheckThreads > MAX_SCRIPTCHECK_THREADS)
         nScriptCheckThreads = MAX_SCRIPTCHECK_THREADS;
 
-    fServer = GetBoolArg("-server", false);
+	fServer = GetBoolArg("-server", true);
     fPrintToConsole = GetBoolArg("-printtoconsole", false);
     fLogTimestamps = GetBoolArg("-logtimestamps", true);
 #ifdef ENABLE_WALLET
@@ -1085,8 +1085,8 @@ bool AppInit2(boost::thread_group& threadGroup)
 	StartNode(threadGroup);
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
-//    if (fServer)
-//        StartRPCThreads();
+	if (fServer)
+		StartRPCThreads();
 
 
 
