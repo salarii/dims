@@ -19,6 +19,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -26,15 +27,16 @@ QT_BEGIN_NAMESPACE
 class Ui_AddAddressDialog
 {
 public:
-    QLabel *warningLabel;
-    QDialogButtonBox *buttonBox;
-    QLabel *capsLabel;
-    QLabel *keyLabel1;
-    QLineEdit *addressEdit;
     QWidget *widget;
+    QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout;
     QCheckBox *checkBox;
     QLabel *label;
+    QLabel *keyLabel1;
+    QLabel *warningLabel;
+    QLabel *capsLabel;
+    QLineEdit *addressEdit;
+    QDialogButtonBox *buttonBox;
 
     void setupUi(QDialog *AddAddressDialog)
     {
@@ -47,37 +49,14 @@ public:
         sizePolicy.setHeightForWidth(AddAddressDialog->sizePolicy().hasHeightForWidth());
         AddAddressDialog->setSizePolicy(sizePolicy);
         AddAddressDialog->setMinimumSize(QSize(550, 0));
-        warningLabel = new QLabel(AddAddressDialog);
-        warningLabel->setObjectName(QStringLiteral("warningLabel"));
-        warningLabel->setGeometry(QRect(8, 8, 16, 16));
-        warningLabel->setTextFormat(Qt::RichText);
-        warningLabel->setWordWrap(true);
-        buttonBox = new QDialogButtonBox(AddAddressDialog);
-        buttonBox->setObjectName(QStringLiteral("buttonBox"));
-        buttonBox->setGeometry(QRect(420, 130, 165, 21));
-        buttonBox->setOrientation(Qt::Horizontal);
-        buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-        capsLabel = new QLabel(AddAddressDialog);
-        capsLabel->setObjectName(QStringLiteral("capsLabel"));
-        capsLabel->setGeometry(QRect(94, 63, 16, 16));
-        QFont font;
-        font.setBold(true);
-        font.setWeight(75);
-        capsLabel->setFont(font);
-        capsLabel->setAlignment(Qt::AlignCenter);
-        keyLabel1 = new QLabel(AddAddressDialog);
-        keyLabel1->setObjectName(QStringLiteral("keyLabel1"));
-        keyLabel1->setGeometry(QRect(10, 60, 193, 16));
-        addressEdit = new QLineEdit(AddAddressDialog);
-        addressEdit->setObjectName(QStringLiteral("addressEdit"));
-        addressEdit->setGeometry(QRect(10, 90, 401, 22));
-        addressEdit->setEchoMode(QLineEdit::Normal);
         widget = new QWidget(AddAddressDialog);
         widget->setObjectName(QStringLiteral("widget"));
-        widget->setGeometry(QRect(10, 20, 493, 22));
-        horizontalLayout = new QHBoxLayout(widget);
+        widget->setGeometry(QRect(30, 10, 541, 132));
+        verticalLayout = new QVBoxLayout(widget);
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
         checkBox = new QCheckBox(widget);
         checkBox->setObjectName(QStringLiteral("checkBox"));
 
@@ -87,6 +66,44 @@ public:
         label->setObjectName(QStringLiteral("label"));
 
         horizontalLayout->addWidget(label);
+
+
+        verticalLayout->addLayout(horizontalLayout);
+
+        keyLabel1 = new QLabel(widget);
+        keyLabel1->setObjectName(QStringLiteral("keyLabel1"));
+
+        verticalLayout->addWidget(keyLabel1);
+
+        warningLabel = new QLabel(widget);
+        warningLabel->setObjectName(QStringLiteral("warningLabel"));
+        warningLabel->setTextFormat(Qt::RichText);
+        warningLabel->setWordWrap(true);
+
+        verticalLayout->addWidget(warningLabel);
+
+        capsLabel = new QLabel(widget);
+        capsLabel->setObjectName(QStringLiteral("capsLabel"));
+        QFont font;
+        font.setBold(true);
+        font.setWeight(75);
+        capsLabel->setFont(font);
+        capsLabel->setAlignment(Qt::AlignCenter);
+
+        verticalLayout->addWidget(capsLabel);
+
+        addressEdit = new QLineEdit(widget);
+        addressEdit->setObjectName(QStringLiteral("addressEdit"));
+        addressEdit->setEchoMode(QLineEdit::Normal);
+
+        verticalLayout->addWidget(addressEdit);
+
+        buttonBox = new QDialogButtonBox(widget);
+        buttonBox->setObjectName(QStringLiteral("buttonBox"));
+        buttonBox->setOrientation(Qt::Horizontal);
+        buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+        verticalLayout->addWidget(buttonBox);
 
 
         retranslateUi(AddAddressDialog);
@@ -99,10 +116,10 @@ public:
     void retranslateUi(QDialog *AddAddressDialog)
     {
         AddAddressDialog->setWindowTitle(QApplication::translate("AddAddressDialog", "Address Dialog", 0));
-        capsLabel->setText(QString());
-        keyLabel1->setText(QApplication::translate("AddAddressDialog", "Paste bitcoin or ratcoin private key", 0));
         checkBox->setText(QApplication::translate("AddAddressDialog", "Generate/Use", 0));
         label->setText(QApplication::translate("AddAddressDialog", "Press OK to obtain new key or uncheck the box to use your own key", 0));
+        keyLabel1->setText(QApplication::translate("AddAddressDialog", "Paste bitcoin or ratcoin private key", 0));
+        capsLabel->setText(QString());
     } // retranslateUi
 
 };
