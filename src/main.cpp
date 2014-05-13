@@ -834,8 +834,7 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock
             {
                 CCoinsViewCache &view = *pcoinsTip;
                 CCoins coins;
-                if (view.GetCoins(hash, coins))
-                    nHeight = coins.nHeight;
+
             }
             if (nHeight > 0)
                 pindexSlow = chainActive[nHeight];
@@ -1280,7 +1279,7 @@ void UpdateCoins(const CTransaction& tx, CValidationState &state, CCoinsViewCach
     }
 
     // add outputs
-    ret = inputs.SetCoins(txhash, CCoins(tx, nHeight));
+	ret = inputs.SetCoins(txhash, CCoins(tx));
     assert(ret);
 }
 
@@ -1340,96 +1339,6 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, CCoinsViewCach
     }
 
     return true;
-}
-
-
-
-bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool* pfClean)
-{
-    assert(pindex->GetBlockHash() == view.GetBestBlock());
-
-    if (pfClean)
-        *pfClean = false;
-
-    bool fClean = true;
-
-    CBlockUndo blockUndo;
-    CDiskBlockPos pos = pindex->GetUndoPos();
-    if (pos.IsNull())
-        return error("DisconnectBlock() : no undo data available");
-    if (!blockUndo.ReadFromDisk(pos, pindex->pprev->GetBlockHash()))
-        return error("DisconnectBlock() : failure reading undo data");
-
-    if (blockUndo.vtxundo.size() + 1 != block.vtx.size())
-        return error("DisconnectBlock() : block and undo data inconsistent");
-
-    // undo transactions in reverse order
-    for (int i = block.vtx.size() - 1; i >= 0; i--) {
-        const CTransaction &tx = block.vtx[i];
-        uint256 hash = tx.GetHash();
-
-        // Check that all outputs are available and match the outputs in the block itself
-        // exactly. Note that transactions with only provably unspendable outputs won't
-        // have outputs available even in the block itself, so we handle that case
-        // specially with outsEmpty.
-        CCoins outsEmpty;
-        CCoins &outs = view.HaveCoins(hash) ? view.GetCoins(hash) : outsEmpty;
-        outs.ClearUnspendable();
-
-        CCoins outsBlock = CCoins(tx, pindex->nHeight);
-        // The CCoins serialization does not serialize negative numbers.
-        // No network rules currently depend on the version here, so an inconsistency is harmless
-        // but it must be corrected before txout nversion ever influences a network rule.
-        if (outsBlock.nVersion < 0)
-            outs.nVersion = outsBlock.nVersion;
-        if (outs != outsBlock)
-            fClean = fClean && error("DisconnectBlock() : added transaction mismatch? database corrupted");
-
-        // remove outputs
-        outs = CCoins();
-
-        // restore inputs
-        if (i > 0) { // not coinbases
-            const CTxUndo &txundo = blockUndo.vtxundo[i-1];
-            if (txundo.vprevout.size() != tx.vin.size())
-                return error("DisconnectBlock() : transaction and undo data inconsistent");
-            for (unsigned int j = tx.vin.size(); j-- > 0;) {
-                const COutPoint &out = tx.vin[j].prevout;
-                const CTxInUndo &undo = txundo.vprevout[j];
-                CCoins coins;
-                view.GetCoins(out.hash, coins); // this can fail if the prevout was already entirely spent
-                if (undo.nHeight != 0) {
-                    // undo data contains height: this is the last output of the prevout tx being spent
-                    if (!coins.IsPruned())
-                        fClean = fClean && error("DisconnectBlock() : undo data overwriting existing transaction");
-                    coins = CCoins();
-                    coins.fCoinBase = undo.fCoinBase;
-                    coins.nHeight = undo.nHeight;
-                    coins.nVersion = undo.nVersion;
-                } else {
-                    if (coins.IsPruned())
-                        fClean = fClean && error("DisconnectBlock() : undo data adding output to missing transaction");
-                }
-                if (coins.IsAvailable(out.n))
-                    fClean = fClean && error("DisconnectBlock() : undo data overwriting existing output");
-                if (coins.vout.size() < out.n+1)
-                    coins.vout.resize(out.n+1);
-                coins.vout[out.n] = undo.txout;
-                if (!view.SetCoins(out.hash, coins))
-                    return error("DisconnectBlock() : cannot restore coin inputs");
-            }
-        }
-    }
-
-    // move best block pointer to prevout block
-    view.SetBestBlock(pindex->pprev->GetBlockHash());
-
-    if (pfClean) {
-        *pfClean = fClean;
-        return true;
-    } else {
-        return fClean;
-    }
 }
 
 void static FlushBlockFile(bool fFinalize = false)
@@ -1695,10 +1604,6 @@ bool static DisconnectTip(CValidationState &state) {
     // Apply the block atomically to the chain state.
     int64_t nStart = GetTimeMicros();
     {
-        CCoinsViewCache view(*pcoinsTip, true);
-        if (!DisconnectBlock(block, state, pindexDelete, view))
-            return error("DisconnectTip() : DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
-        assert(view.Flush());
     }
     if (fBenchmark)
         LogPrintf("- Disconnect: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
@@ -2634,8 +2539,6 @@ bool VerifyDB(int nCheckLevel, int nCheckDepth)
         // check level 3: check for inconsistencies during memory-only disconnect of tip blocks
         if (nCheckLevel >= 3 && pindex == pindexState && (coins.GetCacheSize() + pcoinsTip->GetCacheSize()) <= 2*nCoinCacheSize + 32000) {
             bool fClean = true;
-            if (!DisconnectBlock(block, state, pindex, coins, &fClean))
-                return error("VerifyDB() : *** irrecoverable inconsistency in block data at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             pindexState = pindex->pprev;
             if (!fClean) {
                 nGoodTransactions = 0;

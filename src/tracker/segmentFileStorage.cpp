@@ -332,6 +332,7 @@ CSegmentFileStorage::loop()
 
 					m_discCache.insert( std::make_pair ( bucket,discBlock) );
 				}
+				m_transactionsToStore.clear();
 			}
 		}
 		boost::this_thread::interruption_point();
@@ -393,11 +394,11 @@ CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
 {
 	int index = -1;
 
-	ToInclude toInclude = m_discCache.equal_range(_coins.m_bucket);
+	ToInclude toInclude;// = m_discCache.equal_range(_coins.m_bucket);
 
-	unsigned short recordId = _coins.nHeight % CSegmentHeader::m_recordsNumber;
+	unsigned short recordId;// = _coins.nHeight % CSegmentHeader::m_recordsNumber;
 
-	unsigned short cacheId = (_coins.nHeight >> 16)/CSegmentHeader::m_recordsNumber;
+	unsigned short cacheId;// = (_coins.nHeight >> 16)/CSegmentHeader::m_recordsNumber;
 
 	if ( toInclude.first != m_discCache.end() )
 	{
@@ -406,7 +407,7 @@ CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
 			cacheId--;
 
 			if ( cacheId == 0 )
-				cacheIterator->second->buddyFree(_coins.nHeight & 0xff);
+				cacheIterator->second->buddyFree(/*_coins.nHeight &*/ 0xff);
 			//set  time
 		}
 	}

@@ -35,8 +35,7 @@ bool CCoins::Spend(const COutPoint &out, CTxInUndo &undo) {
     undo = CTxInUndo(vout[out.n]);
     vout[out.n].SetNull();
     Cleanup();
-    if (vout.size() == 0) {
-        undo.nHeight = nHeight;
+	if (vout.size() == 0) {
         undo.fCoinBase = fCoinBase;
         undo.nVersion = this->nVersion;
     }
@@ -188,9 +187,7 @@ double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight)
     {
         const CCoins &coins = GetCoins(txin.prevout.hash);
         if (!coins.IsAvailable(txin.prevout.n)) continue;
-        if (coins.nHeight < nHeight) {
-            dResult += coins.vout[txin.prevout.n].nValue * (nHeight-coins.nHeight);
-        }
+
     }
     return tx.ComputePriority(dResult);
 }

@@ -75,19 +75,18 @@ public:
     std::vector<CTxOut> vout;
 
     // at which height this transaction was included in the active block chain
-    int nHeight;
-    unsigned int m_bucket;
+	uint64_t m_location;
     // version of the CTransaction; accesses to this value should probably check for nHeight as well,
     // as new tx version will probably only be introduced at certain heights
     int nVersion;
 
     // construct a CCoins from a CTransaction, at a given height
-    CCoins(const CTransaction &tx, int nHeightIn) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), nHeight(nHeightIn), nVersion(tx.nVersion) {
+	CCoins(const CTransaction &tx) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), nVersion(tx.nVersion) {
         ClearUnspendable();
     }
 
     // empty constructor
-    CCoins() : fCoinBase(false), vout(0), nHeight(0), nVersion(0) { }
+	CCoins() : fCoinBase(false), vout(0), nVersion(0) { }
 
     // remove spent outputs at the end of vout
     void Cleanup() {
@@ -107,8 +106,8 @@ public:
 
     void swap(CCoins &to) {
         std::swap(to.fCoinBase, fCoinBase);
-        to.vout.swap(vout);
-        std::swap(to.nHeight, nHeight);
+		to.vout.swap(vout);
+		std::swap(to.m_location, m_location);
         std::swap(to.nVersion, nVersion);
     }
 
@@ -118,7 +117,7 @@ public:
          if (a.IsPruned() && b.IsPruned())
              return true;
          return a.fCoinBase == b.fCoinBase &&
-                a.nHeight == b.nHeight &&
+				a.m_location == b.m_location &&
                 a.nVersion == b.nVersion &&
                 a.vout == b.vout;
     }
@@ -151,7 +150,7 @@ public:
             if (!vout[i].IsNull())
                 nSize += ::GetSerializeSize(CTxOutCompressor(REF(vout[i])), nType, nVersion);
         // height
-		//nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
+		//nSize += ::GetSerializeSize(VARINT(m_location), nType, nVersion);
         return nSize;
     }
 
@@ -181,7 +180,7 @@ public:
                 ::Serialize(s, CTxOutCompressor(REF(vout[i])), nType, nVersion);
         }
 	/*    // coinbase height
-		::Serialize(s, VARINT(nHeight), nType, nVersion);*/
+		::Serialize(s, VARINT(m_location), nType, nVersion);*/
     }
 
     template<typename Stream>

@@ -790,8 +790,7 @@ Value sendrawtransaction(const Array& params, bool fHelp)
         }
     }
     if (fHave) {
-        if (existingCoins.nHeight < 1000000000)
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "transaction already in block chain");
+
         // Not in block, but already in the memory pool; will drop
         // through to re-relay it.
     } else {

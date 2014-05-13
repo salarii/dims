@@ -68,7 +68,7 @@ CTransactionRecordManager::~CTransactionRecordManager()
 void
 CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  )
 {
-	CCoins coins(_tx, 0);
+	CCoins coins(_tx);
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
 
 	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
@@ -111,7 +111,7 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 
 	BOOST_FOREACH( CTransaction const & transaction, _transaction )
 	{
-		CCoins coins(transaction, 0);
+		CCoins coins(transaction);
 		m_coinsViewCache->SetCoins( transaction.GetHash(), coins);
 		std::vector< uint160 > keyIds;
 

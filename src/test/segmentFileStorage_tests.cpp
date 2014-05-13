@@ -59,39 +59,20 @@ getTransactionArray()
 			transactions.push_back( tx );
 		}
 	}
-}
-std::string & getRatcoinOriginPublicAddress()
-{
-	static std::string ratcoinOriginPublicAddress;
-
-	if ( !ratcoinOriginPublicAddress.empty() )
-		return ratcoinOriginPublicAddress;
-
-	ratcoinOriginPublicAddress.resize(1);
-	*ratcoinOriginPublicAddress.begin() = 4; //means 65 bytes
-
-	char ratcoinOriginPublicAddressPayload[64] = "HiThisIsRatcoinOriginAddressItIsThePlaceWhereNewRatcoinsAreBorn";
-
-	ratcoinOriginPublicAddress += ratcoinOriginPublicAddressPayload;
-
-	return ratcoinOriginPublicAddress;
+	return transactions;
 }
 
 BOOST_AUTO_TEST_CASE( basics )
 {
-	CBitcoinAddress  address;
-
-	address.Set( CPubKey(getRatcoinOriginPublicAddress().c_str(), &getRatcoinOriginPublicAddress().c_str()[65]).GetID() );
-
-	std::string key = address.ToString();
 
 	int i = 0;
-/*	tracker::CSegmentFileStorage fileStorage;
+	tracker::CSegmentFileStorage * fileStorage = new tracker::CSegmentFileStorage;
 
-	boost::thread( boost::bind(&tracker::CSegmentFileStorage::loop, &fileStorage) );
+	boost::thread( boost::bind(&tracker::CSegmentFileStorage::loop, fileStorage) );
 
-	fileStorage.includeTransactions( getTransactionArray() );
-*/	//BOOST_CHECK(uint160(std::vector<unsigned char>(OneArray,OneArray+19)) == 0);
+	fileStorage->includeTransactions( getTransactionArray() );
+
+	while(1);
 }
 
 
