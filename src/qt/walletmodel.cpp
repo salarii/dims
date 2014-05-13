@@ -491,7 +491,7 @@ bool WalletModel::getPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const
     return wallet->GetPubKey(address, vchPubKeyOut);
 }
 
-bool WalletModel::generateNewAddress( SecureString const & _privKey )
+bool WalletModel::generateNewAddress()
 {
 	LOCK(wallet->cs_wallet);
 

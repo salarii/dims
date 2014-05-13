@@ -180,7 +180,7 @@ public:
 
     bool getPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const;
     bool addAddress( SecureString const & _privKey );
-	bool generateNewAddress( SecureString const & _privKey );
+	bool generateNewAddress();
     void getOutputs(const std::vector<COutPoint>& vOutpoints, std::vector<COutput>& vOutputs);
     void listCoins(std::map<QString, std::vector<COutput> >& mapCoins) const;
 
