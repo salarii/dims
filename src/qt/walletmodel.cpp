@@ -490,6 +490,18 @@ bool WalletModel::getPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const
 {
     return wallet->GetPubKey(address, vchPubKeyOut);
 }
+
+bool WalletModel::generateNewAddress( SecureString const & _privKey )
+{
+	LOCK(wallet->cs_wallet);
+
+	CPubKey pubkey = wallet->GenerateNewKey();
+
+	updateAddressBook(CBitcoinAddress(pubkey.GetID() ).ToString().c_str(), QString("def"),true, QString(""),CT_NEW );
+
+	return true;
+}
+
 //this  is  unsufficient
 bool WalletModel::addAddress( SecureString const & _privKey )
 {
