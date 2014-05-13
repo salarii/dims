@@ -52,6 +52,13 @@ void AddAddressDialog::accept()
 	address.reserve(MAX_ADDRESS_SIZE);
 
 	address.assign(ui->addressEdit->text().toStdString().c_str());
+    if (ui->checkBox->isChecked())
+    {
+        model->generateNewAddress();
+    }
+            else {
+
+
 
 	if ( !model->addAddress( address ) )
 	{
@@ -59,7 +66,7 @@ void AddAddressDialog::accept()
 		tr("Possible reasons: private address given, does not meet expected syntax."));
 		return;
 	}
-
+                }
 	QDialog::accept();
 }
 
