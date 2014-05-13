@@ -24,7 +24,7 @@ AddAddressDialog::AddAddressDialog(QWidget *parent) :
     ui->checkBox->setChecked(true);
     ui->addressEdit->setReadOnly(true);
     ui->addressEdit->setMaxLength(MAX_ADDRESS_SIZE);
-    ui->addressEdit->setEchoMode(QLineEdit::Password);
+
     // Setup Caps Lock detection.
     ui->addressEdit->installEventFilter(this);
 
@@ -129,12 +129,14 @@ bool AddAddressDialog::eventFilter(QObject *object, QEvent *event)
 void AddAddressDialog::on_checkBox_stateChanged(int arg1)
 {
     if (ui->checkBox->isChecked())
-    {
-            ui->addressEdit->setText("");
+    {       ui->addressEdit->setEchoMode(QLineEdit::Normal);
+            ui->addressEdit->setText("Uncheck the box to use your key");
             ui->addressEdit->setReadOnly(true);
             ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     }
             else {
+            ui->addressEdit->setText("");
+            ui->addressEdit->setEchoMode(QLineEdit::Password);
             ui->addressEdit->setReadOnly(false);
 }
 }

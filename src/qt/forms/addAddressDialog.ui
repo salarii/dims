@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Address Dialog</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -40,25 +40,11 @@
       <item>
        <widget class="QCheckBox" name="checkBox">
         <property name="text">
-         <string>Generate/Use</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Press OK to obtain new key or uncheck the box to use your own key</string>
+         <string>Generate the key</string>
         </property>
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="QLabel" name="keyLabel1">
-      <property name="text">
-       <string>Paste bitcoin or ratcoin private key</string>
-      </property>
-     </widget>
     </item>
     <item>
      <widget class="QLabel" name="warningLabel">
@@ -83,6 +69,13 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="keyLabel1">
+      <property name="text">
+       <string>Paste bitcoin or ratcoin private key</string>
       </property>
      </widget>
     </item>
