@@ -21,13 +21,14 @@ AddAddressDialog::AddAddressDialog(QWidget *parent) :
     fCapsLock(false)
 {
     ui->setupUi(this);
-
+    ui->checkBox->setChecked(true);
+    ui->addressEdit->setReadOnly(true);
     ui->addressEdit->setMaxLength(MAX_ADDRESS_SIZE);
-
+    ui->addressEdit->setEchoMode(QLineEdit::Password);
     // Setup Caps Lock detection.
     ui->addressEdit->installEventFilter(this);
 
-    textChanged();
+    //textChanged();
     connect(ui->addressEdit, SIGNAL(textChanged(QString)), this, SLOT(textChanged()));
 }
 
@@ -67,9 +68,12 @@ void AddAddressDialog::textChanged()
     // Validate input, set Ok button to enabled when acceptable
     bool acceptable = false;
 
+
     acceptable = !ui->addressEdit->text().isEmpty() && !ui->addressEdit->text().isEmpty();
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(acceptable);
+
+
 }
 
 bool AddAddressDialog::event(QEvent *event)
@@ -114,3 +118,17 @@ bool AddAddressDialog::eventFilter(QObject *object, QEvent *event)
     }
     return QDialog::eventFilter(object, event);
 }
+
+void AddAddressDialog::on_checkBox_stateChanged(int arg1)
+{
+    if (ui->checkBox->isChecked())
+    {
+            ui->addressEdit->setText("");
+            ui->addressEdit->setReadOnly(true);
+            ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    }
+            else {
+            ui->addressEdit->setReadOnly(false);
+}
+}
+
