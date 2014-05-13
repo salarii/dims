@@ -11,6 +11,7 @@
 
 #include "validateTransactionsAction.h"
 
+#include "segmentFileStorage.h"
 
 namespace tracker
 {
@@ -68,11 +69,15 @@ CTransactionRecordManager::~CTransactionRecordManager()
 void
 CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  )
 {
-	CCoins coins(_tx);
+	// this is both bad and risky but I need it
+	CTransaction tx( _tx );
+	tx.m_location = CSegmentFileStorage::getInstance()->getPosition( _tx );
+
+	CCoins coins(tx);
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
 
-	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
-	m_addressToCoinsViewCache->setCoins( _keyId, _tx.GetHash() );
+	m_coinsViewCache->SetCoins(tx.GetHash() , coins);
+	m_addressToCoinsViewCache->setCoins( _keyId, tx.GetHash() );
 
 	bool pfMissingInputs;
 	CValidationState state;

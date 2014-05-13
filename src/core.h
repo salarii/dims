@@ -191,6 +191,7 @@ public:
     std::vector<CTxOut> vout;
     unsigned int nLockTime;
 	mutable boost::optional< uint256 > m_hash;
+	uint64_t m_location;
     CTransaction()
     {
         SetNull();

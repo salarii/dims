@@ -45,12 +45,20 @@ CSimpleBuddy::indexOffset(int _index, int _level) const
 }
 
 
-CSimpleBuddy::CSimpleBuddy()
+CSimpleBuddy::CSimpleBuddy( bool dummy )
 {
 	memset(m_tree , NODE_UNUSED , 1 << ms_buddyBaseLevel << 1);
-
+	if ( dummy )
+		m_area = 0;
+	else
+		m_area = new unsigned char[ms_buddySize];
 }
 
+CSimpleBuddy::~CSimpleBuddy()
+{
+	if ( m_area )
+		delete [] m_area;
+}
 
 void
 CSimpleBuddy::markParent(int _index)

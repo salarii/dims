@@ -23,7 +23,7 @@ namespace tracker
 struct CSimpleBuddy
 {
 public:
-	CSimpleBuddy();
+	CSimpleBuddy( bool dummy = false );
 
 	int buddyAlloc( int _requestedLevel );
 
@@ -46,6 +46,8 @@ public:
         READWRITE(FLATDATA(m_tree));
         READWRITE(FLATDATA(m_area));
     )
+
+	~CSimpleBuddy();
 public:
 	static unsigned int const ms_buddyBaseLevel = 16;
 
@@ -62,7 +64,7 @@ private:
 
 	unsigned char m_tree[1 << ms_buddyBaseLevel << 1 ];
 
-	unsigned char m_area[ms_buddySize ];
+	unsigned char * m_area;
 };
 
 }

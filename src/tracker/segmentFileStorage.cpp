@@ -128,6 +128,19 @@ CSegmentHeader::getRecord(unsigned int _index )
 	return m_records[ _index ];
 }
 
+CSegmentFileStorage * CSegmentFileStorage::ms_instance = NULL;
+
+CSegmentFileStorage*
+CSegmentFileStorage::getInstance()
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CSegmentFileStorage();
+	};
+	return ms_instance;
+}
+
+
 CSegmentFileStorage::CSegmentFileStorage()
 : m_recentlyStored(MAX_BUCKET)
 {
@@ -197,6 +210,40 @@ CSegmentFileStorage::createRecordForBlock( unsigned int _bucket )
 			iterator->setNewRecord( _bucket, CRecord(m_lastSegmentIndex,1));
 		}
 	}
+}
+
+uint64_t
+CSegmentFileStorage::getPosition( CTransaction const & _transaction )
+{
+	unsigned int bucket = calculateBucket( _transaction.GetHash() );
+	unsigned int reqLevel = CSimpleBuddy::getBuddyLevel( _transaction.GetSerializeSize(SER_DISK, CTransaction::CURRENT_VERSION) );
+
+	ToInclude toInclude;
+
+	toInclude = m_discCache.equal_range(bucket);
+
+	int index = -1;
+	if ( toInclude.first != m_discCache.end() )
+	{
+		for ( CacheIterators cacheIterator=toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
+		{
+			index = cacheIterator->second->buddyAlloc( reqLevel );
+			if ( index == -1 )
+				continue;
+
+			return index;
+		}
+	}
+
+	if ( index == -1 )
+	{
+		CDiskBlock * discBlock = new CDiskBlock;
+
+		index = discBlock->buddyAlloc( reqLevel );
+
+		m_discCache.insert( std::make_pair ( bucket,discBlock) );
+	}
+	return index;
 }
 
 void 

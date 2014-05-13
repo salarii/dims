@@ -117,7 +117,6 @@ public:
 	};
 
 public:
-	CSegmentFileStorage();
 
 	void includeTransaction( CTransaction const & _transaction );
 
@@ -132,7 +131,13 @@ public:
 	void loop();
 	
 	void flushLoop();
+
+	static CSegmentFileStorage* getInstance();
+
+	uint64_t getPosition( CTransaction const & _transaction );
 private:
+	CSegmentFileStorage();
+
 	CSegmentHeader & createNewHeader();
 
 	unsigned int calculateBucket( uint256 const & _coinsHash ) const;
@@ -162,6 +167,8 @@ private:
 
 	typedef std::pair< CacheIterators, CacheIterators > ToInclude;
 private:
+	static CSegmentFileStorage * ms_instance;
+
 	static const std::string ms_segmentFileName;
 
 	static const std::string ms_headerFileName;

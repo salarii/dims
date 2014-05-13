@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( basics )
 {
 
 	int i = 0;
-	tracker::CSegmentFileStorage * fileStorage = new tracker::CSegmentFileStorage;
+	tracker::CSegmentFileStorage * fileStorage = tracker::CSegmentFileStorage::getInstance();
 
 	boost::thread( boost::bind(&tracker::CSegmentFileStorage::loop, fileStorage) );
 
