@@ -27,6 +27,8 @@ public:
 
 	int buddyAlloc( int _requestedLevel );
 
+	int buddyAlloc( int _requestedLevel, int offset );
+
 	void buddyFree(int offset);
 
 	int buddySize(int offset) const;

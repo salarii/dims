@@ -246,6 +246,9 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 	return index;
 }
 
+
+// add logic  to limit  max amount of disc flushes. I don't want  to spend to much time in this logic
+// it is a  shame that I can't use move construction from c++11
 void 
 CSegmentFileStorage::flushLoop()
 {
@@ -254,14 +257,34 @@ CSegmentFileStorage::flushLoop()
 		{
 			boost::lock_guard<boost::mutex> lock(m_cachelock);
 
-			// do something  like  this ???? go over all, save full, and drop
-			// do time checking improve  this  by adding logic
-			unsigned int storeCandidate = -1;
-			if ( !m_recentlyStored.empty() )
-				storeCandidate = m_recentlyStored.begin()->m_bucked;
 
-			CacheIterators iterator = m_discCache.begin();
+		std::multimap< uint64_t, std::vector< CTransaction > >::iterator iterator = m_transactionQueue.begin();
 
+		while( iterator != m_transactionQueue.end() )
+		{
+			// save time stamp in database
+			//
+			BOOST_FOREACH( CTransaction const & transaction, iterator->second )
+			{
+				uint64_t location = calculateLocationData( transaction.m_location );
+				std::map< uint64_t,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( location );
+				if ( usedBlock == m_usedBlocks.end() )
+				{
+					mruset< CCacheElement >::iterator cacheIterator =  m_discBlockCache.find( location );
+					if ( cacheIterator != m_discBlockCache.end() )
+						usedBlock = m_usedBlocks.insert( std::make_pair( location, (*cacheIterato).m_discBlock ).first;
+					else
+						usedBlock = m_usedBlocks.insert( std::make_pair( location, getDiscBlock( location ) ).first;
+				}
+			}
+
+
+		}
+
+
+
+
+getDiscBlock( uint64_t const );
 			while( iterator != m_discCache.end() )
 			{
 				if ( m_recentlyStored.find( CStore( iterator->first, 0 ) ) == m_recentlyStored.end() )
@@ -316,7 +339,7 @@ CSegmentFileStorage::flushLoop()
 
 //rebuild merkle and store it, in database
 		boost::this_thread::interruption_point();
-//		MilliSleep(1000*60*3);
+		//MilliSleep(40000);
 
 	}
 }

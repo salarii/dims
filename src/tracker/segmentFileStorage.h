@@ -104,6 +104,12 @@ private:
 
 };
 
+struct CLocation
+{
+	int m_place;
+	uint64 m_bucket;
+};
+
 class CSegmentFileStorage
 {
 public:
@@ -116,15 +122,31 @@ public:
 	    bool operator<( CStore const & _store)const { return m_time < _store.m_time; }
 	};
 
+
+	struct CCacheElement
+	{
+		CCacheElement( CDiskBlock* _discBlock, uint64_t const _location ):m_discBlock( _discBlock ){};
+
+		CDiskBlock* m_discBlock;
+
+		uint64_t const m_location;
+
+		~CCacheElement(){ delete m_discBlock; }
+
+		bool operator<( CCacheElement const & _cacheElement ) const
+		{
+			return m_location < _cacheElement.m_location;
+		}
+	};
 public:
 
-	void includeTransaction( CTransaction const & _transaction );
+	void includeTransaction( CTransaction const & _transaction, uint64_t const _timeStamp );
 
 	void eraseTransaction( CTransaction const & _transaction );
 
 	void eraseTransaction( CCoins const & _coins );
 
-	void includeTransactions( std::list< CTransaction > const & _transaction );
+	void includeTransactions( std::vector< CTransaction > const & _transaction, uint64_t const _timeStamp );
 
 	void readTransactions( CCoinsViewCache * _coinsViewCache );
 
@@ -159,13 +181,19 @@ private:
 	unsigned int calculateStoredBlockNumber() const;
 
 	unsigned int createRecordForBlock( unsigned int _recordIndex );
+//risky what _location really is??
+	CDiskBlock* getDiscBlock( uint64_t const _location );
+// very  risky to  calculate  the same  thing from the same thing
+	uint64_t calculateLocationData( uint64_t const _fullPosition );
+
+	unsigned int getPosition( uint64_t const _fullPosition );
+
+	unsigned int getSize( uint64_t const _fullPosition );
 private:
 	mutable boost::mutex m_headerCacheLock;
 	std::vector< CSegmentHeader > m_headersCache;
 
-	typedef std::multimap< unsigned int,CDiskBlock* >::iterator CacheIterators;
-
-	typedef std::pair< CacheIterators, CacheIterators > ToInclude;
+	typedef std::multimap< uint64_t, std::vector< CTransaction > > TransactionQueue;
 private:
 	static CSegmentFileStorage * ms_instance;
 
@@ -175,18 +203,25 @@ private:
 
 	mutable boost::mutex m_storeTransLock;
 
-	std::list< CTransaction > m_transactionsToStore;
+	TransactionQueue m_transactionQueue;
 
 	mutable boost::mutex m_cachelock;
 	std::multimap< unsigned int,CDiskBlock* > m_discCache;
 
 	static size_t const m_segmentSize = 1 << KiloByteShift * 512;
 
+	//this is  good for synchronisation concerning short absence, but it should contain rather timestamps and transactions
 	mruset< CStore > m_recentlyStored;
 
 	static size_t m_lastSegmentIndex;
 
 	CAccessFile m_accessFile;
+
+	std::vector< CDiskBlock* > m_discBlocksInCurrentFlush;
+
+	std::map< uint64_t,CDiskBlock* > m_usedBlocks;
+
+	mruset< CCacheElement > m_discBlockCache;
 	};
 
 }
