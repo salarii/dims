@@ -25,9 +25,9 @@ struct CSimpleBuddy
 public:
 	CSimpleBuddy( bool dummy = false );
 
-	int buddyAlloc( int _requestedLevel );
+	CSimpleBuddy( CSimpleBuddy const & _CSimpleBuddy );
 
-	int buddyAlloc( int _requestedLevel, int offset );
+	int buddyAlloc( int _requestedLevel );
 
 	void buddyFree(int offset);
 
@@ -65,8 +65,6 @@ private:
 	char m_full;
 
 	unsigned char m_tree[1 << ms_buddyBaseLevel << 1 ];
-
-	unsigned char * m_area;
 };
 
 }

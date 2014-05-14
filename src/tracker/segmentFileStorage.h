@@ -35,7 +35,7 @@ typedef unsigned int CounterType;
 struct CRecord
 {
 	CRecord( unsigned int _blockNumber = 0,unsigned char _isEmptySpace = 0 ):m_blockNumber(_blockNumber),m_isEmptySpace(_isEmptySpace){}
-	unsigned int m_blockNumber;
+	int m_blockNumber;
 	unsigned char m_isEmptySpace;
 
     IMPLEMENT_SERIALIZE
@@ -63,23 +63,17 @@ class CSegmentHeader
 public:
 	CSegmentHeader();
 
-	void increaseUsageRecord( unsigned int _recordId );
-
-	void decreaseUsageRecord( unsigned int _recordId );
-
-	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
-
-	bool givenRecordUsed( unsigned int _index ) const;
-
 	int getIndexForBucket( unsigned int _bucket ) const;
 
-	bool isNextHeader() const;
+	bool givenRecordUsed( unsigned int _index ) const;
 
 	unsigned int getUsedRecordNumber() const;
 
 	void setNextHeaderFlag();
 
-	CRecord & getRecord( unsigned int _index );
+	CRecord & getRecord(  unsigned int _bucket, unsigned int _index );
+
+	static unsigned int getNumberOfBucket();
 
 	IMPLEMENT_SERIALIZE
 	(
@@ -91,7 +85,13 @@ public:
 	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( unsigned int )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
 
 private:
-//put here private  functions
+	bool isNextHeader() const;
+
+	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
+
+	void increaseUsageRecord( unsigned int _recordId );
+
+	void decreaseUsageRecord( unsigned int _recordId );
 private:
 
 	static unsigned int const  m_maxBucket = MAX_BUCKET;
@@ -180,20 +180,32 @@ private:
 
 	unsigned int calculateStoredBlockNumber() const;
 
+	unsigned int findDiscBlockInHeader( uint64_t const _location );
+
 	unsigned int createRecordForBlock( unsigned int _recordIndex );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
 // very  risky to  calculate  the same  thing from the same thing
 	uint64_t calculateLocationData( uint64_t const _fullPosition );
 
+	// position of given block
 	unsigned int getPosition( uint64_t const _fullPosition );
 
+	// size of allocated area in buddy units
 	unsigned int getSize( uint64_t const _fullPosition );
+
+	// index of allocated area in buddy
+	unsigned int getIndex( uint64_t const _position );
+
+	// bucket of given block
+	unsigned int getBucket( uint64_t const _position );
 private:
 	mutable boost::mutex m_headerCacheLock;
 	std::vector< CSegmentHeader > m_headersCache;
 
 	typedef std::multimap< uint64_t, std::vector< CTransaction > > TransactionQueue;
+
+	typedef std::map< uint64_t,CDiskBlock* > UsedBlocks;
 private:
 	static CSegmentFileStorage * ms_instance;
 
@@ -206,7 +218,7 @@ private:
 	TransactionQueue m_transactionQueue;
 
 	mutable boost::mutex m_cachelock;
-	std::multimap< unsigned int,CDiskBlock* > m_discCache;
+	std::map< uint64_t,CSimpleBuddy* > m_discCache;
 
 	static size_t const m_segmentSize = 1 << KiloByteShift * 512;
 
@@ -219,7 +231,7 @@ private:
 
 	std::vector< CDiskBlock* > m_discBlocksInCurrentFlush;
 
-	std::map< uint64_t,CDiskBlock* > m_usedBlocks;
+	UsedBlocks m_usedBlocks;
 
 	mruset< CCacheElement > m_discBlockCache;
 	};

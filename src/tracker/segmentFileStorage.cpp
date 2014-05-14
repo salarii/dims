@@ -83,6 +83,12 @@ CSegmentHeader::isNextHeader() const
 	return m_nextHeader;
 }
 
+unsigned int
+CSegmentHeader::getNumberOfFullBucketSets()
+{
+	return m_recordsNumber/MAX_BUCKET;
+}
+
 int
 CSegmentHeader::getIndexForBucket( unsigned int _bucket ) const
 {
@@ -123,9 +129,11 @@ CSegmentHeader::setNextHeaderFlag()
 
 
 CRecord &
-CSegmentHeader::getRecord(unsigned int _index )
+CSegmentHeader::getRecord(unsigned int _bucket, unsigned int _index )
 {
-	return m_records[ _index ];
+	assert( getNumberOfFullBucketSets() > _index );
+	return m_records[ _index * MAX_BUCKET  + _bucket ];
+
 }
 
 CSegmentFileStorage * CSegmentFileStorage::ms_instance = NULL;
@@ -237,7 +245,7 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 
 	if ( index == -1 )
 	{
-		CDiskBlock * discBlock = new CDiskBlock;
+		CSimpleBuddy * discBlock = new CSimpleBuddy;
 
 		index = discBlock->buddyAlloc( reqLevel );
 
@@ -246,7 +254,31 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 	return index;
 }
 
+int
+CSegmentFileStorage::findDiscBlockInHeader( uint64_t const _location )
+{
+	unsigned int header = getPosition( _location )/ CSegmentHeader::getNumberOfBucket();
 
+	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
+
+	std::advance( iterator , header );
+
+	CRecord record = getRecord( getBucket( _location ), getPosition( _location ) % CSegmentHeader::getNumberOfBucket() );
+
+	return record.m_blockNumber;
+}
+
+CDiskBlock*
+CSegmentFileStorage::getDiscBlock( uint64_t const _location )
+{
+	int blockNumber = findDiscBlockInHeader( _location );
+
+	CDiskBlock * diskBlock = new CDiskBlock;
+	if ( blockNumber != -1 )
+		getBlock( blockNumber, *_discBlock );
+
+	return diskBlock;
+}
 // add logic  to limit  max amount of disc flushes. I don't want  to spend to much time in this logic
 // it is a  shame that I can't use move construction from c++11
 void 
@@ -259,7 +291,11 @@ CSegmentFileStorage::flushLoop()
 
 
 		std::multimap< uint64_t, std::vector< CTransaction > >::iterator iterator = m_transactionQueue.begin();
+/*
+ * separate  dump  logic  from disc cache  build  logic????????????
 
+
+*/
 		while( iterator != m_transactionQueue.end() )
 		{
 			// save time stamp in database
@@ -272,38 +308,37 @@ CSegmentFileStorage::flushLoop()
 				{
 					mruset< CCacheElement >::iterator cacheIterator =  m_discBlockCache.find( location );
 					if ( cacheIterator != m_discBlockCache.end() )
-						usedBlock = m_usedBlocks.insert( std::make_pair( location, (*cacheIterato).m_discBlock ).first;
+						usedBlock = m_usedBlocks.insert( std::make_pair( location, cacheIterator->m_discBlock ).first;
 					else
 						usedBlock = m_usedBlocks.insert( std::make_pair( location, getDiscBlock( location ) ).first;
 				}
+
+				CBufferAsStream stream(
+					 (char *)usedBlock->second->translateToAddress( getPosition( transaction.m_location ) )
+					, usedBlock->second->getBuddySize( getLevel( transaction.m_location ) )
+					, SER_DISK
+					, CLIENT_VERSION);
+
+				stream << transaction;
+
+				assert( m_discCache.find( location ) != m_discCache.end() );
+				usedBlock->second = m_discCache.find( location )->second;
 			}
-
-
 		}
 
 
+		BOOST_FOREACH( UsedBlocks::value_type const & _block, m_usedBlocks;)
+		{
+			findDiscBlockInHeader( uint64_t const _location );
+			_block.first
+					createRecordForBlock( storeCandidate );
+			saveBlock( m_lastSegmentIndex, _block );
 
+		}
 
-getDiscBlock( uint64_t const );
-			while( iterator != m_discCache.end() )
-			{
-				if ( m_recentlyStored.find( CStore( iterator->first, 0 ) ) == m_recentlyStored.end() )
-				{
-					storeCandidate = iterator->first;
-					break;
-				}
-				iterator++;
-			}
+//save
 
-			if (storeCandidate != -1)
-			{
-				ToInclude toInclude = m_discCache.equal_range(storeCandidate);
-
-				int64_t newStoretime = GetTime();
-
-				for ( CacheIterators iterator=toInclude.first; iterator!= toInclude.second; ++iterator )
-				{
-					// buggy, maybe use -1 ??
+/*
 					if ( iterator->second->m_blockPosition )
 					{
 						saveBlock( m_lastSegmentIndex, *iterator->second );
@@ -334,13 +369,13 @@ getDiscBlock( uint64_t const );
 				saveBlock(index,header);
 			}
 
-		}
+		}*/
 		m_accessFile.flush(ms_headerFileName);
 
 //rebuild merkle and store it, in database
 		boost::this_thread::interruption_point();
 		//MilliSleep(40000);
-
+		MilliSleep(400);//only for  debug such short period of time
 	}
 }
 
