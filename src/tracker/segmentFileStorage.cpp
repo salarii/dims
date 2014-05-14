@@ -128,8 +128,8 @@ CSegmentHeader::setNextHeaderFlag()
 }
 
 
-CRecord &
-CSegmentHeader::getRecord(unsigned int _bucket, unsigned int _index )
+CRecord const &
+CSegmentHeader::getRecord(unsigned int _bucket, unsigned int _index ) const
 {
 	assert( getNumberOfFullBucketSets() > _index );
 	return m_records[ _index * MAX_BUCKET  + _bucket ];
@@ -156,17 +156,21 @@ CSegmentFileStorage::CSegmentFileStorage()
 }
 
 void
-CSegmentFileStorage::includeTransaction( CTransaction const & _transaction )
+CSegmentFileStorage::includeTransaction( CTransaction const & _transaction, uint64_t const _timeStamp )
 {
 	boost::lock_guard<boost::mutex> lock(m_storeTransLock);
-	m_transactionsToStore.push_back( _transaction );
+
+	std::vector< CTransaction > transactions;
+	transactions.push_back( _transaction );
+
+	m_transactionQueue.insert( std::make_pair( _timeStamp, transactions ) );
 }
 
 void
-CSegmentFileStorage::includeTransactions( std::list< CTransaction > const & _transaction )
+CSegmentFileStorage::includeTransactions( std::vector< CTransaction > const & _transactions, uint64_t const _timeStamp )
 {
 	boost::lock_guard<boost::mutex> lock(m_storeTransLock);
-	m_transactionsToStore.insert (m_transactionsToStore.end(),_transaction.begin(),_transaction.end());
+	m_transactionQueue.insert( std::make_pair( _timeStamp, _transactions ) );
 }
 
 CSegmentHeader &
@@ -226,16 +230,18 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 	unsigned int bucket = calculateBucket( _transaction.GetHash() );
 	unsigned int reqLevel = CSimpleBuddy::getBuddyLevel( _transaction.GetSerializeSize(SER_DISK, CTransaction::CURRENT_VERSION) );
 
-	ToInclude toInclude;
+	std::map< unsigned int, unsigned int >::iterator iterator = m_usedBuddy.find( bucket );
 
-	toInclude = m_discCache.equal_range(bucket);
-
-	int index = -1;
-	if ( toInclude.first != m_discCache.end() )
+	int index = -1, last = 0;
+	if ( iterator != m_usedBuddy.end() )
 	{
-		for ( CacheIterators cacheIterator=toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
+		last = iterator->second;
+
+		for ( unsigned i = 0; i < iterator->second; ++i )
 		{
-			index = cacheIterator->second->buddyAlloc( reqLevel );
+			assert( m_transactionLocationToBuddy.find( calculateLocation( bucket, i ) ) != m_transactionLocationToBuddy.end() );
+			TransactionLocationToBuddy::iterator buddy = m_transactionLocationToBuddy.find( calculateLocation( bucket, i ) );
+			index = buddy->second->buddyAlloc( reqLevel );
 			if ( index == -1 )
 				continue;
 
@@ -243,29 +249,62 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 		}
 	}
 
-	if ( index == -1 )
+	CSimpleBuddy * simpleBuddy = new CSimpleBuddy;
+
+	uint64_t location = 0;
+
+	index = simpleBuddy->buddyAlloc( reqLevel );
+	if ( last )
 	{
-		CSimpleBuddy * discBlock = new CSimpleBuddy;
-
-		index = discBlock->buddyAlloc( reqLevel );
-
-		m_discCache.insert( std::make_pair ( bucket,discBlock) );
+		location = calculateLocation( bucket, last );
+		m_usedBuddy.at( bucket )= ++last;
+		m_transactionLocationToBuddy.insert( std::make_pair( location, simpleBuddy ) );
 	}
-	return index;
+	else
+	{
+		location = calculateLocation( bucket, 1 );
+		m_usedBuddy.insert( std::make_pair( bucket, 1 ) );
+		m_transactionLocationToBuddy.insert( std::make_pair( location, simpleBuddy ) );
+	}
+
+	return location;
 }
 
-int
-CSegmentFileStorage::findDiscBlockInHeader( uint64_t const _location )
+unsigned int
+CSegmentFileStorage::findDiscBlockInHeader( uint64_t const _location ) const
 {
-	unsigned int header = getPosition( _location )/ CSegmentHeader::getNumberOfBucket();
-
-	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
+	unsigned int header = getPosition( _location )/ CSegmentHeader::getNumberOfFullBucketSets();
+	std::vector< CSegmentHeader >::const_iterator iterator = m_headersCache.begin();
 
 	std::advance( iterator , header );
 
-	CRecord record = getRecord( getBucket( _location ), getPosition( _location ) % CSegmentHeader::getNumberOfBucket() );
+	CRecord record = iterator->getRecord( getBucket( _location ), getPosition( _location ) % CSegmentHeader::getNumberOfFullBucketSets() );
 
 	return record.m_blockNumber;
+}
+
+unsigned int
+CSegmentFileStorage::getPosition( uint64_t const _fullPosition ) const
+{
+	return _fullPosition >> 32;
+}
+
+unsigned int
+CSegmentFileStorage::getSize( uint64_t const _fullPosition ) const
+{
+	return ( _fullPosition >> 16 ) & 0xffff;
+}
+
+unsigned int
+CSegmentFileStorage::getIndex( uint64_t const _position ) const
+{
+	return ( _position >> 8 ) & 0xff;
+}
+
+unsigned int
+CSegmentFileStorage::getBucket( uint64_t const _position ) const
+{
+	return _position & 0xff;
 }
 
 CDiskBlock*
@@ -275,7 +314,7 @@ CSegmentFileStorage::getDiscBlock( uint64_t const _location )
 
 	CDiskBlock * diskBlock = new CDiskBlock;
 	if ( blockNumber != -1 )
-		getBlock( blockNumber, *_discBlock );
+		getBlock( blockNumber, *diskBlock );
 
 	return diskBlock;
 }
@@ -290,55 +329,51 @@ CSegmentFileStorage::flushLoop()
 			boost::lock_guard<boost::mutex> lock(m_cachelock);
 
 
-		std::multimap< uint64_t, std::vector< CTransaction > >::iterator iterator = m_transactionQueue.begin();
-/*
- * separate  dump  logic  from disc cache  build  logic????????????
+			std::multimap< uint64_t, std::vector< CTransaction > >::iterator iterator = m_transactionQueue.begin();
 
-
-*/
-		while( iterator != m_transactionQueue.end() )
-		{
-			// save time stamp in database
-			//
-			BOOST_FOREACH( CTransaction const & transaction, iterator->second )
+			// separate  dump  logic  from disc cache  build  logic????????????
+			while( iterator != m_transactionQueue.end() )
 			{
-				uint64_t location = calculateLocationData( transaction.m_location );
-				std::map< uint64_t,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( location );
-				if ( usedBlock == m_usedBlocks.end() )
+				// save time stamp in database
+				//
+				BOOST_FOREACH( CTransaction const & transaction, iterator->second )
 				{
-					mruset< CCacheElement >::iterator cacheIterator =  m_discBlockCache.find( location );
-					if ( cacheIterator != m_discBlockCache.end() )
-						usedBlock = m_usedBlocks.insert( std::make_pair( location, cacheIterator->m_discBlock ).first;
-					else
-						usedBlock = m_usedBlocks.insert( std::make_pair( location, getDiscBlock( location ) ).first;
+					uint64_t location = calculateLocationData( transaction.m_location );
+					std::map< uint64_t,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( location );
+					if ( usedBlock == m_usedBlocks.end() )
+					{
+						mruset< CCacheElement >::iterator cacheIterator = m_discBlockCache.find( location );
+						if ( cacheIterator != m_discBlockCache.end() )
+							usedBlock = m_usedBlocks.insert( std::make_pair( location, cacheIterator->m_discBlock ) ).first;
+						else
+							usedBlock = m_usedBlocks.insert( std::make_pair( location, getDiscBlock( location ) ) ).first;
+					}
+
+					CBufferAsStream stream(
+								(char *)usedBlock->second->translateToAddress( getIndex( transaction.m_location ) )
+								, usedBlock->second->getBuddySize( getSize( transaction.m_location ) )
+								, SER_DISK
+								, CLIENT_VERSION);
+
+					stream << transaction;
+
+					assert( m_discCache.find( location ) != m_discCache.end() );
+					//	usedBlock->second = m_discCache.find( location )->second;
 				}
-
-				CBufferAsStream stream(
-					 (char *)usedBlock->second->translateToAddress( getPosition( transaction.m_location ) )
-					, usedBlock->second->getBuddySize( getLevel( transaction.m_location ) )
-					, SER_DISK
-					, CLIENT_VERSION);
-
-				stream << transaction;
-
-				assert( m_discCache.find( location ) != m_discCache.end() );
-				usedBlock->second = m_discCache.find( location )->second;
 			}
-		}
 
-
-		BOOST_FOREACH( UsedBlocks::value_type const & _block, m_usedBlocks;)
-		{
-			findDiscBlockInHeader( uint64_t const _location );
+			BOOST_FOREACH( UsedBlocks::value_type const & _block, m_usedBlocks)
+			{
+				/*	findDiscBlockInHeader( uint64_t const _location );
 			_block.first
 					createRecordForBlock( storeCandidate );
 			saveBlock( m_lastSegmentIndex, _block );
+*/
+			}
 
-		}
+			//save
 
-//save
-
-/*
+			/*
 					if ( iterator->second->m_blockPosition )
 					{
 						saveBlock( m_lastSegmentIndex, *iterator->second );
@@ -370,12 +405,13 @@ CSegmentFileStorage::flushLoop()
 			}
 
 		}*/
-		m_accessFile.flush(ms_headerFileName);
+			m_accessFile.flush(ms_headerFileName);
 
-//rebuild merkle and store it, in database
-		boost::this_thread::interruption_point();
-		//MilliSleep(40000);
-		MilliSleep(400);//only for  debug such short period of time
+			//rebuild merkle and store it, in database
+			boost::this_thread::interruption_point();
+			//MilliSleep(40000);
+			MilliSleep(400);//only for  debug such short period of time
+		}
 	}
 }
 

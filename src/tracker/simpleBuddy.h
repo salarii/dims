@@ -25,8 +25,6 @@ struct CSimpleBuddy
 public:
 	CSimpleBuddy( bool dummy = false );
 
-	CSimpleBuddy( CSimpleBuddy const & _CSimpleBuddy );
-
 	int buddyAlloc( int _requestedLevel );
 
 	void buddyFree(int offset);
@@ -46,8 +44,9 @@ public:
     IMPLEMENT_SERIALIZE
     (
         READWRITE(FLATDATA(m_tree));
-        READWRITE(FLATDATA(m_area));
     )
+
+	CSimpleBuddy & operator=( CSimpleBuddy const & _simpleBuddy );
 
 	~CSimpleBuddy();
 public:

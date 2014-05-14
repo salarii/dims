@@ -50,12 +50,20 @@ struct CDiskBlock : public CSimpleBuddy
 {
 public:
 	CDiskBlock( CSimpleBuddy const & _simpleBuddy = CSimpleBuddy() );
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(FLATDATA(m_area));
+	)
+
 public:
 	unsigned int m_blockPosition;
 	int64_t m_lastStoredTime;
 	unsigned int m_id;
+	unsigned char * m_area;
+
 private:
 	static std::map< unsigned int, unsigned int > m_currentLastBlockIds;
+
 };
 
 class CSegmentHeader
@@ -71,9 +79,9 @@ public:
 
 	void setNextHeaderFlag();
 
-	CRecord & getRecord(  unsigned int _bucket, unsigned int _index );
+	CRecord const & getRecord(  unsigned int _bucket, unsigned int _index ) const;
 
-	static unsigned int getNumberOfBucket();
+	static unsigned int getNumberOfFullBucketSets();
 
 	IMPLEMENT_SERIALIZE
 	(
@@ -84,10 +92,10 @@ public:
 
 	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( unsigned int )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
 
+	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
+
 private:
 	bool isNextHeader() const;
-
-	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
 
 	void increaseUsageRecord( unsigned int _recordId );
 
@@ -107,7 +115,7 @@ private:
 struct CLocation
 {
 	int m_place;
-	uint64 m_bucket;
+	uint64_t m_bucket;
 };
 
 class CSegmentFileStorage
@@ -125,7 +133,9 @@ public:
 
 	struct CCacheElement
 	{
-		CCacheElement( CDiskBlock* _discBlock, uint64_t const _location ):m_discBlock( _discBlock ){};
+		CCacheElement( uint64_t const _location ):m_location(_location){};
+
+		CCacheElement( CDiskBlock* _discBlock, uint64_t const _location ):m_discBlock( _discBlock ),m_location(_location){};
 
 		CDiskBlock* m_discBlock;
 
@@ -146,7 +156,7 @@ public:
 
 	void eraseTransaction( CCoins const & _coins );
 
-	void includeTransactions( std::vector< CTransaction > const & _transaction, uint64_t const _timeStamp );
+	void includeTransactions( std::vector< CTransaction > const & _transactions, uint64_t const _timeStamp );
 
 	void readTransactions( CCoinsViewCache * _coinsViewCache );
 
@@ -180,32 +190,37 @@ private:
 
 	unsigned int calculateStoredBlockNumber() const;
 
-	unsigned int findDiscBlockInHeader( uint64_t const _location );
+	unsigned int findDiscBlockInHeader( uint64_t const _location ) const;
 
 	unsigned int createRecordForBlock( unsigned int _recordIndex );
+
+	uint64_t calculateLocation( unsigned int _bucket, unsigned int _position );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
 // very  risky to  calculate  the same  thing from the same thing
 	uint64_t calculateLocationData( uint64_t const _fullPosition );
 
 	// position of given block
-	unsigned int getPosition( uint64_t const _fullPosition );
+	unsigned int getPosition( uint64_t const _fullPosition ) const;
 
 	// size of allocated area in buddy units
-	unsigned int getSize( uint64_t const _fullPosition );
+	unsigned int getSize( uint64_t const _fullPosition ) const;
 
 	// index of allocated area in buddy
-	unsigned int getIndex( uint64_t const _position );
+	unsigned int getIndex( uint64_t const _position ) const;
 
 	// bucket of given block
-	unsigned int getBucket( uint64_t const _position );
+	unsigned int getBucket( uint64_t const _position ) const;
 private:
 	mutable boost::mutex m_headerCacheLock;
 	std::vector< CSegmentHeader > m_headersCache;
 
 	typedef std::multimap< uint64_t, std::vector< CTransaction > > TransactionQueue;
 
-	typedef std::map< uint64_t,CDiskBlock* > UsedBlocks;
+	typedef std::map< uint64_t, CDiskBlock* > UsedBlocks;
+
+	typedef std::map< uint64_t, CSimpleBuddy* > TransactionLocationToBuddy;
+
 private:
 	static CSegmentFileStorage * ms_instance;
 
@@ -218,7 +233,10 @@ private:
 	TransactionQueue m_transactionQueue;
 
 	mutable boost::mutex m_cachelock;
-	std::map< uint64_t,CSimpleBuddy* > m_discCache;
+
+	std::map< unsigned int, unsigned int > m_usedBuddy;
+
+	TransactionLocationToBuddy m_transactionLocationToBuddy;
 
 	static size_t const m_segmentSize = 1 << KiloByteShift * 512;
 
