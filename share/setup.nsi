@@ -10,11 +10,11 @@ SetCompressor /SOLID lzma
 !define URL http://www.bitcoin.org/
 
 # MUI Symbol Definitions
-!define MUI_ICON "/home/artur/ratcoin/share/pixmaps/bitcoin.ico"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "/home/artur/ratcoin/share/pixmaps/nsis-wizard.bmp"
+!define MUI_ICON "/home/swider/github.com/share/pixmaps/bitcoin.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "/home/swider/github.com/share/pixmaps/nsis-wizard.bmp"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_RIGHT
-!define MUI_HEADERIMAGE_BITMAP "/home/artur/ratcoin/share/pixmaps/nsis-header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "/home/swider/github.com/share/pixmaps/nsis-header.bmp"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
@@ -22,7 +22,7 @@ SetCompressor /SOLID lzma
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "Bitcoin Core"
 !define MUI_FINISHPAGE_RUN $INSTDIR\bitcoin-qt.exe
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
-!define MUI_UNWELCOMEFINISHPAGE_BITMAP "/home/artur/ratcoin/share/pixmaps/nsis-wizard.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "/home/swider/github.com/share/pixmaps/nsis-wizard.bmp"
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
 # Included files
@@ -48,7 +48,7 @@ Var StartMenuGroup
 !insertmacro MUI_LANGUAGE English
 
 # Installer attributes
-OutFile /home/artur/ratcoin/bitcoin-${VERSION}-win-setup.exe
+OutFile /home/swider/github.com/bitcoin-${VERSION}-win-setup.exe
 !if "" == "64"
 InstallDir $PROGRAMFILES64\Bitcoin
 !else
@@ -73,14 +73,14 @@ ShowUninstDetails show
 Section -Main SEC0000
     SetOutPath $INSTDIR
     SetOverwrite on
-    File /home/artur/ratcoin/release/bitcoin-qt.exe
-    File /oname=COPYING.txt /home/artur/ratcoin/COPYING
-    File /oname=readme.txt /home/artur/ratcoin/doc/README_windows.txt
+    File /home/swider/github.com/release/bitcoin-qt.exe
+    File /oname=COPYING.txt /home/swider/github.com/COPYING
+    File /oname=readme.txt /home/swider/github.com/doc/README_windows.txt
     SetOutPath $INSTDIR\daemon
-    File /home/artur/ratcoin/release/bitcoind.exe
-    File /home/artur/ratcoin/release/bitcoin-cli.exe
+    File /home/swider/github.com/release/bitcoind.exe
+    File /home/swider/github.com/release/bitcoin-cli.exe
     SetOutPath $INSTDIR\doc
-    File /r /home/artur/ratcoin/doc\*.*
+    File /r /home/swider/github.com/doc\*.*
     SetOutPath $INSTDIR
     WriteRegStr HKCU "${REGKEY}\Components" Main 1
 

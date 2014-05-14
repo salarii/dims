@@ -35,6 +35,8 @@ private:
 private slots:
     void textChanged();
 
+    void on_checkBox_stateChanged(int arg1);
+
 protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);

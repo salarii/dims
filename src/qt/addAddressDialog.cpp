@@ -21,13 +21,14 @@ AddAddressDialog::AddAddressDialog(QWidget *parent) :
     fCapsLock(false)
 {
     ui->setupUi(this);
-
+    ui->checkBox->setChecked(true);
+    ui->addressEdit->setReadOnly(true);
     ui->addressEdit->setMaxLength(MAX_ADDRESS_SIZE);
 
     // Setup Caps Lock detection.
     ui->addressEdit->installEventFilter(this);
 
-    textChanged();
+    //textChanged();
     connect(ui->addressEdit, SIGNAL(textChanged(QString)), this, SLOT(textChanged()));
 }
 
@@ -51,14 +52,21 @@ void AddAddressDialog::accept()
 	address.reserve(MAX_ADDRESS_SIZE);
 
 	address.assign(ui->addressEdit->text().toStdString().c_str());
-
-	if ( !model->addAddress( address ) )
+	if (ui->checkBox->isChecked())
 	{
-		QMessageBox::critical(this, tr("Failed to add this address"),
-		tr("Possible reasons: private address given, does not meet expected syntax."));
-		return;
+		model->generateNewAddress();
 	}
+	else {
 
+
+
+		if ( !model->addAddress( address ) )
+		{
+			QMessageBox::critical(this, tr("Failed to add this address"),
+								  tr("Possible reasons: private address given, does not meet expected syntax."));
+			return;
+		}
+	}
 	QDialog::accept();
 }
 
@@ -67,9 +75,12 @@ void AddAddressDialog::textChanged()
     // Validate input, set Ok button to enabled when acceptable
     bool acceptable = false;
 
+
     acceptable = !ui->addressEdit->text().isEmpty() && !ui->addressEdit->text().isEmpty();
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(acceptable);
+
+
 }
 
 bool AddAddressDialog::event(QEvent *event)
@@ -114,3 +125,19 @@ bool AddAddressDialog::eventFilter(QObject *object, QEvent *event)
     }
     return QDialog::eventFilter(object, event);
 }
+
+void AddAddressDialog::on_checkBox_stateChanged(int arg1)
+{
+    if (ui->checkBox->isChecked())
+    {       ui->addressEdit->setEchoMode(QLineEdit::Normal);
+            ui->addressEdit->setText("Uncheck the box to use your key");
+            ui->addressEdit->setReadOnly(true);
+            ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    }
+            else {
+            ui->addressEdit->setText("");
+            ui->addressEdit->setEchoMode(QLineEdit::Password);
+            ui->addressEdit->setReadOnly(false);
+}
+}
+
