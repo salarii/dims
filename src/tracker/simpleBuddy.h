@@ -23,7 +23,7 @@ namespace tracker
 struct CSimpleBuddy
 {
 public:
-	CSimpleBuddy( bool dummy = false );
+	CSimpleBuddy();
 
 	int buddyAlloc( int _requestedLevel );
 
@@ -36,8 +36,6 @@ public:
 	bool isFull() const;
 
 	static unsigned int getBuddyLevel( size_t _transactionSize );
-
-	void * translateToAddress( unsigned int _index );
 
 	static size_t getBuddySize( unsigned int  _level );
 

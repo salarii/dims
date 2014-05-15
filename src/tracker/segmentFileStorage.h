@@ -28,7 +28,7 @@ namespace tracker
 
 #define BLOCK_SIZE ( 1 << 12 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
-#define MAX_BUCKET ( 0xf )
+#define MAX_BUCKET ( 0xf ) // not more than 0xff
 
 typedef unsigned int CounterType;
 
@@ -55,11 +55,19 @@ public:
 	READWRITE(FLATDATA(m_area));
 	)
 
+	void * translateToAddress( unsigned int _index );
+
+	~CDiskBlock()
+	{
+		if ( m_area )
+			delete [] m_area;
+	}
 public:
 	unsigned int m_blockPosition;
 	int64_t m_lastStoredTime;
 	unsigned int m_id;
 	unsigned char * m_area;
+
 
 private:
 	static std::map< unsigned int, unsigned int > m_currentLastBlockIds;
@@ -94,9 +102,8 @@ public:
 
 	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
 
-private:
 	bool isNextHeader() const;
-
+private:
 	void increaseUsageRecord( unsigned int _recordId );
 
 	void decreaseUsageRecord( unsigned int _recordId );
@@ -114,8 +121,16 @@ private:
 
 struct CLocation
 {
-	int m_place;
-	uint64_t m_bucket;
+	uint64_t m_location;
+
+	CLocation( unsigned int _bucket, unsigned int _position );
+
+	CLocation( uint64_t const & _fullPosition );
+
+	bool operator<( CLocation const & _location )const
+	{
+		return m_location < _location.m_location;
+	}
 };
 
 class CSegmentFileStorage
@@ -159,14 +174,29 @@ public:
 	void includeTransactions( std::vector< CTransaction > const & _transactions, uint64_t const _timeStamp );
 
 	void readTransactions( CCoinsViewCache * _coinsViewCache );
-
-	void loop();
 	
 	void flushLoop();
 
 	static CSegmentFileStorage* getInstance();
 
 	uint64_t getPosition( CTransaction const & _transaction );
+
+	// very  risky to  calculate  the same  thing from the same thing
+	static uint64_t calculateLocation( unsigned int _bucket, unsigned int _position );
+
+	static uint64_t calculateLocationData( uint64_t const _fullPosition );
+
+	// position of given block
+	static unsigned int getPosition( uint64_t const _fullPosition );
+
+	// size of allocated area in buddy units
+	static unsigned int getSize( uint64_t const _fullPosition );
+
+	// index of allocated area in buddy
+	static unsigned int getIndex( uint64_t const _fullPosition );
+
+	// bucket of given block
+	static unsigned int getBucket( uint64_t const _fullPosition );
 private:
 	CSegmentFileStorage();
 
@@ -194,30 +224,16 @@ private:
 
 	unsigned int createRecordForBlock( unsigned int _recordIndex );
 
-	uint64_t calculateLocation( unsigned int _bucket, unsigned int _position );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
-// very  risky to  calculate  the same  thing from the same thing
-	uint64_t calculateLocationData( uint64_t const _fullPosition );
 
-	// position of given block
-	unsigned int getPosition( uint64_t const _fullPosition ) const;
-
-	// size of allocated area in buddy units
-	unsigned int getSize( uint64_t const _fullPosition ) const;
-
-	// index of allocated area in buddy
-	unsigned int getIndex( uint64_t const _position ) const;
-
-	// bucket of given block
-	unsigned int getBucket( uint64_t const _position ) const;
 private:
 	mutable boost::mutex m_headerCacheLock;
 	std::vector< CSegmentHeader > m_headersCache;
 
 	typedef std::multimap< uint64_t, std::vector< CTransaction > > TransactionQueue;
 
-	typedef std::map< uint64_t, CDiskBlock* > UsedBlocks;
+	typedef std::map< CLocation, CDiskBlock* > UsedBlocks;
 
 	typedef std::map< uint64_t, CSimpleBuddy* > TransactionLocationToBuddy;
 

@@ -55,19 +55,13 @@ CSimpleBuddy::indexOffset(int _index, int _level) const
 }
 
 
-CSimpleBuddy::CSimpleBuddy( bool dummy )
+CSimpleBuddy::CSimpleBuddy()
 {
 	memset(m_tree , NODE_UNUSED , 1 << ms_buddyBaseLevel << 1);
-	if ( dummy )
-		m_area = 0;
-	else
-		m_area = new unsigned char[ms_buddySize];
 }
 
 CSimpleBuddy::~CSimpleBuddy()
 {
-	if ( m_area )
-		delete [] m_area;
 }
 
 void
@@ -223,19 +217,17 @@ CSimpleBuddy::getBuddyLevel( size_t const _transactionSize )
 }
 
 size_t
-CSimpleBuddy::getBuddySize( unsigned int  _level )
+CSimpleBuddy::getBuddySize( unsigned int _level )
 {
+	if ( _level == ( unsigned int )-1 )
+		return ms_buddySize;
+
 	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
 
 	return baseUnit << ( ms_buddyBaseLevel - _level );
 }
 
-void * 
-CSimpleBuddy::translateToAddress( unsigned int _index )
-{
-	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
-	return (void *)&m_area[ _index * baseUnit ];
-}
+
 
 int
 CSimpleBuddy::buddySize(int offset) const

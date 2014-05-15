@@ -40,7 +40,16 @@ CDiskBlock::CDiskBlock( CSimpleBuddy const & _simpleBuddy )
 	{
 		m_currentLastBlockIds.insert( std::make_pair( i, 0 ) );
 	}
+	m_area = new unsigned char[ms_buddySize];
 }
+
+void *
+CDiskBlock::translateToAddress( unsigned int _index )
+{
+	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
+	return (void *)&m_area[ _index * baseUnit ];
+}
+
 
 CSegmentHeader::CSegmentHeader()
 	: m_nextHeader(0)
@@ -134,6 +143,15 @@ CSegmentHeader::getRecord(unsigned int _bucket, unsigned int _index ) const
 	assert( getNumberOfFullBucketSets() > _index );
 	return m_records[ _index * MAX_BUCKET  + _bucket ];
 
+}
+
+CLocation::CLocation( unsigned int _bucket, unsigned int _position )
+{
+	m_location = CSegmentFileStorage::calculateLocation( _bucket, _position );
+}
+CLocation::CLocation( uint64_t const & _fullPosition )
+{
+	m_location = CSegmentFileStorage::calculateLocationData( _fullPosition );
 }
 
 CSegmentFileStorage * CSegmentFileStorage::ms_instance = NULL;
@@ -283,28 +301,43 @@ CSegmentFileStorage::findDiscBlockInHeader( uint64_t const _location ) const
 	return record.m_blockNumber;
 }
 
+uint64_t
+CSegmentFileStorage::calculateLocation( unsigned int _bucket, unsigned int _position )
+{
+	uint64_t location = _position;
+	location <<= 32;
+	location = location |_bucket;
+	return location;
+}
+
+uint64_t
+CSegmentFileStorage::calculateLocationData( uint64_t const _fullPosition )
+{
+	return _fullPosition & 0xffffffff000000ff;
+}
+
 unsigned int
-CSegmentFileStorage::getPosition( uint64_t const _fullPosition ) const
+CSegmentFileStorage::getPosition( uint64_t const _fullPosition )
 {
 	return _fullPosition >> 32;
 }
 
 unsigned int
-CSegmentFileStorage::getSize( uint64_t const _fullPosition ) const
+CSegmentFileStorage::getSize( uint64_t const _fullPosition )
+{
+	return ( _fullPosition >> 8 ) & 0xff;
+}
+
+unsigned int
+CSegmentFileStorage::getIndex( uint64_t const _fullPosition )
 {
 	return ( _fullPosition >> 16 ) & 0xffff;
 }
 
 unsigned int
-CSegmentFileStorage::getIndex( uint64_t const _position ) const
+CSegmentFileStorage::getBucket( uint64_t const _fullPosition )
 {
-	return ( _position >> 8 ) & 0xff;
-}
-
-unsigned int
-CSegmentFileStorage::getBucket( uint64_t const _position ) const
-{
-	return _position & 0xff;
+	return _fullPosition & 0xff;
 }
 
 CDiskBlock*
@@ -338,8 +371,8 @@ CSegmentFileStorage::flushLoop()
 				//
 				BOOST_FOREACH( CTransaction const & transaction, iterator->second )
 				{
-					uint64_t location = calculateLocationData( transaction.m_location );
-					std::map< uint64_t,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( location );
+					uint64_t location = transaction.m_location;
+					std::map< CLocation,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( location );
 					if ( usedBlock == m_usedBlocks.end() )
 					{
 						mruset< CCacheElement >::iterator cacheIterator = m_discBlockCache.find( location );
@@ -416,71 +449,6 @@ CSegmentFileStorage::flushLoop()
 }
 
 void
-CSegmentFileStorage::loop()
-{
-	while(1)
-	{
-		{
-			boost::lock_guard<boost::mutex> lock(m_storeTransLock);
-
-			boost::lock_guard<boost::mutex> lockCache(m_cachelock);
-			BOOST_FOREACH( CTransaction transaction, m_transactionsToStore )
-			{
-				unsigned int bucket = calculateBucket( transaction.GetHash() );
-				unsigned int reqLevel = CSimpleBuddy::getBuddyLevel( transaction.GetSerializeSize(SER_DISK, CTransaction::CURRENT_VERSION) );
-
-				ToInclude toInclude;
-
-				toInclude = m_discCache.equal_range(bucket);
-
-				int index = -1;
-				if ( toInclude.first != m_discCache.end() )
-				{
-					for ( CacheIterators cacheIterator=toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
-					{
-						index = cacheIterator->second->buddyAlloc( reqLevel );
-						if ( index == -1 )
-							continue;
-						else
-						{
-							CBufferAsStream stream(
-								 (char *)cacheIterator->second->translateToAddress( index )
-								, cacheIterator->second->getBuddySize( reqLevel )
-								, SER_DISK
-								, CLIENT_VERSION);
-
-							stream << transaction;
-
-							break;
-						}
-					}
-				}
-
-				if ( index == -1 )
-				{
-					CDiskBlock * discBlock = new CDiskBlock;
-					
-					index = discBlock->buddyAlloc( reqLevel );
-
-					CBufferAsStream stream(
-						  (char *)discBlock->translateToAddress( index )
-						, discBlock->getBuddySize( reqLevel )
-						, SER_DISK
-						, CLIENT_VERSION);
-
-					stream << transaction;
-
-
-					m_discCache.insert( std::make_pair ( bucket,discBlock) );
-				}
-				m_transactionsToStore.clear();
-			}
-		}
-		boost::this_thread::interruption_point();
-	}
-}
-
-void
 CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
 {
 	boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
@@ -533,7 +501,7 @@ CSegmentFileStorage::eraseTransaction( CTransaction const & _transaction )
 void
 CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
 {
-	int index = -1;
+/*	int index = -1;
 
 	ToInclude toInclude;// = m_discCache.equal_range(_coins.m_bucket);
 
@@ -548,10 +516,10 @@ CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
 			cacheId--;
 
 			if ( cacheId == 0 )
-				cacheIterator->second->buddyFree(/*_coins.nHeight &*/ 0xff);
+				cacheIterator->second->buddyFree(_coins.nHeight & 0xff);
 			//set  time
 		}
-	}
+	}*/
 }
 
 
