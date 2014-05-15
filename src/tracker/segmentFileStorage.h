@@ -28,7 +28,7 @@ namespace tracker
 
 #define BLOCK_SIZE ( 1 << 12 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
-#define MAX_BUCKET ( 0xf ) // not more than 0xff
+#define MAX_BUCKET ( 0x2 ) // not more than 0xff
 
 typedef unsigned int CounterType;
 
@@ -122,6 +122,7 @@ private:
 struct CLocation
 {
 	uint64_t m_location;
+	CLocation(){};
 
 	CLocation( unsigned int _bucket, unsigned int _position );
 
@@ -184,19 +185,21 @@ public:
 	// very  risky to  calculate  the same  thing from the same thing
 	static uint64_t calculateLocation( unsigned int _bucket, unsigned int _position );
 
-	static uint64_t calculateLocationData( uint64_t const _fullPosition );
+	static uint64_t calculateLocation( uint64_t const _fullPosition );
 
 	// position of given block
 	static unsigned int getPosition( uint64_t const _fullPosition );
 
-	// size of allocated area in buddy units
-	static unsigned int getSize( uint64_t const _fullPosition );
+	// level of allocated area in buddy units
+	static unsigned int getLevel( uint64_t const _fullPosition );
 
 	// index of allocated area in buddy
 	static unsigned int getIndex( uint64_t const _fullPosition );
 
 	// bucket of given block
 	static unsigned int getBucket( uint64_t const _fullPosition );
+
+	static uint64_t createFullPosition( unsigned int _blockPosition, unsigned int _index, unsigned int _level, unsigned int _bucket );
 private:
 	CSegmentFileStorage();
 
@@ -235,7 +238,7 @@ private:
 
 	typedef std::map< CLocation, CDiskBlock* > UsedBlocks;
 
-	typedef std::map< uint64_t, CSimpleBuddy* > TransactionLocationToBuddy;
+	typedef std::map< CLocation, CSimpleBuddy* > TransactionLocationToBuddy;
 
 private:
 	static CSegmentFileStorage * ms_instance;
@@ -268,7 +271,9 @@ private:
 	UsedBlocks m_usedBlocks;
 
 	mruset< CCacheElement > m_discBlockCache;
-	};
+
+	std::set< CLocation > m_locationUsedFromLastUpdate;
+};
 
 }
 

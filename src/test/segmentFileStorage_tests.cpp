@@ -31,12 +31,12 @@ BOOST_AUTO_TEST_SUITE(segmentFileStorage_tests)
 
 // ... where all scripts are stringified scripts.
 
-std::list< CTransaction >
+std::vector< CTransaction >
 getTransactionArray()
 {
 	Array tests = read_json(std::string(json_tests::tx_valid, json_tests::tx_valid + sizeof(json_tests::tx_valid)));
 
-	std::list< CTransaction > transactions;
+	std::vector< CTransaction > transactions;
 
 	BOOST_FOREACH(Value& tv, tests)
 	{
@@ -61,19 +61,34 @@ getTransactionArray()
 	}
 	return transactions;
 }
+/*
+ : binary_function <T,T,T> {
+  T operator() (const T& x, const T& y) const {return x+y;}
+};
+ */
+struct CSetLocation
+{
+	CTransaction operator()( CTransaction const & _transaction )
+	{
+		CTransaction transaction( _transaction );
+		transaction.m_location = tracker::CSegmentFileStorage::getInstance()->getPosition( _transaction );
+		return transaction;
+	}
+};
 
 BOOST_AUTO_TEST_CASE( basics )
 {
-
-	int i = 0;
 	tracker::CSegmentFileStorage * fileStorage = tracker::CSegmentFileStorage::getInstance();
 
-	boost::thread( boost::bind(&tracker::CSegmentFileStorage::loop, fileStorage) );
+	boost::thread( boost::bind(&tracker::CSegmentFileStorage::flushLoop, fileStorage) );
 
-	fileStorage->includeTransactions( getTransactionArray() );
+	std::vector< CTransaction > transactions = getTransactionArray();
+
+	std::transform( transactions.begin(), transactions.end(), transactions.begin(), CSetLocation() );
+
+	fileStorage->includeTransactions( transactions, 0 );
 
 	while(1);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

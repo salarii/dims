@@ -42,6 +42,7 @@
 #include "tracker/internalMediumProvider.h"
 #include "tracker/transactionRecordManager.h"
 #include "tracker/originAddressScaner.h"
+#include "tracker/segmentFileStorage.h"
 
 #include "node/settingsConnectionProvider.h"
 
@@ -1041,6 +1042,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< tracker::TrackerResponses >::loop, common::CActionHandler< tracker::TrackerResponses >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
 	// ********************************************************* Step 10: load peers

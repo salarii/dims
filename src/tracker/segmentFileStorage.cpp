@@ -151,7 +151,7 @@ CLocation::CLocation( unsigned int _bucket, unsigned int _position )
 }
 CLocation::CLocation( uint64_t const & _fullPosition )
 {
-	m_location = CSegmentFileStorage::calculateLocationData( _fullPosition );
+	m_location = CSegmentFileStorage::calculateLocation( _fullPosition );
 }
 
 CSegmentFileStorage * CSegmentFileStorage::ms_instance = NULL;
@@ -263,29 +263,29 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 			if ( index == -1 )
 				continue;
 
-			return index;
+			return createFullPosition( i, index, reqLevel, bucket );
 		}
 	}
 
 	CSimpleBuddy * simpleBuddy = new CSimpleBuddy;
 
-	uint64_t location = 0;
-
 	index = simpleBuddy->buddyAlloc( reqLevel );
+
+	CLocation location;
+
 	if ( last )
 	{
-		location = calculateLocation( bucket, last );
 		m_usedBuddy.at( bucket )= ++last;
-		m_transactionLocationToBuddy.insert( std::make_pair( location, simpleBuddy ) );
+		m_transactionLocationToBuddy.insert( std::make_pair( CLocation( bucket, last - 1 ), simpleBuddy ) );
 	}
 	else
 	{
-		location = calculateLocation( bucket, 1 );
 		m_usedBuddy.insert( std::make_pair( bucket, 1 ) );
-		m_transactionLocationToBuddy.insert( std::make_pair( location, simpleBuddy ) );
+		m_transactionLocationToBuddy.insert( std::make_pair( CLocation( bucket, 0 ), simpleBuddy ) );
 	}
+	m_locationUsedFromLastUpdate.insert( location );
 
-	return location;
+	return createFullPosition( last ? last - 1: 1, index, reqLevel, bucket );
 }
 
 unsigned int
@@ -311,7 +311,7 @@ CSegmentFileStorage::calculateLocation( unsigned int _bucket, unsigned int _posi
 }
 
 uint64_t
-CSegmentFileStorage::calculateLocationData( uint64_t const _fullPosition )
+CSegmentFileStorage::calculateLocation( uint64_t const _fullPosition )
 {
 	return _fullPosition & 0xffffffff000000ff;
 }
@@ -323,7 +323,7 @@ CSegmentFileStorage::getPosition( uint64_t const _fullPosition )
 }
 
 unsigned int
-CSegmentFileStorage::getSize( uint64_t const _fullPosition )
+CSegmentFileStorage::getLevel( uint64_t const _fullPosition )
 {
 	return ( _fullPosition >> 8 ) & 0xff;
 }
@@ -338,6 +338,19 @@ unsigned int
 CSegmentFileStorage::getBucket( uint64_t const _fullPosition )
 {
 	return _fullPosition & 0xff;
+}
+
+uint64_t
+CSegmentFileStorage::createFullPosition( unsigned int _blockPosition, unsigned int _index, unsigned int _level, unsigned int _bucket )
+{
+	uint64_t fullPosition = _blockPosition;
+	fullPosition <<= 16;
+	fullPosition = fullPosition | _index;
+	fullPosition <<= 8;
+	fullPosition = fullPosition | _level;
+	fullPosition <<= 8;
+	fullPosition = fullPosition | _bucket;
+	return fullPosition;
 }
 
 CDiskBlock*
@@ -384,7 +397,7 @@ CSegmentFileStorage::flushLoop()
 
 					CBufferAsStream stream(
 								(char *)usedBlock->second->translateToAddress( getIndex( transaction.m_location ) )
-								, usedBlock->second->getBuddySize( getSize( transaction.m_location ) )
+								, usedBlock->second->getBuddySize( getLevel( transaction.m_location ) )
 								, SER_DISK
 								, CLIENT_VERSION);
 
@@ -397,7 +410,7 @@ CSegmentFileStorage::flushLoop()
 
 			BOOST_FOREACH( UsedBlocks::value_type const & _block, m_usedBlocks)
 			{
-				/*	findDiscBlockInHeader( uint64_t const _location );
+					findDiscBlockInHeader( uint64_t const _location );
 			_block.first
 					createRecordForBlock( storeCandidate );
 			saveBlock( m_lastSegmentIndex, _block );
@@ -546,7 +559,11 @@ CSegmentFileStorage::fillHeaderBuffor()
 	}
 	else
 	{
-		getSegmentHeader( 0, header );
+		if (! getSegmentHeader( 0, header ) )
+		{
+			m_headersCache.push_back(header);
+			return;
+		}
 	}
 
 	while(header.isNextHeader())
