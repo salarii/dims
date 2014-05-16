@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
+#include "common/ratcoinParams.h"
 #include "accessFile.h"
 
 namespace tracker
@@ -17,7 +17,7 @@ template<> unsigned int const CSerializedTypes<CDiskBlock>::m_key = 1;
 template<> unsigned int const CSerializedTypes<CSegmentHeader>::m_key = 2;
 
 std::string const
-CAccessFile::m_baseDirectory = ".\\network\\";
+CAccessFile::m_baseDirectory = "network//";
 
 CAccessFile::CAccessFile()
 {

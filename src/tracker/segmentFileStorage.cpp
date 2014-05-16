@@ -173,6 +173,8 @@ CSegmentFileStorage::includeTransaction( CTransaction const & _transaction, uint
 	transactions.push_back( _transaction );
 
 	m_transactionQueue.insert( std::make_pair( _timeStamp, transactions ) );
+
+	m_locationUsedFromLastUpdate.insert( _transaction.m_location );
 }
 
 void
@@ -240,6 +242,8 @@ CSegmentFileStorage::createRecordForBlock( CLocation const & _location )
 uint64_t
 CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 {
+	boost::lock_guard<boost::mutex> lock(m_locationTobuddy);
+
 	unsigned int bucket = calculateBucket( _transaction.GetHash() );
 	unsigned int reqLevel = CSimpleBuddy::getBuddyLevel( _transaction.GetSerializeSize(SER_DISK, CTransaction::CURRENT_VERSION) );
 
@@ -367,20 +371,35 @@ CSegmentFileStorage::getDiscBlock( uint64_t const _location )
 	return diskBlock;
 }
 // add logic  to limit  max amount of disc flushes. I don't want  to spend to much time in this logic
-// it is a  shame that I can't use move construction from c++11
+
 void 
 CSegmentFileStorage::flushLoop()
 {
 	while(1)
 	{
 		{
-			boost::lock_guard<boost::mutex> lock(m_cachelock);
+			TransactionLocationToBuddy processedLocationToBuddy;
 
+			{
+				boost::lock_guard<boost::mutex> lock(m_locationTobuddy);
 
-			std::multimap< uint64_t, std::vector< CTransaction > >::iterator iterator = m_transactionQueue.begin();
+				BOOST_FOREACH( CLocation const & location, m_locationUsedFromLastUpdate )
+				{
+					assert( m_transactionLocationToBuddy.find( location ) != m_transactionLocationToBuddy.end() )
 
-			// separate  dump  logic  from disc cache  build  logic????????????
-			while( iterator != m_transactionQueue.end() )
+					processedLocationToBuddy.insert( *m_transactionLocationToBuddy.find( location ) );
+
+				}
+			}
+			{
+				boost::lock_guard<boost::mutex> lock(m_cachelock);
+				m_processedTransactionQueue = m_transactionQueue;
+
+				m_transactionQueue = new TransactionQueue;
+			}
+			std::multimap< uint64_t, std::vector< CTransaction > >::iterator iterator = m_processedTransactionQueue->begin();
+
+			while( iterator != m_processedTransactionQueue->end() )
 			{
 				// save time stamp in database
 				//
@@ -405,26 +424,45 @@ CSegmentFileStorage::flushLoop()
 
 					stream << transaction;
 
-					assert( m_discCache.find( location ) != m_discCache.end() );
-					//	usedBlock->second = m_discCache.find( location )->second;
+					assert( m_discBlockCache.find( location ) != m_discBlockCache.end() );
+					*(CSimpleBuddy*)usedBlock->second = *processedLocationToBuddy.find( location )->second;
 				}
+				iterator++;
 			}
 
 			unsigned int blockNumber = 0;
-			BOOST_FOREACH( UsedBlocks::value_type const & _block, m_usedBlocks)
+			BOOST_FOREACH( UsedBlocks::value_type const & block, m_usedBlocks)
 			{
-				if ( findBlockNumberInHeaderCache( _block.first, blockNumber ) )
+				if ( findBlockNumberInHeaderCache( block.first, blockNumber ) )
 				{
-					saveBlock( blockNumber, *_block.second );
+					saveBlock( blockNumber, *block.second );
 				}
 				else
 				{
-					CRecord const & record = createRecordForBlock( _block.first );
+					CRecord const & record = createRecordForBlock( block.first );
 
-					saveBlock( record.m_blockNumber, *_block.second );
+					saveBlock( record.m_blockNumber, *block.second );
 				}
 			}
 
+			// reload  mruset
+			BOOST_FOREACH( UsedBlocks::value_type const & block, m_usedBlocks )
+			{
+				CCacheElement cacheElement( block.second, block.first.m_location );
+
+				if ( m_discBlockCache.find( cacheElement ) == m_discBlockCache.end() )
+				{
+					m_discBlockCache.insert( cacheElement );
+				}
+			}
+
+			m_usedBlocks.clear();
+
+			processedLocationToBuddy.clear();
+
+			m_locationUsedFromLastUpdate.clear();
+
+			delete m_processedTransactionQueue;
 			m_accessFile.flush(ms_headerFileName);
 
 			//rebuild merkle and store it, in database
@@ -563,5 +601,29 @@ CSegmentFileStorage::calculateStoredBlockNumber() const
 		blockCnt += header.getUsedRecordNumber();
 	}
 }
+
+/*
+ load CBlocks fro  outside
+ rebuild  headers  from  this
+
+
+check merkle ?? set  merkle hash in  headers??
+ get all transactions by  level from  down  to  top
+ count  hases
+ put  hashes into  vector
+ hash vector of  hashes
+ this  is  has of  single  block
+ from  this  create  merkle  tree
+
+
+void
+CSegmentFileStorage::
+
+
+
+*/
+
+
+
 
 }

@@ -249,7 +249,9 @@ private:
 
 	mutable boost::mutex m_storeTransLock;
 
-	TransactionQueue m_transactionQueue;
+	TransactionQueue * m_transactionQueue;
+
+	TransactionQueue * m_processedTransactionQueue;
 
 	mutable boost::mutex m_cachelock;
 
