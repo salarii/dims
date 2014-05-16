@@ -68,21 +68,12 @@ CSegmentHeader::decreaseUsageRecord( unsigned int _recordId )
 
 }
 
-bool
-CSegmentHeader::setNewRecord( unsigned int _bucked, CRecord const & _record )
+CRecord const &
+CSegmentHeader::setNewRecord( unsigned int _bucked, unsigned int _position, CRecord const & _record )
 {
-	unsigned int maxNumber =  m_recordsNumber / m_maxBucket;
+	assert( _position < m_recordsNumber / m_maxBucket );
 
-	for ( unsigned int i = 0; i < maxNumber; i++ )
-	{
-		CRecord & record = m_records[ _bucked + i * m_maxBucket ];
-		if ( !record.m_isEmptySpace && record.m_blockNumber )
-		{
-			record = _record;
-			return true;
-		}
-	}
-	return false;
+	return m_records[ _bucked + _position * m_maxBucket ] = _record;
 }
 
 inline
@@ -227,19 +218,23 @@ CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
 }
 
 
-unsigned int
-CSegmentFileStorage::createRecordForBlock( unsigned int _bucket )
+CRecord const &
+CSegmentFileStorage::createRecordForBlock( CLocation const & _location )
 {
+	uint64_t location = _location.m_location;
+
+	unsigned int header = getPosition( location )/ CSegmentHeader::getNumberOfFullBucketSets();
+
 	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
 
-	while( iterator != m_headersCache.end() )
+	for ( unsigned int i = m_headersCache.size(); i < header; ++i )
 	{
-		int index = iterator->getIndexForBucket( _bucket );
-		if ( -1 != index )
-		{
-			iterator->setNewRecord( _bucket, CRecord(m_lastSegmentIndex,1));
-		}
+			m_headersCache.push_back( CSegmentHeader() );
 	}
+
+	std::advance( iterator, header );
+
+	return iterator->setNewRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets(), CRecord(m_lastSegmentIndex,1) );
 }
 
 uint64_t
@@ -288,17 +283,22 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 	return createFullPosition( last ? last - 1: 1, index, reqLevel, bucket );
 }
 
-unsigned int
-CSegmentFileStorage::findDiscBlockInHeader( uint64_t const _location ) const
+bool
+CSegmentFileStorage::findBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber ) const
 {
-	unsigned int header = getPosition( _location )/ CSegmentHeader::getNumberOfFullBucketSets();
+	uint64_t location = _location.m_location;
+
+	unsigned int header = getPosition( location )/ CSegmentHeader::getNumberOfFullBucketSets();
 	std::vector< CSegmentHeader >::const_iterator iterator = m_headersCache.begin();
 
+	if ( iterator == m_headersCache.end() )
+		return false;
 	std::advance( iterator , header );
 
-	CRecord record = iterator->getRecord( getBucket( _location ), getPosition( _location ) % CSegmentHeader::getNumberOfFullBucketSets() );
+	CRecord record = iterator->getRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets() );
 
-	return record.m_blockNumber;
+	_bockNumber = record.m_blockNumber;
+	return true;
 }
 
 uint64_t
@@ -356,7 +356,9 @@ CSegmentFileStorage::createFullPosition( unsigned int _blockPosition, unsigned i
 CDiskBlock*
 CSegmentFileStorage::getDiscBlock( uint64_t const _location )
 {
-	int blockNumber = findDiscBlockInHeader( _location );
+	unsigned int blockNumber = 0;
+	if ( !findBlockNumberInHeaderCache( _location, blockNumber ) )
+		return 0;
 
 	CDiskBlock * diskBlock = new CDiskBlock;
 	if ( blockNumber != -1 )
@@ -408,49 +410,21 @@ CSegmentFileStorage::flushLoop()
 				}
 			}
 
+			unsigned int blockNumber = 0;
 			BOOST_FOREACH( UsedBlocks::value_type const & _block, m_usedBlocks)
 			{
-					findDiscBlockInHeader( uint64_t const _location );
-			_block.first
-					createRecordForBlock( storeCandidate );
-			saveBlock( m_lastSegmentIndex, _block );
-*/
-			}
-
-			//save
-
-			/*
-					if ( iterator->second->m_blockPosition )
-					{
-						saveBlock( m_lastSegmentIndex, *iterator->second );
-					}
-					else
-					{
-						m_lastSegmentIndex++;
-
-						createRecordForBlock( storeCandidate );
-						saveBlock( m_lastSegmentIndex, *iterator->second );
-						// update block  field
-
-					}
-
-					m_recentlyStored.insert( CStore(newStoretime,storeCandidate) );
+				if ( findBlockNumberInHeaderCache( _block.first, blockNumber ) )
+				{
+					saveBlock( blockNumber, *_block.second );
 				}
+				else
+				{
+					CRecord const & record = createRecordForBlock( _block.first );
 
-				m_accessFile.flush(ms_segmentFileName);
-			}
-		}
-		{
-			boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
-
-			unsigned int index = 0;
-			BOOST_FOREACH( CSegmentHeader & header, m_headersCache )
-			{
-				index++;
-				saveBlock(index,header);
+					saveBlock( record.m_blockNumber, *_block.second );
+				}
 			}
 
-		}*/
 			m_accessFile.flush(ms_headerFileName);
 
 			//rebuild merkle and store it, in database

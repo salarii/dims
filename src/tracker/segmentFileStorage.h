@@ -100,7 +100,7 @@ public:
 
 	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( unsigned int )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
 
-	bool setNewRecord( unsigned int _bucked, CRecord const & _record );
+	CRecord const & setNewRecord( unsigned int _bucked, unsigned int _position, CRecord const & _record );
 
 	bool isNextHeader() const;
 private:
@@ -223,9 +223,9 @@ private:
 
 	unsigned int calculateStoredBlockNumber() const;
 
-	unsigned int findDiscBlockInHeader( uint64_t const _location ) const;
+	bool findBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber ) const;
 
-	unsigned int createRecordForBlock( unsigned int _recordIndex );
+	CRecord const & createRecordForBlock( CLocation const & _recordIndex );
 
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
