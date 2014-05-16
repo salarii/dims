@@ -37,6 +37,13 @@ nextPowOfTwo(uint32_t x)
 	return x+1;
 }
 
+CSimpleBuddy::CSimpleBuddy( CSimpleBuddy const & _simpleBuddy )
+{
+	m_full = _simpleBuddy.m_full;
+
+	memcpy( m_tree, _simpleBuddy.m_tree, 1 << ms_buddyBaseLevel << 1 );
+}
+
 CSimpleBuddy &
 CSimpleBuddy::operator=( CSimpleBuddy const & _simpleBuddy )
 {

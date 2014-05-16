@@ -236,7 +236,29 @@ CSegmentFileStorage::createRecordForBlock( CLocation const & _location )
 
 	std::advance( iterator, header );
 
-	return iterator->setNewRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets(), CRecord(m_lastSegmentIndex,1) );
+	return iterator->setNewRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets(), CRecord(m_lastSegmentIndex++,1) );
+}
+
+CRecord const &
+CSegmentFileStorage::getFreeRecordForBucket( unsigned int const _bucket, CLocation & _location )
+{
+	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
+
+	while( iterator != m_headersCache.end() )
+	{
+		int index = iterator->getIndexForBucket( _bucket );
+		if ( index == -1 )
+		{
+			iterator++;
+			continue;
+		}
+		_location = CLocation( _bucket, _index );
+		return iterator->getRecord( _bucket, _index );
+	}
+
+	m_headersCache.push_back( CSegmentHeader() );
+	_location = CLocation( _bucket, 0 );
+	return m_headersCache.back().getRecord( _bucket, 0 );
 }
 
 uint64_t
@@ -473,48 +495,62 @@ CSegmentFileStorage::flushLoop()
 	}
 }
 
-void
-CSegmentFileStorage::readTransactions( CCoinsViewCache * _coinsViewCache )
+// used  during synchronisation
+bool
+CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vector< CTransaction > const & _transactions )
 {
 	boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
 
 	fillHeaderBuffor();
 
-	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
+	int level = CSimpleBuddy::ms_buddyBaseLevel;
 
-	for ( int i = 0; i < calculateStoredBlockNumber(); i++)
+	while(level)
 	{
-		CDiskBlock discBlock;
+		std::list< int > transactionsInd = discBlock.getNotEmptyIndexes( level );
 
-		getBlock( i, discBlock );
-		
-		int level = CSimpleBuddy::ms_buddyBaseLevel;
+		std::list< int >::iterator iterator = transactionsInd.begin();
 
-		while(level)
+		BOOST_FOREACH( int index, transactionsInd )
 		{
-			std::list< int > transactionsInd = discBlock.getNotEmptyIndexes( level );
 
-			std::list< int >::iterator iterator = transactionsInd.begin();
+			CBufferAsStream stream(
+						(char *)_discBlock.translateToAddress( index )
+						, _discBlock.getBuddySize( level )
+						, SER_DISK
+						, CLIENT_VERSION);
 
-			BOOST_FOREACH( int index, transactionsInd )
-			{
+			CTransaction transaction;
 
-				CBufferAsStream stream(
-					  (char *)discBlock.translateToAddress( index )
-					, discBlock.getBuddySize( level )
-					, SER_DISK
-					, CLIENT_VERSION);
+			stream >> transaction;
 
-				CTransaction transaction;
+			_transactions.push_back( transaction );
+			/* do  something  with  those transactions */
+			//	_coinsViewCache->SetCoins(transaction->GetHash(), CCoins( *transaction,*iterator ));
 
-				stream >> transaction;
-				/* do  something  with  those transactions */
-				//	_coinsViewCache->SetCoins(transaction->GetHash(), CCoins( *transaction,*iterator ));
+		}
+		level--;
+	}
+	//sanity
+	std::vector< uint256 > hashes;
 
-			}
-			level--;
+	unsigned int bucket = -1;
+	BOOST_FOREACH( CTransaction const & transaction, transactionsInd )
+	{
+		hashes.push_back( transaction.GetHash() );
+		// should be same bucket
+		if ( bucket != -1 )
+		{
+			if ( calculateBucket( hashes.back() ) != bucket )
+				return false;
+		}
+		else
+		{
+			bucket = calculateBucket( hashes.back() );
 		}
 	}
+
+	/* should  I play with merkle here??? */
 
 }
 
@@ -602,6 +638,49 @@ CSegmentFileStorage::calculateStoredBlockNumber() const
 	}
 }
 
+bool
+CSegmentFileStorage::setDiscBlock( CDiskBlock const & _discBlock )
+{
+
+
+
+	saveBlock( m_lastSegmentIndex, _discBlock );
+
+	getFreeRecordForBucket( bucket, location ).m_blockNumber = m_lastSegmentIndex++;
+
+	// save  last
+	m_transactionLocationToBuddy.insert( std::make_pair( location, new CSimpleBuddy( (CSimpleBuddy const & )_discBlock ) ) );
+}
+
+
+/*
+synchro  get  time of  last  flush
+
+get balance for  coresponding  time
+
+fetch  all  transaction  packets
+
+
+		//while (rand() % 3 == 0)
+		//    mapNext[pindex->pprev].push_back(pindex);
+		peyoad create  this  way
+*/
+
+
+class CBlockInfoDatabase
+{
+//  store  times  of  base transactions
+
+	uint64 m_counter;
+	void  storeBaseTime
+	void numberOfTransaction
+
+	void banceTime
+	// number of stored  times
+// store  time  of  last  disc  flush
+// store overall balances per  time
+//
+};
 /*
  load CBlocks fro  outside
  rebuild  headers  from  this

@@ -225,6 +225,8 @@ private:
 
 	bool findBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber ) const;
 
+	CRecord const &  getFreeRecordForBucket( unsigned int const _bucket, CLocation & _location );
+
 	CRecord const & createRecordForBlock( CLocation const & _recordIndex );
 
 //risky what _location really is??

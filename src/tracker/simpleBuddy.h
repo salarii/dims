@@ -25,6 +25,8 @@ struct CSimpleBuddy
 public:
 	CSimpleBuddy();
 
+	CSimpleBuddy( CSimpleBuddy const & _simpleBuddy );
+
 	int buddyAlloc( int _requestedLevel );
 
 	void buddyFree(int offset);
