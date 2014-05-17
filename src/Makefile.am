@@ -45,6 +45,7 @@ TRACKER_CORE_H = \
   tracker/accessFile.h \
   tracker/addressToCoins.h \
   tracker/authenticationProvider.h \
+  tracker/blockInfoDatabase.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
@@ -136,6 +137,7 @@ TRACKER_CORE_CPP = \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
   tracker/authenticationProvider.cpp \
+  tracker/blockInfoDatabase.cpp \
   tracker/communicationProtocol.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/databaseManager.cpp \

@@ -667,20 +667,7 @@ fetch  all  transaction  packets
 */
 
 
-class CBlockInfoDatabase
-{
-//  store  times  of  base transactions
 
-	uint64 m_counter;
-	void  storeBaseTime
-	void numberOfTransaction
-
-	void banceTime
-	// number of stored  times
-// store  time  of  last  disc  flush
-// store overall balances per  time
-//
-};
 /*
  load CBlocks fro  outside
  rebuild  headers  from  this
