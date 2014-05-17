@@ -306,6 +306,7 @@ I ReadVarInt(Stream& is)
     }
 }
 
+#define PTRFLATDATA(obj, size)  REF(CFlatData((char*)(obj), (char*)(obj) + size))
 #define FLATDATA(obj)  REF(CFlatData((char*)&(obj), (char*)&(obj) + sizeof(obj)))
 #define VARINT(obj)    REF(WrapVarInt(REF(obj)))
 

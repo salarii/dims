@@ -95,6 +95,7 @@ CAccessFile::getSerialSize( T const & _t )
 	{
 		serialSize = sizeIter->second;
 	}
+	return serialSize;
 }
 
 template< class T >
@@ -103,22 +104,9 @@ CAccessFile::saveSegmentToFile( unsigned int _index, std::string const & _fileNa
 {
 	std::map< std::string, FILE* >::iterator iterator = m_accessed.find( _fileName );
 
-	FILE * fileStream;
-
-	if ( iterator == m_accessed.end() )
-	{
-		fileStream = openDiskFile(0, m_baseDirectory + _fileName, false);
-		m_accessed.insert( std::make_pair( _fileName, fileStream ) );
-	}
-	else
-	{
-		fileStream = iterator->second;
-	}
-
 	unsigned int serialSize = getSerialSize( _block );
 
-	long int current =  ftell ( fileStream );
-	fseek(fileStream, serialSize * _index - current, SEEK_SET);
+	FILE * fileStream = openDiskFile( serialSize * _index, m_baseDirectory + _fileName, false);
 
 	CAutoFile autoFile(fileStream, SER_DISK, CLIENT_VERSION);
 	autoFile << _block;

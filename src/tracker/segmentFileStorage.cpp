@@ -44,7 +44,7 @@ CDiskBlock::CDiskBlock( CSimpleBuddy const & _simpleBuddy )
 }
 
 void *
-CDiskBlock::translateToAddress( unsigned int _index )
+CDiskBlock::translateToAddress( unsigned int _index ) const
 {
 	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
 	return (void *)&m_area[ _index * baseUnit ];
@@ -109,7 +109,7 @@ CSegmentHeader::givenRecordUsed(unsigned int _index ) const
 }
 
 unsigned int
-CSegmentHeader::getUsedRecordNumber() const
+CSegmentHeader::getAllUsedRecordsNumber() const
 {
 	unsigned int usageCnt = 0;
 	for ( unsigned i = 0; i < m_recordsNumber; ++i )
@@ -162,6 +162,8 @@ CSegmentFileStorage::CSegmentFileStorage()
 : m_recentlyStored(MAX_BUCKET)
 {
 	fillHeaderBuffor();
+
+	m_transactionQueue = new TransactionQueue;
 }
 
 void
@@ -172,7 +174,7 @@ CSegmentFileStorage::includeTransaction( CTransaction const & _transaction, uint
 	std::vector< CTransaction > transactions;
 	transactions.push_back( _transaction );
 
-	m_transactionQueue.insert( std::make_pair( _timeStamp, transactions ) );
+	m_transactionQueue->insert( std::make_pair( _timeStamp, transactions ) );
 
 	m_locationUsedFromLastUpdate.insert( _transaction.m_location );
 }
@@ -181,7 +183,7 @@ void
 CSegmentFileStorage::includeTransactions( std::vector< CTransaction > const & _transactions, uint64_t const _timeStamp )
 {
 	boost::lock_guard<boost::mutex> lock(m_storeTransLock);
-	m_transactionQueue.insert( std::make_pair( _timeStamp, _transactions ) );
+	m_transactionQueue->insert( std::make_pair( _timeStamp, _transactions ) );
 }
 
 CSegmentHeader &
@@ -239,8 +241,20 @@ CSegmentFileStorage::createRecordForBlock( CLocation const & _location )
 	return iterator->setNewRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets(), CRecord(m_lastSegmentIndex++,1) );
 }
 
-CRecord const &
-CSegmentFileStorage::getFreeRecordForBucket( unsigned int const _bucket, CLocation & _location )
+void
+CSegmentFileStorage::setRecord( CLocation const & _location, CRecord const & _record )
+{
+	unsigned int position = getPosition( _location.m_location );
+
+	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
+
+	std::advance( iterator, position / CSegmentHeader::getNumberOfFullBucketSets() );
+
+	iterator->setNewRecord( getBucket( _location.m_location ), position % CSegmentHeader::getNumberOfFullBucketSets(), _record );
+}
+
+void
+CSegmentFileStorage::getLocationOfFreeRecordForBucket( unsigned int const _bucket, CLocation & _location )
 {
 	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
 
@@ -252,19 +266,18 @@ CSegmentFileStorage::getFreeRecordForBucket( unsigned int const _bucket, CLocati
 			iterator++;
 			continue;
 		}
-		_location = CLocation( _bucket, _index );
-		return iterator->getRecord( _bucket, _index );
+
+		_location = CLocation( _bucket, index + std::distance( m_headersCache.begin(), iterator )* CSegmentHeader::getNumberOfFullBucketSets() );
 	}
 
 	m_headersCache.push_back( CSegmentHeader() );
 	_location = CLocation( _bucket, 0 );
-	return m_headersCache.back().getRecord( _bucket, 0 );
 }
 
 uint64_t
 CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 {
-	boost::lock_guard<boost::mutex> lock(m_locationTobuddy);
+	boost::lock_guard<boost::mutex> lock( m_locationTobuddy );
 
 	unsigned int bucket = calculateBucket( _transaction.GetHash() );
 	unsigned int reqLevel = CSimpleBuddy::getBuddyLevel( _transaction.GetSerializeSize(SER_DISK, CTransaction::CURRENT_VERSION) );
@@ -431,7 +444,7 @@ CSegmentFileStorage::flushLoop()
 					std::map< CLocation,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( location );
 					if ( usedBlock == m_usedBlocks.end() )
 					{
-						mruset< CCacheElement >::iterator cacheIterator = m_discBlockCache.find( location );
+						mruset< CCacheElement >::iterator cacheIterator = m_discBlockCache.find( CLocation( location ) );
 						if ( cacheIterator != m_discBlockCache.end() )
 							usedBlock = m_usedBlocks.insert( std::make_pair( location, cacheIterator->m_discBlock ) ).first;
 						else
@@ -453,7 +466,9 @@ CSegmentFileStorage::flushLoop()
 			}
 
 			unsigned int blockNumber = 0;
-			BOOST_FOREACH( UsedBlocks::value_type const & block, m_usedBlocks)
+
+
+			BOOST_FOREACH( UsedBlocks::value_type const & block, m_usedBlocks )
 			{
 				if ( findBlockNumberInHeaderCache( block.first, blockNumber ) )
 				{
@@ -497,7 +512,7 @@ CSegmentFileStorage::flushLoop()
 
 // used  during synchronisation
 bool
-CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vector< CTransaction > const & _transactions )
+CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vector< CTransaction > & _transactions )
 {
 	boost::lock_guard<boost::mutex> lock(m_headerCacheLock);
 
@@ -507,11 +522,11 @@ CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vecto
 
 	while(level)
 	{
-		std::list< int > transactionsInd = discBlock.getNotEmptyIndexes( level );
+		std::list< int > transactionsIds = _discBlock.getNotEmptyIndexes( level );
 
-		std::list< int >::iterator iterator = transactionsInd.begin();
+		std::list< int >::iterator iterator = transactionsIds.begin();
 
-		BOOST_FOREACH( int index, transactionsInd )
+		BOOST_FOREACH( int index, transactionsIds )
 		{
 
 			CBufferAsStream stream(
@@ -525,8 +540,6 @@ CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vecto
 			stream >> transaction;
 
 			_transactions.push_back( transaction );
-			/* do  something  with  those transactions */
-			//	_coinsViewCache->SetCoins(transaction->GetHash(), CCoins( *transaction,*iterator ));
 
 		}
 		level--;
@@ -535,7 +548,7 @@ CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vecto
 	std::vector< uint256 > hashes;
 
 	unsigned int bucket = -1;
-	BOOST_FOREACH( CTransaction const & transaction, transactionsInd )
+	BOOST_FOREACH( CTransaction const & transaction, _transactions )
 	{
 		hashes.push_back( transaction.GetHash() );
 		// should be same bucket
@@ -634,38 +647,33 @@ CSegmentFileStorage::calculateStoredBlockNumber() const
 	unsigned int blockCnt = 0;
 	BOOST_FOREACH( CSegmentHeader header, m_headersCache )
 	{
-		blockCnt += header.getUsedRecordNumber();
+		blockCnt += header.getAllUsedRecordsNumber();
 	}
 }
 
 bool
 CSegmentFileStorage::setDiscBlock( CDiskBlock const & _discBlock )
 {
+	std::vector< CTransaction > transactions;
 
-
+	if ( !readTransactions( _discBlock, transactions ) )
+		return false;
 
 	saveBlock( m_lastSegmentIndex, _discBlock );
 
-	getFreeRecordForBucket( bucket, location ).m_blockNumber = m_lastSegmentIndex++;
+	CLocation location;
 
-	// save  last
+	getLocationOfFreeRecordForBucket( calculateBucket( transactions.front().GetHash() ), location );
+
+	CRecord record;
+	record.m_blockNumber = m_lastSegmentIndex++;
+
+	setRecord( location, record );
+
 	m_transactionLocationToBuddy.insert( std::make_pair( location, new CSimpleBuddy( (CSimpleBuddy const & )_discBlock ) ) );
+
+	//load cache
 }
-
-
-/*
-synchro  get  time of  last  flush
-
-get balance for  coresponding  time
-
-fetch  all  transaction  packets
-
-
-		//while (rand() % 3 == 0)
-		//    mapNext[pindex->pprev].push_back(pindex);
-		peyoad create  this  way
-*/
-
 
 
 /*

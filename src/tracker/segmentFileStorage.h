@@ -52,10 +52,10 @@ public:
 	CDiskBlock( CSimpleBuddy const & _simpleBuddy = CSimpleBuddy() );
 	IMPLEMENT_SERIALIZE
 	(
-	READWRITE(FLATDATA(m_area));
+	READWRITE(PTRFLATDATA(m_area, ms_buddySize ));
 	)
 
-	void * translateToAddress( unsigned int _index );
+	void * translateToAddress( unsigned int _index ) const;
 
 	~CDiskBlock()
 	{
@@ -83,7 +83,7 @@ public:
 
 	bool givenRecordUsed( unsigned int _index ) const;
 
-	unsigned int getUsedRecordNumber() const;
+	unsigned int getAllUsedRecordsNumber() const;
 
 	void setNextHeaderFlag();
 
@@ -149,15 +149,19 @@ public:
 
 	struct CCacheElement
 	{
-		CCacheElement( uint64_t const _location ):m_location(_location){};
+		CCacheElement( CLocation const & _location ):m_discBlock(0), m_location(_location){};
 
-		CCacheElement( CDiskBlock* _discBlock, uint64_t const _location ):m_discBlock( _discBlock ),m_location(_location){};
+		CCacheElement( CDiskBlock* _discBlock, CLocation const _location ):m_discBlock( _discBlock ),m_location(_location){};
 
 		CDiskBlock* m_discBlock;
 
-		uint64_t const m_location;
+		CLocation const m_location;
 
-		~CCacheElement(){ delete m_discBlock; }
+		~CCacheElement()
+		{
+			if ( m_discBlock )
+				delete m_discBlock;
+		}
 
 		bool operator<( CCacheElement const & _cacheElement ) const
 		{
@@ -165,6 +169,7 @@ public:
 		}
 	};
 public:
+	bool setDiscBlock( CDiskBlock const & _discBlock );
 
 	void includeTransaction( CTransaction const & _transaction, uint64_t const _timeStamp );
 
@@ -174,7 +179,7 @@ public:
 
 	void includeTransactions( std::vector< CTransaction > const & _transactions, uint64_t const _timeStamp );
 
-	void readTransactions( CCoinsViewCache * _coinsViewCache );
+	bool readTransactions( CDiskBlock const & _discBlock, std::vector< CTransaction > & _transactions );
 	
 	void flushLoop();
 
@@ -225,15 +230,19 @@ private:
 
 	bool findBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber ) const;
 
-	CRecord const &  getFreeRecordForBucket( unsigned int const _bucket, CLocation & _location );
+	void getLocationOfFreeRecordForBucket( unsigned int const _bucket, CLocation & _location );
 
 	CRecord const & createRecordForBlock( CLocation const & _recordIndex );
 
+	void setRecord( CLocation const & _location, CRecord const & _record );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
 
 private:
 	mutable boost::mutex m_headerCacheLock;
+
+	mutable boost::mutex m_locationTobuddy;
+
 	std::vector< CSegmentHeader > m_headersCache;
 
 	typedef std::multimap< uint64_t, std::vector< CTransaction > > TransactionQueue;
