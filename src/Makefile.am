@@ -62,6 +62,9 @@ TRACKER_CORE_H = \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/simpleBuddy.h \
+  tracker/trackerController.h \
+  tracker/trackerControllerStates.h \
+  tracker/trackerControllerEvents.h \
   tracker/transactionRecordManager.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
@@ -148,10 +151,14 @@ TRACKER_CORE_CPP = \
   tracker/manageNetwork.cpp \
   tracker/nodesManager.cpp \
   tracker/originAddressScaner.cpp \
+  tracker/rpcTracker.cpp \
   tracker/segmentFileStorage.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/simpleBuddy.cpp \
+  tracker/trackerController.cpp \
+  tracker/trackerControllerEvents.cpp \
+  tracker/trackerControllerStates.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/validateTransactionsAction.cpp \
   tracker/validateTransactionsRequest.cpp

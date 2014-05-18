@@ -170,4 +170,9 @@ extern json_spirit::Value getrawmempool(const json_spirit::Array& params, bool f
 extern json_spirit::Value gettxoutsetinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value gettxout(const json_spirit::Array& params, bool fHelp);
 
+namespace tracker
+{
+extern json_spirit::Value connectToTracker(const json_spirit::Array& params, bool fHelp);
+}
+
 #endif
