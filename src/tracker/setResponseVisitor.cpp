@@ -62,4 +62,10 @@ CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CValidateTrans
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList > const &)CSetValidationResult< tracker::CValidateTransactionsAction >( &_action ), m_trackerResponses );
 }
 
+void
+CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CConnectTrackerAction & _action )
+{
+
+}
+
 }

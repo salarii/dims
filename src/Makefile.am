@@ -49,6 +49,8 @@ TRACKER_CORE_H = \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
+  tracker/connectToTrackerRequest.h \
+  tracker/connectTrackerAction.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
   tracker/getBalanceRequest.h \
@@ -69,7 +71,7 @@ TRACKER_CORE_H = \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
-
+  
 # bitcoin core #
 BITCOIN_CORE_H = \
   addrman.h \
@@ -142,6 +144,8 @@ TRACKER_CORE_CPP = \
   tracker/authenticationProvider.cpp \
   tracker/blockInfoDatabase.cpp \
   tracker/communicationProtocol.cpp \
+  tracker/connectToTrackerRequest.cpp \
+  tracker/connectTrackerAction.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/databaseManager.cpp \
   tracker/getBalanceAction.cpp \

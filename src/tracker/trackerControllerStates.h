@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef CONTROL_TRACER_STATES_H
-#define CONTROL_TRACER_STATES_H
+#ifndef TRACKER_CONTROLLER_STATES_H
+#define TRACKER_CONTROLLER_STATES_H
 
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/custom_reaction.hpp>
@@ -40,4 +40,4 @@ struct CConnected : boost::statechart::state< CConnected, CTrackerController >
 
 }
 
-#endif // CONTROL_TRACER_STATES_H
+#endif // TRACKER_CONTROLLER_STATES_H

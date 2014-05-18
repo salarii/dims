@@ -6,13 +6,12 @@
 #include "rpcserver.h"
 
 #include <stdint.h>
-
 #include <boost/assign/list_of.hpp>
 #include "json/json_spirit_utils.h"
 #include "json/json_spirit_value.h"
 
-#include "trackerController.h"
-#include "trackerControllerEvents.h"
+#include "common/actionHandler.h"
+#include "connectTrackerAction.h"
 
 namespace tracker
 {
@@ -38,8 +37,7 @@ json_spirit::Value connectToTracker( json_spirit::Array const & params, bool fHe
 
 	string strNode = params[0].get_str();
 
-	CTrackerController::getInstance()->process_event( CConnectWithTrackerRequest( strNode ) );
-
+	common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CConnectTrackerAction( strNode ) );
 	return json_spirit::Value::null;
 }
 

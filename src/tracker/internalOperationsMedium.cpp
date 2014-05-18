@@ -6,6 +6,9 @@
 #include "addressToCoins.h"
 #include "transactionRecordManager.h"
 #include "validateTransactionsRequest.h"
+#include "connectToTrackerRequest.h"
+#include "manageNetwork.h"
+
 
 #include <algorithm>
 
@@ -58,6 +61,15 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 
 	m_trackerResponses.push_back( availableCoins );
 }
+
+void
+CInternalOperationsMedium::add( CConnectToTrackerRequest const *_request )
+{
+	CAddress addr;
+
+	CManageNetwork::getInstance()->connectNode(addr, _request->getAddress().c_str() );
+}
+
 
 void
 CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )

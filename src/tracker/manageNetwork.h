@@ -66,10 +66,8 @@ public:
 public:
 	void mainLoop();
 
-	/*
-	validate  buffer 
-	
-	*/
+	CNode* connectNode(CAddress addrConnect, const char *pszDest);
+
 	static CManageNetwork* getInstance();
 
 	bool connectToNetwork( boost::thread_group& threadGroup );
@@ -87,8 +85,6 @@ private:
 
 	bool
 	openNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot = false);
-
-	CNode* connectNode(CAddress addrConnect, const char *pszDest);
 
 	CNode* findNode(const CNetAddr& ip);
 

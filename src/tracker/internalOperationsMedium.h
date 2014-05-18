@@ -26,6 +26,7 @@ public:
 
 	virtual void add(CValidateTransactionsRequest const * _request );
 
+	virtual void add( CConnectToTrackerRequest const *_request );
 
 	static CInternalOperationsMedium* getInstance();
 		CInternalOperationsMedium();

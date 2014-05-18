@@ -16,6 +16,7 @@ class CGetBalanceAction;
 
 class CValidateTransactionsAction;
 
+class CConnectTrackerAction;
 }
 
 namespace node
@@ -53,6 +54,8 @@ public:
 	virtual void visit( tracker::CGetBalanceAction & _action );
 
 	virtual void visit( tracker::CValidateTransactionsAction & _action );
+
+	virtual void visit( tracker::CConnectTrackerAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };

@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef CONTROL_TRACKER_EVENTS_H
-#define CONTROL_TRACKER_EVENTS_H
+#ifndef TRACKER_CONTROLLER_EVENTS_H
+#define TRACKER_CONTROLLER_EVENTS_H
 
 namespace tracker
 {
@@ -21,4 +21,4 @@ struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTracke
 
 }
 
-#endif // CONTROL_TRACKER_EVENTS_H
+#endif // TRACKER_CONTROLLER_EVENTS_H

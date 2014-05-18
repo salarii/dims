@@ -12,7 +12,8 @@ CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
 {
 }
 
-void CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+void
+CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {
 	_medium->add( this );
 }
