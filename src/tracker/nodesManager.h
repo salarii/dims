@@ -34,13 +34,15 @@ public:
 
 	void connectNodes();
 
+	void addNode( CNode * _node );
+
 	bool isNodeHonest();
 
 	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
 
 	std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ){ return std::list< common::CMedium< TrackerResponses > *>();}
 
-	static CNodesManager * getInstance( );
+	static CNodesManager * getInstance();
 private:
 	CNodesManager();
 
@@ -49,6 +51,10 @@ private:
 	void propagateMessage();
 	
 	void analyseMessage();
+
+	mutable boost::mutex m_nodesLock;
+
+	std::list< CNode * > m_unidentified;
 private:
 	static CNodesManager * ms_instance;
 };

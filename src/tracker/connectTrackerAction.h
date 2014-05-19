@@ -7,11 +7,14 @@
 
 #include "common/action.h"
 #include "configureTrackerActionHandler.h"
+#include <boost/statechart/state_machine.hpp>
 
 namespace tracker
 {
 
-class CConnectTrackerAction : public common::CAction< TrackerResponses >
+struct CConnecting;
+
+class CConnectTrackerAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectTrackerAction, CConnecting >
 {
 public:
 	CConnectTrackerAction( std::string const & _trackerAddress );
@@ -19,7 +22,12 @@ public:
 	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+
+	void setRequest( common::CRequest< TrackerResponses >* _request );
+
+	std::string getAddress() const;
 private:
+	common::CRequest< TrackerResponses >* m_request;
 	std::string const m_trackerAddress;
 };
 

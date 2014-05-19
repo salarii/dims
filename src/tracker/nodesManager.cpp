@@ -26,6 +26,13 @@ CNodesManager::CNodesManager()
 }
 
 void
+CNodesManager::addNode( CNode * _node )
+{
+	boost::lock_guard<boost::mutex> lock( m_nodesLock );
+	m_unidentified.push_back( _node );
+}
+
+void
 CNodesManager::PropagateBundle( std::vector< CTransaction > _bundle )
 {
 

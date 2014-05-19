@@ -7,6 +7,8 @@
 #include "getBalanceAction.h"
 #include "validateTransactionsAction.h"
 #include "validateTransactionActionEvents.h"
+#include "connectTrackerActionEvents.h"
+#include "connectTrackerAction.h"
 
 namespace common
 {
@@ -33,9 +35,24 @@ public:
 	{
 		this->m_action->process_event( tracker::CValidationEvent( _param.m_valid ) );
 	}
+
+	virtual void operator()( tracker::CErrorEvent & _param ) const
+	{
+		//handle it somehow
+	}
 };
 
+template < class _Action >
+class CSetNodeConnectedResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+{
+public:
+	CSetNodeConnectedResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
 
+	virtual void operator()( tracker::CConnectedNode & _param ) const
+	{
+		this->m_action->process_event( tracker::CNodeConnectedEvent( _param.m_node ) );
+	}
+};
 
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
@@ -65,7 +82,7 @@ CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CValidateTrans
 void
 CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CConnectTrackerAction & _action )
 {
-
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectTrackerAction, tracker::TrackerResponseList > const &)CSetNodeConnectedResult< tracker::CConnectTrackerAction >( &_action ), m_trackerResponses );
 }
 
 }

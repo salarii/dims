@@ -12,6 +12,8 @@
 
 #include "common/mediumException.h"
 
+#include "net.h"
+
 namespace tracker
 {
 struct CDummyResponse{};
@@ -22,9 +24,14 @@ struct CValidationResult
 	bool m_valid;
 };
 
+struct CConnectedNode
+{
+	CConnectedNode( CNode * _node ):m_node( _node ){};
+	CNode * m_node;
+};
 
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, CConnectedNode > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

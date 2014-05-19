@@ -17,6 +17,8 @@ public:
 	bool flush();
 	bool getResponse( std::vector< RequestResponse > & _requestResponse ) const;
 	void add( CRequest const * _request );
+
+	void add( CRequest const * _request );
 };
 
 
