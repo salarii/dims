@@ -1045,6 +1045,8 @@ bool AppInit2(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
+
+	tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 	// ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));
@@ -1080,9 +1082,6 @@ bool AppInit2(boost::thread_group& threadGroup)
 #endif
 	// run this in main thread ??
     tracker::runServer();
-
-
-	//tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
 	StartNode(threadGroup);
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.

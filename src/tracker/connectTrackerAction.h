@@ -20,7 +20,7 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 private:
-	std::string const & m_trackerAddress;
+	std::string const m_trackerAddress;
 };
 
 

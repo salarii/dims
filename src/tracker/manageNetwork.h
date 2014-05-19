@@ -28,9 +28,8 @@ class CNode;
 overall this is  very very bad  design
 bitcoin  and  ratcoin networks  should be handled in uniform  way  maybe  from the same  threads
 so  to refactor this I need to do following  steps
-1. gather more knowledge  about networking ( good  to do but not necessary )
-2. create  uniform code  for  both  networks ( maybe running in the same thereads ?? )
-3. create proper  inheritance tree
+1 create  uniform code  for  both  networks ( maybe running in the same thereads ?? )
+2. create proper  inheritance tree
 
 */
 
