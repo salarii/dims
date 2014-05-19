@@ -108,7 +108,20 @@ struct CHeader
 	CPubKey m_prevKey;
 };
 
-	
+template< int size >
+struct CIdentifyMessage
+{
+//Hash(&ip[0], &ip[16]);
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_payload);
+		READWRITE(m_key);
+		READWRITE(m_signed);
+	)
+	unsigned char m_payload[ size ];
+	CKeyID m_key;
+	std::vector<unsigned char> m_signed;
+};
 
 struct CMessage
 {

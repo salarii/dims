@@ -54,6 +54,7 @@ TRACKER_CORE_H = \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
   tracker/getBalanceRequest.h \
+  tracker/identifyRequest.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
   tracker/manageNetwork.h \
@@ -71,6 +72,7 @@ TRACKER_CORE_H = \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
+  
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -150,9 +152,11 @@ TRACKER_CORE_CPP = \
   tracker/databaseManager.cpp \
   tracker/getBalanceAction.cpp \
   tracker/getBalanceRequest.cpp \
+  tracker/identifyRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
   tracker/manageNetwork.cpp \
+  tracker/nodeMedium.cpp \
   tracker/nodesManager.cpp \
   tracker/originAddressScaner.cpp \
   tracker/rpcTracker.cpp \

@@ -10,42 +10,18 @@
 namespace tracker
 {
 
-class CNodeMedium : public common::CMedium
+class CIdentifyRequest;
+
+class CNodeMedium : public common::CMedium< TrackerResponses >
 {
 public:
 	bool serviced() const;
 	bool flush();
-	bool getResponse( std::vector< RequestResponse > & _requestResponse ) const;
-	void add( CRequest const * _request );
+	bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
+	void add( common::CRequest< TrackerResponses > const * _request );
 
-	void add( CRequest const * _request );
+	void add( CIdentifyRequest const * _request );
 };
-
-
-bool
-CNodeMedium::serviced() const
-{
-
-
-}
-
-bool
-CNodeMedium::flush()
-{
-
-}
-
-bool
-CNodeMedium::getResponse( std::vector< RequestResponse > & _requestResponse ) const
-{
-
-}
-
-void
-CNodeMedium::add( CRequest const * _request )
-{
-
-}
 
 
 }

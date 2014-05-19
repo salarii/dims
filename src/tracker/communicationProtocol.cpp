@@ -74,7 +74,6 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 	uint256 hash = Hash( &m_payload.front(), &m_payload.back() );
 
 	CAuthenticationProvider::getInstance()->sign( hash, m_header.m_signedHash );
-
 }
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash )
