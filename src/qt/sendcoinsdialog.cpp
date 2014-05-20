@@ -76,6 +76,8 @@ void SendCoinsDialog::setModel(WalletModel *model)
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
         connect(model->getOptionsModel(), SIGNAL(coinControlFeaturesChanged(bool)), this, SLOT(coinControlFeatureChanged(bool)));
         connect(model->getOptionsModel(), SIGNAL(transactionFeeChanged(qint64)), this, SLOT(coinControlUpdateLabels()));
+        ui->tableView->resizeColumnsToContents();
+        ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
         coinControlUpdateLabels();
     }

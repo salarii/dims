@@ -1078,7 +1078,7 @@ void ThreadSocketHandler()
 #ifdef USE_UPNP
 void ThreadMapPort()
 {
-    std::string port = strprintf("%u", GetListenPort());
+    std::string port = strprintf("%u", GetListenPort<CChainParams>());
     const char * multicastif = 0;
     const char * minissdpdpath = 0;
     struct UPNPDev * devlist = 0;
