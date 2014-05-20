@@ -3,20 +3,15 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "identifyRequest.h"
-#include "common/medium.h"
-#include "util.h"
-#include "trackerMediumsKinds.h"
+
 
 namespace  tracker
 {
 
-CIdentifyRequest::CIdentifyRequest( CNode * _node )
-	:m_node( _node )
+CIdentifyRequest::CIdentifyRequest( CNode * _node, std::vector< unsigned char > const & _payload )
+	: m_node( _node )
+	, m_payload( _payload )
 {
-	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
-	{
-		m_payload.push_back( insecure_rand() % 256 );
-	}
 }
 
 void
@@ -35,6 +30,27 @@ std::vector< unsigned char >
 CIdentifyRequest::getPayload() const
 {
 	return m_payload;
+}
+
+CIdentifyResponse::CIdentifyResponse( CNode * _node, std::vector< unsigned char > const & _signed, uint160 _keyId )
+{}
+
+void
+CIdentifyResponse::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
+CIdentifyResponse::getKind() const
+{
+	return 0;
+}
+
+CNode *
+CIdentifyResponse::getNode() const
+{
+	return 0;
 }
 
 }

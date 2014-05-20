@@ -15,6 +15,13 @@ struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 	CNode * m_node;
 };
 
+struct CRequestedEvent : boost::statechart::event< CRequestedEvent >
+{
+	CRequestedEvent( CNode * _node, std::vector< unsigned char > const & _payload ):m_node( _node ), m_payload(_payload){};
+	CNode * m_node;
+	std::vector< unsigned char > m_payload;
+};
+
 struct CErrorEvent : boost::statechart::event< CErrorEvent >
 {
 };

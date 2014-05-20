@@ -15,6 +15,8 @@ namespace tracker
 class CSelfNode : public CNode
 {
 public:
+	CSelfNode(SOCKET hSocketIn, CAddress addrIn, std::string addrNameIn = "", bool fInboundIn=false) : CNode(hSocketIn, addrIn, addrNameIn, fInboundIn){};
+
 	void setMessageToSend( CMessage const & _message );
 
 	void sendMessages();

@@ -9,26 +9,55 @@
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
+#include "authenticationProvider.h"
+#include "identifyRequest.h"
 
 namespace tracker
 {
-struct CUnidentified;
+struct CUnidentifiedResp;struct CUnidentifiedReq;
 
 struct CConnecting : boost::statechart::state< CConnecting, CConnectTrackerAction >
 {
 	CConnecting( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectTrackerAction >().setRequest( new CConnectToTrackerRequest( context< CConnectTrackerAction >().getAddress() ) );
+		context< CConnectTrackerAction >().setRequest(
+				  new CConnectToTrackerRequest( context< CConnectTrackerAction >().getAddress() ) );
+
 	}
 
-	typedef boost::statechart::transition< CNodeConnectedEvent, CUnidentified > reactions;
+	typedef boost::mpl::list<
+	boost::statechart::transition< CRequestedEvent, CUnidentifiedResp >,
+	boost::statechart::transition< CNodeConnectedEvent, CUnidentifiedReq >
+	> reactions;
+
 };
 
-struct CUnidentified : boost::statechart::simple_state< CUnidentified, CConnectTrackerAction >
+struct CUnidentifiedResp : boost::statechart::state< CUnidentifiedResp, CConnectTrackerAction >
 {
-	CUnidentified()
+	CUnidentifiedResp( my_context ctx ) : my_base( ctx )
+	{
+		CRequestedEvent const* requestedEvent = dynamic_cast< CRequestedEvent const* >( simple_state::triggering_event() );
+
+		uint256 hash = Hash( &context< CConnectTrackerAction >().getPayload().front(), &context< CConnectTrackerAction >().getPayload().back() );
+
+		std::vector< unsigned char > signedHash;
+		CAuthenticationProvider::getInstance()->sign( hash, signedHash );
+
+		context< CConnectTrackerAction >().setRequest( new CIdentifyResponse( requestedEvent->m_node, signedHash, CAuthenticationProvider::getInstance()->getMyKeyId() ) );
+	}
+};
+
+struct CUnidentifiedReq : boost::statechart::state< CUnidentifiedReq, CConnectTrackerAction >
+{
+	CUnidentifiedReq( my_context ctx ) : my_base( ctx )
 	{
 
+	//	new CConnectToTrackerRequest( context< CConnectTrackerAction >().getPayload() );
+
+		//if (
+		// node
+		// if  defined use payload  to send proper identificatio
+			//boost::statechart::simple_state::triggering_event();
 	}
 };
 
@@ -42,10 +71,22 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CConnec
 
 };
 
+CConnectTrackerAction::CConnectTrackerAction( std::vector< unsigned char > const & _payload )
+: m_payload( _payload )
+, m_request( 0 )
+{
+initiate();
+}
+
 CConnectTrackerAction::CConnectTrackerAction( std::string const & _trackerAddress )
 	: m_trackerAddress( _trackerAddress )
 	, m_request( 0 )
 {
+	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
+	{
+		m_payload.push_back( insecure_rand() % 256 );
+	}
+	initiate();
 }
 
 common::CRequest< TrackerResponses >*

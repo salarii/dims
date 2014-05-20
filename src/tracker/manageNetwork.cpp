@@ -899,7 +899,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 			return NULL;
 
 		// Look for an existing connection
-		CSelfNode* pnode = FindNode((CService)addrConnect);
+		CSelfNode* pnode = findNode((CService)addrConnect);
 		if (pnode)
 		{
 			pnode->AddRef();
@@ -1106,14 +1106,14 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 	{
 		//
 	}
-	else if ( CPayloadKind::InfoRequest )
+	else if ( CPayloadKind::InfoReq )
 	{
 		//
 	}
-	else if ( CPayloadKind::Introduction )
+	else if ( CPayloadKind::IntroductionReq )
 	{
-		CIdentifyMessage identifyMessage;
-		convertPayload( identifyMessage );
+	//	CIdentifyMessage identifyMessage;
+	//	convertPayload( identifyMessage );
 	}
 	else if ( CPayloadKind::Uninitiated )
 	{

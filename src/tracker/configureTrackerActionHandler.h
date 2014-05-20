@@ -12,7 +12,7 @@
 
 #include "common/mediumException.h"
 
-#include "net.h"
+#include "selfNode.h"
 
 namespace tracker
 {
@@ -26,8 +26,8 @@ struct CValidationResult
 
 struct CConnectedNode
 {
-	CConnectedNode( CNode * _node ):m_node( _node ){};
-	CNode * m_node;
+	CConnectedNode( CSelfNode * _node ):m_node( _node ){};
+	CSelfNode * m_node;
 };
 
 // list all desired types

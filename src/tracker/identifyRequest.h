@@ -8,6 +8,10 @@
 #include "common/request.h"
 #include "net.h"
 #include "configureTrackerActionHandler.h"
+#include "common/medium.h"
+
+#include "trackerMediumsKinds.h"
+#include "util.h"
 
 namespace tracker
 {
@@ -15,7 +19,7 @@ namespace tracker
 class CIdentifyRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CIdentifyRequest( CNode * _node );
+	CIdentifyRequest( CNode * _node, std::vector< unsigned char > const & _payload );
 
 	void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
@@ -25,10 +29,25 @@ public:
 
 	CNode * getNode() const;
 private:
-	static int const ms_randomPayloadLenght = 32;
 
 	std::vector< unsigned char > m_payload;
 
+	CNode * m_node;
+};
+
+class CIdentifyResponse : public common::CRequest< TrackerResponses >
+{
+public:
+	CIdentifyResponse( CNode * _node, std::vector< unsigned char > const & _signed, uint160 _keyId );
+
+	void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	int getKind() const;
+
+	CNode * getNode() const;
+private:
+	std::vector< unsigned char > m_signed;
+	uint160 m_keyId;
 	CNode * m_node;
 };
 

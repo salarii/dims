@@ -16,7 +16,7 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _ori
 	if ( _time < _message.m_header.m_time )
 		return false;
 
-	if ( _message.m_header.m_payloadKind != CPayloadKind::Introduction )
+	if ( _message.m_header.m_payloadKind != CPayloadKind::IntroductionReq )
 	{
 	uint256 messageHash = 	Hash( &_message.m_payload.front(), &_message.m_payload.back() );
 
@@ -81,7 +81,7 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 }
 
 CMessage::CMessage( CIdentifyMessage const & _identifyMessage )
-	: m_header( (int)CPayloadKind::Introduction, std::vector<unsigned char>(), GetTime(), CPubKey() )
+	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
 	unsigned int size = ::GetSerializeSize( _identifyMessage, SER_NETWORK, PROTOCOL_VERSION );
 	m_payload.resize( size );

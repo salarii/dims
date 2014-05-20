@@ -147,11 +147,12 @@ public:
 };
 
 
-template < class T >
-convertPayload( T & _message )
+template < class T, class O >
+void
+convertPayload( T & _message, O const & _object )
 {
-	CBufferAsStream stream( (char*)&m_payload.front(), m_payload.size(), SER_NETWORK, PROTOCOL_VERSION );
-	stream << _bundle;
+	CBufferAsStream stream( (char*)&_message.m_payload.front(), _message.m_payload.size(), SER_NETWORK, PROTOCOL_VERSION );
+	stream << _object;
 }
 
 

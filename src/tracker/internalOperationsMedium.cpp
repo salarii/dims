@@ -67,7 +67,7 @@ CInternalOperationsMedium::add( CConnectToTrackerRequest const *_request )
 {
 	CAddress addr;
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
-	CNode* node = CManageNetwork::getInstance()->connectNode(addr, _request->getAddress().c_str() );
+	CSelfNode* node = CManageNetwork::getInstance()->connectNode(addr, _request->getAddress().c_str() );
 
 	m_trackerResponses.push_back( CConnectedNode( node ) );
 }

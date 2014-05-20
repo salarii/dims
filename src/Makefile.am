@@ -161,6 +161,7 @@ TRACKER_CORE_CPP = \
   tracker/originAddressScaner.cpp \
   tracker/rpcTracker.cpp \
   tracker/segmentFileStorage.cpp \
+  tracker/selfNode.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/simpleBuddy.cpp \

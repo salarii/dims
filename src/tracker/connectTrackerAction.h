@@ -19,6 +19,8 @@ class CConnectTrackerAction : public common::CAction< TrackerResponses >, public
 public:
 	CConnectTrackerAction( std::string const & _trackerAddress );
 
+	CConnectTrackerAction( std::vector< unsigned char > const & _payload );
+
 	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
@@ -26,9 +28,15 @@ public:
 	void setRequest( common::CRequest< TrackerResponses >* _request );
 
 	std::string getAddress() const;
+
+	std::vector< unsigned char > getPayload() const;
 private:
 	common::CRequest< TrackerResponses >* m_request;
 	std::string const m_trackerAddress;
+
+	static int const ms_randomPayloadLenght = 32;
+
+	std::vector< unsigned char > m_payload;
 };
 
 

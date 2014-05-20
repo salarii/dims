@@ -44,7 +44,7 @@ CNodeMedium::add( CIdentifyRequest const * _request )
 
 	CMessage message( identifyMessage );
 
-	_request->
+	//_request->
 
 }
 
