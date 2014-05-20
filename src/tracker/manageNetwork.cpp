@@ -211,7 +211,7 @@ void
 CManageNetwork::advertizeLocal()
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 	{
 		if (pnode->fSuccessfullyConnected)
 		{
@@ -237,8 +237,8 @@ CManageNetwork::threadSocketHandler()
 		{
 			LOCK(cs_vNodes);
 			// Disconnect unused nodes
-			vector<CNode*> vNodesCopy = m_nodes;
-			BOOST_FOREACH(CNode* pnode, vNodesCopy)
+			vector<CSelfNode*> vNodesCopy = m_nodes;
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 			{
 				if (pnode->fDisconnect ||
 					(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())
@@ -263,8 +263,8 @@ CManageNetwork::threadSocketHandler()
 		}
 		{
 			// Delete disconnected nodes
-			list<CNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
-			BOOST_FOREACH(CNode* pnode, vNodesDisconnectedCopy)
+			list<CSelfNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
+			BOOST_FOREACH(CSelfNode* pnode, vNodesDisconnectedCopy)
 			{
 				// wait until threads are done using it
 				if (pnode->GetRefCount() <= 0)
@@ -319,7 +319,7 @@ CManageNetwork::threadSocketHandler()
 		}
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, m_nodes)
+			BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 			{
 				if (pnode->hSocket == INVALID_SOCKET)
 					continue;
@@ -400,7 +400,7 @@ CManageNetwork::threadSocketHandler()
 
 				{
 					LOCK(cs_vNodes);
-					BOOST_FOREACH(CNode* pnode, m_nodes)
+					BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 						if (pnode->fInbound)
 							nInbound++;
 				}
@@ -427,7 +427,7 @@ CManageNetwork::threadSocketHandler()
 				else
 				{
 					LogPrint("net", "accepted connection %s\n", addr.ToString());
-					CNode* pnode = new CNode(hSocket, addr, "", true);
+					CSelfNode* pnode = new CSelfNode(hSocket, addr, "", true);
 					pnode->AddRef();
 					{
 						LOCK(cs_vNodes);
@@ -440,14 +440,14 @@ CManageNetwork::threadSocketHandler()
 			//
 			// Service each socket
 			//
-			vector<CNode*> vNodesCopy;
+			vector<CSelfNode*> vNodesCopy;
 			{
 				LOCK(cs_vNodes);
 				vNodesCopy = m_nodes;
-				BOOST_FOREACH(CNode* pnode, vNodesCopy)
+				BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 					pnode->AddRef();
 			}
-			BOOST_FOREACH(CNode* pnode, vNodesCopy)
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 			{
 				boost::this_thread::interruption_point();
 
@@ -533,7 +533,7 @@ CManageNetwork::threadSocketHandler()
 			}
 			{
 				LOCK(cs_vNodes);
-				BOOST_FOREACH(CNode* pnode, vNodesCopy)
+				BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 					pnode->Release();
 			}
 
@@ -595,7 +595,7 @@ CManageNetwork::threadOpenAddedConnections()
 		// (keeping in mind that addnode entries can have many IPs if fNameLookup)
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, m_nodes)
+			BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 				for (list<vector<CService> >::iterator it = lservAddressesToAdd.begin(); it != lservAddressesToAdd.end(); it++)
 					BOOST_FOREACH(CService& addrNode, *(it))
 					if (pnode->addr == addrNode)
@@ -670,7 +670,7 @@ CManageNetwork::threadOpenConnections()
 		set<vector<unsigned char> > setConnected;
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, m_nodes) {
+			BOOST_FOREACH(CSelfNode* pnode, m_nodes) {
 				if (!pnode->fInbound) {
 					setConnected.insert(pnode->addr.GetGroup());
 					nOutbound++;
@@ -717,11 +717,11 @@ CManageNetwork::threadOpenConnections()
 	}
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::findNode(const CNetAddr& ip)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 		if ((CNetAddr)pnode->addr == ip)
 			return (pnode);
 	return NULL;
@@ -842,21 +842,21 @@ CManageNetwork::bindListenPort(const CService &addrBind, string& strError)
 	return true;
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::findNode(std::string addrName)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 		if (pnode->addrName == addrName)
 			return (pnode);
 	return NULL;
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::findNode(const CService& addr)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 		if ((CService)pnode->addr == addr)
 			return (pnode);
 	return NULL;
@@ -871,13 +871,13 @@ CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGra
 	boost::this_thread::interruption_point();
 /*	if (!strDest)
 		if (IsLocal(addrConnect) ||
-			FindNode((CNetAddr)addrConnect) || CNode::IsBanned(addrConnect) ||
+			FindNode((CNetAddr)addrConnect) || CSelfNode::IsBanned(addrConnect) ||
 			FindNode(addrConnect.ToStringIPPort().c_str()))
 			return false;*/
 //	if (strDest && FindNode(strDest))
 //		return false;
 
-	CNode* pnode = connectNode(addrConnect, strDest);
+	CSelfNode* pnode = connectNode(addrConnect, strDest);
 	boost::this_thread::interruption_point();
 
 	if (!pnode)
@@ -891,7 +891,7 @@ CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGra
 	return true;
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 {
 	if (pszDest == NULL) {
@@ -899,7 +899,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 			return NULL;
 
 		// Look for an existing connection
-		CNode* pnode = FindNode((CService)addrConnect);
+		CSelfNode* pnode = FindNode((CService)addrConnect);
 		if (pnode)
 		{
 			pnode->AddRef();
@@ -932,7 +932,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 #endif
 
 		// Add node
-		CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
+		CSelfNode* pnode = new CSelfNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
 		pnode->AddRef();
 
 		{
@@ -950,13 +950,13 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 }
 
 void
-CManageNetwork::StartSync(const vector<CNode*> &vNodes)
+CManageNetwork::StartSync(const vector<CSelfNode*> &vNodes)
 {
-	CNode *pnodeNewSync = NULL;
+	CSelfNode *pnodeNewSync = NULL;
 	double dBestScore = 0;
 
 	// Iterate over all nodes
-	BOOST_FOREACH(CNode* pnode, m_nodes) {
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes) {
 		// check preconditions for allowing a sync
 		if (!pnode->fClient && !pnode->fOneShot &&
 			!pnode->fDisconnect && pnode->fSuccessfullyConnected &&
@@ -984,11 +984,11 @@ CManageNetwork::threadMessageHandler()
 	{
 		bool fHaveSyncNode = false;
 
-		vector<CNode*> vNodesCopy;
+		vector<CSelfNode*> vNodesCopy;
 		{
 			LOCK(cs_vNodes);
 			vNodesCopy = m_nodes;
-			BOOST_FOREACH(CNode* pnode, vNodesCopy) {
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy) {
 				pnode->AddRef();
 				if (pnode == pnodeSync)
 					fHaveSyncNode = true;
@@ -999,13 +999,13 @@ CManageNetwork::threadMessageHandler()
 			StartSync(vNodesCopy);
 
 		// Poll the connected nodes for messages
-		CNode* pnodeTrickle = NULL;
+		CSelfNode* pnodeTrickle = NULL;
 		if (!vNodesCopy.empty())
 			pnodeTrickle = vNodesCopy[GetRand(vNodesCopy.size())];
 
 		bool fSleep = true;
 
-		BOOST_FOREACH(CNode* pnode, vNodesCopy)
+		BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 		{
 			if (pnode->fDisconnect)
 				continue;
@@ -1047,7 +1047,7 @@ nodes manager
 
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, vNodesCopy)
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 				pnode->Release();
 		}
 
@@ -1060,7 +1060,7 @@ nodes manager
 
 
 void
-CManageNetwork::processGetData(CNode* pfrom)
+CManageNetwork::processGetData(CSelfNode* pfrom)
 {
 
 	std::deque<CInv>::iterator it = pfrom->vRecvGetData.begin();
@@ -1092,12 +1092,33 @@ CManageNetwork::unregisterNodeSignals(CNodeSignals& nodeSignals)
 }
 
 bool
-CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
+CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 {
 	std::vector< CMessage > messages;
 	vRecv >> messages;
-	CNodesManager::getInstance()->processMessagesFormNode( pfrom, messages );
+//	CNodesManager::getInstance()->processMessagesFormNode( pfrom, messages );
 
+	CMessage message;
+	message.m_header;
+
+
+	if ( CPayloadKind::Transactions )
+	{
+		//
+	}
+	else if ( CPayloadKind::InfoRequest )
+	{
+		//
+	}
+	else if ( CPayloadKind::Introduction )
+	{
+		CIdentifyMessage identifyMessage;
+		convertPayload( identifyMessage );
+	}
+	else if ( CPayloadKind::Uninitiated )
+	{
+		//
+	}
 	/*
 
 	RandAddSeedPerfmon();
@@ -1198,8 +1219,8 @@ CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
 					uint64_t hashAddr = addr.GetHash();
 					uint256 hashRand = hashSalt ^ (hashAddr<<32) ^ ((GetTime()+hashAddr)/(24*60*60));
 					hashRand = Hash(BEGIN(hashRand), END(hashRand));
-					multimap<uint256, CNode*> mapMix;
-					BOOST_FOREACH(CNode* pnode, vNodes)
+					multimap<uint256, CSelfNode*> mapMix;
+					BOOST_FOREACH(CSelfNode* pnode, vNodes)
 					{
 						if (pnode->nVersion < CADDR_TIME_VERSION)
 							continue;
@@ -1210,7 +1231,7 @@ CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
 						mapMix.insert(make_pair(hashKey, pnode));
 					}
 					int nRelayNodes = fReachable ? 2 : 1; // limited relaying of addresses outside our network(s)
-					for (multimap<uint256, CNode*>::iterator mi = mapMix.begin(); mi != mapMix.end() && nRelayNodes-- > 0; ++mi)
+					for (multimap<uint256, CSelfNode*>::iterator mi = mapMix.begin(); mi != mapMix.end() && nRelayNodes-- > 0; ++mi)
 						((*mi).second)->PushAddress(addr);
 				}
 			}
@@ -1328,7 +1349,7 @@ CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
 				pfrom->setKnown.insert(alertHash);
 				{
 					LOCK(cs_vNodes);
-					BOOST_FOREACH(CNode* pnode, vNodes)
+					BOOST_FOREACH(CSelfNode* pnode, vNodes)
 						alert.RelayTo(pnode);
 				}
 			}
@@ -1357,7 +1378,7 @@ CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
 
 // requires LOCK(cs_vRecvMsg)
 bool
-CManageNetwork::processMessages(CNode* pfrom)
+CManageNetwork::processMessages(CSelfNode* pfrom)
 {
 	//if (fDebug)
 	//    LogPrintf("ProcessMessages(%"PRIszu" messages)\n", pfrom->vRecvMsg.size());
@@ -1479,11 +1500,9 @@ CManageNetwork::processMessages(CNode* pfrom)
 
 
 bool
-CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
+CManageNetwork::sendMessages(CSelfNode* pto, bool fSendTrickle)
 {
-	std::vector< CMessage > messages;
-	CNodesManager::getInstance()->getMessagesForNode( pto, messages );
-	pto->PushMessage("", messages);
+	pto->sendMessages();
 	/*
 	{
 		// Don't send anything until we get their version message
@@ -1526,7 +1545,7 @@ CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
 		{
 			{
 				LOCK(cs_vNodes);
-				BOOST_FOREACH(CNode* pnode, vNodes)
+				BOOST_FOREACH(CSelfNode* pnode, vNodes)
 				{
 					// Periodically clear setAddrKnown to allow refresh broadcasts
 					if (nLastRebroadcast)
@@ -1572,7 +1591,7 @@ CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
 				LogPrintf("Warning: not banning local node %s!\n", pto->addr.ToString());
 			else {
 				pto->fDisconnect = true;
-				CNode::Ban(pto->addr);
+				CSelfNode::Ban(pto->addr);
 			}
 			state.fShouldBan = false;
 		}

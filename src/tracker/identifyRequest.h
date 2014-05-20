@@ -20,10 +20,16 @@ public:
 	void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	int getKind() const;
+
+	std::vector< unsigned char > getPayload() const;
+
+	CNode * getNode() const;
 private:
 	static int const ms_randomPayloadLenght = 32;
 
-	unsigned char m_payload[ ms_randomPayloadLenght ];
+	std::vector< unsigned char > m_payload;
+
+	CNode * m_node;
 };
 
 }

@@ -11,10 +11,11 @@ namespace  tracker
 {
 
 CIdentifyRequest::CIdentifyRequest( CNode * _node )
+	:m_node( _node )
 {
 	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
 	{
-		m_payload[ i ] = insecure_rand() % 256;
+		m_payload.push_back( insecure_rand() % 256 );
 	}
 }
 
@@ -28,6 +29,12 @@ int
 CIdentifyRequest::getKind() const
 {
 	return CTrackerMediumsKinds::Nodes;// fix  it
+}
+
+std::vector< unsigned char >
+CIdentifyRequest::getPayload() const
+{
+	return m_payload;
 }
 
 }

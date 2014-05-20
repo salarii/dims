@@ -22,7 +22,7 @@ ratcoin managment     bitcoin management
 #include "netbase.h"
 #include "addrman.h"
 
-class CNode;
+class CSelfNode;
 
 /*
 overall this is  very very bad  design
@@ -51,9 +51,9 @@ public:
 	typedef int NodeId;
 	struct CNodeSignals
 	{
-		boost::signals2::signal<bool (CNode*)> ProcessMessages;
-		boost::signals2::signal<bool (CNode*, bool)> SendMessages;
-		boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
+		boost::signals2::signal<bool (CSelfNode*)> ProcessMessages;
+		boost::signals2::signal<bool (CSelfNode*, bool)> SendMessages;
+		boost::signals2::signal<void (NodeId, const CSelfNode*)> InitializeNode;
 		boost::signals2::signal<void (NodeId)> FinalizeNode;
 	};
 
@@ -65,7 +65,7 @@ public:
 public:
 	void mainLoop();
 
-	CNode* connectNode(CAddress addrConnect, const char *pszDest);
+	CSelfNode* connectNode(CAddress addrConnect, const char *pszDest);
 
 	static CManageNetwork* getInstance();
 
@@ -85,15 +85,15 @@ private:
 	bool
 	openNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *strDest, bool fOneShot = false);
 
-	CNode* findNode(const CNetAddr& ip);
+	CSelfNode* findNode(const CNetAddr& ip);
 
 	bool bindListenPort(const CService &addrBind, string& strError);
 
 	bool bind(const CService &addr, unsigned int flags);
 
-	CNode* findNode(std::string addrName);
+	CSelfNode* findNode(std::string addrName);
 
-	CNode* findNode(const CService& addr);
+	CSelfNode* findNode(const CService& addr);
 
 	void advertizeLocal();
 
@@ -105,15 +105,15 @@ private:
 
 	void threadOpenAddedConnections();
 
-	void StartSync(const vector<CNode*> &vNodes);
+	void StartSync(const vector<CSelfNode*> &vNodes);
 
-	bool sendMessages(CNode* pto, bool fSendTrickle);
+	bool sendMessages(CSelfNode* pto, bool fSendTrickle);
 
-	bool processMessages(CNode* pfrom);
+	bool processMessages(CSelfNode* pfrom);
 
-	bool processMessage(CNode* pfrom, CDataStream& vRecv);
+	bool processMessage(CSelfNode* pfrom, CDataStream& vRecv);
 
-	void processGetData(CNode* pfrom);
+	void processGetData(CSelfNode* pfrom);
 
 	void registerNodeSignals(CNodeSignals& nodeSignals);
 
@@ -137,16 +137,16 @@ private:
 	CCriticalSection cs_setservAddNodeAddresses;
 
 	set<CNetAddr> setservAddNodeAddresses;
-	std::vector<CNode*> m_nodes;
+	std::vector<CSelfNode*> m_nodes;
 
-	std::list<CNode*> m_nodesDisconnected;
+	std::list<CSelfNode*> m_nodesDisconnected;
 
 	std::vector<SOCKET> m_listenSocket;
 
 	map<CNetAddr, LocalServiceInfo> mapLocalHost;
 
 	uint64_t nLocalServices;
-	CNode* pnodeSync;
+	CSelfNode* pnodeSync;
 	CAddrMan addrman;
 	CNodeSignals m_signals;
 };

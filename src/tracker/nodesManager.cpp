@@ -45,12 +45,6 @@ CNodesManager::handleMessages()
 }
 
 bool
-CNodesManager::getMessagesForNode( CNode * _node, std::vector< CMessage > & _messages )
-{
-	return true;
-}
-
-bool
 CNodesManager::processMessagesFormNode( CNode * _node, std::vector< CMessage > const & _messages )
 {
 	return true;

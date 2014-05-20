@@ -7,6 +7,7 @@
 
 #include "net.h"
 #include "key.h"
+#include "communicationProtocol.h"
 
 namespace tracker
 {
@@ -14,10 +15,13 @@ namespace tracker
 class CSelfNode : public CNode
 {
 public:
-	CSelfNode(SOCKET hSocketIn, CAddress addrIn, std::string addrNameIn = "", bool fInboundIn=false):CNode( hSocketIn, addrIn, addrNameIn, fInboundIn ){};
-	CKeyID getPubKeyId();
+	void setMessageToSend( CMessage const & _message );
+
+	void sendMessages();
 private:
-	CPubKey m_pubKey;
+	mutable boost::mutex mutex;
+	std::vector< CMessage > m_messagesToSend;
+	std::vector< CMessage > m_receivedMessages;
 };
 
 }

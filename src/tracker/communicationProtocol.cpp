@@ -11,23 +11,27 @@ namespace tracker
 {
 
 bool
-CommunicationProtocol::unwindMessage( CMessage const & _message, CPubKey const &  _pubKey, Payload const & _payload, int64_t const _time )
+CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _originalMessage, int64_t const _time, CPubKey const &  _pubKey )
 {
-/*	if ( _time < _message.m_header.m_time )
+	if ( _time < _message.m_header.m_time )
 		return false;
 
-	uint256 messageHash = Hash(BEGIN(*_message.m_payload), END(_message));
+	if ( _message.m_header.m_payloadKind != CPayloadKind::Introduction )
+	{
+	uint256 messageHash = 	Hash( &_message.m_payload.front(), &_message.m_payload.back() );
 
 	if ( !_pubKey.Verify(messageHash, _message.m_header.m_signedHash ) )
 		return false;
+	}
 
 	if( _message.m_header.m_prevKey.IsValid() )
 	{
-		return unwindMessage(*(CMessage*)_message.m_payload, _pubKey, _payload, _message.m_header.m_time );
+		return unwindMessage(*(CMessage*)&_message.m_payload[0], _originalMessage, _message.m_header.m_time, _pubKey );
 	}
 
+	_originalMessage = _message;
 	//_payload =*(Payload *)_message.m_payload;
-*/
+
 	return true;
 }
 
@@ -74,6 +78,15 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 	uint256 hash = Hash( &m_payload.front(), &m_payload.back() );
 
 	CAuthenticationProvider::getInstance()->sign( hash, m_header.m_signedHash );
+}
+
+CMessage::CMessage( CIdentifyMessage const & _identifyMessage )
+	: m_header( (int)CPayloadKind::Introduction, std::vector<unsigned char>(), GetTime(), CPubKey() )
+{
+	unsigned int size = ::GetSerializeSize( _identifyMessage, SER_NETWORK, PROTOCOL_VERSION );
+	m_payload.resize( size );
+	CBufferAsStream stream( (char*)&m_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
+	stream << _identifyMessage;
 }
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash )

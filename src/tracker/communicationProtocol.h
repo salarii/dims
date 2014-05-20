@@ -17,8 +17,10 @@ struct CPayloadKind
 	enum Enum
 	{
 		Transactions,
-		InfoRequest,
-		Introduction,
+		InfoReq,
+		InfoRes,
+		IntroductionReq,
+		IntroductionRes,
 		Uninitiated
 	};
 };
@@ -49,7 +51,7 @@ public:
 
 	Payload retrieveData();
 
-	static bool unwindMessage( CMessage const & _message, CPubKey const & _pubKey, Payload const & _payload, int64_t const _time );
+	static bool unwindMessage( CMessage const & _message, CMessage & _originalMessage, int64_t const _time, CPubKey const & _pubKey );
 private:
 	CAuthenticationProvider * m_authenticationProvider;
 };
@@ -108,7 +110,6 @@ struct CHeader
 	CPubKey m_prevKey;
 };
 
-template< int size >
 struct CIdentifyMessage
 {
 //Hash(&ip[0], &ip[16]);
@@ -118,7 +119,8 @@ struct CIdentifyMessage
 		READWRITE(m_key);
 		READWRITE(m_signed);
 	)
-	unsigned char m_payload[ size ];
+
+	std::vector<unsigned char> m_payload;
 	CKeyID m_key;
 	std::vector<unsigned char> m_signed;
 };
@@ -127,6 +129,7 @@ struct CMessage
 {
 public:
 	CMessage();
+	CMessage( CIdentifyMessage const & _identifyMessage );
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
 	IMPLEMENT_SERIALIZE
@@ -142,6 +145,14 @@ public:
 	CHeader m_header;
 	std::vector< unsigned char > m_payload;
 };
+
+
+template < class T >
+convertPayload( T & _message )
+{
+	CBufferAsStream stream( (char*)&m_payload.front(), m_payload.size(), SER_NETWORK, PROTOCOL_VERSION );
+	stream << _bundle;
+}
 
 
 }

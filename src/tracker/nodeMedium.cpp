@@ -5,6 +5,7 @@
 #include "common/medium.h"
 #include "identifyRequest.h"
 #include "communicationProtocol.h"
+#include "nodeMedium.h"
 
 namespace tracker
 {
@@ -23,14 +24,14 @@ CNodeMedium::flush()
 }
 
 bool
-CNodeMedium::getResponse( std::vector< RequestResponse > & _requestResponse ) const
+CNodeMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
 {
 
 }
 
 
 void
-CNodeMedium::add( CRequest const * _request )
+CNodeMedium::add( common::CRequest< TrackerResponses > const * _request )
 {
 
 }
@@ -38,6 +39,12 @@ CNodeMedium::add( CRequest const * _request )
 void
 CNodeMedium::add( CIdentifyRequest const * _request )
 {
+	CIdentifyMessage identifyMessage;
+	identifyMessage.m_payload = _request->getPayload();
+
+	CMessage message( identifyMessage );
+
+	_request->
 
 }
 
