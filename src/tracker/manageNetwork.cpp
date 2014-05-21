@@ -1149,6 +1149,9 @@ CManageNetwork::processMessages(CSelfNode* pfrom)
 	//  (4) checksum
 	//  (x) data
 	//
+	pfrom->setMessageToSend( CMessage() );
+	pfrom->sendMessages();
+	return true;
 	bool fOk = true;
 
 	if (!pfrom->vRecvGetData.empty())
