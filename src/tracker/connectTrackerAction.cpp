@@ -51,13 +51,9 @@ struct CUnidentifiedReq : boost::statechart::state< CUnidentifiedReq, CConnectTr
 {
 	CUnidentifiedReq( my_context ctx ) : my_base( ctx )
 	{
+		CNodeConnectedEvent const* connectedEvent = dynamic_cast< CNodeConnectedEvent const* >( simple_state::triggering_event() );
 
-	//	new CConnectToTrackerRequest( context< CConnectTrackerAction >().getPayload() );
-
-		//if (
-		// node
-		// if  defined use payload  to send proper identificatio
-			//boost::statechart::simple_state::triggering_event();
+		context< CConnectTrackerAction >().setRequest( new CIdentifyRequest( connectedEvent->m_node, context< CConnectTrackerAction >().getPayload() ) );
 	}
 };
 
@@ -74,13 +70,15 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CConnec
 CConnectTrackerAction::CConnectTrackerAction( std::vector< unsigned char > const & _payload )
 : m_payload( _payload )
 , m_request( 0 )
+, m_passive( true )
 {
-initiate();
+	initiate();
 }
 
 CConnectTrackerAction::CConnectTrackerAction( std::string const & _trackerAddress )
 	: m_trackerAddress( _trackerAddress )
 	, m_request( 0 )
+	, m_passive( false )
 {
 	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
 	{
@@ -111,6 +109,12 @@ std::string
 CConnectTrackerAction::getAddress() const
 {
 	return m_trackerAddress;
+}
+
+std::vector< unsigned char >
+CConnectTrackerAction::getPayload() const
+{
+	return m_payload;
 }
 
 }

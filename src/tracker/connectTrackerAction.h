@@ -37,6 +37,8 @@ private:
 	static int const ms_randomPayloadLenght = 32;
 
 	std::vector< unsigned char > m_payload;
+
+	bool const m_passive;
 };
 
 
