@@ -27,7 +27,7 @@ CSelfNode::sendMessages()
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
 	if ( !m_messagesToSend.empty() )
-		PushMessage("", m_messagesToSend);
+		ssSend << m_messagesToSend;
 
 	m_messagesToSend.clear();
 }
