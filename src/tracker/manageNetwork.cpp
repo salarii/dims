@@ -1114,13 +1114,13 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 		}
 		else if ( message.m_header.m_payloadKind == CPayloadKind::IntroductionReq )
 		{
-		/*	CIdentifyMessage identifyMessage;
+			CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
 			CConnectTrackerAction * action = new CConnectTrackerAction( identifyMessage.m_payload );
 
 			action->process_event( CIntroduceEvent( pfrom ) );
-			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( action );*/
+			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( action );
 		}
 		else if ( message.m_header.m_payloadKind == CPayloadKind::Uninitiated )
 		{

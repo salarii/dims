@@ -73,36 +73,7 @@ struct CHeader
 		READWRITE(m_time);
 		READWRITE(m_prevKey);
 	)
-/*
-	unsigned int GetSerializeSize(int nType, int nVersion) const
-	{
-		unsigned size = 0;
-		size+= ::GetSerializeSize(VARINT(m_payloadKind), nType, nVersion);
-		size+= m_signedHash.GetSerializeSize(nType, nVersion);
-		size+= ::GetSerializeSize(VARINT(m_time), nType, nVersion);
-		size+= m_prevKey.GetSerializeSize(nType, nVersion);
 
-		return size;
-	}
-
-	template<typename Stream>
-	void Unserialize(Stream& s, int nType, int nVersion)
-	{
-		s >> VARINT(m_payloadKind);
-		::Unserialize( s, m_signedHash, nType, nVersion );
-		s >> VARINT( m_time );
-		m_prevKey.Unserialize( s, nType, nVersion );
-	}
-
-	template<typename Stream>
-	void Serialize(Stream &s, int nType, int nVersion)
-	{
-		s<<VARINT(m_payloadKind);
-		::Serialize( s, m_signedHash, nType, nVersion );
-		s<<VARINT( m_time );
-		m_prevKey.Serialize( s, nType, nVersion );
-	}
-*/
 	CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey );
 	int m_payloadKind;
 	std::vector<unsigned char> m_signedHash;
@@ -135,8 +106,7 @@ public:
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);
-	//	READWRITE(m_payload);
-	//	READWRITE();
+		READWRITE(m_payload);
 	)
 
 	~CMessage(){};
