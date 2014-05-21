@@ -36,6 +36,11 @@ struct CIdentificationResult
 	CSelfNode * m_node;
 };
 
+struct CContinueResult
+{
+	uint256 m_key;
+};
+
 // list all desired types
 typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, CConnectedNode, CIdentificationResult > TrackerResponseList;
 

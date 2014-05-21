@@ -31,7 +31,11 @@ void
 CNodesManager::addNode( CSelfNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
-	m_unidentified.push_back( _node );
+
+	m_ptrToNodes.insert( convertToInt( _node ), new CNodeMedium( _node ) );
+
+
+
 }
 
 void
@@ -64,16 +68,22 @@ CNodesManager::analyseMessage()
 }
 
 std::list< common::CMedium< TrackerResponses > *>
-CNodesManager::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+CNodesManager::provideConnection( int _actionKind, unsigned _requestedConnectionNumber )
 {
-	if ( CTrackerMediumsKinds::Nodes == _actionKind )
+	std::list< common::CMedium< TrackerResponses > *> mediums;
+
+	std::map< unsigned int, CNodeMedium* >::iterator iterator = m_ptrToNodes.find( ( unsigned int )_actionKind );
+
+	if( iterator != m_ptrToNodes.end() )
+	{
+		mediums.push_back( iterator.second );
+	}
+	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
 	{
 		return m_nodeMediums;
 	}
-	else
-	{
-		return std::list< common::CMedium< TrackerResponses > *>();
-	}
+
+	return mediums;
 }
 
 }

@@ -18,6 +18,12 @@ namespace tracker
 */
 class CNodeMedium;
 
+template < class T >
+unsigned int convertToInt( T * _t )
+{
+	return static_cast< unsigned int >( _t );
+}
+
 class CNodesManager : public common::CConnectionProvider< TrackerResponses >
 {
 public:
@@ -47,7 +53,9 @@ private:
 
 	mutable boost::mutex m_nodesLock;
 
-	std::list< CSelfNode * > m_unidentified;
+	//std::list< CSelfNode * > m_unidentified;
+
+	std::map< unsigned int, CNodeMedium* > m_ptrToNodes;
 private:
 	static CNodesManager * ms_instance;
 

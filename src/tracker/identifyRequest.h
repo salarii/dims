@@ -19,7 +19,7 @@ namespace tracker
 class CIdentifyRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CIdentifyRequest( CSelfNode * _node, std::vector< unsigned char > const & _payload );
+	CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload );
 
 	void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
@@ -32,13 +32,13 @@ private:
 
 	std::vector< unsigned char > m_payload;
 
-	CSelfNode * m_node;
+	unsigned int m_kind;
 };
 
 class CIdentifyResponse : public common::CRequest< TrackerResponses >
 {
 public:
-	CIdentifyResponse( CSelfNode * _node, std::vector< unsigned char > const & _signed, uint160 _keyId );
+	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId );
 
 	void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
@@ -50,7 +50,7 @@ public:
 
 	uint160 getKeyID() const;
 private:
-	CSelfNode * m_node;
+	unsigned int m_kind;
 	std::vector< unsigned char > m_signed;
 	uint160 m_keyId;
 };

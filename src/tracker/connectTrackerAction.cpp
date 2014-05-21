@@ -53,7 +53,7 @@ struct CUnidentifiedReq : boost::statechart::state< CUnidentifiedReq, CConnectTr
 	{
 		CNodeConnectedEvent const* connectedEvent = dynamic_cast< CNodeConnectedEvent const* >( simple_state::triggering_event() );
 
-		context< CConnectTrackerAction >().setRequest( new CIdentifyRequest( connectedEvent->m_node, context< CConnectTrackerAction >().getPayload() ) );
+		context< CConnectTrackerAction >().setRequest( new CIdentifyRequest( convertToInt( connectedEvent->m_node ), context< CConnectTrackerAction >().getPayload() ) );
 	}
 
 	typedef boost::mpl::list<

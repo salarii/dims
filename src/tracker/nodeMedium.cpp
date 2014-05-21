@@ -10,6 +10,18 @@
 namespace tracker
 {
 
+class CHandleNodeResponses : public boost::static_visitor< void >
+{
+public:
+	CHandleClientRequestVisitor(CNodeMedium * const _nodeMedium):m_nodeMedium( _nodeMedium ){};
+
+	void operator()( CIdentifyMessage const & _identifyMessage ) const
+	{
+	}
+private:
+	CNodeMedium * const m_nodeMedium;
+};
+
 bool
 CNodeMedium::serviced() const
 {

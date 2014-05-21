@@ -8,8 +8,8 @@
 namespace  tracker
 {
 
-CIdentifyRequest::CIdentifyRequest( CSelfNode * _node, std::vector< unsigned char > const & _payload )
-	: m_node( _node )
+CIdentifyRequest::CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload )
+	: m_kind( _kind )
 	, m_payload( _payload )
 {
 }
@@ -23,7 +23,7 @@ CIdentifyRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 int
 CIdentifyRequest::getKind() const
 {
-	return CTrackerMediumsKinds::Nodes;// fix  it
+	return m_kind;
 }
 
 std::vector< unsigned char >
@@ -38,8 +38,8 @@ CIdentifyRequest::getNode() const
 	return m_node;
 }
 
-CIdentifyResponse::CIdentifyResponse( CSelfNode * _node, std::vector< unsigned char > const & _signed, uint160 _keyId )
-	: m_node( _node )
+CIdentifyResponse::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId )
+	: m_kind( _kind )
 	, m_signed( _signed )
 	, m_keyId( _keyId )
 {
@@ -54,7 +54,7 @@ CIdentifyResponse::accept( common::CMedium< TrackerResponses > * _medium ) const
 int
 CIdentifyResponse::getKind() const
 {
-	return CTrackerMediumsKinds::Nodes;
+	return m_kind;
 }
 
 CSelfNode *

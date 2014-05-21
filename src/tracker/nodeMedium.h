@@ -15,6 +15,8 @@ class CIdentifyRequest;
 class CNodeMedium : public common::CMedium< TrackerResponses >
 {
 public:
+	CNodeMedium( CSelfNode * _selfNode ):m_usedNode( _selfNode ){};
+
 	bool serviced() const;
 
 	bool flush();
