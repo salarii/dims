@@ -70,6 +70,8 @@ public:
 	static CManageNetwork* getInstance();
 
 	bool connectToNetwork( boost::thread_group& threadGroup );
+
+	void registerNodeSignals();
 private:
 	CManageNetwork();
 // some  of  this  is  copy paste from  net.cpp
@@ -114,8 +116,6 @@ private:
 	bool processMessage(CSelfNode* pfrom, CDataStream& vRecv);
 
 	void processGetData(CSelfNode* pfrom);
-
-	void registerNodeSignals(CNodeSignals& nodeSignals);
 
 	void
 	unregisterNodeSignals(CNodeSignals& nodeSignals);

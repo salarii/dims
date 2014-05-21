@@ -26,7 +26,7 @@ struct CConnecting : boost::statechart::state< CConnecting, CConnectTrackerActio
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< CRequestedEvent, CUnidentifiedResp >,
+	boost::statechart::transition< CIntroduceEvent, CUnidentifiedResp >,
 	boost::statechart::transition< CNodeConnectedEvent, CUnidentifiedReq >
 	> reactions;
 
@@ -36,7 +36,7 @@ struct CUnidentifiedResp : boost::statechart::state< CUnidentifiedResp, CConnect
 {
 	CUnidentifiedResp( my_context ctx ) : my_base( ctx )
 	{
-		CRequestedEvent const* requestedEvent = dynamic_cast< CRequestedEvent const* >( simple_state::triggering_event() );
+		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
 
 		uint256 hash = Hash( &context< CConnectTrackerAction >().getPayload().front(), &context< CConnectTrackerAction >().getPayload().back() );
 
@@ -55,6 +55,11 @@ struct CUnidentifiedReq : boost::statechart::state< CUnidentifiedReq, CConnectTr
 
 		context< CConnectTrackerAction >().setRequest( new CIdentifyRequest( connectedEvent->m_node, context< CConnectTrackerAction >().getPayload() ) );
 	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CIntroduceEvent, CUnidentifiedResp >
+	> reactions;
+
 };
 
 struct CIdentified : boost::statechart::simple_state< CIdentified, CConnectTrackerAction >

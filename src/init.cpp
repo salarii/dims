@@ -1047,6 +1047,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CNodesManager::getInstance() );
+	tracker::CManageNetwork::getInstance()->registerNodeSignals();
 
 	tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 	// ********************************************************* Step 10: load peers
@@ -1086,6 +1087,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     tracker::runServer();
 
 	StartNode(threadGroup);
+
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
 	if (fServer)

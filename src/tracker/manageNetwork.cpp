@@ -1076,7 +1076,7 @@ CManageNetwork::processGetData(CSelfNode* pfrom)
 }
 
 void
-CManageNetwork::registerNodeSignals(CNodeSignals& nodeSignals)
+CManageNetwork::registerNodeSignals()
 {
 	boost::bind( &CManageNetwork::processMessages, this );
 
@@ -1119,7 +1119,7 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 
 			CConnectTrackerAction * action = new CConnectTrackerAction( identifyMessage.m_payload );
 
-			action->process_event( CRequestedEvent( pfrom ) );
+			action->process_event( CIntroduceEvent( pfrom ) );
 			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( action );
 		}
 		else if ( message.m_header.m_payloadKind == CPayloadKind::Uninitiated )

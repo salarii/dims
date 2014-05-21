@@ -15,9 +15,9 @@ struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 	CSelfNode * m_node;
 };
 
-struct CRequestedEvent : boost::statechart::event< CRequestedEvent >
+struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 {
-	CRequestedEvent( CSelfNode * _node ):m_node( _node ){};
+	CIntroduceEvent( CSelfNode * _node ):m_node( _node ){};
 	CSelfNode * m_node;
 };
 

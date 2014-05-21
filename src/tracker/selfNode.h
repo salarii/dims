@@ -23,7 +23,7 @@ public:
 
 	void sendMessages();
 private:
-	mutable boost::mutex mutex;
+	mutable boost::mutex m_mutex;
 	std::vector< CMessage > m_messagesToSend;
 	std::vector< CMessage > m_receivedMessages;
 };

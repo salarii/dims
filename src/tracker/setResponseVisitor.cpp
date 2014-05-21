@@ -52,6 +52,12 @@ public:
 	{
 		this->m_action->process_event( tracker::CNodeConnectedEvent( _param.m_node ) );
 	}
+
+	virtual void operator()( tracker::CIdentificationResult & _param ) const
+	{
+		this->m_action->process_event( tracker::CIntroduceEvent( _param.m_node ) );
+	}
+
 };
 
 

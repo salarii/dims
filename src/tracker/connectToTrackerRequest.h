@@ -22,7 +22,7 @@ public:
 
 	std::string getAddress() const;
 private:
-	std::string const & m_trackerAddress;
+	std::string const m_trackerAddress;
 
 };
 

@@ -13,7 +13,7 @@ namespace tracker
 bool
 CNodeMedium::serviced() const
 {
-
+	return false;
 }
 
 
@@ -26,7 +26,8 @@ CNodeMedium::flush()
 bool
 CNodeMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
 {
-
+	_requestResponse.push_back( CIdentificationResult(m_usedNode) );
+	return true;
 }
 
 void
@@ -49,6 +50,7 @@ CNodeMedium::add( CIdentifyRequest const * _request )
 
 	CMessage message( identifyMessage );
 
+	m_usedNode = _request->getNode();
 	_request->getNode()->setMessageToSend( message );
 }
 
@@ -63,6 +65,7 @@ CNodeMedium::add( CIdentifyResponse const * _request )
 
 	CMessage message( identifyMessage );
 
+	m_usedNode = _request->getNode();
 	_request->getNode()->setMessageToSend( message );
 }
 

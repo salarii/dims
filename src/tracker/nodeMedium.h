@@ -29,7 +29,7 @@ public:
 
 	void add( CIdentifyResponse const * _request );
 private:
-
+	CSelfNode * m_usedNode;
 };
 
 
