@@ -14,33 +14,26 @@ class CNode;
 namespace tracker
 {
 /*
-this  should  store  addresses  and  manage  conections  to other  nodes,  such  like  other  trackers  and  monitors 
-this should  be also  store  on  relevant  information  about  known  nodes  such  like  fees
-
-this in case when  nodes  can't  access  monitor because  of  huge  congestion
-the effort  should be  made  to  decrease monitors overhead  since  thay  may be  performing  quite heavy  auditing  operations
-
+ * crappy design
 */
-
+class CNodeMedium;
 
 class CNodesManager : public common::CConnectionProvider< TrackerResponses >
 {
 public:
-	void PropagateBundle( std::vector< CTransaction > _bundle );
-	
-	bool getMessagesForNode( CNode * _node, std::vector< CMessage > & _messages );
+	bool getMessagesForNode( CSelfNode * _node, std::vector< CMessage > & _messages );
 
-	bool processMessagesFormNode( CNode * _node, std::vector< CMessage > const & _messages );
+	bool processMessagesFormNode( CSelfNode * _node, std::vector< CMessage > const & _messages );
 
 	void connectNodes();
 
-	void addNode( CNode * _node );
+	void addNode( CSelfNode * _node );
 
 	bool isNodeHonest();
 
 	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
 
-	std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ){ return std::list< common::CMedium< TrackerResponses > *>();}
+	std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 
 	static CNodesManager * getInstance();
 private:
@@ -54,9 +47,11 @@ private:
 
 	mutable boost::mutex m_nodesLock;
 
-	std::list< CNode * > m_unidentified;
+	std::list< CSelfNode * > m_unidentified;
 private:
 	static CNodesManager * ms_instance;
+
+	std::list< common::CMedium< TrackerResponses > *> m_nodeMediums;
 };
 
 }

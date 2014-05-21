@@ -11,16 +11,25 @@ namespace tracker
 {
 
 class CIdentifyRequest;
-
+//I don't know  how to identify which what response is to what  request  yet
 class CNodeMedium : public common::CMedium< TrackerResponses >
 {
 public:
 	bool serviced() const;
+
 	bool flush();
+
 	bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
+
+	void clearResponses();
+
 	void add( common::CRequest< TrackerResponses > const * _request );
 
 	void add( CIdentifyRequest const * _request );
+
+	void add( CIdentifyResponse const * _request );
+private:
+
 };
 
 

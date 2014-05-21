@@ -8,7 +8,7 @@
 namespace  tracker
 {
 
-CIdentifyRequest::CIdentifyRequest( CNode * _node, std::vector< unsigned char > const & _payload )
+CIdentifyRequest::CIdentifyRequest( CSelfNode * _node, std::vector< unsigned char > const & _payload )
 	: m_node( _node )
 	, m_payload( _payload )
 {
@@ -32,8 +32,18 @@ CIdentifyRequest::getPayload() const
 	return m_payload;
 }
 
-CIdentifyResponse::CIdentifyResponse( CNode * _node, std::vector< unsigned char > const & _signed, uint160 _keyId )
-{}
+CSelfNode *
+CIdentifyRequest::getNode() const
+{
+	return m_node;
+}
+
+CIdentifyResponse::CIdentifyResponse( CSelfNode * _node, std::vector< unsigned char > const & _signed, uint160 _keyId )
+	: m_node( _node )
+	, m_signed( _signed )
+	, m_keyId( _keyId )
+{
+}
 
 void
 CIdentifyResponse::accept( common::CMedium< TrackerResponses > * _medium ) const
@@ -44,13 +54,25 @@ CIdentifyResponse::accept( common::CMedium< TrackerResponses > * _medium ) const
 int
 CIdentifyResponse::getKind() const
 {
-	return 0;
+	return CTrackerMediumsKinds::Nodes;
 }
 
-CNode *
+CSelfNode *
 CIdentifyResponse::getNode() const
 {
-	return 0;
+	return m_node;
+}
+
+std::vector< unsigned char >
+CIdentifyResponse::getSigned() const
+{
+	return m_signed;
+}
+
+uint160
+CIdentifyResponse::getKeyID() const
+{
+	return m_keyId;
 }
 
 }

@@ -29,6 +29,11 @@ CNodeMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) c
 
 }
 
+void
+CNodeMedium::clearResponses()
+{
+
+}
 
 void
 CNodeMedium::add( common::CRequest< TrackerResponses > const * _request )
@@ -44,8 +49,21 @@ CNodeMedium::add( CIdentifyRequest const * _request )
 
 	CMessage message( identifyMessage );
 
-	//_request->
+	_request->getNode()->setMessageToSend( message );
+}
 
+void
+CNodeMedium::add( CIdentifyResponse const * _request )
+{
+	CIdentifyMessage identifyMessage;
+
+	identifyMessage.m_signed = _request->getSigned();
+
+	identifyMessage.m_key = _request->getKeyID();
+
+	CMessage message( identifyMessage );
+
+	_request->getNode()->setMessageToSend( message );
 }
 
 }

@@ -19,6 +19,8 @@ public:
 
 	void setMessageToSend( CMessage const & _message );
 
+	void setMessagesToSend( std::vector< CMessage > const & _messages );
+
 	void sendMessages();
 private:
 	mutable boost::mutex mutex;

@@ -8,6 +8,13 @@ namespace tracker
 {
 
 void
+CSelfNode::setMessagesToSend( std::vector< CMessage > const & _messages )
+{
+	boost::lock_guard<boost::mutex> lock( mutex );
+	m_messagesToSend.insert( m_messagesToSend.end(), _messages.begin(), _messages.end() );
+}
+
+void
 CSelfNode::setMessageToSend( CMessage const & _message )
 {
 	boost::lock_guard<boost::mutex> lock( mutex );
@@ -19,7 +26,8 @@ CSelfNode::sendMessages()
 {
 	boost::lock_guard<boost::mutex> lock( mutex );
 
-	PushMessage("", m_messagesToSend);
+	if ( !m_messagesToSend.empty() )
+		PushMessage("", m_messagesToSend);
 
 	m_messagesToSend.clear();
 }

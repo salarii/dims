@@ -4,6 +4,7 @@
 
 #include "connectToTrackerRequest.h"
 #include "common/medium.h"
+#include "trackerMediumsKinds.h"
 
 namespace tracker
 {
@@ -22,7 +23,7 @@ CConnectToTrackerRequest::accept( common::CMedium< TrackerResponses > * _medium 
 int
 CConnectToTrackerRequest::getKind() const
 {
-	return 0;
+	return CTrackerMediumsKinds::Internal;
 }
 
 std::string

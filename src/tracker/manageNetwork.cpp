@@ -16,6 +16,10 @@
 #include "communicationProtocol.h"
 #include "nodesManager.h"
 
+#include "common/actionHandler.h"
+#include "connectTrackerAction.h"
+#include "connectTrackerActionEvents.h"
+
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
 namespace tracker
@@ -1098,26 +1102,30 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 	vRecv >> messages;
 //	CNodesManager::getInstance()->processMessagesFormNode( pfrom, messages );
 
-	CMessage message;
-	message.m_header;
+	BOOST_FOREACH( CMessage const & message, messages )
+	{
+		if ( message.m_header.m_payloadKind == CPayloadKind::Transactions )
+		{
+			//
+		}
+		else if ( message.m_header.m_payloadKind == CPayloadKind::InfoReq )
+		{
+			//
+		}
+		else if ( message.m_header.m_payloadKind == CPayloadKind::IntroductionReq )
+		{
+			CIdentifyMessage identifyMessage;
+			convertPayload( message, identifyMessage );
 
+			CConnectTrackerAction * action = new CConnectTrackerAction( identifyMessage.m_payload );
 
-	if ( CPayloadKind::Transactions )
-	{
-		//
-	}
-	else if ( CPayloadKind::InfoReq )
-	{
-		//
-	}
-	else if ( CPayloadKind::IntroductionReq )
-	{
-	//	CIdentifyMessage identifyMessage;
-	//	convertPayload( identifyMessage );
-	}
-	else if ( CPayloadKind::Uninitiated )
-	{
-		//
+			action->process_event( CRequestedEvent( pfrom ) );
+			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( action );
+		}
+		else if ( message.m_header.m_payloadKind == CPayloadKind::Uninitiated )
+		{
+			//
+		}
 	}
 	/*
 

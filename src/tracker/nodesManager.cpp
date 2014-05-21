@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "nodesManager.h"
+#include "nodeMedium.h"
+#include "trackerMediumsKinds.h"
 
 namespace tracker
 {
@@ -22,20 +24,14 @@ CNodesManager::getInstance( )
 
 CNodesManager::CNodesManager()
 {
-
+	m_nodeMediums.push_back( new CNodeMedium );
 }
 
 void
-CNodesManager::addNode( CNode * _node )
+CNodesManager::addNode( CSelfNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
 	m_unidentified.push_back( _node );
-}
-
-void
-CNodesManager::PropagateBundle( std::vector< CTransaction > _bundle )
-{
-
 }
 
 void
@@ -45,7 +41,7 @@ CNodesManager::handleMessages()
 }
 
 bool
-CNodesManager::processMessagesFormNode( CNode * _node, std::vector< CMessage > const & _messages )
+CNodesManager::processMessagesFormNode( CSelfNode * _node, std::vector< CMessage > const & _messages )
 {
 	return true;
 }
@@ -65,6 +61,19 @@ void
 CNodesManager::analyseMessage()
 {
 
+}
+
+std::list< common::CMedium< TrackerResponses > *>
+CNodesManager::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+{
+	if ( CTrackerMediumsKinds::Nodes == _actionKind )
+	{
+		return m_nodeMediums;
+	}
+	else
+	{
+		return std::list< common::CMedium< TrackerResponses > *>();
+	}
 }
 
 }
