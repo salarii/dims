@@ -30,8 +30,24 @@ public:
 	void add( CIdentifyRequest const * _request );
 
 	void add( CIdentifyResponse const * _request );
+
+	void add( CContinueReqest const * _request );
+
+	void setResponse( TrackerResponses const & _responses );
 private:
 	CSelfNode * m_usedNode;
+
+	mutable boost::mutex m_mutex;
+	std::map< uint256, TrackerResponses > m_responses;
+
+	std::map< std::vector< unsigned char > ,uint256 > m_findIdentifyMessage;
+
+	static uint256 m_counter;
+
+	std::vector< CMessage > m_messages;
+
+	std::vector< uint256 > m_indexes;
+
 };
 
 

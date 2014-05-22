@@ -32,12 +32,6 @@ CIdentifyRequest::getPayload() const
 	return m_payload;
 }
 
-CSelfNode *
-CIdentifyRequest::getNode() const
-{
-	return m_node;
-}
-
 CIdentifyResponse::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId )
 	: m_kind( _kind )
 	, m_signed( _signed )
@@ -55,12 +49,6 @@ int
 CIdentifyResponse::getKind() const
 {
 	return m_kind;
-}
-
-CSelfNode *
-CIdentifyResponse::getNode() const
-{
-	return m_node;
 }
 
 std::vector< unsigned char >

@@ -21,7 +21,7 @@ class CNodeMedium;
 template < class T >
 unsigned int convertToInt( T * _t )
 {
-	return static_cast< unsigned int >( _t );
+	return static_cast< unsigned int >( (long long )_t );
 }
 
 class CNodesManager : public common::CConnectionProvider< TrackerResponses >

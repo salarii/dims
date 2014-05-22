@@ -11,6 +11,7 @@
 #include <boost/statechart/transition.hpp>
 #include "authenticationProvider.h"
 #include "identifyRequest.h"
+#include "nodesManager.h"
 
 namespace tracker
 {
@@ -43,7 +44,7 @@ struct CUnidentifiedResp : boost::statechart::state< CUnidentifiedResp, CConnect
 		std::vector< unsigned char > signedHash;
 		CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-		context< CConnectTrackerAction >().setRequest( new CIdentifyResponse( requestedEvent->m_node, signedHash, CAuthenticationProvider::getInstance()->getMyKeyId() ) );
+		context< CConnectTrackerAction >().setRequest( new CIdentifyResponse( convertToInt( requestedEvent->m_node ), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId() ) );
 	}
 };
 

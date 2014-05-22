@@ -38,11 +38,12 @@ struct CIdentificationResult
 
 struct CContinueResult
 {
+	CContinueResult( uint256 const &_key ):m_key(_key){};
 	uint256 m_key;
 };
 
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, CConnectedNode, CIdentificationResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, CConnectedNode, CIdentificationResult, CContinueResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

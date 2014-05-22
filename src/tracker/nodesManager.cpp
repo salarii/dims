@@ -24,7 +24,6 @@ CNodesManager::getInstance( )
 
 CNodesManager::CNodesManager()
 {
-	m_nodeMediums.push_back( new CNodeMedium );
 }
 
 void
@@ -32,9 +31,7 @@ CNodesManager::addNode( CSelfNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
 
-	m_ptrToNodes.insert( convertToInt( _node ), new CNodeMedium( _node ) );
-
-
+	m_ptrToNodes.insert( std::make_pair( convertToInt( _node ), new CNodeMedium( _node ) ) );
 
 }
 
@@ -76,7 +73,7 @@ CNodesManager::provideConnection( int _actionKind, unsigned _requestedConnection
 
 	if( iterator != m_ptrToNodes.end() )
 	{
-		mediums.push_back( iterator.second );
+		mediums.push_back( iterator->second );
 	}
 	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
 	{
