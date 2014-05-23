@@ -36,6 +36,7 @@ CIdentifyResponse::CIdentifyResponse( unsigned int _kind, std::vector< unsigned 
 	: m_kind( _kind )
 	, m_signed( _signed )
 	, m_keyId( _keyId )
+	, m_payloadHash( _payloadHash )
 {
 }
 
@@ -61,6 +62,12 @@ uint160
 CIdentifyResponse::getKeyID() const
 {
 	return m_keyId;
+}
+
+uint256
+CIdentifyResponse::getPayloadHash()const
+{
+	return m_payloadHash;
 }
 
 }

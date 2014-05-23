@@ -4,7 +4,6 @@
 
 #include "common/medium.h"
 #include "identifyRequest.h"
-#include "communicationProtocol.h"
 #include "nodeMedium.h"
 #include "continueRequest.h"
 
@@ -18,6 +17,7 @@ public:
 
 	void operator()( CIdentifyMessage const & _identifyMessage ) const
 	{
+
 	}
 private:
 	CNodeMedium * const m_nodeMedium;
@@ -78,9 +78,20 @@ CNodeMedium::clearResponses()
 }
 
 void
+CNodeMedium::setResponseMessage( ProtocolMessage const & _protocolMessage )
+{
+	boost::apply_visitor( CHandleNodeResponsesVisitor( this ), _protocolMessage );
+}
+
+void
+CNodeMedium::setResponse( uint256 const & _id, TrackerResponses const & _responses )
+{
+	m_responses.insert( std::make_pair( _id, _responses ) );
+}
+
+void
 CNodeMedium::add( common::CRequest< TrackerResponses > const * _request )
 {
-
 }
 
 void
@@ -93,8 +104,8 @@ CNodeMedium::add( CIdentifyRequest const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( m_counter );
-	m_counter++;
+	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
+	m_indexes.push_back( hash );
 }
 
 void
@@ -110,9 +121,10 @@ CNodeMedium::add( CIdentifyResponse const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( m_counter );
-	m_counter++;
+	m_indexes.push_back( _request->getPayloadHash() );
+
 }
+
 
 void
 CNodeMedium::add( CContinueReqest const * _request )

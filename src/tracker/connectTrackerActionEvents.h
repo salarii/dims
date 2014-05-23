@@ -12,6 +12,14 @@
 namespace tracker
 {
 
+struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectingEvent >
+{
+};
+
+struct CSwitchToConnectedEvent : boost::statechart::event< CSwitchToConnectedEvent >
+{
+};
+
 
 struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 {
@@ -21,8 +29,10 @@ struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 
 struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 {
-	CIntroduceEvent( CSelfNode * _node ):m_node( _node ){};
-	CSelfNode * m_node;
+};
+
+struct CContinueEvent : boost::statechart::event< CContinueEvent >
+{
 };
 
 struct CErrorEvent : boost::statechart::event< CErrorEvent >

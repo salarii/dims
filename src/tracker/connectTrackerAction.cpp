@@ -15,27 +15,57 @@
 
 namespace tracker
 {
-struct CUnidentifiedResp;struct CUnidentifiedReq;
 
-struct CConnecting : boost::statechart::state< CConnecting, CConnectTrackerAction >
+
+struct CUnconnected; struct CPairIdentifiedConnected;struct CConnected;
+
+template class CBothUnidentified< CConnected, CPairIdentifiedConnected >;
+
+struct CConnecting : boost::statechart::simple_state< CConnecting, CConnectTrackerAction, CUnconnected >
 {
-	CConnecting( my_context ctx ) : my_base( ctx )
-	{
-		context< CConnectTrackerAction >().setRequest(
-				  new CConnectToTrackerRequest( context< CConnectTrackerAction >().getAddress() ) );
+};
 
-	}
+struct CConnected : boost::statechart::simple_state< CConnected, CConnectTrackerAction, CBothUnidentified< CConnected, CPairIdentifiedConnected > >
+{
+};
 
+struct CUninitiated : boost::statechart::state< CUninitiated, CConnectTrackerAction >
+{
 	typedef boost::mpl::list<
-	boost::statechart::transition< CIntroduceEvent, CUnidentifiedResp >,
-	boost::statechart::transition< CNodeConnectedEvent, CUnidentifiedReq >
+	boost::statechart::transition< CSwitchToConnectingEvent, CConnecting >,
+	boost::statechart::transition< CSwitchToConnectedEvent, CConnected >
 	> reactions;
 
 };
 
-struct CUnidentifiedResp : boost::statechart::state< CUnidentifiedResp, CConnectTrackerAction >
+struct CIdentified : boost::statechart::state< CIdentified, CConnectTrackerAction >
 {
-	CUnidentifiedResp( my_context ctx ) : my_base( ctx )
+	CIdentified( my_context ctx ) : my_base( ctx )
+	{
+		// for  now we  finish here
+		context< CConnectTrackerAction >().setRequest( 0 );
+	}
+};
+
+
+template < class Parent >
+void
+createIdentifyResponse( Parent & parent )
+{
+	CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
+
+	uint256 hash = Hash( &parent.getPayload().front(), &context< CConnectTrackerAction >().getPayload().back() );
+
+	std::vector< unsigned char > signedHash;
+	CAuthenticationProvider::getInstance()->sign( hash, signedHash );
+
+	parent.setRequest( new CIdentifyResponse( convertToInt( requestedEvent->m_node ), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId() ) );
+}
+
+
+struct CBothUnidentified : boost::statechart::state< CBothUnidentified, Parent >
+{
+	CBothUnidentified( my_context ctx ) : my_base( ctx )
 	{
 		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
 
@@ -46,11 +76,15 @@ struct CUnidentifiedResp : boost::statechart::state< CUnidentifiedResp, CConnect
 
 		context< CConnectTrackerAction >().setRequest( new CIdentifyResponse( convertToInt( requestedEvent->m_node ), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId() ) );
 	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CIntroduceEvent, Target >
+	> reactions;
 };
 
-struct CUnidentifiedReq : boost::statechart::state< CUnidentifiedReq, CConnectTrackerAction >
+struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnecting >
 {
-	CUnidentifiedReq( my_context ctx ) : my_base( ctx )
+	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
 		CNodeConnectedEvent const* connectedEvent = dynamic_cast< CNodeConnectedEvent const* >( simple_state::triggering_event() );
 
@@ -58,13 +92,34 @@ struct CUnidentifiedReq : boost::statechart::state< CUnidentifiedReq, CConnectTr
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< CIntroduceEvent, CUnidentifiedResp >
+	boost::statechart::transition< CContinueEvent, CIdentified >// kind of using side effect is this ok??
 	> reactions;
 
 };
 
-struct CIdentified : boost::statechart::simple_state< CIdentified, CConnectTrackerAction >
+struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CConnected >
 {
+	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
+	{
+		context< CConnectTrackerAction >().setRequest( 0 );
+	}
+};
+
+
+
+struct CUnconnected : boost::statechart::state< CUnconnected, CConnecting >
+{
+	CUnconnected( my_context ctx ) : my_base( ctx )
+	{
+		context< CConnectTrackerAction >().setRequest(
+				  new CConnectToTrackerRequest( context< CConnectTrackerAction >().getAddress() ) );
+
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CIntroduceEvent, CUnidentifiedResp >,
+	boost::statechart::transition< CNodeConnectedEvent, CUnidentifiedReq >
+	> reactions;
 
 };
 

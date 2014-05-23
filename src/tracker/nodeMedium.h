@@ -6,9 +6,12 @@
 #define NODE_MEDIUM_H
 
 #include "common/medium.h"
-
+#include "communicationProtocol.h"
+#include <boost/variant.hpp>
 namespace tracker
 {
+
+typedef boost::variant< CIdentifyMessage > ProtocolMessage;
 
 class CIdentifyRequest;
 //I don't know  how to identify which what response is to what  request  yet
@@ -24,6 +27,8 @@ public:
 	bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
 
 	void clearResponses();
+
+	void setResponseMessage( ProtocolMessage const & _protocolMessage );
 
 	void add( common::CRequest< TrackerResponses > const * _request );
 
@@ -49,7 +54,6 @@ private:
 	std::vector< uint256 > m_indexes;
 
 };
-
 
 }
 

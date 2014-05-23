@@ -26,8 +26,6 @@ public:
 	int getKind() const;
 
 	std::vector< unsigned char > getPayload() const;
-
-	CSelfNode * getNode() const;
 private:
 
 	std::vector< unsigned char > m_payload;
@@ -38,21 +36,23 @@ private:
 class CIdentifyResponse : public common::CRequest< TrackerResponses >
 {
 public:
-	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId );
+	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, uint256 _payloadHash );
 
 	void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	int getKind() const;
 
-	CSelfNode * getNode() const;
 
 	std::vector< unsigned char > getSigned() const;
 
 	uint160 getKeyID() const;
+
+	uint256 getPayloadHash()const;
 private:
 	unsigned int m_kind;
 	std::vector< unsigned char > m_signed;
 	uint160 m_keyId;
+	uint256 m_payloadHash;
 };
 
 }

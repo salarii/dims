@@ -12,9 +12,9 @@
 namespace tracker
 {
 
-struct CConnecting;
+struct CUninitiated;
 
-class CConnectTrackerAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectTrackerAction, CConnecting >
+class CConnectTrackerAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectTrackerAction, CUninitiated >
 {
 public:
 	CConnectTrackerAction( std::string const & _trackerAddress );
