@@ -19,6 +19,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QListView>
 #include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QTableView>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -28,7 +29,6 @@ class Ui_OverviewPage
 {
 public:
     QVBoxLayout *topLayout;
-    QLabel *labelAlerts;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout_2;
     QFrame *frame;
@@ -59,6 +59,8 @@ public:
     QSpacerItem *horizontalSpacer;
     QListView *listTransactions;
     QSpacerItem *verticalSpacer_2;
+    QTableView *tableView;
+    QLabel *labelAlerts;
 
     void setupUi(QWidget *OverviewPage)
     {
@@ -67,15 +69,6 @@ public:
         OverviewPage->resize(573, 342);
         topLayout = new QVBoxLayout(OverviewPage);
         topLayout->setObjectName(QStringLiteral("topLayout"));
-        labelAlerts = new QLabel(OverviewPage);
-        labelAlerts->setObjectName(QStringLiteral("labelAlerts"));
-        labelAlerts->setVisible(false);
-        labelAlerts->setStyleSheet(QStringLiteral("background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop:0 #F0D0A0, stop:1 #F8D488); color:#000000;"));
-        labelAlerts->setWordWrap(true);
-        labelAlerts->setMargin(3);
-
-        topLayout->addWidget(labelAlerts);
-
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         verticalLayout_2 = new QVBoxLayout();
@@ -195,12 +188,12 @@ public:
 
         verticalLayout_4->addLayout(horizontalLayout_3);
 
-
-        verticalLayout_2->addWidget(frame);
-
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        verticalLayout_2->addItem(verticalSpacer);
+        verticalLayout_4->addItem(verticalSpacer);
+
+
+        verticalLayout_2->addWidget(frame);
 
 
         horizontalLayout->addLayout(verticalLayout_2);
@@ -260,6 +253,19 @@ public:
 
         topLayout->addLayout(horizontalLayout);
 
+        tableView = new QTableView(OverviewPage);
+        tableView->setObjectName(QStringLiteral("tableView"));
+
+        topLayout->addWidget(tableView);
+
+        labelAlerts = new QLabel(OverviewPage);
+        labelAlerts->setObjectName(QStringLiteral("labelAlerts"));
+        labelAlerts->setStyleSheet(QStringLiteral("background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop:0 #F0D0A0, stop:1 #F8D488); color:#000000;"));
+        labelAlerts->setWordWrap(true);
+        labelAlerts->setMargin(3);
+
+        topLayout->addWidget(labelAlerts);
+
 
         retranslateUi(OverviewPage);
 
@@ -293,6 +299,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         labelTransactionsStatus->setToolTip(QApplication::translate("OverviewPage", "The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.", 0));
 #endif // QT_NO_TOOLTIP
+        labelAlerts->setText(QString());
     } // retranslateUi
 
 };

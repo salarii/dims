@@ -13,10 +13,10 @@
 #include "transactionfilterproxy.h"
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
-
+#include "addresstablemodel.h"
 #include <QAbstractItemDelegate>
 #include <QPainter>
-
+#include <QHBoxLayout>
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3
 
@@ -105,8 +105,10 @@ OverviewPage::OverviewPage(QWidget *parent) :
     currentImmatureBalance(-1),
     txdelegate(new TxViewDelegate()),
     filter(0)
+
 {
     ui->setupUi(this);
+
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
@@ -186,6 +188,9 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model, SIGNAL(balanceChanged(qint64, qint64, qint64)), this, SLOT(setBalance(qint64, qint64, qint64)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+        ui->tableView->setModel(model->getAddressTableModel());
+        ui->tableView->resizeColumnsToContents();
+        ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     }
 
     // update the display unit, to not use the default ("BTC")
