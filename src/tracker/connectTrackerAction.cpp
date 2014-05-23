@@ -9,31 +9,23 @@
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
+#include <boost/statechart/custom_reaction.hpp>
 #include "authenticationProvider.h"
 #include "identifyRequest.h"
 #include "nodesManager.h"
+#include "continueRequest.h"
 
 namespace tracker
 {
 
 
-struct CUnconnected; struct CPairIdentifiedConnected;struct CConnected;
+struct CUnconnected; struct CBothUnidentifiedConnected;
 
-template class CBothUnidentified< CConnected, CPairIdentifiedConnected >;
-
-struct CConnecting : boost::statechart::simple_state< CConnecting, CConnectTrackerAction, CUnconnected >
-{
-};
-
-struct CConnected : boost::statechart::simple_state< CConnected, CConnectTrackerAction, CBothUnidentified< CConnected, CPairIdentifiedConnected > >
-{
-};
-
-struct CUninitiated : boost::statechart::state< CUninitiated, CConnectTrackerAction >
+struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectTrackerAction >
 {
 	typedef boost::mpl::list<
-	boost::statechart::transition< CSwitchToConnectingEvent, CConnecting >,
-	boost::statechart::transition< CSwitchToConnectedEvent, CConnected >
+	boost::statechart::transition< CSwitchToConnectingEvent, CUnconnected >,
+	boost::statechart::transition< CSwitchToConnectedEvent, CBothUnidentifiedConnected >
 	> reactions;
 
 };
@@ -50,39 +42,17 @@ struct CIdentified : boost::statechart::state< CIdentified, CConnectTrackerActio
 
 template < class Parent >
 void
-createIdentifyResponse( Parent & parent )
+createIdentifyResponse( Parent & parent, CIntroduceEvent const* _introduceEvent )
 {
-	CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
-
-	uint256 hash = Hash( &parent.getPayload().front(), &context< CConnectTrackerAction >().getPayload().back() );
+	uint256 hash = Hash( &parent.getPayload().front(), &parent.getPayload().back() );
 
 	std::vector< unsigned char > signedHash;
 	CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new CIdentifyResponse( convertToInt( requestedEvent->m_node ), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId() ) );
+	parent.setRequest( new CIdentifyResponse( parent.getMediumKind(), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId(), hash ) );
 }
 
-
-struct CBothUnidentified : boost::statechart::state< CBothUnidentified, Parent >
-{
-	CBothUnidentified( my_context ctx ) : my_base( ctx )
-	{
-		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
-
-		uint256 hash = Hash( &context< CConnectTrackerAction >().getPayload().front(), &context< CConnectTrackerAction >().getPayload().back() );
-
-		std::vector< unsigned char > signedHash;
-		CAuthenticationProvider::getInstance()->sign( hash, signedHash );
-
-		context< CConnectTrackerAction >().setRequest( new CIdentifyResponse( convertToInt( requestedEvent->m_node ), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId() ) );
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::transition< CIntroduceEvent, Target >
-	> reactions;
-};
-
-struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnecting >
+struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnectTrackerAction >
 {
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
@@ -97,7 +67,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 };
 
-struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CConnected >
+struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CConnectTrackerAction >
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
@@ -106,8 +76,49 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 };
 
 
+struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentifiedConnecting, CConnectTrackerAction >
+{
+	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
+	{
+		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
 
-struct CUnconnected : boost::statechart::state< CUnconnected, CConnecting >
+		createIdentifyResponse( context< CConnectTrackerAction >(), requestedEvent );
+
+	}
+
+	boost::statechart::result react( const CContinueEvent & _continueEvent )
+	{
+		context< CConnectTrackerAction >().setRequest( new CContinueReqest( _continueEvent.m_keyId, context< CConnectTrackerAction >().getMediumKind() ) );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CIntroduceEvent, CPairIdentifiedConnecting >,
+	boost::statechart::custom_reaction< CContinueEvent >
+	> reactions;
+};
+
+struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedConnected, CConnectTrackerAction >
+{
+	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
+	{
+		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
+
+		createIdentifyResponse( context< CConnectTrackerAction >(), requestedEvent );
+
+	}
+
+	boost::statechart::result react( const CContinueEvent & _continueEvent )
+	{
+		context< CConnectTrackerAction >().setRequest( new CContinueReqest( _continueEvent.m_keyId, context< CConnectTrackerAction >().getMediumKind() ) );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CIntroduceEvent, CPairIdentifiedConnected >,
+	boost::statechart::custom_reaction< CContinueEvent >
+	> reactions;
+};
+
+struct CUnconnected : boost::statechart::state< CUnconnected, CConnectTrackerAction >
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
@@ -117,8 +128,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnecting >
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< CIntroduceEvent, CUnidentifiedResp >,
-	boost::statechart::transition< CNodeConnectedEvent, CUnidentifiedReq >
+	boost::statechart::transition< CNodeConnectedEvent, CBothUnidentifiedConnecting >
 	> reactions;
 
 };
@@ -134,6 +144,7 @@ CConnectTrackerAction::CConnectTrackerAction( std::vector< unsigned char > const
 , m_passive( true )
 {
 	initiate();
+	process_event( CSwitchToConnectedEvent() );
 }
 
 CConnectTrackerAction::CConnectTrackerAction( std::string const & _trackerAddress )
@@ -146,6 +157,7 @@ CConnectTrackerAction::CConnectTrackerAction( std::string const & _trackerAddres
 		m_payload.push_back( insecure_rand() % 256 );
 	}
 	initiate();
+	process_event( CSwitchToConnectingEvent() );
 }
 
 common::CRequest< TrackerResponses >*
@@ -176,6 +188,12 @@ std::vector< unsigned char >
 CConnectTrackerAction::getPayload() const
 {
 	return m_payload;
+}
+
+unsigned int
+CConnectTrackerAction::getMediumKind() const
+{
+	return m_mediumKind;
 }
 
 }

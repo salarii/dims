@@ -33,6 +33,8 @@ struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 
 struct CContinueEvent : boost::statechart::event< CContinueEvent >
 {
+	CContinueEvent( uint256 const & _keyId ):m_keyId( _keyId ){};
+	uint256 m_keyId;
 };
 
 struct CErrorEvent : boost::statechart::event< CErrorEvent >

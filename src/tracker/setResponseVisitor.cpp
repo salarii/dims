@@ -55,9 +55,13 @@ public:
 
 	virtual void operator()( tracker::CIdentificationResult & _param ) const
 	{
-		this->m_action->process_event( tracker::CIntroduceEvent( _param.m_node ) );
+		this->m_action->process_event( tracker::CIntroduceEvent() );
 	}
 
+	virtual void operator()( tracker::CContinueResult & _param ) const
+	{
+		this->m_action->process_event( tracker::CContinueEvent( _param.m_id ) );
+	}
 };
 
 

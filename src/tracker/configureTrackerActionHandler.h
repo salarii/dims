@@ -32,14 +32,14 @@ struct CConnectedNode
 
 struct CIdentificationResult
 {
-	CIdentificationResult( CSelfNode * _node ):m_node( _node ){};
+	CIdentificationResult(){};
 	CSelfNode * m_node;
 };
 
 struct CContinueResult
 {
-	CContinueResult( uint256 const &_key ):m_key(_key){};
-	uint256 m_key;
+	CContinueResult( uint256 const &_key ):m_id(_key){};
+	uint256 m_id;
 };
 
 // list all desired types

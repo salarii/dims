@@ -1117,10 +1117,9 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 			CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			CConnectTrackerAction * action = new CConnectTrackerAction( identifyMessage.m_payload );
+			CNodeMedium * nodeMedium;
 
-			action->process_event( CIntroduceEvent( pfrom ) );
-			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( action );
+			nodeMedium->setResponseMessage( identifyMessage );
 		}
 		else if ( message.m_header.m_payloadKind == CPayloadKind::Uninitiated )
 		{

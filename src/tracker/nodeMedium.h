@@ -38,7 +38,7 @@ public:
 
 	void add( CContinueReqest const * _request );
 
-	void setResponse( TrackerResponses const & _responses );
+	void setResponse( uint256 const & _id, TrackerResponses const & _responses );
 private:
 	CSelfNode * m_usedNode;
 

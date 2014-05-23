@@ -8,6 +8,7 @@
 #include "common/action.h"
 #include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
+#include <boost/optional.hpp>
 
 namespace tracker
 {
@@ -30,6 +31,8 @@ public:
 	std::string getAddress() const;
 
 	std::vector< unsigned char > getPayload() const;
+// not safe
+	unsigned int getMediumKind() const;
 private:
 	common::CRequest< TrackerResponses >* m_request;
 	std::string const m_trackerAddress;
@@ -37,6 +40,8 @@ private:
 	static int const ms_randomPayloadLenght = 32;
 
 	std::vector< unsigned char > m_payload;
+
+	unsigned int m_mediumKind;
 
 	bool const m_passive;
 };

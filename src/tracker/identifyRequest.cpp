@@ -32,7 +32,7 @@ CIdentifyRequest::getPayload() const
 	return m_payload;
 }
 
-CIdentifyResponse::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId )
+CIdentifyResponse::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, uint256 _payloadHash )
 	: m_kind( _kind )
 	, m_signed( _signed )
 	, m_keyId( _keyId )
