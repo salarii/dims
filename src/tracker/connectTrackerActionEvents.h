@@ -29,7 +29,7 @@ struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 
 struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 {
-	CIntroduceEvent(  );
+	CIntroduceEvent(){};
 };
 
 struct CContinueEvent : boost::statechart::event< CContinueEvent >

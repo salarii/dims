@@ -6,7 +6,9 @@
 #include "identifyRequest.h"
 #include "nodeMedium.h"
 #include "continueRequest.h"
-#include "actionHandler.h"
+#include "common/actionHandler.h"
+#include "nodesManager.h"
+#include "connectTrackerAction.h"
 
 namespace tracker
 {
@@ -27,8 +29,8 @@ public:
 		}
 		else
 		{
-			CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( _identifyMessage.m_payload, convertToInt( m_nodeMedium->m_usedNode ) );
-			common::CActionHandler< TrackerResponses >::getInstance()->executeAction();
+			CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( _identifyMessage.m_payload, convertToInt( m_nodeMedium->getNode() ) );
+			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
 
 		}
 	}
@@ -114,6 +116,12 @@ CNodeMedium::getIdentifyMessage( uint256 const & _payloadHash, uint256 & _id ) c
 	_id = iterator->second;
 
 	return true;
+}
+
+CSelfNode *
+CNodeMedium::getNode() const
+{
+	return m_usedNode;
 }
 
 void

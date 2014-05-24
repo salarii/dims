@@ -41,6 +41,8 @@ public:
 	void setResponse( uint256 const & _id, TrackerResponses const & _responses );
 
 	bool getIdentifyMessage( uint256 const & _payloadHash, uint256 & _id ) const;
+
+	CSelfNode * getNode() const;
 private:
 	CSelfNode * m_usedNode;
 
