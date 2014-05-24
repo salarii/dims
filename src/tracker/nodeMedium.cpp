@@ -6,6 +6,7 @@
 #include "identifyRequest.h"
 #include "nodeMedium.h"
 #include "continueRequest.h"
+#include "actionHandler.h"
 
 namespace tracker
 {
@@ -17,7 +18,19 @@ public:
 
 	void operator()( CIdentifyMessage const & _identifyMessage ) const
 	{
+		uint256 hash = Hash( &_identifyMessage.m_payload.front(), &_identifyMessage.m_payload.back() );
 
+		uint256 id;
+		if ( m_nodeMedium->getIdentifyMessage( hash, id ) )
+		{
+			m_nodeMedium->setResponse( id, CIdentificationResult( _identifyMessage.m_payload, _identifyMessage.m_signed, _identifyMessage.m_key ) );
+		}
+		else
+		{
+			CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( _identifyMessage.m_payload, convertToInt( m_nodeMedium->m_usedNode ) );
+			common::CActionHandler< TrackerResponses >::getInstance()->executeAction();
+
+		}
 	}
 private:
 	CNodeMedium * const m_nodeMedium;
@@ -39,6 +52,7 @@ CNodeMedium::flush()
 	{
 		m_usedNode->setMessageToSend( message );
 	}
+	m_messages.clear();
 	return true;
 
 }
@@ -87,6 +101,19 @@ void
 CNodeMedium::setResponse( uint256 const & _id, TrackerResponses const & _responses )
 {
 	m_responses.insert( std::make_pair( _id, _responses ) );
+}
+
+bool
+CNodeMedium::getIdentifyMessage( uint256 const & _payloadHash, uint256 & _id ) const
+{
+	std::map< uint256 ,uint256 >::const_iterator iterator = m_findIdentifyMessage.find( _payloadHash );
+
+	if ( iterator != m_findIdentifyMessage.end() )
+		return false;
+
+	_id = iterator->second;
+
+	return true;
 }
 
 void

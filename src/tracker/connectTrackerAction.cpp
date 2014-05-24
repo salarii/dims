@@ -42,7 +42,7 @@ struct CIdentified : boost::statechart::state< CIdentified, CConnectTrackerActio
 
 template < class Parent >
 void
-createIdentifyResponse( Parent & parent, CIntroduceEvent const* _introduceEvent )
+createIdentifyResponse( Parent & parent )
 {
 	uint256 hash = Hash( &parent.getPayload().front(), &parent.getPayload().back() );
 
@@ -56,9 +56,9 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 {
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
-		CNodeConnectedEvent const* connectedEvent = dynamic_cast< CNodeConnectedEvent const* >( simple_state::triggering_event() );
+		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
 
-		context< CConnectTrackerAction >().setRequest( new CIdentifyRequest( convertToInt( connectedEvent->m_node ), context< CConnectTrackerAction >().getPayload() ) );
+		createIdentifyResponse( context< CConnectTrackerAction >() );
 	}
 
 	typedef boost::mpl::list<
@@ -80,9 +80,12 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 {
 	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
-		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
 
-		createIdentifyResponse( context< CConnectTrackerAction >(), requestedEvent );
+		CNodeConnectedEvent const* connectedEvent = dynamic_cast< CNodeConnectedEvent const* >( simple_state::triggering_event() );
+		context< CConnectTrackerAction >().setMediumKind( convertToInt( connectedEvent->m_node ) );
+		// looks funny that  I set it in this  state, but let  it  be
+		CNodesManager::getInstance()->addNode( connectedEvent->m_node );
+		context< CConnectTrackerAction >().setRequest( new CIdentifyRequest( convertToInt( connectedEvent->m_node ), context< CConnectTrackerAction >().getPayload() ) );
 
 	}
 
@@ -103,7 +106,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	{
 		CIntroduceEvent const* requestedEvent = dynamic_cast< CIntroduceEvent const* >( simple_state::triggering_event() );
 
-		createIdentifyResponse( context< CConnectTrackerAction >(), requestedEvent );
+		createIdentifyResponse( context< CConnectTrackerAction >() );
 
 	}
 
@@ -138,10 +141,11 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CConnec
 
 };
 
-CConnectTrackerAction::CConnectTrackerAction( std::vector< unsigned char > const & _payload )
+CConnectTrackerAction::CConnectTrackerAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
 : m_payload( _payload )
 , m_request( 0 )
 , m_passive( true )
+, m_mediumKind( _mediumKind )
 {
 	initiate();
 	process_event( CSwitchToConnectedEvent() );
@@ -194,6 +198,12 @@ unsigned int
 CConnectTrackerAction::getMediumKind() const
 {
 	return m_mediumKind;
+}
+
+void
+CConnectTrackerAction::setMediumKind( unsigned int _mediumKind )
+{
+	m_mediumKind = _mediumKind;
 }
 
 }

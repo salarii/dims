@@ -41,6 +41,8 @@ public:
 
 	std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 
+
+
 	static CNodesManager * getInstance();
 private:
 	CNodesManager();

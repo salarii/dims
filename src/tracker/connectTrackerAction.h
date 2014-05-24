@@ -20,7 +20,7 @@ class CConnectTrackerAction : public common::CAction< TrackerResponses >, public
 public:
 	CConnectTrackerAction( std::string const & _trackerAddress );
 
-	CConnectTrackerAction( std::vector< unsigned char > const & _payload );
+	CConnectTrackerAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 
@@ -31,6 +31,8 @@ public:
 	std::string getAddress() const;
 
 	std::vector< unsigned char > getPayload() const;
+
+	void setMediumKind( unsigned int _mediumKind );
 // not safe
 	unsigned int getMediumKind() const;
 private:

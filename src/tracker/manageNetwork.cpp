@@ -19,6 +19,7 @@
 #include "common/actionHandler.h"
 #include "connectTrackerAction.h"
 #include "connectTrackerActionEvents.h"
+#include "nodeMedium.h"
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 

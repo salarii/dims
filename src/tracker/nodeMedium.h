@@ -39,13 +39,15 @@ public:
 	void add( CContinueReqest const * _request );
 
 	void setResponse( uint256 const & _id, TrackerResponses const & _responses );
+
+	bool getIdentifyMessage( uint256 const & _payloadHash, uint256 & _id ) const;
 private:
 	CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
 	std::map< uint256, TrackerResponses > m_responses;
 
-	std::map< std::vector< unsigned char > ,uint256 > m_findIdentifyMessage;
+	std::map< uint256 ,uint256 > m_findIdentifyMessage;
 
 	static uint256 m_counter;
 

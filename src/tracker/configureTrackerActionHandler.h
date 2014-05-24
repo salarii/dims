@@ -33,7 +33,6 @@ struct CConnectedNode
 struct CIdentificationResult
 {
 	CIdentificationResult(){};
-	CSelfNode * m_node;
 };
 
 struct CContinueResult
