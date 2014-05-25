@@ -1,9 +1,10 @@
-﻿include $(top_srcdir)/src/Makefile.include
+include $(top_srcdir)/src/Makefile.include
 
-AM_CPPFLAGS += -I$(top_srcdir)/src \
-  $(PROTOBUF_CFLAGS) \
-  $(QR_CFLAGS)
+AM_CPPFLAGS += -I$(top_srcdir)/src 
+
+
 bin_PROGRAMS = dims_monitor
+
 noinst_LIBRARIES = libmonitor.a
 
 MONITOR_H = 
