@@ -13,31 +13,6 @@
 namespace tracker
 {
 
-class CHandleNodeResponsesVisitor : public boost::static_visitor< void >
-{
-public:
-	CHandleNodeResponsesVisitor(CNodeMedium * const _nodeMedium):m_nodeMedium( _nodeMedium ){};
-
-	void operator()( CIdentifyMessage const & _identifyMessage ) const
-	{
-		uint256 hash = Hash( &_identifyMessage.m_payload.front(), &_identifyMessage.m_payload.back() );
-
-		uint256 id;
-		if ( m_nodeMedium->getIdentifyMessage( hash, id ) )
-		{
-			m_nodeMedium->setResponse( id, CIdentificationResult( _identifyMessage.m_payload, _identifyMessage.m_signed, _identifyMessage.m_key ) );
-		}
-		else
-		{
-			CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( _identifyMessage.m_payload, convertToInt( m_nodeMedium->getNode() ) );
-			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
-
-		}
-	}
-private:
-	CNodeMedium * const m_nodeMedium;
-};
-
 uint256 CNodeMedium::m_counter = 0;
 
 bool
@@ -91,12 +66,6 @@ CNodeMedium::clearResponses()
 		m_responses.erase( id );
 	}
 	deleteList.clear();
-}
-
-void
-CNodeMedium::setResponseMessage( ProtocolMessage const & _protocolMessage )
-{
-	boost::apply_visitor( CHandleNodeResponsesVisitor( this ), _protocolMessage );
 }
 
 void

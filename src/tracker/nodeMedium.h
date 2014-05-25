@@ -28,8 +28,6 @@ public:
 
 	void clearResponses();
 
-	void setResponseMessage( ProtocolMessage const & _protocolMessage );
-
 	void add( common::CRequest< TrackerResponses > const * _request );
 
 	void add( CIdentifyRequest const * _request );

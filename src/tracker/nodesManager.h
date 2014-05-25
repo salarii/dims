@@ -33,7 +33,7 @@ public:
 
 	void connectNodes();
 
-	void addNode( CSelfNode * _node );
+	CNodeMedium * addNode( CSelfNode * _node );
 
 	bool isNodeHonest();
 
@@ -41,7 +41,7 @@ public:
 
 	std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 
-
+	CNodeMedium* getMediumForNode( CSelfNode * _node ) const;
 
 	static CNodesManager * getInstance();
 private:

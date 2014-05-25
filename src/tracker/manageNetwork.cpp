@@ -1101,10 +1101,17 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 {
 	std::vector< CMessage > messages;
 	vRecv >> messages;
-//	CNodesManager::getInstance()->processMessagesFormNode( pfrom, messages );
+
+// it is  stupid  to call this over and over again
+	if ( !CNodesManager::getInstance()->getMediumForNode( pfrom ) )
+	{
+		CNodesManager::getInstance()->addNode( pfrom );
+	}
 
 	BOOST_FOREACH( CMessage const & message, messages )
 	{
+
+
 		if ( message.m_header.m_payloadKind == CPayloadKind::Transactions )
 		{
 			//
@@ -1118,9 +1125,22 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 			CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			CNodeMedium * nodeMedium;
+			CNodeMedium * nodeMedium = CNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			nodeMedium->setResponseMessage( identifyMessage );
+			uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
+
+			uint256 id;
+			if ( nodeMedium->getIdentifyMessage( hash, id ) )
+			{
+				nodeMedium->setResponse( id, CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+			}
+			else
+			{
+				CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
+
+			}
+
 		}
 		else if ( message.m_header.m_payloadKind == CPayloadKind::Uninitiated )
 		{
