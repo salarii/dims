@@ -117,6 +117,8 @@ CNodeMedium::add( CIdentifyResponse const * _request )
 {
 	CIdentifyMessage identifyMessage;
 
+	identifyMessage.m_payload = _request->getPayload();
+
 	identifyMessage.m_signed = _request->getSigned();
 
 	identifyMessage.m_key = _request->getKeyID();
@@ -125,7 +127,8 @@ CNodeMedium::add( CIdentifyResponse const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getPayloadHash() );
+	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
+	m_indexes.push_back( hash );
 
 }
 

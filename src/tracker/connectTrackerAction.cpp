@@ -49,7 +49,7 @@ createIdentifyResponse( Parent & parent )
 	std::vector< unsigned char > signedHash;
 	CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new CIdentifyResponse( parent.getMediumKind(), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId(), hash ) );
+	parent.setRequest( new CIdentifyResponse( parent.getMediumKind(), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
 }
 
 struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnectTrackerAction >
