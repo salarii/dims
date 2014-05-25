@@ -64,6 +64,7 @@ CNodeMedium::clearResponses()
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
 		m_responses.erase( id );
+		m_findIdentifyMessage.erase( id );// not  correct because there are  scenarios  when this  will not work
 	}
 	deleteList.clear();
 }
@@ -75,16 +76,11 @@ CNodeMedium::setResponse( uint256 const & _id, TrackerResponses const & _respons
 }
 
 bool
-CNodeMedium::getIdentifyMessage( uint256 const & _payloadHash, uint256 & _id ) const
+CNodeMedium::isIdentifyMessageKnown( uint256 const & _payloadHash ) const
 {
-	std::map< uint256 ,uint256 >::const_iterator iterator = m_findIdentifyMessage.find( _payloadHash );
+	std::set< uint256 >::const_iterator iterator = m_findIdentifyMessage.find( _payloadHash );
 
-	if ( iterator == m_findIdentifyMessage.end() )
-		return false;
-
-	_id = iterator->second;
-
-	return true;
+	return iterator != m_findIdentifyMessage.end();
 }
 
 CSelfNode *
@@ -110,6 +106,7 @@ CNodeMedium::add( CIdentifyRequest const * _request )
 
 	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 	m_indexes.push_back( hash );
+	m_findIdentifyMessage.insert( hash );
 }
 
 void
@@ -129,7 +126,7 @@ CNodeMedium::add( CIdentifyResponse const * _request )
 
 	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 	m_indexes.push_back( hash );
-
+	m_findIdentifyMessage.insert( hash );
 }
 
 

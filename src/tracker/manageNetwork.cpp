@@ -1129,10 +1129,9 @@ CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 
 			uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 
-			uint256 id;
-			if ( nodeMedium->getIdentifyMessage( hash, id ) )
+			if ( nodeMedium->isIdentifyMessageKnown( hash ) )
 			{
-				nodeMedium->setResponse( id, CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+				nodeMedium->setResponse( hash, CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
 			}
 			else
 			{
