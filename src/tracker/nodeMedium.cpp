@@ -79,7 +79,7 @@ CNodeMedium::getIdentifyMessage( uint256 const & _payloadHash, uint256 & _id ) c
 {
 	std::map< uint256 ,uint256 >::const_iterator iterator = m_findIdentifyMessage.find( _payloadHash );
 
-	if ( iterator != m_findIdentifyMessage.end() )
+	if ( iterator == m_findIdentifyMessage.end() )
 		return false;
 
 	_id = iterator->second;
