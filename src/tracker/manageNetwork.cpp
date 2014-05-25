@@ -16,6 +16,11 @@
 #include "communicationProtocol.h"
 #include "nodesManager.h"
 
+#include "common/actionHandler.h"
+#include "connectTrackerAction.h"
+#include "connectTrackerActionEvents.h"
+#include "nodeMedium.h"
+
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
 namespace tracker
@@ -211,7 +216,7 @@ void
 CManageNetwork::advertizeLocal()
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 	{
 		if (pnode->fSuccessfullyConnected)
 		{
@@ -237,8 +242,8 @@ CManageNetwork::threadSocketHandler()
 		{
 			LOCK(cs_vNodes);
 			// Disconnect unused nodes
-			vector<CNode*> vNodesCopy = m_nodes;
-			BOOST_FOREACH(CNode* pnode, vNodesCopy)
+			vector<CSelfNode*> vNodesCopy = m_nodes;
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 			{
 				if (pnode->fDisconnect ||
 					(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())
@@ -263,8 +268,8 @@ CManageNetwork::threadSocketHandler()
 		}
 		{
 			// Delete disconnected nodes
-			list<CNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
-			BOOST_FOREACH(CNode* pnode, vNodesDisconnectedCopy)
+			list<CSelfNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
+			BOOST_FOREACH(CSelfNode* pnode, vNodesDisconnectedCopy)
 			{
 				// wait until threads are done using it
 				if (pnode->GetRefCount() <= 0)
@@ -319,7 +324,7 @@ CManageNetwork::threadSocketHandler()
 		}
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, m_nodes)
+			BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 			{
 				if (pnode->hSocket == INVALID_SOCKET)
 					continue;
@@ -400,7 +405,7 @@ CManageNetwork::threadSocketHandler()
 
 				{
 					LOCK(cs_vNodes);
-					BOOST_FOREACH(CNode* pnode, m_nodes)
+					BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 						if (pnode->fInbound)
 							nInbound++;
 				}
@@ -427,7 +432,7 @@ CManageNetwork::threadSocketHandler()
 				else
 				{
 					LogPrint("net", "accepted connection %s\n", addr.ToString());
-					CNode* pnode = new CNode(hSocket, addr, "", true);
+					CSelfNode* pnode = new CSelfNode(hSocket, addr, "", true);
 					pnode->AddRef();
 					{
 						LOCK(cs_vNodes);
@@ -440,14 +445,14 @@ CManageNetwork::threadSocketHandler()
 			//
 			// Service each socket
 			//
-			vector<CNode*> vNodesCopy;
+			vector<CSelfNode*> vNodesCopy;
 			{
 				LOCK(cs_vNodes);
 				vNodesCopy = m_nodes;
-				BOOST_FOREACH(CNode* pnode, vNodesCopy)
+				BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 					pnode->AddRef();
 			}
-			BOOST_FOREACH(CNode* pnode, vNodesCopy)
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 			{
 				boost::this_thread::interruption_point();
 
@@ -533,7 +538,7 @@ CManageNetwork::threadSocketHandler()
 			}
 			{
 				LOCK(cs_vNodes);
-				BOOST_FOREACH(CNode* pnode, vNodesCopy)
+				BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 					pnode->Release();
 			}
 
@@ -595,7 +600,7 @@ CManageNetwork::threadOpenAddedConnections()
 		// (keeping in mind that addnode entries can have many IPs if fNameLookup)
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, m_nodes)
+			BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 				for (list<vector<CService> >::iterator it = lservAddressesToAdd.begin(); it != lservAddressesToAdd.end(); it++)
 					BOOST_FOREACH(CService& addrNode, *(it))
 					if (pnode->addr == addrNode)
@@ -670,7 +675,7 @@ CManageNetwork::threadOpenConnections()
 		set<vector<unsigned char> > setConnected;
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, m_nodes) {
+			BOOST_FOREACH(CSelfNode* pnode, m_nodes) {
 				if (!pnode->fInbound) {
 					setConnected.insert(pnode->addr.GetGroup());
 					nOutbound++;
@@ -717,11 +722,11 @@ CManageNetwork::threadOpenConnections()
 	}
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::findNode(const CNetAddr& ip)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 		if ((CNetAddr)pnode->addr == ip)
 			return (pnode);
 	return NULL;
@@ -842,21 +847,21 @@ CManageNetwork::bindListenPort(const CService &addrBind, string& strError)
 	return true;
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::findNode(std::string addrName)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 		if (pnode->addrName == addrName)
 			return (pnode);
 	return NULL;
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::findNode(const CService& addr)
 {
 	LOCK(cs_vNodes);
-	BOOST_FOREACH(CNode* pnode, m_nodes)
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 		if ((CService)pnode->addr == addr)
 			return (pnode);
 	return NULL;
@@ -871,13 +876,13 @@ CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGra
 	boost::this_thread::interruption_point();
 /*	if (!strDest)
 		if (IsLocal(addrConnect) ||
-			FindNode((CNetAddr)addrConnect) || CNode::IsBanned(addrConnect) ||
+			FindNode((CNetAddr)addrConnect) || CSelfNode::IsBanned(addrConnect) ||
 			FindNode(addrConnect.ToStringIPPort().c_str()))
 			return false;*/
 //	if (strDest && FindNode(strDest))
 //		return false;
 
-	CNode* pnode = connectNode(addrConnect, strDest);
+	CSelfNode* pnode = connectNode(addrConnect, strDest);
 	boost::this_thread::interruption_point();
 
 	if (!pnode)
@@ -891,7 +896,7 @@ CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGra
 	return true;
 }
 
-CNode*
+CSelfNode*
 CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 {
 	if (pszDest == NULL) {
@@ -899,7 +904,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 			return NULL;
 
 		// Look for an existing connection
-		CNode* pnode = FindNode((CService)addrConnect);
+		CSelfNode* pnode = findNode((CService)addrConnect);
 		if (pnode)
 		{
 			pnode->AddRef();
@@ -932,7 +937,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 #endif
 
 		// Add node
-		CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
+		CSelfNode* pnode = new CSelfNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
 		pnode->AddRef();
 
 		{
@@ -950,13 +955,13 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 }
 
 void
-CManageNetwork::StartSync(const vector<CNode*> &vNodes)
+CManageNetwork::StartSync(const vector<CSelfNode*> &vNodes)
 {
-	CNode *pnodeNewSync = NULL;
+	CSelfNode *pnodeNewSync = NULL;
 	double dBestScore = 0;
 
 	// Iterate over all nodes
-	BOOST_FOREACH(CNode* pnode, m_nodes) {
+	BOOST_FOREACH(CSelfNode* pnode, m_nodes) {
 		// check preconditions for allowing a sync
 		if (!pnode->fClient && !pnode->fOneShot &&
 			!pnode->fDisconnect && pnode->fSuccessfullyConnected &&
@@ -984,11 +989,11 @@ CManageNetwork::threadMessageHandler()
 	{
 		bool fHaveSyncNode = false;
 
-		vector<CNode*> vNodesCopy;
+		vector<CSelfNode*> vNodesCopy;
 		{
 			LOCK(cs_vNodes);
 			vNodesCopy = m_nodes;
-			BOOST_FOREACH(CNode* pnode, vNodesCopy) {
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy) {
 				pnode->AddRef();
 				if (pnode == pnodeSync)
 					fHaveSyncNode = true;
@@ -999,13 +1004,13 @@ CManageNetwork::threadMessageHandler()
 			StartSync(vNodesCopy);
 
 		// Poll the connected nodes for messages
-		CNode* pnodeTrickle = NULL;
+		CSelfNode* pnodeTrickle = NULL;
 		if (!vNodesCopy.empty())
 			pnodeTrickle = vNodesCopy[GetRand(vNodesCopy.size())];
 
 		bool fSleep = true;
 
-		BOOST_FOREACH(CNode* pnode, vNodesCopy)
+		BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 		{
 			if (pnode->fDisconnect)
 				continue;
@@ -1047,7 +1052,7 @@ nodes manager
 
 		{
 			LOCK(cs_vNodes);
-			BOOST_FOREACH(CNode* pnode, vNodesCopy)
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 				pnode->Release();
 		}
 
@@ -1060,7 +1065,7 @@ nodes manager
 
 
 void
-CManageNetwork::processGetData(CNode* pfrom)
+CManageNetwork::processGetData(CSelfNode* pfrom)
 {
 
 	std::deque<CInv>::iterator it = pfrom->vRecvGetData.begin();
@@ -1072,7 +1077,7 @@ CManageNetwork::processGetData(CNode* pfrom)
 }
 
 void
-CManageNetwork::registerNodeSignals(CNodeSignals& nodeSignals)
+CManageNetwork::registerNodeSignals()
 {
 	boost::bind( &CManageNetwork::processMessages, this );
 
@@ -1092,264 +1097,57 @@ CManageNetwork::unregisterNodeSignals(CNodeSignals& nodeSignals)
 }
 
 bool
-CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
+CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
 {
 	std::vector< CMessage > messages;
 	vRecv >> messages;
-	CNodesManager::getInstance()->processMessagesFormNode( pfrom, messages );
 
+// it is  stupid  to call this over and over again
+	if ( !CNodesManager::getInstance()->getMediumForNode( pfrom ) )
+	{
+		CNodesManager::getInstance()->addNode( pfrom );
+	}
+
+	BOOST_FOREACH( CMessage const & message, messages )
+	{
+
+
+		if ( message.m_header.m_payloadKind == CPayloadKind::Transactions )
+		{
+			//
+		}
+		else if ( message.m_header.m_payloadKind == CPayloadKind::InfoReq )
+		{
+			//
+		}
+		else if ( message.m_header.m_payloadKind == CPayloadKind::IntroductionReq )
+		{
+			CIdentifyMessage identifyMessage;
+			convertPayload( message, identifyMessage );
+
+			CNodeMedium * nodeMedium = CNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
+
+			if ( nodeMedium->isIdentifyMessageKnown( hash ) )
+			{
+				nodeMedium->setResponse( hash, CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+			}
+			else
+			{
+				CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
+
+			}
+
+		}
+		else if ( message.m_header.m_payloadKind == CPayloadKind::Uninitiated )
+		{
+			//
+		}
+	}
 	/*
 
-	RandAddSeedPerfmon();
-	LogPrint("net", "received: %s (%"PRIszu" bytes)\n", strCommand, vRecv.size());
-	if (mapArgs.count("-dropmessagestest") && GetRand(atoi(mapArgs["-dropmessagestest"])) == 0)
-	{
-		LogPrintf("dropmessagestest DROPPING RECV MESSAGE\n");
-		return true;
-	}
-
-
-
-
-
-	if (strCommand == "version")
-	{
-		// Each connection can only send one version message
-		if (pfrom->nVersion != 0)
-		{
-		//	pfrom->PushMessage("reject", strCommand, REJECT_DUPLICATE, string("Duplicate version message"));
-		//	Misbehaving(pfrom->GetId(), 1);
-			return false;
-		}
-
-
-
-		pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
-
-
-		// Relay alerts
-		{
-			LOCK(cs_mapAlerts);
-			BOOST_FOREACH(PAIRTYPE(const uint256, CAlert)& item, mapAlerts)
-				item.second.RelayTo(pfrom);
-		}
-
-		pfrom->fSuccessfullyConnected = true;
-
-		LogPrintf("receive version message: %s: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", pfrom->cleanSubVer, pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString(), addrFrom.ToString(), pfrom->addr.ToString());
-
-		AddTimeData(pfrom->addr, nTime);
-
-		LOCK(cs_main);
-		cPeerBlockCounts.input(pfrom->nStartingHeight);
-	}
-
-
-	else if (pfrom->nVersion == 0)
-	{
-		// Must have a version message before anything else
-		Misbehaving(pfrom->GetId(), 1);
-		return false;
-	}
-
-
-	else if (strCommand == "verack")
-	{
-		pfrom->SetRecvVersion(min(pfrom->nVersion, PROTOCOL_VERSION));
-	}
-
-
-	else if (strCommand == "addr")
-	{
-		vector<CAddress> vAddr;
-		vRecv >> vAddr;
-
-		// Don't want addr from older versions unless seeding
-		if (pfrom->nVersion < CADDR_TIME_VERSION && addrman.size() > 1000)
-			return true;
-		if (vAddr.size() > 1000)
-		{
-			Misbehaving(pfrom->GetId(), 20);
-			return error("message addr size() = %"PRIszu"", vAddr.size());
-		}
-
-		// Store the new addresses
-		vector<CAddress> vAddrOk;
-		int64_t nNow = GetAdjustedTime();
-		int64_t nSince = nNow - 10 * 60;
-		BOOST_FOREACH(CAddress& addr, vAddr)
-		{
-			boost::this_thread::interruption_point();
-
-			if (addr.nTime <= 100000000 || addr.nTime > nNow + 10 * 60)
-				addr.nTime = nNow - 5 * 24 * 60 * 60;
-			pfrom->AddAddressKnown(addr);
-			bool fReachable = IsReachable(addr);
-			if (addr.nTime > nSince && !pfrom->fGetAddr && vAddr.size() <= 10 && addr.IsRoutable())
-			{
-				// Relay to a limited number of other nodes
-				{
-					LOCK(cs_vNodes);
-					// Use deterministic randomness to send to the same nodes for 24 hours
-					// at a time so the setAddrKnowns of the chosen nodes prevent repeats
-					static uint256 hashSalt;
-					if (hashSalt == 0)
-						hashSalt = GetRandHash();
-					uint64_t hashAddr = addr.GetHash();
-					uint256 hashRand = hashSalt ^ (hashAddr<<32) ^ ((GetTime()+hashAddr)/(24*60*60));
-					hashRand = Hash(BEGIN(hashRand), END(hashRand));
-					multimap<uint256, CNode*> mapMix;
-					BOOST_FOREACH(CNode* pnode, vNodes)
-					{
-						if (pnode->nVersion < CADDR_TIME_VERSION)
-							continue;
-						unsigned int nPointer;
-						memcpy(&nPointer, &pnode, sizeof(nPointer));
-						uint256 hashKey = hashRand ^ nPointer;
-						hashKey = Hash(BEGIN(hashKey), END(hashKey));
-						mapMix.insert(make_pair(hashKey, pnode));
-					}
-					int nRelayNodes = fReachable ? 2 : 1; // limited relaying of addresses outside our network(s)
-					for (multimap<uint256, CNode*>::iterator mi = mapMix.begin(); mi != mapMix.end() && nRelayNodes-- > 0; ++mi)
-						((*mi).second)->PushAddress(addr);
-				}
-			}
-			// Do not store addresses outside our network
-			if (fReachable)
-				vAddrOk.push_back(addr);
-		}
-		addrman.Add(vAddrOk, pfrom->addr, 2 * 60 * 60);
-		if (vAddr.size() < 1000)
-			pfrom->fGetAddr = false;
-		if (pfrom->fOneShot)
-			pfrom->fDisconnect = true;
-	}
-
-
-	else if (strCommand == "getaddr")
-	{
-		pfrom->vAddrToSend.clear();
-		vector<CAddress> vAddr = addrman.GetAddr();
-		BOOST_FOREACH(const CAddress &addr, vAddr)
-			pfrom->PushAddress(addr);
-	}
-
-
-	else if (strCommand == "ping")
-	{
-		if (pfrom->nVersion > BIP0031_VERSION)
-		{
-			uint64_t nonce = 0;
-			vRecv >> nonce;
-			// Echo the message back with the nonce. This allows for two useful features:
-			//
-			// 1) A remote node can quickly check if the connection is operational
-			// 2) Remote nodes can measure the latency of the network thread. If this node
-			//    is overloaded it won't respond to pings quickly and the remote node can
-			//    avoid sending us more work, like chain download requests.
-			//
-			// The nonce stops the remote getting confused between different pings: without
-			// it, if the remote node sends a ping once per second and this node takes 5
-			// seconds to respond to each, the 5th ping the remote sends would appear to
-			// return very quickly.
-			pfrom->PushMessage("pong", nonce);
-		}
-	}
-
-
-	else if (strCommand == "pong")
-	{
-		int64_t pingUsecEnd = GetTimeMicros();
-		uint64_t nonce = 0;
-		size_t nAvail = vRecv.in_avail();
-		bool bPingFinished = false;
-		std::string sProblem;
-
-		if (nAvail >= sizeof(nonce)) {
-			vRecv >> nonce;
-
-			// Only process pong message if there is an outstanding ping (old ping without nonce should never pong)
-			if (pfrom->nPingNonceSent != 0) {
-				if (nonce == pfrom->nPingNonceSent) {
-					// Matching pong received, this ping is no longer outstanding
-					bPingFinished = true;
-					int64_t pingUsecTime = pingUsecEnd - pfrom->nPingUsecStart;
-					if (pingUsecTime > 0) {
-						// Successful ping time measurement, replace previous
-						pfrom->nPingUsecTime = pingUsecTime;
-					} else {
-						// This should never happen
-						sProblem = "Timing mishap";
-					}
-				} else {
-					// Nonce mismatches are normal when pings are overlapping
-					sProblem = "Nonce mismatch";
-					if (nonce == 0) {
-						// This is most likely a bug in another implementation somewhere, cancel this ping
-						bPingFinished = true;
-						sProblem = "Nonce zero";
-					}
-				}
-			} else {
-				sProblem = "Unsolicited pong without ping";
-			}
-		} else {
-			// This is most likely a bug in another implementation somewhere, cancel this ping
-			bPingFinished = true;
-			sProblem = "Short payload";
-		}
-
-		if (!(sProblem.empty())) {
-			LogPrint("net", "pong %s %s: %s, %"PRIx64" expected, %"PRIx64" received, %"PRIszu" bytes\n",
-				pfrom->addr.ToString(),
-				pfrom->cleanSubVer,
-				sProblem,
-				pfrom->nPingNonceSent,
-				nonce,
-				nAvail);
-		}
-		if (bPingFinished) {
-			pfrom->nPingNonceSent = 0;
-		}
-	}
-
-
-	else if (strCommand == "alert")
-	{
-		CAlert alert;
-		vRecv >> alert;
-
-		uint256 alertHash = alert.GetHash();
-		if (pfrom->setKnown.count(alertHash) == 0)
-		{
-			if (alert.ProcessAlert())
-			{
-				// Relay
-				pfrom->setKnown.insert(alertHash);
-				{
-					LOCK(cs_vNodes);
-					BOOST_FOREACH(CNode* pnode, vNodes)
-						alert.RelayTo(pnode);
-				}
-			}
-			else {
-				// Small DoS penalty so peers that send us lots of
-				// duplicate/expired/invalid-signature/whatever alerts
-				// eventually get banned.
-				// This isn't a Misbehaving(100) (immediate ban) because the
-				// peer might be an older or different implementation with
-				// a different signature key, etc.
-				Misbehaving(pfrom->GetId(), 10);
-			}
-		}
-	}
-
-
-
-	// Update the last seen time for this node's address
-	if (pfrom->fNetworkNode)
-		if (strCommand == "version" || strCommand == "addr" || strCommand == "inv" || strCommand == "getdata" || strCommand == "ping")
-			AddressCurrentlyConnected(pfrom->addr);
 
 */
 	return true;
@@ -1357,7 +1155,7 @@ CManageNetwork::processMessage(CNode* pfrom, CDataStream& vRecv)
 
 // requires LOCK(cs_vRecvMsg)
 bool
-CManageNetwork::processMessages(CNode* pfrom)
+CManageNetwork::processMessages(CSelfNode* pfrom)
 {
 	//if (fDebug)
 	//    LogPrintf("ProcessMessages(%"PRIszu" messages)\n", pfrom->vRecvMsg.size());
@@ -1479,11 +1277,9 @@ CManageNetwork::processMessages(CNode* pfrom)
 
 
 bool
-CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
+CManageNetwork::sendMessages(CSelfNode* pto, bool fSendTrickle)
 {
-	std::vector< CMessage > messages;
-	CNodesManager::getInstance()->getMessagesForNode( pto, messages );
-	pto->PushMessage("", messages);
+	pto->sendMessages();
 	/*
 	{
 		// Don't send anything until we get their version message
@@ -1526,7 +1322,7 @@ CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
 		{
 			{
 				LOCK(cs_vNodes);
-				BOOST_FOREACH(CNode* pnode, vNodes)
+				BOOST_FOREACH(CSelfNode* pnode, vNodes)
 				{
 					// Periodically clear setAddrKnown to allow refresh broadcasts
 					if (nLastRebroadcast)
@@ -1572,7 +1368,7 @@ CManageNetwork::sendMessages(CNode* pto, bool fSendTrickle)
 				LogPrintf("Warning: not banning local node %s!\n", pto->addr.ToString());
 			else {
 				pto->fDisconnect = true;
-				CNode::Ban(pto->addr);
+				CSelfNode::Ban(pto->addr);
 			}
 			state.fShouldBan = false;
 		}

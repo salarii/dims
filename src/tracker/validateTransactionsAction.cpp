@@ -16,7 +16,7 @@ namespace tracker
 {
 // this is  conceptualy not clear  piece of  code
 /*
- I see it  in this  fashion  in  future
+ I see it  in this  fashion  in the future
 initial
 stand alone     network mode
 

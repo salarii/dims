@@ -4,6 +4,8 @@
 
 #include "internalMediumProvider.h"
 #include "internalOperationsMedium.h"
+#include "trackerMediumsKinds.h"
+
 namespace tracker
 {
 
@@ -15,7 +17,10 @@ CInternalMediumProvider::CInternalMediumProvider()
 std::list< common::CMedium< TrackerResponses > *>
 CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
-	return m_mediumProviders;
+	if ( CTrackerMediumsKinds::Internal == _actionKind )
+		return m_mediumProviders;
+	else
+		return std::list< common::CMedium< TrackerResponses > *>();
 }
 
 }

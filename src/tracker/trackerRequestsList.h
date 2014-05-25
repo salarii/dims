@@ -5,9 +5,9 @@
 
 namespace tracker
 {
-class CValidateTransactionsRequest;
+class CValidateTransactionsRequest; class CConnectToTrackerRequest;class CIdentifyRequest;class CIdentifyResponse; class CContinueReqest;
 
-typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest > TrackerRequestsList;
+typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, CIdentifyRequest, CIdentifyResponse, CContinueReqest > TrackerRequestsList;
 
 }
 

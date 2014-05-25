@@ -29,6 +29,8 @@
 #include <boost/signals2/signal.hpp>
 #include <openssl/rand.h>
 
+#include "tracker/communicationProtocol.h"
+
 class CAddrMan;
 class CBlockIndex;
 class CNode;

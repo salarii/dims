@@ -43,6 +43,7 @@
 #include "tracker/transactionRecordManager.h"
 #include "tracker/originAddressScaner.h"
 #include "tracker/segmentFileStorage.h"
+#include "tracker/nodesManager.h"
 
 #include "node/settingsConnectionProvider.h"
 
@@ -1045,6 +1046,10 @@ bool AppInit2(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
+	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CNodesManager::getInstance() );
+	tracker::CManageNetwork::getInstance()->registerNodeSignals();
+
+	tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 	// ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));
@@ -1081,10 +1086,8 @@ bool AppInit2(boost::thread_group& threadGroup)
 	// run this in main thread ??
     tracker::runServer();
 
-
-	//tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
-
 	StartNode(threadGroup);
+
     // InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
 	if (fServer)
