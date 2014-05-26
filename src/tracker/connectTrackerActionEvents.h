@@ -7,7 +7,7 @@
 
 #include <boost/statechart/event.hpp>
 
-#include "selfNode.h"
+#include "common/selfNode.h"
 
 namespace tracker
 {
@@ -23,8 +23,8 @@ struct CSwitchToConnectedEvent : boost::statechart::event< CSwitchToConnectedEve
 
 struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 {
-	CNodeConnectedEvent( CSelfNode * _node ):m_node( _node ){};
-	CSelfNode * m_node;
+	CNodeConnectedEvent( common::CSelfNode * _node ):m_node( _node ){};
+	common::CSelfNode * m_node;
 };
 
 struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >

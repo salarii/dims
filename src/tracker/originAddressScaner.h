@@ -14,6 +14,7 @@ class CTxMemPool;
 #include "txmempool.h"
 #include <map>
 #include <set>
+
 namespace tracker
 {
 

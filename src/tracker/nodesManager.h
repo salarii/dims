@@ -5,7 +5,7 @@
 #ifndef NODES_MANAGER_H
 #define NODES_MANAGER_H
 
-#include "communicationProtocol.h"
+#include "common/communicationProtocol.h"
 #include "common/connectionProvider.h"
 #include "configureTrackerActionHandler.h"
 
@@ -27,13 +27,13 @@ unsigned int convertToInt( T * _t )
 class CNodesManager : public common::CConnectionProvider< TrackerResponses >
 {
 public:
-	bool getMessagesForNode( CSelfNode * _node, std::vector< CMessage > & _messages );
+	bool getMessagesForNode( common::CSelfNode * _node, std::vector< common::CMessage > & _messages );
 
-	bool processMessagesFormNode( CSelfNode * _node, std::vector< CMessage > const & _messages );
+	bool processMessagesFormNode( common::CSelfNode * _node, std::vector< common::CMessage > const & _messages );
 
 	void connectNodes();
 
-	CNodeMedium * addNode( CSelfNode * _node );
+	CNodeMedium * addNode( common::CSelfNode * _node );
 
 	bool isNodeHonest();
 
@@ -41,7 +41,7 @@ public:
 
 	std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 
-	CNodeMedium* getMediumForNode( CSelfNode * _node ) const;
+	CNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 
 	static CNodesManager * getInstance();
 private:

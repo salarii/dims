@@ -6,7 +6,7 @@
 #include "util.h"
 #include "version.h"
 #include "core.h"
-#include "tracker/communicationProtocol.h"
+#include "common/communicationProtocol.h"
 #include "json/json_spirit_writer_template.h"
 #include "json/json_spirit_reader_template.h"
 #include "data/tx_valid.json.h"

@@ -27,7 +27,7 @@ CNodesManager::CNodesManager()
 }
 
 CNodeMedium *
-CNodesManager::addNode( CSelfNode * _node )
+CNodesManager::addNode( common::CSelfNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
 
@@ -44,7 +44,7 @@ CNodesManager::handleMessages()
 }
 
 bool
-CNodesManager::processMessagesFormNode( CSelfNode * _node, std::vector< CMessage > const & _messages )
+CNodesManager::processMessagesFormNode( common::CSelfNode * _node, std::vector< common::CMessage > const & _messages )
 {
 	return true;
 }
@@ -67,7 +67,7 @@ CNodesManager::analyseMessage()
 }
 
 CNodeMedium*
-CNodesManager::getMediumForNode( CSelfNode * _node ) const
+CNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 {
 	std::map< unsigned int, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
 	if ( iterator != m_ptrToNodes.end() )

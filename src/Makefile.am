@@ -23,28 +23,37 @@ DIST_SUBDIRS = . qt test
 .PHONY: FORCE
 
 COMMON_H = \
-  common/ratcoinParams.h \
   common/actionHandler.h \
-  common/requestHandler.h \
-  common/request.h \
   common/action.h \
-  common/requestResponse.h \
-  common/trackerResponses.h \
+  common/authenticationProvider.h \
+  common/communicationProtocol.h \
+  common/databaseManager.h \
+  common/manageNetwork.h \
   common/nodeMessages.h \
-  common/visitorConfigurationUtilities.h \
-  common/responseVisitorInternal.h \
   common/periodicActionExecutor.h \
-  common/transactionStatus.h
+  common/ratcoinParams.h \
+  common/responseVisitorInternal.h \
+  common/requestHandler.h \
+  common/requestResponse.h \
+  common/request.h \
+  common/selfNode.h \
+  common/trackerResponses.h \
+  common/transactionStatus.h \
+  common/visitorConfigurationUtilities.h 
 
 COMMON_CPP = \
+  common/authenticationProvider.cpp \
+  common/communicationProtocol.cpp \
+  common/databaseManager.cpp \
+  common/manageNetwork.cpp \
   common/ratcoinParams.cpp \
+  common/selfNode.cpp \
   common/trackerResponses.cpp
   
 # tracker core #
 TRACKER_CORE_H = \
   tracker/accessFile.h \
   tracker/addressToCoins.h \
-  tracker/authenticationProvider.h \
   tracker/blockInfoDatabase.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
@@ -58,11 +67,10 @@ TRACKER_CORE_H = \
   tracker/identifyRequest.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
-  tracker/manageNetwork.h \
   tracker/originAddressScaner.h \
   tracker/nodesManager.h \
+  tracker/processNetwork.h \
   tracker/segmentFileStorage.h \
-  tracker/selfNode.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/simpleBuddy.h \
@@ -73,7 +81,6 @@ TRACKER_CORE_H = \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
-  
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -144,26 +151,22 @@ TRACKER_CORE_CPP = \
   tracker/accessFile.cpp \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
-  tracker/authenticationProvider.cpp \
   tracker/blockInfoDatabase.cpp \
-  tracker/communicationProtocol.cpp \
   tracker/connectToTrackerRequest.cpp \
   tracker/connectTrackerAction.cpp \
   tracker/continueRequest.cpp \
   tracker/clientRequestsManager.cpp \
-  tracker/databaseManager.cpp \
   tracker/getBalanceAction.cpp \
   tracker/getBalanceRequest.cpp \
   tracker/identifyRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
-  tracker/manageNetwork.cpp \
   tracker/nodeMedium.cpp \
   tracker/nodesManager.cpp \
   tracker/originAddressScaner.cpp \
+  tracker/processNetwork.cpp \
   tracker/rpcTracker.cpp \
   tracker/segmentFileStorage.cpp \
-  tracker/selfNode.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/simpleBuddy.cpp \

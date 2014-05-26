@@ -12,7 +12,7 @@
 
 class CCryptoKeyStore;
 
-namespace tracker
+namespace common
 {
 
 enum DBErrors

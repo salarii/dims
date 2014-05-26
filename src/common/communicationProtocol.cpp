@@ -7,7 +7,7 @@
 #include "authenticationProvider.h"
 #include "util.h"
 #include "version.h"
-namespace tracker
+namespace common
 {
 
 bool

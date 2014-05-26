@@ -36,7 +36,6 @@
 #include <openssl/crypto.h>
 
 #include "tracker/server.h"
-#include "tracker/manageNetwork.h"
 #include "tracker/configureTrackerActionHandler.h"
 #include "tracker/clientRequestsManager.h"
 #include "tracker/internalMediumProvider.h"
@@ -44,9 +43,11 @@
 #include "tracker/originAddressScaner.h"
 #include "tracker/segmentFileStorage.h"
 #include "tracker/nodesManager.h"
+#include "tracker/processNetwork.h"
 
 #include "node/settingsConnectionProvider.h"
 
+#include "common/manageNetwork.h"
 #include "common/actionHandler.h"
 using namespace std;
 using namespace boost;
@@ -1047,9 +1048,9 @@ bool AppInit2(boost::thread_group& threadGroup)
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CNodesManager::getInstance() );
-	tracker::CManageNetwork::getInstance()->registerNodeSignals();
+	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 
-	tracker::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
+	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 	// ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));

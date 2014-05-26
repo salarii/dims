@@ -6,19 +6,19 @@
 #define NODE_MEDIUM_H
 
 #include "common/medium.h"
-#include "communicationProtocol.h"
+#include "common/communicationProtocol.h"
 #include <boost/variant.hpp>
 namespace tracker
 {
 
-typedef boost::variant< CIdentifyMessage > ProtocolMessage;
+typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
 class CIdentifyRequest;
 //I don't know  how to identify which what response is to what  request  yet
 class CNodeMedium : public common::CMedium< TrackerResponses >
 {
 public:
-	CNodeMedium( CSelfNode * _selfNode ):m_usedNode( _selfNode ){};
+	CNodeMedium( common::CSelfNode * _selfNode ):m_usedNode( _selfNode ){};
 
 	bool serviced() const;
 
@@ -40,9 +40,9 @@ public:
 
 	bool isIdentifyMessageKnown( uint256 const & _payloadHash ) const;
 
-	CSelfNode * getNode() const;
+	common::CSelfNode * getNode() const;
 private:
-	CSelfNode * m_usedNode;
+	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
 	std::map< uint256, TrackerResponses > m_responses;
@@ -51,7 +51,7 @@ private:
 
 	static uint256 m_counter;
 
-	std::vector< CMessage > m_messages;
+	std::vector< common::CMessage > m_messages;
 
 	std::vector< uint256 > m_indexes;
 

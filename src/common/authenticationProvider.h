@@ -11,7 +11,7 @@
 
 class CCryptoKeyStore;
 
-namespace tracker
+namespace common
 {
 
 class CIdentificationDB;

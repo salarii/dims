@@ -21,7 +21,7 @@
 using namespace std;
 using namespace boost;
 
-namespace tracker
+namespace common
 {
 
 static uint64_t nAccountingEntryNumber = 0;

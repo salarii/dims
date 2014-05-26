@@ -10,7 +10,7 @@
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
-#include "authenticationProvider.h"
+#include "common/authenticationProvider.h"
 #include "identifyRequest.h"
 #include "nodesManager.h"
 #include "continueRequest.h"
@@ -47,9 +47,9 @@ createIdentifyResponse( Parent & parent )
 	uint256 hash = Hash( &parent.getPayload().front(), &parent.getPayload().back() );
 
 	std::vector< unsigned char > signedHash;
-	CAuthenticationProvider::getInstance()->sign( hash, signedHash );
+	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new CIdentifyResponse( parent.getMediumKind(), signedHash, CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
+	parent.setRequest( new CIdentifyResponse( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
 }
 
 struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnectTrackerAction >

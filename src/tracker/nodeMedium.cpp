@@ -25,7 +25,7 @@ CNodeMedium::serviced() const
 bool
 CNodeMedium::flush()
 {
-	BOOST_FOREACH( CMessage const & message ,m_messages )
+	BOOST_FOREACH( common::CMessage const & message ,m_messages )
 	{
 		m_usedNode->setMessageToSend( message );
 	}
@@ -83,7 +83,7 @@ CNodeMedium::isIdentifyMessageKnown( uint256 const & _payloadHash ) const
 	return iterator != m_findIdentifyMessage.end();
 }
 
-CSelfNode *
+common::CSelfNode *
 CNodeMedium::getNode() const
 {
 	return m_usedNode;
@@ -97,10 +97,10 @@ CNodeMedium::add( common::CRequest< TrackerResponses > const * _request )
 void
 CNodeMedium::add( CIdentifyRequest const * _request )
 {
-	CIdentifyMessage identifyMessage;
+	common::CIdentifyMessage identifyMessage;
 	identifyMessage.m_payload = _request->getPayload();
 
-	CMessage message( identifyMessage );
+	common::CMessage message( identifyMessage );
 
 	m_messages.push_back( message );
 
@@ -112,7 +112,7 @@ CNodeMedium::add( CIdentifyRequest const * _request )
 void
 CNodeMedium::add( CIdentifyResponse const * _request )
 {
-	CIdentifyMessage identifyMessage;
+	common::CIdentifyMessage identifyMessage;
 
 	identifyMessage.m_payload = _request->getPayload();
 
@@ -120,7 +120,7 @@ CNodeMedium::add( CIdentifyResponse const * _request )
 
 	identifyMessage.m_key = _request->getKeyID();
 
-	CMessage message( identifyMessage );
+	common::CMessage message( identifyMessage );
 
 	m_messages.push_back( message );
 
