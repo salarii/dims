@@ -7,9 +7,12 @@ bin_PROGRAMS = dims_monitor
 
 noinst_LIBRARIES = libmonitor.a
 
-MONITOR_H = 
+MONITOR_H = \
+	init.h
 
-MONITOR_CPP = monitor.cpp
+MONITOR_CPP = \
+	init.cpp \
+	monitor.cpp
 
 
 libmonitor_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) 
