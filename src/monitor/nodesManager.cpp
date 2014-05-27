@@ -3,10 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "nodesManager.h"
-#include "nodeMedium.h"
-#include "trackerMediumsKinds.h"
 
-namespace tracker
+namespace monitor
 {
 
 CNodesManager * CNodesManager::ms_instance = NULL;
@@ -30,11 +28,12 @@ CNodeMedium *
 CNodesManager::addNode( common::CSelfNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
-
+/*
 	CNodeMedium * medium = new CNodeMedium( _node );
 	m_ptrToNodes.insert( std::make_pair( convertToInt( _node ), medium ) );
 
-	return medium;
+	return medium;*/
+	return 0;
 }
 
 void
@@ -72,23 +71,24 @@ CNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 	return 0;
 }
 
-std::list< common::CMedium< TrackerResponses > *>
+std::list< common::CMedium< MonitorResponses > *>
 CNodesManager::provideConnection( int _actionKind, unsigned _requestedConnectionNumber )
 {
-	std::list< common::CMedium< TrackerResponses > *> mediums;
+	std::list< common::CMedium< MonitorResponses > *> mediums;
 
 	std::map< unsigned int, CNodeMedium* >::iterator iterator = m_ptrToNodes.find( ( unsigned int )_actionKind );
 
 	if( iterator != m_ptrToNodes.end() )
 	{
-		mediums.push_back( iterator->second );
+	//	mediums.push_back( iterator->second );
 	}
-	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
+/*	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
 	{
 		return m_nodeMediums;
-	}
+	}*/
 
 	return mediums;
 }
 
 }
+
