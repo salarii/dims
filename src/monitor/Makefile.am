@@ -9,13 +9,11 @@ noinst_LIBRARIES = libmonitor.a
 
 MONITOR_H = \
 	init.h \
-	nodesManager.h \
 	reputationTracer.h
 	
 MONITOR_CPP = \
 	init.cpp \
 	monitor.cpp \
-	nodesManager.cpp \
 	reputationTracer.cpp
 
 

@@ -28,8 +28,11 @@ COMMON_H = \
   common/authenticationProvider.h \
   common/communicationProtocol.h \
   common/databaseManager.h \
+  common/identifyRequest.h \
   common/manageNetwork.h \
+  common/nodeMedium.h \
   common/nodeMessages.h \
+  common/nodesManager.h \
   common/periodicActionExecutor.h \
   common/ratcoinParams.h \
   common/responseVisitorInternal.h \
