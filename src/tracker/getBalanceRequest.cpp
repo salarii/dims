@@ -4,6 +4,8 @@
 
 #include "getBalanceRequest.h"
 #include "common/medium.h"
+#include "trackerMediumsKinds.h"
+
 namespace tracker
 {
 
@@ -12,7 +14,8 @@ CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
 {
 }
 
-void CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+void
+CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {
 	_medium->add( this );
 }
@@ -20,7 +23,7 @@ void CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium )
 int
 CGetBalanceRequest::getKind() const
 {
-	return 0;
+	return CTrackerMediumsKinds::Internal;
 }
 
 uint160

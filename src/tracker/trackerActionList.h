@@ -8,9 +8,9 @@
 
 namespace tracker
 {
-class CGetBalanceAction; class CValidateTransactionsAction;
+class CGetBalanceAction; class CValidateTransactionsAction; class CConnectTrackerAction;
 
-typedef boost::mpl::list< CGetBalanceAction, CValidateTransactionsAction > TrackerActionList;
+typedef boost::mpl::list< CGetBalanceAction, CValidateTransactionsAction, CConnectTrackerAction > TrackerActionList;
 
 }
 

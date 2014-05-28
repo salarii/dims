@@ -52,6 +52,14 @@ CAuthenticationProvider::CAuthenticationProvider()
 	}
 
 }
+
+CKeyID
+CAuthenticationProvider::getMyKeyId() const
+{
+	assert( m_indicator.find( CIdentificationDB::Self ) != m_indicator.end() );
+	return m_indicator.find( CIdentificationDB::Self )->second;
+}
+
 /*
 bool
 CAuthenticationProvider::hasKeys( CKeyID const & _key ) const

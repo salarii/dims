@@ -239,7 +239,7 @@ static const CRPCCommand vRPCCommands[] =
     { "decodescript",           &decodescript,           false,     false,      false },
     { "signrawtransaction",     &signrawtransaction,     false,     false,      false },
     { "sendrawtransaction",     &sendrawtransaction,     false,     false,      false },
-
+	{ "connecttotracker",     &tracker::connectToTracker,     false,     false,      false },
 
 #ifdef ENABLE_WALLET
     /* Wallet */

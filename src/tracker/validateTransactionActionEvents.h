@@ -12,7 +12,7 @@ namespace tracker
 
 struct CValidationEvent : boost::statechart::event< CValidationEvent >
 {
-	CValidationEvent( bool _valid ):m_valid( _valid ){}
+	CValidationEvent( bool _valid ):m_valid( _valid ){};
 	bool m_valid;
 };
 

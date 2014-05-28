@@ -49,9 +49,13 @@ TRACKER_CORE_H = \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
+  tracker/connectToTrackerRequest.h \
+  tracker/connectTrackerAction.h \
+  tracker/continueRequest.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
   tracker/getBalanceRequest.h \
+  tracker/identifyRequest.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
   tracker/manageNetwork.h \
@@ -62,11 +66,15 @@ TRACKER_CORE_H = \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/simpleBuddy.h \
+  tracker/trackerController.h \
+  tracker/trackerControllerStates.h \
+  tracker/trackerControllerEvents.h \
   tracker/transactionRecordManager.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
-
+  
+  
 # bitcoin core #
 BITCOIN_CORE_H = \
   addrman.h \
@@ -139,19 +147,29 @@ TRACKER_CORE_CPP = \
   tracker/authenticationProvider.cpp \
   tracker/blockInfoDatabase.cpp \
   tracker/communicationProtocol.cpp \
+  tracker/connectToTrackerRequest.cpp \
+  tracker/connectTrackerAction.cpp \
+  tracker/continueRequest.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/databaseManager.cpp \
   tracker/getBalanceAction.cpp \
   tracker/getBalanceRequest.cpp \
+  tracker/identifyRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
   tracker/manageNetwork.cpp \
+  tracker/nodeMedium.cpp \
   tracker/nodesManager.cpp \
   tracker/originAddressScaner.cpp \
+  tracker/rpcTracker.cpp \
   tracker/segmentFileStorage.cpp \
+  tracker/selfNode.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/simpleBuddy.cpp \
+  tracker/trackerController.cpp \
+  tracker/trackerControllerEvents.cpp \
+  tracker/trackerControllerStates.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/validateTransactionsAction.cpp \
   tracker/validateTransactionsRequest.cpp

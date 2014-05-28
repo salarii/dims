@@ -21,6 +21,13 @@ if cmd == "backupwallet":
 		print access.backupwallet(path)
 	except:
 		print "\n---An error occurred---\n"
+elif cmd == "connecttotracker":
+	try:
+		addr = raw_input("Enter a tracker ip address and port: address:port :")
+		option = raw_input("enter option for given tracker :")
+		print access.connecttotracker(addr,option)
+	except:
+		print "\n---An error occurred---\n"
 
 elif cmd == "getaccount":
 	try:

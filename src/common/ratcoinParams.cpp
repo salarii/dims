@@ -222,12 +222,3 @@ convertAppType( AppType::Enum _appType )
 
 }
 
-
-
-/*
-tracer bublic number  t
-monitor  public  number  m
-
-
-*/
-
