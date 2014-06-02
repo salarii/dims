@@ -60,7 +60,7 @@ enum BindFlags {
 	BF_REPORT_ERROR = (1U << 1)
 };
 
-volatile bool fRequestShutdown = false;
+volatile extern  bool fRequestShutdown;
 
 void HandleSIGTERM(int)
 {
@@ -99,7 +99,7 @@ bool static Bind(const CService &addr, unsigned int flags) {
 /** Initialize bitcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
-bool AppInit1(boost::thread_group& threadGroup)
+bool AppInit(boost::thread_group& threadGroup)
 {
 	// ********************************************************* Step 1: setup
 #ifdef _MSC_VER
