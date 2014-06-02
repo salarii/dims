@@ -66,7 +66,7 @@ CNodesManager< RequestType >::getInstance( )
 {
 	if ( !ms_instance )
 	{
-		ms_instance = new CNodesManager();
+		ms_instance = new CNodesManager< RequestType >();
 	};
 	return ms_instance;
 }

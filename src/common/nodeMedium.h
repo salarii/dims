@@ -9,18 +9,17 @@
 #include "common/communicationProtocol.h"
 #include <boost/variant.hpp>
 #include "common/medium.h"
-#include "mediumRequests.h"
-#include "nodeMedium.h"
+#include "common/mediumRequests.h"
+#include "common/nodeMedium.h"
 #include "common/actionHandler.h"
-#include "nodesManager.h"
-#include "connectTrackerAction.h"
+#include "common/nodesManager.h"
 
 namespace common
 {
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
-class CIdentifyRequest;
+template < class RequestType > class CIdentifyRequest;
 
 template < class ResponseType >
 class CNodeMedium : public common::CMedium< ResponseType >
@@ -38,11 +37,11 @@ public:
 
 	void add( common::CRequest< ResponseType > const * _request );
 
-	void add( CIdentifyRequest const * _request );
+	void add( CIdentifyRequest< ResponseType > const * _request );
 
-	void add( CIdentifyResponse const * _request );
+	void add( CIdentifyResponse< ResponseType > const * _request );
 
-	void add( CContinueReqest const * _request );
+	void add( CContinueReqest< ResponseType > const * _request );
 
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
 
@@ -89,13 +88,13 @@ std::vector< uint256 > deleteList;
 
 template < class ResponseType >
 bool
-CNodeMedium< ResponseType >::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
+CNodeMedium< ResponseType >::getResponse( std::vector< ResponseType > & _requestResponse ) const
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
 	BOOST_FOREACH( uint256 const & id, m_indexes )
 	{
-		std::map< uint256, TrackerResponses >::const_iterator iterator = m_responses.find( id );
+		typename std::map< uint256, ResponseType >::const_iterator iterator = m_responses.find( id );
 		if ( iterator != m_responses.end() )
 		{
 			_requestResponse.push_back( iterator->second );
@@ -103,7 +102,7 @@ CNodeMedium< ResponseType >::getResponse( std::vector< TrackerResponses > & _req
 		}
 		else
 		{
-			_requestResponse.push_back( CContinueResult( id ) );
+		//	_requestResponse.push_back( CContinueResult( id ) );
 		}
 	}
 
@@ -124,9 +123,9 @@ CNodeMedium< ResponseType >::clearResponses()
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::setResponse( uint256 const & _id, TrackerResponses const & _responses )
+CNodeMedium< ResponseType >::setResponse( uint256 const & _id, ResponseType const & _response )
 {
-	m_responses.insert( std::make_pair( _id, _responses ) );
+	m_responses.insert( std::make_pair( _id, _response ) );
 }
 
 template < class ResponseType >
@@ -147,13 +146,13 @@ CNodeMedium< ResponseType >::getNode() const
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::add( common::CRequest< TrackerResponses > const * _request )
+CNodeMedium< ResponseType >::add( common::CRequest< ResponseType > const * _request )
 {
 }
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::add( CIdentifyRequest const * _request )
+CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _request )
 {
 	common::CIdentifyMessage identifyMessage;
 	identifyMessage.m_payload = _request->getPayload();
@@ -169,7 +168,7 @@ CNodeMedium< ResponseType >::add( CIdentifyRequest const * _request )
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::add( CIdentifyResponse const * _request )
+CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _request )
 {
 	common::CIdentifyMessage identifyMessage;
 
@@ -190,7 +189,7 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse const * _request )
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::add( CContinueReqest const * _request )
+CNodeMedium< ResponseType >::add( CContinueReqest< ResponseType > const * _request )
 {
 	m_indexes.push_back( _request->getRequestId() );
 

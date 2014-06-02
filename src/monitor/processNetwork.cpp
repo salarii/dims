@@ -3,13 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "processNetwork.h"
-#include "nodesManager.h"
+#include "common/nodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
 
-#include "nodeMedium.h"
-#include "connectTrackerAction.h"
-
+#include "common/nodeMedium.h"
+#include "configureMonitorActionHandler.h"
 
 namespace monitor
 {
@@ -33,9 +32,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	vRecv >> messages;
 
 // it is  stupid  to call this over and over again
-	if ( !CNodesManager::getInstance()->getMediumForNode( pfrom ) )
+	if ( !common::CNodesManager<MonitorResponses>::getInstance()->getMediumForNode( pfrom ) )
 	{
-		CNodesManager::getInstance()->addNode( pfrom );
+		common::CNodesManager<MonitorResponses>::getInstance()->addNode( pfrom );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
@@ -52,24 +51,24 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
 		{
-	/*		common::CIdentifyMessage identifyMessage;
+			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			CNodeMedium * nodeMedium = CNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium<MonitorResponses> * nodeMedium = common::CNodesManager<MonitorResponses>::getInstance()->getMediumForNode( pfrom );
 
 			uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 
 			if ( nodeMedium->isIdentifyMessageKnown( hash ) )
 			{
-				nodeMedium->setResponse( hash, CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+			//	nodeMedium->setResponse( hash, common::CIdentificationResult<MonitorResponses>( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
 			}
 			else
 			{
-				CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
+				/*CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
 
 			}
-*/
+
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{

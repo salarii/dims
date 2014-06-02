@@ -1,6 +1,14 @@
 #ifndef PROCESS_NETWORK_H
 #define PROCESS_NETWORK_H
 
+namespace common
+{
+class CSelfNode;
+
+}
+
+class CDataStream;
+
 namespace monitor
 {
 

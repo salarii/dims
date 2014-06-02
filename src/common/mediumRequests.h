@@ -41,7 +41,7 @@ CIdentifyRequest< RequestType >::CIdentifyRequest( unsigned int _kind, std::vect
 
 template < class RequestType >
 void
-CIdentifyRequest< RequestType >::accept( common::CMedium< TrackerResponses > * _medium ) const
+CIdentifyRequest< RequestType >::accept( common::CMedium< RequestType > * _medium ) const
 {
 	_medium->add( this );
 }
@@ -95,7 +95,7 @@ CIdentifyResponse< RequestType >::CIdentifyResponse( unsigned int _kind, std::ve
 
 template < class RequestType >
 void
-CIdentifyResponse< RequestType >::accept( common::CMedium< TrackerResponses > * _medium ) const
+CIdentifyResponse< RequestType >::accept( common::CMedium< RequestType > * _medium ) const
 {
 	_medium->add( this );
 }
@@ -154,7 +154,7 @@ CContinueReqest< RequestType >::CContinueReqest( uint256 const & _id, unsigned i
 
 template < class RequestType >
 void
-CContinueReqest< RequestType >::accept( common::CMedium< TrackerResponses > * _medium ) const
+CContinueReqest< RequestType >::accept( common::CMedium< RequestType > * _medium ) const
 {
 	_medium->add( this );
 }
