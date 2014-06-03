@@ -35,6 +35,20 @@ struct CAvailableCoins
 	std::map< uint256, CCoins > m_availableCoins;
 };
 
+struct CIdentificationResult
+{
+	CIdentificationResult( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, uint160 const & _key ):m_payload( _payload ),m_signed( _signed ),m_key( _key ){};
+	std::vector<unsigned char> m_payload;
+	std::vector<unsigned char> m_signed;
+	CKeyID m_key;
+};
+
+
+struct CContinueResult
+{
+	CContinueResult( uint256 const &_key ):m_id(_key){};
+	uint256 m_id;
+};
 
 typedef boost::variant< CDummy, CAvailableCoins > ClientResponse;
 
