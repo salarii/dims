@@ -88,7 +88,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponse( std::vector< node::NodeResponses > & _requestResponse ) const = 0;
+	virtual bool getResponse( std::vector< monitor::MonitorResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
 	virtual void add( VisitorParam( monitor::MonitorRequestsList ,0 ) const * _request ){};
 	virtual void add( VisitorParam( monitor::MonitorRequestsList ,1 ) const * _request ){};

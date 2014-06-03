@@ -81,12 +81,11 @@ CNodeMedium< RequestType > *
 CNodesManager< RequestType >::addNode( common::CSelfNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
-/*
-	CNodeMedium * medium = new CNodeMedium( _node );
+
+	CNodeMedium< RequestType > * medium = new CNodeMedium< RequestType >( _node );
 	m_ptrToNodes.insert( std::make_pair( convertToInt( _node ), medium ) );
 
-	return medium;*/
-	return 0;
+	return medium;
 }
 
 template < class RequestType >
@@ -139,13 +138,13 @@ CNodesManager< ResponseType >::provideConnection( int _actionKind, unsigned _req
 
 	if( iterator != m_ptrToNodes.end() )
 	{
-	//	mediums.push_back( iterator->second );
+		mediums.push_back( iterator->second );
 	}
 /*	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
 	{
 		return m_nodeMediums;
-	}*/
-
+	}
+*/
 	return mediums;
 }
 

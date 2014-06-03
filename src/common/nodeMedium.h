@@ -102,7 +102,7 @@ CNodeMedium< ResponseType >::getResponse( std::vector< ResponseType > & _request
 		}
 		else
 		{
-		//	_requestResponse.push_back( CContinueResult( id ) );
+			_requestResponse.push_back( CContinueResult( id ) );
 		}
 	}
 
