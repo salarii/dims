@@ -51,7 +51,7 @@ CNodeMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) c
 		}
 		else
 		{
-			_requestResponse.push_back( CContinueResult( id ) );
+			_requestResponse.push_back( common::CContinueResult( id ) );
 		}
 	}
 

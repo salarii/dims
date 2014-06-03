@@ -10,18 +10,17 @@ noinst_LIBRARIES = libmonitor.a
 MONITOR_H = \
 	addTrackerAction.h \
 	init.h \
+	monitorRequestsList.h \
 	processNetwork.h \
 	reputationTracer.h
-	
-	
 	
 MONITOR_CPP = \
 	addTrackerAction.cpp \
 	init.cpp \
 	monitor.cpp \
 	processNetwork.cpp \
-	reputationTracer.cpp
-
+	reputationTracer.cpp \
+	setResponseVisitor.cpp
 
 libmonitor_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) 
 libmonitor_a_SOURCES = $(MONITOR_H) $(MONITOR_CPP)

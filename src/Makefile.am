@@ -21,12 +21,14 @@ endif
 SUBDIRS = . $(BUILD_QT) $(BUILD_TEST) monitor
 DIST_SUBDIRS = . qt test
 .PHONY: FORCE
-
+	
 COMMON_H = \
   common/actionHandler.h \
   common/action.h \
   common/authenticationProvider.h \
   common/communicationProtocol.h \
+  common/commonEvents.h \
+  common/commonResponses.h \
   common/databaseManager.h \
   common/identifyRequest.h \
   common/manageNetwork.h \
@@ -40,18 +42,17 @@ COMMON_H = \
   common/requestResponse.h \
   common/request.h \
   common/selfNode.h \
-  common/trackerResponses.h \
   common/transactionStatus.h \
   common/visitorConfigurationUtilities.h 
 
 COMMON_CPP = \
   common/authenticationProvider.cpp \
   common/communicationProtocol.cpp \
+  common/commonResponses.cpp \
   common/databaseManager.cpp \
   common/manageNetwork.cpp \
   common/ratcoinParams.cpp \
-  common/selfNode.cpp \
-  common/trackerResponses.cpp
+  common/selfNode.cpp 
   
 # tracker core #
 TRACKER_CORE_H = \

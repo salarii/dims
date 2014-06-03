@@ -1,4 +1,37 @@
-#ifndef ADDTRACKERACTION_H
-#define ADDTRACKERACTION_H
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#endif // ADDTRACKERACTION_H
+#ifndef ADD_TRACKER_ACTION_H
+#define ADD_TRACKER_ACTION_H
+
+#include "configureMonitorActionHandler.h"
+#include "common/action.h"
+
+#include <boost/statechart/state_machine.hpp>
+#include <vector>
+
+namespace monitor
+{
+
+struct CUninitiated;
+
+class CAddTrackerAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CAddTrackerAction, CUninitiated >
+{
+public:
+	//CAddTrackerAction( std::string const & _trackerAddress );
+
+	CAddTrackerAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
+
+	void setRequest( common::CRequest< MonitorResponses >* _request );
+
+	virtual common::CRequest< MonitorResponses >* execute();
+
+	virtual void accept( common::CSetResponseVisitor< MonitorResponses > & _visitor );
+private:
+	common::CRequest< MonitorResponses >* m_request;
+};
+
+}
+
+#endif // ADD_TRACKER_ACTION_H

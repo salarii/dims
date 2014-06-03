@@ -1,0 +1,4 @@
+#ifndef COMMONEVENTS_H
+#define COMMONEVENTS_H
+
+#endif // COMMONEVENTS_H

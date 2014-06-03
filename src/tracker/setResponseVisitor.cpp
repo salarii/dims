@@ -53,12 +53,12 @@ public:
 		this->m_action->process_event( tracker::CNodeConnectedEvent( _param.m_node ) );
 	}
 
-	virtual void operator()( tracker::CIdentificationResult & _param ) const
+	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
 		this->m_action->process_event( tracker::CIntroduceEvent() );
 	}
 
-	virtual void operator()( tracker::CContinueResult & _param ) const
+	virtual void operator()( common::CContinueResult & _param ) const
 	{
 		this->m_action->process_event( tracker::CContinueEvent( _param.m_id ) );
 	}

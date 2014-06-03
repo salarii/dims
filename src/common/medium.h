@@ -15,6 +15,7 @@
 #include "node/nodeRequestList.h"
 #include "node/configureNodeActionHadler.h"
 #include "monitor/configureMonitorActionHandler.h"
+#include "monitor/monitorRequestsList.h"
 
 namespace common
 {
@@ -89,17 +90,17 @@ public:
 
 	virtual bool getResponse( std::vector< node::NodeResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,7 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,0 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,1 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,2 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,3 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,4 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,5 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,6 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,7 ) const * _request ){};
 	virtual void add( VisitorParam( monitor::MonitorResponseList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,10 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,9 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,10 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 
