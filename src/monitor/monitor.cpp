@@ -1,3 +1,9 @@
+// Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2009-2014 The Bitcoin developers
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #if defined(HAVE_CONFIG_H)
 #include "bitcoin-config.h"
 #endif
@@ -65,7 +71,7 @@ bool AppInit(int argc, char* argv[])
 		//
 		// If Qt is used, parameters/tracker.conf are parsed in qt/bitcoin.cpp's main()
 		ParseParameters(argc, argv);
-		if (!boost::filesystem::is_directory(GetDataDir(common::AppType::Tracker, false)))
+		if (!boost::filesystem::is_directory(GetDataDir(common::AppType::Monitor, false)))
 		{
 			fprintf(stderr, "Error: Specified data directory \"%s\" does not exist.\n", mapArgs["-datadir"].c_str());
 			return false;
@@ -109,7 +115,7 @@ bool AppInit(int argc, char* argv[])
 		fDaemon = GetBoolArg("-daemon", false);
 		if (fDaemon)
 		{
-			fprintf(stdout, "Bitcoin server starting\n");
+			fprintf(stdout, "Monitor starting\n");
 
 			// Daemonize
 			pid_t pid = fork();

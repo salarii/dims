@@ -8,7 +8,13 @@
 #include "common/actionHandler.h"
 
 #include "common/nodeMedium.h"
+
 #include "configureMonitorActionHandler.h"
+#include "addTrackerAction.h"
+
+template<> common::CNodesManager< monitor::MonitorResponses > * common::CNodesManager< monitor::MonitorResponses >::ms_instance = 0;
+
+template<> common::CActionHandler< monitor::MonitorResponses > * common::CActionHandler< monitor::MonitorResponses >::ms_instance = 0;
 
 namespace monitor
 {
@@ -64,8 +70,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				/*CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
+				CAddTrackerAction * addTrackerAction= new CAddTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				common::CActionHandler< MonitorResponses >::getInstance()->executeAction( addTrackerAction );
 
 			}
 

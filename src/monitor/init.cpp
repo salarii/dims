@@ -618,7 +618,7 @@ bool AppInit(boost::thread_group& threadGroup)
 /* create  threads of  action  handler */
 	//threadGroup.create_thread( boost::bind( &common::CActionHandler< tracker::TrackerResponses >::loop, common::CActionHandler< tracker::TrackerResponses >::getInstance() ) );
 
-	//common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
+	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 	// ********************************************************* Step 10: load peers

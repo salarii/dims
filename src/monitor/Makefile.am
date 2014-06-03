@@ -8,11 +8,15 @@ bin_PROGRAMS = dims_monitor
 noinst_LIBRARIES = libmonitor.a
 
 MONITOR_H = \
+	addTrackerAction.h \
 	init.h \
 	processNetwork.h \
 	reputationTracer.h
 	
+	
+	
 MONITOR_CPP = \
+	addTrackerAction.cpp \
 	init.cpp \
 	monitor.cpp \
 	processNetwork.cpp \
