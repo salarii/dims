@@ -28,8 +28,19 @@ public:
 	virtual common::CRequest< MonitorResponses >* execute();
 
 	virtual void accept( common::CSetResponseVisitor< MonitorResponses > & _visitor );
+
+	std::vector< unsigned char > getPayload() const;
+
+
+	void setMediumKind( unsigned int _mediumKind );
+// not safe
+	unsigned int getMediumKind() const;
 private:
 	common::CRequest< MonitorResponses >* m_request;
+
+	std::vector< unsigned char > m_payload;
+
+	unsigned int m_mediumKind;
 };
 
 }

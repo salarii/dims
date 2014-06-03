@@ -29,6 +29,9 @@ struct CErrorEvent : boost::statechart::event< CErrorEvent >
 {
 };
 
+struct CSwitchToConnectedEvent : boost::statechart::event< CSwitchToConnectedEvent >
+{
+};
 
 }
 

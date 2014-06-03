@@ -4,6 +4,9 @@
 
 #include "addTrackerAction.h"
 #include "common/setResponseVisitor.h"
+#include "common/commonEvents.h"
+#include "common/authenticationProvider.h"
+#include "common/mediumRequests.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -13,25 +16,60 @@
 namespace monitor
 {
 
+
+struct CBothUnidentifiedConnected;
+
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CAddTrackerAction >
 {
-/*	typedef boost::mpl::list<
-	boost::statechart::transition< CSwitchToConnectingEvent, CUnconnected >,
-	boost::statechart::transition< CSwitchToConnectedEvent, CBothUnidentifiedConnected >
+	typedef boost::mpl::list<
+	boost::statechart::transition< common::CSwitchToConnectedEvent, CBothUnidentifiedConnected >
 	> reactions;
-*/
 };
-/*
-struct CIdentified : boost::statechart::state< CIdentified, CAddTrackerAction >
+
+
+template < class Parent >
+void
+createIdentifyResponse( Parent & parent )
 {
-	CIdentified( my_context ctx ) : my_base( ctx )
+	uint256 hash = Hash( &parent.getPayload().front(), &parent.getPayload().back() );
+
+	std::vector< unsigned char > signedHash;
+	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
+
+	parent.setRequest( new common::CIdentifyResponse< MonitorResponses >( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
+}
+
+
+struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CAddTrackerAction >
+{
+	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		// for  now we  finish here
 		context< CAddTrackerAction >().setRequest( 0 );
 	}
 };
 
-*/
+struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedConnected, CAddTrackerAction >
+{
+	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
+	{
+		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
+
+		createIdentifyResponse( context< CAddTrackerAction >() );
+
+	}
+
+	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	{
+		context< CAddTrackerAction >().setRequest( new common::CContinueReqest< MonitorResponses >( _continueEvent.m_keyId, context< CAddTrackerAction >().getMediumKind() ) );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< common::CIntroduceEvent, CPairIdentifiedConnected >,
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
+};
+
+
 CAddTrackerAction::CAddTrackerAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
 {
 }
@@ -43,10 +81,28 @@ CAddTrackerAction::execute()
 	return 0;
 }
 
+std::vector< unsigned char >
+CAddTrackerAction::getPayload() const
+{
+	return m_payload;
+}
+
+unsigned int
+CAddTrackerAction::getMediumKind() const
+{
+	return m_mediumKind;
+}
+
+void
+CAddTrackerAction::setMediumKind( unsigned int _mediumKind )
+{
+	m_mediumKind = _mediumKind;
+}
+
 void
 CAddTrackerAction::accept( common::CSetResponseVisitor< MonitorResponses > & _visitor )
 {
-
+	_visitor.visit( *this );
 }
 
 void
