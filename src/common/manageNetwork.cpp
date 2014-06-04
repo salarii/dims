@@ -14,16 +14,12 @@
 #include "common/ratcoinParams.h"
 
 #include "communicationProtocol.h"
-#include "nodesManager.h"
 
 #include "common/actionHandler.h"
-#include "connectTrackerAction.h"
-#include "connectTrackerActionEvents.h"
-#include "nodeMedium.h"
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
-namespace tracker
+namespace common
 {
 
 CManageNetwork * CManageNetwork::ms_instance = NULL;
@@ -101,16 +97,16 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 */
 	// Send and receive from sockets, accept connections
 
-	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadSocketHandler, this));
+	threadGroup.create_thread(boost::bind(&common::CManageNetwork::threadSocketHandler, this));
 
 	// Initiate outbound connections from -addnode
 //	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenAddedConnections, this));
 
 	// Initiate outbound connections
-	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenConnections, this));
+	threadGroup.create_thread(boost::bind(&common::CManageNetwork::threadOpenConnections, this));
 
 	// Process messages
-	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadMessageHandler, this));
+	threadGroup.create_thread(boost::bind(&common::CManageNetwork::threadMessageHandler, this));
 
 	// Dump network addresses
 //	threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
@@ -1076,86 +1072,9 @@ CManageNetwork::processGetData(CSelfNode* pfrom)
 
 }
 
-void
-CManageNetwork::registerNodeSignals()
-{
-	boost::bind( &CManageNetwork::processMessages, this );
-
-	m_signals.ProcessMessages.connect(boost::bind( &CManageNetwork::processMessages, this, _1 ));
-	m_signals.SendMessages.connect(boost::bind( &CManageNetwork::sendMessages, this, _1, _2 ) );
-//	m_signals.InitializeNode.connect(boost::bind( &CManageNetwork::initializeNode, this ));
-//	m_signals.FinalizeNode.connect(boost::bind( &CManageNetwork::finalizeNode, this ));
-}
-
-void
-CManageNetwork::unregisterNodeSignals(CNodeSignals& nodeSignals)
-{
-	m_signals.ProcessMessages.disconnect(boost::bind( &CManageNetwork::processMessages, this, _1 ));
-	m_signals.SendMessages.disconnect(boost::bind( &CManageNetwork::sendMessages, this, _1, _2 ) );
-//	m_signals.InitializeNode.disconnect(boost::bind( &CManageNetwork::initializeNode, this ));
-//	m_signals.FinalizeNode.disconnect(boost::bind( &CManageNetwork::finalizeNode, this ));
-}
-
-bool
-CManageNetwork::processMessage(CSelfNode* pfrom, CDataStream& vRecv)
-{
-	std::vector< CMessage > messages;
-	vRecv >> messages;
-
-// it is  stupid  to call this over and over again
-	if ( !CNodesManager::getInstance()->getMediumForNode( pfrom ) )
-	{
-		CNodesManager::getInstance()->addNode( pfrom );
-	}
-
-	BOOST_FOREACH( CMessage const & message, messages )
-	{
-
-
-		if ( message.m_header.m_payloadKind == CPayloadKind::Transactions )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == CPayloadKind::InfoReq )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == CPayloadKind::IntroductionReq )
-		{
-			CIdentifyMessage identifyMessage;
-			convertPayload( message, identifyMessage );
-
-			CNodeMedium * nodeMedium = CNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
-
-			if ( nodeMedium->isIdentifyMessageKnown( hash ) )
-			{
-				nodeMedium->setResponse( hash, CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
-			}
-			else
-			{
-				CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
-
-			}
-
-		}
-		else if ( message.m_header.m_payloadKind == CPayloadKind::Uninitiated )
-		{
-			//
-		}
-	}
-	/*
-
-
-*/
-	return true;
-}
-
 // requires LOCK(cs_vRecvMsg)
 bool
-CManageNetwork::processMessages(CSelfNode* pfrom)
+CManageNetwork::processMessages(common::CSelfNode* pfrom)
 {
 	//if (fDebug)
 	//    LogPrintf("ProcessMessages(%"PRIszu" messages)\n", pfrom->vRecvMsg.size());
@@ -1232,7 +1151,7 @@ CManageNetwork::processMessages(CSelfNode* pfrom)
 		bool fRet = false;
 		try
 		{
-			fRet = processMessage(pfrom, vRecv);
+			fRet = m_signals.ProcessMessage(pfrom, vRecv);
 			boost::this_thread::interruption_point();
 		}
 		catch (std::ios_base::failure& e)
@@ -1274,149 +1193,5 @@ CManageNetwork::processMessages(CSelfNode* pfrom)
 
 	return fOk;
 }
-
-
-bool
-CManageNetwork::sendMessages(CSelfNode* pto, bool fSendTrickle)
-{
-	pto->sendMessages();
-	/*
-	{
-		// Don't send anything until we get their version message
-		if (pto->nVersion == 0)
-			return true;
-
-		//
-		// Message: ping
-		//
-		bool pingSend = false;
-		if (pto->fPingQueued) {
-			// RPC ping request by user
-			pingSend = true;
-		}
-		if (pto->nLastSend && GetTime() - pto->nLastSend > 30 * 60 && pto->vSendMsg.empty()) {
-			// Ping automatically sent as a keepalive
-			pingSend = true;
-		}
-		if (pingSend) {
-			uint64_t nonce = 0;
-			while (nonce == 0) {
-				RAND_bytes((unsigned char*)&nonce, sizeof(nonce));
-			}
-			pto->nPingNonceSent = nonce;
-			pto->fPingQueued = false;
-			if (pto->nVersion > BIP0031_VERSION) {
-				// Take timestamp as close as possible before transmitting ping
-				pto->nPingUsecStart = GetTimeMicros();
-				pto->PushMessage("ping", nonce);
-			} else {
-				// Peer is too old to support ping command with nonce, pong will never arrive, disable timing
-				pto->nPingUsecStart = 0;
-				pto->PushMessage("ping");
-			}
-		}
-
-		// Address refresh broadcast
-		static int64_t nLastRebroadcast;
-		if (!IsInitialBlockDownload() && (GetTime() - nLastRebroadcast > 24 * 60 * 60))
-		{
-			{
-				LOCK(cs_vNodes);
-				BOOST_FOREACH(CSelfNode* pnode, vNodes)
-				{
-					// Periodically clear setAddrKnown to allow refresh broadcasts
-					if (nLastRebroadcast)
-						pnode->setAddrKnown.clear();
-				}
-			}
-			nLastRebroadcast = GetTime();
-		}
-
-		//
-		// Message: addr
-		//
-		if (fSendTrickle)
-		{
-			vector<CAddress> vAddr;
-			vAddr.reserve(pto->vAddrToSend.size());
-			BOOST_FOREACH(const CAddress& addr, pto->vAddrToSend)
-			{
-				// returns true if wasn't already contained in the set
-				if (pto->setAddrKnown.insert(addr).second)
-				{
-					vAddr.push_back(addr);
-					// receiver rejects addr messages larger than 1000
-					if (vAddr.size() >= 1000)
-					{
-						pto->PushMessage("addr", vAddr);
-						vAddr.clear();
-					}
-				}
-			}
-			pto->vAddrToSend.clear();
-			if (!vAddr.empty())
-				pto->PushMessage("addr", vAddr);
-		}
-
-		TRY_LOCK(cs_main, lockMain);
-		if (!lockMain)
-			return true;
-
-		CNodeState &state = *State(pto->GetId());
-		if (state.fShouldBan) {
-			if (pto->addr.IsLocal())
-				LogPrintf("Warning: not banning local node %s!\n", pto->addr.ToString());
-			else {
-				pto->fDisconnect = true;
-				CSelfNode::Ban(pto->addr);
-			}
-			state.fShouldBan = false;
-		}
-
-		BOOST_FOREACH(const CBlockReject& reject, state.rejects)
-			pto->PushMessage("reject", (string)"block", reject.chRejectCode, reject.strRejectReason, reject.hashBlock);
-		state.rejects.clear();
-
-
-	 //
-
-		// Start block sync
-		if (pto->fStartSync && !fImporting && !fReindex) {
-			pto->fStartSync = false;
-			CBloomFilter bloomFilter =  CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_P2PUBKEY_ONLY);
-			bloomFilter.insert(ParseHex(Params().getOriginAddressAsString()));
-			pto->PushMessage("filterload", bloomFilter);
-
-			PushGetHeaders(pto, chainActive.Tip(), uint256(0));
-		}
-
-		//
-		// Message: getdata
-		//
-		vector<CInv> vGetData;
-		int64_t nNow = GetTime() * 1000000;
-		while (!pto->mapAskFor.empty() && (*pto->mapAskFor.begin()).first <= nNow)
-		{
-			const CInv& inv = (*pto->mapAskFor.begin()).second;
-			if (!AlreadyHave(inv))
-			{
-				if (fDebug)
-					LogPrint("net", "sending getdata: %s\n", inv.ToString());
-				vGetData.push_back(inv);
-				if (vGetData.size() >= 1000)
-				{
-					pto->PushMessage("getdata", vGetData);
-					vGetData.clear();
-				}
-			}
-			pto->mapAskFor.erase(pto->mapAskFor.begin());
-		}
-		if (!vGetData.empty())
-			pto->PushMessage("getdata", vGetData);
-
-	}*/
-	return true;
-}
-
 
 }

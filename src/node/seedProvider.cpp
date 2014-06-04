@@ -2,7 +2,7 @@
 
 #include <set>
 #include <QString>
-#include "common/trackerResponses.h"
+#include "common/commonResponses.h"
 
 namespace node
 {

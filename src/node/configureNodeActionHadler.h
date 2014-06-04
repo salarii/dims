@@ -2,7 +2,6 @@
 #define CONFIGURE_NODE_ACTION_HADLER_H
 
 #include "common/requestResponse.h"
-#include "common/mediumException.h"
 namespace common
 {
 struct CAvailableCoins;

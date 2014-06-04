@@ -9,7 +9,7 @@
 #include "serialize.h"
 #include "core.h"
 
-namespace tracker
+namespace common
 {
 
 struct CPayloadKind

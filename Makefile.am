@@ -5,6 +5,7 @@ SUBDIRS = src
 GZIP_ENV="-9n"
 
 BITCOIND_BIN=$(top_builddir)/src/ratcoin_tracker(EXEEXT)
+DIMS_MONITOR_BIN=$(top_builddir)/src/dims_monitor(EXEEXT)
 BITCOIN_QT_BIN=$(top_builddir)/src/qt/ratcoin_client$(EXEEXT)
 BITCOIN_CLI_BIN=$(top_builddir)/src/bitcoin-cli$(EXEEXT)
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
@@ -51,7 +52,7 @@ $(BITCOIN_WIN_INSTALLER): $(BITCOIND_BIN) $(BITCOIN_QT_BIN) $(BITCOIN_CLI_BIN)
 	@test -f $(MAKENSIS) && $(MAKENSIS) $(top_builddir)/share/setup.nsi || \
 	  echo error: could not build $@
 
-$(BITCOIND_BIN) $(BITCOIN_QT_BIN) $(BITCOIN_CLI_BIN):
+$(BITCOIND_BIN) $(BITCOIN_QT_BIN) $(BITCOIN_CLI_BIN) $(DIMS_MONITOR_BIN):
 	make -C $(dir $@) $(notdir $@)
 
 $(OSX_APP)/Contents/PkgInfo:

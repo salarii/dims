@@ -11,7 +11,7 @@
 #include "db.h"
 #include "serialize.h"
 
-namespace tracker
+namespace common
 {
 
 std::string const CAuthenticationProvider::m_identificationFile = "identification";

@@ -29,8 +29,6 @@
 #include <boost/signals2/signal.hpp>
 #include <openssl/rand.h>
 
-#include "tracker/communicationProtocol.h"
-
 class CAddrMan;
 class CBlockIndex;
 class CNode;
@@ -72,6 +70,7 @@ struct CNodeSignals
     boost::signals2::signal<int ()> GetHeight;
     boost::signals2::signal<bool (CNode*)> ProcessMessages;
     boost::signals2::signal<bool (CNode*, bool)> SendMessages;
+	boost::signals2::signal<bool (CNode*, CDataStream&)> ProcessMessage;
     boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
     boost::signals2::signal<void (NodeId)> FinalizeNode;
 };

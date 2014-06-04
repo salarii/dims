@@ -6,7 +6,6 @@
 #define MEDIUM_H
 
 #include "requestResponse.h"
-#include "mediumException.h"
 
 #include "visitorConfigurationUtilities.h"
 
@@ -14,6 +13,8 @@
 #include "tracker/trackerRequestsList.h"
 #include "node/nodeRequestList.h"
 #include "node/configureNodeActionHadler.h"
+#include "monitor/configureMonitorActionHandler.h"
+#include "monitor/monitorRequestsList.h"
 
 namespace common
 {
@@ -78,6 +79,30 @@ public:
 	virtual void add( VisitorParam( node::NodeRequestsList ,10 ) const * _request ){};
 	virtual ~CMedium(){};
 };
+
+template <>
+class CMedium< monitor::MonitorResponses >
+{
+public:
+	virtual bool serviced() const = 0;
+	virtual bool flush() = 0;
+
+	virtual bool getResponse( std::vector< monitor::MonitorResponses > & _requestResponse ) const = 0;
+	virtual void clearResponses() = 0;
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,0 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,1 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,2 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,3 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,4 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,5 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,6 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,7 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorResponseList ,8 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,9 ) const * _request ){};
+	virtual void add( VisitorParam( monitor::MonitorRequestsList ,10 ) const * _request ){};
+	virtual ~CMedium(){};
+};
+
 }
 
 #endif // MEDIUM_H

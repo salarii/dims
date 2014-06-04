@@ -8,6 +8,7 @@
 #include <boost/variant.hpp> 
 #include "tracker/configureTrackerActionHandler.h"
 #include "node/configureNodeActionHadler.h"
+#include "monitor/configureMonitorActionHandler.h"
 
 namespace tracker
 {
@@ -27,6 +28,11 @@ class CSendBalanceInfoAction;
 class CSendTransactionAction;
 
 class CConnectAction;
+}
+
+namespace monitor
+{
+class CAddTrackerAction;
 }
 
 namespace common
@@ -78,6 +84,18 @@ private:
 	node::NodeResponses m_requestResponse;
 };
 
+
+template<>
+class CSetResponseVisitor< monitor::MonitorResponses >
+{
+public:
+	CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse );
+
+	void visit( monitor::CAddTrackerAction & _action );
+private:
+
+	monitor::MonitorResponses m_requestResponse;
+};
 
 }
 

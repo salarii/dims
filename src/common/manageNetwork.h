@@ -33,7 +33,7 @@ so  to refactor this I need to do following  steps
 
 */
 
-namespace tracker
+namespace common
 {
 
 class CSelfNode;
@@ -54,6 +54,7 @@ public:
 		boost::signals2::signal<bool (CSelfNode*)> ProcessMessages;
 		boost::signals2::signal<bool (CSelfNode*, bool)> SendMessages;
 		boost::signals2::signal<void (NodeId, const CSelfNode*)> InitializeNode;
+		boost::signals2::signal<bool (CSelfNode*, CDataStream&)> ProcessMessage;
 		boost::signals2::signal<void (NodeId)> FinalizeNode;
 	};
 
@@ -71,7 +72,8 @@ public:
 
 	bool connectToNetwork( boost::thread_group& threadGroup );
 
-	void registerNodeSignals();
+	template < class Handler >
+	void registerNodeSignals( Handler * _handler );
 private:
 	CManageNetwork();
 // some  of  this  is  copy paste from  net.cpp
@@ -109,16 +111,12 @@ private:
 
 	void StartSync(const vector<CSelfNode*> &vNodes);
 
-	bool sendMessages(CSelfNode* pto, bool fSendTrickle);
-
 	bool processMessages(CSelfNode* pfrom);
-
-	bool processMessage(CSelfNode* pfrom, CDataStream& vRecv);
 
 	void processGetData(CSelfNode* pfrom);
 
-	void
-	unregisterNodeSignals(CNodeSignals& nodeSignals);
+	template < class Handler >
+	void unregisterNodeSignals( Handler * _handler );
 private:
 	static CManageNetwork * ms_instance;
 
@@ -129,8 +127,6 @@ private:
 	CNetworkParams * m_networkParams;
 
 	CSelfNode * m_nodeLocalHost;
-
-	CSelfNodesManager * m_nodesManager;
 
 	CCriticalSection cs_vNodes;
 	CCriticalSection cs_mapLocalHost;
@@ -150,6 +146,35 @@ private:
 	CAddrMan addrman;
 	CNodeSignals m_signals;
 };
+
+template < class Handler >
+void
+CManageNetwork::registerNodeSignals( Handler * _handler )
+{
+	boost::bind( &CManageNetwork::processMessages, this );
+
+	m_signals.ProcessMessages.connect(boost::bind( &CManageNetwork::processMessages, this, _1 ));
+
+	m_signals.SendMessages.connect(boost::bind( &Handler::sendMessages, _handler, _1, _2 ) );
+
+	m_signals.ProcessMessage.connect(boost::bind( &Handler::processMessage, _handler, _1, _2 ));
+//	m_signals.InitializeNode.connect(boost::bind( &CManageNetwork::initializeNode, this ));
+//	m_signals.FinalizeNode.connect(boost::bind( &CManageNetwork::finalizeNode, this ));
+}
+
+template < class Handler >
+void
+CManageNetwork::unregisterNodeSignals( Handler * _handler )
+{
+	m_signals.ProcessMessages.disconnect(boost::bind( &CManageNetwork::processMessages, this, _1 ));
+
+	m_signals.SendMessages.disconnect(boost::bind( &Handler::sendMessages, this, _1, _2 ) );
+
+	m_signals.ProcessMessage.connect(boost::bind( &Handler::processMessages, _handler, _1, _2 ));
+//	m_signals.InitializeNode.disconnect(boost::bind( &CManageNetwork::initializeNode, this ));
+//	m_signals.FinalizeNode.disconnect(boost::bind( &CManageNetwork::finalizeNode, this ));
+}
+
 
 }
 

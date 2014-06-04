@@ -8,11 +8,9 @@
 #include <boost/mpl/list.hpp>
 #include <boost/variant/variant.hpp>
 
-#include "common/trackerResponses.h"
+#include "common/commonResponses.h"
 
-#include "common/mediumException.h"
-
-#include "selfNode.h"
+#include "common/selfNode.h"
 
 namespace tracker
 {
@@ -26,27 +24,12 @@ struct CValidationResult
 
 struct CConnectedNode
 {
-	CConnectedNode( CSelfNode * _node ):m_node( _node ){};
-	CSelfNode * m_node;
-};
-
-struct CIdentificationResult
-{
-	CIdentificationResult( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, uint160 const & _key ):m_payload( _payload ),m_signed( _signed ),m_key( _key ){};
-	std::vector<unsigned char> m_payload;
-	std::vector<unsigned char> m_signed;
-	CKeyID m_key;
-
-};
-
-struct CContinueResult
-{
-	CContinueResult( uint256 const &_key ):m_id(_key){};
-	uint256 m_id;
+	CConnectedNode( common::CSelfNode * _node ):m_node( _node ){};
+	common::CSelfNode * m_node;
 };
 
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, CConnectedNode, CIdentificationResult, CContinueResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, CConnectedNode, common::CIdentificationResult, common::CContinueResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

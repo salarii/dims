@@ -18,62 +18,72 @@ if BUILD_BITCOIN_CLI
   bin_PROGRAMS += bitcoin-cli
 endif
 
-SUBDIRS = . $(BUILD_QT) $(BUILD_TEST)
+SUBDIRS = . $(BUILD_QT) $(BUILD_TEST) monitor
 DIST_SUBDIRS = . qt test
 .PHONY: FORCE
-
+	
 COMMON_H = \
-  common/ratcoinParams.h \
   common/actionHandler.h \
-  common/requestHandler.h \
-  common/request.h \
   common/action.h \
-  common/requestResponse.h \
-  common/trackerResponses.h \
+  common/authenticationProvider.h \
+  common/communicationProtocol.h \
+  common/commonEvents.h \
+  common/commonResponses.h \
+  common/databaseManager.h \
+  common/identifyRequest.h \
+  common/manageNetwork.h \
+  common/nodeMedium.h \
   common/nodeMessages.h \
-  common/visitorConfigurationUtilities.h \
-  common/responseVisitorInternal.h \
+  common/nodesManager.h \
   common/periodicActionExecutor.h \
-  common/transactionStatus.h
+  common/ratcoinParams.h \
+  common/responseVisitorInternal.h \
+  common/requestHandler.h \
+  common/requestResponse.h \
+  common/request.h \
+  common/selfNode.h \
+  common/transactionStatus.h \
+  common/visitorConfigurationUtilities.h 
 
 COMMON_CPP = \
+  common/authenticationProvider.cpp \
+  common/communicationProtocol.cpp \
+  common/commonResponses.cpp \
+  common/databaseManager.cpp \
+  common/manageNetwork.cpp \
   common/ratcoinParams.cpp \
-  common/trackerResponses.cpp
+  common/selfNode.cpp 
   
 # tracker core #
 TRACKER_CORE_H = \
   tracker/accessFile.h \
   tracker/addressToCoins.h \
-  tracker/authenticationProvider.h \
   tracker/blockInfoDatabase.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
   tracker/connectToTrackerRequest.h \
   tracker/connectTrackerAction.h \
-  tracker/continueRequest.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
   tracker/getBalanceRequest.h \
-  tracker/identifyRequest.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
-  tracker/manageNetwork.h \
   tracker/originAddressScaner.h \
-  tracker/nodesManager.h \
+  tracker/processNetwork.h \
   tracker/segmentFileStorage.h \
-  tracker/selfNode.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/simpleBuddy.h \
   tracker/trackerController.h \
   tracker/trackerControllerStates.h \
   tracker/trackerControllerEvents.h \
+  tracker/trackerNodeMedium.h \
+  tracker/trackerNodesManager.h \
   tracker/transactionRecordManager.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
-  
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -144,35 +154,30 @@ TRACKER_CORE_CPP = \
   tracker/accessFile.cpp \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
-  tracker/authenticationProvider.cpp \
   tracker/blockInfoDatabase.cpp \
-  tracker/communicationProtocol.cpp \
   tracker/connectToTrackerRequest.cpp \
   tracker/connectTrackerAction.cpp \
-  tracker/continueRequest.cpp \
   tracker/clientRequestsManager.cpp \
-  tracker/databaseManager.cpp \
   tracker/getBalanceAction.cpp \
   tracker/getBalanceRequest.cpp \
-  tracker/identifyRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
-  tracker/manageNetwork.cpp \
-  tracker/nodeMedium.cpp \
-  tracker/nodesManager.cpp \
   tracker/originAddressScaner.cpp \
+  tracker/processNetwork.cpp \
   tracker/rpcTracker.cpp \
   tracker/segmentFileStorage.cpp \
-  tracker/selfNode.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/simpleBuddy.cpp \
   tracker/trackerController.cpp \
   tracker/trackerControllerEvents.cpp \
   tracker/trackerControllerStates.cpp \
+  tracker/trackerNodeMedium.cpp \
+  tracker/trackerNodesManager.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/validateTransactionsAction.cpp \
   tracker/validateTransactionsRequest.cpp
+ 
   
 libbitcoin_server_a_SOURCES = \
   db.cpp \

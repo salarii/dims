@@ -9,7 +9,7 @@
 #include "key.h"
 #include "communicationProtocol.h"
 
-namespace tracker
+namespace common
 {
 
 class CSelfNode : public CNode
