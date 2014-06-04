@@ -10,6 +10,7 @@ very probable that this  should be in common
 */
 #include "connectionProvider.h"
 #include "selfNode.h"
+#include "nodeMedium.h"
 
 namespace common
 {
@@ -39,7 +40,7 @@ public:
 	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
 
 	static CNodesManager * getInstance();
-private:
+protected:
 	CNodesManager();
 
 	void handleMessages();
@@ -53,7 +54,7 @@ private:
 	//std::list< CSelfNode * > m_unidentified;
 
 	std::map< unsigned int, CNodeMedium< RequestType >* > m_ptrToNodes;
-private:
+protected:
 	static CNodesManager< RequestType > * ms_instance;
 
 	std::list< common::CMedium< RequestType > *> m_nodeMediums;

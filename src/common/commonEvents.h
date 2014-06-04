@@ -33,6 +33,10 @@ struct CSwitchToConnectedEvent : boost::statechart::event< CSwitchToConnectedEve
 {
 };
 
+struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectedEvent >
+{
+};
+
 }
 
 #endif // COMMON_EVENTS_H

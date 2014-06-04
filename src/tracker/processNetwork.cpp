@@ -3,11 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "processNetwork.h"
-#include "nodesManager.h"
+#include "trackerNodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
 
-#include "nodeMedium.h"
+#include "trackerNodeMedium.h"
 #include "connectTrackerAction.h"
 
 
@@ -33,9 +33,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	vRecv >> messages;
 
 // it is  stupid  to call this over and over again
-	if ( !CNodesManager::getInstance()->getMediumForNode( pfrom ) )
+	if ( !CTrackerNodesManager::getInstance()->getMediumForNode( pfrom ) )
 	{
-		CNodesManager::getInstance()->addNode( pfrom );
+		CTrackerNodesManager::getInstance()->addNode( pfrom );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
@@ -55,7 +55,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			CNodeMedium * nodeMedium = CNodesManager::getInstance()->getMediumForNode( pfrom );
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 

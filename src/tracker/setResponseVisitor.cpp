@@ -4,10 +4,10 @@
 
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
+#include "common/commonEvents.h"
 #include "getBalanceAction.h"
 #include "validateTransactionsAction.h"
 #include "validateTransactionActionEvents.h"
-#include "connectTrackerActionEvents.h"
 #include "connectTrackerAction.h"
 
 namespace common
@@ -36,7 +36,7 @@ public:
 		this->m_action->process_event( tracker::CValidationEvent( _param.m_valid ) );
 	}
 
-	virtual void operator()( tracker::CErrorEvent & _param ) const
+	virtual void operator()( common::CErrorEvent & _param ) const
 	{
 		//handle it somehow
 	}
@@ -50,17 +50,17 @@ public:
 
 	virtual void operator()( tracker::CConnectedNode & _param ) const
 	{
-		this->m_action->process_event( tracker::CNodeConnectedEvent( _param.m_node ) );
+		this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );
 	}
 
 	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
-		this->m_action->process_event( tracker::CIntroduceEvent() );
+		this->m_action->process_event( common::CIntroduceEvent() );
 	}
 
 	virtual void operator()( common::CContinueResult & _param ) const
 	{
-		this->m_action->process_event( tracker::CContinueEvent( _param.m_id ) );
+		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
 	}
 };
 

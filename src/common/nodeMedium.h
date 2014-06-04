@@ -84,7 +84,7 @@ CNodeMedium< ResponseType >::flush()
 
 }
 // it piss me off that I have to  keep this  bitch   here
-std::vector< uint256 > deleteList;
+extern std::vector< uint256 > deleteList;
 
 template < class ResponseType >
 bool

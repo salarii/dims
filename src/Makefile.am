@@ -64,15 +64,12 @@ TRACKER_CORE_H = \
   tracker/configureTrackerActionHandler.h \
   tracker/connectToTrackerRequest.h \
   tracker/connectTrackerAction.h \
-  tracker/continueRequest.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
   tracker/getBalanceRequest.h \
-  tracker/identifyRequest.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
   tracker/originAddressScaner.h \
-  tracker/nodesManager.h \
   tracker/processNetwork.h \
   tracker/segmentFileStorage.h \
   tracker/server.h \
@@ -81,6 +78,8 @@ TRACKER_CORE_H = \
   tracker/trackerController.h \
   tracker/trackerControllerStates.h \
   tracker/trackerControllerEvents.h \
+  tracker/trackerNodeMedium.h \
+  tracker/trackerNodesManager.h \
   tracker/transactionRecordManager.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
@@ -158,15 +157,11 @@ TRACKER_CORE_CPP = \
   tracker/blockInfoDatabase.cpp \
   tracker/connectToTrackerRequest.cpp \
   tracker/connectTrackerAction.cpp \
-  tracker/continueRequest.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
   tracker/getBalanceRequest.cpp \
-  tracker/identifyRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
-  tracker/nodeMedium.cpp \
-  tracker/nodesManager.cpp \
   tracker/originAddressScaner.cpp \
   tracker/processNetwork.cpp \
   tracker/rpcTracker.cpp \
@@ -177,9 +172,12 @@ TRACKER_CORE_CPP = \
   tracker/trackerController.cpp \
   tracker/trackerControllerEvents.cpp \
   tracker/trackerControllerStates.cpp \
+  tracker/trackerNodeMedium.cpp \
+  tracker/trackerNodesManager.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/validateTransactionsAction.cpp \
   tracker/validateTransactionsRequest.cpp
+ 
   
 libbitcoin_server_a_SOURCES = \
   db.cpp \

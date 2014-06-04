@@ -42,7 +42,7 @@
 #include "tracker/transactionRecordManager.h"
 #include "tracker/originAddressScaner.h"
 #include "tracker/segmentFileStorage.h"
-#include "tracker/nodesManager.h"
+#include "tracker/trackerNodesManager.h"
 #include "tracker/processNetwork.h"
 
 #include "node/settingsConnectionProvider.h"
@@ -1047,7 +1047,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
-	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CNodesManager::getInstance() );
+	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CTrackerNodesManager::getInstance() );
 	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
