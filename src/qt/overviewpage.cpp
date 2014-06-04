@@ -190,7 +190,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
         ui->tableView->setModel(model->getAddressTableModel());
         ui->tableView->resizeColumnsToContents();
-        ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        ui->tableView->horizontalHeader()->setStretchLastSection(true);
     }
 
     // update the display unit, to not use the default ("BTC")
