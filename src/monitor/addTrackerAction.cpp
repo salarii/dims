@@ -71,6 +71,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 
 CAddTrackerAction::CAddTrackerAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
+	:m_request( 0 )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
