@@ -6,7 +6,6 @@
 #define MEDIUM_H
 
 #include "requestResponse.h"
-#include "mediumException.h"
 
 #include "visitorConfigurationUtilities.h"
 

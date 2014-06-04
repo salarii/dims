@@ -14,8 +14,6 @@
 
 template<> common::CNodesManager< monitor::MonitorResponses > * common::CNodesManager< monitor::MonitorResponses >::ms_instance = 0;
 
-template<> common::CActionHandler< monitor::MonitorResponses > * common::CActionHandler< monitor::MonitorResponses >::ms_instance = 0;
-
 namespace monitor
 {
 

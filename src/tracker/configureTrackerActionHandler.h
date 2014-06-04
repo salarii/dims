@@ -10,8 +10,6 @@
 
 #include "common/commonResponses.h"
 
-#include "common/mediumException.h"
-
 #include "common/selfNode.h"
 
 namespace tracker

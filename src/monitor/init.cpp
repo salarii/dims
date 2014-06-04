@@ -617,6 +617,7 @@ bool AppInit(boost::thread_group& threadGroup)
 #endif // !ENABLE_WALLET
 	// ********************************************************* Step 9: import blocks
 /* create  threads of  action  handler */
+	threadGroup.create_thread( boost::bind( &common::CActionHandler< monitor::MonitorResponses >::loop, common::CActionHandler< monitor::MonitorResponses >::getInstance() ) );
 
 	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)common::CNodesManager< monitor::MonitorResponses >::getInstance() );
 

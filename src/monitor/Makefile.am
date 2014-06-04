@@ -15,6 +15,7 @@ MONITOR_H = \
 	reputationTracer.h
 	
 MONITOR_CPP = \
+	actionHandlerDefinitions.cpp \
 	addTrackerAction.cpp \
 	init.cpp \
 	monitor.cpp \

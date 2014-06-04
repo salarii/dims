@@ -7,6 +7,9 @@
 
 #include <boost/variant.hpp>
 
+#include <exception>
+#include "errorResponse.h"
+
 namespace common
 {
 
@@ -48,6 +51,13 @@ struct CContinueResult
 {
 	CContinueResult( uint256 const &_key ):m_id(_key){};
 	uint256 m_id;
+};
+
+struct CMediumException : public std::exception
+{
+public:
+	CMediumException(ErrorType::Enum _error):m_error(_error){};
+	ErrorType::Enum m_error;
 };
 
 typedef boost::variant< CDummy, CAvailableCoins > ClientResponse;
