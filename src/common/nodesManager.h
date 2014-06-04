@@ -138,7 +138,7 @@ CNodesManager< ResponseType >::provideConnection( int _actionKind, unsigned _req
 
 	if( iterator != m_ptrToNodes.end() )
 	{
-		mediums.push_back( iterator->second );
+		mediums.push_back( (common::CMedium< ResponseType > *)iterator->second );
 	}
 /*	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
 	{
