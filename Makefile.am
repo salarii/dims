@@ -6,6 +6,7 @@ GZIP_ENV="-9n"
 
 BITCOIND_BIN=$(top_builddir)/src/ratcoin_tracker(EXEEXT)
 DIMS_MONITOR_BIN=$(top_builddir)/src/dims_monitor(EXEEXT)
+DIMS_SEED_BIN=$(top_builddir)/src/dims_seed(EXEEXT)
 BITCOIN_QT_BIN=$(top_builddir)/src/qt/ratcoin_client$(EXEEXT)
 BITCOIN_CLI_BIN=$(top_builddir)/src/bitcoin-cli$(EXEEXT)
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)

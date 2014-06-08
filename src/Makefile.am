@@ -18,7 +18,7 @@ if BUILD_BITCOIN_CLI
   bin_PROGRAMS += bitcoin-cli
 endif
 
-SUBDIRS = . $(BUILD_QT) $(BUILD_TEST) monitor
+SUBDIRS = . $(BUILD_QT) $(BUILD_TEST) monitor seed
 DIST_SUBDIRS = . qt test
 .PHONY: FORCE
 	
