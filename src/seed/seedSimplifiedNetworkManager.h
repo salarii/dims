@@ -4,8 +4,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef SIMPLIFIED_NETWORK_MANAGER_H
-#define SIMPLIFIED_NETWORK_MANAGER_H
+#ifndef SEED_SIMPLIFIED_NETWORK_MANAGER_H
+#define SEED_SIMPLIFIED_NETWORK_MANAGER_H
 
 
 #include <list>
@@ -13,8 +13,10 @@
 
 #include <boost/thread.hpp>
 #include <boost/signals2.hpp>
-#include "netbase.h"
+#include "seedNetbase.h"
 
+namespace seed
+{
 
 class CSimplifiedNetworkManager
 {
@@ -23,6 +25,12 @@ public:
 
 	bool connectToNetwork( boost::thread_group& threadGroup );
 
+
+	enum BindFlags {
+		BF_NONE         = 0,
+		BF_EXPLICIT     = (1U << 0),
+		BF_REPORT_ERROR = (1U << 1)
+	};
 /*	struct LocalServiceInfo
 	{
 		int nScore;
@@ -38,11 +46,7 @@ public:
 		boost::signals2::signal<void (NodeId)> FinalizeNode;
 	};
 
-	enum BindFlags {
-		BF_NONE         = 0,
-		BF_EXPLICIT     = (1U << 0),
-		BF_REPORT_ERROR = (1U << 1)
-	};
+
 public:
 	void mainLoop();
 
@@ -123,5 +127,6 @@ private:
 	unsigned int m_maxConnections;
 };
 
+}
 
-#endif // SIMPLIFIED_NETWORK_MANAGER_H
+#endif // SEED_SIMPLIFIED_NETWORK_MANAGER_H

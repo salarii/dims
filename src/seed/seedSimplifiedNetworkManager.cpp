@@ -4,10 +4,14 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "simplifiedNetworkManager.h"
+#include "common/ratcoinParams.h"
 
-#include "db.h"
-#include "../common/ratcoinParams.h"
+#include "seedSimplifiedNetworkManager.h"
+
+#include "seedDb.h"
+
+namespace seed
+{
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
@@ -25,9 +29,9 @@ CSimplifiedNetworkManager::connectToNetwork( boost::thread_group& threadGroup )
 	inaddr_any.s_addr = INADDR_ANY;
 
 #ifdef USE_IPV6
-	bound = bind(CService(in6addr_any, GetListenPort< common::CRatcoinParams >()), BF_NONE);
+	bound = bind(CService(in6addr_any, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort(), BF_NONE);
 #endif
-	bound = bind(CService(inaddr_any, GetListenPort< common::CRatcoinParams >()), BF_REPORT_ERROR );
+	bound = bind(CService(inaddr_any, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort(), BF_REPORT_ERROR );
 
 	if (m_nodeLocalHost == NULL)
 		m_nodeLocalHost = new CSelfNode(INVALID_SOCKET, CAddress(CService("127.0.0.1", 0), nLocalServices));
@@ -250,6 +254,8 @@ CSimplifiedNetworkManager::bindListenPort(const CService &addrBind, string& strE
 		AddLocal(addrBind, LOCAL_BIND);
 
 	return true;
+}
+
 }
 
 }

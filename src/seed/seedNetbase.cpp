@@ -3,19 +3,22 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "netbase.h"
-#include "util.h"
+#include "seedNetbase.h"
+#include "seedUtil.h"
 
 #ifndef WIN32
 #include <sys/fcntl.h>
 #endif
 
-#include "strlcpy.h"
+#include "seedStrlcpy.h"
 #include <boost/algorithm/string/case_conv.hpp> // for to_lower()
 
 #define printf my_printf
 
 using namespace std;
+
+namespace seed
+{
 
 // Settings
 typedef std::pair<CService, int> proxyType;
@@ -1162,4 +1165,6 @@ void CService::print() const
 void CService::SetPort(unsigned short portIn)
 {
     port = portIn;
+}
+
 }

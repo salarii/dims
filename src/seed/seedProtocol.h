@@ -10,10 +10,14 @@
 #ifndef __INCLUDED_PROTOCOL_H__
 #define __INCLUDED_PROTOCOL_H__
 
-#include "netbase.h"
-#include "serialize.h"
+#include "seedNetbase.h"
+#include "seedSerialize.h"
 #include <string>
-#include "uint256.h"
+#include "seedUint256.h"
+
+namespace seed
+{
+
 
 extern bool fTestNet;
 static inline unsigned short GetDefaultPort(const bool testnet = fTestNet)
@@ -51,7 +55,7 @@ class CMessageHeader
     // TODO: make private (improves encapsulation)
     public:
         enum { COMMAND_SIZE=12 };
-        char pchMessageStart[sizeof(::pchMessageStart)];
+		char pchMessageStart[sizeof(seed::pchMessageStart)];
         char pchCommand[COMMAND_SIZE];
         unsigned int nMessageSize;
         unsigned int nChecksum;
@@ -119,5 +123,7 @@ class CInv
         int type;
         uint256 hash;
 };
+
+}
 
 #endif // __INCLUDED_PROTOCOL_H__

@@ -8,10 +8,13 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include "bitcoin.h"
-#include "db.h"
+#include "seed/bitcoin.h"
+#include "seed/db.h"
 
 using namespace std;
+
+namespace seed
+{
 
 bool fTestNet = false;
 
@@ -427,4 +430,7 @@ int main(int argc, char **argv) {
   void* res;
   pthread_join(threadDump, &res);
   return 0;
+}
+
+
 }

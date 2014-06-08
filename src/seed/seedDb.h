@@ -1,3 +1,6 @@
+#ifndef SEED_DB_H_
+#define SEED_DB_H_
+
 #include <stdint.h>
 #include <math.h>
 
@@ -6,13 +9,16 @@
 #include <vector>
 #include <deque>
 
-#include "netbase.h"
-#include "protocol.h"
-#include "util.h"
+#include "seedNetbase.h"
+#include "seedProtocol.h"
+#include "seedUtil.h"
 
 #define MIN_RETRY 1000
 
 #define REQUIRE_VERSION 40000
+
+namespace seed
+{
 
 static inline int GetRequireHeight(const bool testnet = fTestNet)
 {
@@ -356,3 +362,7 @@ public:
       GetIPs_(ips, max, nets);
   }
 };
+
+}
+
+#endif

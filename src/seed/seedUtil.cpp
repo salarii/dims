@@ -1,7 +1,10 @@
 #include <stdio.h>
-#include "util.h"
+#include "seedUtil.h"
 
 using namespace std;
+
+namespace seed
+{
 
 string vstrprintf(const std::string &format, va_list ap)
 {
@@ -215,4 +218,7 @@ string DecodeBase32(const string& str)
 {
     vector<unsigned char> vchRet = DecodeBase32(str.c_str());
     return string((const char*)&vchRet[0], vchRet.size());
+}
+
+
 }

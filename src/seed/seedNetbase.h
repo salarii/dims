@@ -1,16 +1,20 @@
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BITCOIN_NETBASE_H
-#define BITCOIN_NETBASE_H
+#ifndef SEED_NETBASE_H
+#define SEED_NETBASE_H
 
 #include <string>
 #include <vector>
 
-#include "serialize.h"
-#include "compat.h"
+#include "seedSerialize.h"
+#include "seedCompat.h"
+#include "seedUint256.h"
 
 extern int nConnectTimeout;
+
+namespace seed
+{
 
 #ifdef WIN32
 // In MSVC, this is defined as a macro, undefine it to prevent a compile and link error
@@ -67,7 +71,7 @@ class CNetAddr
         std::string ToString() const;
         std::string ToStringIP() const;
         unsigned int GetByte(int n) const;
-        uint64 GetHash() const;
+		uint64 GetHash() const;
         bool GetInAddr(struct in_addr* pipv4Addr) const;
         std::vector<unsigned char> GetGroup() const;
         int GetReachabilityFrom(const CNetAddr *paddrPartner = NULL) const;
@@ -147,5 +151,7 @@ bool Lookup(const char *pszName, std::vector<CService>& vAddr, int portDefault =
 bool LookupNumeric(const char *pszName, CService& addr, int portDefault = 0);
 bool ConnectSocket(const CService &addr, SOCKET& hSocketRet, int nTimeout = nConnectTimeout);
 bool ConnectSocketByName(CService &addr, SOCKET& hSocketRet, const char *pszDest, int portDefault = 0, int nTimeout = nConnectTimeout);
+
+}
 
 #endif

@@ -1,14 +1,17 @@
 #include <algorithm>
 
-#include "db.h"
-#include "netbase.h"
-#include "protocol.h"
-#include "serialize.h"
-#include "uint256.h"
+#include "seedDb.h"
+#include "seedNetbase.h"
+#include "seedProtocol.h"
+#include "seedSerialize.h"
+#include "seedUint256.h"
 
 #define BITCOIN_SEED_NONCE  0x0539a019ca550825
 
 using namespace std;
+
+namespace seed
+{
 
 class CNode {
   SOCKET sock;
@@ -84,7 +87,7 @@ class CNode {
     vSend << PROTOCOL_VERSION << nLocalServices << nTime << you << me << nLocalNonce << ver << nBestHeight;
     EndMessage();
   }
- 
+
   void GotVersion() {
     // printf("\n%s: version %i\n", ToString(you).c_str(), nVersion);
     if (vAddr) {
@@ -305,3 +308,4 @@ int main(void) {
 }
 */
 
+}

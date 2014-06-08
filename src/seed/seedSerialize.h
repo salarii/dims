@@ -2,8 +2,8 @@
 // Copyright (c) 2011 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BITCOIN_SERIALIZE_H
-#define BITCOIN_SERIALIZE_H
+#ifndef SEED_SERIALIZE_H
+#define SEED_SERIALIZE_H
 
 #include <string>
 #include <vector>
@@ -54,6 +54,9 @@ typedef unsigned long long  uint64;
   munlock(((void *)(((size_t)(a)) & (~((PAGESIZE)-1)))),\
   (((((size_t)(a)) + (b) - 1) | ((PAGESIZE) - 1)) + 1) - (((size_t)(a)) & (~((PAGESIZE) - 1))))
 #endif
+
+namespace seed
+{
 
 class CScript;
 class CDataStream;
@@ -123,7 +126,7 @@ enum
         {statements}                            \
     }
 
-#define READWRITE(obj)      (nSerSize += ::SerReadWrite(s, (obj), nType, nVersion, ser_action))
+#define READWRITE(obj)      (nSerSize += seed::SerReadWrite(s, (obj), nType, nVersion, ser_action))
 
 
 
@@ -496,7 +499,7 @@ void Serialize_impl(Stream& os, const std::vector<T, A>& v, int nType, int nVers
 {
     WriteCompactSize(os, v.size());
     for (typename std::vector<T, A>::const_iterator vi = v.begin(); vi != v.end(); ++vi)
-        ::Serialize(os, (*vi), nType, nVersion);
+		seed::Serialize(os, (*vi), nType, nVersion);
 }
 
 template<typename Stream, typename T, typename A>
@@ -751,20 +754,20 @@ class CSerActionUnserialize { };
 template<typename Stream, typename T>
 inline unsigned int SerReadWrite(Stream& s, const T& obj, int nType, int nVersion, CSerActionGetSerializeSize ser_action)
 {
-    return ::GetSerializeSize(obj, nType, nVersion);
+	return seed::GetSerializeSize(obj, nType, nVersion);
 }
 
 template<typename Stream, typename T>
 inline unsigned int SerReadWrite(Stream& s, const T& obj, int nType, int nVersion, CSerActionSerialize ser_action)
 {
-    ::Serialize(s, obj, nType, nVersion);
+	seed::Serialize(s, obj, nType, nVersion);
     return 0;
 }
 
 template<typename Stream, typename T>
 inline unsigned int SerReadWrite(Stream& s, T& obj, int nType, int nVersion, CSerActionUnserialize ser_action)
 {
-    ::Unserialize(s, obj, nType, nVersion);
+	seed::Unserialize(s, obj, nType, nVersion);
     return 0;
 }
 
@@ -1100,14 +1103,14 @@ public:
     unsigned int GetSerializeSize(const T& obj)
     {
         // Tells the size of the object if serialized to this stream
-        return ::GetSerializeSize(obj, nType, nVersion);
+		return seed::GetSerializeSize(obj, nType, nVersion);
     }
 
     template<typename T>
     CDataStream& operator<<(const T& obj)
     {
         // Serialize to this stream
-        ::Serialize(*this, obj, nType, nVersion);
+		seed::Serialize(*this, obj, nType, nVersion);
         return (*this);
     }
 
@@ -1115,7 +1118,7 @@ public:
     CDataStream& operator>>(T& obj)
     {
         // Unserialize from this stream
-        ::Unserialize(*this, obj, nType, nVersion);
+		seed::Unserialize(*this, obj, nType, nVersion);
         return (*this);
     }
 };
@@ -1273,7 +1276,7 @@ public:
     unsigned int GetSerializeSize(const T& obj)
     {
         // Tells the size of the object if serialized to this stream
-        return ::GetSerializeSize(obj, nType, nVersion);
+		return seed::GetSerializeSize(obj, nType, nVersion);
     }
 
     template<typename T>
@@ -1282,7 +1285,7 @@ public:
         // Serialize to this stream
         if (!file)
             throw std::ios_base::failure("CAutoFile::operator<< : file handle is NULL");
-        ::Serialize(*this, obj, nType, nVersion);
+		seed::Serialize(*this, obj, nType, nVersion);
         return (*this);
     }
 
@@ -1292,9 +1295,11 @@ public:
         // Unserialize from this stream
         if (!file)
             throw std::ios_base::failure("CAutoFile::operator>> : file handle is NULL");
-        ::Unserialize(*this, obj, nType, nVersion);
+		seed::Unserialize(*this, obj, nType, nVersion);
         return (*this);
     }
 };
+
+}
 
 #endif

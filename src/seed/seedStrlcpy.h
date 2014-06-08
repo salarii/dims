@@ -13,11 +13,14 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-#ifndef BITCOIN_STRLCPY_H
-#define BITCOIN_STRLCPY_H
+#ifndef SEED_STRLCPY_H
+#define SEED_STRLCPY_H
 
 #include <stdlib.h>
 #include <string.h>
+
+namespace seed
+{
 
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
@@ -87,4 +90,7 @@ inline size_t strlcat(char *dst, const char *src, size_t siz)
 
     return(dlen + (s - src)); /* count does not include NUL */
 }
+
+}
+
 #endif

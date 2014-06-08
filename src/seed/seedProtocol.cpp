@@ -6,14 +6,17 @@
 #include <vector>
 #include <stdexcept>
 
-#include "protocol.h"
-#include "util.h"
-#include "netbase.h"
+#include "seedProtocol.h"
+#include "seedUtil.h"
+#include "seedNetbase.h"
 
 
 #ifndef WIN32
 # include <arpa/inet.h>
 #endif
+
+namespace seed
+{
 
 static const char* ppszTypeName[] =
 {
@@ -26,7 +29,7 @@ unsigned char pchMessageStart[4] = { 0xf9, 0xbe, 0xb4, 0xd9 };
 
 CMessageHeader::CMessageHeader()
 {
-    memcpy(pchMessageStart, ::pchMessageStart, sizeof(pchMessageStart));
+	memcpy(pchMessageStart, seed::pchMessageStart, sizeof(pchMessageStart));
     memset(pchCommand, 0, sizeof(pchCommand));
     pchCommand[1] = 1;
     nMessageSize = -1;
@@ -35,7 +38,7 @@ CMessageHeader::CMessageHeader()
 
 CMessageHeader::CMessageHeader(const char* pszCommand, unsigned int nMessageSizeIn)
 {
-    memcpy(pchMessageStart, ::pchMessageStart, sizeof(pchMessageStart));
+	memcpy(pchMessageStart, seed::pchMessageStart, sizeof(pchMessageStart));
     strncpy(pchCommand, pszCommand, COMMAND_SIZE);
     nMessageSize = nMessageSizeIn;
     nChecksum = 0;
@@ -52,7 +55,7 @@ std::string CMessageHeader::GetCommand() const
 bool CMessageHeader::IsValid() const
 {
     // Check start string
-    if (memcmp(pchMessageStart, ::pchMessageStart, sizeof(pchMessageStart)) != 0)
+	if (memcmp(pchMessageStart, seed::pchMessageStart, sizeof(pchMessageStart)) != 0)
         return false;
 
     // Check the command string for errors
@@ -156,4 +159,6 @@ std::string CInv::ToString() const
 void CInv::print() const
 {
     printf("CInv\n");
+}
+
 }

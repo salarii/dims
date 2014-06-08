@@ -1,7 +1,10 @@
-#ifndef _DNS_H_
-#define _DNS_H_ 1
+#ifndef SEED_DNS_H_
+#define SEED_DNS_H_ 1
 
 #include <stdint.h>
+
+namespace seed
+{
 
 typedef struct {
     int v;
@@ -24,5 +27,7 @@ typedef struct {
 } dns_opt_t;
 
 extern int dnsserver(dns_opt_t *opt);
+
+}
 
 #endif

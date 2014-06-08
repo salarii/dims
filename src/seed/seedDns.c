@@ -34,6 +34,10 @@ struct in_pktinfo {
 # error "can't determine socket option"
 #endif
 
+namespace seed
+{
+
+
 union control_data {
   struct cmsghdr cmsg;
   unsigned char data[DSTADDR_DATASIZE];
@@ -440,4 +444,6 @@ int dnsserver(dns_opt_t *opt) {
       sendto(listenSocket, outbuf, ret, 0, (struct sockaddr*)&si_other, sizeof(si_other));
   }
   return 0;
+}
+
 }

@@ -2,10 +2,10 @@
 // Copyright (c) 2011 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file license.txt or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BITCOIN_UINT256_H
-#define BITCOIN_UINT256_H
+#ifndef SEED_UINT256_H
+#define SEED_UINT256_H
 
-#include "serialize.h"
+#include "seedSerialize.h"
 
 #include <limits.h>
 #include <string>
@@ -21,6 +21,9 @@ typedef unsigned long long  uint64;
 #if defined(_MSC_VER) && _MSC_VER < 1300
 #define for  if (false) ; else for
 #endif
+
+namespace seed
+{
 
 
 inline int Testuint256AdHoc(std::vector<std::string> vArg);
@@ -761,6 +764,8 @@ inline int Testuint256AdHoc(std::vector<std::string> vArg)
     }
 
     return (0);
+}
+
 }
 
 #endif

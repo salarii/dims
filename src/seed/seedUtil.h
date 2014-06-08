@@ -1,12 +1,12 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_ 1
+#ifndef SEED_UTIL_H_
+#define SEED_UTIL_H_ 1
 
 #include <pthread.h>
 #include <errno.h>
 #include <openssl/sha.h>
 #include <stdarg.h>
 
-#include "uint256.h"
+#include "seedUint256.h"
 
 #define loop                for (;;)
 #define BEGIN(a)            ((char*)&(a))
@@ -26,6 +26,9 @@
 #define WSAENOTSOCK         EBADF
 #define INVALID_SOCKET      (SOCKET)(~0)
 #define SOCKET_ERROR        -1
+
+namespace seed
+{
 
 // Wrapper to automatically initialize mutex
 class CCriticalSection
@@ -102,5 +105,7 @@ std::vector<unsigned char> DecodeBase32(const char* p, bool* pfInvalid = NULL);
 std::string DecodeBase32(const std::string& str);
 std::string EncodeBase32(const unsigned char* pch, size_t len);
 std::string EncodeBase32(const std::string& str);
+
+}
 
 #endif

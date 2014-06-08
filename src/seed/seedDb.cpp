@@ -1,7 +1,10 @@
-#include "db.h"
+#include "seedDb.h"
 #include <stdlib.h>
 
 using namespace std;
+
+namespace seed
+{
 
 void CAddrInfo::Update(bool good) {
   uint32_t now = time(NULL);
@@ -198,4 +201,7 @@ void CAddrDb::GetIPs_(set<CNetAddr>& ips, int max, const bool* nets) {
     if (nets[ip.GetNetwork()])
       ips.insert(ip);
   }
+}
+
+
 }
