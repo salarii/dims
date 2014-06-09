@@ -1,7 +1,7 @@
 #ifndef SEED_BITCOIN_H_
 #define SEED_BITCOIN_H_ 1
 
-#include "protocol.h"
+#include "seedProtocol.h"
 
 namespace seed
 {

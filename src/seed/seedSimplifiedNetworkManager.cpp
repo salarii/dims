@@ -4,40 +4,40 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "common/ratcoinParams.h"
-
 #include "seedSimplifiedNetworkManager.h"
 
 #include "seedDb.h"
+
+#include "util.h"
+
+#include "boost/foreach.hpp"
 
 namespace seed
 {
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
+extern pthread_mutex_t nodesLock;
 
-
-CSimplifiedNetworkManager::CSimplifiedNetworkManager()
+CSimplifiedNetworkManager::CSimplifiedNetworkManager( CAddrDb & _db )
 	: nLocalServices( NODE_NETWORK )
+	, db( _db )
 {
 }
 
 bool
-CSimplifiedNetworkManager::connectToNetwork( boost::thread_group& threadGroup )
+CSimplifiedNetworkManager::connectToNetwork()
 {
 	bool bound = false;
 	struct in_addr inaddr_any;
 	inaddr_any.s_addr = INADDR_ANY;
 
 #ifdef USE_IPV6
-	bound = bind(CService(in6addr_any, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort(), BF_NONE);
+	bound = bind(CService(in6addr_any, GetDefaultPort()), BF_NONE);
 #endif
-	bound = bind(CService(inaddr_any, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort(), BF_REPORT_ERROR );
-
-	if (m_nodeLocalHost == NULL)
-		m_nodeLocalHost = new CSelfNode(INVALID_SOCKET, CAddress(CService("127.0.0.1", 0), nLocalServices));
+	bound = bind(CService(inaddr_any, GetDefaultPort()), BF_REPORT_ERROR );
 
 	// Send and receive from sockets, accept connections
-	threadGroup.create_thread(boost::bind(&common::CSimplifiedNetworkManager::threadSocketHandler, this));
+	pthread_create(&threadManageSockets, NULL, &CSimplifiedNetworkManager::runSocketThread, this);
 
 	return bound;
 }
@@ -63,18 +63,18 @@ CSimplifiedNetworkManager::threadSocketHandler()
 		FD_ZERO(&fdsetError);
 		SOCKET hSocketMax = 0;
 		bool have_fds = false;
-
+		pthread_mutex_lock(&nodesLock);
 
 		int nSelect = select(have_fds ? hSocketMax + 1 : 0,
 			&fdsetRecv, &fdsetSend, &fdsetError, &timeout);
-		boost::this_thread::interruption_point();
+
 
 		if (nSelect == SOCKET_ERROR)
 		{
 			if (have_fds)
 			{
 				int nErr = WSAGetLastError();
-				LogPrintf("socket select error %d\n", nErr);
+
 				for (unsigned int i = 0; i <= hSocketMax; i++)
 					FD_SET(i, &fdsetRecv);
 			}
@@ -105,10 +105,7 @@ CSimplifiedNetworkManager::threadSocketHandler()
 						LogPrintf("Warning: Unknown socket family\n");
 
 				{
-					LOCK(cs_vNodes);
-					BOOST_FOREACH(CSelfNode* pnode, m_nodes)
-						if (pnode->fInbound)
-							nInbound++;
+					nInbound++;
 				}
 
 				if (hSocket == INVALID_SOCKET)
@@ -117,36 +114,24 @@ CSimplifiedNetworkManager::threadSocketHandler()
 					if (nErr != WSAEWOULDBLOCK)
 						LogPrintf("socket error accept failed: %d\n", nErr);
 				}
-				else if (nInbound >= nMaxConnections - MAX_OUTBOUND_CONNECTIONS)
+				else if (nInbound >= MAX_OUTBOUND_CONNECTIONS)
 				{
-					{
-						LOCK(cs_setservAddNodeAddresses);
-						if (!setservAddNodeAddresses.count(addr))
-							closesocket(hSocket);
-					}
+					closesocket(hSocket);
 				}
 				else
 				{
-					LogPrint("net", "accepted connection %s\n", addr.ToString());
-					CSelfNode* pnode = new CSelfNode(hSocket, addr, "", true);
-					pnode->AddRef();
-					{
-						LOCK(cs_vNodes);
-						m_nodes.push_back(pnode);
-					}
+					db.Add(addr);
+					closesocket(hSocket);
 				}
 			}
-			db.Add(addr);
-			closesocket(hSocket);
-
+			  pthread_mutex_unlock(&nodesLock);
+		MilliSleep(100);
 	}
 }
 
 bool
 CSimplifiedNetworkManager::bind(const CService &addr, unsigned int flags)
 {
-	if (!(flags & BF_EXPLICIT) && IsLimited(addr))
-		return false;
 	std::string strError;
 	if (!bindListenPort(addr, strError)) {
 		if (flags & BF_REPORT_ERROR)
@@ -250,13 +235,9 @@ CSimplifiedNetworkManager::bindListenPort(const CService &addrBind, string& strE
 
 	m_listenSocket.push_back(hListenSocket);
 
-	if (addrBind.IsRoutable() && fDiscover)
-		AddLocal(addrBind, LOCAL_BIND);
-
 	return true;
 }
 
-}
 
 }
 

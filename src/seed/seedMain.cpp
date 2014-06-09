@@ -8,13 +8,17 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include "seed/bitcoin.h"
-#include "seed/db.h"
+#include "seedBitcoin.h"
+#include "seedDb.h"
+
+#include "seedSimplifiedNetworkManager.h"
 
 using namespace std;
 
 namespace seed
 {
+
+pthread_mutex_t nodesLock;
 
 bool fTestNet = false;
 
@@ -121,7 +125,7 @@ public:
 };
 
 extern "C" {
-#include "dns.h"
+#include "seedDns.h"
 }
 
 CAddrDb db;
@@ -147,10 +151,14 @@ extern "C" void* ThreadCrawler(void* data) {
       res.nHeight = 0;
       res.strClientV = "";
       bool getaddr = res.ourLastSuccess + 604800 < now;
+	  pthread_mutex_lock(&nodesLock);
       res.fGood = TestNode(res.service,res.nBanTime,res.nClientV,res.strClientV,res.nHeight,getaddr ? &addr : NULL);
-    }
+	  pthread_mutex_unlock(&nodesLock);
+	}
     db.ResultMany(ips);
     db.Add(addr);
+
+	Sleep(10000);
   } while(1);
 }
 
@@ -359,7 +367,14 @@ extern "C" void* ThreadSeeder(void*) {
   } while(1);
 }
 
+}
+
+using namespace seed;
+
 int main(int argc, char **argv) {
+
+  pthread_mutex_init(&nodesLock, NULL);
+  CSimplifiedNetworkManager  networkManager( db );
   signal(SIGPIPE, SIG_IGN);
   setbuf(stdout, NULL);
   CDnsSeedOpts opts;
@@ -400,6 +415,7 @@ int main(int argc, char **argv) {
         db.ResetIgnores();
     printf("done\n");
   }
+
   pthread_t threadDns, threadSeed, threadDump, threadStats;
   if (fDNS) {
     printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);
@@ -412,6 +428,8 @@ int main(int argc, char **argv) {
     }
     printf("done\n");
   }
+  networkManager.connectToNetwork();
+
   printf("Starting seeder...");
   pthread_create(&threadSeed, NULL, ThreadSeeder, NULL);
   printf("done\n");
@@ -433,4 +451,3 @@ int main(int argc, char **argv) {
 }
 
 
-}

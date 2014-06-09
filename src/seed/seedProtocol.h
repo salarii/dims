@@ -7,8 +7,8 @@
 # error This header can only be compiled as C++.
 #endif
 
-#ifndef __INCLUDED_PROTOCOL_H__
-#define __INCLUDED_PROTOCOL_H__
+#ifndef __SEED_PROTOCOL_H__
+#define __SEED_PROTOCOL_H__
 
 #include "seedNetbase.h"
 #include "seedSerialize.h"
@@ -22,7 +22,7 @@ namespace seed
 extern bool fTestNet;
 static inline unsigned short GetDefaultPort(const bool testnet = fTestNet)
 {
-    return testnet ? 18333 : 8333;
+	return testnet ? 20020 : 20010;
 }
 
 //

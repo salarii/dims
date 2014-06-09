@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-namespace seed
-{
-
 typedef struct {
     int v;
     union {
@@ -27,7 +24,5 @@ typedef struct {
 } dns_opt_t;
 
 extern int dnsserver(dns_opt_t *opt);
-
-}
 
 #endif

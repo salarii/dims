@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#include "dns.h"
+#include "seedDns.h"
 
 #define BUFLEN 512
 
@@ -33,9 +33,6 @@ struct in_pktinfo {
 #else
 # error "can't determine socket option"
 #endif
-
-namespace seed
-{
 
 
 union control_data {
@@ -446,4 +443,3 @@ int dnsserver(dns_opt_t *opt) {
   return 0;
 }
 
-}
