@@ -37,7 +37,7 @@ public:
 		nDefaultPort = 20010;
 		nRPCPort = 20100;
 
-//		vSeeds.push_back(CDNSSeedData("ratcoin.beacon.org", "dnsseed.ratcoin.beacon.org"));
+		vSeeds.push_back(CDNSSeedData("vps.dims.red", "seed.dims.red"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = list_of(60);//R
 		base58Prefixes[SCRIPT_ADDRESS] = list_of(60);//r
@@ -99,7 +99,7 @@ public:
 
 		vFixedSeeds.clear();
 		vSeeds.clear();
-		vSeeds.push_back(CDNSSeedData("ratcoin.testnet.beacon.org", "dnsseed.ratcoin.testnet.beacon.org"));
+		vSeeds.push_back(CDNSSeedData("vps.dims.red", "seed.dims.red"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = list_of(0x7a);  // time to set this ??
 		base58Prefixes[SCRIPT_ADDRESS] = list_of(0x7a);

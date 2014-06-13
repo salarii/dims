@@ -12,6 +12,8 @@ very probable that this  should be in common
 #include "selfNode.h"
 #include "nodeMedium.h"
 
+#include "manageNetwork.h"
+
 namespace common
 {
 
@@ -29,7 +31,7 @@ class CNodesManager : public common::CConnectionProvider< RequestType >
 public:
 	bool getMessagesForNode( common::CSelfNode * _node, std::vector< common::CMessage > & _messages );
 
-	bool processMessagesFormNode( common::CSelfNode * _node, std::vector< common::CMessage > const & _messages );
+	bool processMessagesFromNode( common::CSelfNode * _node, std::vector< common::CMessage > const & _messages );
 
 	void connectNodes();
 
@@ -75,6 +77,7 @@ CNodesManager< RequestType >::getInstance( )
 template < class RequestType >
 CNodesManager< RequestType >::CNodesManager()
 {
+	CManageNetwork::getInstance()->getIpsFromSeed();
 }
 
 template < class RequestType >

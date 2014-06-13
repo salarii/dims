@@ -21,6 +21,7 @@ namespace tracker
 
 struct CUnconnected; struct CBothUnidentifiedConnected;
 
+
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectTrackerAction >
 {
 	typedef boost::mpl::list<
@@ -29,6 +30,7 @@ struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectTra
 	> reactions;
 
 };
+
 
 struct CIdentified : boost::statechart::state< CIdentified, CConnectTrackerAction >
 {

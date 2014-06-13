@@ -386,12 +386,13 @@ int main(int argc, char **argv) {
       SetProxy(NET_TOR, service);
     }
   }
+
   bool fDNS = true;
   if (opts.fUseTestNet) {
       printf("Using testnet.\n");
       pchMessageStart[0] = 0x0b;
-      pchMessageStart[1] = 0x11;
-      pchMessageStart[2] = 0x09;
+	  pchMessageStart[1] = 0x12;
+	  pchMessageStart[2] = 0x0a;
       pchMessageStart[3] = 0x07;
       seeds = testnet_seeds;
       fTestNet = true;

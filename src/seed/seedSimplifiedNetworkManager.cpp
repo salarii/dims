@@ -65,6 +65,13 @@ CSimplifiedNetworkManager::threadSocketHandler()
 		bool have_fds = false;
 		pthread_mutex_lock(&nodesLock);
 
+		BOOST_FOREACH(SOCKET hListenSocket, m_listenSocket) {
+			FD_SET(hListenSocket, &fdsetRecv);
+			hSocketMax = max(hSocketMax, hListenSocket);
+			have_fds = true;
+		}
+
+
 		int nSelect = select(have_fds ? hSocketMax + 1 : 0,
 			&fdsetRecv, &fdsetSend, &fdsetError, &timeout);
 

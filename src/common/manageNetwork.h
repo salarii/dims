@@ -26,8 +26,8 @@ class CSelfNode;
 
 /*
 overall this is  very very bad  design
-bitcoin  and  ratcoin networks  should be handled in uniform  way  maybe  from the same  threads
-so  to refactor this I need to do following  steps
+bitcoin  and  ratcoin networks  should be handled in uniform  way
+??I need to do following  steps??
 1 create  uniform code  for  both  networks ( maybe running in the same thereads ?? )
 2. create proper  inheritance tree
 
@@ -74,9 +74,10 @@ public:
 
 	template < class Handler >
 	void registerNodeSignals( Handler * _handler );
+
+	void getIpsFromSeed();
 private:
 	CManageNetwork();
-// some  of  this  is  copy paste from  net.cpp
 
 	void negotiateWithMonitor();// if  at  all, not here
 
