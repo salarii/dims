@@ -12,9 +12,10 @@
 // this is  weak point of  this implementation I don't know  how to get rid of this at the moment
 #include "tracker/trackerRequestsList.h"
 #include "node/nodeRequestList.h"
+#include "monitor/monitorRequestsList.h"
 #include "node/configureNodeActionHadler.h"
 #include "monitor/configureMonitorActionHandler.h"
-#include "monitor/monitorRequestsList.h"
+#include "seed/configureSeedActionHandler.h"
 
 namespace common
 {
@@ -100,6 +101,29 @@ public:
 	virtual void add( VisitorParam( monitor::MonitorResponseList ,8 ) const * _request ){};
 	virtual void add( VisitorParam( monitor::MonitorRequestsList ,9 ) const * _request ){};
 	virtual void add( VisitorParam( monitor::MonitorRequestsList ,10 ) const * _request ){};
+	virtual ~CMedium(){};
+};
+
+template <>
+class CMedium< seed::SeedResponses >
+{
+public:
+	virtual bool serviced() const = 0;
+	virtual bool flush() = 0;
+
+	virtual bool getResponse( std::vector< seed::SeedResponses > & _requestResponse ) const = 0;
+	virtual void clearResponses() = 0;
+	virtual void add( VisitorParam( seed::SeedResponseList ,0 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,1 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,2 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,3 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,4 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,5 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,6 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,7 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,8 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,9 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedResponseList ,10 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 

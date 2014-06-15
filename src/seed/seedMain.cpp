@@ -15,6 +15,8 @@
 
 using namespace std;
 
+boost::thread_group threadGroup;
+
 namespace seed
 {
 
@@ -424,6 +426,8 @@ int main(int argc, char **argv) {
     for (int i=0; i<opts.nDnsThreads; i++) {
       dnsThread.push_back(new CDnsThread(&opts, i));
       pthread_create(&threadDns, NULL, ThreadDNS, dnsThread[i]);
+
+	  threadGroup.create_thread( boost::bind(&ThreadDNS, dnsThread[i]) );
       printf(".");
       Sleep(20);
     }
@@ -431,8 +435,6 @@ int main(int argc, char **argv) {
   }
   networkManager.connectToNetwork();
 
-  printf("Starting seeder...");
-  pthread_create(&threadSeed, NULL, ThreadSeeder, NULL);
   printf("done\n");
   printf("Starting %i crawler threads...", opts.nThreads);
   pthread_attr_t attr_crawler;
@@ -448,6 +450,8 @@ int main(int argc, char **argv) {
   pthread_create(&threadDump, NULL, ThreadDumper, NULL);
   void* res;
   pthread_join(threadDump, &res);
+
+  threadGroup->join_all();
   return 0;
 }
 

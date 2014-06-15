@@ -9,6 +9,7 @@
 #include "tracker/configureTrackerActionHandler.h"
 #include "node/configureNodeActionHadler.h"
 #include "monitor/configureMonitorActionHandler.h"
+#include "seed/configureSeedActionHandler.h"
 
 namespace tracker
 {
@@ -96,6 +97,17 @@ private:
 
 	monitor::MonitorResponses m_requestResponse;
 };
+
+template<>
+class CSetResponseVisitor< seed::SeedResponses >
+{
+public:
+	CSetResponseVisitor( seed::SeedResponses const & _requestResponse );
+
+private:
+	seed::SeedResponses m_requestResponse;
+};
+
 
 }
 

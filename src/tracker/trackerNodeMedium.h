@@ -16,7 +16,7 @@ namespace tracker
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
 class CIdentifyRequest;
-//I don't know  how to identify which what response is to what  request  yet
+
 class CTrackerNodeMedium : public common::CNodeMedium< TrackerResponses >
 {
 public:
