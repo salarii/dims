@@ -7,21 +7,13 @@ bin_PROGRAMS = dims_seed
 
 SEED_H = \
 	seedBitcoin.h \
-	seedNetbase.h \
-	seedProtocol.h \
 	seedDb.h \
-	seedSerialize.h \
-	seedUint256.h \
-	seedUtil.h \
 	seedSimplifiedNetworkManager.h
 	
 SEED_CPP = \
 	seedBitcoin.cpp \
 	seedMain.cpp \
-	seedNetbase.cpp \
-	seedProtocol.cpp \
 	seedDb.cpp \
-	seedUtil.cpp \
 	seedSimplifiedNetworkManager.cpp
 
 BUILT_SOURCES = $(nodist_libmonitor_a_SOURCES)

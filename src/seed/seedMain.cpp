@@ -13,6 +13,9 @@
 
 #include "seedSimplifiedNetworkManager.h"
 
+#include "common/ratcoinParams.h"
+#include "util.h"
+
 using namespace std;
 
 boost::thread_group threadGroup;
@@ -138,11 +141,11 @@ extern "C" void* ThreadCrawler(void* data) {
     std::vector<CServiceResult> ips;
     int wait = 5;
     db.GetMany(ips, 16, wait);
-    int64 now = time(NULL);
+	int64_t now = time(NULL);
     if (ips.empty()) {
       wait *= 1000;
       wait += rand() % (500 * *nThreads);
-      Sleep(wait);
+	  MilliSleep(wait);
       continue;
     }
     vector<CAddress> addr;
@@ -160,7 +163,7 @@ extern "C" void* ThreadCrawler(void* data) {
     db.ResultMany(ips);
     db.Add(addr);
 
-	Sleep(10000);
+	MilliSleep(10000);
   } while(1);
 }
 
@@ -290,7 +293,7 @@ int StatCompare(const CAddrReport& a, const CAddrReport& b) {
 extern "C" void* ThreadDumper(void*) {
   int count = 0;
   do {
-    Sleep(100000 << count); // First 100s, than 200s, 400s, 800s, 1600s, and then 3200s forever
+	MilliSleep(100000 << count); // First 100s, than 200s, 400s, 800s, 1600s, and then 3200s forever
     if (count < 5)
         count++;
     {
@@ -299,7 +302,7 @@ extern "C" void* ThreadDumper(void*) {
       FILE *f = fopen("dnsseed.dat.new","w+");
       if (f) {
         {
-          CAutoFile cf(f);
+		  CAutoFile cf(f, SER_DISK, CLIENT_VERSION);
           cf << db;
         }
         rename("dnsseed.dat.new", "dnsseed.dat");
@@ -348,7 +351,7 @@ extern "C" void* ThreadStats(void*) {
       queries += dnsThread[i]->dbQueries;
     }
     printf("%s %i/%i available (%i tried in %is, %i new, %i active), %i banned; %llu DNS requests, %llu db queries", c, stats.nGood, stats.nAvail, stats.nTracked, stats.nAge, stats.nNew, stats.nAvail - stats.nTracked - stats.nNew, stats.nBanned, (unsigned long long)requests, (unsigned long long)queries);
-    Sleep(1000);
+	MilliSleep(1000);
   } while(1);
 }
 
@@ -365,7 +368,7 @@ extern "C" void* ThreadSeeder(void*) {
         db.Add(CService(*it, GetDefaultPort()), true);
       }
     }
-    Sleep(1800000);
+	MilliSleep(1800000);
   } while(1);
 }
 
@@ -398,6 +401,7 @@ int main(int argc, char **argv) {
       pchMessageStart[3] = 0x07;
       seeds = testnet_seeds;
       fTestNet = true;
+	  SelectRatcoinParams(common::CNetworkParams::TESTNET);
   }
   if (!opts.ns) {
     printf("No nameserver set. Not starting DNS server.\n");

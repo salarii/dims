@@ -9,9 +9,13 @@
 #include <vector>
 #include <deque>
 
-#include "seedNetbase.h"
-#include "seedProtocol.h"
-#include "seedUtil.h"
+#include "serialize.h"
+#include "netbase.h"
+#include "uint256.h"
+#include "protocol.h"
+#include "sync.h"
+
+#include "common/ratcoinParams.h"
 
 #define MIN_RETRY 1000
 
@@ -20,7 +24,44 @@
 namespace seed
 {
 
-static inline int GetRequireHeight(const bool testnet = seed::fTestNet)
+// Wrapper to automatically initialize mutex
+class CCriticalSection
+{
+protected:
+	pthread_rwlock_t mutex;
+public:
+	explicit CCriticalSection() { pthread_rwlock_init(&mutex, NULL); }
+	~CCriticalSection() { pthread_rwlock_destroy(&mutex); }
+	void Enter(bool fShared = false) {
+	  if (fShared) {
+		pthread_rwlock_rdlock(&mutex);
+	  } else {
+		pthread_rwlock_wrlock(&mutex);
+	  }
+	}
+	void Leave() { pthread_rwlock_unlock(&mutex); }
+};
+
+// Automatically leave critical section when leaving block, needed for exception safety
+class CCriticalBlock
+{
+protected:
+	CCriticalSection* pcs;
+public:
+	CCriticalBlock(CCriticalSection& cs, bool fShared = false) : pcs(&cs) { pcs->Enter(fShared); }
+	operator bool() const { return true; }
+	~CCriticalBlock() { pcs->Leave(); }
+};
+
+#define CRITICAL_BLOCK(cs)     \
+	if (CCriticalBlock criticalblock = CCriticalBlock(cs))
+
+#define SHARED_CRITICAL_BLOCK(cs)     \
+	if (CCriticalBlock criticalblock = CCriticalBlock(cs, true))
+
+extern bool fTestNet;
+
+static inline int GetRequireHeight(const bool testnet = fTestNet)
 {
     return testnet ? 0 : 230000;
 }
@@ -39,7 +80,7 @@ private:
 public:
   CAddrStat() : weight(0), count(0), reliability(0) {}
 
-  void Update(bool good, int64 age, double tau) {
+  void Update(bool good, int64_t age, double tau) {
     double f =  exp(-age/tau);
     reliability = reliability * f + (good ? (1.0-f) : 0);
     count = count * f + 1;
@@ -72,10 +113,10 @@ class CAddrInfo {
 private:
   CService ip;
   uint64_t services;
-  int64 lastTry;
-  int64 ourLastTry;
-  int64 ourLastSuccess;
-  int64 ignoreTill;
+  int64_t lastTry;
+  int64_t ourLastTry;
+  int64_t ourLastSuccess;
+  int64_t ignoreTill;
   CAddrStat stat2H;
   CAddrStat stat8H;
   CAddrStat stat1D;
@@ -105,9 +146,9 @@ public:
     ret.services = services;
     return ret;
   }
-  
+
   bool IsGood() const {
-	if (ip.GetPort() != GetDefaultPort()) return false;
+	if (ip.GetPort() != common::ratcoinParams().GetDefaultPort()) return false;
     if (!(services & NODE_NETWORK)) return false;
     if (!ip.IsRoutable()) return false;
     if (clientVersion && clientVersion < REQUIRE_VERSION) return false;
@@ -194,7 +235,7 @@ struct CServiceResult {
     int nHeight;
     int nClientV;
     std::string strClientV;
-    int64 ourLastSuccess;
+	int64_t ourLastSuccess;
 };
 
 //             seen nodes

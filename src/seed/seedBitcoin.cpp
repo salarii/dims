@@ -1,10 +1,7 @@
 #include <algorithm>
 
 #include "seedDb.h"
-#include "seedNetbase.h"
-#include "seedProtocol.h"
-#include "seedSerialize.h"
-#include "seedUint256.h"
+#include "net.h"
 
 #define BITCOIN_SEED_NONCE  0x0539a019ca550825
 
@@ -24,7 +21,7 @@ class CNode {
   int nStartingHeight;
   vector<CAddress> *vAddr;
   int ban;
-  int64 doneAfter;
+  int64_t doneAfter;
   CAddress you;
 
   int GetTimeout() {
@@ -77,9 +74,9 @@ class CNode {
   }
   
   void PushVersion() {
-    int64 nTime = time(NULL);
-    uint64 nLocalNonce = BITCOIN_SEED_NONCE;
-    int64 nLocalServices = 0;
+	int64_t nTime = time(NULL);
+	uint64_t nLocalNonce = BITCOIN_SEED_NONCE;
+	int64_t nLocalServices = 0;
     CAddress me(CService("0.0.0.0"));
     BeginMessage("version");
     int nBestHeight = GetRequireHeight();
@@ -102,10 +99,10 @@ class CNode {
   bool ProcessMessage(string strCommand, CDataStream& vRecv) {
 //    printf("%s: RECV %s\n", ToString(you).c_str(), strCommand.c_str());
     if (strCommand == "version") {
-      int64 nTime;
+	  int64_t nTime;
       CAddress addrMe;
       CAddress addrFrom;
-      uint64 nNonce = 1;
+	  uint64_t nNonce = 1;
       vRecv >> nVersion >> you.nServices >> nTime >> addrMe;
       if (nVersion == 10300) nVersion = 300;
       if (nVersion >= 106 && !vRecv.empty())
@@ -137,7 +134,7 @@ class CNode {
       vector<CAddress> vAddrNew;
       vRecv >> vAddrNew;
       // printf("%s: got %i addresses\n", ToString(you).c_str(), (int)vAddrNew.size());
-      int64 now = time(NULL);
+	  int64_t now = time(NULL);
       vector<CAddress>::iterator it = vAddrNew.begin();
       if (doneAfter == 0 || doneAfter > now + 1) doneAfter = now + 1;
       while (it != vAddrNew.end()) {
@@ -160,7 +157,7 @@ class CNode {
   bool ProcessMessages() {
     if (vRecv.empty()) return false;
     do {
-      CDataStream::iterator pstart = search(vRecv.begin(), vRecv.end(), BEGIN(pchMessageStart), END(pchMessageStart));
+	  CDataStream::iterator pstart = search(vRecv.begin(), vRecv.end(), BEGIN(common::ratcoinParams().MessageStart()), END(common::ratcoinParams().MessageStart()));
       int nHeaderSize = vRecv.GetSerializeSize(CMessageHeader());
       if (vRecv.end() - pstart < nHeaderSize) {
         if (vRecv.size() > nHeaderSize) {
@@ -201,13 +198,9 @@ class CNode {
     } while(1);
     return false;
   }
-  
+
 public:
-  CNode(const CService& ip, vector<CAddress>* vAddrIn) : you(ip), nHeaderStart(-1), nMessageStart(-1), vAddr(vAddrIn), ban(0), doneAfter(0), nVersion(0) {
-    vSend.SetType(SER_NETWORK);
-    vSend.SetVersion(0);
-    vRecv.SetType(SER_NETWORK);
-    vRecv.SetVersion(0);
+  CNode(const CService& ip, vector<CAddress>* vAddrIn) : you(ip), nHeaderStart(-1), nMessageStart(-1), vAddr(vAddrIn), ban(0), doneAfter(0), nVersion(0),vSend( SER_DISK, CLIENT_VERSION), vRecv( SER_DISK, CLIENT_VERSION) {
     if (time(NULL) > 1329696000) {
       vSend.SetVersion(209);
       vRecv.SetVersion(209);
@@ -218,7 +211,7 @@ public:
     if (!ConnectSocket(you, sock)) return false;
     PushVersion();
     Send();
-    int64 now;
+	int64_t now;
     while (now = time(NULL), ban == 0 && (doneAfter == 0 || doneAfter > now) && sock != INVALID_SOCKET) {
       char pchBuf[0x10000];
       fd_set set;

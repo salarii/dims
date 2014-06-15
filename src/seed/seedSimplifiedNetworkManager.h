@@ -13,7 +13,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/signals2.hpp>
-#include "seedNetbase.h"
+#include "netbase.h"
 
 #include "sync.h"
 
