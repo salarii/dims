@@ -36,6 +36,11 @@ namespace monitor
 class CAddTrackerAction;
 }
 
+namespace seed
+{
+class CAcceptNodeAction;
+}
+
 namespace common
 {
 
@@ -103,6 +108,8 @@ class CSetResponseVisitor< seed::SeedResponses >
 {
 public:
 	CSetResponseVisitor( seed::SeedResponses const & _requestResponse );
+
+	void visit( seed::CAcceptNodeAction & _action );
 
 private:
 	seed::SeedResponses m_requestResponse;

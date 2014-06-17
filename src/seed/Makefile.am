@@ -6,15 +6,23 @@ AM_CPPFLAGS += -I$(top_srcdir)/src
 bin_PROGRAMS = dims_seed
 
 SEED_H = \
+	acceptNodeAction.h \
+	configureSeedActionHandler.h \
+	processNetwork.h \
 	seedBitcoin.h \
 	seedDb.h \
-	seedSimplifiedNetworkManager.h
+	seedNodesManager.h \
+	seedNodeMedium.h
 	
 SEED_CPP = \
+	acceptNodeAction.cpp \
+	actionHandlerDefinitions.cpp \
+	processNetwork.cpp \
 	seedBitcoin.cpp \
-	seedMain.cpp \
 	seedDb.cpp \
-	seedSimplifiedNetworkManager.cpp
+	seedMain.cpp \
+	seedNodesManager.cpp \
+	setResponseVisitor.cpp
 
 BUILT_SOURCES = $(nodist_libmonitor_a_SOURCES)
 
@@ -26,9 +34,9 @@ dims_seed_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_IPV6
 
 dims_seed_SOURCES = $(SEED_H) $(SEED_CPP) 
 
-dims_seed_LDADD = $(LIBRATCOIN_TRACKER) $(LIBBITCOIN_SERVER) $(LIBRATCOIN_TRACKER) dns.o 
+dims_seed_LDADD =  $(LIBRATCOIN_TRACKER) dns.o 
 
-dims_seed_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBLEVELDB) $(LIBMEMENV) $(PROTOBUF_LIBS) \
+dims_seed_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON)  $(LIBBITCOIN_SERVER) $(LIBLEVELDB) $(LIBMEMENV) $(PROTOBUF_LIBS) \
   $(BOOST_LIBS)  $(BDB_LIBS) 
 dims_seed_LDFLAGS = 
 

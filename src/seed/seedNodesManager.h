@@ -1,3 +1,8 @@
+// Copyright (c) 2014 Ratcoin dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+
 #ifndef SEED_NODES_MANAGER_H
 #define SEED_NODES_MANAGER_H
 
@@ -9,17 +14,17 @@
 namespace seed
 {
 
-class CTrackerNodeMedium;
+class CSeedNodeMedium;
 
-class CTrackerNodesManager : public common::CNodesManager< SeedResponses >
+class CSeedNodesManager : public common::CNodesManager< SeedResponses >
 {
 public:
 
-	static CTrackerNodesManager * getInstance();
+	static CSeedNodesManager * getInstance();
 
-	CTrackerNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
+	CSeedNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 private:
-	CTrackerNodesManager();
+	CSeedNodesManager();
 private:
 };
 

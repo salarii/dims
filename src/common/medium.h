@@ -12,10 +12,11 @@
 // this is  weak point of  this implementation I don't know  how to get rid of this at the moment
 #include "tracker/trackerRequestsList.h"
 #include "node/nodeRequestList.h"
-#include "monitor/monitorRequestsList.h"
 #include "node/configureNodeActionHadler.h"
+#include "monitor/monitorRequestsList.h"
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"
+#include "seed/seedRequestsList.h"
 
 namespace common
 {
@@ -113,17 +114,17 @@ public:
 
 	virtual bool getResponse( std::vector< seed::SeedResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( seed::SeedResponseList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedResponseList ,10 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,0 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,1 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,2 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,3 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,4 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,5 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,6 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,7 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,8 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,9 ) const * _request ){};
+	virtual void add( VisitorParam( seed::SeedRequestsList ,10 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 

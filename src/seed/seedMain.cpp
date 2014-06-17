@@ -10,10 +10,10 @@
 
 #include "seedBitcoin.h"
 #include "seedDb.h"
-
-#include "seedSimplifiedNetworkManager.h"
+#include "processNetwork.h"
 
 #include "common/ratcoinParams.h"
+#include "common/manageNetwork.h"
 #include "util.h"
 
 using namespace std;
@@ -290,7 +290,7 @@ int StatCompare(const CAddrReport& a, const CAddrReport& b) {
   }
 }
 
-extern "C" void* ThreadDumper(void*) {
+extern "C" void ThreadDumper() {
   int count = 0;
   do {
 	MilliSleep(100000 << count); // First 100s, than 200s, 400s, 800s, 1600s, and then 3200s forever
@@ -327,7 +327,7 @@ extern "C" void* ThreadDumper(void*) {
   } while(1);
 }
 
-extern "C" void* ThreadStats(void*) {
+extern "C" void ThreadStats() {
   bool first = true;
   do {
     char c[256];
@@ -365,7 +365,7 @@ extern "C" void* ThreadSeeder(void*) {
       vector<CNetAddr> ips;
       LookupHost(seeds[i].c_str(), ips);
       for (vector<CNetAddr>::iterator it = ips.begin(); it != ips.end(); it++) {
-        db.Add(CService(*it, GetDefaultPort()), true);
+		db.Add(CAddress(CService(*it, common::ratcoinParams().GetDefaultPort() )), true);
       }
     }
 	MilliSleep(1800000);
@@ -379,7 +379,6 @@ using namespace seed;
 int main(int argc, char **argv) {
 
   pthread_mutex_init(&nodesLock, NULL);
-  CSimplifiedNetworkManager  networkManager( db );
   signal(SIGPIPE, SIG_IGN);
   setbuf(stdout, NULL);
   CDnsSeedOpts opts;
@@ -395,13 +394,8 @@ int main(int argc, char **argv) {
   bool fDNS = true;
   if (opts.fUseTestNet) {
       printf("Using testnet.\n");
-      pchMessageStart[0] = 0x0b;
-	  pchMessageStart[1] = 0x12;
-	  pchMessageStart[2] = 0x0a;
-      pchMessageStart[3] = 0x07;
-      seeds = testnet_seeds;
       fTestNet = true;
-	  SelectRatcoinParams(common::CNetworkParams::TESTNET);
+	  common::SelectRatcoinParams(CNetworkParams::TESTNET);
   }
   if (!opts.ns) {
     printf("No nameserver set. Not starting DNS server.\n");
@@ -414,7 +408,7 @@ int main(int argc, char **argv) {
   FILE *f = fopen("dnsseed.dat","r");
   if (f) {
     printf("Loading dnsseed.dat...");
-    CAutoFile cf(f);
+	CAutoFile cf(f, SER_DISK, CLIENT_VERSION);
     cf >> db;
     if (opts.fWipeBan)
         db.banned.clear();
@@ -423,24 +417,26 @@ int main(int argc, char **argv) {
     printf("done\n");
   }
 
-  pthread_t threadDns, threadSeed, threadDump, threadStats;
+
+  common::CManageNetwork::getInstance()->registerNodeSignals( seed::CProcessNetwork::getInstance() );
+
+  common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
+
+
   if (fDNS) {
     printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);
     dnsThread.clear();
     for (int i=0; i<opts.nDnsThreads; i++) {
       dnsThread.push_back(new CDnsThread(&opts, i));
-      pthread_create(&threadDns, NULL, ThreadDNS, dnsThread[i]);
+	  //pthread_create(&threadDns, NULL, ThreadDNS, dnsThread[i]);
 
 	  threadGroup.create_thread( boost::bind(&ThreadDNS, dnsThread[i]) );
       printf(".");
-      Sleep(20);
+	  MilliSleep(20);
     }
     printf("done\n");
   }
-  networkManager.connectToNetwork();
 
-  printf("done\n");
-  printf("Starting %i crawler threads...", opts.nThreads);
   pthread_attr_t attr_crawler;
   pthread_attr_init(&attr_crawler);
   pthread_attr_setstacksize(&attr_crawler, 0x20000);
@@ -448,14 +444,13 @@ int main(int argc, char **argv) {
     pthread_t thread;
     pthread_create(&thread, &attr_crawler, ThreadCrawler, &opts.nThreads);
   }
-  pthread_attr_destroy(&attr_crawler);
-  printf("done\n");
-  pthread_create(&threadStats, NULL, ThreadStats, NULL);
-  pthread_create(&threadDump, NULL, ThreadDumper, NULL);
-  void* res;
-  pthread_join(threadDump, &res);
 
-  threadGroup->join_all();
+
+  threadGroup.create_thread( ThreadStats );
+  threadGroup.create_thread( ThreadDumper );
+  void* res;
+
+  threadGroup.join_all();
   return 0;
 }
 

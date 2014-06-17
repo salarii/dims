@@ -13,18 +13,20 @@
 namespace seed
 {
 
-class CConnectTrackerAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CConnectTrackerAction, CUninitiated >
+struct CUninitiated;
+
+class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
 {
 public:
-	CConnectTrackerAction( std::string const & _trackerAddress );
+	CAcceptNodeAction( std::string const & _trackerAddress );
 
-	CConnectTrackerAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
+	CAcceptNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
 
-	virtual common::CRequest< TrackerResponses >* execute();
+	virtual common::CRequest< SeedResponses >* execute();
 
-	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< SeedResponses > & _visitor );
 
-	void setRequest( common::CRequest< TrackerResponses >* _request );
+	void setRequest( common::CRequest< SeedResponses >* _request );
 
 	std::string getAddress() const;
 
@@ -34,7 +36,16 @@ public:
 // not safe
 	unsigned int getMediumKind() const;
 private:
-	common::CRequest< TrackerResponses >* m_request;
+	common::CRequest< SeedResponses >* m_request;
+	std::string const m_trackerAddress;
+
+	static int const ms_randomPayloadLenght = 32;
+
+	std::vector< unsigned char > m_payload;
+
+	unsigned int m_mediumKind;
+
+	bool const m_passive;
 };
 
 

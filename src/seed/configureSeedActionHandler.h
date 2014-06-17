@@ -11,7 +11,7 @@ namespace seed
 
 struct CDummyResponse{};
 
-typedef boost::mpl::list< common::CMediumException > SeedResponseList;
+typedef boost::mpl::list< common::CMediumException, common::CContinueResult, common::CIdentificationResult > SeedResponseList;
 
 typedef boost::make_variant_over< SeedResponseList >::type SeedResponses;
 
