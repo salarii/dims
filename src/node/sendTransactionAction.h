@@ -42,6 +42,8 @@ private:
 	CTransaction m_transaction;
 	common::TransactionsStatus::Enum m_status;
 	uint256 m_token;
+
+	common::ActionStatus::Enum m_actionStatus;
 	
 };
 

@@ -14,7 +14,11 @@
 
 #include "common/ratcoinParams.h"
 #include "common/manageNetwork.h"
+#include "common/actionHandler.h"
+
+#include "seedNodesManager.h"
 #include "util.h"
+#include "acceptNodeAction.h"
 
 using namespace std;
 
@@ -372,6 +376,60 @@ extern "C" void* ThreadSeeder(void*) {
   } while(1);
 }
 
+bool stateExecuted( CAcceptNodeAction * _acceptNodeAction )
+{
+	return !_acceptNodeAction->isExecuted();
+}
+
+void periodicCheck()
+{
+	while(1)
+	{
+		std::vector<CServiceResult> ips;
+		int wait = 5;
+		db.GetMany(ips, 64, wait);
+		int64_t now = time(NULL);
+		if (ips.empty()) {
+		  wait *= 1000;
+		  wait += rand() % (500);
+		  MilliSleep(wait);
+		  continue;
+		}
+
+		vector<CAddress> addr;
+		for (int i=0; i<ips.size(); i++)
+		{
+		  CServiceResult &res = ips[i];
+		  res.nBanTime = 0;
+		  res.nClientV = 0;
+		  res.nHeight = 0;
+		  res.strClientV = "";
+		  bool getaddr = res.ourLastSuccess + 604800 < now;
+
+		  res.fGood = TestNode(res.service,res.nBanTime,res.nClientV,res.strClientV,res.nHeight,getaddr ? &addr : NULL);
+		  // transalation between  self  nodes from manager  and  IPs
+		 // CAcceptNodeAction()// res.service.ToString()
+		}
+		db.ResultMany(ips);
+		db.Add(addr);
+
+		std::list< CAcceptNodeAction * > m_searchedNodes;
+
+
+		while( 1 )
+		{
+			std::list< CAcceptNodeAction * >::iterator it = std::find_if( m_searchedNodes.begin(), m_searchedNodes.end(), stateExecuted );
+			if ( it == m_searchedNodes.end() )
+				break;
+		}
+
+		MilliSleep(10000);
+	}
+
+
+}
+
+
 }
 
 using namespace seed;
@@ -417,6 +475,9 @@ int main(int argc, char **argv) {
     printf("done\n");
   }
 
+  threadGroup.create_thread( boost::bind( &common::CActionHandler< seed::SeedResponses >::loop, common::CActionHandler< seed::SeedResponses >::getInstance() ) );
+
+  common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
 
   common::CManageNetwork::getInstance()->registerNodeSignals( seed::CProcessNetwork::getInstance() );
 

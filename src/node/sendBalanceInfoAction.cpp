@@ -20,6 +20,7 @@ namespace node
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( std::string const _pubKey )
 	: m_pubKey( _pubKey )
+	, m_actionStatus( common::ActionStatus::Unprepared )
 {
 }
 

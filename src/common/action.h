@@ -14,7 +14,8 @@ template < class _RequestResponses >
 class CSetResponseVisitor;
 
 template < class _RequestResponses > struct CRequest;
-
+// this  is  obsolete
+// but I need  some  wa to mark  that action  is  finished
 struct ActionStatus
 {
 	enum Enum
@@ -29,19 +30,25 @@ template < class _RequestResponses >
 class CAction
 {
 public:
-	CAction(): m_actionStatus( ActionStatus::Unprepared ){};
+	CAction( bool _autoDelete = true ): m_executed( false ), m_autoDelete( _autoDelete ){};
 
 	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor ) = 0;
 
 	virtual CRequest< _RequestResponses >* execute() = 0;
 
-	ActionStatus::Enum getState(){ return m_actionStatus; }
+	bool isExecuted(){ return m_executed; }
 
-	virtual void reset(){ m_actionStatus = ActionStatus::Unprepared; }
+	void setExecuted(){ m_executed = true; }
+
+	bool autoDelete(){ return m_autoDelete; }
+
+	virtual void reset(){ m_executed = false; }
 
 	virtual ~CAction(){};
 protected:
-	ActionStatus::Enum m_actionStatus;
+	bool m_executed;
+
+	bool const m_autoDelete;
 };
 
 

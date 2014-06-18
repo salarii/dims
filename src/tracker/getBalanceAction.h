@@ -27,6 +27,8 @@ public:
 	uint160 const m_keyId;
 
 	uint256 const m_hash;
+
+	common::ActionStatus::Enum m_actionStatus;
 };
 
 }

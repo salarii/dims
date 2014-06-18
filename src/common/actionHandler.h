@@ -267,6 +267,13 @@ CActionHandler< _RequestResponses >::loop()
 
 				if ( request )
 					m_reqToAction.insert( std::make_pair( request, action ) );
+				else
+				{
+					if ( action->autoDelete() )
+						delete action;
+					else
+						action->setExecuted();
+				}
 			}
 			m_actions.clear();
 		}

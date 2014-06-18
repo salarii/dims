@@ -35,21 +35,19 @@ template < class _RequestResponses >
 bool
 CDefferedAction< _RequestResponses >::isReady()
 {
-	if ( m_action->getState() != common::ActionStatus::InProgress )
+
+	if ( m_action->isExecuted() )
 	{
-		if ( m_action->getState() == common::ActionStatus::Done )
-		{
-			m_action->reset();
-			m_cnt = m_deffer;
-		}
-
-		if(!m_cnt--)
-		{
-			m_cnt = ( unsigned int )-1;
-			return true;
-		}
-
+		m_action->reset();
+		m_cnt = m_deffer;
 	}
+
+	if(!m_cnt--)
+	{
+		m_cnt = ( unsigned int )-1;
+		return true;
+	}
+
 	return false;
 }
 

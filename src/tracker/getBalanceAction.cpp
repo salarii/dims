@@ -13,6 +13,7 @@ namespace tracker
 CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash )
 	: m_keyId( _keyId )
 	, m_hash( _hash )
+	, m_actionStatus( common::ActionStatus::Unprepared )
 {
 }
 

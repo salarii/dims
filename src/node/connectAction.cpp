@@ -66,6 +66,7 @@ struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectAct
 */
 CConnectAction::CConnectAction( State::Enum const _state )
 :m_state( _state )
+,m_actionStatus( common::ActionStatus::Unprepared )
 {
 
 }

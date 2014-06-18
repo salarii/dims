@@ -18,6 +18,7 @@ namespace node
 CSendTransactionAction::CSendTransactionAction( const CTransaction & _transaction )
 	: CAction()
 	, m_transaction( _transaction )
+	, m_actionStatus( common::ActionStatus::Unprepared )
 {
 }
 

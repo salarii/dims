@@ -45,6 +45,8 @@ private:
 	boost::optional< uint256 > m_token;
 
 	boost::optional< common::ErrorType::Enum > m_mediumError;
+
+	common::ActionStatus::Enum m_actionStatus;
 };
 
 struct CBalanceRequest : public common::CRequest< NodeResponses >
