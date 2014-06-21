@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "connectTrackerAction.h"
+#include "connectNodeAction.h"
 #include "connectToTrackerRequest.h"
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"
@@ -22,7 +22,7 @@ namespace tracker
 struct CUnconnected; struct CBothUnidentifiedConnected;
 
 
-struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectTrackerAction >
+struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectNodeAction >
 {
 	typedef boost::mpl::list<
 	boost::statechart::transition< common::CSwitchToConnectingEvent, CUnconnected >,
@@ -32,12 +32,12 @@ struct CUninitiated : boost::statechart::simple_state< CUninitiated, CConnectTra
 };
 
 
-struct CIdentified : boost::statechart::state< CIdentified, CConnectTrackerAction >
+struct CIdentified : boost::statechart::state< CIdentified, CConnectNodeAction >
 {
 	CIdentified( my_context ctx ) : my_base( ctx )
 	{
 		// for  now we  finish here
-		context< CConnectTrackerAction >().setRequest( 0 );
+		context< CConnectNodeAction >().setRequest( 0 );
 	}
 };
 
@@ -54,13 +54,13 @@ createIdentifyResponse( Parent & parent )
 	parent.setRequest( new common::CIdentifyResponse<TrackerResponses>( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
 }
 
-struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnectTrackerAction >
+struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnectNodeAction >
 {
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
 
-		createIdentifyResponse( context< CConnectTrackerAction >() );
+		createIdentifyResponse( context< CConnectNodeAction >() );
 	}
 
 	typedef boost::mpl::list<
@@ -69,31 +69,31 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 };
 
-struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CConnectTrackerAction >
+struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CConnectNodeAction >
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectTrackerAction >().setRequest( 0 );
+		context< CConnectNodeAction >().setRequest( 0 );
 	}
 };
 
 
-struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentifiedConnecting, CConnectTrackerAction >
+struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentifiedConnecting, CConnectNodeAction >
 {
 	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
 
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
-		context< CConnectTrackerAction >().setMediumKind( convertToInt( connectedEvent->m_node ) );
+		context< CConnectNodeAction >().setMediumKind( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CTrackerNodesManager::getInstance()->addNode( connectedEvent->m_node );
-		context< CConnectTrackerAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( convertToInt( connectedEvent->m_node ), context< CConnectTrackerAction >().getPayload() ) );
+		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( convertToInt( connectedEvent->m_node ), context< CConnectNodeAction >().getPayload() ) );
 
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CConnectTrackerAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectTrackerAction >().getMediumKind() ) );
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectNodeAction >().getMediumKind() ) );
 	}
 
 	typedef boost::mpl::list<
@@ -102,19 +102,19 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 	> reactions;
 };
 
-struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedConnected, CConnectTrackerAction >
+struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedConnected, CConnectNodeAction >
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
 
-		createIdentifyResponse( context< CConnectTrackerAction >() );
+		createIdentifyResponse( context< CConnectNodeAction >() );
 
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CConnectTrackerAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectTrackerAction >().getMediumKind() ) );
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectNodeAction >().getMediumKind() ) );
 	}
 
 	typedef boost::mpl::list<
@@ -123,12 +123,12 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	> reactions;
 };
 
-struct CUnconnected : boost::statechart::state< CUnconnected, CConnectTrackerAction >
+struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction >
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectTrackerAction >().setRequest(
-				  new CConnectToTrackerRequest( context< CConnectTrackerAction >().getAddress() ) );
+		context< CConnectNodeAction >().setRequest(
+				  new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress() ) );
 
 	}
 
@@ -138,12 +138,12 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectTrackerAct
 
 };
 
-struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CConnectTrackerAction >
+struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CConnectNodeAction >
 {
 
 };
 
-CConnectTrackerAction::CConnectTrackerAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
+CConnectNodeAction::CConnectNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
 : m_payload( _payload )
 , m_request( 0 )
 , m_passive( true )
@@ -153,8 +153,22 @@ CConnectTrackerAction::CConnectTrackerAction( std::vector< unsigned char > const
 	process_event( common::CSwitchToConnectedEvent() );
 }
 
-CConnectTrackerAction::CConnectTrackerAction( std::string const & _trackerAddress )
-	: m_trackerAddress( _trackerAddress )
+CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
+	: m_request( 0 )
+	, m_passive( false )
+	, m_addrConnect( _addrConnect )
+{
+	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
+	{
+		m_payload.push_back( insecure_rand() % 256 );
+	}
+	initiate();
+	process_event( common::CSwitchToConnectingEvent() );
+}
+
+
+CConnectNodeAction::CConnectNodeAction( std::string const & _nodeAddress )
+	: m_nodeAddress( _nodeAddress )
 	, m_request( 0 )
 	, m_passive( false )
 {
@@ -167,43 +181,43 @@ CConnectTrackerAction::CConnectTrackerAction( std::string const & _trackerAddres
 }
 
 common::CRequest< TrackerResponses >*
-CConnectTrackerAction::execute()
+CConnectNodeAction::execute()
 {
 	return m_request;
 }
 
 void
-CConnectTrackerAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+CConnectNodeAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }
 
 void
-CConnectTrackerAction::setRequest( common::CRequest< TrackerResponses >* _request )
+CConnectNodeAction::setRequest( common::CRequest< TrackerResponses >* _request )
 {
 	m_request = _request;
 }
 
 std::string
-CConnectTrackerAction::getAddress() const
+CConnectNodeAction::getAddress() const
 {
-	return m_trackerAddress;
+	return m_nodeAddress;
 }
 
 std::vector< unsigned char >
-CConnectTrackerAction::getPayload() const
+CConnectNodeAction::getPayload() const
 {
 	return m_payload;
 }
 
 unsigned int
-CConnectTrackerAction::getMediumKind() const
+CConnectNodeAction::getMediumKind() const
 {
 	return m_mediumKind;
 }
 
 void
-CConnectTrackerAction::setMediumKind( unsigned int _mediumKind )
+CConnectNodeAction::setMediumKind( unsigned int _mediumKind )
 {
 	m_mediumKind = _mediumKind;
 }
