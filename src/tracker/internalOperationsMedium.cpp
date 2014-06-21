@@ -65,9 +65,8 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 void
 CInternalOperationsMedium::add( CConnectToTrackerRequest const *_request )
 {
-	CAddress addr;
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
-	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode(addr, _request->getAddress().c_str() );
+	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode( _request->getServiceAddress(), _request->getAddress().empty()? 0 : _request->getAddress().c_str() );
 
 	m_trackerResponses.push_back( CConnectedNode( node ) );
 }

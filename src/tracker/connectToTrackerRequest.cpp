@@ -9,8 +9,9 @@
 namespace tracker
 {
 
-CConnectToTrackerRequest::CConnectToTrackerRequest( std::string const & _trackerAddress )
+CConnectToTrackerRequest::CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress )
 	:m_trackerAddress( _trackerAddress )
+	,m_serviceAddress( _serviceAddress )
 {
 }
 
@@ -30,6 +31,12 @@ std::string
 CConnectToTrackerRequest::getAddress() const
 {
 	return m_trackerAddress;
+}
+
+CAddress
+CConnectToTrackerRequest::getServiceAddress() const
+{
+	return m_serviceAddress;
 }
 
 

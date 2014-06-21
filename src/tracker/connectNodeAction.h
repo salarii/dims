@@ -34,6 +34,8 @@ public:
 
 	std::string getAddress() const;
 
+	CAddress getServiceAddress() const;
+
 	std::vector< unsigned char > getPayload() const;
 
 	void setMediumKind( unsigned int _mediumKind );

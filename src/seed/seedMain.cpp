@@ -483,6 +483,7 @@ int main(int argc, char **argv) {
 
   common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
+	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
 
   if (fDNS) {
     printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);

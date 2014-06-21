@@ -128,7 +128,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectNodeAction >().setRequest(
-				  new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress() ) );
+				  new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
 
 	}
 
@@ -202,6 +202,12 @@ std::string
 CConnectNodeAction::getAddress() const
 {
 	return m_nodeAddress;
+}
+
+CAddress
+CConnectNodeAction::getServiceAddress() const
+{
+	return m_addrConnect;
 }
 
 std::vector< unsigned char >

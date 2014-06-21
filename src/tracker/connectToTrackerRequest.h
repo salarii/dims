@@ -14,16 +14,19 @@ namespace tracker
 class CConnectToTrackerRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CConnectToTrackerRequest( std::string const & _trackerAddress );
+	CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	virtual int getKind() const;
 
 	std::string getAddress() const;
+
+	CAddress getServiceAddress() const;
 private:
 	std::string const m_trackerAddress;
 
+	CAddress const m_serviceAddress;
 };
 
 
