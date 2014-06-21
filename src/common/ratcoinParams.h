@@ -27,6 +27,7 @@ struct AppType
 		  Client
 		, Tracker
 		, Monitor
+		, Seed
 	};
 };
 
@@ -37,12 +38,15 @@ struct TargetType
 		  ClientWindows
 		, TrackerWindows
 		, MonitorWindows
+		, SeedWindows
 		, ClientLinux
 		, TrackerLinux
 		, MonitorLinux
+		, SeedLinux
 		, ClientMac
 		, TrackerMac
 		, MonitorMac
+		, SeedMac
 	};
 };
 
@@ -62,24 +66,29 @@ public:
     virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
     static CNetworkParams const & getNetworkParameters();
-    std::string getDefaultDirectory(AppType::Enum _targetType ) const;
+	std::string getDefaultDirectory() const;
     virtual unsigned int getDefaultClientPort() const = 0;
+	static void setAppType( AppType::Enum const _appType ){ m_appType = _appType; }
+	static AppType::Enum getAppType(){ return m_appType; }
 protected:
 
 
     CRatcoinParams()
     {
 	 m_defaultDirectory = boost::assign::map_list_of< TargetType::Enum, std::string >
-								(TargetType::ClientWindows, "RatcoinClient")
-								(TargetType::TrackerWindows, "RatcoinTracker")
-								(TargetType::MonitorWindows, "RatcoinMonitor")
-								(TargetType::ClientLinux, ".ratcoinClient")
-								(TargetType::TrackerLinux, ".ratcoinTracker")
-								(TargetType::MonitorLinux, ".ratcoinMonitor")
-								(TargetType::ClientMac, "RatcoinClient")
-								(TargetType::TrackerMac, "RatcoinTracker")
-								(TargetType::MonitorMac, "RatcoinMonitor");
-    }
+			 (TargetType::ClientWindows, "DimsClient")
+			 (TargetType::TrackerWindows, "DimsTracker")
+			 (TargetType::MonitorWindows, "DimsMonitor")
+			 (TargetType::SeedWindows, "DimsSeed")
+			 (TargetType::ClientLinux, ".dimsClient")
+			 (TargetType::TrackerLinux, ".dimsTracker")
+			 (TargetType::MonitorLinux, ".dimsMonitor")
+			 (TargetType::SeedLinux, ".dimsSeed")
+			 (TargetType::ClientMac, "DimsClient")
+			 (TargetType::TrackerMac, "DimsTracker")
+			 (TargetType::MonitorMac, "DimsMonitor")
+			 (TargetType::SeedMac, "DimsSeed");
+	}
 
     uint256 hashGenesisBlock;
     MessageStartChars pchMessageStart;
@@ -93,6 +102,7 @@ protected:
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::map< TargetType::Enum, std::string > m_defaultDirectory;
+	static AppType::Enum m_appType;
 };
 
 /**

@@ -373,6 +373,8 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
  */
 bool AppInit2(boost::thread_group& threadGroup)
 {
+	common::CRatcoinParams::setAppType( common::AppType::Tracker);
+
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
     // Turn off Microsoft heap dump noise

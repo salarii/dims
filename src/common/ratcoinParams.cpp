@@ -19,6 +19,8 @@ using namespace boost::assign;
 namespace common
 {
 
+AppType::Enum CRatcoinParams::m_appType;
+
 class CMainRatcoinParams : public CRatcoinParams
 {
 public:
@@ -126,10 +128,10 @@ CRatcoinParams const &ratcoinParams()
 }
 
 std::string
-CRatcoinParams::getDefaultDirectory(AppType::Enum _targetType ) const
+CRatcoinParams::getDefaultDirectory() const
 {
-	assert( m_defaultDirectory.find(convertAppType( _targetType )) != m_defaultDirectory.end() );
-	return m_defaultDirectory.find(convertAppType( _targetType ))->second;
+	assert( m_defaultDirectory.find(convertAppType( getAppType() )) != m_defaultDirectory.end() );
+	return m_defaultDirectory.find(convertAppType( getAppType() ))->second;
 };
 
 bool 
@@ -188,6 +190,8 @@ convertAppType( AppType::Enum _appType )
 		return TargetType::TrackerWindows;
 	case AppType::Monitor:
 		return TargetType::MonitorWindows;
+	case AppType::Seed:
+		return TargetType::SeedWindows
 	default:
 		break;
 	}
@@ -201,6 +205,8 @@ convertAppType( AppType::Enum _appType )
 		return TargetType::TrackerMac;
 	case AppType::Monitor:
 		return TargetType::MonitorMac;
+	case AppType::Seed:
+		return TargetType::SeedMac;
 	default:
 		break;
 	}
@@ -213,6 +219,8 @@ convertAppType( AppType::Enum _appType )
 		return TargetType::TrackerLinux;
 	case AppType::Monitor:
 		return TargetType::MonitorLinux;
+	case AppType::Seed:
+		return TargetType::SeedLinux;
 	default:
 		break;
 	}

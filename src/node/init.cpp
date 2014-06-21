@@ -93,6 +93,8 @@ bool static Bind(const CService &addr, unsigned int flags) {
  */
 bool AppInit1(boost::thread_group& threadGroup)
 {
+
+	common::CRatcoinParams::setAppType( common::AppType::Client);
 	// ********************************************************* Step 1: setup
 #ifdef _MSC_VER
 	// Turn off Microsoft heap dump noise

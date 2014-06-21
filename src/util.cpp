@@ -986,10 +986,10 @@ boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / common::ratcoinParams().getDefaultDirectory( _appType );
+	return pathRet / common::ratcoinParams().getDefaultDirectory();
 #else
     // Unix
-    return pathRet / common::ratcoinParams().getDefaultDirectory( _appType );
+	return pathRet / common::ratcoinParams().getDefaultDirectory();
 #endif
 #endif
 }

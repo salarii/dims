@@ -435,6 +435,7 @@ void periodicCheck()
 using namespace seed;
 
 int main(int argc, char **argv) {
+	common::CRatcoinParams::setAppType( common::AppType::Seed);
 
   pthread_mutex_init(&nodesLock, NULL);
   signal(SIGPIPE, SIG_IGN);
