@@ -33,7 +33,7 @@ struct CSwitchToConnectedEvent : boost::statechart::event< CSwitchToConnectedEve
 {
 };
 
-struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectedEvent >
+struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectingEvent >
 {
 };
 
