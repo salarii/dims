@@ -9,6 +9,7 @@
 
 #include <exception>
 #include "errorResponse.h"
+#include "net.h"
 
 namespace common
 {
@@ -40,10 +41,11 @@ struct CAvailableCoins
 
 struct CIdentificationResult
 {
-	CIdentificationResult( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, uint160 const & _key ):m_payload( _payload ),m_signed( _signed ),m_key( _key ){};
+	CIdentificationResult( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, uint160 const & _key, CAddress const & _address = CAddress() ):m_payload( _payload ),m_signed( _signed ),m_key( _key ),m_address(_address){};
 	std::vector<unsigned char> m_payload;
 	std::vector<unsigned char> m_signed;
 	CKeyID m_key;
+	CAddress m_address;
 };
 
 

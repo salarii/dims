@@ -2,6 +2,7 @@
 #define COMMON_EVENTS_H
 
 #include <boost/statechart/event.hpp>
+#include "net.h"
 
 namespace common
 {
@@ -16,7 +17,9 @@ struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 
 struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 {
-	CIntroduceEvent(){};
+	CIntroduceEvent( CAddress const & _address ):m_address( _address ){};
+	// ugly but let it be
+	CAddress m_address;
 };
 
 struct CContinueEvent : boost::statechart::event< CContinueEvent >

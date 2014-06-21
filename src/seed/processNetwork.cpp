@@ -60,7 +60,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( nodeMedium->isIdentifyMessageKnown( hash ) )
 			{
-				nodeMedium->setResponse( hash, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+				nodeMedium->setResponse( hash, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
 			}
 			else
 			{

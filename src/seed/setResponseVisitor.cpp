@@ -24,7 +24,7 @@ public:
 
 	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
-		this->m_action->process_event( common::CIntroduceEvent() );
+		this->m_action->process_event( common::CIntroduceEvent( _param.m_address ) );
 	}
 
 	virtual void operator()( common::CContinueResult & _param ) const

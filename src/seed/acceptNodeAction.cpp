@@ -16,9 +16,11 @@
 
 #include "acceptNodeAction.h"
 
+#include "seedDb.h"
+
 namespace seed
 {
-
+extern CAddrDb db;
 
 struct CUnconnected; struct CBothUnidentifiedConnected;
 
@@ -74,8 +76,9 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		//accept new pair
-		//
+		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
+
+		db.Add(requestedEvent->m_address);
 		context< CAcceptNodeAction >().setRequest( 0 );
 	}
 };
