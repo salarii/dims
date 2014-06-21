@@ -62,8 +62,8 @@ TRACKER_CORE_H = \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
+  tracker/connectNodeAction.h \
   tracker/connectToTrackerRequest.h \
-  tracker/connectTrackerAction.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
   tracker/getBalanceRequest.h \
@@ -155,8 +155,8 @@ TRACKER_CORE_CPP = \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
   tracker/blockInfoDatabase.cpp \
+  tracker/connectNodeAction.cpp \
   tracker/connectToTrackerRequest.cpp \
-  tracker/connectTrackerAction.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
   tracker/getBalanceRequest.cpp \

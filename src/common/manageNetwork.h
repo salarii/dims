@@ -75,7 +75,9 @@ public:
 	template < class Handler >
 	void registerNodeSignals( Handler * _handler );
 
-	void getIpsFromSeed();
+	void getIpsFromSeed( vector<CAddress> & _vAdd );
+
+	void getSeedIps( vector<CAddress> & _vAdd );
 private:
 	CManageNetwork();
 

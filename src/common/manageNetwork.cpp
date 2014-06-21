@@ -1195,17 +1195,16 @@ CManageNetwork::processMessages(common::CSelfNode* pfrom)
 }
 
 void
-CManageNetwork::getIpsFromSeed()
+CManageNetwork::getIpsFromSeed( vector<CAddress> & _vAdd )
 {
 	const vector<CDNSSeedData> &vSeeds = ratcoinParams().DNSSeeds();
-	int found = 0;
 
 	BOOST_FOREACH(const CDNSSeedData &seed, vSeeds) {
 		if (HaveNameProxy()) {
 			AddOneShot(seed.host);
 		} else {
 			vector<CNetAddr> vIPs;
-			vector<CAddress> vAdd;
+
 			if (LookupHost(seed.host.c_str(), vIPs))
 			{
 				BOOST_FOREACH(CNetAddr& ip, vIPs)
@@ -1213,24 +1212,36 @@ CManageNetwork::getIpsFromSeed()
 					int nOneDay = 24*3600;
 					CAddress addr = CAddress(CService(ip, ratcoinParams().GetDefaultPort()));
 					addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
-					vAdd.push_back(addr);
-					found++;
+					_vAdd.push_back(addr);
 				}
 			}
 
-			if ( vAdd.empty() )
+		}
+	}
+}
+
+void
+CManageNetwork::getSeedIps( vector<CAddress> & _vAdd )
+{
+	const vector<CDNSSeedData> &vSeeds = ratcoinParams().DNSSeeds();
+
+	BOOST_FOREACH(const CDNSSeedData &seed, vSeeds) {
+		if (HaveNameProxy()) {
+			AddOneShot(seed.host);
+		} else {
+			vector<CNetAddr> vIPs;
+
+			if (LookupHost(seed.name.c_str(), vIPs))
 			{
-				if (LookupHost(seed.name.c_str(), vIPs))
+				BOOST_FOREACH(CNetAddr& ip, vIPs)
 				{
-					if ( !vIPs.empty() )
-					{
-						CNetAddr& ip = vIPs.front();
-
-						connectNode(CAddress(CService(ip, ratcoinParams().GetDefaultPort())), 0);
-					}
-
+					int nOneDay = 24*3600;
+					CAddress addr = CAddress(CService(ip, ratcoinParams().GetDefaultPort()));
+					addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
+					_vAdd.push_back(addr);
 				}
 			}
+
 		}
 	}
 }

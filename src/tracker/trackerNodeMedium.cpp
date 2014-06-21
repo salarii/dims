@@ -6,7 +6,7 @@
 #include "trackerNodeMedium.h"
 #include "common/actionHandler.h"
 #include "trackerNodesManager.h"
-#include "connectTrackerAction.h"
+#include "connectNodeAction.h"
 
 namespace tracker
 {

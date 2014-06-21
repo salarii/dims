@@ -5,6 +5,7 @@
 #include "trackerNodesManager.h"
 #include "trackerNodeMedium.h"
 #include "trackerMediumsKinds.h"
+#include "connectNodeAction.h"
 
 namespace common
 {
@@ -29,6 +30,28 @@ CTrackerNodesManager::getInstance( )
 
 CTrackerNodesManager::CTrackerNodesManager()
 {
+	vector<CAddress> vAdd;
+
+   common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
+
+   if ( !vAdd.empty() )
+   {
+	   BOOST_FOREACH( CAddress address, vAdd )
+	   {
+		   common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+	   }
+   }
+   else
+   {
+	   common::CManageNetwork::getInstance()->getSeedIps( vAdd );
+
+	   // let know seed about our existence
+	   BOOST_FOREACH( CAddress address, vAdd )
+	   {
+		   common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+	   }
+   }
+
 }
 
 CTrackerNodeMedium*

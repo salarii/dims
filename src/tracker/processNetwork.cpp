@@ -8,7 +8,7 @@
 #include "common/actionHandler.h"
 
 #include "trackerNodeMedium.h"
-#include "connectTrackerAction.h"
+#include "connectNodeAction.h"
 
 
 namespace tracker
@@ -65,7 +65,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CConnectTrackerAction * connectTrackerAction= new CConnectTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
 
 			}

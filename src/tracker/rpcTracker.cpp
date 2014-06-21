@@ -11,7 +11,7 @@
 #include "json/json_spirit_value.h"
 
 #include "common/actionHandler.h"
-#include "connectTrackerAction.h"
+#include "connectNodeAction.h"
 
 namespace tracker
 {
@@ -37,7 +37,7 @@ json_spirit::Value connectToTracker( json_spirit::Array const & params, bool fHe
 
 	string strNode = params[0].get_str();
 
-	common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CConnectTrackerAction( strNode ) );
+	common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CConnectNodeAction( strNode ) );
 	return json_spirit::Value::null;
 }
 

@@ -18,7 +18,7 @@ struct CUninitiated;
 class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
 {
 public:
-	CAcceptNodeAction( std::string const & _trackerAddress );
+	CAcceptNodeAction( std::string const & _nodeAddress );
 
 	CAcceptNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
 
@@ -37,7 +37,7 @@ public:
 	unsigned int getMediumKind() const;
 private:
 	common::CRequest< SeedResponses >* m_request;
-	std::string const m_trackerAddress;
+	std::string const m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;
 

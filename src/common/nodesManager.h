@@ -77,7 +77,6 @@ CNodesManager< RequestType >::getInstance( )
 template < class RequestType >
 CNodesManager< RequestType >::CNodesManager()
 {
-	CManageNetwork::getInstance()->getIpsFromSeed();
 }
 
 template < class RequestType >

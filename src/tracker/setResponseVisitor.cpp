@@ -8,7 +8,7 @@
 #include "getBalanceAction.h"
 #include "validateTransactionsAction.h"
 #include "validateTransactionActionEvents.h"
-#include "connectTrackerAction.h"
+#include "connectNodeAction.h"
 
 namespace common
 {
@@ -90,9 +90,9 @@ CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CValidateTrans
 }
 
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CConnectTrackerAction & _action )
+CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CConnectNodeAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectTrackerAction, tracker::TrackerResponseList > const &)CSetNodeConnectedResult< tracker::CConnectTrackerAction >( &_action ), m_trackerResponses );
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectNodeAction, tracker::TrackerResponseList > const &)CSetNodeConnectedResult< tracker::CConnectNodeAction >( &_action ), m_trackerResponses );
 }
 
 }

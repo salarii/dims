@@ -74,6 +74,8 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
+		//accept new pair
+		//
 		context< CAcceptNodeAction >().setRequest( 0 );
 	}
 };
@@ -153,8 +155,8 @@ CAcceptNodeAction::CAcceptNodeAction( std::vector< unsigned char > const & _payl
 	process_event( common::CSwitchToConnectedEvent() );
 }
 
-CAcceptNodeAction::CAcceptNodeAction( std::string const & _trackerAddress )
-	: m_trackerAddress( _trackerAddress )
+CAcceptNodeAction::CAcceptNodeAction( std::string const & _nodeAddress )
+	: m_nodeAddress( _nodeAddress )
 	, m_request( 0 )
 	, m_passive( false )
 {
@@ -187,7 +189,7 @@ CAcceptNodeAction::setRequest( common::CRequest< SeedResponses >* _request )
 std::string
 CAcceptNodeAction::getAddress() const
 {
-	return m_trackerAddress;
+	return m_nodeAddress;
 }
 
 std::vector< unsigned char >
