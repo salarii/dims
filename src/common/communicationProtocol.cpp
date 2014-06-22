@@ -36,8 +36,10 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _ori
 }
 
 bool
-CommunicationProtocol::createMessage( Payload const & _payload, CMessage & _message ) const
+CommunicationProtocol::signPayload( std::vector<unsigned char> const & _payload, std::vector<unsigned char> & _signedHash )
 {
+	uint256 hash = Hash(BEGIN(_payload), END(_payload));
+	CAuthenticationProvider::getInstance()->sign( hash, _signedHash );
 	return true;
 }
 
@@ -80,14 +82,38 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 	CAuthenticationProvider::getInstance()->sign( hash, m_header.m_signedHash );
 }
 
+template < class T >
+void
+createPayload( T const & message, std::vector< unsigned char > & _payload )
+{
+	unsigned int size = ::GetSerializeSize( message, SER_NETWORK, PROTOCOL_VERSION );
+	_payload.resize( size );
+	CBufferAsStream stream( (char*)&_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
+	stream << message;
+}
+
 CMessage::CMessage( CIdentifyMessage const & _identifyMessage )
 	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
-	unsigned int size = ::GetSerializeSize( _identifyMessage, SER_NETWORK, PROTOCOL_VERSION );
-	m_payload.resize( size );
-	CBufferAsStream stream( (char*)&m_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
-	stream << _identifyMessage;
+	createPayload( _identifyMessage, m_payload );
 }
+
+CMessage::CMessage( CNetworkRole const & _networkRole )
+	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
+{
+	createPayload( _networkRole, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
+CMessage::CMessage( CKnownNetworkInfo const & _knownNetworkInfo )
+	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
+{
+	createPayload( _knownNetworkInfo, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash )
 	: m_header( _message.m_header.m_payloadKind, _signedHash, GetTime(), _prevKey )

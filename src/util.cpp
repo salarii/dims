@@ -974,7 +974,7 @@ boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
     // Unix: ~/.bitcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / common::ratcoinParams().getDefaultDirectory( _appType );
+	return GetSpecialFolderPath(CSIDL_APPDATA) / common::ratcoinParams().getDefaultDirectory();
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");

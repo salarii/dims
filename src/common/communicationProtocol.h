@@ -8,6 +8,8 @@
 #include <boost/variant.hpp>
 #include "serialize.h"
 #include "core.h"
+#include "net.h"
+
 
 namespace common
 {
@@ -45,7 +47,7 @@ class CAuthenticationProvider;
 class CommunicationProtocol
 {
 public:
-	bool createMessage( Payload const & _payload, CMessage & _message ) const;
+	static bool signPayload( std::vector<unsigned char> const & _payload, std::vector<unsigned char> & _signedHash );
 
 	bool createMessage( CMessage const & _inMessage, CMessage & _outMessage ) const;
 
@@ -55,15 +57,7 @@ public:
 private:
 	CAuthenticationProvider * m_authenticationProvider;
 };
-/*
-CommunicationProtocol::prepareForSend( std::vector )
-{
-	uint256 messageHash = Hash(BEGIN(_message), END(_message));
-	m_authenticationProvider->sign( messageHash );
 
-
-}
-*/
 struct CHeader
 {
 	IMPLEMENT_SERIALIZE
@@ -96,11 +90,50 @@ struct CIdentifyMessage
 	std::vector<unsigned char> m_signed;
 };
 
+
+
+struct CNetworkRole
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_role);
+	)
+
+	int m_role;
+};
+
+struct CValidNodeInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_key);
+		READWRITE(m_address);
+		READWRITE(m_role);
+	)
+
+	CKeyID m_key;
+	CAddress m_address;
+	int m_role;
+};
+
+struct CKnownNetworkInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_networkInfo);
+	)
+
+	std::vector< CValidNodeInfo > m_networkInfo;
+};
+
 struct CMessage
 {
 public:
 	CMessage();
 	CMessage( CIdentifyMessage const & _identifyMessage );
+	CMessage( CNetworkRole const & _networkRole );
+	CMessage( CKnownNetworkInfo const & _knownNetworkInfo );
+
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
 	IMPLEMENT_SERIALIZE
