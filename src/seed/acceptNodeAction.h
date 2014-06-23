@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Ratcoin dev-team
+// Copyright (c) 2014 Dims dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,9 +18,9 @@ struct CUninitiated;
 class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
 {
 public:
-	CAcceptNodeAction( std::string const & _nodeAddress );
-
 	CAcceptNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
+
+	CAcceptNodeAction( CAddress const & _nodeAddress );
 
 	virtual common::CRequest< SeedResponses >* execute();
 
@@ -28,7 +28,7 @@ public:
 
 	void setRequest( common::CRequest< SeedResponses >* _request );
 
-	std::string getAddress() const;
+	CAddress getAddress() const;
 
 	std::vector< unsigned char > getPayload() const;
 
@@ -37,7 +37,7 @@ public:
 	unsigned int getMediumKind() const;
 private:
 	common::CRequest< SeedResponses >* m_request;
-	std::string const m_nodeAddress;
+	CAddress const m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;
 

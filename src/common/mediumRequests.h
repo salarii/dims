@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Ratcoin dev-team
+// Copyright (c) 2014 Dims dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,13 +14,13 @@
 namespace common
 {
 
-template < class RequestType >
-class CIdentifyRequest : public common::CRequest< RequestType >
+template < class ResponsesType >
+class CIdentifyRequest : public common::CRequest< ResponsesType >
 {
 public:
 	CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload );
 
-	void accept( common::CMedium< RequestType > * _medium ) const;
+	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
 	int getKind() const;
 
@@ -32,42 +32,42 @@ private:
 	unsigned int m_kind;
 };
 
-template < class RequestType >
-CIdentifyRequest< RequestType >::CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload )
+template < class ResponsesType >
+CIdentifyRequest< ResponsesType >::CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload )
 	: m_kind( _kind )
 	, m_payload( _payload )
 {
 }
 
-template < class RequestType >
+template < class ResponsesType >
 void
-CIdentifyRequest< RequestType >::accept( common::CMedium< RequestType > * _medium ) const
+CIdentifyRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class RequestType >
+template < class ResponsesType >
 int
-CIdentifyRequest< RequestType >::getKind() const
+CIdentifyRequest< ResponsesType >::getKind() const
 {
 	return m_kind;
 }
 
-template < class RequestType >
+template < class ResponsesType >
 std::vector< unsigned char >
-CIdentifyRequest< RequestType >::getPayload() const
+CIdentifyRequest< ResponsesType >::getPayload() const
 {
 	return m_payload;
 }
 
 
-template < class RequestType >
-class CIdentifyResponse : public common::CRequest< RequestType >
+template < class ResponsesType >
+class CIdentifyResponse : public common::CRequest< ResponsesType >
 {
 public:
 	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload );
 
-	void accept( common::CMedium< RequestType > * _medium ) const;
+	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
 	int getKind() const;
 
@@ -84,8 +84,8 @@ private:
 	std::vector< unsigned char > m_payload;
 };
 
-template < class RequestType >
-CIdentifyResponse< RequestType >::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload )
+template < class ResponsesType >
+CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload )
 	: m_kind( _kind )
 	, m_signed( _signed )
 	, m_keyId( _keyId )
@@ -93,48 +93,48 @@ CIdentifyResponse< RequestType >::CIdentifyResponse( unsigned int _kind, std::ve
 {
 }
 
-template < class RequestType >
+template < class ResponsesType >
 void
-CIdentifyResponse< RequestType >::accept( common::CMedium< RequestType > * _medium ) const
+CIdentifyResponse< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class RequestType >
+template < class ResponsesType >
 int
-CIdentifyResponse< RequestType >::getKind() const
+CIdentifyResponse< ResponsesType >::getKind() const
 {
 	return m_kind;
 }
 
-template < class RequestType >
+template < class ResponsesType >
 std::vector< unsigned char >
-CIdentifyResponse< RequestType >::getSigned() const
+CIdentifyResponse< ResponsesType >::getSigned() const
 {
 	return m_signed;
 }
 
-template < class RequestType >
+template < class ResponsesType >
 uint160
-CIdentifyResponse< RequestType >::getKeyID() const
+CIdentifyResponse< ResponsesType >::getKeyID() const
 {
 	return m_keyId;
 }
 
-template < class RequestType >
+template < class ResponsesType >
 std::vector< unsigned char >
-CIdentifyResponse< RequestType >::getPayload()const
+CIdentifyResponse< ResponsesType >::getPayload()const
 {
 	return m_payload;
 }
 
-template < class RequestType >
-class CContinueReqest : public common::CRequest< RequestType >
+template < class ResponsesType >
+class CContinueReqest : public common::CRequest< ResponsesType >
 {
 public:
 	CContinueReqest( uint256 const & _id, unsigned int _kind );
 
-	void accept( common::CMedium< RequestType > * _medium ) const;
+	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
 	int getKind() const;
 
@@ -145,34 +145,90 @@ private:
 	unsigned int m_kind;
 };
 
-template < class RequestType >
-CContinueReqest< RequestType >::CContinueReqest( uint256 const & _id, unsigned int _kind )
+template < class ResponsesType >
+CContinueReqest< ResponsesType >::CContinueReqest( uint256 const & _id, unsigned int _kind )
 	: m_id( _id )
 	, m_kind( _kind )
 {
 }
 
-template < class RequestType >
+template < class ResponsesType >
 void
-CContinueReqest< RequestType >::accept( common::CMedium< RequestType > * _medium ) const
+CContinueReqest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class RequestType >
+template < class ResponsesType >
 int
-CContinueReqest< RequestType >::getKind() const
+CContinueReqest< ResponsesType >::getKind() const
 {
 	return m_kind;
 }
 
-template < class RequestType >
+template < class ResponsesType >
 uint256
-CContinueReqest< RequestType >::getRequestId() const
+CContinueReqest< ResponsesType >::getRequestId() const
 {
 	return m_id;
 }
 
+template < class ResponsesType >
+class CConnectToNodeRequest : public common::CRequest< ResponsesType >
+{
+public:
+	CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, int _kind );
+
+	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
+
+	virtual int getKind() const;
+
+	std::string getAddress() const;
+
+	CAddress getServiceAddress() const;
+private:
+	std::string const m_trackerAddress;
+
+	CAddress const m_serviceAddress;
+
+	int m_kind;
+};
+
+template < class ResponsesType >
+CConnectToNodeRequest< ResponsesType >::CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, int _kind  )
+	:m_trackerAddress( _trackerAddress )
+	,m_serviceAddress( _serviceAddress )
+	,m_kind( _kind )
+{
+}
+
+template < class ResponsesType >
+void
+CConnectToNodeRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class ResponsesType >
+int
+CConnectToNodeRequest< ResponsesType >::getKind() const
+{
+	return m_kind;
+}
+
+template < class ResponsesType >
+std::string
+CConnectToNodeRequest< ResponsesType >::getAddress() const
+{
+	return m_trackerAddress;
+}
+
+template < class ResponsesType >
+CAddress
+CConnectToNodeRequest< ResponsesType >::getServiceAddress() const
+{
+	return m_serviceAddress;
+}
 
 }
 

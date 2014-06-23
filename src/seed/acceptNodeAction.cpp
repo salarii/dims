@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Ratcoin dev-team
+// Copyright (c) 2014 Dims dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -133,7 +133,8 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setRequest( 0 );
+		context< CAcceptNodeAction >().setRequest(
+				  new common::CConnectToNodeRequest< SeedResponses >( std::string(""), context< CAcceptNodeAction >().getAddress(), 0 ) );
 
 	}
 
@@ -158,7 +159,7 @@ CAcceptNodeAction::CAcceptNodeAction( std::vector< unsigned char > const & _payl
 	process_event( common::CSwitchToConnectedEvent() );
 }
 
-CAcceptNodeAction::CAcceptNodeAction( std::string const & _nodeAddress )
+CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
 	: m_nodeAddress( _nodeAddress )
 	, m_request( 0 )
 	, m_passive( false )
@@ -189,7 +190,7 @@ CAcceptNodeAction::setRequest( common::CRequest< SeedResponses >* _request )
 	m_request = _request;
 }
 
-std::string
+CAddress
 CAcceptNodeAction::getAddress() const
 {
 	return m_nodeAddress;

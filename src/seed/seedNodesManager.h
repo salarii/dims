@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Ratcoin dev-team
+// Copyright (c) 2014 Dims dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,7 +19,6 @@ class CSeedNodeMedium;
 class CSeedNodesManager : public common::CNodesManager< SeedResponses >
 {
 public:
-
 	static CSeedNodesManager * getInstance();
 
 	CSeedNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;

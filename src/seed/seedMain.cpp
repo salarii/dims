@@ -397,31 +397,32 @@ void periodicCheck()
 		}
 
 		vector<CAddress> addr;
-		for (int i=0; i<ips.size(); i++)
-		{
-		  CServiceResult &res = ips[i];
-		  res.nBanTime = 0;
-		  res.nClientV = 0;
-		  res.nHeight = 0;
-		  res.strClientV = "";
-		  bool getaddr = res.ourLastSuccess + 604800 < now;
-
-		  res.fGood = TestNode(res.service,res.nBanTime,res.nClientV,res.strClientV,res.nHeight,getaddr ? &addr : NULL);
-		  // transalation between  self  nodes from manager  and  IPs
-		 // CAcceptNodeAction()// res.service.ToString()
-		}
-		db.ResultMany(ips);
-		db.Add(addr);
-
 		std::list< CAcceptNodeAction * > m_searchedNodes;
 
+		for (int i=0; i<ips.size(); i++)
+		{
+			CServiceResult &res = ips[i];
+			res.nBanTime = 0;
+			res.nClientV = 0;
+			res.nHeight = 0;
+			res.strClientV = "";
+			bool getaddr = res.ourLastSuccess + 604800 < now;
+			//ugly
+			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
+			common::CActionHandler< SeedResponses >::getInstance()->executeAction( acceptNodeAction );
+			m_searchedNodes.push_back( acceptNodeAction );
+		}
 
+// this is  against action  handler  philosophy but here  we can live  with  that
 		while( 1 )
 		{
 			std::list< CAcceptNodeAction * >::iterator it = std::find_if( m_searchedNodes.begin(), m_searchedNodes.end(), stateExecuted );
 			if ( it == m_searchedNodes.end() )
 				break;
 		}
+
+		db.ResultMany(ips);
+		db.Add(addr);
 
 		MilliSleep(10000);
 	}

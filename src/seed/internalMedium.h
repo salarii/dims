@@ -1,0 +1,4 @@
+#ifndef INTERNALMEDIUM_H
+#define INTERNALMEDIUM_H
+
+#endif // INTERNALMEDIUM_H

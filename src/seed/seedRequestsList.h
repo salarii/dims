@@ -13,12 +13,16 @@ class CContinueReqest;
 
 template < class RequestType >
 class CIdentifyResponse;
+
+template < class RequestType >
+class CConnectToNodeRequest;
+
 }
 
 namespace seed
 {
 
-typedef boost::mpl::list< common::CIdentifyRequest< SeedResponses >, common::CContinueReqest< SeedResponses >, common::CIdentifyResponse< SeedResponses > > SeedRequestsList;
+typedef boost::mpl::list< common::CIdentifyRequest< SeedResponses >, common::CContinueReqest< SeedResponses >, common::CIdentifyResponse< SeedResponses >, common::CConnectToNodeRequest< SeedResponses > > SeedRequestsList;
 
 }
 
