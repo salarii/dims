@@ -1,4 +1,34 @@
-#ifndef INTERNALMEDIUM_H
-#define INTERNALMEDIUM_H
+#ifndef INTERNAL_MEDIUM_H
+#define INTERNAL_MEDIUM_H
+
+#include "configureSeedActionHandler.h"
+
+namespace seed
+{
+
+class CInternalMedium : public common::CMedium< SeedResponses >
+{
+public:
+	virtual bool serviced() const;
+
+	virtual bool flush(){ return true; }
+
+	virtual bool getResponse( std::vector< SeedResponses > & _requestResponse ) const;
+
+	virtual void clearResponses();
+
+	virtual void add( CConnectToTrackerRequest const *_request );
+
+	static CInternalMedium* getInstance();
+private:
+	CInternalMedium();
+private:
+	std::vector< SeedResponses > m_responses;
+
+	static CInternalMedium * ms_instance;
+};
+
+
+}
 
 #endif // INTERNALMEDIUM_H

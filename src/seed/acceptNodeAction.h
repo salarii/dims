@@ -35,6 +35,10 @@ public:
 	void setMediumKind( unsigned int _mediumKind );
 // not safe
 	unsigned int getMediumKind() const;
+
+	bool getValid() const{ return m_valid; }
+
+	void setValid( bool _valid ){ m_valid = _valid; }
 private:
 	common::CRequest< SeedResponses >* m_request;
 	CAddress const m_nodeAddress;
@@ -46,6 +50,8 @@ private:
 	unsigned int m_mediumKind;
 
 	bool const m_passive;
+
+	bool m_valid;
 };
 
 

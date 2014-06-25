@@ -39,7 +39,7 @@ struct CIdentified : boost::statechart::state< CIdentified, CAcceptNodeAction >
 {
 	CIdentified( my_context ctx ) : my_base( ctx )
 	{
-		// for  now we  finish here
+		context< CAcceptNodeAction >().setValid( true );
 		context< CAcceptNodeAction >().setRequest( 0 );
 	}
 };
@@ -129,6 +129,15 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	> reactions;
 };
 
+struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAction >
+{
+	CCantReachNode( my_context ctx ) : my_base( ctx )
+	{
+		context< CAcceptNodeAction >().setValid( true );
+		context< CAcceptNodeAction >().setRequest( 0 );
+	}
+};
+
 struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction >
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
@@ -139,7 +148,8 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< common::CNodeConnectedEvent, CBothUnidentifiedConnecting >
+	boost::statechart::transition< common::CNodeConnectedEvent, CBothUnidentifiedConnecting >,
+	boost::statechart::transition< common::CCantReachNode, CBothUnidentifiedConnecting >
 	> reactions;
 
 };
@@ -150,10 +160,12 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CAccept
 };
 
 CAcceptNodeAction::CAcceptNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
-: m_payload( _payload )
+: common::CAction< SeedResponses >( false )
+, m_payload( _payload )
 , m_request( 0 )
 , m_passive( true )
 , m_mediumKind( _mediumKind )
+, m_valid( false )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
@@ -163,6 +175,7 @@ CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
 	: m_nodeAddress( _nodeAddress )
 	, m_request( 0 )
 	, m_passive( false )
+	, m_valid( false )
 {
 	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
 	{

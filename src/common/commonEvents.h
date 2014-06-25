@@ -15,6 +15,10 @@ struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
 	common::CSelfNode * m_node;
 };
 
+struct CCantReachNode : boost::statechart::event< CCantReachNode >
+{
+};
+
 struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 {
 	CIntroduceEvent( CAddress const & _address ):m_address( _address ){};

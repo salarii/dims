@@ -421,6 +421,14 @@ void periodicCheck()
 				break;
 		}
 
+		int i = 0;
+		BOOST_FOREACH( CAcceptNodeAction * nodeAction, m_searchedNodes )
+		{
+			ips[ i ].fGood = nodeAction->getValid();
+
+			delete nodeAction;
+		}
+
 		db.ResultMany(ips);
 		db.Add(addr);
 
@@ -501,6 +509,9 @@ int main(int argc, char **argv) {
     printf("done\n");
   }
 
+  threadGroup.create_thread( periodicCheck );
+
+/*
   pthread_attr_t attr_crawler;
   pthread_attr_init(&attr_crawler);
   pthread_attr_setstacksize(&attr_crawler, 0x20000);
@@ -508,7 +519,7 @@ int main(int argc, char **argv) {
     pthread_t thread;
     pthread_create(&thread, &attr_crawler, ThreadCrawler, &opts.nThreads);
   }
-
+*/
 
   threadGroup.create_thread( ThreadStats );
   threadGroup.create_thread( ThreadDumper );
