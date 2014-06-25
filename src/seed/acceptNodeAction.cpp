@@ -133,7 +133,7 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAct
 {
 	CCantReachNode( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setValid( true );
+		context< CAcceptNodeAction >().setValid( false );
 		context< CAcceptNodeAction >().setRequest( 0 );
 	}
 };
