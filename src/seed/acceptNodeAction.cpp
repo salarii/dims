@@ -149,7 +149,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 
 	typedef boost::mpl::list<
 	boost::statechart::transition< common::CNodeConnectedEvent, CBothUnidentifiedConnecting >,
-	boost::statechart::transition< common::CCantReachNode, CBothUnidentifiedConnecting >
+	boost::statechart::transition< common::CCantReachNode, CCantReachNode >
 	> reactions;
 
 };

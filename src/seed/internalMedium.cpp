@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "internalMedium.h"
-#include "connectToTrackerRequest.h"
+#include "common/mediumRequests.h"
 #include "common/manageNetwork.h"
 
 #include <algorithm>
@@ -34,7 +34,7 @@ CInternalMedium::serviced() const
 }
 
 void
-CInternalMedium::add( CConnectToTrackerRequest const *_request )
+CInternalMedium::add( common::CConnectToNodeRequest< SeedResponses > const *_request )
 {
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
 	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode( _request->getServiceAddress(), _request->getAddress().empty()? 0 : _request->getAddress().c_str() );

@@ -132,7 +132,7 @@ void
 	}
 	 catch (CMediumException & _mediumException)
 	{
-//CSystemError is now  common for  every  action handler, it is neither  flexible  not  good
+//CSystemError is now  common for  every  action handler, it is neither  flexible  nor  good
 // in order to change    this  I have  to redesign global error passing  functionality
 //right now, keep in mind that every single  action is responsible  for handling errors
 
