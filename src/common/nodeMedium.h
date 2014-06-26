@@ -113,6 +113,8 @@ template < class ResponseType >
 void
 CNodeMedium< ResponseType >::clearResponses()
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
 		m_responses.erase( id );
@@ -125,6 +127,7 @@ template < class ResponseType >
 void
 CNodeMedium< ResponseType >::setResponse( uint256 const & _id, ResponseType const & _response )
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_responses.insert( std::make_pair( _id, _response ) );
 }
 
