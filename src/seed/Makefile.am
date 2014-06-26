@@ -8,6 +8,7 @@ bin_PROGRAMS = dims_seed
 SEED_H = \
 	acceptNodeAction.h \
 	configureSeedActionHandler.h \
+	internalMedium.h \
 	processNetwork.h \
 	seedBitcoin.h \
 	seedDb.h \
@@ -17,6 +18,7 @@ SEED_H = \
 SEED_CPP = \
 	acceptNodeAction.cpp \
 	actionHandlerDefinitions.cpp \
+	internalMedium.cpp \
 	processNetwork.cpp \
 	seedBitcoin.cpp \
 	seedDb.cpp \

@@ -2,6 +2,13 @@
 #define INTERNAL_MEDIUM_H
 
 #include "configureSeedActionHandler.h"
+#include "common/medium.h"
+
+namespace common
+{
+template < class RequestType >
+class CConnectToNodeRequest;
+}
 
 namespace seed
 {
@@ -17,7 +24,7 @@ public:
 
 	virtual void clearResponses();
 
-	virtual void add( CConnectToTrackerRequest const *_request );
+	virtual void add( common::CConnectToNodeRequest< SeedResponses > const *_request );
 
 	static CInternalMedium* getInstance();
 private:

@@ -62,6 +62,14 @@ public:
 	ErrorType::Enum m_error;
 };
 
+class CSelfNode;
+
+struct CConnectedNode
+{
+	CConnectedNode( common::CSelfNode * _node ):m_node( _node ){};
+	common::CSelfNode * m_node;
+};
+
 typedef boost::variant< CDummy, CAvailableCoins > ClientResponse;
 
 }

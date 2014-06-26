@@ -22,14 +22,8 @@ struct CValidationResult
 	bool m_valid;
 };
 
-struct CConnectedNode
-{
-	CConnectedNode( common::CSelfNode * _node ):m_node( _node ){};
-	common::CSelfNode * m_node;
-};
-
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, CConnectedNode, common::CIdentificationResult, common::CContinueResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

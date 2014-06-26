@@ -17,7 +17,7 @@ class CSetNodeConnectedResult : public CResponseVisitorBase< _Action, seed::Seed
 public:
 	CSetNodeConnectedResult( _Action * const _action ):CResponseVisitorBase< _Action, seed::SeedResponseList >( _action ){};
 
-	virtual void operator()( tracker::CConnectedNode & _param ) const
+	virtual void operator()( common::CConnectedNode & _param ) const
 	{
 		if ( _param.m_node )
 			this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );

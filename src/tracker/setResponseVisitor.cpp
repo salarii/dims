@@ -48,7 +48,7 @@ class CSetNodeConnectedResult : public CResponseVisitorBase< _Action, tracker::T
 public:
 	CSetNodeConnectedResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
 
-	virtual void operator()( tracker::CConnectedNode & _param ) const
+	virtual void operator()( common::CConnectedNode & _param ) const
 	{
 		this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );
 	}
