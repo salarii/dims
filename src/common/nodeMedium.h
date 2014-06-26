@@ -121,6 +121,7 @@ CNodeMedium< ResponseType >::clearResponses()
 		m_findIdentifyMessage.erase( id );// not  correct because there are  scenarios  when this  will not work
 	}
 	deleteList.clear();
+	m_indexes.clear();
 }
 
 template < class ResponseType >
