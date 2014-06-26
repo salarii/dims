@@ -39,15 +39,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
-		static  int i =0;
-				if ( i == 1 )
-				{
-					int p = 9;
-					p++;
-
-				}
-				i++;
-
 		if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
 		{
 			//
@@ -73,7 +64,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				CAcceptNodeAction * connectTrackerAction= new CAcceptNodeAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
 				common::CActionHandler< SeedResponses >::getInstance()->executeAction( connectTrackerAction );
-
 			}
 
 		}
