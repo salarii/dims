@@ -19,7 +19,7 @@
 #include "seedNodesManager.h"
 #include "util.h"
 #include "acceptNodeAction.h"
-#include "internalMedium.h"
+
 
 using namespace std;
 
@@ -487,8 +487,6 @@ int main(int argc, char **argv) {
   }
 
   threadGroup.create_thread( boost::bind( &common::CActionHandler< seed::SeedResponses >::loop, common::CActionHandler< seed::SeedResponses >::getInstance() ) );
-
-  common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CInternalMedium::getInstance() );
 
   common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
 

@@ -22,6 +22,8 @@ public:
 	static CSeedNodesManager * getInstance();
 
 	CSeedNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
+
+	std::list< common::CMedium< SeedResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 private:
 	CSeedNodesManager();
 private:

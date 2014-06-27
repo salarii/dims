@@ -4,6 +4,7 @@
 
 #include "seedNodesManager.h"
 #include "seedNodeMedium.h"
+#include "internalMedium.h"
 
 namespace common
 {
@@ -34,6 +35,21 @@ CSeedNodeMedium*
 CSeedNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 {
 	return static_cast< CSeedNodeMedium* >( common::CNodesManager< SeedResponses >::getMediumForNode( _node ) );
+}
+
+std::list< common::CMedium< SeedResponses > *>
+CSeedNodesManager::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+{
+	std::list< common::CMedium< SeedResponses > *> mediums = common::CNodesManager< SeedResponses >::provideConnection( _actionKind, _requestedConnectionNumber );
+
+	if ( !mediums.empty() )
+		return mediums;
+
+	if ( !_actionKind )// not  correct
+	{
+		mediums.push_back( CInternalMedium::getInstance() );
+	}
+	return mediums;
 }
 
 }
