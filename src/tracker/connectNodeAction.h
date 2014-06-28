@@ -17,7 +17,7 @@ namespace tracker
 
 struct CUninitiated;
 
-class CConnectNodeAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CUninitiated >
+class CConnectNodeAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
 	CConnectNodeAction( std::string const & _nodeAddress );
@@ -41,6 +41,8 @@ public:
 	void setMediumKind( unsigned int _mediumKind );
 // not safe
 	unsigned int getMediumKind() const;
+
+	~CConnectNodeAction();
 private:
 	common::CRequest< TrackerResponses >* m_request;
 
@@ -55,6 +57,7 @@ private:
 	bool const m_passive;
 
 	CAddress m_addrConnect;
+
 };
 
 

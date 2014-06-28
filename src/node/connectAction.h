@@ -21,7 +21,7 @@ namespace node
 
 struct CConnectActionState;
 
-class CConnectAction : public common::CAction< NodeResponses >
+class CConnectAction : public common::CAction< NodeResponses >, public common::CCommunicationAction
 {
 public:
 	struct State

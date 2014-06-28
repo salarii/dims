@@ -36,7 +36,7 @@ createIdentifyResponse( Parent & parent )
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new common::CIdentifyResponse< MonitorResponses >( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
+	parent.setRequest( new common::CIdentifyResponse< MonitorResponses >( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload(), parent.getActionKey() ) );
 }
 
 

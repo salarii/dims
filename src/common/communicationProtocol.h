@@ -77,17 +77,18 @@ struct CHeader
 
 struct CIdentifyMessage
 {
-//Hash(&ip[0], &ip[16]);
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_payload);
 		READWRITE(m_key);
 		READWRITE(m_signed);
+		READWRITE(m_actionKey);
 	)
 
 	std::vector<unsigned char> m_payload;
 	CKeyID m_key;
 	std::vector<unsigned char> m_signed;
+	uint256 m_actionKey;
 };
 
 
@@ -97,9 +98,11 @@ struct CNetworkRole
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_role);
+		READWRITE(m_actionKey);
 	)
 
 	int m_role;
+	uint256 const m_actionKey;
 };
 
 struct CValidNodeInfo
@@ -109,11 +112,13 @@ struct CValidNodeInfo
 		READWRITE(m_key);
 		READWRITE(m_address);
 		READWRITE(m_role);
+		READWRITE(m_actionKey);
 	)
 
 	CKeyID m_key;
 	CAddress m_address;
 	int m_role;
+	uint256 const m_actionKey;
 };
 
 struct CKnownNetworkInfo
@@ -121,9 +126,11 @@ struct CKnownNetworkInfo
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_networkInfo);
+		READWRITE(m_actionKey);
 	)
 
 	std::vector< CValidNodeInfo > m_networkInfo;
+	uint256 const m_actionKey;
 };
 
 struct CMessage
@@ -158,6 +165,18 @@ convertPayload( CMessage const & _message,T & _outMessage )
 	stream >> _outMessage;
 }
 
+uint256
+getRandNumber();
+
+
+class CCommunicationAction
+{
+public:
+	CCommunicationAction();
+	uint256 getActionKey() const;
+protected:
+	uint256 m_actionKey;
+};
 
 }
 

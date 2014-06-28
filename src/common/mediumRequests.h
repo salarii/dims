@@ -18,25 +18,36 @@ template < class ResponsesType >
 class CIdentifyRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload );
+	CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
 	int getKind() const;
 
 	std::vector< unsigned char > getPayload() const;
+
+	uint256 getActionKey() const;
 private:
 
 	std::vector< unsigned char > m_payload;
 
 	unsigned int m_kind;
+
+	uint256 const m_actionKey;
 };
 
 template < class ResponsesType >
-CIdentifyRequest< ResponsesType >::CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload )
+CIdentifyRequest< ResponsesType >::CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
 	: m_kind( _kind )
 	, m_payload( _payload )
 {
+}
+
+template < class ResponsesType >
+uint256
+CIdentifyRequest< ResponsesType >::getActionKey() const
+{
+	return m_actionKey;
 }
 
 template < class ResponsesType >
@@ -65,7 +76,7 @@ template < class ResponsesType >
 class CIdentifyResponse : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload );
+	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -77,19 +88,24 @@ public:
 	uint160 getKeyID() const;
 
 	std::vector< unsigned char > getPayload()const;
+
+	uint256 getActionKey() const;
 private:
 	unsigned int m_kind;
 	std::vector< unsigned char > m_signed;
 	uint160 m_keyId;
 	std::vector< unsigned char > m_payload;
+
+	uint256 const m_actionKey;
 };
 
 template < class ResponsesType >
-CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload )
+CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
 	: m_kind( _kind )
 	, m_signed( _signed )
 	, m_keyId( _keyId )
 	, m_payload( _payload )
+	, m_actionKey( _actionKey )
 {
 }
 
@@ -127,6 +143,14 @@ CIdentifyResponse< ResponsesType >::getPayload()const
 {
 	return m_payload;
 }
+
+template < class ResponsesType >
+uint256
+CIdentifyResponse< ResponsesType >::getActionKey() const
+{
+	return m_actionKey;
+}
+
 
 template < class ResponsesType >
 class CContinueReqest : public common::CRequest< ResponsesType >
@@ -192,6 +216,8 @@ private:
 	CAddress const m_serviceAddress;
 
 	int m_kind;
+
+	uint256 const m_actionKey;
 };
 
 template < class ResponsesType >

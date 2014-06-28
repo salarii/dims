@@ -7,6 +7,7 @@
 
 #include "configureMonitorActionHandler.h"
 #include "common/action.h"
+#include "common/communicationProtocol.h"
 
 #include <boost/statechart/state_machine.hpp>
 #include <vector>
@@ -16,7 +17,7 @@ namespace monitor
 
 struct CUninitiated;
 
-class CAddTrackerAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CAddTrackerAction, CUninitiated >
+class CAddTrackerAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CAddTrackerAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
 	//CAddTrackerAction( std::string const & _trackerAddress );

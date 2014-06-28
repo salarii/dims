@@ -6,6 +6,7 @@
 #define ACCEPT_NODE_ACTION_H
 
 #include "common/action.h"
+#include "common/communicationProtocol.h"
 #include "configureSeedActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include <boost/optional.hpp>
@@ -15,7 +16,7 @@ namespace seed
 
 struct CUninitiated;
 
-class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
+class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
 	CAcceptNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );

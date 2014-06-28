@@ -125,5 +125,29 @@ CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::ve
 	m_header.m_time = GetTime();*/
 }
 
+uint256
+getRandNumber()
+{
+	int const ComponentNumber = 8;
+	uint32_t number[ ComponentNumber ];
+
+	for( unsigned int i = 0; i < ComponentNumber; ++i )
+	{
+		number[i] = insecure_rand();
+	}
+
+	return *reinterpret_cast< uint256* >( &number[0] );
+}
+
+CCommunicationAction::CCommunicationAction()
+{
+	m_actionKey = getRandNumber();
+}
+
+uint256
+CCommunicationAction::getActionKey() const
+{
+	return m_actionKey;
+}
 
 }

@@ -54,7 +54,7 @@ createIdentifyResponse( Parent & parent )
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new common::CIdentifyResponse<SeedResponses>( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
+	parent.setRequest( new common::CIdentifyResponse<SeedResponses>( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload(), parent.getActionKey() ) );
 }
 
 struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CAcceptNodeAction >
@@ -93,7 +93,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		context< CAcceptNodeAction >().setMediumKind( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CSeedNodesManager::getInstance()->addNode( connectedEvent->m_node );
-		context< CAcceptNodeAction >().setRequest( new common::CIdentifyRequest<SeedResponses>( convertToInt( connectedEvent->m_node ), context< CAcceptNodeAction >().getPayload() ) );
+		context< CAcceptNodeAction >().setRequest( new common::CIdentifyRequest<SeedResponses>( convertToInt( connectedEvent->m_node ), context< CAcceptNodeAction >().getPayload(), context< CAcceptNodeAction >().getActionKey() ) );
 
 	}
 

@@ -42,6 +42,9 @@ public:
 	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
 
 	static CNodesManager * getInstance();
+
+	void unregisterAction( unsigned int _medium , uint256 const & _actionKey );
+
 protected:
 	CNodesManager();
 
@@ -149,6 +152,19 @@ CNodesManager< ResponseType >::provideConnection( int _actionKind, unsigned _req
 	}
 */
 	return mediums;
+}
+
+template < class ResponseType >
+void
+CNodesManager< ResponseType >::unregisterAction( unsigned int _medium , uint256 const & _actionKey )
+{
+	typename std::map< unsigned int, CNodeMedium< ResponseType >* >::iterator iterator = m_ptrToNodes.find( ( unsigned int )_medium );
+
+	if( iterator != m_ptrToNodes.end() )
+	{
+		iterator->second->removeAction( _actionKey );
+	}
+
 }
 
 }

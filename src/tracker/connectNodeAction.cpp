@@ -51,7 +51,7 @@ createIdentifyResponse( Parent & parent )
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new common::CIdentifyResponse<TrackerResponses>( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload() ) );
+	parent.setRequest( new common::CIdentifyResponse<TrackerResponses>( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKeyId(), parent.getPayload(), parent.getActionKey() ) );
 }
 
 struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnectNodeAction >
@@ -87,7 +87,8 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		context< CConnectNodeAction >().setMediumKind( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CTrackerNodesManager::getInstance()->addNode( connectedEvent->m_node );
-		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( convertToInt( connectedEvent->m_node ), context< CConnectNodeAction >().getPayload() ) );
+
+		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( convertToInt( connectedEvent->m_node ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
 
 	}
 
@@ -226,6 +227,11 @@ void
 CConnectNodeAction::setMediumKind( unsigned int _mediumKind )
 {
 	m_mediumKind = _mediumKind;
+}
+
+CConnectNodeAction::~CConnectNodeAction()
+{
+	common::CNodesManager< TrackerResponses >::getInstance()->unregisterAction( m_mediumKind, m_actionKey );
 }
 
 }

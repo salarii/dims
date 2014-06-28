@@ -45,16 +45,18 @@ public:
 
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
 
-	bool isIdentifyMessageKnown( uint256 const & _payloadHash ) const;
+	bool isServicedByAction( uint256 const & _actionKey ) const;
 
 	common::CSelfNode * getNode() const;
+
+	void removeAction( uint256 const & _actionKey );
 private:
 	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
 	std::map< uint256, ResponseType > m_responses;
 
-	std::set< uint256 > m_findIdentifyMessage;
+	std::set< uint256 > m_actionsInProgress;
 
 	static uint256 m_counter;
 
@@ -118,7 +120,6 @@ CNodeMedium< ResponseType >::clearResponses()
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
 		m_responses.erase( id );
-		m_findIdentifyMessage.erase( id );// not  correct because there are  scenarios  when this  will not work
 	}
 	deleteList.clear();
 	m_indexes.clear();
@@ -134,11 +135,11 @@ CNodeMedium< ResponseType >::setResponse( uint256 const & _id, ResponseType cons
 
 template < class ResponseType >
 bool
-CNodeMedium< ResponseType >::isIdentifyMessageKnown( uint256 const & _payloadHash ) const
+CNodeMedium< ResponseType >::isServicedByAction( uint256 const & _actionKey ) const
 {
-	std::set< uint256 >::const_iterator iterator = m_findIdentifyMessage.find( _payloadHash );
+	std::set< uint256 >::const_iterator iterator = m_actionsInProgress.find( _actionKey );
 
-	return iterator != m_findIdentifyMessage.end();
+	return iterator != m_actionsInProgress.end();
 }
 
 template < class ResponseType >
@@ -146,6 +147,13 @@ common::CSelfNode *
 CNodeMedium< ResponseType >::getNode() const
 {
 	return m_usedNode;
+}
+
+template < class ResponseType >
+void
+CNodeMedium< ResponseType >::removeAction( uint256 const & _actionKey )
+{
+	m_actionsInProgress.erase( _actionKey );
 }
 
 template < class ResponseType >
@@ -159,7 +167,10 @@ void
 CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _request )
 {
 	common::CIdentifyMessage identifyMessage;
+
 	identifyMessage.m_payload = _request->getPayload();
+
+	identifyMessage.m_actionKey = _request->getActionKey();
 
 	common::CMessage message( identifyMessage );
 
@@ -167,7 +178,7 @@ CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _requ
 
 	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 	m_indexes.push_back( hash );
-	m_findIdentifyMessage.insert( hash );
+	m_actionsInProgress.insert( _request->getActionKey() );
 }
 
 template < class ResponseType >
@@ -182,13 +193,15 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _req
 
 	identifyMessage.m_key = _request->getKeyID();
 
+	identifyMessage.m_actionKey = _request->getActionKey();
+
 	common::CMessage message( identifyMessage );
 
 	m_messages.push_back( message );
 
 	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 	m_indexes.push_back( hash );
-	m_findIdentifyMessage.insert( hash );
+	m_actionsInProgress.insert( _request->getActionKey() );
 }
 
 template < class ResponseType >
@@ -196,7 +209,6 @@ void
 CNodeMedium< ResponseType >::add( CContinueReqest< ResponseType > const * _request )
 {
 	m_indexes.push_back( _request->getRequestId() );
-
 }
 
 }
