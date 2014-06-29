@@ -42,7 +42,7 @@ public:
 // not safe
 	unsigned int getMediumKind() const;
 
-	~CConnectNodeAction();
+	~CConnectNodeAction(){};
 private:
 	common::CRequest< TrackerResponses >* m_request;
 

@@ -45,18 +45,13 @@ public:
 
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
 
-	bool isServicedByAction( uint256 const & _actionKey ) const;
-
 	common::CSelfNode * getNode() const;
 
-	void removeAction( uint256 const & _actionKey );
 private:
 	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
 	std::map< uint256, ResponseType > m_responses;
-
-	std::set< uint256 > m_actionsInProgress;
 
 	static uint256 m_counter;
 
@@ -134,26 +129,10 @@ CNodeMedium< ResponseType >::setResponse( uint256 const & _id, ResponseType cons
 }
 
 template < class ResponseType >
-bool
-CNodeMedium< ResponseType >::isServicedByAction( uint256 const & _actionKey ) const
-{
-	std::set< uint256 >::const_iterator iterator = m_actionsInProgress.find( _actionKey );
-
-	return iterator != m_actionsInProgress.end();
-}
-
-template < class ResponseType >
 common::CSelfNode *
 CNodeMedium< ResponseType >::getNode() const
 {
 	return m_usedNode;
-}
-
-template < class ResponseType >
-void
-CNodeMedium< ResponseType >::removeAction( uint256 const & _actionKey )
-{
-	m_actionsInProgress.erase( _actionKey );
 }
 
 template < class ResponseType >
@@ -178,7 +157,6 @@ CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _requ
 
 	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 	m_indexes.push_back( hash );
-	m_actionsInProgress.insert( _request->getActionKey() );
 }
 
 template < class ResponseType >
@@ -201,7 +179,6 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _req
 
 	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 	m_indexes.push_back( hash );
-	m_actionsInProgress.insert( _request->getActionKey() );
 }
 
 template < class ResponseType >

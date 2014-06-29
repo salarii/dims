@@ -57,7 +57,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( nodeMedium->isServicedByAction( identifyMessage.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
 			{
 				uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 

@@ -229,9 +229,4 @@ CConnectNodeAction::setMediumKind( unsigned int _mediumKind )
 	m_mediumKind = _mediumKind;
 }
 
-CConnectNodeAction::~CConnectNodeAction()
-{
-	common::CNodesManager< TrackerResponses >::getInstance()->unregisterAction( m_mediumKind, m_actionKey );
-}
-
 }

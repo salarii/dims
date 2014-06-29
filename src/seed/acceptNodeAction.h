@@ -40,6 +40,8 @@ public:
 	bool getValid() const{ return m_valid; }
 
 	void setValid( bool _valid ){ m_valid = _valid; }
+
+	~CAcceptNodeAction(){};
 private:
 	common::CRequest< SeedResponses >* m_request;
 	CAddress const m_nodeAddress;

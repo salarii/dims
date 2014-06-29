@@ -139,9 +139,49 @@ getRandNumber()
 	return *reinterpret_cast< uint256* >( &number[0] );
 }
 
+CNetworkActionRegister * CNetworkActionRegister::ms_instance = NULL;
+
+CNetworkActionRegister*
+CNetworkActionRegister::getInstance()
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CNetworkActionRegister();
+	};
+	return ms_instance;
+}
+
+bool
+CNetworkActionRegister::isServicedByAction( uint256 const & _actionKey ) const
+{
+	std::set< uint256 >::const_iterator iterator = m_actionsInProgress.find( _actionKey );
+
+	return iterator != m_actionsInProgress.end();
+}
+
+void
+CNetworkActionRegister::unregisterServicedByAction( uint256 const & _actionKey )
+{
+	m_actionsInProgress.erase( _actionKey );
+}
+
+
+void
+CNetworkActionRegister::registerServicedByAction( uint256 const & _actionKey )
+{
+	m_actionsInProgress.insert( _actionKey );
+}
+
 CCommunicationAction::CCommunicationAction()
 {
 	m_actionKey = getRandNumber();
+
+	CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );
+}
+
+CCommunicationAction::~CCommunicationAction()
+{
+	CNetworkActionRegister::getInstance()->unregisterServicedByAction( m_actionKey );
 }
 
 uint256
