@@ -189,6 +189,8 @@ class CCommunicationAction
 public:
 	CCommunicationAction();
 
+	CCommunicationAction( uint256 const & _actionKey );
+
 	uint256 getActionKey() const;
 
 	~CCommunicationAction();

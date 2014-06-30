@@ -144,8 +144,9 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CConnec
 
 };
 
-CConnectNodeAction::CConnectNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
-: m_payload( _payload )
+CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
+: CCommunicationAction( _actionKey )
+, m_payload( _payload )
 , m_request( 0 )
 , m_passive( true )
 , m_mediumKind( _mediumKind )

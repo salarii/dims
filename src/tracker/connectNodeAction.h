@@ -24,7 +24,7 @@ public:
 
 	CConnectNodeAction( CAddress const & _addrConnect );
 
-	CConnectNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
+	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 

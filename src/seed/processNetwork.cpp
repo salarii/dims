@@ -62,7 +62,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CAcceptNodeAction * connectTrackerAction= new CAcceptNodeAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				CAcceptNodeAction * connectTrackerAction= new CAcceptNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
 				common::CActionHandler< SeedResponses >::getInstance()->executeAction( connectTrackerAction );
 			}
 

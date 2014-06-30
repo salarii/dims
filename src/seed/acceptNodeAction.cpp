@@ -159,8 +159,9 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CAccept
 
 };
 
-CAcceptNodeAction::CAcceptNodeAction( std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
-: common::CAction< SeedResponses >( false )
+CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
+: common::CCommunicationAction( _actionKey )
+, common::CAction< SeedResponses >( false )
 , m_payload( _payload )
 , m_request( 0 )
 , m_passive( true )

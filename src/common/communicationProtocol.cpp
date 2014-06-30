@@ -179,6 +179,11 @@ CCommunicationAction::CCommunicationAction()
 	CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );
 }
 
+CCommunicationAction::CCommunicationAction( uint256 const & _actionKey )
+	: m_actionKey( _actionKey )
+{
+}
+
 CCommunicationAction::~CCommunicationAction()
 {
 	CNetworkActionRegister::getInstance()->unregisterServicedByAction( m_actionKey );
