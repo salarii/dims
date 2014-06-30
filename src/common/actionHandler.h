@@ -263,6 +263,7 @@ CActionHandler< _RequestResponses >::loop()
 			boost::lock_guard<boost::mutex> lock( m_mutex );
 			BOOST_FOREACH(CAction< _RequestResponses >* action, m_actions)
 			{
+
 				CRequest< _RequestResponses >* request = action->execute();
 
 				if ( request )
@@ -274,6 +275,7 @@ CActionHandler< _RequestResponses >::loop()
 					else
 						action->setExecuted();
 				}
+				// for safety reason action should  consider reseting  current action to  0
 			}
 			m_actions.clear();
 		}
