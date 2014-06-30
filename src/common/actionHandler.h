@@ -275,7 +275,7 @@ CActionHandler< _RequestResponses >::loop()
 					else
 						action->setExecuted();
 				}
-				// for safety reason action should  consider reseting  current action to  0
+				// for safety  reason one should  consider reseting  current request to  0
 			}
 			m_actions.clear();
 		}
