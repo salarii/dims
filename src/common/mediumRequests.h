@@ -40,6 +40,7 @@ template < class ResponsesType >
 CIdentifyRequest< ResponsesType >::CIdentifyRequest( unsigned int _kind, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
 	: m_kind( _kind )
 	, m_payload( _payload )
+	, m_actionKey( _actionKey )
 {
 }
 
