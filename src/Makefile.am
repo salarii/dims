@@ -58,6 +58,7 @@ COMMON_CPP = \
 TRACKER_CORE_H = \
   tracker/accessFile.h \
   tracker/addressToCoins.h \
+  tracker/bitcoinNodeMedium.h \
   tracker/blockInfoDatabase.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
@@ -81,9 +82,12 @@ TRACKER_CORE_H = \
   tracker/trackerNodeMedium.h \
   tracker/trackerNodesManager.h \
   tracker/transactionRecordManager.h \
+  tracker/trackOriginAddressAction.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
+  
+  
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -154,6 +158,7 @@ TRACKER_CORE_CPP = \
   tracker/accessFile.cpp \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
+  tracker/bitcoinNodeMedium.cpp \
   tracker/blockInfoDatabase.cpp \
   tracker/connectNodeAction.cpp \
   tracker/connectToTrackerRequest.cpp \
@@ -175,6 +180,7 @@ TRACKER_CORE_CPP = \
   tracker/trackerNodeMedium.cpp \
   tracker/trackerNodesManager.cpp \
   tracker/transactionRecordManager.cpp \
+  tracker/trackOriginAddressAction.cpp \
   tracker/validateTransactionsAction.cpp \
   tracker/validateTransactionsRequest.cpp
  

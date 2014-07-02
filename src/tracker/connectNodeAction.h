@@ -8,7 +8,6 @@
 #include "common/action.h"
 #include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
-#include <boost/optional.hpp>
 
 #include "protocol.h"
 
