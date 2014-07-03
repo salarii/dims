@@ -21,6 +21,10 @@ public:
 	bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
 
 	void clearResponses();
+
+	virtual void add( CAskForTransactionsRequest const * _request );
+
+	virtual void add( CSetBloomFilterRequest const * _request );
 private:
 	mutable boost::mutex m_mutex;
 

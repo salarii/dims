@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "bitcoinNodeMedium.h"
+#include "scanBitcoinNetworkRequest.h"
+
 
 namespace tracker
 {
@@ -29,6 +31,21 @@ void
 CBitcoinNodeMedium::clearResponses()
 {
 	m_responses.clear();
+}
+
+
+void
+CBitcoinNodeMedium::add( CAskForTransactionsRequest const * _request )
+{
+	boost::lock_guard<boost::mutex> lock( m_node->m_mediumLock );
+	m_node->m_blockQueue.insert( m_node->m_blockQueue.end(), _request->getBlockHashes().begin(), _request->getBlockHashes().end() );
+}
+
+void
+CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
+{
+	boost::lock_guard<boost::mutex> lock( m_node->m_mediumLock );
+	m_node->m_filterSendQueue.push_back( _request->getBloomFilter() );
 }
 
 

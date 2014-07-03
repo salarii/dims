@@ -19,8 +19,10 @@ namespace tracker
 {
 class CValidateTransactionsRequest;
 class CConnectToTrackerRequest;
+class CAskForTransactionsRequest;
+class CSetBloomFilterRequest;
 
-typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, common::CIdentifyRequest<TrackerResponses>, common::CIdentifyResponse<TrackerResponses>, common::CContinueReqest<TrackerResponses> > TrackerRequestsList;
+typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, common::CIdentifyRequest<TrackerResponses>, common::CIdentifyResponse<TrackerResponses>, common::CContinueReqest<TrackerResponses>, CAskForTransactionsRequest, CSetBloomFilterRequest > TrackerRequestsList;
 
 }
 

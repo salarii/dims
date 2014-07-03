@@ -3929,8 +3929,6 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         state.rejects.clear();
 
 
-     //
-
         // Start block sync
         if (pto->fStartSync && !fImporting && !fReindex) {
             pto->fStartSync = false;

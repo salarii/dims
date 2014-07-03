@@ -72,6 +72,7 @@ TRACKER_CORE_H = \
   tracker/internalOperationsMedium.h \
   tracker/originAddressScaner.h \
   tracker/processNetwork.h \
+  tracker/scanBitcoinNetworkRequest.h \
   tracker/segmentFileStorage.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
@@ -86,8 +87,6 @@ TRACKER_CORE_H = \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
   tracker/validateTransactionsRequest.h
-  
-  
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -170,6 +169,7 @@ TRACKER_CORE_CPP = \
   tracker/originAddressScaner.cpp \
   tracker/processNetwork.cpp \
   tracker/rpcTracker.cpp \
+  tracker/scanBitcoinNetworkRequest.cpp \
   tracker/segmentFileStorage.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
