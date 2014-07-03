@@ -19,6 +19,8 @@ class CGetBalanceAction;
 class CValidateTransactionsAction;
 
 class CConnectNodeAction;
+
+class CTrackOriginAddressAction;
 }
 
 namespace node
@@ -68,6 +70,8 @@ public:
 	virtual void visit( tracker::CValidateTransactionsAction & _action );
 
 	virtual void visit( tracker::CConnectNodeAction & _action );
+
+	virtual void visit( tracker::CTrackOriginAddressAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };

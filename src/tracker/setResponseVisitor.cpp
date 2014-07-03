@@ -9,6 +9,7 @@
 #include "validateTransactionsAction.h"
 #include "validateTransactionActionEvents.h"
 #include "connectNodeAction.h"
+#include "trackOriginAddressAction.h"
 
 namespace common
 {
@@ -64,6 +65,17 @@ public:
 	}
 };
 
+template < class _Action >
+class CSynchronizationResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+{
+public:
+	CSynchronizationResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::CContinueResult & _param ) const
+	{
+		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
+	}
+};
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
 	: m_trackerResponses( _trackerResponse )
@@ -94,5 +106,12 @@ CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CConnectNodeAc
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectNodeAction, tracker::TrackerResponseList > const &)CSetNodeConnectedResult< tracker::CConnectNodeAction >( &_action ), m_trackerResponses );
 }
+
+void
+CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CTrackOriginAddressAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList > const &)CSynchronizationResult< tracker::CTrackOriginAddressAction >( &_action ), m_trackerResponses );
+}
+
 
 }

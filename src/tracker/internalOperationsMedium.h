@@ -28,6 +28,8 @@ public:
 
 	virtual void add( CConnectToTrackerRequest const *_request );
 
+	virtual void add( common::CContinueReqest<TrackerResponses> const * _request );
+
 	static CInternalOperationsMedium* getInstance();
 		CInternalOperationsMedium();
 private:

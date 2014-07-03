@@ -17,7 +17,7 @@ public:
 	CInternalMediumProvider();
 	virtual std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 private:
-	std::list< common::CMedium< TrackerResponses > *> m_mediumProviders;
+	std::list< common::CMedium< TrackerResponses > *> m_mediums;
 };
 
 }

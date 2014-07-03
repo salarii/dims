@@ -44,6 +44,7 @@
 #include "tracker/segmentFileStorage.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/processNetwork.h"
+#include "tracker/trackOriginAddressAction.h"
 
 #include "node/settingsConnectionProvider.h"
 
@@ -1052,6 +1053,9 @@ bool AppInit2(boost::thread_group& threadGroup)
 	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
+
+	common::CActionHandler< tracker::TrackerResponses >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
+
 	// ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));

@@ -72,6 +72,12 @@ CInternalOperationsMedium::add( CConnectToTrackerRequest const *_request )
 }
 
 void
+CInternalOperationsMedium::add( common::CContinueReqest<TrackerResponses> const * _request )
+{
+	m_trackerResponses.push_back( common::CContinueResult( 0 ) );
+}
+
+void
 CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 {
 	//this is  simplified to maximum, hence correct only in some cases

@@ -11,14 +11,16 @@ namespace tracker
 
 CInternalMediumProvider::CInternalMediumProvider()
 {
-	m_mediumProviders.push_back( CInternalOperationsMedium::getInstance() );
+	m_mediums.push_back( CInternalOperationsMedium::getInstance() );
 }
 
 std::list< common::CMedium< TrackerResponses > *>
 CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
 	if ( CTrackerMediumsKinds::Internal == _actionKind )
-		return m_mediumProviders;
+		return m_mediums;
+	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
+		return std::list< common::CMedium< TrackerResponses > *>();
 	else
 		return std::list< common::CMedium< TrackerResponses > *>();
 }

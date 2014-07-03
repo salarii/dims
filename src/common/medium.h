@@ -79,6 +79,9 @@ public:
 	virtual void add( VisitorParam( node::NodeRequestsList ,8 ) const * _request ){};
 	virtual void add( VisitorParam( node::NodeRequestsList ,9 ) const * _request ){};
 	virtual void add( VisitorParam( node::NodeRequestsList ,10 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,11 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,12 ) const * _request ){};
+	virtual void add( VisitorParam( node::NodeRequestsList ,13 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 
