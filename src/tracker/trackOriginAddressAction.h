@@ -8,6 +8,7 @@
 #include "common/action.h"
 #include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
+#include "main.h"
 
 namespace tracker
 {
@@ -24,8 +25,25 @@ public:
 
 	void setRequest( common::CRequest< TrackerResponses >* _request );
 private:
+	void requestFiltered();
+
+	void analyseOutput( long long _key, std::vector< CMerkleBlock > const & _newInput );
+
+	void validPart( std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _accepted, std::vector< CMerkleBlock > & _rejected );
+private:
+	std::map< long long, std::vector< CMerkleBlock > > m_blocks;
+
+	std::map< long long, std::vector< CMerkleBlock > > m_acceptedBlocks;
+
+	std::map< long long, std::map< uint256 , std::vector< CTransaction > > > m_transactions;
+
 	common::CRequest< TrackerResponses >* m_request;
+
+	uint256 m_currentHash;
 };
+
+
+
 
 
 }

@@ -3939,6 +3939,15 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 
+		BOOST_FOREACH( CBloomFilter const & filter, pto->m_filterSendQueue)
+		{
+			pto->PushMessage( "filterload", filter );
+		}
+
+		BOOST_FOREACH( uint256 const & hash, pto->m_blockQueue )
+		{
+			pto->AskFor( CInv( MSG_FILTERED_BLOCK, hash ) );
+		}
         //
         // Message: inventory
         //

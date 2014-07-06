@@ -5,6 +5,7 @@
 #include "internalMediumProvider.h"
 #include "internalOperationsMedium.h"
 #include "trackerMediumsKinds.h"
+#include "bitcoinNodeMedium.h"
 
 namespace tracker
 {
@@ -20,9 +21,39 @@ CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _req
 	if ( CTrackerMediumsKinds::Internal == _actionKind )
 		return m_mediums;
 	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
-		return std::list< common::CMedium< TrackerResponses > *>();
+	{
+		std::list< common::CMedium< TrackerResponses > *> mediums;
+		//simplified  approach
+		std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator =  m_nodeToMedium.begin();
+
+		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _requestedConnectionNumber ); )
+		{
+			if ( iterator != m_nodeToMedium.end() )
+			{
+				// validate that node  is  still working??
+				mediums.push_back( static_cast< common::CMedium< TrackerResponses > * >( iterator->second ) );
+				++i;
+			}
+			else
+			{
+				CNode * node = vNodes.at( i );
+				m_nodeToMedium.insert( std::make_pair( node, new CBitcoinNodeMedium( node ) ) );
+			}
+
+		}
+
+		return mediums;
+	}
 	else
 		return std::list< common::CMedium< TrackerResponses > *>();
+}
+
+void
+CInternalMediumProvider::setResponse( TrackerResponses const & _response, CNode * _node )
+{
+	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+
+	iterator->second->setResponse( _response );
 }
 
 }

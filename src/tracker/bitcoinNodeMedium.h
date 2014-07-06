@@ -25,6 +25,8 @@ public:
 	virtual void add( CAskForTransactionsRequest const * _request );
 
 	virtual void add( CSetBloomFilterRequest const * _request );
+
+	void setResponse( TrackerResponses const & _response );
 private:
 	mutable boost::mutex m_mutex;
 

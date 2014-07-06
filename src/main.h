@@ -541,8 +541,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW = t
 // if dbp is provided, the file is known to already reside on disk
 bool AcceptBlock(CBlock& block, CValidationState& state, CDiskBlockPos* dbp = NULL);
 
-
-
+bool FileExist(const char *prefix);
+FILE* OpenHeadFile(bool fReadOnly);
 class CBlockFileInfo
 {
 public:

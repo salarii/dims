@@ -21,9 +21,23 @@ CBitcoinNodeMedium::serviced() const
 }
 
 bool
+CBitcoinNodeMedium::flush()
+{
+// not sure if it is ok
+	return true;
+
+}
+
+bool
 CBitcoinNodeMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
 {
-	_requestResponse = m_responses;
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	if ( m_responses.empty() )
+		_requestResponse.push_back( common::CContinueResult( 0 ) );
+	else
+		_requestResponse = m_responses;
+
+
 	return true;
 }
 
@@ -48,5 +62,11 @@ CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
 	m_node->m_filterSendQueue.push_back( _request->getBloomFilter() );
 }
 
+void
+CBitcoinNodeMedium::setResponse( TrackerResponses const & _response )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_responses.push_back( _response );
+}
 
 }
