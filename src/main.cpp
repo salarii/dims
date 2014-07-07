@@ -54,8 +54,6 @@ bool fBenchmark = false;
 bool fTxIndex = false;
 unsigned int nCoinCacheSize = 5000;
 
-std::map< uint256, long long > askedMerkle;
-
 long long currentHeight = 0;
 
 tracker::COriginAddressScaner * originAddressScaner = tracker::COriginAddressScaner::getInstance();
@@ -2585,29 +2583,6 @@ bool LoadBlockIndex()
     return true;
 }
 
-void askForRelevantTransactions(CNode* pfrom)
-{
-		CBlockIndex * index = chainActive.Tip();
-
-		for ( int i = 1; i < CONFIRM_LIMIT; i++ )
-		{
-			if ( index == 0 )
-				break;
-			index = index->pprev;
-		}
-
-//
-		while ( index && Params().GenesisBlock().GetHash() != index->GetBlockHash() )
-		{
-			pfrom->AskFor(CInv(MSG_FILTERED_BLOCK, index->GetBlockHash()));
-			askedMerkle.insert( make_pair( index->hashMerkleRoot, index->nHeight ) );
-
-			index = index->pprev;
-		}
-}
-
-
-
 bool InitBlockIndex() {
     // Check whether we're already initialized
     if (chainActive.Genesis() != NULL)
@@ -3396,33 +3371,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CMerkleBlock merkleBlock;
         vRecv >> merkleBlock;
 
-        std::vector<uint256> vMatch;
-        merkleBlock.txn.ExtractMatches(vMatch);
-
-        int  i = vMatch.size();
-
-        std::map< uint256, long long >::iterator iterator;
-
-        iterator = askedMerkle.find(merkleBlock.header.hashMerkleRoot);
-
-        if ( iterator == askedMerkle.end() )
-        	//some serious problem
-        	return false;
-
-        if ( iterator->second > currentHeight )
-        {
-        	currentHeight = iterator->second;
-
-        	CAutoFile file(OpenHeadFile(false), SER_DISK, CLIENT_VERSION);
-        	file << merkleBlock.header;
-
-        	fflush(file);
-
-        	FileCommit(file);
-        }
-
-        askedMerkle.erase(iterator);
-
     }
     else if (strCommand == "headers")
     {
@@ -3448,8 +3396,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 	    	it++;
 	    }
 
-		askForRelevantTransactions(pfrom);
-
 		PushGetHeaders(pfrom, chainActive.Tip(), uint256(0));
     }
 
@@ -3472,9 +3418,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         AddToBlockIndex(block, state, CDiskBlockPos());
 
-		askForRelevantTransactions(pfrom);
-
-
+		PushGetHeaders(pfrom, chainActive.Tip(), uint256(0));
     }
 
 
@@ -3938,68 +3882,24 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
-
-		BOOST_FOREACH( CBloomFilter const & filter, pto->m_filterSendQueue)
 		{
-			pto->PushMessage( "filterload", filter );
+			boost::lock_guard<boost::mutex> lock( pto->m_mediumLock );
+
+			BOOST_FOREACH( CBloomFilter const & filter, pto->m_filterSendQueue)
+			{
+				pto->PushMessage( "filterload", filter );
+			}
+
+			BOOST_FOREACH( uint256 const & hash, pto->m_blockQueue )
+			{
+				pto->AskFor( CInv( MSG_FILTERED_BLOCK, hash ) );
+			}
+
+			pto->m_filterSendQueue.clear();
+
+			pto->m_blockQueue.clear();
 		}
-
-		BOOST_FOREACH( uint256 const & hash, pto->m_blockQueue )
-		{
-			pto->AskFor( CInv( MSG_FILTERED_BLOCK, hash ) );
-		}
-        //
-        // Message: inventory
-        //
-/*
-
-        vector<CInv> vInv;
-        vector<CInv> vInvWait;
-        {
-            LOCK(pto->cs_inventory);
-            vInv.reserve(pto->vInventoryToSend.size());
-            vInvWait.reserve(pto->vInventoryToSend.size());
-            BOOST_FOREACH(const CInv& inv, pto->vInventoryToSend)
-            {
-                if (pto->setInventoryKnown.count(inv))
-                    continue;
-
-                // trickle out tx inv to protect privacy
-                if (inv.type == MSG_TX && !fSendTrickle)
-                {
-                    // 1/4 of tx invs blast to all immediately
-                    static uint256 hashSalt;
-                    if (hashSalt == 0)
-                        hashSalt = GetRandHash();
-                    uint256 hashRand = inv.hash ^ hashSalt;
-                    hashRand = Hash(BEGIN(hashRand), END(hashRand));
-                    bool fTrickleWait = ((hashRand & 3) != 0);
-
-                    if (fTrickleWait)
-                    {
-                        vInvWait.push_back(inv);
-                        continue;
-                    }
-                }
-
-                // returns true if wasn't already contained in the set
-                if (pto->setInventoryKnown.insert(inv).second)
-                {
-                    vInv.push_back(inv);
-                    if (vInv.size() >= 1000)
-                    {
-                        pto->PushMessage("inv", vInv);
-                        vInv.clear();
-                    }
-                }
-            }
-            pto->vInventoryToSend = vInvWait;
-        }
-        if (!vInv.empty())
-            pto->PushMessage("inv", vInv);
-
-*/
-        //
+		//
         // Message: getdata
         //
         vector<CInv> vGetData;

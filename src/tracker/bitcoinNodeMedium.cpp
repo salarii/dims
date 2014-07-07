@@ -52,6 +52,8 @@ void
 CBitcoinNodeMedium::add( CAskForTransactionsRequest const * _request )
 {
 	boost::lock_guard<boost::mutex> lock( m_node->m_mediumLock );
+
+	m_node->m_filterSendQueue.push_back( CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_P2PUBKEY_ONLY) );
 	m_node->m_blockQueue.insert( m_node->m_blockQueue.end(), _request->getBlockHashes().begin(), _request->getBlockHashes().end() );
 }
 
@@ -60,6 +62,7 @@ CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
 {
 	boost::lock_guard<boost::mutex> lock( m_node->m_mediumLock );
 	m_node->m_filterSendQueue.push_back( _request->getBloomFilter() );
+
 }
 
 void

@@ -32,19 +32,27 @@ use  at  least  three node  and  compare  results, in case of inconsistency of d
  what I need is bicoin node  medium
 
 */
+struct CReadingData;
+
+
 struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddressAction >
 {
 	CUninitiated( my_context ctx ) : my_base( ctx )
 	{
-		if ( vNodes.size() >= 3 )
-			;// could proceed  with origin address scanning
-
 		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+		if ( vNodes.size() >= 3 )
+		{
+			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
+			return transit< CReadingData >();
+		}
+		else
+		{
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+		}
 	}
 
 	typedef boost::mpl::list<
@@ -52,6 +60,32 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 	> reactions;
 
 };
+
+struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddressAction >
+{
+	CReadingData( my_context ctx ) : my_base( ctx ), m_counter( 40 )
+	{
+	}
+
+	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	{
+		if ( m_counter-- )
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+		else
+			return transit< CUninitiated >();
+	}
+
+	~CReadingData()
+	{
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
+
+	uint m_counter;
+};
+
 
 CTrackOriginAddressAction::CTrackOriginAddressAction()
 {
@@ -104,23 +138,23 @@ CTrackOriginAddressAction::setRequest( common::CRequest< TrackerResponses >* _re
 void
 CTrackOriginAddressAction::requestFiltered()
 {
-CBlockIndex * index = chainActive.Tip();
-// for  now  for  simplicity reasons
-for ( int i = 1; i < CONFIRM_LIMIT; i++ )
-{
-	if ( index == 0 )
-		break;
-	index = index->pprev;
-}
+	CBlockIndex * index = chainActive.Tip();
+	// for  now  for  simplicity reasons
+	for ( int i = 0; i < CONFIRM_LIMIT; i++ )
+	{
+		if ( index == 0 )
+			break;
+		index = index->pprev;
+	}
 
-std::vector< uint256 > requestedBlocks;
-while ( m_currentHash != index->GetBlockHash() )
-{
-	requestedBlocks.push_back( index->GetBlockHash() );
+	std::vector< uint256 > requestedBlocks;
+	while ( m_currentHash != index->GetBlockHash() )
+	{
+		requestedBlocks.push_back( index->GetBlockHash() );
 
-	index = index->pprev;
-}
-m_request = new CAskForTransactionsRequest( requestedBlocks );
+		index = index->pprev;
+	}
+	m_request = new CAskForTransactionsRequest( requestedBlocks );
 
 }
 

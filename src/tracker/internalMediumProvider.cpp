@@ -23,21 +23,26 @@ CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _req
 	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
 	{
 		std::list< common::CMedium< TrackerResponses > *> mediums;
-		//simplified  approach
-		std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator =  m_nodeToMedium.begin();
 
+		std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator =  m_nodeToMedium.begin();
+		//simplified  approach
 		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _requestedConnectionNumber ); )
 		{
+
 			if ( iterator != m_nodeToMedium.end() )
 			{
 				// validate that node  is  still working??
 				mediums.push_back( static_cast< common::CMedium< TrackerResponses > * >( iterator->second ) );
+				iterator++;
 				++i;
 			}
 			else
 			{
 				CNode * node = vNodes.at( i );
 				m_nodeToMedium.insert( std::make_pair( node, new CBitcoinNodeMedium( node ) ) );
+				//ugly
+				iterator =  m_nodeToMedium.begin();
+				std::advance( iterator, i );
 			}
 
 		}

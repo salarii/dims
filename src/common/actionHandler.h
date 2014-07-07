@@ -85,7 +85,7 @@ public:
 private:
 	CActionHandler();
 
-	std::list< CRequestHandler< _RequestResponses > * > provideHandler( int const _request );
+	std::list< CRequestHandler< _RequestResponses > * > provideHandler( int const _request, unsigned const _mediumNumber );
 
 	void findAction( CAction< _RequestResponses >* _action ) const;
 
@@ -168,7 +168,7 @@ CActionHandler< _RequestResponses >::findComplexMatchers( int _key )
 
 template < class _RequestResponses >
 std::list< CRequestHandler< _RequestResponses > * >
-CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
+CActionHandler< _RequestResponses >::provideHandler( int const _requestKind, unsigned const _mediumNumber )
 {
 	std::list< CRequestHandler< _RequestResponses > * > requestHandelers;
 
@@ -195,7 +195,7 @@ CActionHandler< _RequestResponses >::provideHandler( int const _requestKind )
 
 	while( iterator != m_connectionProviders.end() )
 	{
-		std::list< CMedium< _RequestResponses >*> mediums= (*iterator)->provideConnection( _requestKind );
+		std::list< CMedium< _RequestResponses >*> mediums= (*iterator)->provideConnection( _requestKind, _mediumNumber );
 
 		if ( !mediums.empty() )
 		{
@@ -289,9 +289,10 @@ CActionHandler< _RequestResponses >::loop()
 
 		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
-			std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( reqAction.first->getKind() );
+			std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( reqAction.first->getKind(), reqAction.first->getMediumNumber() );
 
 			std::list< _RequestResponses > responses;
+			bool deleteRequest = false;
 			BOOST_FOREACH( CRequestHandler< _RequestResponses > * requestHandler, requestHandlers )
 			{
 				if ( requestHandler->isProcessed( reqAction.first ) )
@@ -306,13 +307,16 @@ CActionHandler< _RequestResponses >::loop()
 					requestHandler->deleteRequest( reqAction.first );
 
 					requestsToErase.push_back( reqAction.first );
-					delete reqAction.first;
+
+					deleteRequest = true;
 				}
 				else
 				{
 					requestHandler->setRequest( reqAction.first );
 				}
 			}
+			if ( deleteRequest )
+				delete reqAction.first;
 		}
 
 		BOOST_FOREACH( CRequest< _RequestResponses >* & request, requestsToErase)

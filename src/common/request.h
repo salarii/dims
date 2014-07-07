@@ -34,6 +34,7 @@ struct CRequest
 	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
 // reconsider this  int
 	virtual int getKind() const = 0;
+	virtual unsigned int getMediumNumber() const { return -1; }
 	virtual ~CRequest(){};
 };
 

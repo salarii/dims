@@ -23,6 +23,8 @@ public:
 
 	virtual int getKind() const;
 
+	virtual unsigned int getMediumNumber() const { return 3; }
+
 	std::vector< uint256 > const & getBlockHashes() const;
 private:
 	std::vector< uint256 > const m_blockHashes;

@@ -24,9 +24,9 @@ public:
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 
 	void setRequest( common::CRequest< TrackerResponses >* _request );
-private:
-	void requestFiltered();
 
+	void requestFiltered();
+private:
 	void analyseOutput( long long _key, std::vector< CMerkleBlock > const & _newInput );
 
 	void validPart( std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _accepted, std::vector< CMerkleBlock > & _rejected );
