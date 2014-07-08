@@ -12,6 +12,8 @@
 
 #include "common/selfNode.h"
 
+#include "main.h"
+
 namespace tracker
 {
 struct CDummyResponse{};
@@ -22,8 +24,17 @@ struct CValidationResult
 	bool m_valid;
 };
 
+struct CRequestedMerkles
+{
+	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::vector< CTransaction > const & _transactions, long long _id ):m_merkles( _merkles ),m_transactions( _transactions ), m_id( _id ){};
+
+	std::vector< CMerkleBlock > m_merkles;
+	std::vector< CTransaction > m_transactions;
+	long long m_id;
+};
+
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult, CRequestedMerkles > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

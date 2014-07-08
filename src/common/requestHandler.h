@@ -119,7 +119,13 @@ void
 		while(!m_usedMedium->serviced());
 
 		std::vector< _RequestResponses > requestResponses;
+		/*
+		there is  time gap  between getResponse and clearResponses
 
+		it may cause deletion of valid response, if something  will arrive when getResponse releases a lock
+
+		most probably I need to merge those  two  functions into one (non const)
+		*/
 		m_usedMedium->getResponse(requestResponses);
 		m_usedMedium->clearResponses();
 		// this i looks  ugly

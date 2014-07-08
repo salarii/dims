@@ -7,7 +7,7 @@
 #include "common/commonEvents.h"
 #include "getBalanceAction.h"
 #include "validateTransactionsAction.h"
-#include "validateTransactionActionEvents.h"
+#include "trackerEvents.h"
 #include "connectNodeAction.h"
 #include "trackOriginAddressAction.h"
 
@@ -75,6 +75,12 @@ public:
 	{
 		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
 	}
+
+	virtual void operator()( tracker::CRequestedMerkles & _param ) const
+	{
+		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_id ) );
+	}
+
 };
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )

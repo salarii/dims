@@ -9,7 +9,7 @@
 #include "common/setResponseVisitor.h"
 #include "validateTransactionsRequest.h"
 
-#include "validateTransactionActionEvents.h"
+#include "trackerEvents.h"
 #include "transactionRecordManager.h"
 
 namespace tracker

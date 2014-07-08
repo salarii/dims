@@ -10,6 +10,18 @@
 namespace tracker
 {
 
+CInternalMediumProvider * CInternalMediumProvider::ms_instance = NULL;
+
+CInternalMediumProvider*
+CInternalMediumProvider::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CInternalMediumProvider();
+	};
+	return ms_instance;
+}
+
 CInternalMediumProvider::CInternalMediumProvider()
 {
 	m_mediums.push_back( CInternalOperationsMedium::getInstance() );
@@ -18,6 +30,8 @@ CInternalMediumProvider::CInternalMediumProvider()
 std::list< common::CMedium< TrackerResponses > *>
 CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
 	if ( CTrackerMediumsKinds::Internal == _actionKind )
 		return m_mediums;
 	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
@@ -54,11 +68,23 @@ CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _req
 }
 
 void
-CInternalMediumProvider::setResponse( TrackerResponses const & _response, CNode * _node )
+CInternalMediumProvider::setResponse( CTransaction const & _response, CNode * _node )
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
 	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
 
 	iterator->second->setResponse( _response );
+}
+
+void
+CInternalMediumProvider::setResponse( CMerkleBlock const & _merkle, CNode * _node )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+
+	iterator->second->setResponse( _merkle );
 }
 
 }

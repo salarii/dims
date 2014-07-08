@@ -19,7 +19,7 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "tracker/originAddressScaner.h"
-
+#include "tracker/internalMediumProvider.h"
 
 #include <inttypes.h>
 #include <sstream>
@@ -3347,57 +3347,59 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     }
 
 
-    else if (strCommand == "tx")
-    {
-        vector<uint256> vWorkQueue;
-        vector<uint256> vEraseQueue;
-        CTransaction tx;
-        vRecv >> tx;
+	else if (strCommand == "tx")
+	{
+		vector<uint256> vWorkQueue;
+		vector<uint256> vEraseQueue;
+		CTransaction tx;
+		vRecv >> tx;
 
-        CInv inv(MSG_TX, tx.GetHash());
-        pfrom->AddInventoryKnown(inv);
+		CInv inv(MSG_TX, tx.GetHash());
+		pfrom->AddInventoryKnown(inv);
 
-        LOCK(cs_main);
+		LOCK(cs_main);
 
-        bool fMissingInputs = false;
-        CValidationState state;
-        originAddressScaner->addTransaction(0,tx);
-        /*
-
-        */
-    }
-    else if (strCommand == "merkleblock")
-    {
-        CMerkleBlock merkleBlock;
-        vRecv >> merkleBlock;
-
-    }
-    else if (strCommand == "headers")
-    {
-	    std::vector<CBlock> vHead;
-	    vRecv >> vHead;
-	    CValidationState state;
+		bool fMissingInputs = false;
+		CValidationState state;
+		/*
+		originAddressScaner->addTransaction(0,tx);
 
 
-	    std::vector<CBlock>::iterator it= vHead.begin();
+		*/
+	}
+	else if (strCommand == "merkleblock")
+	{
+		CMerkleBlock merkleBlock;
+		vRecv >> merkleBlock;
+
+		tracker::CInternalMediumProvider::getInstance()->setResponse( merkleBlock, pfrom );
+	}
+	else if (strCommand == "headers")
+	{
+		std::vector<CBlock> vHead;
+		vRecv >> vHead;
+		CValidationState state;
 
 
-	    while( it != vHead.end() )
-	    {
-	    	CInv inv(MSG_BLOCK, it->GetHash());
-	    	pfrom->AddInventoryKnown(inv);
+		std::vector<CBlock>::iterator it= vHead.begin();
 
-	    	LOCK(cs_main);
-	    	//Remember who we got this block from.
-	    	mapBlockSource[inv.hash] = pfrom->GetId();
 
-	    	AddToBlockIndex(*it, state, CDiskBlockPos());
+		while( it != vHead.end() )
+		{
+			CInv inv(MSG_BLOCK, it->GetHash());
+			pfrom->AddInventoryKnown(inv);
 
-	    	it++;
-	    }
+			LOCK(cs_main);
+			//Remember who we got this block from.
+			mapBlockSource[inv.hash] = pfrom->GetId();
+
+			AddToBlockIndex(*it, state, CDiskBlockPos());
+
+			it++;
+		}
 
 		PushGetHeaders(pfrom, chainActive.Tip(), uint256(0));
-    }
+	}
 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
     {

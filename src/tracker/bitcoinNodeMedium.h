@@ -3,6 +3,7 @@
 
 #include "configureTrackerActionHandler.h"
 #include "common/medium.h"
+#include "main.h"
 
 class CNode;
 
@@ -26,11 +27,19 @@ public:
 
 	virtual void add( CSetBloomFilterRequest const * _request );
 
-	void setResponse( TrackerResponses const & _response );
+	void setResponse( CTransaction const & _tx );
+
+	void setResponse( CMerkleBlock const & _merkle );
+private:
+	void reloadResponses();
 private:
 	mutable boost::mutex m_mutex;
 
 	std::vector< TrackerResponses > m_responses;
+
+	std::vector< CTransaction > m_transactions;
+
+	std::vector< CMerkleBlock > m_merkles;
 
 	CNode * m_node;
 };

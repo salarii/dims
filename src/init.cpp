@@ -1048,7 +1048,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
 
-	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)new tracker::CInternalMediumProvider );
+	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CInternalMediumProvider::getInstance() );
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CTrackerNodesManager::getInstance() );
 	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 

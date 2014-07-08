@@ -32,11 +32,12 @@ bool
 CBitcoinNodeMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	if ( m_responses.empty() )
+	if ( m_merkles.empty() )
 		_requestResponse.push_back( common::CContinueResult( 0 ) );
 	else
+	{
 		_requestResponse = m_responses;
-
+	}
 
 	return true;
 }
@@ -44,7 +45,10 @@ CBitcoinNodeMedium::getResponse( std::vector< TrackerResponses > & _requestRespo
 void
 CBitcoinNodeMedium::clearResponses()
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_responses.clear();
+	m_merkles.clear();
+	m_transactions.clear();
 }
 
 
@@ -66,10 +70,25 @@ CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
 }
 
 void
-CBitcoinNodeMedium::setResponse( TrackerResponses const & _response )
+CBitcoinNodeMedium::reloadResponses()
+{
+	m_responses.clear();
+	m_responses.push_back( CRequestedMerkles( m_merkles, m_transactions,reinterpret_cast< long long >( m_node ) ) );
+}
+void
+CBitcoinNodeMedium::setResponse( CMerkleBlock const & _merkle )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_responses.push_back( _response );
+	m_merkles.push_back( _merkle );
+	reloadResponses();
+}
+// it is tricky  because for simplification tx and merkle have to go through the same channel in concurrent way
+void
+CBitcoinNodeMedium::setResponse( CTransaction const & _tx )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_transactions.push_back( _tx );
+	reloadResponses();
 }
 
 }

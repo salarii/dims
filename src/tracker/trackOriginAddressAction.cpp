@@ -16,6 +16,7 @@
 #include "main.h"
 #include "chainparams.h"
 #include "scanBitcoinNetworkRequest.h"
+#include "trackerEvents.h"
 
 #define CONFIRM_LIMIT 6
 
@@ -42,7 +43,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
 	}
 
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		if ( vNodes.size() >= 3 )
 		{
@@ -67,12 +68,21 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	{
 	}
 
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		if ( m_counter-- )
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Nodes ) );
 		else
+		{
+			context< CTrackOriginAddressAction >().clear();
 			return transit< CUninitiated >();
+		}
+	}
+
+	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
+	{
+		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_merkles );
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Nodes ) );
 	}
 
 	~CReadingData()
@@ -80,7 +90,8 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< CMerkleBlocksEvent >
 	> reactions;
 
 	uint m_counter;
@@ -143,7 +154,10 @@ CTrackOriginAddressAction::requestFiltered()
 	for ( int i = 0; i < CONFIRM_LIMIT; i++ )
 	{
 		if ( index == 0 )
-			break;
+		{
+			m_request = new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal );
+			return;
+		}
 		index = index->pprev;
 	}
 
@@ -154,6 +168,8 @@ CTrackOriginAddressAction::requestFiltered()
 
 		index = index->pprev;
 	}
+	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
+
 	m_request = new CAskForTransactionsRequest( requestedBlocks );
 
 }
@@ -227,7 +243,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBl
 
 	if ( iterator == m_acceptedBlocks.end() )
 	{
-		m_blocks.insert( std::make_pair( _key , accepted ) );
+		m_acceptedBlocks.insert( std::make_pair( _key , accepted ) );
 	}
 	else
 	{
@@ -244,6 +260,9 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBl
 		if ( size > nodeResults.second.size() )
 			size = nodeResults.second.size();
 	}
+
+	if ( size == -1 )
+		size = 0;
 	// go  through transaction  queue analyse  if  the  same  content
 
 	std::vector< uint256 > blocksToAccept;
@@ -266,16 +285,18 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBl
 		std::vector<uint256> hashesVector, match;
 		BOOST_FOREACH( MerkleResult & merkleVector, m_acceptedBlocks )
 		{
-			if ( hashesVector.empty() )
+			if ( !hashesVector.empty() )
+			{
 				if ( !merkleVector.second.at( size ).txn.ExtractMatches(hashesVector) )
 					assert( !"shouldn't be here" );// there is problem
-				else
-				{
-					if ( !merkleVector.second.at( size ).txn.ExtractMatches(match) )
-						assert( !"shouldn't be here" );// there is problem
-					if ( hashesVector != match )
-						assert( !"shouldn't be here" );// problem which have to be resolved
-				}
+			}
+			else
+			{
+				if ( !merkleVector.second.at( size ).txn.ExtractMatches(match) )
+					assert( !"shouldn't be here" );// there is problem
+				if ( hashesVector != match )
+					assert( !"shouldn't be here" );// problem which have to be resolved
+			}
 		}
 		// compare  transactions
 
@@ -313,11 +334,13 @@ CTrackOriginAddressAction::validPart( std::vector< CMerkleBlock > const & _input
 {
 	std::vector< CMerkleBlock > output = _input;
 
+	std::reverse( output.begin(), output.end());
+
 	uint256 lastAcceptedHash = this->m_currentHash;
 
 	CMerkleBlock & block = output.back();
 
-	while ( output.empty() )
+	while ( !output.empty() )
 	{
 		if ( block.header.hashPrevBlock == lastAcceptedHash )
 		{
@@ -335,12 +358,20 @@ CTrackOriginAddressAction::validPart( std::vector< CMerkleBlock > const & _input
 				output.erase( iterator );
 				iterator++;
 			}
-
-			_rejected = output;
+			break;
 		}
 	}
-
+	_rejected = output;
 }
 
+void
+CTrackOriginAddressAction::clear()
+{
+	m_blocks.clear();
+
+	m_acceptedBlocks.clear();
+
+	m_transactions.clear();
+}
 
 }

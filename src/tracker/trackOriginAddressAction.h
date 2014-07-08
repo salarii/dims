@@ -26,9 +26,11 @@ public:
 	void setRequest( common::CRequest< TrackerResponses >* _request );
 
 	void requestFiltered();
-private:
+
 	void analyseOutput( long long _key, std::vector< CMerkleBlock > const & _newInput );
 
+	void clear();
+private:
 	void validPart( std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _accepted, std::vector< CMerkleBlock > & _rejected );
 private:
 	std::map< long long, std::vector< CMerkleBlock > > m_blocks;
