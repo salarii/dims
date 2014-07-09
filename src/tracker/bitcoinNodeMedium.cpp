@@ -86,9 +86,36 @@ CBitcoinNodeMedium::setResponse( CMerkleBlock const & _merkle )
 void
 CBitcoinNodeMedium::setResponse( CTransaction const & _tx )
 {
+// using m_merkle.back may cause  problem, when merkle  will be  processed but tx will not  arrive on time
+//m_merkle may be  cleared ?? is this  really a potential problem ??
+// if  so  I have to remember last processed  hash
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_transactions.push_back( _tx );
+	std::vector<uint256> match;
+	m_merkles.back().txn.ExtractMatches( match );
+
+	if ( std::find( match.begin(), match.end(), _tx.GetHash() ) == match.end() )
+			return;
+
+	uint256 hash = m_merkles.back().header.GetHash();
+
+	if( m_transactions.find( hash ) == m_transactions.end() )
+	{
+		std::vector< CTransaction > transactions;
+		transactions.push_back( _tx );
+		m_transactions.insert( std::make_pair( hash, transactions ) );
+	}
+	else
+	{
+		m_transactions.find( hash )->second.push_back( _tx );
+	}
+
 	reloadResponses();
 }
+
+
+
+
+// else
+
 
 }

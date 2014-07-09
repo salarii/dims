@@ -17,9 +17,9 @@ namespace tracker
 class CAskForTransactionsRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes );
+	CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, uint _mediumNumber );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CMedium< TrackerResponses > * m_mediumNumber ) const;
 
 	virtual int getKind() const;
 
@@ -28,6 +28,8 @@ public:
 	std::vector< uint256 > const & getBlockHashes() const;
 private:
 	std::vector< uint256 > const m_blockHashes;
+
+	uint m_mediumNumber;
 };
 
 

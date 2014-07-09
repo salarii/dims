@@ -56,8 +56,6 @@ unsigned int nCoinCacheSize = 5000;
 
 long long currentHeight = 0;
 
-tracker::COriginAddressScaner * originAddressScaner = tracker::COriginAddressScaner::getInstance();
-
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
 int64_t CTransaction::nMinTxFee = 10000;  // Override with -mintxfee
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */
@@ -3361,11 +3359,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
 		bool fMissingInputs = false;
 		CValidationState state;
-		/*
-		originAddressScaner->addTransaction(0,tx);
-
-
-		*/
+		tracker::CInternalMediumProvider::getInstance()->setResponse( tx, pfrom );
 	}
 	else if (strCommand == "merkleblock")
 	{

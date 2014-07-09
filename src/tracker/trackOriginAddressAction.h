@@ -27,7 +27,7 @@ public:
 
 	void requestFiltered();
 
-	void analyseOutput( long long _key, std::vector< CMerkleBlock > const & _newInput );
+	void analyseOutput( long long _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput );
 
 	void clear();
 private:

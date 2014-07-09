@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "trackOriginAddressAction.h"
+#include "originAddressScaner.h"
+
 #include "common/setResponseVisitor.h"
 #include "common/mediumRequests.h"
 #include "common/commonEvents.h"
@@ -22,7 +24,7 @@
 
 namespace tracker
 {
-
+uint const UsedMediumNumber = 3;
 
 /*
 store last  tracked  block  number
@@ -45,7 +47,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		if ( vNodes.size() >= 3 )
+		if ( vNodes.size() >= UsedMediumNumber )
 		{
 			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
 			return transit< CReadingData >();
@@ -64,7 +66,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 
 struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddressAction >
 {
-	CReadingData( my_context ctx ) : my_base( ctx ), m_counter( 40 )
+	CReadingData( my_context ctx ) : my_base( ctx ), m_counter( 40 )// investigate if 40 is ok
 	{
 	}
 
@@ -81,7 +83,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 
 	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
 	{
-		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_merkles );
+		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
 		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Nodes ) );
 	}
 
@@ -170,7 +172,7 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
-	m_request = new CAskForTransactionsRequest( requestedBlocks );
+	m_request = new CAskForTransactionsRequest( requestedBlocks, UsedMediumNumber );
 
 }
 
@@ -214,10 +216,21 @@ CCompareTransactions::isCorrect() const
 	return m_correct;
 }
 
-
+//
 void
-CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBlock > const & _newInput )
+CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput )
 {
+	std::map< long long, std::map< uint256 , std::vector< CTransaction > > > ::iterator transactionIterator = m_transactions.find( _key );
+
+	if ( transactionIterator == m_transactions.end() )
+	{
+		m_transactions.insert( std::make_pair( _key , _newTransactions ) );
+	}
+	else
+	{
+		transactionIterator->second.insert( _newTransactions.begin(), _newTransactions.end() );
+	}
+
 	std::map< long long, std::vector< CMerkleBlock > >::iterator iterator = m_blocks.find( _key );
 
 	std::vector< CMerkleBlock > accepted;
@@ -251,18 +264,19 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBl
 	}
 
 	// get size of  accepted
+	if (m_acceptedBlocks.size() < UsedMediumNumber )
+		return;
 
 	uint size = -1;
 
 	BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
 	{
-
 		if ( size > nodeResults.second.size() )
 			size = nodeResults.second.size();
 	}
 
 	if ( size == -1 )
-		size = 0;
+		return;
 	// go  through transaction  queue analyse  if  the  same  content
 
 	std::vector< uint256 > blocksToAccept;
@@ -285,7 +299,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBl
 		std::vector<uint256> hashesVector, match;
 		BOOST_FOREACH( MerkleResult & merkleVector, m_acceptedBlocks )
 		{
-			if ( !hashesVector.empty() )
+			if ( hashesVector.empty() )
 			{
 				if ( !merkleVector.second.at( size ).txn.ExtractMatches(hashesVector) )
 					assert( !"shouldn't be here" );// there is problem
@@ -300,17 +314,29 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBl
 		}
 		// compare  transactions
 
+
 		BOOST_FOREACH( uint256 & hash, blocksToAccept )
 		{
 			CCompareTransactions compareTransactions;
-
+			std::vector< CTransaction > toInclude;
 			BOOST_FOREACH( TransactionsResult & transaction, m_transactions )
 			{
-				compareTransactions.verifyIfCorrect( transaction.second.find( hash )->second );
+				if ( toInclude.empty() )
+				{
+					if ( transaction.second.find( hash ) != transaction.second.end() )
+						toInclude = transaction.second.find( hash )->second;
+
+					compareTransactions.verifyIfCorrect( transaction.second.find( hash )->second );
+				}
+			}
+
+			BOOST_FOREACH( CTransaction const & transaction, toInclude )
+			{
+				tracker::COriginAddressScaner::getInstance()->addTransaction( 0, transaction );
 			}
 
 			if ( !compareTransactions.isCorrect() )
-				assert( !"data fro various nodes vary!" );// react  to  this
+				assert( !"data from various nodes vary!" );// react  to  this
 
 		}
 	}
@@ -323,6 +349,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::vector< CMerkleBl
 
 	FileCommit(file);
 
+	m_currentHash = headerToSave.GetHash();
 }
 
 // return list of  hashes

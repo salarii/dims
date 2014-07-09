@@ -37,7 +37,7 @@ private:
 
 	std::vector< TrackerResponses > m_responses;
 
-	std::vector< CTransaction > m_transactions;
+	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
 
 	std::vector< CMerkleBlock > m_merkles;
 

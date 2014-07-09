@@ -9,8 +9,9 @@
 namespace tracker
 {
 
-CAskForTransactionsRequest::CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes )
+CAskForTransactionsRequest::CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, uint _mediumNumber )
 	: m_blockHashes( _blockHashes )
+	, m_mediumNumber( _mediumNumber )
 {
 }
 
