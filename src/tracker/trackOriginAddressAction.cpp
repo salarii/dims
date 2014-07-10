@@ -26,7 +26,7 @@ namespace tracker
 {
 uint const UsedMediumNumber = 3;
 uint const MaxMerkleNumber = 200;
-uint const WaitResultTime = 60; // this  value  may have  vital meaning
+uint const WaitResultTime = 40;
 /*
 store last  tracked  block  number
 track blocks  between  last  checked  and present
@@ -43,15 +43,20 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 {
 	CUninitiated( my_context ctx ) : my_base( ctx )
 	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+		setRequest();
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
+		setRequest();
+	}
+
+	void setRequest()
+	{
 		if ( vNodes.size() >= UsedMediumNumber )
 		{
 			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
-			return transit< CReadingData >();
+			transit< CReadingData >();
 		}
 		else
 		{
@@ -189,7 +194,7 @@ typedef std::map< long long, std::map< uint256 , std::vector< CTransaction > > >
 
 struct CCompareTransactions
 {
-	CCompareTransactions():m_correct( true ){}
+	CCompareTransactions():m_correct( true ),m_initialised( false ){}
 
 	void verifyIfCorrect( std::vector< CTransaction > const & _transactions );
 
@@ -198,6 +203,7 @@ struct CCompareTransactions
 	std::vector< uint256 > m_hashes;
 
 	bool m_correct;
+	bool m_initialised;
 };
 
 void
@@ -212,7 +218,16 @@ CCompareTransactions::verifyIfCorrect( std::vector< CTransaction > const & _tran
 	{
 		hashes.push_back( transaction.GetHash() );
 	}
-	m_correct = m_hashes == hashes;
+
+	if ( !m_initialised )
+	{
+		m_hashes == hashes;
+		m_initialised = true;
+	}
+	else
+	{
+		m_correct = m_hashes == hashes;
+	}
 }
 
 bool
@@ -238,15 +253,13 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 	std::map< long long, std::vector< CMerkleBlock > >::iterator iterator = m_blocks.find( _key );
 
-	std::vector< CMerkleBlock > accepted;
-
 	if ( iterator == m_blocks.end() )
 	{
 		m_blocks.insert( std::make_pair( _key , _newInput ) );
 
 		std::vector< CMerkleBlock > & merkle = m_blocks.find( _key )->second;
 
-		validPart( merkle, accepted, merkle );
+		validPart( _key, merkle, merkle );
 	}
 	else
 	{
@@ -254,18 +267,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 		merkle.insert( merkle.end(), _newInput.begin(), _newInput.end() );
 
-		validPart( merkle, accepted, merkle );
-	}
-
-	iterator = m_acceptedBlocks.find( _key );
-
-	if ( iterator == m_acceptedBlocks.end() )
-	{
-		m_acceptedBlocks.insert( std::make_pair( _key , accepted ) );
-	}
-	else
-	{
-		iterator->second.insert( iterator->second.end(), accepted.begin(), accepted.end() );
+		validPart( _key, merkle, merkle );
 	}
 
 	// get size of  accepted
@@ -332,18 +334,23 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 				{
 					if ( transaction.second.find( hash ) != transaction.second.end() )
 						toInclude = transaction.second.find( hash )->second;
-
-					compareTransactions.verifyIfCorrect( transaction.second.find( hash )->second );
 				}
-			}
 
-			BOOST_FOREACH( CTransaction const & transaction, toInclude )
-			{
-				tracker::COriginAddressScaner::getInstance()->addTransaction( 0, transaction );
+				if ( transaction.second.find( hash ) != transaction.second.end() )
+					compareTransactions.verifyIfCorrect( transaction.second.find( hash )->second );
+				else
+					compareTransactions.verifyIfCorrect( std::vector< CTransaction >() );
 			}
 
 			if ( !compareTransactions.isCorrect() )
 				assert( !"data from various nodes vary!" );// react  to  this
+			else
+			{
+				BOOST_FOREACH( CTransaction const & transaction, toInclude )
+				{
+					tracker::COriginAddressScaner::getInstance()->addTransaction( 0, transaction );
+				}
+			}
 
 		}
 	}
@@ -367,22 +374,25 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 
 void
-CTrackOriginAddressAction::validPart( std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _accepted, std::vector< CMerkleBlock > & _rejected )
+CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected )
 {
-	std::vector< CMerkleBlock > output = _input;
+	std::vector< CMerkleBlock > output = _input, accepted;
 
 	std::reverse( output.begin(), output.end());
 
-	uint256 lastAcceptedHash = this->m_currentHash;
-
 	CMerkleBlock block = output.back();
+
+	std::map< long long, std::vector< CMerkleBlock > >::iterator iterator;
+	iterator = m_acceptedBlocks.find( _key );
+
+	uint256 lastAcceptedHash = iterator != m_acceptedBlocks.end() && !iterator->second.empty() ? iterator->second.back().header.GetHash() : this->m_currentHash;
 
 	while ( !output.empty() )
 	{
 		if ( block.header.hashPrevBlock == lastAcceptedHash )
 		{
 			lastAcceptedHash = block.header.GetHash();
-			_accepted.push_back( block );
+			accepted.push_back( block );
 			output.pop_back();
 			if ( !output.empty() )
 				block = output.back();
@@ -394,7 +404,7 @@ CTrackOriginAddressAction::validPart( std::vector< CMerkleBlock > const & _input
 			{
 				if ( lastAcceptedHash == iterator->header.hashPrevBlock )
 				{
-					_accepted.push_back( *iterator );
+					accepted.push_back( *iterator );
 					output.erase( iterator );
 					break;
 				}
@@ -405,6 +415,15 @@ CTrackOriginAddressAction::validPart( std::vector< CMerkleBlock > const & _input
 		}
 	}
 	_rejected = output;
+
+	if ( iterator == m_acceptedBlocks.end() )
+	{
+		m_acceptedBlocks.insert( std::make_pair( _key , accepted ) );
+	}
+	else
+	{
+		iterator->second.insert( iterator->second.end(), accepted.begin(), accepted.end() );
+	}
 }
 
 void

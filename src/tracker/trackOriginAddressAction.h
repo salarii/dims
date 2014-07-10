@@ -33,7 +33,7 @@ public:
 
 	void clearAccepted( uint const _number );
 private:
-	void validPart( std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _accepted, std::vector< CMerkleBlock > & _rejected );
+	void validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected );
 private:
 	//replace std::vector with std::deque ???
 	std::map< long long, std::vector< CMerkleBlock > > m_blocks;

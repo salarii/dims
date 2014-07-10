@@ -257,8 +257,10 @@ template < class _RequestResponses >
 void
 CActionHandler< _RequestResponses >::loop()
 {
+	std::set< CRequestHandler< _RequestResponses > * > requestHandlersToExecute;
 	while(1)
 	{
+
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
 			BOOST_FOREACH(CAction< _RequestResponses >* action, m_actions)
@@ -280,10 +282,11 @@ CActionHandler< _RequestResponses >::loop()
 			m_actions.clear();
 		}
 
-		BOOST_FOREACH( typename AvailableHandlers::value_type & reqAction, m_requestHandlers)
+		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToExecute )
 		{
-			reqAction.second->readLoop();
+			reqHandler->readLoop();
 		}
+		requestHandlersToExecute.clear();
 
 		std::list< CRequest< _RequestResponses >* > requestsToErase;
 
@@ -312,6 +315,7 @@ CActionHandler< _RequestResponses >::loop()
 				}
 				else
 				{
+					requestHandlersToExecute.insert( requestHandler );
 					requestHandler->setRequest( reqAction.first );
 				}
 			}
@@ -327,9 +331,9 @@ CActionHandler< _RequestResponses >::loop()
 		if ( m_reqToAction.empty() )
 			boost::this_thread::interruption_point();
 
-		BOOST_FOREACH( typename AvailableHandlers::value_type & reqAction, m_requestHandlers)
+		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToExecute )
 		{
-			reqAction.second->runRequests();
+			reqHandler->runRequests();
 		}
 
 		MilliSleep( m_sleepTime );
