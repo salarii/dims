@@ -3872,10 +3872,6 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         // Start block sync
         if (pto->fStartSync && !fImporting && !fReindex) {
             pto->fStartSync = false;
-            CBloomFilter bloomFilter =  CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_P2PUBKEY_ONLY);
-			bloomFilter.insert(Params().getOriginAddressKeyId());
-            pto->PushMessage("filterload", bloomFilter);
-
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 		{

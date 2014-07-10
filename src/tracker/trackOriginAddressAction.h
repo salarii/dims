@@ -30,11 +30,14 @@ public:
 	void analyseOutput( long long _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput );
 
 	void clear();
+
+	void clearAccepted( uint const _number );
 private:
 	void validPart( std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _accepted, std::vector< CMerkleBlock > & _rejected );
 private:
+	//replace std::vector with std::deque ???
 	std::map< long long, std::vector< CMerkleBlock > > m_blocks;
-
+	//replace std::vector with std::deque ???
 	std::map< long long, std::vector< CMerkleBlock > > m_acceptedBlocks;
 
 	std::map< long long, std::map< uint256 , std::vector< CTransaction > > > m_transactions;

@@ -25,7 +25,8 @@
 namespace tracker
 {
 uint const UsedMediumNumber = 3;
-
+uint const MaxMerkleNumber = 200;
+uint const WaitResultTime = 60; // this  value  may have  vital meaning
 /*
 store last  tracked  block  number
 track blocks  between  last  checked  and present
@@ -66,7 +67,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 
 struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddressAction >
 {
-	CReadingData( my_context ctx ) : my_base( ctx ), m_counter( 40 )// investigate if 40 is ok
+	CReadingData( my_context ctx ) : my_base( ctx ), m_counter( WaitResultTime )
 	{
 	}
 
@@ -172,6 +173,8 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
+	requestedBlocks.resize( MaxMerkleNumber );
+
 	m_request = new CAskForTransactionsRequest( requestedBlocks, UsedMediumNumber );
 
 }
@@ -186,6 +189,8 @@ typedef std::map< long long, std::map< uint256 , std::vector< CTransaction > > >
 
 struct CCompareTransactions
 {
+	CCompareTransactions():m_correct( true ){}
+
 	void verifyIfCorrect( std::vector< CTransaction > const & _transactions );
 
 	bool isCorrect() const;
@@ -275,7 +280,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			size = nodeResults.second.size();
 	}
 
-	if ( size == -1 )
+	if ( size == -1 || size == 0 )
 		return;
 	// go  through transaction  queue analyse  if  the  same  content
 
@@ -293,6 +298,8 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			headerToSave = blockVector.at( i ).header;
 
 	}
+
+	uint const serviced = size;
 
 	while( size-- )
 	{
@@ -341,6 +348,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 		}
 	}
 	// write  transactions to origin transaction scaner
+	clearAccepted( serviced );
 
 	CAutoFile file(OpenHeadFile(false), SER_DISK, CLIENT_VERSION);
 	file << headerToSave;
@@ -350,6 +358,8 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 	FileCommit(file);
 
 	m_currentHash = headerToSave.GetHash();
+
+	//remove accepted
 }
 
 // return list of  hashes
@@ -365,30 +375,45 @@ CTrackOriginAddressAction::validPart( std::vector< CMerkleBlock > const & _input
 
 	uint256 lastAcceptedHash = this->m_currentHash;
 
-	CMerkleBlock & block = output.back();
+	CMerkleBlock block = output.back();
 
 	while ( !output.empty() )
 	{
 		if ( block.header.hashPrevBlock == lastAcceptedHash )
 		{
-			lastAcceptedHash = block.header.hashPrevBlock;
+			lastAcceptedHash = block.header.GetHash();
 			_accepted.push_back( block );
 			output.pop_back();
+			if ( !output.empty() )
+				block = output.back();
 		}
 		else
 		{
 			std::vector< CMerkleBlock >::iterator iterator = output.begin();
 			while( iterator != output.end() )
 			{
-				lastAcceptedHash = iterator->header.hashPrevBlock;
+				if ( lastAcceptedHash == iterator->header.hashPrevBlock )
+				{
+					_accepted.push_back( *iterator );
+					output.erase( iterator );
+					break;
+				}
 
-				output.erase( iterator );
 				iterator++;
 			}
 			break;
 		}
 	}
 	_rejected = output;
+}
+
+void
+CTrackOriginAddressAction::clearAccepted( uint const _number )
+{
+	BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
+	{
+		nodeResults.second.erase(nodeResults.second.begin(), nodeResults.second.begin() + _number );
+	}
 }
 
 void
