@@ -25,8 +25,10 @@
 namespace tracker
 {
 uint const UsedMediumNumber = 3;
-uint const MaxMerkleNumber = 200;
+uint const MaxMerkleNumber = 500;
 uint const WaitResultTime = 40;
+uint const StallCnt = 5; // 3 ?? enough ??
+
 /*
 store last  tracked  block  number
 track blocks  between  last  checked  and present
@@ -43,24 +45,22 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 {
 	CUninitiated( my_context ctx ) : my_base( ctx )
 	{
-		setRequest();
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		setRequest();
-	}
 
-	void setRequest()
-	{
 		if ( vNodes.size() >= UsedMediumNumber )
 		{
 			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
-			transit< CReadingData >();
+			return transit< CReadingData >();
 		}
 		else
 		{
 			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+
+			return discard_event();
 		}
 	}
 
@@ -69,6 +69,34 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 	> reactions;
 
 };
+// quarantanna
+struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddressAction >
+{
+	CStallAction( my_context ctx ) : my_base( ctx ), m_counter( StallCnt )
+	{
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		if ( m_counter-- )
+		{
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+			return discard_event();
+		}
+		else
+		{
+			return transit< CUninitiated >();
+		}
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
+
+	uint m_counter;
+};
+
 
 struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddressAction >
 {
@@ -83,7 +111,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 		else
 		{
 			context< CTrackOriginAddressAction >().clear();
-			return transit< CUninitiated >();
+			return transit< CStallAction >();
 		}
 	}
 
@@ -221,7 +249,7 @@ CCompareTransactions::verifyIfCorrect( std::vector< CTransaction > const & _tran
 
 	if ( !m_initialised )
 	{
-		m_hashes == hashes;
+		m_hashes = hashes;
 		m_initialised = true;
 	}
 	else
