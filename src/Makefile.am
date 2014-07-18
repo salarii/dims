@@ -70,6 +70,7 @@ TRACKER_CORE_H = \
   tracker/getBalanceRequest.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
+  tracker/originTransactionsDatabase.h \
   tracker/originAddressScaner.h \
   tracker/processNetwork.h \
   tracker/scanBitcoinNetworkRequest.h \
@@ -166,6 +167,7 @@ TRACKER_CORE_CPP = \
   tracker/getBalanceRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
+  tracker/originTransactionsDatabase.cpp \
   tracker/originAddressScaner.cpp \
   tracker/processNetwork.cpp \
   tracker/rpcTracker.cpp \

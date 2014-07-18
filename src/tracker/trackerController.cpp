@@ -4,6 +4,8 @@
 
 #include "trackerController.h"
 
+#include "trackerControllerStates.h"
+
 namespace tracker
 {
 
@@ -21,6 +23,7 @@ CTrackerController::getInstance()
 
 CTrackerController::CTrackerController()
 {
+	initiate();
 }
 
 }

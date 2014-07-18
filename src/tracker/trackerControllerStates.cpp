@@ -3,6 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "trackerControllerStates.h"
+#include "boost/foreach.hpp"
+#include "protocol.h"
+
+#include "common/manageNetwork.h"
+#include "common/actionHandler.h"
+#include "connectNodeAction.h"
 
 namespace tracker
 {
@@ -10,7 +16,27 @@ namespace tracker
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 {
 	// search for  seeder  action
+	std::vector<CAddress> vAdd;
 
+	common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
+
+	if ( !vAdd.empty() )
+	{
+		BOOST_FOREACH( CAddress address, vAdd )
+		{
+			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+		}
+	}
+	else
+	{
+		common::CManageNetwork::getInstance()->getSeedIps( vAdd );
+
+		// let know seed about our existence
+		BOOST_FOREACH( CAddress address, vAdd )
+		{
+			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+		}
+	}
 }
 
 //simple_state::triggering_event()
