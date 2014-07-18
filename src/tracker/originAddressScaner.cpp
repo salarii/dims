@@ -4,6 +4,7 @@
 
 #include "tracker/originAddressScaner.h"
 #include "tracker/transactionRecordManager.h"
+#include "originTransactionsDatabase.h"
 
 #include "chainparams.h"
 #include "base58.h"
@@ -29,26 +30,13 @@ COriginAddressScaner::getInstance( )
 }
 
 COriginAddressScaner::COriginAddressScaner()
+	: m_currentTime( 0 )
+	, m_totalBalance( 0 )
 {
 }
 
 void
-COriginAddressScaner::saveBalanceToDatabase()
-{
-}
-
-void
-COriginAddressScaner::createCoinBaseTransaction()
-{
-}
-
-void
-COriginAddressScaner::getHeightOfLastScanedBlock()
-{
-}
-
-void
-COriginAddressScaner::addTransaction( long long const _indexHeight, CTransaction const&  _tx)
+COriginAddressScaner::addTransaction( long long const _timeStamp, CTransaction const&  _tx)
 {
 	boost::lock_guard<boost::mutex> lock(m_lock);
 
@@ -58,9 +46,49 @@ COriginAddressScaner::addTransaction( long long const _indexHeight, CTransaction
 
 	m_alreadyProcessed.insert( hash );
 
-	m_transactionToProcess.insert( std::make_pair(_indexHeight, _tx) );
+	m_transactionToProcess.insert( std::make_pair( _timeStamp, _tx) );
 
+	if ( m_currentTime != 0 || m_currentTime != _timeStamp )
+	{
+		COriginTransactionDatabase::getInstance()->storeOriginTransactionsFlush(
+					  m_currentTime
+					, m_totalBalance
+					, m_keys
+					, m_balances
+					);
+	}
+	m_currentTime = _timeStamp;
 
+}
+
+void
+COriginAddressScaner::updateTransactionRecord( long long const _timeStamp )
+{
+	boost::lock_guard<boost::mutex> lock(m_lock);
+	std::vector< std::vector< unsigned char > > keys;
+	std::vector< uint64_t > balances;
+
+	COriginTransactionDatabase::getInstance()->getOriginTransactions( _timeStamp, keys, balances );
+
+	int i = 0;
+	BOOST_FOREACH( std::vector< unsigned char > const & key, keys )
+	{
+		CKeyID publicKey = CPubKey( key ).GetID();
+
+		CScript script;
+		script = CScript() << CPubKey( key ) << OP_CHECKSIG;
+
+		CTransaction txNew;
+		txNew.vin.resize(1);
+		txNew.vin[0].prevout.SetNull();
+		txNew.vout.resize(1);
+		txNew.vout[0].scriptPubKey = script;
+		// this is  buggy right now
+		txNew.vout[0].nValue = balances.at( i );
+		//add transaction  to  pool and   view
+
+		CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew, publicKey );
+	}
 }
 
 void
@@ -81,6 +109,8 @@ COriginAddressScaner::loop()
 				}
 				m_transactionToProcess.clear();
 			}
+
+
 		}
 		boost::this_thread::interruption_point();
 	}
@@ -151,6 +181,10 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 			if ( data.size() == 33 || data.size() == 65 )
 			{
+				m_balances.push_back( valueSum );
+				m_keys.push_back( data );
+				m_totalBalance += valueSum;
+
 				CKeyID publicKey = CPubKey( data ).GetID();
 
 				CScript script;
@@ -168,6 +202,7 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 
 				CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew, publicKey);
 				return;
+
 			}
 		}
 

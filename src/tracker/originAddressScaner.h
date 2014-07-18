@@ -23,11 +23,13 @@ class COriginAddressScaner
 public:
 	void resumeScaning();
 
-	void addTransaction(long long const _indexHeight, CTransaction const&  _tx);
+	void addTransaction(long long const _timeStamp, CTransaction const&  _tx);
 
 	void loop();
 
-	static COriginAddressScaner* getInstance( );
+	static COriginAddressScaner* getInstance();
+
+	void updateTransactionRecord( long long const _timeStamp );
 private:
 	COriginAddressScaner();
 
@@ -36,10 +38,6 @@ private:
 	void unlock();
 
 	void createBaseTransaction(CTransaction const&  _tx);
-
-	void saveBalanceToDatabase();
-
-	void createCoinBaseTransaction();
 
 	void getHeightOfLastScanedBlock();
 private:
@@ -53,11 +51,15 @@ private:
 
 	std::map< long long, CTransaction > m_transactionToProcess;
 	std::set< uint256 > m_alreadyProcessed;
+
+//database related
+	uint64_t m_currentTime;
+	uint64_t m_totalBalance;
+
+	std::vector< std::vector< unsigned char > > m_keys;
+	std::vector< uint64_t > m_balances;
 };
 
 }
-
-
-
 
 #endif
