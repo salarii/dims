@@ -19,6 +19,8 @@
 #include "chainparams.h"
 #include "scanBitcoinNetworkRequest.h"
 #include "trackerEvents.h"
+#include "trackerController.h"
+#include "trackerControllerEvents.h"
 
 #define CONFIRM_LIMIT 6
 
@@ -28,6 +30,8 @@ uint const UsedMediumNumber = 3;
 uint const MaxMerkleNumber = 500;
 uint const WaitResultTime = 40;
 uint const StallCnt = 5; // 3 ?? enough ??
+
+uint const SynchronizedTreshold = 10;
 
 /*
 store last  tracked  block  number
@@ -206,7 +210,11 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
-	requestedBlocks.resize( MaxMerkleNumber );
+	if ( requestedBlocks.size() > MaxMerkleNumber )
+		requestedBlocks.resize( MaxMerkleNumber );
+
+	if ( requestedBlocks.size() < SynchronizedTreshold )
+		CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
 
 	m_request = new CAskForTransactionsRequest( requestedBlocks, UsedMediumNumber );
 

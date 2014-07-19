@@ -8,6 +8,10 @@
 namespace tracker
 {
 
+struct CInitialSynchronizationDoneEvent : boost::statechart::event< CInitialSynchronizationDoneEvent >
+{
+};
+
 struct CGetStateEvent : boost::statechart::event< CGetStateEvent >
 {
 };

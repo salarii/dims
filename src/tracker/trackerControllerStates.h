@@ -5,6 +5,8 @@
 #ifndef TRACKER_CONTROLLER_STATES_H
 #define TRACKER_CONTROLLER_STATES_H
 
+#include <boost/statechart/transition.hpp>
+#include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 #include "trackerController.h"
@@ -12,6 +14,15 @@
 
 namespace tracker
 {
+
+struct CStandAlone;
+
+struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchronization, CTrackerController >
+{
+	CInitialSynchronization();
+
+	typedef boost::statechart::transition< CInitialSynchronizationDoneEvent, CStandAlone > reactions;
+};
 
 struct CStandAlone : boost::statechart::state< CStandAlone, CTrackerController >
 {

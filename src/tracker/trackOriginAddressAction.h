@@ -47,10 +47,6 @@ private:
 	uint256 m_currentHash;
 };
 
-
-
-
-
 }
 
 #endif // TRACK_ORIGIN_ADDRESS_ACTION_H

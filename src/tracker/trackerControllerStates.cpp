@@ -13,6 +13,11 @@
 namespace tracker
 {
 
+
+CInitialSynchronization::CInitialSynchronization()
+{
+}
+
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 {
 	// search for  seeder  action

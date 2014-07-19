@@ -9,9 +9,9 @@
 
 namespace tracker
 {
-struct CStandAlone;
+struct CInitialSynchronization;
 
-class CTrackerController : public boost::statechart::state_machine< CTrackerController, CStandAlone >
+class CTrackerController : public boost::statechart::state_machine< CTrackerController, CInitialSynchronization >
 {
 public:
 	static CTrackerController* getInstance();
