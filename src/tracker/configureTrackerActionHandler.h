@@ -33,8 +33,15 @@ struct CRequestedMerkles
 	long long m_id;
 };
 
+struct CSynchronizationInfoResult
+{
+	CSynchronizationInfoResult( uint64_t const _timeStamp ):m_timeStamp( _timeStamp ){};
+
+	uint64_t m_timeStamp;
+};
+
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult, CRequestedMerkles > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult, CRequestedMerkles, CSynchronizationInfoResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

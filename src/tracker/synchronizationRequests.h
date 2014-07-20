@@ -16,7 +16,7 @@ namespace tracker
 class CGetSynchronizationInfoRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CGetSynchronizationInfoRequest( uint256 const & _actionKey );
+	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
@@ -25,6 +25,7 @@ public:
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
+	uint64_t const m_timeStamp;
 };
 
 

@@ -39,4 +39,17 @@ CTrackerNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 	return static_cast< CTrackerNodeMedium* >( common::CNodesManager< TrackerResponses >::getMediumForNode( _node ) );
 }
 
+bool
+CTrackerNodesManager::getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const
+{
+	if ( m_keyStore.find( _node ) != m_keyStore.end() )
+	{
+		_key = m_keyStore.find( _node )->second;
+		return true;
+	}
+	else
+		return false;
+}
+
+
 }

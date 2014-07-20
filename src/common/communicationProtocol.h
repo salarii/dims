@@ -143,7 +143,7 @@ struct CSynchronizationInfo
 		READWRITE(m_actionKey);
 	)
 
-	uint256 m_timeStamp;
+	uint64_t m_timeStamp;
 	uint256 m_actionKey;
 };
 

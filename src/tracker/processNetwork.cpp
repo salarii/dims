@@ -71,9 +71,49 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 
 		}
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
+		{
+			common::CIdentifyMessage identifyMessage;
+			convertPayload( message, identifyMessage );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
+			{
+				uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
+
+				nodeMedium->setResponse( hash, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+			}
+			else
+			{
+				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
+
+			}
+		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{
-			//
+			CPubKey pubKey;
+			assert( CTrackerNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
+
+			common::CMessage orginalMessage;
+			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
+
+			common::CSynchronizationInfo synchronizationInfo;
+
+			common::convertPayload( orginalMessage, synchronizationInfo );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationInfo.m_actionKey ) )
+			{
+				nodeMedium->setResponse( synchronizationInfo.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp ) );
+			}
+			else
+			{
+				/*CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( synchronizationInfo.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
+			}
 		}
 	}
 	/*

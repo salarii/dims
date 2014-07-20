@@ -9,6 +9,7 @@
 #include "common/communicationProtocol.h"
 #include "common/connectionProvider.h"
 #include "configureTrackerActionHandler.h"
+#include "key.h"
 
 class CNode;
 
@@ -27,9 +28,13 @@ public:
 	static CTrackerNodesManager * getInstance();
 
 	CTrackerNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
+
+	bool getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const;
 private:
 	CTrackerNodesManager();
 private:
+	// is this ok??? seems like temporary solution
+	std::map< common::CSelfNode *, CPubKey > m_keyStore;
 };
 
 }

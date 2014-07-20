@@ -9,10 +9,10 @@
 namespace tracker
 {
 
-CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey )
+CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp )
 	: m_actionKey( _actionKey )
+	, m_timeStamp( _timeStamp )
 {
-
 }
 
 void
