@@ -4,7 +4,7 @@
 
 #include "internalMediumProvider.h"
 #include "internalOperationsMedium.h"
-#include "trackerMediumsKinds.h"
+#include "common/mediumKinds.h"
 #include "bitcoinNodeMedium.h"
 
 namespace tracker
@@ -32,9 +32,9 @@ CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _req
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	if ( CTrackerMediumsKinds::Internal == _actionKind )
+	if ( common::CMediumKinds::Internal == _actionKind )
 		return m_mediums;
-	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
+	else if ( common::CMediumKinds::BitcoinsNodes == _actionKind )
 	{
 		std::list< common::CMedium< TrackerResponses > *> mediums;
 

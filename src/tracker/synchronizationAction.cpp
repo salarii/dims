@@ -12,7 +12,7 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "trackerMediumsKinds.h"
+#include "common/mediumKinds.h"
 
 #include "synchronizationAction.h"
 
@@ -21,8 +21,51 @@
 namespace tracker
 {
 
+struct CSynchronizingGetInfo;
+struct CSynchronizedGetInfo;
+
+struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
+{
+};
+
+struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
+{
+};
+
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
 {
+	typedef boost::mpl::list<
+	boost::statechart::transition< CSwitchToSynchronizing, CSynchronizingGetInfo >,
+	boost::statechart::transition< CSwitchToSynchronized, CSynchronizedGetInfo >
+	> reactions;
+};
+
+struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, CSynchronizationAction >
+{
+	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
+	{
+	}
+};
+
+struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CSynchronizationAction >
+{
+	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
+	{
+	}
+};
+
+struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizationAction >
+{
+	CSynchronizing( my_context ctx ) : my_base( ctx )
+	{
+	}
+};
+
+struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronizationAction >
+{
+	CSynchronized( my_context ctx ) : my_base( ctx )
+	{
+	}
 };
 
 CSynchronizationAction::CSynchronizationAction()

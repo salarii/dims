@@ -4,7 +4,7 @@
 
 #include "validateTransactionsRequest.h"
 #include "common/medium.h"
-#include "trackerMediumsKinds.h"
+#include "common/mediumKinds.h"
 
 namespace tracker
 {
@@ -22,7 +22,7 @@ void CValidateTransactionsRequest::accept( common::CMedium< TrackerResponses > *
 int
 CValidateTransactionsRequest::getKind() const
 {
-	return CTrackerMediumsKinds::Internal;
+	return common::CMediumKinds::Internal;
 }
 
 std::vector< CTransaction > const &

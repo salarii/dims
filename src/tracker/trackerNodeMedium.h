@@ -15,12 +15,14 @@ namespace tracker
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
-class CIdentifyRequest;
+class CGetSynchronizationInfoRequest;
 
 class CTrackerNodeMedium : public common::CNodeMedium< TrackerResponses >
 {
 public:
 	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< TrackerResponses >( _selfNode ){};
+
+	void add( CGetSynchronizationInfoRequest const * _request );
 private:
 };
 

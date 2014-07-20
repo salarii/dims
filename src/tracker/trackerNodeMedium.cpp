@@ -7,9 +7,24 @@
 #include "common/actionHandler.h"
 #include "trackerNodesManager.h"
 #include "connectNodeAction.h"
+#include "synchronizationRequests.h"
 
 namespace tracker
 {
+
+void
+CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
+{
+	common::CSynchronizationInfo synchronizationInfo;
+
+	synchronizationInfo.m_actionKey = _request->getActionKey();
+
+	common::CMessage message( synchronizationInfo );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( synchronizationInfo.m_actionKey );
+}
 
 
 }

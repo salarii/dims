@@ -47,7 +47,7 @@ public:
 
 	common::CSelfNode * getNode() const;
 
-private:
+protected:
 	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;

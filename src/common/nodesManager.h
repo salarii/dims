@@ -14,6 +14,8 @@ very probable that this  should be in common
 
 #include "manageNetwork.h"
 
+#include "mediumKinds.h"
+
 namespace common
 {
 
@@ -24,7 +26,7 @@ unsigned int convertToInt( T * _t )
 {
 	return static_cast< unsigned int >( (long long )_t );
 }
-
+// class common::CConnectionProvider is problematic, may providers make  things confusing, sometimes it is not  clear which provider is responsible for  mediums of specific
 template < class RequestType >
 class CNodesManager : public common::CConnectionProvider< RequestType >
 {
@@ -58,7 +60,7 @@ protected:
 	std::map< unsigned int, CNodeMedium< RequestType >* > m_ptrToNodes;
 protected:
 	static CNodesManager< RequestType > * ms_instance;
-
+// replace  this by trackers, mediums, seeds ???????????????
 	std::list< common::CMedium< RequestType > *> m_nodeMediums;
 
 };
@@ -143,11 +145,11 @@ CNodesManager< ResponseType >::provideConnection( int _actionKind, unsigned _req
 	{
 		mediums.push_back( (common::CMedium< ResponseType > *)iterator->second );
 	}
-/*	else if ( CTrackerMediumsKinds::Nodes == _actionKind )
+	else if ( CMediumKinds::DimsNodes == _actionKind )
 	{
 		return m_nodeMediums;
 	}
-*/
+
 	return mediums;
 }
 

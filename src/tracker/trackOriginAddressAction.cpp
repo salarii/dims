@@ -8,13 +8,13 @@
 #include "common/setResponseVisitor.h"
 #include "common/mediumRequests.h"
 #include "common/commonEvents.h"
+#include "common/mediumKinds.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "trackerMediumsKinds.h"
 #include "main.h"
 #include "chainparams.h"
 #include "scanBitcoinNetworkRequest.h"
@@ -49,7 +49,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 {
 	CUninitiated( my_context ctx ) : my_base( ctx )
 	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -62,7 +62,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 		}
 		else
 		{
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
 
 			return discard_event();
 		}
@@ -78,14 +78,14 @@ struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddres
 {
 	CStallAction( my_context ctx ) : my_base( ctx ), m_counter( StallCnt )
 	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		if ( m_counter-- )
 		{
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal ) );
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
 			return discard_event();
 		}
 		else
@@ -111,7 +111,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		if ( m_counter-- )
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Nodes ) );
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::BitcoinsNodes ) );
 		else
 		{
 			context< CTrackOriginAddressAction >().clear();
@@ -122,7 +122,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
 	{
 		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Nodes ) );
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::BitcoinsNodes ) );
 	}
 
 	~CReadingData()
@@ -195,7 +195,7 @@ CTrackOriginAddressAction::requestFiltered()
 	{
 		if ( index == 0 )
 		{
-			m_request = new common::CContinueReqest<TrackerResponses>( 0, CTrackerMediumsKinds::Internal );
+			m_request = new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal );
 			return;
 		}
 		index = index->pprev;

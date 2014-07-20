@@ -4,8 +4,9 @@
 
 #include "trackerNodesManager.h"
 #include "trackerNodeMedium.h"
-#include "trackerMediumsKinds.h"
 #include "connectNodeAction.h"
+
+#include "common/mediumKinds.h"
 
 namespace common
 {

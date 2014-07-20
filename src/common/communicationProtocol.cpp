@@ -114,6 +114,14 @@ CMessage::CMessage( CKnownNetworkInfo const & _knownNetworkInfo )
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CSynchronizationInfo const & _synchronizationInfo )
+	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
+{
+	createPayload( _synchronizationInfo, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash )
 	: m_header( _message.m_header.m_payloadKind, _signedHash, GetTime(), _prevKey )

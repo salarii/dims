@@ -23,6 +23,8 @@ struct CPayloadKind
 		InfoRes,
 		IntroductionReq,
 		IntroductionRes,
+		RoleInfo,
+		SynchronizationInfo,
 		Uninitiated
 	};
 };
@@ -102,7 +104,7 @@ struct CNetworkRole
 	)
 
 	int m_role;
-	uint256 const m_actionKey;
+	uint256 m_actionKey;
 };
 
 struct CValidNodeInfo
@@ -118,7 +120,7 @@ struct CValidNodeInfo
 	CKeyID m_key;
 	CAddress m_address;
 	int m_role;
-	uint256 const m_actionKey;
+	uint256 m_actionKey;
 };
 
 struct CKnownNetworkInfo
@@ -130,7 +132,19 @@ struct CKnownNetworkInfo
 	)
 
 	std::vector< CValidNodeInfo > m_networkInfo;
-	uint256 const m_actionKey;
+	uint256 m_actionKey;
+};
+
+struct CSynchronizationInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_timeStamp);
+		READWRITE(m_actionKey);
+	)
+
+	uint256 m_timeStamp;
+	uint256 m_actionKey;
 };
 
 struct CMessage
@@ -140,6 +154,7 @@ public:
 	CMessage( CIdentifyMessage const & _identifyMessage );
 	CMessage( CNetworkRole const & _networkRole );
 	CMessage( CKnownNetworkInfo const & _knownNetworkInfo );
+	CMessage( CSynchronizationInfo const & _synchronizationInfo );
 
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );

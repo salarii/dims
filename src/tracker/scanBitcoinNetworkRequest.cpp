@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "scanBitcoinNetworkRequest.h"
-#include "trackerMediumsKinds.h"
+#include "common/mediumKinds.h"
 #include "common/medium.h"
 
 namespace tracker
@@ -24,7 +24,7 @@ CAskForTransactionsRequest::accept( common::CMedium< TrackerResponses > * _mediu
 int
 CAskForTransactionsRequest::getKind() const
 {
-	return CTrackerMediumsKinds::Nodes;
+	return common::CMediumKinds::BitcoinsNodes;
 }
 
 std::vector< uint256 > const &
@@ -47,7 +47,7 @@ CSetBloomFilterRequest::accept( common::CMedium< TrackerResponses > * _medium ) 
 int
 CSetBloomFilterRequest::getKind() const
 {
-	return CTrackerMediumsKinds::Nodes;
+	return common::CMediumKinds::BitcoinsNodes;
 }
 
 CBloomFilter const &
