@@ -28,6 +28,20 @@ private:
 	uint64_t const m_timeStamp;
 };
 
+class CGetNextBlockRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CGetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId );
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	virtual int getKind() const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+	unsigned int m_mediumId;
+};
 
 }
 

@@ -33,4 +33,30 @@ CGetSynchronizationInfoRequest::getActionKey() const
 	return m_actionKey;
 }
 
+CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId )
+	: m_actionKey( _actionKey )
+	, m_mediumId( _mediumId )
+{
+}
+
+void
+CGetNextBlockRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
+CGetNextBlockRequest::getKind() const
+{
+	return m_mediumId;
+}
+
+uint256
+CGetNextBlockRequest::getActionKey() const
+{
+	return m_actionKey;
+}
+
+
+
 }

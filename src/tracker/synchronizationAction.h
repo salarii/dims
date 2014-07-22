@@ -14,7 +14,7 @@ namespace tracker
 
 struct CUninitiated;
 
-class CSynchronizationAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
+class CSynchronizationAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
 	CSynchronizationAction();
@@ -26,10 +26,16 @@ public:
 	void setRequest( common::CRequest< TrackerResponses >* _request );
 
 	void clear();
+
+	void setNodeIdentifier( unsigned int _nodeIdentifier );
+	
+	unsigned int getNodeIdentifier() const;
 private:
 	common::CRequest< TrackerResponses >* m_request;
 
 	uint256 m_currentHash;
+
+	unsigned int m_nodeIdentifier;
 };
 
 }

@@ -56,6 +56,9 @@ public:
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,8 ) const * _request ){};
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,9 ) const * _request ){};
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,10 ) const * _request ){};
+	virtual void add( VisitorParam( tracker::TrackerRequestsList ,11 ) const * _request ){};
+	virtual void add( VisitorParam( tracker::TrackerRequestsList ,12 ) const * _request ){};
+	virtual void add( VisitorParam( tracker::TrackerRequestsList ,13 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 
