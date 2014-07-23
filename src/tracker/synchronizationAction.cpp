@@ -17,6 +17,8 @@
 #include "synchronizationAction.h"
 #include "synchronizationRequests.h"
 
+#include "segmentFileStorage.h"
+
 #define CONFIRM_LIMIT 6
 
 namespace tracker
@@ -40,6 +42,10 @@ struct CAssistRequestEvent : boost::statechart::event< CAssistRequestEvent >
 {
 };
 
+struct CGetNextBlockEvent : boost::statechart::event< CGetNextBlockEvent >
+{
+};
+
 struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInfoEvent >
 {
 	CSynchronizationInfoEvent( uint64_t _timeStamp, unsigned int _nodeIdentifier ):m_timeStamp( _timeStamp ),m_nodeIdentifier(_nodeIdentifier){}
@@ -56,6 +62,10 @@ struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent
 	{
 	}
 	CDiskBlock * m_discBlock;
+};
+
+struct CSynchronizeRequestEvent : boost::statechart::event< CTransactionBlockEvent >
+{
 };
 
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
@@ -77,9 +87,13 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		if ( m_waitTime-- )
+		if ( !context< CSynchronizationAction >().isRequestInitialized() )
+		{
+			m_waitTime--;
 			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, common::CMediumKinds::DimsNodes ) );
-		else
+		}
+
+		if ( !m_waitTime )
 			return transit< CSynchronizing >();
 	}
 
@@ -103,12 +117,37 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	uint64_t m_bestTimeStamp;
 };
 
+struct CSynchronized;
+
 struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CSynchronizationAction >
 {
-	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
+	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx ), m_waitTime( SynchronisedWaitTime )
 	{
-
 	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		if ( m_waitTime-- )
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, common::CMediumKinds::DimsNodes ) );
+//		else
+//			return transit< CSynchronizing >();
+	}
+
+	boost::statechart::result react( CSynchronizationInfoEvent const & _synchronizationInfoEvent )
+	{
+		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() ) );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< CSynchronizationInfoEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::transition< CSynchronizeRequestEvent, CSynchronized >
+	> reactions;
+
+	unsigned int m_waitTime;
+
+	// best synchronising option
+	uint64_t m_bestTimeStamp;
 };
 
 struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizationAction >
@@ -142,9 +181,25 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	CSynchronized( my_context ctx ) : my_base( ctx )
 	{
 	}
+
+	boost::statechart::result react( CGetNextBlockEvent const & _getNextBlockEvent )
+	{
+		//_transactionBlockEvent.m_discBlock  work in  progress
+	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CSynchronizationAction >().getNodeIdentifier() ) );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< CGetNextBlockEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
 };
 
 CSynchronizationAction::CSynchronizationAction()
+	: m_request( 0 )
 {
 	initiate();
 }
@@ -154,7 +209,9 @@ CSynchronizationAction::CSynchronizationAction()
 common::CRequest< TrackerResponses >*
 CSynchronizationAction::execute()
 {
-	return m_request;
+	common::CRequest< TrackerResponses > * request = m_request;
+	m_request = 0;
+	return request;
 }
 
 void
@@ -179,6 +236,12 @@ unsigned int
 CSynchronizationAction::getNodeIdentifier() const
 {
 	return m_nodeIdentifier;
+}
+
+bool
+CSynchronizationAction::isRequestInitialized() const
+{
+	return m_request;
 }
 
 void

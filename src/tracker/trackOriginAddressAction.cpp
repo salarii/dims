@@ -73,7 +73,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 	> reactions;
 
 };
-// quarantanna
+// quarantine
 struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddressAction >
 {
 	CStallAction( my_context ctx ) : my_base( ctx ), m_counter( StallCnt )

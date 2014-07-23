@@ -30,6 +30,8 @@ public:
 	void setNodeIdentifier( unsigned int _nodeIdentifier );
 	
 	unsigned int getNodeIdentifier() const;
+
+	bool isRequestInitialized() const;
 private:
 	common::CRequest< TrackerResponses >* m_request;
 

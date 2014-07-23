@@ -192,6 +192,8 @@ public:
 
 	static uint64_t calculateLocation( uint64_t const _fullPosition );
 
+	uint64_t getTimeStampOfLastFlush();
+
 	// position of given block
 	static unsigned int getPosition( uint64_t const _fullPosition );
 

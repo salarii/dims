@@ -5,13 +5,13 @@ AM_CPPFLAGS += -I$(builddir)
 noinst_LIBRARIES = \
   libbitcoin_server.a \
   libbitcoin_common.a \
-  libratcoin_tracker.a \
+  libdims_tracker.a \
   libbitcoin_cli.a
 
 bin_PROGRAMS =
 
 if BUILD_BITCOIND
-  bin_PROGRAMS += ratcoin_tracker
+  bin_PROGRAMS += dims_tracker
 endif
 
 if BUILD_BITCOIN_CLI
@@ -236,7 +236,7 @@ libbitcoin_common_a_SOURCES = \
   $(COMMON_H) \
   $(COMMON_CPP)
 
-  libratcoin_tracker_a_SOURCES = \
+  libdims_tracker_a_SOURCES = \
   $(BITCOIN_CORE_H) \
   $(TRACKER_CORE_H) \
   $(TRACKER_CORE_CPP)
@@ -249,24 +249,24 @@ libbitcoin_cli_a_SOURCES = \
 nodist_libbitcoin_common_a_SOURCES = $(top_srcdir)/src/obj/build.h
 #
 # this repetition is temporary work around
-# ratcoin_tracker binary #
-ratcoin_tracker_LDADD = \
-  libratcoin_tracker.a \
+# dims_tracker binary #
+dims_tracker_LDADD = \
+  libdims_tracker.a \
   libbitcoin_server.a \
-  libratcoin_tracker.a \
+  libdims_tracker.a \
   libbitcoin_cli.a \
   libbitcoin_common.a \
   $(LIBLEVELDB) \
   $(LIBMEMENV)
-ratcoin_tracker_SOURCES = bitcoind.cpp
+dims_tracker_SOURCES = bitcoind.cpp
 #
 
 if TARGET_WINDOWS
-ratcoin_tracker_SOURCES += bitcoind-res.rc
+dims_tracker_SOURCES += bitcoind-res.rc
 endif
 
 AM_CPPFLAGS += $(BDB_CPPFLAGS)
-ratcoin_tracker_LDADD += $(BOOST_LIBS) $(BDB_LIBS)
+dims_tracker_LDADD += $(BOOST_LIBS) $(BDB_LIBS)
 
 # bitcoin-cli binary #
 bitcoin_cli_LDADD = \

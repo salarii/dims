@@ -355,6 +355,12 @@ CSegmentFileStorage::calculateLocation( uint64_t const _fullPosition )
 	return _fullPosition & 0xffffffff000000ff;
 }
 
+uint64_t
+CSegmentFileStorage::getTimeStampOfLastFlush()
+{
+	return 0;
+}
+
 unsigned int
 CSegmentFileStorage::getPosition( uint64_t const _fullPosition )
 {
