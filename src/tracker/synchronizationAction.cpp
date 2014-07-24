@@ -178,13 +178,23 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 
 struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronizationAction >
 {
-	CSynchronized( my_context ctx ) : my_base( ctx )
+	CSynchronized( my_context ctx ) : my_base( ctx ),m_currentBlock( 0 )
 	{
+		m_storedBlocks = CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
 	}
 
 	boost::statechart::result react( CGetNextBlockEvent const & _getNextBlockEvent )
 	{
 		//_transactionBlockEvent.m_discBlock  work in  progress
+		if ( m_currentBlock < m_storedBlocks )
+		{
+			CDiskBlock * diskBlock = new CDiskBlock;
+			CSegmentFileStorage::getInstance()->getBlock( m_currentBlock, *diskBlock );
+
+
+		}
+		else
+			;//end request
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -196,6 +206,10 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	boost::statechart::custom_reaction< CGetNextBlockEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
+
+	unsigned int m_storedBlocks;
+
+	unsigned int m_currentBlock;
 };
 
 CSynchronizationAction::CSynchronizationAction()

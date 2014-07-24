@@ -207,6 +207,12 @@ public:
 	static unsigned int getBucket( uint64_t const _fullPosition );
 
 	static uint64_t createFullPosition( unsigned int _blockPosition, unsigned int _index, unsigned int _level, unsigned int _bucket );
+
+	bool getBlock( unsigned int _index, CDiskBlock & _diskBlock );
+
+	void saveBlock( unsigned int _index, CDiskBlock const & _block );
+
+	unsigned int calculateStoredBlockNumber() const;
 private:
 	CSegmentFileStorage();
 
@@ -216,19 +222,13 @@ private:
 
 	void * getNextFreeBlock();
 
-	bool getBlock( unsigned int _index, CDiskBlock & _diskBlock );
-
 	bool getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader );
 
 	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
 
-	void saveBlock( unsigned int _index, CDiskBlock const & _block );
-
 	void fillHeaderBuffor();
 
 	unsigned int calculateBlockIndex( void * _block );
-
-	unsigned int calculateStoredBlockNumber() const;
 
 	bool findBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber ) const;
 

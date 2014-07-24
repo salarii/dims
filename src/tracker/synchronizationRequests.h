@@ -13,6 +13,8 @@
 namespace tracker
 {
 
+struct CDiskBlock;
+
 class CGetSynchronizationInfoRequest : public common::CRequest< TrackerResponses >
 {
 public:
@@ -41,6 +43,22 @@ public:
 private:
 	uint256 const m_actionKey;
 	unsigned int m_mediumId;
+};
+
+class CSetNextBlockRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CSetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId, CDiskBlock * _discBlock );
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	virtual int getKind() const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+	unsigned int m_mediumId;
+	CDiskBlock * m_discBlock;
 };
 
 }

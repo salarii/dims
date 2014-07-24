@@ -26,6 +26,47 @@ private:
 	std::vector< CTransaction > const m_transactions;
 };
 
+class  CTransactionsKnownRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CTransactionsKnownRequest();
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	virtual int getKind() const;
+};
+
+class  CTransactionsAckRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CTransactionsAckRequest();
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	virtual int getKind() const;
+
+};
+
+class  CTransactionsDoublespendRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CTransactionsDoublespendRequest();
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	virtual int getKind() const;
+};
+
+class  CTransactionsNotOkRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CTransactionsNotOkRequest();
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	virtual int getKind() const;
+};
+
 
 }
 

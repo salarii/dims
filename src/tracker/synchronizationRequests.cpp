@@ -57,6 +57,30 @@ CGetNextBlockRequest::getActionKey() const
 	return m_actionKey;
 }
 
+CSetNextBlockRequest::CSetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId, CDiskBlock * _discBlock )
+	: m_actionKey( _actionKey )
+	, m_mediumId( _mediumId )
+	, m_discBlock( _discBlock )
+{
+}
+
+void
+CSetNextBlockRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
+CSetNextBlockRequest::getKind() const
+{
+	return m_mediumId;
+}
+
+uint256
+CSetNextBlockRequest::getActionKey() const
+{
+	return m_actionKey;
+}
 
 
 }

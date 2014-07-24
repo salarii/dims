@@ -257,6 +257,41 @@ CConnectToNodeRequest< ResponsesType >::getServiceAddress() const
 	return m_serviceAddress;
 }
 
+template < class ResponsesType >
+class CNetworkRoleRequest : public common::CRequest< ResponsesType >
+{
+public:
+	CNetworkRoleRequest( uint256 const & _actionKey );
+
+	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
+
+	virtual int getKind() const;
+private:
+	uint256 const m_actionKey;
+
+	int m_kind;
+};
+
+template < class ResponsesType >
+CNetworkRoleRequest< ResponsesType >::CNetworkRoleRequest( uint256 const & _actionKey )
+	: m_actionKey( _actionKey )
+{
+}
+
+template < class ResponsesType >
+void
+CNetworkRoleRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class ResponsesType >
+int
+CNetworkRoleRequest< ResponsesType >::getKind() const
+{
+	return m_kind;
+}
+
 }
 
 #endif // MEDIUM_REQUESTS_H

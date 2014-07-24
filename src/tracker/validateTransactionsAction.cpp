@@ -21,6 +21,27 @@ initial
 stand alone     network mode
 
 */
+
+struct CValidateTransactionsEvent : boost::statechart::event< CValidateTransactionsEvent >
+{
+};
+
+struct CTransactionsKnownEvent : boost::statechart::event< CTransactionsKnownEvent >
+{
+};
+
+struct CTransactionsAckEvent : boost::statechart::event< CTransactionsAckEvent >
+{
+};
+
+struct CTransactionsDoublespendEvent : boost::statechart::event< CTransactionsDoublespendEvent >
+{
+};
+
+struct CTransactionsNotOkEvent : boost::statechart::event< CTransactionsNotOkEvent >
+{
+};
+
 struct CPropagationSummaryEvent : boost::statechart::event< CPropagationSummaryEvent >
 {
 };
@@ -29,15 +50,58 @@ struct CErrorEvent : boost::statechart::event< CErrorEvent >
 {
 };
 
-struct CNoTransaction : boost::statechart::simple_state< CNoTransaction, CValidateTransactionsAction >
-{};
+struct CNetworkPresent;
 
-struct CNetworkPresent : boost::statechart::simple_state< CNetworkPresent, CValidateTransactionsAction >
-{};
+struct CNoTransaction : boost::statechart::state< CNoTransaction, CValidateTransactionsAction >
+{
+	CNoTransaction( my_context ctx ) : my_base( ctx )
+	{
+	}
 
-struct CStandAlone : boost::statechart::simple_state< CStandAlone, CValidateTransactionsAction >
-{};
+	boost::statechart::result react( CValidateTransactionsEvent const & _validateTransactionsEvent )
+	{
+			return transit< CNetworkPresent >();
+	}
 
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< CValidateTransactionsEvent >
+	> reactions;
+};
+
+struct CNetworkPresent : boost::statechart::state< CNetworkPresent, CValidateTransactionsAction >
+{
+	CNetworkPresent( my_context ctx ) : my_base( ctx )
+	{
+		// choose nodes,  exclude  seeds, monitors, only  trackers  without one  who  sent bundle
+	}
+
+	boost::statechart::result react( CTransactionsKnownEvent const & _transactionsKnownEvent )
+	{
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< CTransactionsKnownEvent >
+	> reactions;
+};
+
+struct CStandAlone : boost::statechart::state< CStandAlone, CValidateTransactionsAction >
+{
+	CStandAlone( my_context ctx ) : my_base( ctx )
+	{
+		// validate internally
+		// if  so  generate  acks ????
+	}
+};
+/*
+when  transaction  bundle  is  approach
+generate request  to inform  every  node about it
+remember all with  exception  of  node which send  bundle analyse  respponses
+validate transaction
+send  double  spend
+not ok
+generate Ack  or  pass Ack
+
+*/
 struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAction >
 {
 	CApproved( my_context ctx ) : my_base( ctx )
@@ -49,7 +113,7 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 	}
 
 };
-
+// not  ok  means
 struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAction >
 {
 	CRejected( my_context ctx ) : my_base( ctx )

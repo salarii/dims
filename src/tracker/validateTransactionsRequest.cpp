@@ -31,6 +31,68 @@ CValidateTransactionsRequest::getTransactions() const
 	return m_transactions;
 }
 
-
+CTransactionsKnownRequest::CTransactionsKnownRequest()
+{
 }
 
+void
+CTransactionsKnownRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
+CTransactionsKnownRequest::getKind() const
+{
+	return common::CMediumKinds::Internal;
+}
+
+CTransactionsAckRequest::CTransactionsAckRequest()
+{
+}
+
+void
+CTransactionsAckRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
+CTransactionsAckRequest::getKind() const
+{
+	return common::CMediumKinds::Internal;
+}
+
+CTransactionsDoublespendRequest::CTransactionsDoublespendRequest()
+{
+}
+
+void
+CTransactionsDoublespendRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
+CTransactionsDoublespendRequest::getKind() const
+{
+	return common::CMediumKinds::Internal;
+}
+
+CTransactionsNotOkRequest::CTransactionsNotOkRequest()
+{
+}
+
+void
+CTransactionsNotOkRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+int
+CTransactionsNotOkRequest::getKind() const
+{
+	return common::CMediumKinds::Internal;
+}
+
+}
