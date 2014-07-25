@@ -139,10 +139,22 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction
 
 };
 
-struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CConnectNodeAction >
+struct CIdentifyRole : boost::statechart::state< CIdentifyRole, CConnectNodeAction >
 {
+	CIdentifyRole( my_context ctx ) : my_base( ctx )
+	{
+	}
 
+	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	{
+		//context< CConnectNodeAction >().setRequest(  );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CRoleEvent >
+	> reactions;
 };
+
 
 CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
 : CCommunicationAction( _actionKey )

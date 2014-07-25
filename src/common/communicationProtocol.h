@@ -24,8 +24,10 @@ struct CPayloadKind
 		IntroductionReq,
 		IntroductionRes,
 		RoleInfo,
+		NetworkInfo,
 		SynchronizationInfo,
-		Uninitiated
+		Uninitiated,
+
 	};
 };
 
@@ -92,8 +94,6 @@ struct CIdentifyMessage
 	std::vector<unsigned char> m_signed;
 	uint256 m_actionKey;
 };
-
-
 
 struct CNetworkRole
 {

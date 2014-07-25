@@ -63,6 +63,17 @@ public:
 	{
 		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
 	}
+
+	virtual void operator()( common::CRoleResult & _param ) const
+	{
+		this->m_action->process_event( common::CRoleEvent( _param.m_role ) );
+	}
+
+	virtual void operator()( common::CNetworkInfoResult & _param ) const
+	{
+		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_networkInfo ) );
+	}
+
 };
 
 template < class _Action >

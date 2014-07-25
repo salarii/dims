@@ -10,6 +10,7 @@
 #include <exception>
 #include "errorResponse.h"
 #include "net.h"
+#include "communicationProtocol.h"
 
 namespace common
 {
@@ -60,6 +61,18 @@ struct CMediumException : public std::exception
 public:
 	CMediumException(ErrorType::Enum _error):m_error(_error){};
 	ErrorType::Enum m_error;
+};
+
+struct CRoleResult
+{
+	CRoleResult(int _role):m_role( _role ){}
+	int m_role;
+};
+
+struct CNetworkInfoResult
+{
+	CNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){}
+	std::vector< CValidNodeInfo > m_networkInfo;
 };
 
 class CSelfNode;

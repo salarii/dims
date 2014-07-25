@@ -43,6 +43,8 @@ public:
 
 	void add( CContinueReqest< ResponseType > const * _request );
 
+	void add( CNetworkRoleRequest< ResponseType > const * _request );
+
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
 
 	common::CSelfNode * getNode() const;
@@ -187,6 +189,24 @@ CNodeMedium< ResponseType >::add( CContinueReqest< ResponseType > const * _reque
 {
 	m_indexes.push_back( _request->getRequestId() );
 }
+
+template < class ResponseType >
+void
+CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _request )
+{
+	common::CNetworkRole networkRole;
+
+	networkRole.m_actionKey = _request->getActionKey();
+
+	networkRole.m_role = _request->getRole();
+
+	common::CMessage message( networkRole );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
+}
+
 
 }
 

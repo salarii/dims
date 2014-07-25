@@ -115,6 +115,59 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
 			}
 		}
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
+		{
+			CPubKey pubKey;
+			assert( CTrackerNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
+
+			common::CMessage orginalMessage;
+			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
+
+			common::CNetworkRole networkRole;
+
+			common::convertPayload( orginalMessage, networkRole );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( networkRole.m_actionKey ) )
+			{
+				nodeMedium->setResponse( networkRole.m_actionKey, common::CRoleResult( networkRole.m_role ) );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+
+			}
+		}
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
+		{
+			CPubKey pubKey;
+			assert( CTrackerNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
+
+			common::CMessage orginalMessage;
+			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
+
+			common::CKnownNetworkInfo knownNetworkInfo;
+
+			common::convertPayload( orginalMessage, knownNetworkInfo );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( knownNetworkInfo.m_actionKey ) )
+			{
+				nodeMedium->setResponse( knownNetworkInfo.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+
+			}
+		}
+
+
+
+
+		//NetworkInfo
 	}
 	/*
 

@@ -3,7 +3,7 @@
 
 #include <boost/statechart/event.hpp>
 #include "net.h"
-
+#include "mediumRequests.h"
 namespace common
 {
 
@@ -31,6 +31,20 @@ struct CContinueEvent : boost::statechart::event< CContinueEvent >
 	CContinueEvent( uint256 const & _keyId ):m_keyId( _keyId ){};
 	uint256 m_keyId;
 };
+
+struct CRoleEvent : boost::statechart::event< CRoleEvent >
+{
+	CRoleEvent( int _role ):m_role( _role ){};
+	int m_role;
+};
+
+struct CNetworkInfoEvent : boost::statechart::event< CNetworkInfoEvent >
+{
+	CNetworkInfoEvent( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){};
+
+	std::vector< CValidNodeInfo > m_networkInfo;
+};
+
 
 struct CErrorEvent : boost::statechart::event< CErrorEvent >
 {
