@@ -27,8 +27,8 @@
 namespace tracker
 {
 uint const UsedMediumNumber = 3;
-uint const MaxMerkleNumber = 500;
-uint const WaitResultTime = 40;
+uint const MaxMerkleNumber = 1000;
+uint const WaitResultTime = 60;
 uint const StallCnt = 5; // 3 ?? enough ??
 
 uint const SynchronizedTreshold = 10;

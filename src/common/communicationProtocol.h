@@ -31,6 +31,16 @@ struct CPayloadKind
 	};
 };
 
+struct CRole
+{
+	enum Enum
+	{
+		Tracker,
+		Seed,
+		Monitor
+	};
+};
+
 struct CTransactionBundle
 {
 	CTransactionBundle( std::vector< CTransaction > const & _bundle );

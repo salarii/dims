@@ -269,7 +269,7 @@ public:
 
 	int getRole() const;
 
-	int getActionKey() const;
+	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
 
@@ -308,6 +308,13 @@ CNetworkRoleRequest< ResponsesType >::getRole() const
 }
 
 template < class ResponsesType >
+uint256
+CNetworkRoleRequest< ResponsesType >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class ResponsesType >
 class CKnownNetworkInfoRequest : public common::CRequest< ResponsesType >
 {
 public:
@@ -319,7 +326,7 @@ public:
 
 	std::vector< CValidNodeInfo > getNetworkInfo() const;
 
-	int getActionKey() const;
+	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
 
@@ -355,6 +362,13 @@ std::vector< CValidNodeInfo >
 CKnownNetworkInfoRequest< ResponsesType >::getNetworkInfo() const
 {
 	return m_networkInfo;
+}
+
+template < class ResponsesType >
+uint256
+CKnownNetworkInfoRequest< ResponsesType >::getActionKey() const
+{
+	return m_actionKey;
 }
 
 }

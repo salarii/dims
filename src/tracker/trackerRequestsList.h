@@ -13,6 +13,9 @@ class CContinueReqest;
 
 template < class RequestType >
 class CIdentifyResponse;
+
+template < class RequestType >
+class CNetworkRoleRequest;
 }
 
 namespace tracker
@@ -30,7 +33,7 @@ class CTransactionsAckRequest;
 class CTransactionsDoublespendRequest;
 class CTransactionsNotOkRequest;
 
-typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, common::CIdentifyRequest<TrackerResponses>, common::CIdentifyResponse<TrackerResponses>, common::CContinueReqest<TrackerResponses>, CAskForTransactionsRequest, CSetBloomFilterRequest, CGetSynchronizationInfoRequest, CGetNextBlockRequest, CSetNextBlockRequest, CTransactionsKnownRequest, CTransactionsAckRequest, CTransactionsDoublespendRequest, CTransactionsNotOkRequest > TrackerRequestsList;
+typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, common::CIdentifyRequest<TrackerResponses>, common::CIdentifyResponse<TrackerResponses>, common::CContinueReqest<TrackerResponses>, CAskForTransactionsRequest, CSetBloomFilterRequest, CGetSynchronizationInfoRequest, CGetNextBlockRequest, CSetNextBlockRequest, CTransactionsKnownRequest, CTransactionsAckRequest, CTransactionsDoublespendRequest, CTransactionsNotOkRequest, common::CNetworkRoleRequest<TrackerResponses> > TrackerRequestsList;
 
 }
 
