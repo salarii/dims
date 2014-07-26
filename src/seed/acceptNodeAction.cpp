@@ -138,6 +138,22 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAct
 	}
 };
 
+struct CIdentifyRole : boost::statechart::state< CIdentifyRole, CAcceptNodeAction >
+{
+	CIdentifyRole( my_context ctx ) : my_base( ctx )
+	{
+	}
+
+	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	{
+		//context< CConnectNodeAction >().setRequest(  );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CRoleEvent >
+	> reactions;
+};
+
 struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction >
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )

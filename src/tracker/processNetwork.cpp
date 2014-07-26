@@ -163,10 +163,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			}
 		}
-
-
-
-
 		//NetworkInfo
 	}
 	/*

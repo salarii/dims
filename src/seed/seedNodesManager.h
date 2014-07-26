@@ -24,9 +24,12 @@ public:
 	CSeedNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 
 	std::list< common::CMedium< SeedResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+
+	bool getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const;
 private:
 	CSeedNodesManager();
 private:
+	std::map< common::CSelfNode *, CPubKey > m_keyStore;
 };
 
 }

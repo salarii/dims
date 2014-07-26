@@ -52,4 +52,16 @@ CSeedNodesManager::provideConnection( int const _actionKind, unsigned _requested
 	return mediums;
 }
 
+bool
+CSeedNodesManager::getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const
+{
+	if ( m_keyStore.find( _node ) != m_keyStore.end() )
+	{
+		_key = m_keyStore.find( _node )->second;
+		return true;
+	}
+	else
+		return false;
+}
+
 }
