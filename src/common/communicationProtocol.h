@@ -124,14 +124,17 @@ struct CValidNodeInfo
 		READWRITE(m_key);
 		READWRITE(m_address);
 		READWRITE(m_role);
-		READWRITE(m_actionKey);
 	)
+	bool operator<( CValidNodeInfo const & _validNodeInfo ) const
+	{
+		return m_key < _validNodeInfo.m_key;
+	}
 
 	CKeyID m_key;
 	CAddress m_address;
 	int m_role;
-	uint256 m_actionKey;
 };
+
 
 struct CKnownNetworkInfo
 {

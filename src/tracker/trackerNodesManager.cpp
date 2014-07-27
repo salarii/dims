@@ -51,5 +51,17 @@ CTrackerNodesManager::getKeyForNode( common::CSelfNode * _node, CPubKey & _key )
 		return false;
 }
 
+std::set< common::CValidNodeInfo > const &
+CTrackerNodesManager::getValidNodes() const
+{
+	return m_validNodes;
+}
+
+void
+CTrackerNodesManager::setValidNode( common::CValidNodeInfo const & _validNodeInfo )
+{
+	m_validNodes.insert( _validNodeInfo );
+}
+
 
 }

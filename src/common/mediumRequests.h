@@ -318,7 +318,7 @@ template < class ResponsesType >
 class CKnownNetworkInfoRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _role, int _kind );
+	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, int _kind );
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 

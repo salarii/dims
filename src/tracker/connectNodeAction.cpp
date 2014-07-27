@@ -105,9 +105,37 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		// identify role
-		context< CConnectNodeAction >().setRequest( 0 );
 	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectNodeAction >().getMediumKind() ) );
+	}
+
+	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	{
+		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, context< CConnectNodeAction >().getMediumKind() ) );
+
+		switch ( _roleEvent.m_role )
+		{
+		case common::CRole::Tracker:
+			transit< ConnectedToTracker >();
+			break;
+		case common::CRole::Seed:
+			transit< ConnectedToSeed >();
+			break;
+		case common::CRole::Monitor:
+			transit< ConnectedToMonitor >();
+			break;
+		default:
+			break;
+		}
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
 };
 
 
@@ -193,7 +221,24 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 {
 	ConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
+		std::vector< common::CValidNodeInfo > validNodesInfo;
+
+		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getValidNodes() )
+		{
+			validNodesInfo.push_back( validNodeInfo );
+		}
+
+		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), validNodesInfo, context< CConnectNodeAction >().getMediumKind() ) );
 	}
+
+	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	{
+		context< CConnectNodeAction >().setRequest( 0 );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
 };
 
 struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConnectNodeAction >

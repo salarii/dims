@@ -30,11 +30,18 @@ public:
 	CTrackerNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 
 	bool getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const;
+
+	std::set< common::CValidNodeInfo > const & getValidNodes() const;
+
+	void setValidNode( common::CValidNodeInfo const & _validNodeInfo );
 private:
 	CTrackerNodesManager();
 private:
-	// is this ok??? seems like temporary solution
+	// is this ok??? seems like temporary solution, move it  to  common???
 	std::map< common::CSelfNode *, CPubKey > m_keyStore;
+
+	//valid network store it  is temporary  solution, move it  to  common???
+	std::set< common::CValidNodeInfo > m_validNodes;
 };
 
 }
