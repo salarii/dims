@@ -31,35 +31,25 @@ class CIdentificationDB : public CDB
 public:
 	enum Enum
 	{
-		Monitor,
-		Tracker,
+		Foreign,
 		Self
 	};
 public:
 	CIdentificationDB(std::string strFilename, const char* pszMode="r+") : CDB(strFilename.c_str(), pszMode)
 	{
 	}
-	bool writeKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type);
+	bool writeKeyForeign( CPubKey const& _vchPubKey);
 
-	bool eraseKey( CPubKey const& vchPubKey, CPrivKey const & vchPrivKey, CIdentificationDB::Enum const _type);
-//	bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
-//	bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey);
+	bool writeKeySelf( CPubKey const& _vchPubKey, CPrivKey const & _vchPrivKey );
 
-/*
-	bool ReadPool(int64_t nPool, CKeyPool& keypool);
-	bool WritePool(int64_t nPool, const CKeyPool& keypool);
-	bool ErasePool(int64_t nPool);
+	bool eraseKey( CPubKey const& vchPubKey );
 
-	bool WriteMinVersion(int nVersion);
-*/
-	DBErrors loadIdentificationDatabase( std::multimap< CIdentificationDB::Enum, CKeyID > & _indicator, CCryptoKeyStore * _store );
+	bool eraseKeyForeign( CPubKey const& vchPubKey );
+
+	DBErrors loadIdentificationDatabase( std::map< CKeyID, CPubKey > & _keys, CPubKey & _selfKey, CCryptoKeyStore * _store );
 private:
 	CIdentificationDB(const CIdentificationDB&);
 	void operator=(const CIdentificationDB&);
-
-	static std::string transalteToMnemonic( CIdentificationDB::Enum const _enum);
-	//static bool Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys);
-	//static bool Recover(CDBEnv& dbenv, std::string filename);
 private:
 	static std::map< CIdentificationDB::Enum, std::string > ms_enumToMnemonic;
 };

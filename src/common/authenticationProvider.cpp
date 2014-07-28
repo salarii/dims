@@ -34,18 +34,18 @@ CAuthenticationProvider::CAuthenticationProvider()
 
 	m_identificatonDB = new CIdentificationDB( m_identificationFile, "rc+" );
 
-	m_identificatonDB->loadIdentificationDatabase( m_indicator, m_keyStore );
+	m_identificatonDB->loadIdentificationDatabase( m_keys, m_selfKey, m_keyStore );
 
-	if ( m_indicator.find( CIdentificationDB::Self ) == m_indicator.end() )
+	if ( m_selfKey.IsValid() )
 	{
 		CKey priv;
 		CPubKey pubKey;
 
 		generateKeyPair( priv, pubKey );
 
-		m_identificatonDB->writeKey( pubKey, priv.GetPrivKey(), CIdentificationDB::Self );
+		m_identificatonDB->writeKeySelf( pubKey, priv.GetPrivKey() );
 
-		m_indicator.insert( std::make_pair( CIdentificationDB::Self, pubKey.GetID() ) );
+		m_selfKey = pubKey;
 
 		m_keyStore->AddKeyPubKey(priv, pubKey);
 
@@ -53,11 +53,10 @@ CAuthenticationProvider::CAuthenticationProvider()
 
 }
 
-CKeyID
-CAuthenticationProvider::getMyKeyId() const
+CPubKey
+CAuthenticationProvider::getMyKey() const
 {
-	assert( m_indicator.find( CIdentificationDB::Self ) != m_indicator.end() );
-	return m_indicator.find( CIdentificationDB::Self )->second;
+	return m_selfKey;
 }
 
 /*
@@ -147,13 +146,12 @@ CAuthenticationProvider::enableAccess() const
 bool
 CAuthenticationProvider::sign( uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const
 {
-	CKey privKey;
-
-	std::multimap< CIdentificationDB::Enum, CKeyID >::const_iterator iterator = m_indicator.find(CIdentificationDB::Self );
-	if ( iterator == m_indicator.end() )
+	if ( m_selfKey.IsValid() )
 		return false;
 
-	if ( !m_keyStore->GetKey( iterator->second, privKey ) )
+	CKey privKey;
+
+	if ( !m_keyStore->GetKey( m_selfKey.GetID(), privKey ) )
 		return false;
 
 	return privKey.Sign( _hash, _vchSig );
@@ -162,13 +160,11 @@ CAuthenticationProvider::sign( uint256 const &_hash, std::vector<unsigned char> 
 bool
 CAuthenticationProvider::verify( CKeyID const & _key, uint256 const & _hash, std::vector<unsigned char> const & _vchSig ) const
 {
-	CKey privKey;
-
-/*	std::map< CKeyID, CPubKey >::iterator iterator = m_pairsPubKeyStore.find( _key );
-	if ( iterator == m_pairsPubKeyStore.end() )
+	std::map< CKeyID, CPubKey >::const_iterator iterator = m_keys.find( _key );
+	if ( iterator == m_keys.end() )
 		return false;
-*/
-	return false;//iterator->second.Verify( _hash, _vchSig );
+
+	return iterator->second.Verify( _hash, _vchSig );
 }
 
 bool

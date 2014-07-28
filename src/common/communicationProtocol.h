@@ -100,7 +100,7 @@ struct CIdentifyMessage
 	)
 
 	std::vector<unsigned char> m_payload;
-	CKeyID m_key;
+	CPubKey m_key;
 	std::vector<unsigned char> m_signed;
 	uint256 m_actionKey;
 };

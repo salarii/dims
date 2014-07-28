@@ -14,9 +14,9 @@
 namespace tracker
 {
 
-struct CUninitiated;
+struct CConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CUninitiated >, public common::CCommunicationAction
+class CConnectNodeAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >, public common::CCommunicationAction
 {
 public:
 	CConnectNodeAction( std::string const & _nodeAddress );

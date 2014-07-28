@@ -25,7 +25,7 @@ public:
 
 	void enableAccess() const;
 
-	CKeyID getMyKeyId() const;
+	CPubKey getMyKey() const;
 
 	bool sign( uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const;
 
@@ -55,7 +55,9 @@ private:
 
 	CIdentificationDB * m_identificatonDB;
 
-	std::multimap< CIdentificationDB::Enum, CKeyID > m_indicator;
+	std::map< CKeyID, CPubKey > m_keys;
+
+	CPubKey m_selfKey;
 };
 
 }

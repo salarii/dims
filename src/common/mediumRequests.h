@@ -77,7 +77,7 @@ template < class ResponsesType >
 class CIdentifyResponse : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
+	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -86,7 +86,7 @@ public:
 
 	std::vector< unsigned char > getSigned() const;
 
-	uint160 getKeyID() const;
+	CPubKey getKey() const;
 
 	std::vector< unsigned char > getPayload()const;
 
@@ -94,17 +94,17 @@ public:
 private:
 	unsigned int m_kind;
 	std::vector< unsigned char > m_signed;
-	uint160 m_keyId;
+	CPubKey m_key;
 	std::vector< unsigned char > m_payload;
 
 	uint256 const m_actionKey;
 };
 
 template < class ResponsesType >
-CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, uint160 _keyId, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
+CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
 	: m_kind( _kind )
 	, m_signed( _signed )
-	, m_keyId( _keyId )
+	, m_key( _key )
 	, m_payload( _payload )
 	, m_actionKey( _actionKey )
 {
@@ -132,10 +132,10 @@ CIdentifyResponse< ResponsesType >::getSigned() const
 }
 
 template < class ResponsesType >
-uint160
-CIdentifyResponse< ResponsesType >::getKeyID() const
+CPubKey
+CIdentifyResponse< ResponsesType >::getKey() const
 {
-	return m_keyId;
+	return m_key;
 }
 
 template < class ResponsesType >

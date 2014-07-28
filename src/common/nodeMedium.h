@@ -171,7 +171,7 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _req
 
 	identifyMessage.m_signed = _request->getSigned();
 
-	identifyMessage.m_key = _request->getKeyID();
+	identifyMessage.m_key = _request->getKey();
 
 	identifyMessage.m_actionKey = _request->getActionKey();
 
@@ -201,6 +201,9 @@ CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _r
 	networkRole.m_role = _request->getRole();
 
 	common::CMessage message( networkRole );
+
+	common::CMessage orginalMessage;
+//	common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
 
 	m_messages.push_back( message );
 
