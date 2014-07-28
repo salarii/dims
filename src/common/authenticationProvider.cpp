@@ -176,19 +176,26 @@ CAuthenticationProvider::generateKeyPair( CKey & _priv, CPubKey & _pubKey )
 
 	return true;
 }
-/*
-bool
-CAuthenticationProvider::addAddress( char * _privPlain )
+
+
+void
+CAuthenticationProvider::addPubKey( CPubKey const & _pubKey )
 {
-	CKey priv;
-	
-	//priv.Set( _privPlain[0], _privPlain[size-1] );
-
-	//m_keyStore.AddKey(priv);
-
-	return false;//priv->GetPubKey()->GetID();
+	m_keys.insert( std::make_pair( _pubKey.GetID(), _pubKey ) );
 }
-*/
+
+bool
+CAuthenticationProvider::getPubKey( CKeyID const & _key, CPubKey & _pubKey )
+{
+	std::map< CKeyID, CPubKey >::const_iterator iterator = m_keys.find( _key );
+
+	if ( iterator == m_keys.end() )
+		return false;
+
+	_pubKey = iterator->second;
+	return true;
+}
+
 
 void
 CAuthenticationProvider::save()

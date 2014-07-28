@@ -35,8 +35,12 @@ public:
 	//bool addAddress( char * );
 
 	void save();
+
 	void load();
 
+	void addPubKey( CPubKey const & _pubKey );
+
+	bool getPubKey( CKeyID const & _key, CPubKey & _pubKey );
 //	bool verify( CNode* _node, std::vector<unsigned char>& _vchSig ) const;
 
 	static CAuthenticationProvider* getInstance();

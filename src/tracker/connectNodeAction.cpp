@@ -92,7 +92,21 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	{
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
 
-		createIdentifyResponse( context< CConnectNodeAction >() );
+		uint256 hash = Hash( &requestedEvent->m_payload.front(), &requestedEvent->m_payload.back() );
+
+		if ( requestedEvent->m_key.Verify( hash, requestedEvent->m_signed ) )
+		{
+			//requestedEvent->m_address
+//CTrackerNodesManager::getInstance();
+	//	common::CAuthenticationProvider::getInstance()->
+			createIdentifyResponse( context< CConnectNodeAction >() );
+		}
+		else
+		{
+			context< CConnectNodeAction >().setRequest( 0 );
+		}
+		// something  is  wrong  with  pair react  somehow for  now put 0
+
 	}
 
 	typedef boost::mpl::list<
@@ -105,6 +119,8 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
+		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
+
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -168,8 +184,6 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
-
 		createIdentifyResponse( context< CConnectNodeAction >() );
 
 	}

@@ -21,8 +21,10 @@ struct CCantReachNode : boost::statechart::event< CCantReachNode >
 
 struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 {
-	CIntroduceEvent( CAddress const & _address ):m_address( _address ){};
-	// ugly but let it be
+	CIntroduceEvent( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, CPubKey const & _key, CAddress const & _address = CAddress() ):m_payload( _payload ),m_signed( _signed ),m_key( _key ),m_address(_address){};
+	std::vector<unsigned char> m_payload;
+	std::vector<unsigned char> m_signed;
+	CPubKey m_key;
 	CAddress m_address;
 };
 
