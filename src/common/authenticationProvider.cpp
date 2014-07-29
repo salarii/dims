@@ -36,7 +36,7 @@ CAuthenticationProvider::CAuthenticationProvider()
 
 	m_identificatonDB->loadIdentificationDatabase( m_keys, m_selfKey, m_keyStore );
 
-	if ( m_selfKey.IsValid() )
+	if ( !m_selfKey.IsValid() )
 	{
 		CKey priv;
 		CPubKey pubKey;
@@ -146,7 +146,7 @@ CAuthenticationProvider::enableAccess() const
 bool
 CAuthenticationProvider::sign( uint256 const &_hash, std::vector<unsigned char> & _vchSig ) const
 {
-	if ( m_selfKey.IsValid() )
+	if ( !m_selfKey.IsValid() )
 		return false;
 
 	CKey privKey;

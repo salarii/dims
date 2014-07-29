@@ -13,6 +13,7 @@
 #include "common/nodeMedium.h"
 #include "common/actionHandler.h"
 #include "common/nodesManager.h"
+#include "common/authenticationProvider.h"
 
 namespace common
 {
@@ -203,7 +204,8 @@ CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _r
 	common::CMessage message( networkRole );
 
 	common::CMessage orginalMessage;
-//	common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
+
+	common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), common::CAuthenticationProvider::getInstance()->getMyKey() );
 
 	m_messages.push_back( message );
 
