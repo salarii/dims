@@ -92,6 +92,8 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	{
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
 
+		uint256 hash = Hash( &requestedEvent->m_payload.front(), &requestedEvent->m_payload.back() );
+
 		if ( requestedEvent->m_key.Verify( hash, requestedEvent->m_signed ) )
 		{
 			context< CConnectNodeAction >().setPublicKey( requestedEvent->m_key );
