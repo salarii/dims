@@ -34,11 +34,15 @@ public:
 	std::set< common::CValidNodeInfo > const & getValidNodes() const;
 
 	void setValidNode( common::CValidNodeInfo const & _validNodeInfo );
+
+	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
+
+	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 private:
 	CTrackerNodesManager();
 private:
 	// is this ok??? seems like temporary solution, move it  to  common???
-	std::map< common::CSelfNode *, CPubKey > m_keyStore;
+	std::map< CAddress, CPubKey > m_keyStore;
 
 	//valid network store it  is temporary  solution, move it  to  common???
 	std::set< common::CValidNodeInfo > m_validNodes;

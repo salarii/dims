@@ -125,6 +125,15 @@ struct CValidNodeInfo
 		READWRITE(m_address);
 		READWRITE(m_role);
 	)
+
+	CValidNodeInfo()
+	{
+	}
+
+	CValidNodeInfo(	CKeyID _key, CAddress _address, int _role ):m_key( _key ), m_address( _address ), m_role( _role )
+	{
+	}
+
 	bool operator<( CValidNodeInfo const & _validNodeInfo ) const
 	{
 		return m_key < _validNodeInfo.m_key;

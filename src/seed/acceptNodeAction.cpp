@@ -63,7 +63,17 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	{
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
 
-		createIdentifyResponse( context< CAcceptNodeAction >() );
+		uint256 hash = Hash( &requestedEvent->m_payload.front(), &requestedEvent->m_payload.back() );
+
+		if ( requestedEvent->m_key.Verify( hash, requestedEvent->m_signed ) )
+		{
+			createIdentifyResponse( context< CAcceptNodeAction >() );
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( 0 );
+		}
+
 	}
 
 	typedef boost::mpl::list<
@@ -149,8 +159,6 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
-
 		createIdentifyResponse( context< CAcceptNodeAction >() );
 
 	}

@@ -96,9 +96,8 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 		if ( requestedEvent->m_key.Verify( hash, requestedEvent->m_signed ) )
 		{
-			//requestedEvent->m_address
-//CTrackerNodesManager::getInstance();
-	//	common::CAuthenticationProvider::getInstance()->
+			context< CConnectNodeAction >().setPublicKey( requestedEvent->m_key );
+
 			createIdentifyResponse( context< CConnectNodeAction >() );
 		}
 		else
@@ -218,17 +217,15 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
-	}
-/*
-	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
-	{
-		//context< CConnectNodeAction >().setRequest(  );
+		context< CConnectNodeAction >().setRequest( 0 );
+
+		CTrackerNodesManager::getInstance()->setValidNode( common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey().GetID(), context< CConnectNodeAction >().getServiceAddress(), common::CRole::Tracker ) );
+
+		CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), context< CConnectNodeAction >().getPublicKey() );
+
+		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
 	}
 
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >
-	> reactions;
-*/
 };
 
 struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNodeAction >
@@ -341,6 +338,19 @@ CConnectNodeAction::getMediumKind() const
 {
 	return m_mediumKind;
 }
+
+CPubKey
+CConnectNodeAction::getPublicKey() const
+{
+	return m_key;
+}
+
+void
+CConnectNodeAction::setPublicKey( CPubKey const & _pubKey )
+{
+	m_key = _pubKey;
+}
+
 
 void
 CConnectNodeAction::setMediumKind( unsigned int _mediumKind )

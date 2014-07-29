@@ -41,6 +41,10 @@ public:
 // not safe
 	unsigned int getMediumKind() const;
 
+	CPubKey getPublicKey() const;
+
+	void setPublicKey( CPubKey const & _pubKey );
+
 	~CConnectNodeAction(){};
 private:
 	common::CRequest< TrackerResponses >* m_request;
@@ -57,6 +61,7 @@ private:
 
 	CAddress m_addrConnect;
 
+	CPubKey m_key;
 };
 
 

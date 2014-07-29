@@ -42,9 +42,11 @@ CTrackerNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 bool
 CTrackerNodesManager::getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const
 {
-	if ( m_keyStore.find( _node ) != m_keyStore.end() )
+	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _node->addr );
+
+	if ( iterator != m_keyStore.end() )
 	{
-		_key = m_keyStore.find( _node )->second;
+		_key = iterator->second;
 		return true;
 	}
 	else
@@ -63,5 +65,24 @@ CTrackerNodesManager::setValidNode( common::CValidNodeInfo const & _validNodeInf
 	m_validNodes.insert( _validNodeInfo );
 }
 
+
+void
+CTrackerNodesManager::setPublicKey( CAddress const & _address, CPubKey const & _pubKey )
+{
+	m_keyStore.insert( std::make_pair( _address, _pubKey ) );
+}
+
+bool
+CTrackerNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const
+{
+	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _address );
+
+	if ( iterator == m_keyStore.end() )
+		return false;
+
+	_pubKey = iterator->second;
+
+	return true;
+}
 
 }
