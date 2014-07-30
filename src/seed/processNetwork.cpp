@@ -74,8 +74,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
 			CPubKey pubKey;
-			assert( CSeedNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
-
+			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+				;//service  error  somehow, can't  decode  action  at  this point  so it  have  to  be  done as  common  solution  for  all  such  issues
 			common::CMessage orginalMessage;
 			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
 
@@ -98,7 +98,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
 		{
 			CPubKey pubKey;
-			assert( CSeedNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
+			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+				;
 
 			common::CMessage orginalMessage;
 			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
@@ -112,6 +113,31 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( knownNetworkInfo.m_actionKey ) )
 			{
 				nodeMedium->setResponse( knownNetworkInfo.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+
+			}
+		}
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
+		{
+			CPubKey pubKey;
+			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+				;
+
+			common::CMessage orginalMessage;
+			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
+
+			common::CAck ack;
+
+			common::convertPayload( orginalMessage, ack );
+
+			CSeedNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( ack.m_actionKey ) )
+			{
+				nodeMedium->setResponse( ack.m_actionKey, common::CAckResult() );
 			}
 			else
 			{

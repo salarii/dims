@@ -371,6 +371,56 @@ CKnownNetworkInfoRequest< ResponsesType >::getActionKey() const
 	return m_actionKey;
 }
 
+
+template < class ResponsesType >
+class CAckRequest : public common::CRequest< ResponsesType >
+{
+public:
+	CAckRequest( uint256 const & _actionKey, int _kind );
+
+	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
+
+	virtual int getKind() const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+
+	std::vector< CValidNodeInfo > m_networkInfo;
+
+	int m_kind;
+};
+
+template < class ResponsesType >
+CAckRequest< ResponsesType >::CAckRequest( uint256 const & _actionKey, int _kind )
+	: m_actionKey( _actionKey )
+	, m_kind( _kind )
+{
+}
+
+template < class ResponsesType >
+void
+CAckRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class ResponsesType >
+int
+CAckRequest< ResponsesType >::getKind() const
+{
+	return m_kind;
+}
+
+template < class ResponsesType >
+uint256
+CAckRequest< ResponsesType >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+
+
 }
 
 #endif // MEDIUM_REQUESTS_H

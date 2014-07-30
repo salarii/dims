@@ -27,7 +27,7 @@ struct CPayloadKind
 		NetworkInfo,
 		SynchronizationInfo,
 		Uninitiated,
-
+		Ack
 	};
 };
 
@@ -116,6 +116,17 @@ struct CNetworkRole
 	int m_role;
 	uint256 m_actionKey;
 };
+
+struct CAck
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_actionKey);
+	)
+
+	uint256 m_actionKey;
+};
+
 
 struct CValidNodeInfo
 {

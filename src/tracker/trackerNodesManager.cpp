@@ -39,20 +39,6 @@ CTrackerNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 	return static_cast< CTrackerNodeMedium* >( common::CNodesManager< TrackerResponses >::getMediumForNode( _node ) );
 }
 
-bool
-CTrackerNodesManager::getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const
-{
-	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _node->addr );
-
-	if ( iterator != m_keyStore.end() )
-	{
-		_key = iterator->second;
-		return true;
-	}
-	else
-		return false;
-}
-
 std::set< common::CValidNodeInfo > const &
 CTrackerNodesManager::getValidNodes() const
 {

@@ -25,12 +25,18 @@ public:
 
 	std::list< common::CMedium< SeedResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
 
-	bool getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const;
+	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
+
+	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 private:
 	CSeedNodesManager();
 private:
-	std::map< common::CSelfNode *, CPubKey > m_keyStore;
+	std::map< CAddress, CPubKey > m_keyStore;
 };
+
+
+
+
 
 }
 

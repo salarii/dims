@@ -83,6 +83,10 @@ struct CConnectedNode
 	common::CSelfNode * m_node;
 };
 
+struct CAckResult
+{
+};
+
 typedef boost::variant< CDummy, CAvailableCoins > ClientResponse;
 
 }

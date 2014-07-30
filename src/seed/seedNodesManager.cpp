@@ -52,16 +52,24 @@ CSeedNodesManager::provideConnection( int const _actionKind, unsigned _requested
 	return mediums;
 }
 
-bool
-CSeedNodesManager::getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const
+void
+CSeedNodesManager::setPublicKey( CAddress const & _address, CPubKey const & _pubKey )
 {
-	if ( m_keyStore.find( _node ) != m_keyStore.end() )
-	{
-		_key = m_keyStore.find( _node )->second;
-		return true;
-	}
-	else
-		return false;
+	m_keyStore.insert( std::make_pair( _address, _pubKey ) );
 }
+
+bool
+CSeedNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const
+{
+	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _address );
+
+	if ( iterator == m_keyStore.end() )
+		return false;
+
+	_pubKey = iterator->second;
+
+	return true;
+}
+
 
 }

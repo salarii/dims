@@ -94,7 +94,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{
 			CPubKey pubKey;
-			assert( CTrackerNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
 			common::CMessage orginalMessage;
 			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
@@ -118,7 +118,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
 			CPubKey pubKey;
-			assert( CTrackerNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
 			common::CMessage orginalMessage;
 			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
@@ -142,7 +142,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
 		{
 			CPubKey pubKey;
-			assert( CTrackerNodesManager::getInstance()->getKeyForNode( pfrom, pubKey ) );
+			if( CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
 			common::CMessage orginalMessage;
 			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
@@ -156,6 +156,31 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( knownNetworkInfo.m_actionKey ) )
 			{
 				nodeMedium->setResponse( knownNetworkInfo.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+
+			}
+		}
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
+		{
+			CPubKey pubKey;
+			if ( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+				;
+
+			common::CMessage orginalMessage;
+			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
+
+			common::CAck ack;
+
+			common::convertPayload( orginalMessage, ack );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( ack.m_actionKey ) )
+			{
+				nodeMedium->setResponse( ack.m_actionKey, common::CAckResult() );
 			}
 			else
 			{

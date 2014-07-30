@@ -98,6 +98,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		{
 			context< CConnectNodeAction >().setPublicKey( requestedEvent->m_key );
 
+			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), requestedEvent->m_key );
 			createIdentifyResponse( context< CConnectNodeAction >() );
 		}
 		else
@@ -204,7 +205,6 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction
 	{
 		context< CConnectNodeAction >().setRequest(
 				  new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
-
 	}
 
 	typedef boost::mpl::list<
@@ -221,16 +221,26 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 
 		CTrackerNodesManager::getInstance()->setValidNode( common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey().GetID(), context< CConnectNodeAction >().getServiceAddress(), common::CRole::Tracker ) );
 
-		CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), context< CConnectNodeAction >().getPublicKey() );
-
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
 	}
 
 };
 
+struct CStop;
+
 struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNodeAction >
 {
 	ConnectedToSeed( my_context ctx ) : my_base( ctx )
+	{
+
+	}
+
+	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	{
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectNodeAction >().getMediumKind() ) );
+	}
+
+	boost::statechart::result react( const common::CAckEvent & _ackEvent )
 	{
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 
@@ -238,8 +248,21 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		{
 			validNodesInfo.push_back( validNodeInfo );
 		}
-
 		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), validNodesInfo, context< CConnectNodeAction >().getMediumKind() ) );
+
+		transit< CStop >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
+struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
+{
+	CStop( my_context ctx ) : my_base( ctx )
+	{
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -251,6 +274,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 };
+
 
 struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConnectNodeAction >
 {

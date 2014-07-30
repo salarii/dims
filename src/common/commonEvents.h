@@ -60,6 +60,10 @@ struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectingE
 {
 };
 
+struct CAckEvent : boost::statechart::event< CAckEvent >
+{
+};
+
 }
 
 #endif // COMMON_EVENTS_H

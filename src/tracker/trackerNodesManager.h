@@ -29,8 +29,6 @@ public:
 
 	CTrackerNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 
-	bool getKeyForNode( common::CSelfNode * _node, CPubKey & _key ) const;
-
 	std::set< common::CValidNodeInfo > const & getValidNodes() const;
 
 	void setValidNode( common::CValidNodeInfo const & _validNodeInfo );

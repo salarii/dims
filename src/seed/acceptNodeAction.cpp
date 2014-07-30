@@ -91,7 +91,22 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
-		m_address = requestedEvent->m_address;
+
+		uint256 hash = Hash( &requestedEvent->m_payload.front(), &requestedEvent->m_payload.back() );
+
+		if ( requestedEvent->m_key.Verify( hash, requestedEvent->m_signed ) )
+		{
+			m_address = requestedEvent->m_address;
+
+			CSeedNodesManager::getInstance()->setPublicKey( m_address, requestedEvent->m_key );
+
+			context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, context< CAcceptNodeAction >().getMediumKind() ) );
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setValid( false );
+			context< CAcceptNodeAction >().setRequest( 0 );
+		}
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -101,7 +116,6 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, context< CAcceptNodeAction >().getMediumKind() ) );
 
 		switch ( _roleEvent.m_role )
 		{
@@ -219,7 +233,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, context< CAcceptNodeAction >().getMediumKind() ) );
+		context< CAcceptNodeAction >().setRequest( new common::CAckRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), context< CAcceptNodeAction >().getMediumKind() ) );
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )

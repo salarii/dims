@@ -20,14 +20,15 @@ class CConnectToNodeRequest;
 template < class RequestType >
 class CNetworkRoleRequest;
 
-
+template < class RequestType >
+class CAckRequest;
 
 }
 
 namespace seed
 {
 
-typedef boost::mpl::list< common::CIdentifyRequest< SeedResponses >, common::CContinueReqest< SeedResponses >, common::CIdentifyResponse< SeedResponses >, common::CConnectToNodeRequest< SeedResponses >, common::CNetworkRoleRequest< SeedResponses > > SeedRequestsList;
+typedef boost::mpl::list< common::CIdentifyRequest< SeedResponses >, common::CContinueReqest< SeedResponses >, common::CIdentifyResponse< SeedResponses >, common::CConnectToNodeRequest< SeedResponses >, common::CNetworkRoleRequest< SeedResponses >, common::CAckRequest< SeedResponses > > SeedRequestsList;
 
 }
 
