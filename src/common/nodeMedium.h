@@ -160,8 +160,7 @@ CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _requ
 
 	m_messages.push_back( message );
 
-	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
-	m_indexes.push_back( hash );
+	m_indexes.push_back( _request->getActionKey() );
 }
 
 template < class ResponseType >
@@ -182,8 +181,7 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _req
 
 	m_messages.push_back( message );
 
-	uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
-	m_indexes.push_back( hash );
+	m_indexes.push_back( _request->getActionKey() );
 }
 
 template < class ResponseType >
