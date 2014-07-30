@@ -36,42 +36,6 @@ class ConnectedToSeed;
 class ConnectedToMonitor;
 
 class ConnectedToTracker;
-// merge  this  with CPairIdentifiedConnected ???
-struct CIdentified : boost::statechart::state< CIdentified, CConnectNodeAction >
-{
-	CIdentified( my_context ctx ) : my_base( ctx )
-	{
-	}
-
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectNodeAction >().getMediumKind() ) );
-	}
-
-	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
-	{
-		switch ( _roleEvent.m_role )
-		{
-		case common::CRole::Tracker:
-			transit< ConnectedToTracker >();
-			break;
-		case common::CRole::Seed:
-			transit< ConnectedToSeed >();
-			break;
-		case common::CRole::Monitor:
-			transit< ConnectedToMonitor >();
-			break;
-		default:
-			break;
-		}
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
-};
-
 
 template < class Parent >
 void
@@ -108,8 +72,32 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 	}
 
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, context< CConnectNodeAction >().getMediumKind() ) );
+	}
+
+	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	{
+		switch ( _roleEvent.m_role )
+		{
+		case common::CRole::Tracker:
+			transit< ConnectedToTracker >();
+			break;
+		case common::CRole::Seed:
+			transit< ConnectedToSeed >();
+			break;
+		case common::CRole::Monitor:
+			transit< ConnectedToMonitor >();
+			break;
+		default:
+			break;
+		}
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::transition< common::CContinueEvent, CIdentified >// kind of using side effect is this ok??
+	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 
 };

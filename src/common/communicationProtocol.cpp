@@ -38,7 +38,7 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _ori
 bool
 CommunicationProtocol::signPayload( std::vector<unsigned char> const & _payload, std::vector<unsigned char> & _signedHash )
 {
-	uint256 hash = Hash(BEGIN(_payload), END(_payload));
+	uint256 hash = Hash( &_payload.front(), &_payload.back() );
 	CAuthenticationProvider::getInstance()->sign( hash, _signedHash );
 	return true;
 }
