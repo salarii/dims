@@ -99,7 +99,7 @@ CMessage::CMessage( CIdentifyMessage const & _identifyMessage )
 }
 
 CMessage::CMessage( CNetworkRole const & _networkRole )
-	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
+	: m_header( (int)CPayloadKind::RoleInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
 	createPayload( _networkRole, m_payload );
 
@@ -107,7 +107,7 @@ CMessage::CMessage( CNetworkRole const & _networkRole )
 }
 
 CMessage::CMessage( CKnownNetworkInfo const & _knownNetworkInfo )
-	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
+	: m_header( (int)CPayloadKind::NetworkInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
 	createPayload( _knownNetworkInfo, m_payload );
 
@@ -122,6 +122,13 @@ CMessage::CMessage( CSynchronizationInfo const & _synchronizationInfo )
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CAck const & _ack )
+	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey() )
+{
+	createPayload( _ack, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash )
 	: m_header( _message.m_header.m_payloadKind, _signedHash, GetTime(), _prevKey )

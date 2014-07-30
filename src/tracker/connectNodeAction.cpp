@@ -41,7 +41,6 @@ struct CIdentified : boost::statechart::state< CIdentified, CConnectNodeAction >
 {
 	CIdentified( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, context< CConnectNodeAction >().getMediumKind() ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

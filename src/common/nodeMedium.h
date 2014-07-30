@@ -46,6 +46,8 @@ public:
 
 	void add( CNetworkRoleRequest< ResponseType > const * _request );
 
+	void add( CAckRequest< ResponseType > const * _request );
+
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
 
 	common::CSelfNode * getNode() const;
@@ -212,6 +214,24 @@ CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _r
 	m_indexes.push_back( _request->getActionKey() );
 }
 
+template < class ResponseType >
+void
+CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
+{
+	common::CAck ack;
+
+	ack.m_actionKey = _request->getActionKey();
+
+	common::CMessage message( ack );
+
+	common::CMessage orginalMessage;
+
+	common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), common::CAuthenticationProvider::getInstance()->getMyKey() );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
+}
 
 }
 

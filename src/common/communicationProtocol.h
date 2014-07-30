@@ -188,6 +188,7 @@ public:
 	CMessage( CNetworkRole const & _networkRole );
 	CMessage( CKnownNetworkInfo const & _knownNetworkInfo );
 	CMessage( CSynchronizationInfo const & _synchronizationInfo );
+	CMessage( CAck const & _synchronizationInfo );
 
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
