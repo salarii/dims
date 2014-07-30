@@ -100,7 +100,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 
 			CSeedNodesManager::getInstance()->setPublicKey( m_address, requestedEvent->m_key );
 
-			context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, context< CAcceptNodeAction >().getMediumKind() ) );
+			context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, context< CAcceptNodeAction >().getMediumKind() ) );
 		}
 		else
 		{
@@ -121,15 +121,12 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 		{
 		case common::CRole::Tracker:
 			db.Add(m_address);
-			transit< ConnectedToTracker >();
-			break;
+			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
-			transit< ConnectedToSeed >();
-			break;
+			return transit< ConnectedToSeed >();
 		case common::CRole::Monitor:
 			db.Add(m_address);
-			transit< ConnectedToMonitor >();
-			break;
+			return transit< ConnectedToMonitor >();
 		default:
 			break;
 		}

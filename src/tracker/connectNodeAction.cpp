@@ -82,14 +82,11 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		switch ( _roleEvent.m_role )
 		{
 		case common::CRole::Tracker:
-			transit< ConnectedToTracker >();
-			break;
+			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
-			transit< ConnectedToSeed >();
-			break;
+			return transit< ConnectedToSeed >();
 		case common::CRole::Monitor:
-			transit< ConnectedToMonitor >();
-			break;
+			return transit< ConnectedToMonitor >();
 		default:
 			break;
 		}
@@ -122,14 +119,11 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 		switch ( _roleEvent.m_role )
 		{
 		case common::CRole::Tracker:
-			transit< ConnectedToTracker >();
-			break;
+			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
-			transit< ConnectedToSeed >();
-			break;
+			return transit< ConnectedToSeed >();
 		case common::CRole::Monitor:
-			transit< ConnectedToMonitor >();
-			break;
+			return transit< ConnectedToMonitor >();
 		default:
 			break;
 		}
