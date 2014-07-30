@@ -321,7 +321,7 @@ CAcceptNodeAction::getAddress() const
 	return m_nodeAddress;
 }
 
-std::vector< unsigned char >
+std::vector< unsigned char > const &
 CAcceptNodeAction::getPayload() const
 {
 	return m_payload;

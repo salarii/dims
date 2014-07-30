@@ -31,7 +31,7 @@ public:
 
 	CAddress getAddress() const;
 
-	std::vector< unsigned char > getPayload() const;
+	std::vector< unsigned char > const & getPayload() const;
 
 	void setMediumKind( unsigned int _mediumKind );
 // not safe

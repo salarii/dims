@@ -327,7 +327,7 @@ CConnectNodeAction::getServiceAddress() const
 	return m_addrConnect;
 }
 
-std::vector< unsigned char >
+std::vector< unsigned char >  const &
 CConnectNodeAction::getPayload() const
 {
 	return m_payload;
