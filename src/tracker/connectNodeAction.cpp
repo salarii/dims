@@ -66,10 +66,9 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		}
 		else
 		{
+		// something  is  wrong  with  pair react  somehow for  now put 0
 			context< CConnectNodeAction >().setRequest( 0 );
 		}
-		// something  is  wrong  with  pair react  somehow for  now put 0
-
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -79,6 +78,8 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
 	{
+		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, context< CConnectNodeAction >().getMediumKind() ) );
+
 		switch ( _roleEvent.m_role )
 		{
 		case common::CRole::Tracker:
@@ -105,7 +106,21 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 	{
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
 
+		uint256 hash = Hash( &requestedEvent->m_payload.front(), &requestedEvent->m_payload.back() );
+
+		if ( requestedEvent->m_key.Verify( hash, requestedEvent->m_signed ) )
+		{
+			CTrackerNodesManager::getInstance()->setPublicKey( requestedEvent->m_address, requestedEvent->m_key );
+
+			context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, context< CConnectNodeAction >().getMediumKind() ) );
+		}
+		else
+		{
+			context< CConnectNodeAction >().setRequest( 0 );
+		}
 	}
+
+
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
@@ -119,6 +134,8 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 		switch ( _roleEvent.m_role )
 		{
 		case common::CRole::Tracker:
+			// ugly
+			context< CConnectNodeAction >().setRequest( new common::CAckRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), context< CConnectNodeAction >().getMediumKind() ) );
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
 			return transit< ConnectedToSeed >();
@@ -231,7 +248,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		}
 		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), validNodesInfo, context< CConnectNodeAction >().getMediumKind() ) );
 
-		transit< CStop >();
+		return transit< CStop >();
 	}
 
 	typedef boost::mpl::list<

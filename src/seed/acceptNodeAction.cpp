@@ -57,6 +57,10 @@ createIdentifyResponse( Parent & parent )
 	parent.setRequest( new common::CIdentifyResponse<SeedResponses>( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), parent.getPayload(), parent.getActionKey() ) );
 }
 
+struct ConnectedToTracker;
+struct ConnectedToSeed;
+struct ConnectedToMonitor;
+
 struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CAcceptNodeAction >
 {
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
@@ -76,15 +80,35 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 	}
 
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, context< CAcceptNodeAction >().getMediumKind() ) );
+	}
+
+	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	{
+		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, context< CAcceptNodeAction >().getMediumKind() ) );
+
+		switch ( _roleEvent.m_role )
+		{
+		case common::CRole::Tracker:
+			context< CAcceptNodeAction >().setRequest( new common::CAckRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), context< CAcceptNodeAction >().getMediumKind() ) );
+			return transit< ConnectedToTracker >();
+		case common::CRole::Seed:
+			return transit< ConnectedToSeed >();
+		case common::CRole::Monitor:
+			return transit< ConnectedToMonitor >();
+		default:
+			break;
+		}
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::transition< common::CContinueEvent, CIdentified >// kind of using side effect is this ok??
+	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 
 };
-
-struct ConnectedToTracker;
-struct ConnectedToSeed;
-struct ConnectedToMonitor;
 
 struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CAcceptNodeAction >
 {
@@ -194,22 +218,6 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAct
 	}
 };
 
-struct CIdentifyRole : boost::statechart::state< CIdentifyRole, CAcceptNodeAction >
-{
-	CIdentifyRole( my_context ctx ) : my_base( ctx )
-	{
-	}
-
-	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
-	{
-		//context< CConnectNodeAction >().setRequest(  );
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >
-	> reactions;
-};
-
 struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction >
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
@@ -230,7 +238,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CAckRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), context< CAcceptNodeAction >().getMediumKind() ) );
+		context< CAcceptNodeAction >().setValid( true );
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
@@ -246,6 +254,12 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 		}
 	}
 
+	boost::statechart::result react( const common::CAckEvent & _ackEvent )
+	{
+		context< CAcceptNodeAction >().setRequest( new common::CAckRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), context< CAcceptNodeAction >().getMediumKind() ) );
+	}
+
+
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, context< CAcceptNodeAction >().getMediumKind() ) );
@@ -253,6 +267,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 };

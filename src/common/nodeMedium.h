@@ -46,6 +46,8 @@ public:
 
 	void add( CNetworkRoleRequest< ResponseType > const * _request );
 
+	void add( CKnownNetworkInfoRequest< ResponseType > const * _request );
+
 	void add( CAckRequest< ResponseType > const * _request );
 
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
@@ -203,9 +205,22 @@ CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _r
 
 	common::CMessage message( networkRole );
 
-	common::CMessage orginalMessage;
+	m_messages.push_back( message );
 
-	common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), common::CAuthenticationProvider::getInstance()->getMyKey() );
+	m_indexes.push_back( _request->getActionKey() );
+}
+
+template < class ResponseType >
+void
+CNodeMedium< ResponseType >::add( CKnownNetworkInfoRequest< ResponseType > const * _request )
+{
+	common::CKnownNetworkInfo knownNetwork;
+
+	knownNetwork.m_actionKey = _request->getActionKey();
+
+	knownNetwork.m_networkInfo = _request->getNetworkInfo();
+
+	common::CMessage message( knownNetwork );
 
 	m_messages.push_back( message );
 
@@ -221,10 +236,6 @@ CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
 	ack.m_actionKey = _request->getActionKey();
 
 	common::CMessage message( ack );
-
-	common::CMessage orginalMessage;
-
-	common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), common::CAuthenticationProvider::getInstance()->getMyKey() );
 
 	m_messages.push_back( message );
 

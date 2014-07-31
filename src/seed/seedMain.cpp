@@ -409,9 +409,9 @@ void periodicCheck()
 			res.strClientV = "";
 			bool getaddr = res.ourLastSuccess + 604800 < now;
 			//ugly
-			/*CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
+			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
 			common::CActionHandler< SeedResponses >::getInstance()->executeAction( acceptNodeAction );
-			m_searchedNodes.push_back( acceptNodeAction );*/
+			m_searchedNodes.push_back( acceptNodeAction );
 		}
 
 // this is  against action  handler  philosophy but here  we can live  with  that
