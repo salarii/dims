@@ -148,6 +148,9 @@ public:
   }
 
   bool IsGood() const {
+
+	  // interesting functionality  how  to make it  working  ???
+	  return true;
 	if (ip.GetPort() != common::ratcoinParams().GetDefaultPort()) return false;
     if (!(services & NODE_NETWORK)) return false;
     if (!ip.IsRoutable()) return false;
