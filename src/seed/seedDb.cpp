@@ -50,13 +50,12 @@ bool CAddrDb::Get_(CServiceResult &ip, int &wait) {
       unkId.erase(it);
     } else {
       ret = ourId.front();
-      if (time(NULL) - idToInfo[ret].ourLastTry < MIN_RETRY) return false;
       ourId.pop_front();
     }
-    if (idToInfo[ret].ignoreTill && idToInfo[ret].ignoreTill < now) {
+/*    if (idToInfo[ret].ignoreTill && idToInfo[ret].ignoreTill < now) {
       ourId.push_back(ret);
       idToInfo[ret].ourLastTry = now;
-    } else {
+	} else */{
       ip.service = idToInfo[ret].ip;
       ip.ourLastSuccess = idToInfo[ret].ourLastSuccess;
       break;
@@ -171,7 +170,7 @@ void CAddrDb::Add_(const CAddress &addr, bool force) {
 
 void CAddrDb::GetIPs_(set<CNetAddr>& ips, int max, const bool* nets) {
   if (goodId.size() == 0) {
-    int id = -1;
+ /*   int id = -1;
     if (ourId.size() == 0) {
       if (unkId.size() == 0) return;
       id = *unkId.begin();
@@ -181,7 +180,7 @@ void CAddrDb::GetIPs_(set<CNetAddr>& ips, int max, const bool* nets) {
     if (id >= 0) {
       ips.insert(idToInfo[id].ip);
     }
-    return;
+	return;*/
   }
   if (max > goodId.size() / 2)
     max = goodId.size() / 2;
