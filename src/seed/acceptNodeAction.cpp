@@ -92,7 +92,6 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		switch ( _roleEvent.m_role )
 		{
 		case common::CRole::Tracker:
-			context< CAcceptNodeAction >().setRequest( new common::CAckRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), context< CAcceptNodeAction >().getMediumKind() ) );
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
 			return transit< ConnectedToSeed >();
@@ -144,6 +143,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 		switch ( _roleEvent.m_role )
 		{
 		case common::CRole::Tracker:
+			context< CAcceptNodeAction >().setRequest( new common::CAckRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), context< CAcceptNodeAction >().getMediumKind() ) );
 			db.Add(m_address);
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
