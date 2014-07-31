@@ -23,7 +23,7 @@ class CConnectNodeAction;
 class CTrackOriginAddressAction;
 }
 
-namespace node
+namespace client
 {
 
 class CSendBalanceInfoAction;
@@ -77,21 +77,21 @@ private:
 };
 
 template<>
-class CSetResponseVisitor< node::NodeResponses >
+class CSetResponseVisitor< client::NodeResponses >
 {
 public:
-	CSetResponseVisitor( node::NodeResponses const & _requestRespond );
+	CSetResponseVisitor( client::NodeResponses const & _requestRespond );
 
-	void visit( node::CSendTransactionAction & _action );
+	void visit( client::CSendTransactionAction & _action );
 
-	void visit( node::CConnectAction & _action );
+	void visit( client::CConnectAction & _action );
 
-	void visit( CAction< node::NodeResponses > & _action );
+	void visit( CAction< client::NodeResponses > & _action );
 
-	void visit( node::CSendBalanceInfoAction & _action );
+	void visit( client::CSendBalanceInfoAction & _action );
 private:
 
-	node::NodeResponses m_requestResponse;
+	client::NodeResponses m_requestResponse;
 };
 
 

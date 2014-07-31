@@ -15,7 +15,7 @@
 
 class CBufferAsStream;
 
-namespace node
+namespace client
 {
 
 class CNetworkClient : public QThread, public common::CMedium< NodeResponses >

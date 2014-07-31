@@ -58,7 +58,7 @@ protected:
 	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
-	std::map< uint256, ResponseType > m_responses;
+	std::multimap< uint256, ResponseType > m_responses;
 
 	static uint256 m_counter;
 
@@ -98,8 +98,8 @@ CNodeMedium< ResponseType >::getResponse( std::vector< ResponseType > & _request
 
 	BOOST_FOREACH( uint256 const & id, m_indexes )
 	{
-		typename std::map< uint256, ResponseType >::const_iterator iterator = m_responses.find( id );
-		if ( iterator != m_responses.end() )
+		typename std::multimap< uint256, ResponseType >::const_iterator iterator = m_responses.lower_bound( id );
+		if ( iterator != m_responses.upper_bound( id ) )
 		{
 			_requestResponse.push_back( iterator->second );
 			deleteList.push_back( id );
@@ -121,7 +121,7 @@ CNodeMedium< ResponseType >::clearResponses()
 
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
-		m_responses.erase( id );
+		m_responses.erase( m_responses.lower_bound( id ) );
 	}
 	deleteList.clear();
 	m_indexes.clear();

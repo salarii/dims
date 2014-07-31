@@ -1,6 +1,6 @@
 #include "trackerLocalRanking.h"
 #include "networkClient.h"
-namespace node
+namespace client
 {
 
 CTrackerLocalRanking * CTrackerLocalRanking::ms_instance = NULL;

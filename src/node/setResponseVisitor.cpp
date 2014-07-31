@@ -18,10 +18,10 @@ namespace common
 // I belive  this  crap will look and work much better when I will convert all action into  state machines
 // optionally I can always fix some  issues with partial specialisations ( this  will be  even uglier though )
 template < class _Action >
-class CGetTransactionStatus : public CResponseVisitorBase< _Action, node::NodeResponseList >
+class CGetTransactionStatus : public CResponseVisitorBase< _Action, client::NodeResponseList >
 {
 public:
-	CGetTransactionStatus( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
+	CGetTransactionStatus( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
 
 	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
@@ -31,10 +31,10 @@ public:
 };
 
 template < class _Action >
-class CGetToken : public CResponseVisitorBase< _Action, node::NodeResponseList >
+class CGetToken : public CResponseVisitorBase< _Action, client::NodeResponseList >
 {
 public:
-	CGetToken( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
+	CGetToken( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
 
 	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
@@ -48,10 +48,10 @@ public:
 };
 
 template < class _Action >
-class CGetTrackerInfo : public CResponseVisitorBase< _Action, node::NodeResponseList >
+class CGetTrackerInfo : public CResponseVisitorBase< _Action, client::NodeResponseList >
 {
 public:
-	CGetTrackerInfo( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
+	CGetTrackerInfo( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
 
 	void operator()(CTrackerStats & _transactionStatus ) const
 	{
@@ -60,10 +60,10 @@ public:
 };
 
 template < class _Action >
-class CGetMediumError : public CResponseVisitorBase< _Action, node::NodeResponseList >
+class CGetMediumError : public CResponseVisitorBase< _Action, client::NodeResponseList >
 {
 public:
-	CGetMediumError( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
+	CGetMediumError( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
 
 	void operator()(CMediumException & _systemError ) const
     {
@@ -72,10 +72,10 @@ public:
 };
 
 template < class _Action >
-class CGetBalance : public CResponseVisitorBase< _Action, node::NodeResponseList >
+class CGetBalance : public CResponseVisitorBase< _Action, client::NodeResponseList >
 {
 public:
-	CGetBalance( _Action * const _action ):CResponseVisitorBase< _Action, node::NodeResponseList >( _action ){};
+	CGetBalance( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
 
 	void operator()(CAvailableCoins & _availableCoins ) const
 	{
@@ -83,28 +83,28 @@ public:
 	}
 };
 
-CSetResponseVisitor< node::NodeResponses >::CSetResponseVisitor( node::NodeResponses const & _requestRespond )
+CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )
 	:m_requestResponse( _requestRespond )
 {
 }
 
 void 
-CSetResponseVisitor< node::NodeResponses >::visit( node::CSendTransactionAction & _action )
+CSetResponseVisitor< client::NodeResponses >::visit( client::CSendTransactionAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< node::CSendTransactionAction, node::NodeResponseList > const &)CGetTransactionStatus< node::CSendTransactionAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< node::CSendTransactionAction, node::NodeResponseList > const &)CGetToken< node::CSendTransactionAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList > const &)CGetTransactionStatus< client::CSendTransactionAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList > const &)CGetToken< client::CSendTransactionAction >( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< node::NodeResponses >::visit( node::CConnectAction & _action )
+CSetResponseVisitor< client::NodeResponses >::visit( client::CConnectAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< node::CConnectAction, node::NodeResponseList > const &)CGetToken< node::CConnectAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< node::CConnectAction, node::NodeResponseList > const &)CGetTrackerInfo< node::CConnectAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< node::CConnectAction, node::NodeResponseList > const &)CGetMediumError< node::CConnectAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CGetToken< client::CConnectAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CGetTrackerInfo< client::CConnectAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CGetMediumError< client::CConnectAction >( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< node::NodeResponses >::visit( node::CSendBalanceInfoAction & _action )
+CSetResponseVisitor< client::NodeResponses >::visit( client::CSendBalanceInfoAction & _action )
 {
 	static int i = 0;
 	if ( i == 2 )
@@ -114,13 +114,13 @@ CSetResponseVisitor< node::NodeResponses >::visit( node::CSendBalanceInfoAction 
 
 	}
 	i++;
-	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetBalance< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetToken< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< node::CSendBalanceInfoAction, node::NodeResponseList > const &)CGetMediumError< node::CSendBalanceInfoAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetBalance< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetToken< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetMediumError< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< node::NodeResponses >::visit( CAction< node::NodeResponses > & _action )
+CSetResponseVisitor< client::NodeResponses >::visit( CAction< client::NodeResponses > & _action )
 {
 }
 

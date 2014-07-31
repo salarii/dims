@@ -15,7 +15,7 @@
 
 using namespace common;
 
-namespace node
+namespace client
 {
 
 CSettingsMedium::CSettingsMedium()
@@ -71,7 +71,7 @@ CSettingsMedium::flush()
 }
 
 bool
-CSettingsMedium::getResponse( std::vector< node::NodeResponses > & _requestResponse ) const
+CSettingsMedium::getResponse( std::vector< client::NodeResponses > & _requestResponse ) const
 {
 	_requestResponse = m_requestResponse;
 }

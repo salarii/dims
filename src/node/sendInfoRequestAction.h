@@ -10,7 +10,7 @@
 #include "common/requestHandler.h"
 #include "configureNodeActionHadler.h"
 
-namespace node
+namespace client
 {
 
 

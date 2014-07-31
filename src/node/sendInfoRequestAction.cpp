@@ -7,7 +7,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-namespace node
+namespace client
 {
 
 std::vector< TrackerInfo::Enum > const TrackerDescription = boost::assign::list_of< TrackerInfo::Enum >( TrackerInfo::Ip)( TrackerInfo::Port);//.convert_to_container<std::vector< TrackerInfo::Enum > >();

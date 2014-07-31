@@ -12,7 +12,7 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/event.hpp>
 
-namespace node
+namespace client
 {
 /*
 struct CUninitiated;

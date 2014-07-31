@@ -9,7 +9,7 @@
 #include "sendInfoRequestAction.h"
 #include "common/support.h"
 
-namespace  node 
+namespace  client
 {
 
 template < class S, class T, class F >

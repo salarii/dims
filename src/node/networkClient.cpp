@@ -13,7 +13,7 @@
 
 #include <QHostAddress>
 
-namespace node
+namespace client
 {
 
 unsigned const

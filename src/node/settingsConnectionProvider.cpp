@@ -2,7 +2,7 @@
 #include "settingsMedium.h"
 
 
-namespace node
+namespace client
 {
 
 CSettingsConnectionProvider * CSettingsConnectionProvider::ms_instance = NULL;

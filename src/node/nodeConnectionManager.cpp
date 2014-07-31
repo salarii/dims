@@ -6,7 +6,7 @@
 #include "util.h"
 #include "common/connectionProvider.h"
 
-namespace node
+namespace client
 {
 
 CNodeConnectionManager * CNodeConnectionManager::ms_instance = NULL;

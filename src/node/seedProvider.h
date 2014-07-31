@@ -8,7 +8,7 @@
 #include "common/connectionProvider.h"
 #include "configureNodeActionHadler.h"
 
-namespace node
+namespace client
 {
 
 class CSeedProvider : public common::CConnectionProvider< NodeResponses >

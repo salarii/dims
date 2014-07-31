@@ -22,7 +22,7 @@ class CSetResponseVisitor;
 
 }
 
-namespace node
+namespace client
 {
 
 class CSendTransactionAction : public common::CAction< NodeResponses >

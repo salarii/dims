@@ -14,7 +14,7 @@
 #include "uint256.h"
 #include "coins.h"
 
-namespace node
+namespace client
 {
 
 class CSendBalanceInfoAction : public common::CAction< NodeResponses >

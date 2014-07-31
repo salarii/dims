@@ -8,7 +8,7 @@ class CWallet;
 extern std::string strWalletFile;
 extern CWallet* pwalletMain;
 
-namespace node
+namespace client
 {
 
 bool AppInit1(boost::thread_group& threadGroup);

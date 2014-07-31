@@ -16,7 +16,7 @@
 #include "errorRespond.h"
 #include "configureNodeActionHadler.h"
 
-namespace node
+namespace client
 {
 
 struct CConnectActionState;

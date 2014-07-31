@@ -12,7 +12,7 @@
 
 using namespace common;
 
-namespace node
+namespace client
 {
 
 CSendTransactionAction::CSendTransactionAction( const CTransaction & _transaction )

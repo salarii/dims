@@ -22,7 +22,7 @@ template < class _RequestResponses >
 class CAction;
 }
 
-namespace node
+namespace client
 {
 
 class CNodeConnectionManager

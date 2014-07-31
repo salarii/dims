@@ -5,7 +5,7 @@
 #ifndef ERROR_RESPOND_H
 #define ERROR_RESPOND_H
 
-namespace node
+namespace client
 {
 
 struct ErrorType

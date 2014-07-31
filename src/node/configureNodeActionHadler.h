@@ -9,7 +9,7 @@ struct CAvailableCoins;
 class CMediumException;
 }
 
-namespace node
+namespace client
 {
 // list all desired types
 typedef boost::mpl::list< common::CMediumException, common::CTransactionStatus, common::CAccountBalance, common::CTrackerStats, common::CMonitorInfo, common::CPending, common::CAvailableCoins > NodeResponseList;

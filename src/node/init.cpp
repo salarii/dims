@@ -43,7 +43,7 @@
 using namespace std;
 using namespace boost;
 
-namespace node
+namespace client
 {
 
 enum BindFlags {
@@ -93,7 +93,7 @@ bool static Bind(const CService &addr, unsigned int flags) {
  */
 bool AppInit1(boost::thread_group& threadGroup)
 {
-
+	seed_insecure_rand();
 	common::CRatcoinParams::setAppType( common::AppType::Client);
 	// ********************************************************* Step 1: setup
 #ifdef _MSC_VER
@@ -153,7 +153,7 @@ bool AppInit1(boost::thread_group& threadGroup)
 	// ********************************************************* Step 3: parameter-to-internal-flags
 	if (mapArgs.count("-tracker"))
 	{
-		node::CSettingsConnectionProvider::getInstance()->setTrackerIp( GetArg( "-tracker", "127.0.0.1" ) );
+		client::CSettingsConnectionProvider::getInstance()->setTrackerIp( GetArg( "-tracker", "127.0.0.1" ) );
 	}
 	// -par=0 means autodetect, but nScriptCheckThreads==0 means no server
 	if (mapArgs.count("-timeout"))

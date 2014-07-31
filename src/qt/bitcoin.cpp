@@ -237,17 +237,17 @@ void BitcoinCore::initialize()
     try
     {
 		LogPrintf("Running AppInit1 in thread\n");
-	  int rv = node::AppInit1(threadGroup);
+	  int rv = client::AppInit1(threadGroup);
 
-	common::CActionHandler< node::NodeResponses > * actionHandler = common::CActionHandler< node::NodeResponses >::getInstance();
+	common::CActionHandler< client::NodeResponses > * actionHandler = common::CActionHandler< client::NodeResponses >::getInstance();
 
-	threadGroup.create_thread(boost::bind(&common::CActionHandler< node::NodeResponses >::loop, actionHandler));
+	threadGroup.create_thread(boost::bind(&common::CActionHandler< client::NodeResponses >::loop, actionHandler));
 
-	common::CPeriodicActionExecutor< node::NodeResponses > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< node::NodeResponses >::getInstance();
-	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< node::NodeResponses >::processingLoop, periodicActionExecutor ));
+	common::CPeriodicActionExecutor< client::NodeResponses > * periodicActionExecutor
+			= common::CPeriodicActionExecutor< client::NodeResponses >::getInstance();
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< client::NodeResponses >::processingLoop, periodicActionExecutor ));
 
-	node::CNodeConnectionManager * nodeConnectionManager = node::CNodeConnectionManager::getInstance();
+	client::CNodeConnectionManager * nodeConnectionManager = client::CNodeConnectionManager::getInstance();
 
 	nodeConnectionManager->connectToNetwork();
  
@@ -273,7 +273,7 @@ void BitcoinCore::shutdown()
         LogPrintf("Running Shutdown in thread\n");
         threadGroup.interrupt_all();
         threadGroup.join_all();
-		node::Shutdown();
+		client::Shutdown();
         LogPrintf("Shutdown finished\n");
         emit shutdownResult(1);
     } catch (std::exception& e) {

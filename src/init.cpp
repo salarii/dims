@@ -374,7 +374,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
  */
 bool AppInit2(boost::thread_group& threadGroup)
 {
-
+seed_insecure_rand();
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
     // Turn off Microsoft heap dump noise

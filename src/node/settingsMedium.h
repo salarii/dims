@@ -13,7 +13,7 @@
 #include "common/communicationBuffer.h"
 #include "configureNodeActionHadler.h"
 
-namespace node
+namespace client
 {
 
 class CTrackersInfoRequest;
@@ -33,7 +33,7 @@ public:
 
 	bool flush();
 
-	bool getResponse( std::vector< node::NodeResponses > & _requestResponse ) const;
+	bool getResponse( std::vector< client::NodeResponses > & _requestResponse ) const;
 
 	void clearResponses();
 
@@ -43,7 +43,7 @@ private:
 	bool m_serviced;
 
 	common::CTrackerStats m_trackerStats;
-	std::vector< node::NodeResponses > m_requestResponse;
+	std::vector< client::NodeResponses > m_requestResponse;
 };
 
 

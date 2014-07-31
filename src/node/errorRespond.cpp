@@ -5,7 +5,7 @@
 #include "errorRespond.h"
 #include "serialize.h"
 
-namespace node
+namespace client
 {
 
 }

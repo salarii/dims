@@ -67,28 +67,28 @@ public:
 };
 
 template <>
-class CMedium< node::NodeResponses >
+class CMedium< client::NodeResponses >
 {
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponse( std::vector< node::NodeResponses > & _requestResponse ) const = 0;
+	virtual bool getResponse( std::vector< client::NodeResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( node::NodeRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,10 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,11 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,12 ) const * _request ){};
-	virtual void add( VisitorParam( node::NodeRequestsList ,13 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,0 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,1 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,2 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,3 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,4 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,5 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,6 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,7 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,8 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,9 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,10 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,11 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,12 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,13 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 

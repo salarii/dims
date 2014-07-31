@@ -14,7 +14,7 @@
 #include "common/requestResponse.h"
 #include "configureNodeActionHadler.h"
 
-namespace node
+namespace client
 {
 
 class CNetworkClient;

@@ -6,7 +6,7 @@
 #include "common/actionHandler.h"
 #include "common/periodicActionExecutor.h"
 
-namespace node
+namespace client
 {
 template<>
 unsigned int const common::CActionHandler< NodeResponses >::m_sleepTime = 500;

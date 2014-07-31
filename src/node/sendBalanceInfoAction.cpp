@@ -15,7 +15,7 @@
 
 using namespace  common;
 
-namespace node
+namespace client
 {
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( std::string const _pubKey )

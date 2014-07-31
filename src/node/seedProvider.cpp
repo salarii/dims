@@ -4,7 +4,7 @@
 #include <QString>
 #include "common/commonResponses.h"
 
-namespace node
+namespace client
 {
 
 CSeedProvider * CSeedProvider::ms_instance = NULL;

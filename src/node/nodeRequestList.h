@@ -1,7 +1,7 @@
 #ifndef NODE_REQUEST_LIST_H
 #define NODE_REQUEST_LIST_H
 
-namespace node
+namespace client
 {
 struct CBalanceRequest;
 struct CInfoRequestContinue;
