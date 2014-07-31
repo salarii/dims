@@ -87,7 +87,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, context< CAcceptNodeAction >().getMediumKind() ) );
+		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, context< CAcceptNodeAction >().getMediumKind() ) );
 
 		switch ( _roleEvent.m_role )
 		{

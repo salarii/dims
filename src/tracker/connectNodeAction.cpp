@@ -129,15 +129,12 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, context< CConnectNodeAction >().getMediumKind() ) );
-
 		switch ( _roleEvent.m_role )
 		{
 		case common::CRole::Tracker:
-			// ugly
-			context< CConnectNodeAction >().setRequest( new common::CAckRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), context< CConnectNodeAction >().getMediumKind() ) );
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
+			context< CConnectNodeAction >().setRequest( new common::CAckRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), context< CConnectNodeAction >().getMediumKind() ) );
 			return transit< ConnectedToSeed >();
 		case common::CRole::Monitor:
 			return transit< ConnectedToMonitor >();
