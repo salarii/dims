@@ -181,6 +181,7 @@ void CAddrDb::GetIPs_(set<CNetAddr>& ips, int max, const bool* nets) {
       ips.insert(idToInfo[id].ip);
     }
 	return;*/
+	return;
   }
   if (max > goodId.size() / 2)
     max = goodId.size() / 2;
