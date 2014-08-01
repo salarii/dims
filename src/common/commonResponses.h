@@ -72,6 +72,10 @@ struct CRoleResult
 struct CNetworkInfoResult
 {
 	CNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){}
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_networkInfo);
+	)
 	std::vector< CValidNodeInfo > m_networkInfo;
 };
 
@@ -86,8 +90,6 @@ struct CConnectedNode
 struct CAckResult
 {
 };
-
-typedef boost::variant< CDummy, CAvailableCoins > ClientResponse;
 
 }
 

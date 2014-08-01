@@ -39,6 +39,12 @@ public:
 		common::serializeEnum( *m_pushStream, CMainRequestType::ContinueReq );
 		*m_pushStream << _dummy;
 	}
+
+	void operator()( common::CNetworkInfoResult const & _networkInfo ) const
+	{
+		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
+		*m_pushStream << _networkInfo;
+	}
 private:
 	CBufferAsStream * const m_pushStream;
 
@@ -196,6 +202,10 @@ CTcpServerConnection::handleIncommingBuffor()
 			pullStream >> token;
 			ClientResponse clientResponse = m_clientRequestManager->getResponse( token );
 			boost::apply_visitor( CHandleResponseVisitor( &pushStream ), clientResponse );
+		}
+		else if ( messageType == CMainRequestType::NetworkInfoReq )
+		{
+
 		}
 		else
 		{

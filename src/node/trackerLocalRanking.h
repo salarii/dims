@@ -5,6 +5,7 @@
 #ifndef TRACKER_LOCAL_RANKING_H
 #define TRACKER_LOCAL_RANKING_H
 
+#include <deque>
 #include <set>
 #include <map>
 #include <QString>
@@ -12,6 +13,8 @@
 
 #include "common/connectionProvider.h"
 #include "common/requestResponse.h"
+#include "common/commonResponses.h"
+
 #include "configureNodeActionHadler.h"
 
 namespace client
@@ -48,10 +51,12 @@ public:
 
 	void addTracker( common::CTrackerStats const & _trackerStats );
 
+	void addUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode );
 private:
 	CTrackerLocalRanking();
 
-	common::CMedium< NodeResponses > * getNetworkConnection( common::CTrackerStats const & _trackerStats );
+	template< typename Stats >
+	common::CMedium< NodeResponses > * getNetworkConnection( Stats const & _stats );
 private:
 	static CTrackerLocalRanking * ms_instance;
 	// those  sets should be repeatedly rebuild
@@ -60,10 +65,26 @@ private:
 	std::set< common::CTrackerStats, CompareReputationTracker > m_reputationRanking;
 
 	std::map< std::string, common::CMedium< NodeResponses > * > m_createdMediums;
+
+	std::deque< common::CUnidentifiedStats > m_unidentifiedNodes;
+
+	// monitors???
 };
 
 
+template< typename Stats >
+common::CMedium< NodeResponses > *
+CTrackerLocalRanking::getNetworkConnection( Stats const & _stats )
+{
+	std::map< std::string, common::CMedium< NodeResponses > * >::iterator iterator = m_createdMediums.find( _stats.m_ip );
+	if ( iterator != m_createdMediums.end() )
+		return iterator->second;
 
+	common::CMedium< NodeResponses > * medium = static_cast<common::CMedium< NodeResponses > *>( new CNetworkClient( QString::fromStdString( _stats.m_ip ), _stats.m_port ) );
+	m_createdMediums.insert( std::make_pair( _stats.m_ip, medium ) );
+
+	return medium;
+}
 
 }
 

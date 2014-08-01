@@ -137,7 +137,9 @@ QT_MOC_CPP = \
   moc_walletview.cpp
 
 CLIENT_H = \
+  ../node/clientControl.h \
   ../node/connectAction.h \
+  ../node/controlRequests.h \
   ../node/init.h \
   ../node/networkClient.h \
   ../node/nodeConnectionManager.h \
@@ -151,10 +153,11 @@ CLIENT_H = \
   ../node/sendBalanceInfoAction.h \
   ../node/trackerLocalRanking.h 
   
-
 CLIENT_CPP = \
   ../node/actionHandlerDefinitions.cpp \
+  ../node/clientControl.cpp \
   ../node/connectAction.cpp \
+  ../node/controlRequests.cpp \
   ../node/init.cpp \
   ../node/networkClient.cpp \
   ../node/nodeConnectionManager.cpp \

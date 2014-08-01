@@ -3,17 +3,58 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "connectAction.h"
+#include "clientResponses.h"
+#include "controlRequests.h"
 
 #include "common/setResponseVisitor.h"
+#include "common/commonEvents.h"
 
 #include <boost/statechart/custom_reaction.hpp>
 #include <boost/statechart/state_machine.hpp>
-#include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/event.hpp>
 
 namespace client
 {
+const unsigned DnsAskLoopCounter = 10;
+//
+struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConnectAction >
+{
+	CClientUnconnected( my_context ctx ) : my_base( ctx )
+	{
+		context< CConnectAction >().setRequest( new CDnsInfoRequest() );
+	}
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		m_counter--;
+		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::NetworkInfo ) );
+
+		if ( !m_counter )
+			context< CConnectAction >().setRequest( new CDnsInfoRequest() );
+	}
+
+	boost::statechart::result react( CDnsInfo const & _dnsInfo )
+	{
+
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< CDnsInfo >
+	> reactions;
+
+	unsigned int m_counter;
+};
+
+struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnectAction >
+{
+	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
+	{
+	}
+};
+
+
 /*
 struct CUninitiated;
 
@@ -165,23 +206,11 @@ CConnectAction::setMediumError( boost::optional< common::ErrorType::Enum > const
 {
     m_error = _error;
 }
-/* this could be usefull at some  point 
 
-case TrackerInfo::Ip :
-trackerStats.m_ip = QString::fromStdString( tempInfo.back() );
-break;
-case TrackerInfo::Price :
-trackerStats.m_price = QString::fromStdString( tempInfo.back() ).toDouble();
-break;
-case TrackerInfo::Rating :
-trackerStats.m_reputation = QString::fromStdString( tempInfo.back() ).toUInt();
-break;
-case TrackerInfo::publicKey :
-trackerStats.m_publicKey = QString::fromStdString( tempInfo.back() );
-break;
-*/
-
+void
+CConnectAction::setRequest( common::CRequest< NodeResponses >* _request )
+{
+	m_request = _request;
 }
 
-
-
+}

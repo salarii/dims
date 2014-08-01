@@ -11,7 +11,10 @@
 #include "common/communicationBuffer.h"
 #include "common/medium.h"
 #include "configureNodeActionHadler.h"
+
 #include <exception>
+
+#include "controlRequests.h"
 
 class CBufferAsStream;
 
@@ -45,6 +48,8 @@ public:
 	void add( CTransactionSendRequest const * _request );
 
 	void add( CInfoRequestContinue const * _request );
+
+	void add( CRecognizeNetworkRequest const * _request );
 
 	bool flush();
 

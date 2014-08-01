@@ -13,6 +13,8 @@
 
 #include "common/ratcoinParams.h"
 
+#include "clientResponses.h"
+
 using namespace common;
 
 namespace client
@@ -46,7 +48,7 @@ CSettingsMedium::add( CTrackersInfoRequest const * _request )
 {
 	try
 	{
-		m_trackerStatsRequests.push_back( _request );
+		m_requestResponse.push_back( m_trackerStats );
 
 		m_serviced = false;
 
@@ -57,17 +59,48 @@ CSettingsMedium::add( CTrackersInfoRequest const * _request )
 	}
 }
 
+void
+CSettingsMedium::add( CDnsInfoRequest const * _request )
+{
+	vector< CAddress > addresses;
+	getSeedIps( addresses );
+
+	CDnsInfo dnsInfo( addresses );
+
+	m_requestResponse.push_back( dnsInfo );
+}
+
+void
+CSettingsMedium::getSeedIps( vector<CAddress> & _vAdd )
+{
+	const vector<CDNSSeedData> &vSeeds = ratcoinParams().DNSSeeds();
+
+	BOOST_FOREACH(const CDNSSeedData &seed, vSeeds) {
+		if (HaveNameProxy()) {
+			AddOneShot(seed.host);
+		} else {
+			vector<CNetAddr> vIPs;
+
+			if (LookupHost(seed.name.c_str(), vIPs))
+			{
+				BOOST_FOREACH(CNetAddr& ip, vIPs)
+				{
+					int nOneDay = 24*3600;
+					CAddress addr = CAddress(CService(ip, ratcoinParams().GetDefaultPort()));
+					addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
+					_vAdd.push_back(addr);
+				}
+			}
+
+		}
+	}
+}
+
+
 bool
 CSettingsMedium::flush()
 {
-
-	BOOST_FOREACH( CTrackersInfoRequest const * request, m_trackerStatsRequests )
-	{
-		m_requestResponse.push_back( m_trackerStats );
-	}
 	m_serviced = true;
-
-	m_trackerStatsRequests.clear();
 }
 
 bool

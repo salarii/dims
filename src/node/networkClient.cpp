@@ -163,6 +163,12 @@ CNetworkClient::add( CInfoRequestContinue const * _request )
 	*m_pushStream << _request->m_token;
 }
 
+void
+CNetworkClient::add( CRecognizeNetworkRequest const * _request )
+{
+	common::serializeEnum( *m_pushStream, common::CMainRequestType::NetworkInfoReq );
+}
+
 bool
 CNetworkClient::flush()
 {

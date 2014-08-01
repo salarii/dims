@@ -39,6 +39,8 @@ public:
 private:
 	CTrackerNodesManager();
 private:
+	// locks  	mutable boost::mutex m_nodesLock;
+
 	// is this ok??? seems like temporary solution, move it  to  common???
 	std::map< CAddress, CPubKey > m_keyStore;
 

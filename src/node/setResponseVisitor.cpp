@@ -10,6 +10,8 @@
 #include "common/responseVisitorInternal.h"
 #include "configureNodeActionHadler.h"
 
+#include "clientResponses.h"
+
 #include <boost/any.hpp>
 #include <boost/optional.hpp>
 
@@ -83,6 +85,18 @@ public:
 	}
 };
 
+
+class CSetConnectAction : public CResponseVisitorBase< client::CConnectAction, client::NodeResponseList >
+{
+public:
+	CSetConnectAction( client::CConnectAction * const _action ):CResponseVisitorBase< client::CConnectAction, client::NodeResponseList >( _action ){};
+
+	void operator()(client::CDnsInfo & _dnsInfo ) const
+	{
+		this->m_action->process_event( _dnsInfo );
+	}
+};
+
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )
 	:m_requestResponse( _requestRespond )
 {
@@ -98,22 +112,13 @@ CSetResponseVisitor< client::NodeResponses >::visit( client::CSendTransactionAct
 void
 CSetResponseVisitor< client::NodeResponses >::visit( client::CConnectAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CGetToken< client::CConnectAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CGetTrackerInfo< client::CConnectAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CGetMediumError< client::CConnectAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CSetConnectAction( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< client::NodeResponses >::visit( client::CSendBalanceInfoAction & _action )
 {
-	static int i = 0;
-	if ( i == 2 )
-	{
-		i++;
-		i--;
-
-	}
-	i++;
+	// ugly old  way
 	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetBalance< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
 	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetToken< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
 	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetMediumError< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );

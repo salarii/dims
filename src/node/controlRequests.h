@@ -1,0 +1,4 @@
+#ifndef DNSINFOREQUEST_H
+#define DNSINFOREQUEST_H
+
+#endif // DNSINFOREQUEST_H

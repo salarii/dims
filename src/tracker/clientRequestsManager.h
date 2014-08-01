@@ -11,21 +11,25 @@
 namespace tracker
 {
 
+typedef boost::variant< common::CDummy, common::CAvailableCoins, common::CNetworkInfoResult > ClientResponse;
+
 class CClientRequestsManager
 {
 public:
 	uint256 addRequest( common::NodeRequest const & _nodeRequest );
+
 	void addRequest( common::NodeRequest const & _nodeRequest, uint256 const & _hash );
-	common::ClientResponse getResponse( uint256 const & _token );
+
+	ClientResponse getResponse( uint256 const & _token );
 
 	void processRequestLoop();
 
-	void setClientResponse( uint256 const & _hash, common::ClientResponse const & _clientResponse );
+	void setClientResponse( uint256 const & _hash, ClientResponse const & _clientResponse );
 
 	static CClientRequestsManager* getInstance();
 private:
 	typedef std::map< uint256, common::NodeRequest > InfoRequestRecord;
-	typedef std::map< uint256, common::ClientResponse > InfoResponseRecord;
+	typedef std::map< uint256, ClientResponse > InfoResponseRecord;
 private:
 	CClientRequestsManager();
 private:

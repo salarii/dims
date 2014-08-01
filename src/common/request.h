@@ -19,7 +19,8 @@ struct RequestKind
 		Transaction,
 		TransactionStatus,
 		Balance,
-		Seed
+		Seed,
+		Unknown
 	};
 };
 

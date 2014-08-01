@@ -23,6 +23,7 @@ struct CMainRequestType
 		, TrackerInfoReq
 		, BalanceInfoReq
 		, RequestSatatusReq
+		, NetworkInfoReq
 		, None
 	};
 };
@@ -52,6 +53,11 @@ struct CAddressBalanceReq
 {
 	CAddressBalanceReq( std::string const & _address ):m_address(_address){};
 	std::string m_address;
+};
+
+struct CNetworkInfoReq
+{
+	CNetworkInfoReq(){}
 };
 
 typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq, CTransactionMessage > NodeRequest;

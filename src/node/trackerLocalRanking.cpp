@@ -34,6 +34,12 @@ CTrackerLocalRanking::addTracker( common::CTrackerStats const & _trackerStats )
 	m_reputationRanking.insert( _trackerStats );
 }
 
+void
+CTrackerLocalRanking::addUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode )
+{
+	m_unidentifiedNodes.push_back( _unidentifiedNode );
+}
+
 std::list< common::CMedium< NodeResponses > *>
 CTrackerLocalRanking::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber)
 {
@@ -41,6 +47,15 @@ CTrackerLocalRanking::provideConnection( int const _actionKind, unsigned _reques
 
 	switch (_actionKind)
 	{
+	case common::RequestKind::Unknown:
+		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
+		{
+			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
+			{
+				mediums.push_back( getNetworkConnection( stats ) );
+			}
+		}
+		break;
 	case common::RequestKind::Transaction:
 		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
 		{
@@ -74,20 +89,6 @@ float
 CTrackerLocalRanking::getPrice()
 {
 	return 0.0;
-}
-
-common::CMedium< NodeResponses > *
-CTrackerLocalRanking::getNetworkConnection( common::CTrackerStats const & _trackerStats )
-{
-	std::map< std::string, common::CMedium< NodeResponses > * >::iterator iterator = m_createdMediums.find( _trackerStats.m_publicKey );
-    if ( iterator != m_createdMediums.end() )
-        return iterator->second;
-
-	common::CMedium< NodeResponses > * medium = static_cast<common::CMedium< NodeResponses > *>( new CNetworkClient( QString::fromStdString( _trackerStats.m_ip ), _trackerStats.m_port ) );
-    m_createdMediums.insert( std::make_pair( _trackerStats.m_publicKey, medium ) );
-
-    return medium;
-
 }
 
 }

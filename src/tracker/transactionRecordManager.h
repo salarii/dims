@@ -40,7 +40,6 @@ public:
 
 	static CTransactionRecordManager* getInstance( );
 
-
 	bool checkIfCoinsAvailable( CTransaction const & _tx ) const;
 	//time  stamp or  something needed
 	//

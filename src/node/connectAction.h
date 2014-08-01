@@ -16,12 +16,14 @@
 #include "errorRespond.h"
 #include "configureNodeActionHadler.h"
 
+#include <boost/statechart/state_machine.hpp>
+
 namespace client
 {
 
-struct CConnectActionState;
+struct CClientUnconnected;
 
-class CConnectAction : public common::CAction< NodeResponses >, public common::CCommunicationAction
+class CConnectAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
 {
 public:
 	struct State
@@ -51,6 +53,8 @@ public:
 	void setInProgressToken( boost::optional< uint256 > const & _token );
 
 	void setMediumError( boost::optional< common::ErrorType::Enum > const & _error );
+
+	void setRequest( common::CRequest< NodeResponses >* _request );
 private:
 	State::Enum m_state;
 
@@ -63,6 +67,8 @@ private:
 	boost::optional< common::ErrorType::Enum > m_error;
 
 	common::ActionStatus::Enum m_actionStatus;
+
+	common::CRequest< NodeResponses >* m_request;
 };
 
 }

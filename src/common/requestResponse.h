@@ -27,13 +27,20 @@ struct CAccountBalance
 
 struct CTrackerStats
 {
-    CTrackerStats( std::string _publicKey = "", unsigned int  _reputation = 0, float _price = 0.0, std::string _ip = "", unsigned int _port = -1 )
-        :m_publicKey( _publicKey ), m_reputation( _reputation ), m_price( _price ), m_ip( _ip ), m_port( _port ){};
+	CTrackerStats( std::string _publicKey = "", unsigned int  _reputation = 0, float _price = 0.0, std::string _ip = "", unsigned int _port = -1 )
+		:m_publicKey( _publicKey ), m_reputation( _reputation ), m_price( _price ), m_ip( _ip ), m_port( _port ){};
 	std::string m_publicKey;
 	unsigned int  m_reputation;
 	float m_price;
 	std::string m_ip;
-    unsigned int m_port;
+	unsigned int m_port;
+};
+
+struct CUnidentifiedStats
+{
+	CUnidentifiedStats(	std::string const & _ip, unsigned int _port ):m_ip( _ip ), m_port( _port ){}
+	std::string m_ip;
+	unsigned int m_port;
 };
 
 struct CMonitorInfo

@@ -1,3 +1,7 @@
+// Copyright (c) 2014 Dims dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef CLIENT_CONTROL_H
 #define CLIENT_CONTROL_H
 
@@ -6,15 +10,14 @@
 namespace client
 {
 
-struct CInitialClient;
+struct CUninitiatedClient;
 
-class CClientControl : public boost::statechart::state_machine< CClientControl, CInitialClient >
+class CClientControl : public boost::statechart::state_machine< CClientControl, CUninitiatedClient >
 {
 public:
-	static CTrackerController* getInstance();
+	static CClientControl* getInstance();
 private:
 	CClientControl();
-
 private:
 	static CClientControl * ms_instance;
 };

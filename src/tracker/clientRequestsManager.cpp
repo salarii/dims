@@ -6,6 +6,7 @@
 #include "common/actionHandler.h"
 #include "getBalanceAction.h"
 #include "base58.h"
+#include "trackerNodesManager.h"
 
 #include <boost/foreach.hpp>
 
@@ -15,7 +16,6 @@ using namespace common;
 
 namespace tracker
 {
-
 
 class CHandleClientRequestVisitor : public boost::static_visitor< void >
 {
@@ -38,6 +38,19 @@ public:
 		CBitcoinAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
 		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction( keyId, m_hash ) );
 	}
+
+	void operator()( CNetworkInfoReq const & _networkInfoReq ) const
+	{
+		// handle  it through  action  handler??
+		std::vector< common::CValidNodeInfo > validNodesInfo;
+
+		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getValidNodes() )
+		{
+			validNodesInfo.push_back( validNodeInfo );
+		}
+		CClientRequestsManager::getInstance()->setClientResponse( m_hash, validNodesInfo );
+	}
+
 
 private:
 	uint256 const m_hash;
@@ -86,7 +99,7 @@ CClientRequestsManager::getResponse( uint256 const & _token )
 
 	InfoResponseRecord::iterator iterator = m_infoResponseRecord.find( _token );
 
-	common::ClientResponse response;
+	ClientResponse response;
 	if ( iterator != m_infoResponseRecord.end() )
 	{
 		response = iterator->second;
@@ -103,7 +116,7 @@ CClientRequestsManager::getResponse( uint256 const & _token )
 }
 
 void
-CClientRequestsManager::setClientResponse( uint256 const & _hash, common::ClientResponse const & _clientResponse )
+CClientRequestsManager::setClientResponse( uint256 const & _hash, ClientResponse const & _clientResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	if ( m_infoResponseRecord.find( _hash ) != m_infoResponseRecord.end() )
