@@ -37,7 +37,37 @@ CTrackerLocalRanking::addTracker( common::CTrackerStats const & _trackerStats )
 void
 CTrackerLocalRanking::addUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode )
 {
-	m_unidentifiedNodes.push_back( _unidentifiedNode );
+	m_unidentifiedNodes.insert( _unidentifiedNode );
+}
+
+void
+CTrackerLocalRanking::removeUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode )
+{
+	m_unidentifiedNodes.erase( _unidentifiedNode );
+}
+
+void
+CTrackerLocalRanking::addUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker )
+{
+	m_undeterminedTrackers.insert( _undeterminedTracker );
+}
+
+void
+CTrackerLocalRanking::removeUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker )
+{
+	m_undeterminedTrackers.erase( _undeterminedTracker );
+}
+
+void
+CTrackerLocalRanking::addMonitor( common::CNodeStatistic const & _monitor )
+{
+	m_monitors.insert( _monitor );
+}
+
+void
+CTrackerLocalRanking::removeMonitor( common::CNodeStatistic const & _monitor )
+{
+	m_monitors.erase( _monitor );
 }
 
 std::list< common::CMedium< NodeResponses > *>

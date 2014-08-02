@@ -10,6 +10,7 @@
 #include "uint256.h"
 #include "common/transactionStatus.h"
 #include "errorResponse.h"
+#include "key.h"
 
 namespace common
 {
@@ -23,6 +24,20 @@ struct CTransactionStatus
 struct CAccountBalance
 {
 
+};
+
+struct CNodeStatistic
+{
+	CNodeStatistic( CKeyID const & _keyId, std::string _ip, unsigned int _port ): m_keyId( _keyId ), m_ip( _ip ), m_port( _port ){}
+
+	bool operator<( CNodeStatistic const & _nodeStats ) const
+	{
+		return m_keyId < _nodeStats.m_keyId;
+	}
+
+	CKeyID m_keyId;
+	std::string m_ip;
+	unsigned int m_port;
 };
 
 struct CTrackerStats
@@ -39,6 +54,11 @@ struct CTrackerStats
 struct CUnidentifiedStats
 {
 	CUnidentifiedStats(	std::string const & _ip, unsigned int _port ):m_ip( _ip ), m_port( _port ){}
+
+	bool operator<( CUnidentifiedStats const & _unidentifiedStats ) const
+	{
+		return m_ip < _unidentifiedStats.m_ip;
+	}
 	std::string m_ip;
 	unsigned int m_port;
 };

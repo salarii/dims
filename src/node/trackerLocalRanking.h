@@ -52,6 +52,16 @@ public:
 	void addTracker( common::CTrackerStats const & _trackerStats );
 
 	void addUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode );
+
+	void removeUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode );
+
+	void addUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker );
+
+	void removeUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker );
+
+	void addMonitor( common::CNodeStatistic const & _undeterminedTracker );
+
+	void removeMonitor( common::CNodeStatistic const & _undeterminedTracker );
 private:
 	CTrackerLocalRanking();
 
@@ -66,9 +76,12 @@ private:
 
 	std::map< std::string, common::CMedium< NodeResponses > * > m_createdMediums;
 
-	std::deque< common::CUnidentifiedStats > m_unidentifiedNodes;
+	std::set< common::CUnidentifiedStats > m_unidentifiedNodes;
 
-	// monitors???
+	// this  is  definitely not final version
+	std::set< common::CNodeStatistic > m_monitors;
+
+	std::set< common::CNodeStatistic > m_undeterminedTrackers;
 };
 
 

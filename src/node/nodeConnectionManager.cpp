@@ -41,12 +41,7 @@ CNodeConnectionManager::~CNodeConnectionManager()
 void
 CNodeConnectionManager::connectToNetwork()
 {
-// get seed  - not used yet
-// get monitors - not used yet 
-// get  trackers - not  used  yet 
-// get tracker
-
-	CConnectAction * connectAction = new CConnectAction( CConnectAction::State::Manual );
+	CConnectAction * connectAction = new CConnectAction();
 
 	m_actionHandler->executeAction( connectAction );
 

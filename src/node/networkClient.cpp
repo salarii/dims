@@ -242,6 +242,12 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 			stream >> availableCoins;
 			_requestResponse.push_back( availableCoins );
 		}
+		else if ( messageType == common::CMainRequestType::NetworkInfoReq )
+		{
+			common::CNetworkInfoResult networkResult;
+			stream >> networkResult;
+			_requestResponse.push_back( networkResult );
+		}
 		else
 		{
 			throw;

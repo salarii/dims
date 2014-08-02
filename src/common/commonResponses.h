@@ -72,6 +72,8 @@ struct CRoleResult
 struct CNetworkInfoResult
 {
 	CNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){}
+	CNetworkInfoResult(){}
+
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_networkInfo);

@@ -26,19 +26,7 @@ struct CClientUnconnected;
 class CConnectAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
 {
 public:
-	struct State
-	{
-		enum Enum
-		{
-		  Manual
-		, KnownSeed
-		, KnownMonitor
-		, KnownTracker
-		, Done
-		};
-	};
-public:
-	CConnectAction( State::Enum const _state );
+	CConnectAction();
 
 	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
@@ -46,28 +34,8 @@ public:
 
 	common::ActionStatus::Enum state();
 
-	void reset();
-
-	void setTrackerInfo( boost::optional< common::CTrackerStats > const & _trackerInfo );
-
-	void setInProgressToken( boost::optional< uint256 > const & _token );
-
-	void setMediumError( boost::optional< common::ErrorType::Enum > const & _error );
-
 	void setRequest( common::CRequest< NodeResponses >* _request );
 private:
-	State::Enum m_state;
-
-	boost::optional< uint256 > m_token;
-
-	boost::optional< common::CTrackerStats > m_trackerStats;
-
-	boost::optional< std::vector< std::string > > m_monitorInfo;
-
-	boost::optional< common::ErrorType::Enum > m_error;
-
-	common::ActionStatus::Enum m_actionStatus;
-
 	common::CRequest< NodeResponses >* m_request;
 };
 

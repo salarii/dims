@@ -3,8 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/setResponseVisitor.h"
-#include "sendTransactionAction.h"
 #include "common/requestResponse.h"
+#include "common/commonEvents.h"
+
+#include "sendTransactionAction.h"
 #include "connectAction.h"
 #include "sendBalanceInfoAction.h"
 #include "common/responseVisitorInternal.h"
@@ -94,6 +96,11 @@ public:
 	void operator()(client::CDnsInfo & _dnsInfo ) const
 	{
 		this->m_action->process_event( _dnsInfo );
+	}
+
+	void operator()(CNetworkInfoResult & _networkInfo ) const
+	{
+		this->m_action->process_event( CNetworkInfoEvent( _networkInfo.m_networkInfo ) );
 	}
 };
 
