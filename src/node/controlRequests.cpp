@@ -41,4 +41,5 @@ CRecognizeNetworkRequest::getKind() const
 	return common::RequestKind::Unknown;
 }
 
+
 }

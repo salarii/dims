@@ -20,6 +20,7 @@ struct RequestKind
 		TransactionStatus,
 		Balance,
 		Seed,
+		UndeterminedTrackers,
 		Unknown
 	};
 };

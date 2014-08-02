@@ -18,7 +18,11 @@
 namespace client
 {
 const unsigned DnsAskLoopCounter = 10;
-//
+
+
+struct CMonitorPresent;
+struct CWithoutMonitor;
+
 struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConnectAction >
 {
 	CClientUnconnected( my_context ctx ) : my_base( ctx )
@@ -62,6 +66,21 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		}
 		else
 		{
+			bool moniorPresent = false;
+
+			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_uniqueNodes )
+			{
+				if ( validNode.m_role == common::CRole::Monitor )
+				{
+					moniorPresent = true;
+					CTrackerLocalRanking::getInstance()->addMonitor( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
+				}
+				else if ( validNode.m_role == common::CRole::Monitor )
+				{
+					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
+				}
+			}
+			return moniorPresent ? transit< CMonitorPresent >() : transit< CWithoutMonitor >();
 
 		}
 	}
@@ -74,21 +93,31 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		}
 	}
 
-	void analyseData()
-	{
-		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_uniqueNodes )
-		{
-			//m_uniqueNodes.insert( validNodes );
-		}
-	}
-
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
 	> reactions;
 
 	std::set< common::CValidNodeInfo > m_uniqueNodes;
+
+	// replace  those  tricks  by  real  time  getTime()
 	unsigned int m_counter;
+};
+
+
+struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectAction >
+{
+	CMonitorPresent( my_context ctx ) : my_base( ctx )
+	{
+	}
+
+//CTrackersInfoRequest
+};
+
+struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectAction >
+{
+	CWithoutMonitor( my_context ctx ) : my_base( ctx )
+	{}
 };
 
 CConnectAction::CConnectAction()
