@@ -10,7 +10,8 @@ struct CBufferAsStream;
 namespace common
 {
 
-
+// this is obsolete
+// soon  need to be replaced by something else
 struct RequestKind
 {
 	enum Enum

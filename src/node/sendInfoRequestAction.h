@@ -31,7 +31,8 @@ struct TrackerInfo
 		, Price
 		, Rating
         , PublicKey
-        , Port
+		, MinPrice
+		, MaxPrice
 	};
 };
 
@@ -55,12 +56,13 @@ private:
 struct CTrackersInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >() );
+	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >(), int _mediumKind = -1 );
 	~CTrackersInfoRequest(){};
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	int getKind() const;
 
 	std::vector< TrackerInfo::Enum >const  m_reqInfo;
+	int m_mediumKind;
 };
 
 struct CMonitorInfoRequest : public common::CRequest< NodeResponses >

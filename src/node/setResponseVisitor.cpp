@@ -102,6 +102,11 @@ public:
 	{
 		this->m_action->process_event( CNetworkInfoEvent( _networkInfo.m_networkInfo ) );
 	}
+
+	void operator()(CTrackerStats & _trackerStats ) const
+	{
+		this->m_action->process_event( _trackerStats );
+	}
 };
 
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )

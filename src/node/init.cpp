@@ -40,6 +40,8 @@
 
 #include "common/actionHandler.h"
 
+#include "clientControl.h"
+
 using namespace std;
 using namespace boost;
 
@@ -263,7 +265,6 @@ bool AppInit1(boost::thread_group& threadGroup)
 #endif // ENABLE_WALLET
 	// ********************************************************* Step 6:
 
-
 	// ********************************************************* Step 8: load wallet
 #ifdef ENABLE_WALLET
 	if (fDisableWallet) {
@@ -382,7 +383,7 @@ bool AppInit1(boost::thread_group& threadGroup)
 	// ********************************************************* Step 12: finished
 
 	uiInterface.InitMessage(_("Done loading"));
-
+	CClientControl::getInstance();
 #ifdef ENABLE_WALLET
 	if (pwalletMain) {
 		// Add wallet transactions that aren't already in a block to mapTransactions

@@ -15,6 +15,8 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/event.hpp>
 
+#include <boost/assign/list_of.hpp>
+
 namespace client
 {
 const unsigned DnsAskLoopCounter = 10;
@@ -117,7 +119,26 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectAction >
 {
 	CWithoutMonitor( my_context ctx ) : my_base( ctx )
-	{}
+	{
+		std::vector< TrackerInfo::Enum > trackerInfoProfile
+				= boost::assign::list_of(TrackerInfo::Ip)(TrackerInfo::Price)(TrackerInfo::Rating)(TrackerInfo::PublicKey)(TrackerInfo::MinPrice)(TrackerInfo::MaxPrice);
+
+		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, common::RequestKind::UndeterminedTrackers ) );
+	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+	}
+
+
+	boost::statechart::result react( common::CTrackerStats const & _continueEvent )
+	{
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CTrackerStats >
+	> reactions;
 };
 
 CConnectAction::CConnectAction()

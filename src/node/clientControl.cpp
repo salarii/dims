@@ -9,6 +9,7 @@
 
 namespace client
 {
+CClientControl * CClientControl::ms_instance = 0;
 
 struct CUninitiatedClient : boost::statechart::simple_state< CUninitiatedClient, CClientControl >
 {

@@ -31,8 +31,6 @@ readWriteTrackerInfo( S & _stream,T & _trackerStats, F const & _operation, std::
 			break;
         case TrackerInfo::PublicKey:
 			F()( _stream, _trackerStats.m_publicKey );
-        case TrackerInfo::Port:
-            F()( _stream, _trackerStats.m_port );
             break;
 		default:
 			break;

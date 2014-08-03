@@ -10,7 +10,7 @@
 namespace client
 {
 
-std::vector< TrackerInfo::Enum > const TrackerDescription = boost::assign::list_of< TrackerInfo::Enum >( TrackerInfo::Ip)( TrackerInfo::Port);//.convert_to_container<std::vector< TrackerInfo::Enum > >();
+std::vector< TrackerInfo::Enum > const TrackerDescription = boost::assign::list_of< TrackerInfo::Enum >( TrackerInfo::Ip);//.convert_to_container<std::vector< TrackerInfo::Enum > >();
 
 CSendInfoRequestAction::CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo )
 {
@@ -28,8 +28,9 @@ CSendInfoRequestAction::execute()
 	return 0;
 }
 
-CTrackersInfoRequest::CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo )
-: m_reqInfo( _reqInfo )
+CTrackersInfoRequest::CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo, int _mediumKind )
+	: m_reqInfo( _reqInfo )
+	, m_mediumKind( _mediumKind )
 {
 }
 
@@ -54,7 +55,7 @@ CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 int
 CTrackersInfoRequest::getKind() const
 {
-	return common::RequestKind::NetworkInfo;
+	return m_mediumKind;
 }
 
 

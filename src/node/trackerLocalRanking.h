@@ -93,7 +93,7 @@ CTrackerLocalRanking::getNetworkConnection( Stats const & _stats )
 	if ( iterator != m_createdMediums.end() )
 		return iterator->second;
 
-	common::CMedium< NodeResponses > * medium = static_cast<common::CMedium< NodeResponses > *>( new CNetworkClient( QString::fromStdString( _stats.m_ip ), _stats.m_port ) );
+	common::CMedium< NodeResponses > * medium = static_cast<common::CMedium< NodeResponses > *>( new CNetworkClient( QString::fromStdString( _stats.m_ip ), common::ratcoinParams().getDefaultClientPort() ) );
 	m_createdMediums.insert( std::make_pair( _stats.m_ip, medium ) );
 
 	return medium;

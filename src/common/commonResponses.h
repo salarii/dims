@@ -78,6 +78,7 @@ struct CNetworkInfoResult
 	(
 		READWRITE(m_networkInfo);
 	)
+
 	std::vector< CValidNodeInfo > m_networkInfo;
 };
 
