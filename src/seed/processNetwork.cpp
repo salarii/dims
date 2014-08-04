@@ -101,6 +101,8 @@ myfile.open ("test.txt", ios::app);
 
 			common::CNetworkRole networkRole;
 myfile << "messae unwind\n";
+myfile << "network role:"<< networkRole.GetSerializeSize( SER_DISK, CLIENT_VERSION )<< "\n";
+myfile << "payload  size:" << orginalMessage.m_payload.size()<< "\n";
 			common::convertPayload( orginalMessage, networkRole );
 myfile << "converted\n";
 			CSeedNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
