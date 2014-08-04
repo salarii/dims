@@ -14,8 +14,10 @@ bool
 CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _originalMessage, int64_t const _time, CPubKey const &  _pubKey )
 {
 	if ( _time < _message.m_header.m_time )
+	{
+		assert(!"clock mismatch");
 		return false;
-
+	}
 	if ( _message.m_header.m_payloadKind != CPayloadKind::IntroductionReq )
 	{
 	uint256 messageHash = 	Hash( &_message.m_payload.front(), &_message.m_payload.back() );
