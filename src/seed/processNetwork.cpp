@@ -9,6 +9,10 @@
 #include "common/actionHandler.h"
 #include "common/communicationProtocol.h"
 
+#include <iostream>
+#include <fstream>
+using namespace std;
+
 
 namespace seed
 {
@@ -28,8 +32,21 @@ CProcessNetwork::getInstance()
 bool
 CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 {
+
+	ofstream myfile;
+	 myfile.open ("test.txt", ios::app);
+
+
+
 	std::vector< common::CMessage > messages;
+
+		 myfile << "before\n";
+myfile <<  vRecv.size()<<"\n";
+		 myfile.close();
 	vRecv >> messages;
+myfile.open ("test.txt", ios::app);
+		 myfile << "after\n";
+
 
 // it is  stupid  to call this over and over again
 	if ( !CSeedNodesManager::getInstance()->getMediumForNode( pfrom ) )
@@ -39,6 +56,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
+				 myfile << "type\n";
+				 myfile << (int)message.m_header.m_payloadKind;
+				 myfile.close();
 		if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
 		{
 			//
