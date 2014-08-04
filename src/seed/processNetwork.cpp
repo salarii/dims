@@ -97,7 +97,12 @@ myfile.open ("test.txt", ios::app);
 				;//service  error  somehow, can't  decode  action  at  this point  so it  have  to  be  done as  common  solution  for  all  such  issues
 			common::CMessage orginalMessage;
 			myfile << "befor  unwind\n";
-			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
+			myfile << "time" << GetTime() << ":"  << message.m_header.m_time;
+
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+			{
+				assert( !"this assert  should be  replaced by some logic for now to indicate problem" );
+			}
 
 			common::CNetworkRole networkRole;
 myfile << "messae unwind\n";

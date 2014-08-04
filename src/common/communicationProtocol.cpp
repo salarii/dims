@@ -15,7 +15,8 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _ori
 {
 	if ( _time < _message.m_header.m_time )
 	{
-		assert(!"clock mismatch");
+		std::string  mismatch;
+		assert( mismatch.empty() );
 		return false;
 	}
 	if ( _message.m_header.m_payloadKind != CPayloadKind::IntroductionReq )
