@@ -91,27 +91,33 @@ myfile.open ("test.txt", ios::app);
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
+				 myfile.open ("test.txt", ios::app);
 			CPubKey pubKey;
 			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
 				;//service  error  somehow, can't  decode  action  at  this point  so it  have  to  be  done as  common  solution  for  all  such  issues
 			common::CMessage orginalMessage;
+			myfile << "befor  unwind\n";
 			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
 
 			common::CNetworkRole networkRole;
-
+myfile << "messae unwind\n";
 			common::convertPayload( orginalMessage, networkRole );
-
+myfile << "converted\n";
 			CSeedNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( networkRole.m_actionKey ) )
 			{
+				myfile << "is serviced\n";
 				nodeMedium->setResponse( networkRole.m_actionKey, common::CRoleResult( networkRole.m_role ) );
 			}
 			else
 			{
+								 myfile << "exception\n";
 				assert(!"it should be existing action");
 
 			}
+
+							 myfile.close();
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
 		{
