@@ -32,20 +32,25 @@ static uint64_t nAccountingEntryNumber = 0;
 bool
 CIdentificationDB::writeKeyForeign( CPubKey const& _vchPubKey)
 {
-	return Write( std::make_pair((int)Foreign, _vchPubKey.GetID() ), _vchPubKey, false );
+	bool result = Write( std::make_pair((int)Foreign, _vchPubKey.GetID() ), _vchPubKey, false );
+	Flush();
+	return result;
 }
 
 
 bool
 CIdentificationDB::writeKeySelf( CPubKey const& _vchPubKey, CPrivKey const & _vchPrivKey )
 {
-
 	std::vector<unsigned char> vchKey;
 	vchKey.reserve(_vchPubKey.size() + _vchPrivKey.size());
 	vchKey.insert(vchKey.end(), _vchPubKey.begin(), _vchPubKey.end());
 	vchKey.insert(vchKey.end(), _vchPrivKey.begin(), _vchPrivKey.end());
 
-	return Write(std::make_pair((int)Self, _vchPubKey), std::make_pair(_vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
+	bool result = Write(std::make_pair((int)Self, _vchPubKey), std::make_pair(_vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
+
+	Flush();
+
+	return result;
 }
 
 bool

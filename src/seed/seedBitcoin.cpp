@@ -153,7 +153,7 @@ class CNode {
     
     return false;
   }
-  
+  /*
   bool ProcessMessages() {
     if (vRecv.empty()) return false;
     do {
@@ -198,7 +198,7 @@ class CNode {
     } while(1);
     return false;
   }
-
+*/
 public:
   CNode(const CService& ip, vector<CAddress>* vAddrIn) : you(ip), nHeaderStart(-1), nMessageStart(-1), vAddr(vAddrIn), ban(0), doneAfter(0), nVersion(0),vSend( SER_DISK, CLIENT_VERSION), vRecv( SER_DISK, CLIENT_VERSION) {
     if (time(NULL) > 1329696000) {
@@ -206,6 +206,7 @@ public:
       vRecv.SetVersion(209);
     }
   }
+  /*
   bool Run() {
     bool res = true;
     if (!ConnectSocket(you, sock)) return false;
@@ -252,7 +253,7 @@ public:
     sock = INVALID_SOCKET;
     return (ban == 0) && res;
   }
-  
+  */
   int GetBan() {
     return ban;
   }
@@ -269,11 +270,11 @@ public:
     return nStartingHeight;
   }
 };
-
+/*
 bool TestNode(const CService &cip, int &ban, int &clientV, std::string &clientSV, int &blocks, vector<CAddress>* vAddr) {
   try {
     CNode node(cip, vAddr);
-    bool ret = node.Run();
+	//bool ret = node.Run();
     if (!ret) {
       ban = node.GetBan();
     } else {
@@ -289,7 +290,7 @@ bool TestNode(const CService &cip, int &ban, int &clientV, std::string &clientSV
     return false;
   }
 }
-
+*/
 /*
 int main(void) {
   CService ip("bitcoin.sipa.be", 8333, true);

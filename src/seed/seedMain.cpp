@@ -139,7 +139,7 @@ extern "C" {
 }
 
 CAddrDb db;
-
+/*
 extern "C" void* ThreadCrawler(void* data) {
 	int *nThreads=(int*)data;
 	do {
@@ -171,7 +171,7 @@ extern "C" void* ThreadCrawler(void* data) {
 		MilliSleep(10000);
 	} while(1);
 }
-
+*/
 extern "C" int GetIPList(void *thread, addr_t *addr, int max, int ipv4, int ipv6);
 
 class CDnsThread {
