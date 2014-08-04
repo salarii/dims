@@ -98,7 +98,7 @@ myfile.open ("test.txt", ios::app);
 			common::CMessage orginalMessage;
 			myfile << "befor  unwind\n";
 			myfile << "time" << GetTime() << ":"  << message.m_header.m_time;
-
+					 myfile.close();
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 			{
 				assert( !"this assert  should be  replaced by some logic for now to indicate problem" );
