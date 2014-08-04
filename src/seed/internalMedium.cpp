@@ -39,6 +39,8 @@ CInternalMedium::add( common::CConnectToNodeRequest< SeedResponses > const *_req
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
 	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode( _request->getServiceAddress(), _request->getAddress().empty()? 0 : _request->getAddress().c_str() );
 
+	assert( node );
+
 	m_responses.push_back( common::CConnectedNode( node ) );
 }
 

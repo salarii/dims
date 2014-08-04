@@ -154,8 +154,6 @@ template < class Handler >
 void
 CManageNetwork::registerNodeSignals( Handler * _handler )
 {
-	boost::bind( &CManageNetwork::processMessages, this );
-
 	m_signals.ProcessMessages.connect(boost::bind( &CManageNetwork::processMessages, this, _1 ));
 
 	m_signals.SendMessages.connect(boost::bind( &Handler::sendMessages, _handler, _1, _2 ) );

@@ -9,7 +9,7 @@ using namespace std;
 
 namespace seed
 {
-
+/*
 class CNode {
   SOCKET sock;
   CDataStream vSend;
@@ -72,7 +72,7 @@ class CNode {
       sock = INVALID_SOCKET;
     }
   }
-  
+  /*
   void PushVersion() {
 	int64_t nTime = time(NULL);
 	uint64_t nLocalNonce = BITCOIN_SEED_NONCE;
@@ -153,7 +153,7 @@ class CNode {
     
     return false;
   }
-  /*
+
   bool ProcessMessages() {
     if (vRecv.empty()) return false;
     do {
@@ -198,7 +198,7 @@ class CNode {
     } while(1);
     return false;
   }
-*/
+
 public:
   CNode(const CService& ip, vector<CAddress>* vAddrIn) : you(ip), nHeaderStart(-1), nMessageStart(-1), vAddr(vAddrIn), ban(0), doneAfter(0), nVersion(0),vSend( SER_DISK, CLIENT_VERSION), vRecv( SER_DISK, CLIENT_VERSION) {
     if (time(NULL) > 1329696000) {
@@ -253,7 +253,7 @@ public:
     sock = INVALID_SOCKET;
     return (ban == 0) && res;
   }
-  */
+
   int GetBan() {
     return ban;
   }
@@ -269,7 +269,7 @@ public:
   int GetStartingHeight() {
     return nStartingHeight;
   }
-};
+};*/
 /*
 bool TestNode(const CService &cip, int &ban, int &clientV, std::string &clientSV, int &blocks, vector<CAddress>* vAddr) {
   try {
