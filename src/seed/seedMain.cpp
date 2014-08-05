@@ -433,7 +433,7 @@ void periodicCheck()
 		db.ResultMany(ips);
 		db.Add(addr);
 
-		MilliSleep(10000);
+		MilliSleep(20000);
 	}
 
 

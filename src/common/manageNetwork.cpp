@@ -1148,7 +1148,7 @@ CManageNetwork::processMessages(common::CSelfNode* pfrom)
 		}
 
 		if ( strCommand != std::string( "dims" ) )
-			pfrom->vRecvMsg.erase(pfrom->vRecvMsg.begin(), it);
+			continue;
 
 		// Process message
 		bool fRet = false;
