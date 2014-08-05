@@ -93,7 +93,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
 			common::CMessage orginalMessage;
-			if ( common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
 
 			common::CSynchronizationInfo synchronizationInfo;
@@ -118,7 +118,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
 			common::CMessage orginalMessage;
-			if ( common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
 
 			common::CNetworkRole networkRole;
@@ -143,7 +143,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if( CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
 			common::CMessage orginalMessage;
-			if ( common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
 
 			common::CKnownNetworkInfo knownNetworkInfo;
@@ -169,7 +169,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				;
 
 			common::CMessage orginalMessage;
-			if ( common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
 
 			common::CAck ack;
