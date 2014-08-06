@@ -426,7 +426,7 @@ void periodicCheck()
 		BOOST_FOREACH( CAcceptNodeAction * nodeAction, m_searchedNodes )
 		{
 			ips[ i ].fGood = nodeAction->getValid();
-
+			i++;
 			delete nodeAction;
 		}
 
