@@ -21,7 +21,7 @@
 namespace client
 {
 const unsigned DnsAskLoopTime = 20;//seconds
-
+const unsigned NetworkAskLoopTime = 20;//seconds
 
 struct CMonitorPresent;
 struct CWithoutMonitor;
@@ -58,7 +58,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		{
 			BOOST_FOREACH( CAddress const & address, _dnsInfo.m_addresses )
 			{
-				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( common::CUnidentifiedStats( address.ToStringPort(), address.GetPort() ) );
+				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( common::CUnidentifiedStats( address.ToStringIP(), address.GetPort() ) );
 			}
 			return transit< CRecognizeNetwork >();
 		}
@@ -77,18 +77,26 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectAction >().setRequest( new CRecognizeNetworkRequest() );
+
+		m_lastAskTime = GetTime();
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		if ( m_counter-- )
+		int64_t time = GetTime();
+		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			// second parameter is problematic, maybe this  should  be  indicator  of  very  specific connection
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::NetworkInfo ) );
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Unknown ) );
 		}
 		else
 		{
 			bool moniorPresent = false;
+
+			if ( !m_uniqueNodes.size() )
+			{
+				return transit< CRecognizeNetwork >();
+			}
 
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_uniqueNodes )
 			{
@@ -115,15 +123,27 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		}
 	}
 
+	boost::statechart::result react( common::CErrorEvent const & _networkInfo )
+	{
+		int64_t time = GetTime();
+		if ( time - m_lastAskTime >= NetworkAskLoopTime )
+		{
+			context< CConnectAction >().process_event( common::CContinueEvent(uint256() ) );
+		}
+
+		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Unknown ) );
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
+	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
+	boost::statechart::custom_reaction< common::CErrorEvent >
 	> reactions;
 
 	std::set< common::CValidNodeInfo > m_uniqueNodes;
 
 	// replace  those  tricks  by  real  time  getTime()
-	unsigned int m_counter;
+	int64_t m_lastAskTime;
 };
 
 

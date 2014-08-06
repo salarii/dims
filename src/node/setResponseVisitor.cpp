@@ -112,6 +112,11 @@ public:
 	{
 		this->m_action->process_event( common::CContinueEvent(_continue.m_id) );
 	}
+
+	void operator()(common::CMediumException & _systemError ) const
+	{
+		this->m_action->process_event( common::CErrorEvent() );
+	}
 };
 
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )

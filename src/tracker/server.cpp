@@ -205,7 +205,9 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::NetworkInfoReq )
 		{
+
 			uint256 token = m_clientRequestManager->addRequest( CNetworkInfoReq() );
+			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 		}
 		else

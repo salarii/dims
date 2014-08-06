@@ -78,9 +78,9 @@ CTrackerLocalRanking::provideConnection( int const _actionKind, unsigned _reques
 	switch (_actionKind)
 	{
 	case common::RequestKind::Unknown:
-		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
+		if ( m_unidentifiedNodes.begin() != m_unidentifiedNodes.end() )
 		{
-			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
+			BOOST_FOREACH( common::CUnidentifiedStats const & stats, m_unidentifiedNodes )
 			{
 				mediums.push_back( getNetworkConnection( stats ) );
 			}
