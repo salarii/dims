@@ -17,9 +17,10 @@
 
 #include <boost/assign/list_of.hpp>
 
+
 namespace client
 {
-const unsigned DnsAskLoopCounter = 10;
+const unsigned DnsAskLoopTime = 20;//seconds
 
 
 struct CMonitorPresent;
@@ -30,19 +31,35 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	CClientUnconnected( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectAction >().setRequest( new CDnsInfoRequest() );
+		m_lastAskTime = GetTime();
 	}
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		m_counter--;
-		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::NetworkInfo ) );
-
-		if ( !m_counter )
+		int64_t time = GetTime();
+		if ( time - m_lastAskTime < DnsAskLoopTime )
+		{
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Seed ) );
+		}
+		else
+		{
+			m_lastAskTime = time;
 			context< CConnectAction >().setRequest( new CDnsInfoRequest() );
+		}
 	}
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
-
+		if ( _dnsInfo.m_addresses.empty() )
+		{
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Seed ) );
+		}
+		else
+		{
+			BOOST_FOREACH( CAddress const & address, _dnsInfo.m_addresses )
+			{
+				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( common::CUnidentifiedStats( address.ToStringPort(), address.GetPort() ) );
+			}
+		}
 	}
 
 	typedef boost::mpl::list<
@@ -50,7 +67,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	boost::statechart::custom_reaction< CDnsInfo >
 	> reactions;
 
-	unsigned int m_counter;
+	int64_t m_lastAskTime;
 };
 
 struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnectAction >
@@ -144,6 +161,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 CConnectAction::CConnectAction()
 :m_request( 0 )
 {
+	initiate();
 }
 
 void

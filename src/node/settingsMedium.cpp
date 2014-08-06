@@ -10,9 +10,9 @@
 
 #include "helper.h"
 #include "common/nodeMessages.h"
-
+#include "common/commonEvents.h"
 #include "common/ratcoinParams.h"
-
+#include "common/commonResponses.h"
 #include "clientResponses.h"
 
 using namespace common;
@@ -81,7 +81,7 @@ CSettingsMedium::getSeedIps( vector<CAddress> & _vAdd )
 		} else {
 			vector<CNetAddr> vIPs;
 
-			if (LookupHost(seed.name.c_str(), vIPs))
+			if (LookupHost(seed.host.c_str(), vIPs))
 			{
 				BOOST_FOREACH(CNetAddr& ip, vIPs)
 				{
@@ -94,6 +94,12 @@ CSettingsMedium::getSeedIps( vector<CAddress> & _vAdd )
 
 		}
 	}
+}
+
+void
+CSettingsMedium::add( common::CContinueReqest< NodeResponses > const * _request )
+{
+	m_requestResponse.push_back( common::CContinueResult( _request->getRequestId() ) );
 }
 
 

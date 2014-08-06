@@ -137,8 +137,8 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
 {
     if(addressTableModel)
         addressTableModel->updateEntry(address, label, isMine, purpose, status);
-	if ( status == CT_NEW )
-		common::CPeriodicActionExecutor< client::NodeResponses >::getInstance()->addAction( new client::CSendBalanceInfoAction( address.toStdString() ), 6000 );
+	if ( status == CT_NEW );
+		//common::CPeriodicActionExecutor< client::NodeResponses >::getInstance()->addAction( new client::CSendBalanceInfoAction( address.toStdString() ), 6000 );
 }
 
 bool WalletModel::validateAddress(const QString &address)

@@ -107,6 +107,11 @@ public:
 	{
 		this->m_action->process_event( _trackerStats );
 	}
+
+	void operator()( common::CContinueResult & _continue ) const
+	{
+		this->m_action->process_event( common::CContinueEvent(_continue.m_id) );
+	}
 };
 
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )

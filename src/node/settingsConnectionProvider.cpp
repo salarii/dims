@@ -34,7 +34,7 @@ std::list< common::CMedium< NodeResponses > *>
 CSettingsConnectionProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
 {
 	std::list< common::CMedium< NodeResponses > *> mediums;
-	if( common::RequestKind::NetworkInfo == _actionKind )
+	if( common::RequestKind::NetworkInfo == _actionKind || common::RequestKind::Seed == _actionKind )// temporary???
 	{
 		mediums.push_back( m_settingsMedium );
 	}

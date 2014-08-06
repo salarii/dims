@@ -13,6 +13,14 @@
 #include "common/communicationBuffer.h"
 #include "configureNodeActionHadler.h"
 
+namespace common
+{
+
+template < class ResponsesType >
+class CContinueReqest;
+}
+
+
 namespace client
 {
 
@@ -32,6 +40,8 @@ public:
 	void add( CTrackersInfoRequest const * _request );
 
 	void add( CDnsInfoRequest const * _request );
+
+	void add( common::CContinueReqest< NodeResponses > const * _request );
 
 	bool flush();
 

@@ -16,8 +16,9 @@
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "common/actionHandler.h"
-#include "node/nodeConnectionManager.h"
 #include "node/configureNodeActionHadler.h"
+#include "node/trackerLocalRanking.h"
+#include "node/settingsConnectionProvider.h"
 #include "common/periodicActionExecutor.h"
 
 #ifdef ENABLE_WALLET
@@ -31,6 +32,7 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "wallet.h"
+#include "node/configureNodeActionHadler.h"
 
 #include <stdint.h>
 
@@ -247,9 +249,9 @@ void BitcoinCore::initialize()
 			= common::CPeriodicActionExecutor< client::NodeResponses >::getInstance();
 	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< client::NodeResponses >::processingLoop, periodicActionExecutor ));
 
-	client::CNodeConnectionManager * nodeConnectionManager = client::CNodeConnectionManager::getInstance();
+	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
-	nodeConnectionManager->connectToNetwork();
+	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
  
         if(rv)
         {

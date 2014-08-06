@@ -5,7 +5,8 @@
 #include "clientControl.h"
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
-
+#include "common/actionHandler.h"
+#include "connectAction.h"
 
 namespace client
 {
@@ -13,6 +14,10 @@ CClientControl * CClientControl::ms_instance = 0;
 
 struct CUninitiatedClient : boost::statechart::simple_state< CUninitiatedClient, CClientControl >
 {
+	CUninitiatedClient()
+	{
+		common::CActionHandler< client::NodeResponses >::getInstance()->executeAction( new CConnectAction() );
+	}
 };
 
 

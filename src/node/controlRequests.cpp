@@ -21,7 +21,7 @@ CDnsInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
 int
 CDnsInfoRequest::getKind() const
 {
-	return common::RequestKind::NetworkInfo;
+	return common::RequestKind::Seed;
 }
 
 CRecognizeNetworkRequest::CRecognizeNetworkRequest()
