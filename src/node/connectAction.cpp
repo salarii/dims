@@ -25,6 +25,7 @@ const unsigned DnsAskLoopTime = 20;//seconds
 
 struct CMonitorPresent;
 struct CWithoutMonitor;
+struct CRecognizeNetwork;
 
 struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConnectAction >
 {
@@ -59,6 +60,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 			{
 				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( common::CUnidentifiedStats( address.ToStringPort(), address.GetPort() ) );
 			}
+			return transit< CRecognizeNetwork >();
 		}
 	}
 
@@ -74,6 +76,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 {
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
 	{
+		context< CConnectAction >().setRequest( new CRecognizeNetworkRequest() );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

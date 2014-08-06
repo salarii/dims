@@ -60,7 +60,7 @@ struct CNetworkInfoReq
 	CNetworkInfoReq(){}
 };
 
-typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq, CTransactionMessage > NodeRequest;
+typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq, CTransactionMessage, CNetworkInfoReq > NodeRequest;
 
 }
 
