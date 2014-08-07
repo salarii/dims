@@ -45,6 +45,10 @@ public:
 	void deleteRequest( CRequest< _RequestResponses >* );
 
 	bool operator==( CMedium< _RequestResponses > const * _medium ) const;
+
+	bool operator<( CMedium< _RequestResponses > const * _medium ) const;
+
+	bool operator<( CRequestHandler< _RequestResponses > const & _handler ) const;
 private:
 	std::vector<CRequest< _RequestResponses >*> m_newRequest;
 	std::map<CRequest< _RequestResponses >*,uint256> m_pendingRequest;
@@ -79,6 +83,20 @@ bool
 CRequestHandler< _RequestResponses >::operator==( CMedium< _RequestResponses > const * _medium ) const
 {
 	return m_usedMedium == _medium;
+}
+
+template < class _RequestResponses >
+bool
+CRequestHandler< _RequestResponses >::operator<( CMedium< _RequestResponses > const * _medium ) const
+{
+	return (long long)m_usedMedium < (long long)_medium;
+}
+
+template < class _RequestResponses >
+bool
+CRequestHandler< _RequestResponses >::operator<( CRequestHandler< _RequestResponses > const & _handler ) const
+{
+	return this->m_usedMedium < _handler.m_usedMedium;
 }
 
 template < class _RequestResponses >

@@ -52,8 +52,8 @@ CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 	
 }
 */
-int
-CTrackersInfoRequest::getKind() const
+CMediumFilter< TrackerResponses > *
+CTrackersInfoRequest::getMediumFilter() const
 {
 	return m_mediumKind;
 }
@@ -70,7 +70,7 @@ CMonitorInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 
 }
 
-int CMonitorInfoRequest::getKind() const
+int CMonitorInfoRequest::getMediumFilter() const
 {
 	return 0;
 }
@@ -89,7 +89,7 @@ CInfoRequestContinue::accept( common::CMedium< NodeResponses > * _medium ) const
 }
 
 int
-CInfoRequestContinue::getKind() const
+CInfoRequestContinue::getMediumFilter() const
 {
 	return m_requestKind;
 }

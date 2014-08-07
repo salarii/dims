@@ -159,7 +159,7 @@ CBalanceRequest::accept( common::CMedium< NodeResponses > * _medium ) const
 }
 
 inline
-int CBalanceRequest::getKind() const
+int CBalanceRequest::getMediumFilter() const
 {
 	return RequestKind::Balance;
 }

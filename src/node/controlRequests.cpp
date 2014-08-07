@@ -19,7 +19,7 @@ CDnsInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
 }
 
 int
-CDnsInfoRequest::getKind() const
+CDnsInfoRequest::getMediumFilter() const
 {
 	return common::RequestKind::Seed;
 }
@@ -36,7 +36,7 @@ CRecognizeNetworkRequest::accept( common::CMedium< NodeResponses > * _medium ) c
 }
 
 int
-CRecognizeNetworkRequest::getKind() const
+CRecognizeNetworkRequest::getMediumFilter() const
 {
 	return common::RequestKind::Unknown;
 }

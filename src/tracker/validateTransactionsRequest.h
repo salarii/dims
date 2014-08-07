@@ -19,7 +19,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 
 	std::vector< CTransaction > const & getTransactions() const;
 private:
@@ -33,7 +33,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 };
 
 class  CTransactionsAckRequest : public common::CRequest< TrackerResponses >
@@ -43,7 +43,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 
 };
 
@@ -54,7 +54,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 };
 
 class  CTransactionsNotOkRequest : public common::CRequest< TrackerResponses >
@@ -64,7 +64,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 };
 
 

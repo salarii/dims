@@ -22,7 +22,7 @@ CConnectToTrackerRequest::accept( common::CMedium< TrackerResponses > * _medium 
 }
 
 int
-CConnectToTrackerRequest::getKind() const
+CConnectToTrackerRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::Internal;
 }

@@ -22,7 +22,7 @@ CAskForTransactionsRequest::accept( common::CMedium< TrackerResponses > * _mediu
 }
 
 int
-CAskForTransactionsRequest::getKind() const
+CAskForTransactionsRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::BitcoinsNodes;
 }
@@ -45,7 +45,7 @@ CSetBloomFilterRequest::accept( common::CMedium< TrackerResponses > * _medium ) 
 }
 
 int
-CSetBloomFilterRequest::getKind() const
+CSetBloomFilterRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::BitcoinsNodes;
 }

@@ -29,6 +29,9 @@ struct RequestKind
 template < class _RequestResponses >
 class CMedium;
 
+template < class _RequestResponses >
+class CMediumFilter;
+
 class CRequestVisitor;
 
 template < class _RequestResponses >
@@ -36,8 +39,7 @@ struct CRequest
 {
 	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
 // reconsider this  int
-	virtual int getKind() const = 0;
-	virtual unsigned int getMediumNumber() const { return -1; }
+	virtual CMediumFilter< _RequestResponses > * getMediumFilter() const = 0;
 	virtual ~CRequest(){};
 };
 

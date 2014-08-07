@@ -52,7 +52,7 @@ struct CTransactionStatusRequest : public common::CRequest< NodeResponses >
 public:
 	CTransactionStatusRequest( uint256 const & _token );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	int getKind() const;
+	int getMediumFilter() const;
 	uint256 m_token;
 };
 
@@ -61,7 +61,7 @@ struct CTransactionSendRequest : public common::CRequest< NodeResponses >
 public:
 	CTransactionSendRequest( CTransaction const & _transaction );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	int getKind() const;
+	int getMediumFilter() const;
 	CTransaction m_transaction;
 };
 

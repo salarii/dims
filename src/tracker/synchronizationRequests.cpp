@@ -22,7 +22,7 @@ CGetSynchronizationInfoRequest::accept( common::CMedium< TrackerResponses > * _m
 }
 
 int
-CGetSynchronizationInfoRequest::getKind() const
+CGetSynchronizationInfoRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::DimsNodes;
 }
@@ -46,7 +46,7 @@ CGetNextBlockRequest::accept( common::CMedium< TrackerResponses > * _medium ) co
 }
 
 int
-CGetNextBlockRequest::getKind() const
+CGetNextBlockRequest::getMediumFilter() const
 {
 	return m_mediumId;
 }
@@ -71,7 +71,7 @@ CSetNextBlockRequest::accept( common::CMedium< TrackerResponses > * _medium ) co
 }
 
 int
-CSetNextBlockRequest::getKind() const
+CSetNextBlockRequest::getMediumFilter() const
 {
 	return m_mediumId;
 }

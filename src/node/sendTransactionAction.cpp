@@ -83,7 +83,7 @@ CTransactionStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) 
 }
 
 int
-CTransactionStatusRequest::getKind() const
+CTransactionStatusRequest::getMediumFilter() const
 {
 	return RequestKind::TransactionStatus;
 }
@@ -107,7 +107,7 @@ CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transact
 {
 }
 
-int CTransactionSendRequest::getKind() const
+int CTransactionSendRequest::getMediumFilter() const
 {
 	return RequestKind::Transaction;
 }

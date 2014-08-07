@@ -21,7 +21,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * m_mediumNumber ) const;
 
-	virtual int getKind() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	virtual unsigned int getMediumNumber() const { return 3; }
 
@@ -40,7 +40,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	CBloomFilter const & getBloomFilter() const;
 private:

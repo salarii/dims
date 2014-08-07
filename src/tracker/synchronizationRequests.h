@@ -22,7 +22,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 
 	uint256 getActionKey() const;
 private:
@@ -37,7 +37,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 
 	uint256 getActionKey() const;
 private:
@@ -52,7 +52,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getKind() const;
+	virtual int getMediumFilter() const;
 
 	uint256 getActionKey() const;
 private:

@@ -20,7 +20,7 @@ void CValidateTransactionsRequest::accept( common::CMedium< TrackerResponses > *
 }
 
 int
-CValidateTransactionsRequest::getKind() const
+CValidateTransactionsRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::Internal;
 }
@@ -42,7 +42,7 @@ CTransactionsKnownRequest::accept( common::CMedium< TrackerResponses > * _medium
 }
 
 int
-CTransactionsKnownRequest::getKind() const
+CTransactionsKnownRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::Internal;
 }
@@ -58,7 +58,7 @@ CTransactionsAckRequest::accept( common::CMedium< TrackerResponses > * _medium )
 }
 
 int
-CTransactionsAckRequest::getKind() const
+CTransactionsAckRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::Internal;
 }
@@ -74,7 +74,7 @@ CTransactionsDoublespendRequest::accept( common::CMedium< TrackerResponses > * _
 }
 
 int
-CTransactionsDoublespendRequest::getKind() const
+CTransactionsDoublespendRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::Internal;
 }
@@ -90,7 +90,7 @@ CTransactionsNotOkRequest::accept( common::CMedium< TrackerResponses > * _medium
 }
 
 int
-CTransactionsNotOkRequest::getKind() const
+CTransactionsNotOkRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::Internal;
 }

@@ -21,7 +21,7 @@ CGetBalanceRequest::accept( common::CMedium< TrackerResponses > * _medium ) cons
 }
 
 int
-CGetBalanceRequest::getKind() const
+CGetBalanceRequest::getMediumFilter() const
 {
 	return common::CMediumKinds::Internal;
 }

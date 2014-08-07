@@ -53,7 +53,7 @@ struct CBalanceRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CBalanceRequest( std::string _address );
-	int getKind() const;
+	int getMediumFilter() const;
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
     std::string const m_address;
 

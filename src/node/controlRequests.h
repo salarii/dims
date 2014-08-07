@@ -18,7 +18,7 @@ public:
 
    virtual void accept( common::CMedium< NodeResponses > * _medium ) const;
 
-   virtual int getKind() const;
+   virtual int getMediumFilter() const;
 };
 
 class CRecognizeNetworkRequest : public common::CRequest< NodeResponses >
@@ -28,7 +28,7 @@ public:
 
    virtual void accept( common::CMedium< NodeResponses > * _medium ) const;
 
-   virtual int getKind() const;
+   virtual int getMediumFilter() const;
 };
 
 }

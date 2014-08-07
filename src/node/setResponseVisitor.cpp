@@ -117,6 +117,8 @@ public:
 	{
 		this->m_action->process_event( common::CErrorEvent() );
 	}
+
+	//common::CPending
 };
 
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )

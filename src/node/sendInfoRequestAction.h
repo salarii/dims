@@ -59,7 +59,7 @@ public:
 	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >(), int _mediumKind = -1 );
 	~CTrackersInfoRequest(){};
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	int getKind() const;
+	common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	std::vector< TrackerInfo::Enum >const  m_reqInfo;
 	int m_mediumKind;
@@ -70,7 +70,7 @@ struct CMonitorInfoRequest : public common::CRequest< NodeResponses >
 public:
 	CMonitorInfoRequest();
 	void serialize( CBufferAsStream & _bufferStream ) const;
-	int getKind() const;
+	int getMediumFilter() const;
 };
 
 struct CInfoRequestContinue : public common::CRequest< NodeResponses >
@@ -78,7 +78,7 @@ struct CInfoRequestContinue : public common::CRequest< NodeResponses >
 public:
 	CInfoRequestContinue( uint256 const & _token, common::RequestKind::Enum const _requestKind );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	int getKind() const;
+	int getMediumFilter() const;
 
 	uint256 const m_token;
 	common::RequestKind::Enum const m_requestKind;
