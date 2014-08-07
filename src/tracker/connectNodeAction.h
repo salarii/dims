@@ -6,7 +6,10 @@
 #define CONNECT_NODE_ACTION_H
 
 #include "common/action.h"
+#include "common/filters.h"
+
 #include "configureTrackerActionHandler.h"
+
 #include <boost/statechart/state_machine.hpp>
 
 #include "protocol.h"
@@ -37,9 +40,9 @@ public:
 
 	std::vector< unsigned char > const & getPayload() const;
 
-	void setMediumKind( unsigned int _mediumKind );
-// not safe
-	unsigned int getMediumKind() const;
+	void setMediumFilter( common::CMediumFilter< TrackerResponses > * _mediumFilter );
+
+	common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	CPubKey getPublicKey() const;
 
@@ -55,7 +58,7 @@ private:
 
 	std::vector< unsigned char > m_payload;
 
-	unsigned int m_mediumKind;
+	common::CMediumFilter< TrackerResponses > * m_mediumFilter;
 
 	bool const m_passive;
 

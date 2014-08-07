@@ -21,11 +21,6 @@ namespace common
 
 template < class RequestType > class CNodeMedium;
 
-template < class T >
-unsigned int convertToInt( T * _t )
-{
-	return static_cast< unsigned int >( (long long )_t );
-}
 // class common::CConnectionProvider is problematic, may providers make  things confusing, sometimes it is not  clear which provider is responsible for  mediums of specific
 template < class RequestType >
 class CNodesManager : public common::CConnectionProvider< RequestType >

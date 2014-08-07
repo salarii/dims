@@ -6,9 +6,10 @@
 #define MEDIUM_REQUESTS_H
 
 #include "common/request.h"
-#include "net.h"
 #include "common/medium.h"
+#include "common/filters.h"
 
+#include "net.h"
 #include "util.h"
 
 namespace common
@@ -18,7 +19,9 @@ template < class ResponsesType >
 class CIdentifyRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyRequest( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
+	CIdentifyRequest( int _shortPtr, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
+
+	~CIdentifyRequest();
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -37,8 +40,8 @@ private:
 };
 
 template < class ResponsesType >
-CIdentifyRequest< ResponsesType >::CIdentifyRequest( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
-	: m_mediumFilter( _mediumFilter )
+CIdentifyRequest< ResponsesType >::CIdentifyRequest( int _shortPtr, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
+	: m_mediumFilter( new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByShortPtr< ResponsesType >( _shortPtr ) ) )
 	, m_payload( _payload )
 	, m_actionKey( _actionKey )
 {
@@ -49,6 +52,12 @@ uint256
 CIdentifyRequest< ResponsesType >::getActionKey() const
 {
 	return m_actionKey;
+}
+
+template < class ResponsesType >
+CIdentifyRequest< ResponsesType >::~CIdentifyRequest()
+{
+	delete m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -81,8 +90,7 @@ public:
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
-	int getMediumFilter() const;
-
+	common::CMediumFilter< ResponsesType > * getMediumFilter() const;
 
 	std::vector< unsigned char > getSigned() const;
 
@@ -92,17 +100,20 @@ public:
 
 	uint256 getActionKey() const;
 private:
-	unsigned int m_kind;
+	common::CMediumFilter< ResponsesType > * m_mediumFilter;
+
 	std::vector< unsigned char > m_signed;
+
 	CPubKey m_key;
+
 	std::vector< unsigned char > m_payload;
 
 	uint256 const m_actionKey;
 };
 
 template < class ResponsesType >
-CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
-	: m_kind( _kind )
+CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _shortPtr, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
+	: m_mediumFilter( new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByShortPtr< ResponsesType >( _shortPtr ) ) )// this may be not  right
 	, m_signed( _signed )
 	, m_key( _key )
 	, m_payload( _payload )
@@ -118,10 +129,10 @@ CIdentifyResponse< ResponsesType >::accept( common::CMedium< ResponsesType > * _
 }
 
 template < class ResponsesType >
-int
+common::CMediumFilter< ResponsesType > *
 CIdentifyResponse< ResponsesType >::getMediumFilter() const
 {
-	return m_kind;
+	return m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -157,7 +168,7 @@ template < class ResponsesType >
 class CContinueReqest : public common::CRequest< ResponsesType >
 {
 public:
-	CContinueReqest( uint256 const & _id, unsigned int _kind );
+	CContinueReqest( uint256 const & _id, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -167,13 +178,13 @@ public:
 private:
 
 	uint256 const m_id;
-	unsigned int m_kind;
+	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
-CContinueReqest< ResponsesType >::CContinueReqest( uint256 const & _id, unsigned int _kind )
+CContinueReqest< ResponsesType >::CContinueReqest( uint256 const & _id, common::CMediumFilter< ResponsesType > * _mediumFilter )
 	: m_id( _id )
-	, m_kind( _kind )
+	, m_mediumFilter( _mediumFilter )
 {
 }
 
@@ -188,7 +199,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CContinueReqest< ResponsesType >::getMediumFilter() const
 {
-	return m_kind;
+	return m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -261,7 +272,7 @@ template < class ResponsesType >
 class CNetworkRoleRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CNetworkRoleRequest( uint256 const & _actionKey, int _role, int _kind );
+	CNetworkRoleRequest( uint256 const & _actionKey, int _role, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -275,14 +286,14 @@ private:
 
 	int m_role;
 
-	int m_kind;
+	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
-CNetworkRoleRequest< ResponsesType >::CNetworkRoleRequest( uint256 const & _actionKey, int _role, int _kind )
+CNetworkRoleRequest< ResponsesType >::CNetworkRoleRequest( uint256 const & _actionKey, int _role, common::CMediumFilter< ResponsesType > * _mediumFilter )
 	: m_actionKey( _actionKey )
 	, m_role( _role )
-	, m_kind( _kind )
+	, m_mediumFilter( _mediumFilter )
 {
 }
 
@@ -297,7 +308,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CNetworkRoleRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_kind;
+	return m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -318,11 +329,13 @@ template < class ResponsesType >
 class CKnownNetworkInfoRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, int _kind );
+	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, int _filterClass );
+
+	~CKnownNetworkInfoRequest();
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
 
 	std::vector< CValidNodeInfo > getNetworkInfo() const;
 
@@ -332,14 +345,14 @@ private:
 
 	std::vector< CValidNodeInfo > m_networkInfo;
 
-	int m_kind;
+	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
-CKnownNetworkInfoRequest< ResponsesType >::CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, int _kind )
+CKnownNetworkInfoRequest< ResponsesType >::CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, int _filterClass )
 	: m_actionKey( _actionKey )
 	, m_networkInfo( _networkInfo )
-	, m_kind( _kind )
+	, m_mediumFilter( new common::CMediumFilter< ResponsesType >( _filterClass ) )
 {
 }
 
@@ -351,10 +364,10 @@ CKnownNetworkInfoRequest< ResponsesType >::accept( common::CMedium< ResponsesTyp
 }
 
 template < class ResponsesType >
-int
+common::CMediumFilter< ResponsesType > *
 CKnownNetworkInfoRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_kind;
+	return m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -371,12 +384,18 @@ CKnownNetworkInfoRequest< ResponsesType >::getActionKey() const
 	return m_actionKey;
 }
 
+template < class ResponsesType >
+CKnownNetworkInfoRequest< ResponsesType >::~CKnownNetworkInfoRequest()
+{
+	delete m_mediumFilter;
+}
+
 
 template < class ResponsesType >
 class CAckRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CAckRequest( uint256 const & _actionKey, int _kind );
+	CAckRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -388,13 +407,13 @@ private:
 
 	std::vector< CValidNodeInfo > m_networkInfo;
 
-	int m_kind;
+	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
-CAckRequest< ResponsesType >::CAckRequest( uint256 const & _actionKey, int _kind )
+CAckRequest< ResponsesType >::CAckRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
 	: m_actionKey( _actionKey )
-	, m_kind( _kind )
+	, m_mediumFilter( _mediumFilter )
 {
 }
 
@@ -409,7 +428,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CAckRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_kind;
+	return m_mediumFilter;
 }
 
 template < class ResponsesType >

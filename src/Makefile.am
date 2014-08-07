@@ -30,6 +30,7 @@ COMMON_H = \
   common/commonEvents.h \
   common/commonResponses.h \
   common/databaseManager.h \
+  common/filters.h \
   common/identifyRequest.h \
   common/manageNetwork.h \
   common/nodeMedium.h \
