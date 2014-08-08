@@ -26,7 +26,7 @@ public:
 
 	CConnectNodeAction( CAddress const & _addrConnect );
 
-	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
+	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, common::CMediumFilter< TrackerResponses > *_mediumFilter );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 
@@ -58,13 +58,13 @@ private:
 
 	std::vector< unsigned char > m_payload;
 
-	common::CMediumFilter< TrackerResponses > * m_mediumFilter;
-
 	bool const m_passive;
 
 	CAddress m_addrConnect;
 
 	CPubKey m_key;
+
+	common::CMediumFilter< TrackerResponses > * m_mediumFilter;
 };
 
 

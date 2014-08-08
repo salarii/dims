@@ -20,6 +20,18 @@
 #include "util.h"
 #include "action.h"
 #include <algorithm>
+/*
+initially I wanted to make every actionHandler to operate on its own response list
+I feared that if  I put everything in the same mpl::list it will be bloated to impossibility,
+additionally I thought that it is  obvious that every action  handler  should have distinctive features.
+
+now I doubt
+this approach lead me to  situation where I have to drag template parameters like ( NodeResponses, TrackerResponses etc. )everywhere
+I didn't expected that my initial choice will have such devastating  result to the code  apperance
+I am on the brink of removing separate response lists completely, this will result in removing template  parameter from most places
+
+*/
+
 
 namespace common
 {

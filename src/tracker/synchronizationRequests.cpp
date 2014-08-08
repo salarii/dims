@@ -5,12 +5,14 @@
 #include "synchronizationRequests.h"
 #include "common/medium.h"
 #include "common/mediumKinds.h"
+#include "common/filters.h"
 
 namespace tracker
 {
 
 CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp )
-	: m_actionKey( _actionKey )
+	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::DimsNodes ) )
+	, m_actionKey( _actionKey )
 	, m_timeStamp( _timeStamp )
 {
 }
@@ -21,10 +23,10 @@ CGetSynchronizationInfoRequest::accept( common::CMedium< TrackerResponses > * _m
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CGetSynchronizationInfoRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::DimsNodes;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 uint256
@@ -33,9 +35,9 @@ CGetSynchronizationInfoRequest::getActionKey() const
 	return m_actionKey;
 }
 
-CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId )
-	: m_actionKey( _actionKey )
-	, m_mediumId( _mediumId )
+CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_actionKey( _actionKey )
 {
 }
 
@@ -45,10 +47,10 @@ CGetNextBlockRequest::accept( common::CMedium< TrackerResponses > * _medium ) co
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CGetNextBlockRequest::getMediumFilter() const
 {
-	return m_mediumId;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 uint256
@@ -57,9 +59,9 @@ CGetNextBlockRequest::getActionKey() const
 	return m_actionKey;
 }
 
-CSetNextBlockRequest::CSetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId, CDiskBlock * _discBlock )
-	: m_actionKey( _actionKey )
-	, m_mediumId( _mediumId )
+CSetNextBlockRequest::CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, CDiskBlock * _discBlock )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_actionKey( _actionKey )
 	, m_discBlock( _discBlock )
 {
 }
@@ -70,10 +72,10 @@ CSetNextBlockRequest::accept( common::CMedium< TrackerResponses > * _medium ) co
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CSetNextBlockRequest::getMediumFilter() const
 {
-	return m_mediumId;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 uint256

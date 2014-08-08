@@ -5,13 +5,15 @@
 #include "scanBitcoinNetworkRequest.h"
 #include "common/mediumKinds.h"
 #include "common/medium.h"
+#include "common/filters.h"
 
 namespace tracker
 {
 
-CAskForTransactionsRequest::CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, uint _mediumNumber )
-	: m_blockHashes( _blockHashes )
-	, m_mediumNumber( _mediumNumber )
+//common::CMediumKinds::BitcoinsNodes;
+CAskForTransactionsRequest::CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_blockHashes( _blockHashes )
 {
 }
 
@@ -21,10 +23,10 @@ CAskForTransactionsRequest::accept( common::CMedium< TrackerResponses > * _mediu
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CAskForTransactionsRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::BitcoinsNodes;
+	return m_mediumFilter;
 }
 
 std::vector< uint256 > const &
@@ -33,9 +35,15 @@ CAskForTransactionsRequest::getBlockHashes() const
 	return m_blockHashes;
 }
 
+CAskForTransactionsRequest::~CAskForTransactionsRequest()
+{
+	delete m_mediumFilter;
+}
+
 CSetBloomFilterRequest::CSetBloomFilterRequest( CBloomFilter const & _bloomFilter )
 	: m_bloomFilter( _bloomFilter )
 {
+	m_mediumFilter = new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::BitcoinsNodes );
 }
 
 void
@@ -44,10 +52,10 @@ CSetBloomFilterRequest::accept( common::CMedium< TrackerResponses > * _medium ) 
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CSetBloomFilterRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::BitcoinsNodes;
+	return m_mediumFilter;
 }
 
 CBloomFilter const &

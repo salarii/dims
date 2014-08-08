@@ -22,42 +22,42 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
+
 	uint64_t const m_timeStamp;
 };
 
 class CGetNextBlockRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CGetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId );
+	CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
-	unsigned int m_mediumId;
 };
 
 class CSetNextBlockRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CSetNextBlockRequest( uint256 const & _actionKey, unsigned int _mediumId, CDiskBlock * _discBlock );
+	CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, CDiskBlock * _discBlock );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
-	unsigned int m_mediumId;
+
 	CDiskBlock * m_discBlock;
 };
 

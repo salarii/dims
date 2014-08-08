@@ -15,7 +15,7 @@ class CBitcoinNodeMedium;
 class CInternalMediumProvider : public  common::CConnectionProvider< TrackerResponses >
 {
 public:
-	virtual std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+	virtual std::list< common::CMedium< TrackerResponses > *> provideConnection( common::CMediumFilter< TrackerResponses > const & _mediumFilter );
 
 	// set response, merkle ?? transaction ??
 	void setResponse( CTransaction const & _response, CNode * _node );

@@ -29,7 +29,7 @@ public:
 
 	void setNodeIdentifier( unsigned int _nodeIdentifier );
 	
-	unsigned int getNodeIdentifier() const;
+	unsigned long long getNodeIdentifier() const;
 
 	bool isRequestInitialized() const;
 private:
@@ -37,7 +37,7 @@ private:
 
 	uint256 m_currentHash;
 
-	unsigned int m_nodeIdentifier;
+	unsigned long long m_nodeIdentifier;
 };
 
 }

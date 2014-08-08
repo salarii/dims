@@ -19,7 +19,7 @@ template < class ResponsesType >
 class CIdentifyRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyRequest( int _shortPtr, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
+	CIdentifyRequest( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
 
 	~CIdentifyRequest();
 
@@ -34,14 +34,12 @@ private:
 
 	std::vector< unsigned char > m_payload;
 
-	common::CMediumFilter< ResponsesType > * m_mediumFilter;
-
 	uint256 const m_actionKey;
 };
 
 template < class ResponsesType >
-CIdentifyRequest< ResponsesType >::CIdentifyRequest( int _shortPtr, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
-	: m_mediumFilter( new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByShortPtr< ResponsesType >( _shortPtr ) ) )
+CIdentifyRequest< ResponsesType >::CIdentifyRequest( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
+	: common::CRequest< ResponsesType >( _mediumFilter )
 	, m_payload( _payload )
 	, m_actionKey( _actionKey )
 {
@@ -55,12 +53,6 @@ CIdentifyRequest< ResponsesType >::getActionKey() const
 }
 
 template < class ResponsesType >
-CIdentifyRequest< ResponsesType >::~CIdentifyRequest()
-{
-	delete m_mediumFilter;
-}
-
-template < class ResponsesType >
 void
 CIdentifyRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
 {
@@ -71,7 +63,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CIdentifyRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_mediumFilter;
+	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -86,7 +78,7 @@ template < class ResponsesType >
 class CIdentifyResponse : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyResponse( unsigned int _kind, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
+	CIdentifyResponse( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -112,8 +104,8 @@ private:
 };
 
 template < class ResponsesType >
-CIdentifyResponse< ResponsesType >::CIdentifyResponse( unsigned int _shortPtr, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
-	: m_mediumFilter( new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByShortPtr< ResponsesType >( _shortPtr ) ) )// this may be not  right
+CIdentifyResponse< ResponsesType >::CIdentifyResponse( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
+	: m_mediumFilter( _mediumFilter )// new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByPtr< ResponsesType >( _ptr ) )
 	, m_signed( _signed )
 	, m_key( _key )
 	, m_payload( _payload )
@@ -285,15 +277,13 @@ private:
 	uint256 const m_actionKey;
 
 	int m_role;
-
-	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
 CNetworkRoleRequest< ResponsesType >::CNetworkRoleRequest( uint256 const & _actionKey, int _role, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: m_actionKey( _actionKey )
+	: common::CRequest< ResponsesType >( _mediumFilter )
+	, m_actionKey( _actionKey )
 	, m_role( _role )
-	, m_mediumFilter( _mediumFilter )
 {
 }
 
@@ -308,7 +298,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CNetworkRoleRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_mediumFilter;
+	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -329,7 +319,7 @@ template < class ResponsesType >
 class CKnownNetworkInfoRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, int _filterClass );
+	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	~CKnownNetworkInfoRequest();
 
@@ -344,15 +334,13 @@ private:
 	uint256 const m_actionKey;
 
 	std::vector< CValidNodeInfo > m_networkInfo;
-
-	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
-CKnownNetworkInfoRequest< ResponsesType >::CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, int _filterClass )
-	: m_actionKey( _actionKey )
+CKnownNetworkInfoRequest< ResponsesType >::CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter )
+	: common::CRequest< ResponsesType >( _mediumFilter )
+	, m_actionKey( _actionKey )
 	, m_networkInfo( _networkInfo )
-	, m_mediumFilter( new common::CMediumFilter< ResponsesType >( _filterClass ) )
 {
 }
 
@@ -367,7 +355,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CKnownNetworkInfoRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_mediumFilter;
+	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -385,13 +373,6 @@ CKnownNetworkInfoRequest< ResponsesType >::getActionKey() const
 }
 
 template < class ResponsesType >
-CKnownNetworkInfoRequest< ResponsesType >::~CKnownNetworkInfoRequest()
-{
-	delete m_mediumFilter;
-}
-
-
-template < class ResponsesType >
 class CAckRequest : public common::CRequest< ResponsesType >
 {
 public:
@@ -406,14 +387,12 @@ private:
 	uint256 const m_actionKey;
 
 	std::vector< CValidNodeInfo > m_networkInfo;
-
-	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
 CAckRequest< ResponsesType >::CAckRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: m_actionKey( _actionKey )
-	, m_mediumFilter( _mediumFilter )
+	: common::CRequest< ResponsesType >( _mediumFilter )
+	, m_actionKey( _actionKey )
 {
 }
 
@@ -428,7 +407,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CAckRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_mediumFilter;
+	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >

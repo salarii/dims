@@ -17,9 +17,9 @@ class  CValidateTransactionsRequest : public common::CRequest< TrackerResponses 
 public:
 	CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CMediumFilter< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	std::vector< CTransaction > const & getTransactions() const;
 private:
@@ -33,7 +33,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 };
 
 class  CTransactionsAckRequest : public common::CRequest< TrackerResponses >
@@ -43,7 +43,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 };
 
@@ -54,7 +54,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 };
 
 class  CTransactionsNotOkRequest : public common::CRequest< TrackerResponses >
@@ -64,7 +64,7 @@ public:
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 };
 
 

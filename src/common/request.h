@@ -37,10 +37,18 @@ class CRequestVisitor;
 template < class _RequestResponses >
 struct CRequest
 {
+	CRequest( common::CMediumFilter< _RequestResponses > * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter ){}
+
 	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
 // reconsider this  int
 	virtual CMediumFilter< _RequestResponses > * getMediumFilter() const = 0;
-	virtual ~CRequest(){};
+	virtual ~CRequest()
+	{
+		if ( m_mediumFilter )
+			delete m_mediumFilter;
+	};
+
+	common::CMediumFilter< _RequestResponses > * m_mediumFilter;
 };
 
 

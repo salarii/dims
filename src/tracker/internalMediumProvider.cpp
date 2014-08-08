@@ -28,19 +28,19 @@ CInternalMediumProvider::CInternalMediumProvider()
 }
 
 std::list< common::CMedium< TrackerResponses > *>
-CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+CInternalMediumProvider::provideConnection( common::CMediumFilter< TrackerResponses > const & _mediumFilter )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	if ( common::CMediumKinds::Internal == _actionKind )
+	if ( common::CMediumKinds::Internal == _mediumFilter.m_mediumClass )
 		return m_mediums;
-	else if ( common::CMediumKinds::BitcoinsNodes == _actionKind )
+	else if ( common::CMediumKinds::BitcoinsNodes == _mediumFilter.m_mediumClass )
 	{
 		std::list< common::CMedium< TrackerResponses > *> mediums;
 
 		std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
-		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _requestedConnectionNumber ); )
+		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumFilter.m_mediumNumber ); )
 		{
 
 			if ( iterator != m_nodeToMedium.end() )

@@ -6,6 +6,7 @@
 #include "trackerNodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
+#include "common/filters.h"
 
 #include "trackerNodeMedium.h"
 #include "connectNodeAction.h"
@@ -63,7 +64,11 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction(
+							  identifyMessage.m_actionKey
+							, identifyMessage.m_payload
+							, common::createFilterWithPtr< TrackerResponses >( -1, -1, convertToInt( nodeMedium->getNode() ) ) );
+
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
 
 			}
@@ -82,7 +87,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
+				CConnectNodeAction * connectTrackerAction
+						= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, common::createFilterWithPtr< TrackerResponses >( -1, -1, convertToInt( nodeMedium->getNode() ) ) );
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
 
 			}

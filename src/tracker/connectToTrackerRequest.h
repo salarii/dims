@@ -23,6 +23,8 @@ public:
 	std::string getAddress() const;
 
 	CAddress getServiceAddress() const;
+
+	~CConnectToTrackerRequest();
 private:
 	std::string const m_trackerAddress;
 

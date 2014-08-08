@@ -47,7 +47,7 @@ createIdentifyResponse( Parent & parent )
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new common::CIdentifyResponse<TrackerResponses>( parent.getMediumKind(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), parent.getPayload(), parent.getActionKey() ) );
+	parent.setRequest( new common::CIdentifyResponse<TrackerResponses>( parent.getMediumFilter(), signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), parent.getPayload(), parent.getActionKey() ) );
 }
 
 struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CConnectNodeAction >
@@ -157,11 +157,11 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 	{
 
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
-		context< CConnectNodeAction >().setMediumFilter( new common::CMediumFilter< TrackerResponses >( -1, -1, new common::CAcceptFilterByShortPtr< TrackerResponses >( convertToInt( connectedEvent->m_node ) ) ) );
+		context< CConnectNodeAction >().setMediumFilter( common::createFilterWithPtr<TrackerResponses>( -1, -1, convertToInt( connectedEvent->m_node ) ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CTrackerNodesManager::getInstance()->addNode( connectedEvent->m_node );
 
-		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( convertToInt( connectedEvent->m_node ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
+		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( common::createFilterWithPtr<TrackerResponses>( -1, -1, convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
 
 	}
 
@@ -279,12 +279,12 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 	}
 };
 
-CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind )
+CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, common::CMediumFilter< TrackerResponses > *_mediumFilter )
 : CCommunicationAction( _actionKey )
 , m_payload( _payload )
 , m_request( 0 )
 , m_passive( true )
-, m_mediumKind( _mediumKind )
+, m_mediumFilter( _mediumFilter )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
@@ -353,7 +353,7 @@ CConnectNodeAction::getPayload() const
 	return m_payload;
 }
 
-unsigned int
+common::CMediumFilter< TrackerResponses > *
 CConnectNodeAction::getMediumFilter() const
 {
 	return m_mediumFilter;
@@ -373,7 +373,7 @@ CConnectNodeAction::setPublicKey( CPubKey const & _pubKey )
 
 
 void
-CConnectNodeAction::setMediumFilter( CMediumFilter< TrackerResponses > * _mediumFilter )
+CConnectNodeAction::setMediumFilter( common::CMediumFilter< TrackerResponses > * _mediumFilter )
 {
 	m_mediumFilter = _mediumFilter;
 }

@@ -5,6 +5,7 @@
 #include "connectToTrackerRequest.h"
 #include "common/medium.h"
 #include "common/mediumKinds.h"
+#include "common/filters.h"
 
 namespace tracker
 {
@@ -13,6 +14,7 @@ CConnectToTrackerRequest::CConnectToTrackerRequest( std::string const & _tracker
 	:m_trackerAddress( _trackerAddress )
 	,m_serviceAddress( _serviceAddress )
 {
+	m_mediumFilter = new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal );
 }
 
 void
@@ -21,10 +23,10 @@ CConnectToTrackerRequest::accept( common::CMedium< TrackerResponses > * _medium 
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CConnectToTrackerRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::Internal;
+	return m_mediumFilter;
 }
 
 std::string
@@ -37,6 +39,11 @@ CAddress
 CConnectToTrackerRequest::getServiceAddress() const
 {
 	return m_serviceAddress;
+}
+
+CConnectToTrackerRequest::~CConnectToTrackerRequest()
+{
+	delete m_mediumFilter;
 }
 
 

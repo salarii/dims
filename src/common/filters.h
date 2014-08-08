@@ -18,44 +18,31 @@ struct CAcceptFilter
 };
 
 template < class _RequestResponses >
-struct CExcludeFilter
-{
-	virtual ~CExcludeFilter(){};
-
-	virtual std::list< CMedium< _RequestResponses > *> notExcluded( std::list< CMedium< _RequestResponses > *> const & _candidates ) = 0;
-};
-
-template < class _RequestResponses >
 struct CMediumFilter
 {
-	CMediumFilter( int _mediumClass = -1, int _mediumNumber = -1, CAcceptFilter< _RequestResponses > * _accept = 0, CExcludeFilter< _RequestResponses > * _exclude = 0 ):
+	CMediumFilter( int _mediumClass = -1, int _mediumNumber = -1, CAcceptFilter< _RequestResponses > * _accept = 0 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber ),
-		m_accept( _accept ),
-		m_exclude( _exclude )
+		m_accept( _accept )
 	{}
 
 	~CMediumFilter()
 	{
 		if ( m_accept )
 			delete m_accept;
-
-		if( m_exclude )
-			delete m_exclude;
 	}
 
 	int m_mediumClass;
 	int m_mediumNumber;
 
 	CAcceptFilter< _RequestResponses >* m_accept;
-	CExcludeFilter< _RequestResponses >* m_exclude;
 };
 
 template < class _RequestResponses >
-struct CAcceptFilterByShortPtr : public CAcceptFilter< _RequestResponses >
+struct CAcceptFilterByPtr : public CAcceptFilter< _RequestResponses >
 {
-	CAcceptFilterByShortPtr( int _shortPtr )
-		:m_shortPtr( _shortPtr )
+	CAcceptFilterByPtr( unsigned long long _ptr )
+		:m_ptr( _ptr )
 	{
 	}
 
@@ -65,15 +52,22 @@ struct CAcceptFilterByShortPtr : public CAcceptFilter< _RequestResponses >
 
 		BOOST_FOREACH( CMedium< _RequestResponses > * medium, _candidates )
 		{
-			if ( convertToInt( medium ) == m_shortPtr )
+			if ( convertToInt( medium ) == m_ptr )
 			{
 				acceptedMedium.push_back( medium );
 			}
 		}
 	}
 
-	int m_shortPtr;
+	unsigned long long m_ptr;
 };
+
+template < class _RequestResponses >
+CMediumFilter< _RequestResponses > *
+createFilterWithPtr( int _mediumClass, int _mediumNumber, unsigned long long _ptr )
+{
+	return new common::CMediumFilter< _RequestResponses >( _mediumClass, _mediumNumber, new common::CAcceptFilterByPtr< _RequestResponses >( _ptr ) );
+}
 
 }
 
