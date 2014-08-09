@@ -38,17 +38,17 @@ CSeedNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 }
 
 std::list< common::CMedium< SeedResponses > *>
-CSeedNodesManager::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+CSeedNodesManager::provideConnection( common::CMediumFilter<SeedResponses> const & _mediumFilter )
 {
-	std::list< common::CMedium< SeedResponses > *> mediums = common::CNodesManager< SeedResponses >::provideConnection( _actionKind, _requestedConnectionNumber );
+	std::list< common::CMedium< SeedResponses > *> mediums = common::CNodesManager< SeedResponses >::provideConnection( _mediumFilter );
 
 	if ( !mediums.empty() )
 		return mediums;
 
-	if ( !_actionKind )// not  correct
+	/*if ( !_actionKind )// not  correct
 	{
 		mediums.push_back( CInternalMedium::getInstance() );
-	}
+	}*/
 	return mediums;
 }
 

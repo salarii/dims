@@ -21,8 +21,6 @@ class CIdentifyRequest : public common::CRequest< ResponsesType >
 public:
 	CIdentifyRequest( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
 
-	~CIdentifyRequest();
-
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
 	common::CMediumFilter< ResponsesType > * getMediumFilter() const;
@@ -209,7 +207,7 @@ public:
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 
-	virtual int getMediumFilter() const;
+	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
 
 	std::string getAddress() const;
 
@@ -240,10 +238,10 @@ CConnectToNodeRequest< ResponsesType >::accept( common::CMedium< ResponsesType >
 }
 
 template < class ResponsesType >
-int
+common::CMediumFilter< ResponsesType > *
 CConnectToNodeRequest< ResponsesType >::getMediumFilter() const
 {
-	return m_kind;
+	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >
@@ -320,8 +318,6 @@ class CKnownNetworkInfoRequest : public common::CRequest< ResponsesType >
 {
 public:
 	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter );
-
-	~CKnownNetworkInfoRequest();
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 

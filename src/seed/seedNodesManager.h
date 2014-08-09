@@ -23,7 +23,7 @@ public:
 
 	CSeedNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 
-	std::list< common::CMedium< SeedResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+	std::list< common::CMedium< SeedResponses > *> provideConnection( common::CMediumFilter< SeedResponses > const & _mediumFilter );
 
 	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
 

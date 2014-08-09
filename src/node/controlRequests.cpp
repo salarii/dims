@@ -3,12 +3,15 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "controlRequests.h"
+
 #include "common/medium.h"
+#include "common/filters.h"
 
 namespace client
 {
 
 CDnsInfoRequest::CDnsInfoRequest()
+	:common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( common::RequestKind::Seed ) )
 {
 }
 
@@ -18,13 +21,14 @@ CDnsInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< NodeResponses > *
 CDnsInfoRequest::getMediumFilter() const
 {
-	return common::RequestKind::Seed;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
 CRecognizeNetworkRequest::CRecognizeNetworkRequest()
+	:common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( common::RequestKind::Unknown ) )
 {
 
 }
@@ -35,10 +39,10 @@ CRecognizeNetworkRequest::accept( common::CMedium< NodeResponses > * _medium ) c
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< NodeResponses > *
 CRecognizeNetworkRequest::getMediumFilter() const
 {
-	return common::RequestKind::Unknown;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
 

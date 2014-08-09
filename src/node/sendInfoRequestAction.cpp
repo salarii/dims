@@ -28,9 +28,9 @@ CSendInfoRequestAction::execute()
 	return 0;
 }
 
-CTrackersInfoRequest::CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo, int _mediumKind )
-	: m_reqInfo( _reqInfo )
-	, m_mediumKind( _mediumKind )
+CTrackersInfoRequest::CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo, common::CMediumFilter< NodeResponses > * _mediumFilter )
+	: common::CRequest< NodeResponses >( _mediumFilter )
+	, m_reqInfo( _reqInfo )
 {
 }
 
@@ -52,14 +52,15 @@ CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 	
 }
 */
-CMediumFilter< TrackerResponses > *
+common::CMediumFilter< NodeResponses > *
 CTrackersInfoRequest::getMediumFilter() const
 {
-	return m_mediumKind;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
 
 CMonitorInfoRequest::CMonitorInfoRequest()
+	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( -1 ) )
 {
 
 }
@@ -70,16 +71,16 @@ CMonitorInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 
 }
 
-int CMonitorInfoRequest::getMediumFilter() const
+common::CMediumFilter< NodeResponses > *
+CMonitorInfoRequest::getMediumFilter() const
 {
-	return 0;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
-CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::RequestKind::Enum const _requestKind )
-: m_token( _token )
-,m_requestKind( _requestKind )
+CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter )
+	: common::CRequest< NodeResponses >( _mediumFilter )
+	, m_token( _token )
 {
-
 }
 
 void
@@ -88,12 +89,10 @@ CInfoRequestContinue::accept( common::CMedium< NodeResponses > * _medium ) const
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< NodeResponses > *
 CInfoRequestContinue::getMediumFilter() const
 {
-	return m_requestKind;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
-
-
 
 }

@@ -71,11 +71,11 @@ CTrackerLocalRanking::removeMonitor( common::CNodeStatistic const & _monitor )
 }
 
 std::list< common::CMedium< NodeResponses > *>
-CTrackerLocalRanking::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber)
+CTrackerLocalRanking::provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter )
 {
 	std::list< common::CMedium< NodeResponses > *> mediums;
 
-	switch (_actionKind)
+	switch ( _mediumFilter.m_mediumClass )
 	{
 	case common::RequestKind::Unknown:
 		if ( m_unidentifiedNodes.begin() != m_unidentifiedNodes.end() )
@@ -110,8 +110,8 @@ CTrackerLocalRanking::provideConnection( int const _actionKind, unsigned _reques
 		;
 	}
 	// there will be  not many  mediums  I belive
-	if ( _requestedConnectionNumber != -1 && mediums.size() > _requestedConnectionNumber )
-		mediums.resize( _requestedConnectionNumber );
+	if ( _mediumFilter.m_mediumNumber != -1 && mediums.size() > _mediumFilter.m_mediumNumber )
+		mediums.resize( _mediumFilter.m_mediumNumber );
 	return mediums;
 }
 

@@ -15,7 +15,7 @@ class CSettingsMedium;
 class CSettingsConnectionProvider : public common::CConnectionProvider< NodeResponses >
 {
 public:
-	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
 
 	static CSettingsConnectionProvider* getInstance();
 

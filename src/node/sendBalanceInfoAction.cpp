@@ -66,7 +66,7 @@ CSendBalanceInfoAction::execute()
 		}
         else if ( m_token )
         {
-            return new CInfoRequestContinue( *m_token, RequestKind::Balance );
+			return new CInfoRequestContinue( *m_token, new common::CMediumFilter< NodeResponses >( RequestKind::Balance ) );
         }
     }
     return 0;
@@ -148,7 +148,8 @@ CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const 
 
 
 CBalanceRequest::CBalanceRequest( std::string _address )
-	: m_address( _address )
+	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( RequestKind::Balance ) )
+	, m_address( _address )
 {
 }
 
@@ -159,9 +160,10 @@ CBalanceRequest::accept( common::CMedium< NodeResponses > * _medium ) const
 }
 
 inline
-int CBalanceRequest::getMediumFilter() const
+common::CMediumFilter< NodeResponses > *
+CBalanceRequest::getMediumFilter() const
 {
-	return RequestKind::Balance;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
 }

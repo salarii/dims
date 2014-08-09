@@ -11,7 +11,7 @@ CSeedProvider * CSeedProvider::ms_instance = NULL;
 
 
 std::list< common::CMedium< NodeResponses > *>
-CSeedProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+CSeedProvider::provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter )
 {
 	return std::list< common::CMedium< NodeResponses > *>();
 }

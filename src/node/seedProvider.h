@@ -14,7 +14,7 @@ namespace client
 class CSeedProvider : public common::CConnectionProvider< NodeResponses >
 {
 public:
-	std::list< common::CMedium< NodeResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+	std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
 
 	~CSeedProvider();
 

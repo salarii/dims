@@ -5,9 +5,10 @@
 #include "sendTransactionAction.h"
 #include "common/nodeMessages.h"
 #include "common/setResponseVisitor.h"
-#include "configureNodeActionHadler.h"
 #include "common/medium.h"
+#include "common/filters.h"
 
+#include "configureNodeActionHadler.h"
 #include "serialize.h"
 
 using namespace common;
@@ -72,7 +73,8 @@ CSendTransactionAction::execute()
 
 
 CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _token )
-	: m_token( _token )
+	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( RequestKind::TransactionStatus ) )
+	, m_token( _token )
 {
 }
 
@@ -82,10 +84,10 @@ CTransactionStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) 
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< NodeResponses > *
 CTransactionStatusRequest::getMediumFilter() const
 {
-	return RequestKind::TransactionStatus;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 /*
 void
@@ -103,13 +105,15 @@ CTransactionSendRequest::accept( CMedium< NodeResponses > * _medium ) const
 }
 
 CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction )
-	: m_transaction( _transaction )
+	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( RequestKind::Transaction ) )
+	, m_transaction( _transaction )
 {
 }
 
-int CTransactionSendRequest::getMediumFilter() const
+common::CMediumFilter< NodeResponses > *
+CTransactionSendRequest::getMediumFilter() const
 {
-	return RequestKind::Transaction;
+	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
 

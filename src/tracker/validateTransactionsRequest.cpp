@@ -5,12 +5,14 @@
 #include "validateTransactionsRequest.h"
 #include "common/medium.h"
 #include "common/mediumKinds.h"
+#include "common/filters.h"
 
 namespace tracker
 {
 
 CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions )
-	: m_transactions( _transactions )
+	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
+	, m_transactions( _transactions )
 {
 }
 
@@ -19,10 +21,10 @@ void CValidateTransactionsRequest::accept( common::CMedium< TrackerResponses > *
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CValidateTransactionsRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::Internal;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 std::vector< CTransaction > const &
@@ -32,6 +34,7 @@ CValidateTransactionsRequest::getTransactions() const
 }
 
 CTransactionsKnownRequest::CTransactionsKnownRequest()
+	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
 {
 }
 
@@ -41,13 +44,14 @@ CTransactionsKnownRequest::accept( common::CMedium< TrackerResponses > * _medium
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CTransactionsKnownRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::Internal;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 CTransactionsAckRequest::CTransactionsAckRequest()
+	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
 {
 }
 
@@ -57,13 +61,14 @@ CTransactionsAckRequest::accept( common::CMedium< TrackerResponses > * _medium )
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CTransactionsAckRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::Internal;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 CTransactionsDoublespendRequest::CTransactionsDoublespendRequest()
+	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
 {
 }
 
@@ -73,13 +78,14 @@ CTransactionsDoublespendRequest::accept( common::CMedium< TrackerResponses > * _
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CTransactionsDoublespendRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::Internal;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 CTransactionsNotOkRequest::CTransactionsNotOkRequest()
+	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
 {
 }
 
@@ -89,10 +95,10 @@ CTransactionsNotOkRequest::accept( common::CMedium< TrackerResponses > * _medium
 	_medium->add( this );
 }
 
-int
+common::CMediumFilter< TrackerResponses > *
 CTransactionsNotOkRequest::getMediumFilter() const
 {
-	return common::CMediumKinds::Internal;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 }

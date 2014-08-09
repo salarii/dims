@@ -39,7 +39,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		int64_t time = GetTime();
 		if ( time - m_lastAskTime < DnsAskLoopTime )
 		{
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Seed ) );
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Seed ) ) );
 		}
 		else
 		{
@@ -52,7 +52,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	{
 		if ( _dnsInfo.m_addresses.empty() )
 		{
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Seed ) );
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Seed ) ) );
 		}
 		else
 		{
@@ -87,7 +87,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			// second parameter is problematic, maybe this  should  be  indicator  of  very  specific connection
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Unknown ) );
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Unknown ) ) );
 		}
 		else
 		{
@@ -131,7 +131,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 			context< CConnectAction >().process_event( common::CContinueEvent(uint256() ) );
 		}
 
-		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), common::RequestKind::Unknown ) );
+		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Unknown ) ) );
 	}
 
 	typedef boost::mpl::list<
@@ -163,7 +163,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 		std::vector< TrackerInfo::Enum > trackerInfoProfile
 				= boost::assign::list_of(TrackerInfo::Ip)(TrackerInfo::Price)(TrackerInfo::Rating)(TrackerInfo::PublicKey)(TrackerInfo::MinPrice)(TrackerInfo::MaxPrice);
 
-		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, common::RequestKind::UndeterminedTrackers ) );
+		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, new common::CMediumFilter< NodeResponses >( common::RequestKind::UndeterminedTrackers ) ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

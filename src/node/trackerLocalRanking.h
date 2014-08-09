@@ -41,7 +41,7 @@ struct CompareReputationTracker : public std::binary_function< common::CTrackerS
 class CTrackerLocalRanking : public common::CConnectionProvider< NodeResponses >
 {
 public:
-	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber );
+	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
 
 	float getPrice();
 

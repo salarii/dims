@@ -17,7 +17,7 @@ class  CValidateTransactionsRequest : public common::CRequest< TrackerResponses 
 public:
 	CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions );
 
-	virtual void accept( common::CMediumFilter< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 

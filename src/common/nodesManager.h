@@ -34,7 +34,7 @@ public:
 
 	CNodeMedium< RequestType > * addNode( common::CSelfNode * _node );
 
-	std::list< common::CMedium< RequestType > *> provideConnection( CMediumFilter< _RequestResponses > const & _mediumFilter );
+	std::list< common::CMedium< RequestType > *> provideConnection( CMediumFilter< RequestType > const & _mediumFilter );
 
 	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
 
@@ -130,21 +130,34 @@ CNodesManager< RequestType >::getMediumForNode( common::CSelfNode * _node ) cons
 
 template < class ResponseType >
 std::list< common::CMedium< ResponseType > *>
-CNodesManager< ResponseType >::provideConnection( CMediumFilter< _RequestResponses > const & _mediumFilter )
+CNodesManager< ResponseType >::provideConnection( CMediumFilter< ResponseType > const & _mediumFilter )
 {
 	std::list< common::CMedium< ResponseType > *> mediums;
 
-	typename std::map< unsigned int, CNodeMedium< ResponseType >* >::iterator iterator = m_ptrToNodes.find( ( unsigned int )_actionKind );
-
-	if( iterator != m_ptrToNodes.end() )
-	{
-		mediums.push_back( (common::CMedium< ResponseType > *)iterator->second );
-	}
-	else if ( CMediumKinds::DimsNodes == _mediumFilter.m_mediumClass )
+	if ( CMediumKinds::DimsNodes == _mediumFilter.m_mediumClass )
 	{
 		return m_nodeMediums;
 	}
+/*
+	if ( _mediumFilter.m_accept != 0 )
+	{
+		if ( mediums.empty() )
+		{
+			typename std::map< unsigned int, CNodeMedium< ResponseType >* >::iterator iterator = m_ptrToNodes.begin();
 
+			while( iterator != m_ptrToNodes.end() )
+			{
+				mediums.push_back( iterator->second );
+
+				iterator++;
+			}
+
+			mediums = _mediumFilter.m_accept->accepted( mediums );
+		}
+
+
+	}
+*/
 	return mediums;
 }
 

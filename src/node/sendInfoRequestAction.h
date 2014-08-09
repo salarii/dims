@@ -56,10 +56,10 @@ private:
 struct CTrackersInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo = std::vector< TrackerInfo::Enum >(), int _mediumKind = -1 );
+	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo, common::CMediumFilter< NodeResponses > * _mediumFilter );
 	~CTrackersInfoRequest(){};
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 
 	std::vector< TrackerInfo::Enum >const  m_reqInfo;
 	int m_mediumKind;
@@ -70,18 +70,17 @@ struct CMonitorInfoRequest : public common::CRequest< NodeResponses >
 public:
 	CMonitorInfoRequest();
 	void serialize( CBufferAsStream & _bufferStream ) const;
-	int getMediumFilter() const;
+	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 };
 
 struct CInfoRequestContinue : public common::CRequest< NodeResponses >
 {
 public:
-	CInfoRequestContinue( uint256 const & _token, common::RequestKind::Enum const _requestKind );
+	CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	int getMediumFilter() const;
+	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 
 	uint256 const m_token;
-	common::RequestKind::Enum const m_requestKind;
 };
 
 }
