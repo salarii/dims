@@ -38,6 +38,10 @@ public:
 
 	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
 
+	common::CMedium< RequestType > * findNodeMedium( long long unsigned _ptr );
+
+	std::list< common::CMedium< ResponseType > *> getNodesByClass( CMediumKinds::Enum _nodesClass );
+
 	static CNodesManager * getInstance();
 protected:
 	CNodesManager();
@@ -132,34 +136,28 @@ template < class ResponseType >
 std::list< common::CMedium< ResponseType > *>
 CNodesManager< ResponseType >::provideConnection( CMediumFilter< ResponseType > const & _mediumFilter )
 {
-	std::list< common::CMedium< ResponseType > *> mediums;
+	return _mediumFilter.getMediums( this );
+}
 
-	if ( CMediumKinds::DimsNodes == _mediumFilter.m_mediumClass )
+template < class ResponseType >
+CNodesManager< ResponseType >::findNodeMedium( long long unsigned _ptr )
+{
+	typename std::map< unsigned int, CNodeMedium< ResponseType >* >::iterator iterator = m_ptrToNodes.find( _ptr );
+
+	return iterator != m_ptrToNodes.end() ? iterator->second : 0;[]
+}
+
+template < class ResponseType >
+std::list< common::CMedium< ResponseType > *>
+CNodesManager< ResponseType >::getNodesByClass( CMediumKinds::Enum _nodesClass )
+{
+	if ( CMediumKinds::DimsNodes == _nodesClass )
 	{
 		return m_nodeMediums;
 	}
-/*
-	if ( _mediumFilter.m_accept != 0 )
-	{
-		if ( mediums.empty() )
-		{
-			typename std::map< unsigned int, CNodeMedium< ResponseType >* >::iterator iterator = m_ptrToNodes.begin();
 
-			while( iterator != m_ptrToNodes.end() )
-			{
-				mediums.push_back( iterator->second );
-
-				iterator++;
-			}
-
-			mediums = _mediumFilter.m_accept->accepted( mediums );
-		}
-
-
-	}
-*/
-	return mediums;
 }
+
 
 }
 

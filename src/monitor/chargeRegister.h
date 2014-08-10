@@ -37,11 +37,6 @@ private:
 	int64_t  m_warningTime;
 };
 
-/*
-seems  that  tracker has make autorisation of its public key
-in similar  fashion as it is doing 
-*/
-
 }
 
 #endif
