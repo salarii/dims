@@ -4,7 +4,6 @@
 
 #include "internalMediumProvider.h"
 #include "internalOperationsMedium.h"
-#include "common/mediumKinds.h"
 #include "bitcoinNodeMedium.h"
 
 namespace tracker
@@ -30,17 +29,24 @@ CInternalMediumProvider::CInternalMediumProvider()
 std::list< common::CMedium< TrackerResponses > *>
 CInternalMediumProvider::provideConnection( common::CMediumFilter< TrackerResponses > const & _mediumFilter )
 {
+	return _mediumFilter.getMediums( this );
+}
+
+
+std::list< common::CMedium< TrackerResponses > *>
+CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )
+{
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	if ( common::CMediumKinds::Internal == _mediumFilter.m_mediumClass )
+	if ( common::CMediumKinds::Internal == _mediumKind )
 		return m_mediums;
-	else if ( common::CMediumKinds::BitcoinsNodes == _mediumFilter.m_mediumClass )
+	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
 		std::list< common::CMedium< TrackerResponses > *> mediums;
 
-		std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator =  m_nodeToMedium.begin();
+		std::map< CNode *, CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
-		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumFilter.m_mediumNumber ); )
+		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumNumber ); )
 		{
 
 			if ( iterator != m_nodeToMedium.end() )
@@ -66,6 +72,8 @@ CInternalMediumProvider::provideConnection( common::CMediumFilter< TrackerRespon
 	else
 		return std::list< common::CMedium< TrackerResponses > *>();
 }
+
+
 
 void
 CInternalMediumProvider::setResponse( CTransaction const & _response, CNode * _node )

@@ -5,7 +5,7 @@
 #include "scanBitcoinNetworkRequest.h"
 #include "common/mediumKinds.h"
 #include "common/medium.h"
-#include "common/filters.h"
+#include "trackerFilters.h"
 
 namespace tracker
 {
@@ -43,7 +43,7 @@ CAskForTransactionsRequest::~CAskForTransactionsRequest()
 CSetBloomFilterRequest::CSetBloomFilterRequest( CBloomFilter const & _bloomFilter )
 	: m_bloomFilter( _bloomFilter )
 {
-	m_mediumFilter = new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::BitcoinsNodes );
+	m_mediumFilter = new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes );
 }
 
 void

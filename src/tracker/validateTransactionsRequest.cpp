@@ -5,13 +5,13 @@
 #include "validateTransactionsRequest.h"
 #include "common/medium.h"
 #include "common/mediumKinds.h"
-#include "common/filters.h"
+#include "trackerFilters.h"
 
 namespace tracker
 {
 
 CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions )
-	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_transactions( _transactions )
 {
 }
@@ -34,7 +34,7 @@ CValidateTransactionsRequest::getTransactions() const
 }
 
 CTransactionsKnownRequest::CTransactionsKnownRequest()
-	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 {
 }
 
@@ -51,7 +51,7 @@ CTransactionsKnownRequest::getMediumFilter() const
 }
 
 CTransactionsAckRequest::CTransactionsAckRequest()
-	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 {
 }
 
@@ -68,7 +68,7 @@ CTransactionsAckRequest::getMediumFilter() const
 }
 
 CTransactionsDoublespendRequest::CTransactionsDoublespendRequest()
-	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 {
 }
 
@@ -85,7 +85,7 @@ CTransactionsDoublespendRequest::getMediumFilter() const
 }
 
 CTransactionsNotOkRequest::CTransactionsNotOkRequest()
-	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 {
 }
 

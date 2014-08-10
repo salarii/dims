@@ -33,12 +33,20 @@ CSettingsConnectionProvider::CSettingsConnectionProvider()
 std::list< common::CMedium< NodeResponses > *>
 CSettingsConnectionProvider::provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter )
 {
+	_mediumFilter.getMediums( this );
+}
+
+std::list< common::CMedium< NodeResponses > *>
+CSettingsConnectionProvider::getMediumByClass( common::RequestKind::Enum _requestKind )
+{
 	std::list< common::CMedium< NodeResponses > *> mediums;
-	if( common::RequestKind::NetworkInfo == _mediumFilter.m_mediumClass || common::RequestKind::Seed == _mediumFilter.m_mediumClass )// temporary???
+	if( common::RequestKind::NetworkInfo == _requestKind || common::RequestKind::Seed == _requestKind )// temporary???
 	{
 		mediums.push_back( m_settingsMedium );
 	}
+
 	return mediums;
 }
+
 
 }

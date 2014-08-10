@@ -5,13 +5,13 @@
 #include "synchronizationRequests.h"
 #include "common/medium.h"
 #include "common/mediumKinds.h"
-#include "common/filters.h"
+#include "trackerFilters.h"
 
 namespace tracker
 {
 
 CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp )
-	: common::CRequest< TrackerResponses >( new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::DimsNodes ) )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::DimsNodes ) )
 	, m_actionKey( _actionKey )
 	, m_timeStamp( _timeStamp )
 {

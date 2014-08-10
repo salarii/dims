@@ -21,6 +21,7 @@
 #include "trackerEvents.h"
 #include "trackerController.h"
 #include "trackerControllerEvents.h"
+#include "trackerFilters.h"
 
 #define CONFIRM_LIMIT 6
 
@@ -49,7 +50,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 {
 	CUninitiated( my_context ctx ) : my_base( ctx )
 	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) ) );
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -62,7 +63,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 		}
 		else
 		{
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) ) );
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 
 			return discard_event();
 		}
@@ -78,14 +79,14 @@ struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddres
 {
 	CStallAction( my_context ctx ) : my_base( ctx ), m_counter( StallCnt )
 	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) ) );
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		if ( m_counter-- )
 		{
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) ) );
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 			return discard_event();
 		}
 		else
@@ -111,7 +112,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		if ( m_counter-- )
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::BitcoinsNodes ) ) );
+			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) ) );
 		else
 		{
 			context< CTrackOriginAddressAction >().clear();
@@ -122,7 +123,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
 	{
 		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::BitcoinsNodes ) ) );
+		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) ) );
 	}
 
 	~CReadingData()
@@ -195,7 +196,7 @@ CTrackOriginAddressAction::requestFiltered()
 	{
 		if ( index == 0 )
 		{
-			m_request = new common::CContinueReqest<TrackerResponses>( 0, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal ) );
+			m_request = new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) );
 			return;
 		}
 		index = index->pprev;
@@ -216,7 +217,7 @@ CTrackOriginAddressAction::requestFiltered()
 	if ( requestedBlocks.size() < SynchronizedTreshold )
 		CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
 
-	m_request = new CAskForTransactionsRequest( requestedBlocks, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::BitcoinsNodes, UsedMediumNumber ) );
+	m_request = new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, UsedMediumNumber ) );
 
 }
 

@@ -36,6 +36,8 @@ public:
 	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
 
 	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
+
+
 private:
 	CTrackerNodesManager();
 private:

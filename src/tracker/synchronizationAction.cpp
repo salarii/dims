@@ -16,6 +16,7 @@
 
 #include "synchronizationAction.h"
 #include "synchronizationRequests.h"
+#include "trackerFilters.h"
 
 #include "segmentFileStorage.h"
 
@@ -90,7 +91,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 		if ( !context< CSynchronizationAction >().isRequestInitialized() )
 		{
 			m_waitTime--;
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::DimsNodes ) ) );
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
 		}
 
 		if ( !m_waitTime )
@@ -128,7 +129,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		if ( m_waitTime-- )
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::DimsNodes ) ) );
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
 //		else
 //			return transit< CSynchronizing >();
 	}
@@ -157,7 +158,7 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 
 		context< CSynchronizationAction >().getNodeIdentifier();
 		context< CSynchronizationAction >().setRequest(
-					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), common::createFilterWithPtr< TrackerResponses >( -1, -1, context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
 
 	boost::statechart::result react( CTransactionBlockEvent const & _transactionBlockEvent )
@@ -167,7 +168,7 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, common::createFilterWithPtr< TrackerResponses >( -1, -1, context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
 
 	typedef boost::mpl::list<
@@ -199,7 +200,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, common::createFilterWithPtr< TrackerResponses >( -1, -1, context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
 
 	typedef boost::mpl::list<

@@ -17,6 +17,8 @@ class CSettingsConnectionProvider : public common::CConnectionProvider< NodeResp
 public:
 	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
 
+	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind );
+
 	static CSettingsConnectionProvider* getInstance();
 
 	void setTrackerIp( std::string const & _ip );

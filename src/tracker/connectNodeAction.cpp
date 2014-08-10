@@ -10,6 +10,7 @@
 #include "common/mediumRequests.h"
 
 #include "trackerNodesManager.h"
+#include "trackerFilters.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -157,11 +158,11 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 	{
 
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
-		context< CConnectNodeAction >().setMediumFilter( common::createFilterWithPtr<TrackerResponses>( -1, -1, convertToInt( connectedEvent->m_node ) ) );
+		context< CConnectNodeAction >().setMediumFilter( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CTrackerNodesManager::getInstance()->addNode( connectedEvent->m_node );
 
-		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( common::createFilterWithPtr<TrackerResponses>( -1, -1, convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
+		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
 
 	}
 

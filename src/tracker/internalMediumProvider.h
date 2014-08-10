@@ -7,6 +7,8 @@
 
 #include "common/connectionProvider.h"
 #include "common/medium.h"
+#include "common/mediumKinds.h"
+
 namespace tracker
 {
 
@@ -21,6 +23,8 @@ public:
 	void setResponse( CTransaction const & _response, CNode * _node );
 
 	void setResponse( CMerkleBlock const & _merkle, CNode * _node );
+
+	std::list< common::CMedium< TrackerResponses > *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
 	static CInternalMediumProvider* getInstance( );
 private:

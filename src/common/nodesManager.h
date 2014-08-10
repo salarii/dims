@@ -38,9 +38,9 @@ public:
 
 	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
 
-	common::CMedium< RequestType > * findNodeMedium( long long unsigned _ptr );
+	common::CMedium< RequestType > * findNodeMedium( long long unsigned _ptr ) const;
 
-	std::list< common::CMedium< ResponseType > *> getNodesByClass( CMediumKinds::Enum _nodesClass );
+	std::list< common::CMedium< RequestType > *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const;
 
 	static CNodesManager * getInstance();
 protected:
@@ -140,16 +140,17 @@ CNodesManager< ResponseType >::provideConnection( CMediumFilter< ResponseType > 
 }
 
 template < class ResponseType >
-CNodesManager< ResponseType >::findNodeMedium( long long unsigned _ptr )
+common::CMedium< ResponseType > *
+CNodesManager< ResponseType >::findNodeMedium( long long unsigned _ptr ) const
 {
-	typename std::map< unsigned int, CNodeMedium< ResponseType >* >::iterator iterator = m_ptrToNodes.find( _ptr );
+	typename std::map< unsigned int, CNodeMedium< ResponseType >* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
 
-	return iterator != m_ptrToNodes.end() ? iterator->second : 0;[]
+	return iterator != m_ptrToNodes.end() ? iterator->second : 0;
 }
 
 template < class ResponseType >
 std::list< common::CMedium< ResponseType > *>
-CNodesManager< ResponseType >::getNodesByClass( CMediumKinds::Enum _nodesClass )
+CNodesManager< ResponseType >::getNodesByClass( CMediumKinds::Enum _nodesClass ) const
 {
 	if ( CMediumKinds::DimsNodes == _nodesClass )
 	{

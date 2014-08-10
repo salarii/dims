@@ -73,6 +73,12 @@ CTrackerLocalRanking::removeMonitor( common::CNodeStatistic const & _monitor )
 std::list< common::CMedium< NodeResponses > *>
 CTrackerLocalRanking::provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter )
 {
+	_mediumFilter.getMediums( this );
+}
+
+std::list< common::CMedium< NodeResponses > *>
+CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber )
+{
 	std::list< common::CMedium< NodeResponses > *> mediums;
 
 	switch ( _mediumFilter.m_mediumClass )

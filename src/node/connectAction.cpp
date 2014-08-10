@@ -17,6 +17,7 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "clientFilters.h"
 
 namespace client
 {
@@ -39,7 +40,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		int64_t time = GetTime();
 		if ( time - m_lastAskTime < DnsAskLoopTime )
 		{
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Seed ) ) );
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
 		}
 		else
 		{
@@ -52,7 +53,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	{
 		if ( _dnsInfo.m_addresses.empty() )
 		{
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Seed ) ) );
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
 		}
 		else
 		{
@@ -87,7 +88,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			// second parameter is problematic, maybe this  should  be  indicator  of  very  specific connection
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Unknown ) ) );
+			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Unknown ) ) );
 		}
 		else
 		{
@@ -131,7 +132,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 			context< CConnectAction >().process_event( common::CContinueEvent(uint256() ) );
 		}
 
-		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new common::CMediumFilter< NodeResponses >( common::RequestKind::Unknown ) ) );
+		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Unknown ) ) );
 	}
 
 	typedef boost::mpl::list<

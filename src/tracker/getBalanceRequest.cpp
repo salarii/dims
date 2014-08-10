@@ -5,7 +5,7 @@
 #include "getBalanceRequest.h"
 #include "common/medium.h"
 #include "common/mediumKinds.h"
-#include "common/filters.h"
+#include "trackerFilters.h"
 
 namespace tracker
 {
@@ -13,7 +13,7 @@ namespace tracker
 CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
 	: m_key( _key )
 {
-	m_mediumFilter = new common::CMediumFilter< TrackerResponses >( common::CMediumKinds::Internal );
+	m_mediumFilter = new CMediumClassFilter( common::CMediumKinds::Internal );
 }
 
 void
