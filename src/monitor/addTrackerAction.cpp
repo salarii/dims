@@ -36,7 +36,7 @@ createIdentifyResponse( Parent & parent )
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.setRequest( new common::CIdentifyResponse< MonitorResponses >( new common::CMediumFilter< MonitorResponses >( parent.getMediumKind() ), signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), parent.getPayload(), parent.getActionKey() ) );
+//	parent.setRequest( new common::CIdentifyResponse< MonitorResponses >( new CSpecificMediumFilter( parent.getMediumKind() ), signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), parent.getPayload(), parent.getActionKey() ) );
 }
 
 
@@ -60,7 +60,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CAddTrackerAction >().setRequest( new common::CContinueReqest< MonitorResponses >( _continueEvent.m_keyId, new common::CMediumFilter< MonitorResponses >( context< CAddTrackerAction >().getMediumKind() ) ) );
+	//	context< CAddTrackerAction >().setRequest( new common::CContinueReqest< MonitorResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAddTrackerAction >().getMediumKind() ) ) );
 	}
 
 	typedef boost::mpl::list<
@@ -92,14 +92,14 @@ CAddTrackerAction::getPayload() const
 	return m_payload;
 }
 
-unsigned int
+long long unsigned
 CAddTrackerAction::getMediumKind() const
 {
 	return m_mediumKind;
 }
 
 void
-CAddTrackerAction::setMediumKind( unsigned int _mediumKind )
+CAddTrackerAction::setMediumKind( long long unsigned _mediumKind )
 {
 	m_mediumKind = _mediumKind;
 }

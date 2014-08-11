@@ -27,8 +27,10 @@ class CSeedNodesManager;
 namespace client
 {
 
-class CSettingsMedium;
+class CSettingsConnectionProvider;
+
 class CTrackerLocalRanking;
+
 
 }
 
@@ -67,7 +69,7 @@ struct CMediumFilter< tracker::TrackerResponses > : public CMediumFilterBase< tr
 };
 
 template <>
-struct CMediumFilter< client::NodeResponses > : public CMediumFilterBase< client::NodeResponses, client::CSettingsMedium, common::CNodesManager< client::NodeResponses > >
+struct CMediumFilter< client::NodeResponses > : public CMediumFilterBase< client::NodeResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking >
 {
 };
 
@@ -76,6 +78,10 @@ struct CMediumFilter< seed::SeedResponses > : public CMediumFilterBase< seed::Se
 {
 };
 
+template <>
+struct CMediumFilter< monitor::MonitorResponses > : public CMediumFilterBase< monitor::MonitorResponses, common::CNodesManager< monitor::MonitorResponses > >
+{
+};
 
 
 }

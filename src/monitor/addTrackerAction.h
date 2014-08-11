@@ -33,15 +33,15 @@ public:
 	std::vector< unsigned char > getPayload() const;
 
 
-	void setMediumKind( unsigned int _mediumKind );
+	void setMediumKind( long long unsigned _mediumKind );
 // not safe
-	unsigned int getMediumKind() const;
+	long long unsigned getMediumKind() const;
 private:
 	common::CRequest< MonitorResponses >* m_request;
 
 	std::vector< unsigned char > m_payload;
 
-	unsigned int m_mediumKind;
+	long long unsigned m_mediumKind;
 };
 
 }

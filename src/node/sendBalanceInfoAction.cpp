@@ -6,6 +6,8 @@
 #include "common/setResponseVisitor.h"
 #include "sendInfoRequestAction.h"
 
+#include "clientFilters.h"
+
 #include "serialize.h"
 #include "helper.h"
 #include "base58.h"
@@ -66,7 +68,7 @@ CSendBalanceInfoAction::execute()
 		}
         else if ( m_token )
         {
-			return new CInfoRequestContinue( *m_token, new common::CMediumFilter< NodeResponses >( RequestKind::Balance ) );
+			return new CInfoRequestContinue( *m_token, new CMediumClassFilter( RequestKind::Balance ) );
         }
     }
     return 0;
@@ -148,7 +150,7 @@ CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const 
 
 
 CBalanceRequest::CBalanceRequest( std::string _address )
-	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( RequestKind::Balance ) )
+	: common::CRequest< NodeResponses >( new CMediumClassFilter( RequestKind::Balance ) )
 	, m_address( _address )
 {
 }

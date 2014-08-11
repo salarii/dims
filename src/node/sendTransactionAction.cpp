@@ -6,7 +6,7 @@
 #include "common/nodeMessages.h"
 #include "common/setResponseVisitor.h"
 #include "common/medium.h"
-#include "common/filters.h"
+#include "clientFilters.h"
 
 #include "configureNodeActionHadler.h"
 #include "serialize.h"
@@ -73,7 +73,7 @@ CSendTransactionAction::execute()
 
 
 CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _token )
-	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( RequestKind::TransactionStatus ) )
+	: common::CRequest< NodeResponses >( new CMediumClassFilter( RequestKind::TransactionStatus ) )
 	, m_token( _token )
 {
 }
@@ -105,7 +105,7 @@ CTransactionSendRequest::accept( CMedium< NodeResponses > * _medium ) const
 }
 
 CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction )
-	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( RequestKind::Transaction ) )
+	: common::CRequest< NodeResponses >( new CMediumClassFilter( RequestKind::Transaction ) )
 	, m_transaction( _transaction )
 {
 }

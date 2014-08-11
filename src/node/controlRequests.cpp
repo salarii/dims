@@ -5,13 +5,13 @@
 #include "controlRequests.h"
 
 #include "common/medium.h"
-#include "common/filters.h"
+#include "clientFilters.h"
 
 namespace client
 {
 
 CDnsInfoRequest::CDnsInfoRequest()
-	:common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( common::RequestKind::Seed ) )
+	:common::CRequest< NodeResponses >( new CMediumClassFilter( common::RequestKind::Seed ) )
 {
 }
 
@@ -28,7 +28,7 @@ CDnsInfoRequest::getMediumFilter() const
 }
 
 CRecognizeNetworkRequest::CRecognizeNetworkRequest()
-	:common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( common::RequestKind::Unknown ) )
+	:common::CRequest< NodeResponses >( new CMediumClassFilter( common::RequestKind::Unknown ) )
 {
 
 }

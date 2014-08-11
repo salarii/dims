@@ -164,7 +164,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 		std::vector< TrackerInfo::Enum > trackerInfoProfile
 				= boost::assign::list_of(TrackerInfo::Ip)(TrackerInfo::Price)(TrackerInfo::Rating)(TrackerInfo::PublicKey)(TrackerInfo::MinPrice)(TrackerInfo::MaxPrice);
 
-		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, new common::CMediumFilter< NodeResponses >( common::RequestKind::UndeterminedTrackers ) ) );
+		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

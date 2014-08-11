@@ -4,6 +4,7 @@
 #include "serialize.h"
 #include "common/support.h"
 #include "common/setResponseVisitor.h"
+#include "clientFilters.h"
 
 #include <boost/assign/list_of.hpp>
 
@@ -60,7 +61,7 @@ CTrackersInfoRequest::getMediumFilter() const
 
 
 CMonitorInfoRequest::CMonitorInfoRequest()
-	: common::CRequest< NodeResponses >( new common::CMediumFilter< NodeResponses >( -1 ) )
+	: common::CRequest< NodeResponses >( new CMediumClassFilter( -1 ) )
 {
 
 }

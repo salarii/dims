@@ -81,7 +81,7 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 {
 	std::list< common::CMedium< NodeResponses > *> mediums;
 
-	switch ( _mediumFilter.m_mediumClass )
+	switch ( _requestKind )
 	{
 	case common::RequestKind::Unknown:
 		if ( m_unidentifiedNodes.begin() != m_unidentifiedNodes.end() )
@@ -116,8 +116,8 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 		;
 	}
 	// there will be  not many  mediums  I belive
-	if ( _mediumFilter.m_mediumNumber != -1 && mediums.size() > _mediumFilter.m_mediumNumber )
-		mediums.resize( _mediumFilter.m_mediumNumber );
+	if ( _mediumNumber != -1 && mediums.size() > _mediumNumber )
+		mediums.resize( _mediumNumber );
 	return mediums;
 }
 

@@ -62,6 +62,8 @@ public:
 	void addMonitor( common::CNodeStatistic const & _undeterminedTracker );
 
 	void removeMonitor( common::CNodeStatistic const & _undeterminedTracker );
+
+	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber );
 private:
 	CTrackerLocalRanking();
 
