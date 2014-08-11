@@ -24,8 +24,6 @@ public:
 	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	std::vector< uint256 > const & getBlockHashes() const;
-
-	~CAskForTransactionsRequest();
 private:
 	std::vector< uint256 > const m_blockHashes;
 

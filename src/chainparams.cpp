@@ -205,6 +205,36 @@ protected:
 static CMainParams mainParams;
 
 
+struct SeedSpec6 {
+uint8_t addr[16];
+uint16_t port;
+};
+
+//
+// Main network
+//
+// Convert the pnSeeds6 array into usable address objects.
+static void convertSeed6(std::vector<CAddress> &vSeedsOut, const SeedSpec6 *data, unsigned int count)
+{
+// It'll only connect to one or two seed nodes because once it connects,
+// it'll get a pile of addresses with newer timestamps.
+// Seed nodes are given a random 'last seen time' of between one and two
+// weeks ago.
+const int64_t nOneWeek = 7*24*60*60;
+for (unsigned int i = 0; i < count; i++)
+{
+struct in6_addr ip;
+memcpy(&ip, data[i].addr, sizeof(ip));
+CAddress addr(CService(ip, data[i].port));
+addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
+vSeedsOut.push_back(addr);
+}
+}
+
+static SeedSpec6 pnSeed6_test[] = {
+{{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x99,0xcb,0x26,0x31,0xba,0x48,0x51,0x31,0x39,0x0d}, 18333},
+{{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x44,0xf4,0xf4,0xf0,0xbf,0xf7,0x7e,0x6d,0xc4,0xe8}, 18333}
+};
 //
 // Testnet (v3)
 //
@@ -238,8 +268,10 @@ public:
 
 		assert(hashGenesisBlock == uint256("0x000000000045f2135f5ed826c4b131b32014ac266dd9792415a6f03a31096960"));
 
-        vFixedSeeds.clear();
+		convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
+
         vSeeds.clear();
+		vSeeds.push_back(CDNSSeedData("alexykot.me", "testnet-seed.alexykot.me"));
         vSeeds.push_back(CDNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
         vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
 

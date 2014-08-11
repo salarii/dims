@@ -35,11 +35,6 @@ CAskForTransactionsRequest::getBlockHashes() const
 	return m_blockHashes;
 }
 
-CAskForTransactionsRequest::~CAskForTransactionsRequest()
-{
-	delete m_mediumFilter;
-}
-
 CSetBloomFilterRequest::CSetBloomFilterRequest( CBloomFilter const & _bloomFilter )
 	: m_bloomFilter( _bloomFilter )
 {

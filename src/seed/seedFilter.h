@@ -13,7 +13,7 @@ struct CSpecificMediumFilter : public common::CMediumFilter< SeedResponses >
 	: m_ptr( _ptr )
 	{}
 
-	std::list< common::CMedium< SeedResponses > *> getMediums( common::CNodesManager< seed::SeedResponses > * _nodesManager )
+	std::list< common::CMedium< SeedResponses > *> getMediums( common::CNodesManager< seed::SeedResponses > * _nodesManager )const
 	{
 		std::list< common::CMedium< SeedResponses > *> mediums;
 

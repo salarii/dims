@@ -74,7 +74,7 @@ struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddres
 	> reactions;
 
 };
-// quarantine
+// this  is  bad I  have  other  solution for  this  effect
 struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddressAction >
 {
 	CStallAction( my_context ctx ) : my_base( ctx ), m_counter( StallCnt )

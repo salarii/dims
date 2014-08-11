@@ -14,7 +14,7 @@ struct CMediumClassFilter : public common::CMediumFilter< NodeResponses >
 		m_mediumNumber( _mediumNumber )
 	{}
 
-	std::list< common::CMedium< NodeResponses > *> getMediums( CSettingsConnectionProvider * _settingsMedium )
+	std::list< common::CMedium< NodeResponses > *> getMediums( CSettingsConnectionProvider * _settingsMedium )const
 	{
 		/*
 		std::list< CMedium< _RequestResponses > *> mediums;
@@ -27,7 +27,7 @@ struct CMediumClassFilter : public common::CMediumFilter< NodeResponses >
 		return mediums;*/
 	}
 
-	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )
+	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 		/*
 		return getMediumByClass( m_mediumClass, m_mediumNumber );
@@ -44,7 +44,7 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 	: m_ptr( _ptr )
 	{}
 
-	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )
+	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 		std::list< common::CMedium< NodeResponses > *> mediums;
 
