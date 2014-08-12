@@ -11,9 +11,9 @@ namespace tracker
 {
 
 CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
-	: m_key( _key )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+	, m_key( _key )
 {
-	m_mediumFilter = new CMediumClassFilter( common::CMediumKinds::Internal );
 }
 
 void
@@ -32,11 +32,6 @@ uint160
 CGetBalanceRequest::getKey() const
 {
 	return m_key;
-}
-
-CGetBalanceRequest::~CGetBalanceRequest()
-{
-	delete m_mediumFilter;
 }
 
 }

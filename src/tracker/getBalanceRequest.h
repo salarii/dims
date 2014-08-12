@@ -24,8 +24,6 @@ public:
 	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	uint160 getKey() const;
-
-	~CGetBalanceRequest();
 private:
 	uint160 m_key;
 };

@@ -26,7 +26,7 @@ CAskForTransactionsRequest::accept( common::CMedium< TrackerResponses > * _mediu
 common::CMediumFilter< TrackerResponses > *
 CAskForTransactionsRequest::getMediumFilter() const
 {
-	return m_mediumFilter;
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 std::vector< uint256 > const &
@@ -36,9 +36,9 @@ CAskForTransactionsRequest::getBlockHashes() const
 }
 
 CSetBloomFilterRequest::CSetBloomFilterRequest( CBloomFilter const & _bloomFilter )
-	: m_bloomFilter( _bloomFilter )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) )
+	, m_bloomFilter( _bloomFilter )
 {
-	m_mediumFilter = new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes );
 }
 
 void

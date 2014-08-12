@@ -90,8 +90,6 @@ public:
 
 	uint256 getActionKey() const;
 private:
-	common::CMediumFilter< ResponsesType > * m_mediumFilter;
-
 	std::vector< unsigned char > m_signed;
 
 	CPubKey m_key;
@@ -103,7 +101,7 @@ private:
 
 template < class ResponsesType >
 CIdentifyResponse< ResponsesType >::CIdentifyResponse( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
-	: m_mediumFilter( _mediumFilter )// new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByPtr< ResponsesType >( _ptr ) )
+	: common::CRequest< ResponsesType >( _mediumFilter )// new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByPtr< ResponsesType >( _ptr ) )
 	, m_signed( _signed )
 	, m_key( _key )
 	, m_payload( _payload )
@@ -122,7 +120,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CIdentifyResponse< ResponsesType >::getMediumFilter() const
 {
-	return m_mediumFilter;
+	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >

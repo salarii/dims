@@ -11,10 +11,10 @@ namespace tracker
 {
 
 CConnectToTrackerRequest::CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress )
-	:m_trackerAddress( _trackerAddress )
-	,m_serviceAddress( _serviceAddress )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+	, m_trackerAddress( _trackerAddress )
+	, m_serviceAddress( _serviceAddress )
 {
-	m_mediumFilter = new CMediumClassFilter( common::CMediumKinds::Internal );
 }
 
 void
