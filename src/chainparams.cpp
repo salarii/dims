@@ -210,31 +210,14 @@ uint8_t addr[16];
 uint16_t port;
 };
 
-//
-// Main network
-//
-// Convert the pnSeeds6 array into usable address objects.
-static void convertSeed6(std::vector<CAddress> &vSeedsOut, const SeedSpec6 *data, unsigned int count)
+unsigned int pnSeedTest[] =
 {
-// It'll only connect to one or two seed nodes because once it connects,
-// it'll get a pile of addresses with newer timestamps.
-// Seed nodes are given a random 'last seen time' of between one and two
-// weeks ago.
-const int64_t nOneWeek = 7*24*60*60;
-for (unsigned int i = 0; i < count; i++)
-{
-struct in6_addr ip;
-memcpy(&ip, data[i].addr, sizeof(ip));
-CAddress addr(CService(ip, data[i].port));
-addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
-vSeedsOut.push_back(addr);
-}
-}
-
-static SeedSpec6 pnSeed6_test[] = {
-{{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x99,0xcb,0x26,0x31,0xba,0x48,0x51,0x31,0x39,0x0d}, 18333},
-{{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x44,0xf4,0xf4,0xf0,0xbf,0xf7,0x7e,0x6d,0xc4,0xe8}, 18333}
+	0x8c855542, 0x09962744, 0x269f814e, 0xeb06c658, 0x1a8f2164, 0x5008a265, 0x0f858368, 0x7d26bb6a,
+	0xea5baa6b, 0x543abf6b, 0xa27afb94, 0xc606afad, 0xf30909b0, 0xc5253eb2, 0x81c02db9, 0x52cda5bc,
+	0xe19fe2bc, 0xe2080abe, 0x92d60bc6, 0x8062d3c6, 0x1eb526d4, 0x450af4dc, 0x81a3e317, 0x1bfe8018,
+	0xf7b14332, 0x27247432, 0xa112ba36
 };
+
 //
 // Testnet (v3)
 //
@@ -267,13 +250,25 @@ public:
         hashGenesisBlock = genesis.GetHash();
 
 		assert(hashGenesisBlock == uint256("0x000000000045f2135f5ed826c4b131b32014ac266dd9792415a6f03a31096960"));
-
-		convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
+		vFixedSeeds.clear();
+		for (unsigned int i = 0; i < ARRAYLEN(pnSeedTest); i++)
+		{
+			// It'll only connect to one or two seed nodes because once it connects,
+			// it'll get a pile of addresses with newer timestamps.
+			// Seed nodes are given a random 'last seen time' of between one and two
+			// weeks ago.
+			const int64_t nOneWeek = 7*24*60*60;
+			struct in_addr ip;
+			memcpy(&ip, &pnSeedTest[i], sizeof(ip));
+			CAddress addr(CService(ip, GetDefaultPort()));
+			addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
+			vFixedSeeds.push_back(addr);
+		}
 
         vSeeds.clear();
 		vSeeds.push_back(CDNSSeedData("alexykot.me", "testnet-seed.alexykot.me"));
         vSeeds.push_back(CDNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
-        vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
+	//    vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
 
         base58Prefixes[PUBKEY_ADDRESS] = list_of(111);
         base58Prefixes[SCRIPT_ADDRESS] = list_of(196);

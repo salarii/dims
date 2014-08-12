@@ -42,11 +42,11 @@ struct CSpecificMediumFilter : public common::CMediumFilter< TrackerResponses >
 	: m_ptr( _ptr )
 	{}
 
-	std::list< common::CMedium< TrackerResponses > *> getMediums( CTrackerNodesManager * _trackerNodesManager )
+	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
 	{
 		std::list< common::CMedium< TrackerResponses > *> mediums;
 
-		mediums.push_back( _trackerNodesManager->findNodeMedium( m_ptr ) );
+		mediums.push_back( _nodesManager->findNodeMedium( m_ptr ) );
 
 		return mediums;
 	}

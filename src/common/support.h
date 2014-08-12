@@ -36,7 +36,7 @@ struct CReadWrite
 };
 
 template < class T >
-unsigned int convertToInt( T * _t )
+long long unsigned convertToInt( T * _t )
 {
 	return static_cast< unsigned long long >( (long long )_t );
 }

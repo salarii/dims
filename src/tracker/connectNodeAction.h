@@ -26,7 +26,7 @@ public:
 
 	CConnectNodeAction( CAddress const & _addrConnect );
 
-	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, common::CMediumFilter< TrackerResponses > *_mediumFilter );
+	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, long long unsigned _mediumPtr );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 
@@ -40,9 +40,9 @@ public:
 
 	std::vector< unsigned char > const & getPayload() const;
 
-	void setMediumFilter( common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	void setMediumPtr( long long unsigned _mediumPtr );
 
-	common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	long long unsigned getMediumPtr() const;
 
 	CPubKey getPublicKey() const;
 
@@ -64,7 +64,7 @@ private:
 
 	CPubKey m_key;
 
-	common::CMediumFilter< TrackerResponses > * m_mediumFilter;
+	long long unsigned m_mediumPtr;
 };
 
 

@@ -168,13 +168,12 @@ public:
 private:
 
 	uint256 const m_id;
-	common::CMediumFilter< ResponsesType > * m_mediumFilter;
 };
 
 template < class ResponsesType >
 CContinueReqest< ResponsesType >::CContinueReqest( uint256 const & _id, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: m_id( _id )
-	, m_mediumFilter( _mediumFilter )
+	: common::CRequest< ResponsesType >( _mediumFilter )
+	, m_id( _id )
 {
 }
 
@@ -189,7 +188,7 @@ template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
 CContinueReqest< ResponsesType >::getMediumFilter() const
 {
-	return m_mediumFilter;
+	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >

@@ -19,7 +19,7 @@ struct CUninitiated;
 class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
-	CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
+	CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, long long unsigned _mediumPtr );
 
 	CAcceptNodeAction( CAddress const & _nodeAddress );
 
@@ -33,9 +33,9 @@ public:
 
 	std::vector< unsigned char > const & getPayload() const;
 
-	void setMediumKind( unsigned int _mediumKind );
+	void setMediumPtr( long long unsigned _mediumPtr );
 // not safe
-	unsigned int getMediumKind() const;
+	long long unsigned getMediumPtr() const;
 
 	bool getValid() const{ return m_valid; }
 
@@ -50,7 +50,7 @@ private:
 
 	std::vector< unsigned char > m_payload;
 
-	unsigned int m_mediumKind;
+	long long unsigned m_mediumPtr;
 
 	bool const m_passive;
 

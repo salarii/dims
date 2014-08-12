@@ -41,10 +41,4 @@ CConnectToTrackerRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-CConnectToTrackerRequest::~CConnectToTrackerRequest()
-{
-	delete m_mediumFilter;
-}
-
-
 }

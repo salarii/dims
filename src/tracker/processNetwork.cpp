@@ -67,7 +67,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction(
 							  identifyMessage.m_actionKey
 							, identifyMessage.m_payload
-							, new CSpecificMediumFilter( convertToInt( nodeMedium->getNode() ) ) );
+							, convertToInt( nodeMedium->getNode() ) );
 
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
 
@@ -88,7 +88,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			else
 			{
 				CConnectNodeAction * connectTrackerAction
-						= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, new CSpecificMediumFilter( convertToInt( nodeMedium->getNode() ) ) );
+						= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
 
 			}
