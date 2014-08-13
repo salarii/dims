@@ -51,6 +51,11 @@ struct LessHandlers : public std::binary_function< CRequestHandler< _RequestResp
 	{
 		return *_handlerLhs < _medium;
 	}
+
+	bool operator() ( CMedium< _RequestResponses >* const & _medium, CRequestHandler< _RequestResponses >* const & _handlerLhs ) const
+	{
+		return *_handlerLhs < _medium;
+	}
 };
 
 
@@ -153,7 +158,7 @@ CActionHandler< _RequestResponses >::provideHandler( CMediumFilter<_RequestRespo
 			{
 				// here we are counting on medium provider to select properly
 				typename AvailableHandlers::iterator iterator = std::lower_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _RequestResponses >() );
-				if ( iterator != m_requestHandlers.end() )
+				if ( iterator != std::upper_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _RequestResponses >() ) )
 				{
 					requestHandelers.push_back( *iterator );
 				}
