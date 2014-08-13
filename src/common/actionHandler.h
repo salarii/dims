@@ -32,7 +32,6 @@ I am on the brink of removing separate response lists completely, this will resu
 
 */
 
-
 namespace common
 {
 
@@ -62,6 +61,8 @@ public:
 	typedef std::set< CRequestHandler< _RequestResponses > *, LessHandlers< _RequestResponses > > AvailableHandlers;
 
 	typedef std::map< CRequest< _RequestResponses >*, CAction< _RequestResponses >* > RequestToAction;
+
+	typedef std::multimap< CRequest< _RequestResponses >*, CRequestHandler< _RequestResponses > * > RequestToHandlers;
 public:
 	void loop();
 	void shutDown();
@@ -93,6 +94,8 @@ private:
 	AvailableHandlers m_requestHandlers;
 
 	static unsigned int const m_sleepTime;
+
+	RequestToHandlers m_currentlyUsedHandlers;
 };
 
 template < class _RequestResponses >
@@ -214,33 +217,53 @@ CActionHandler< _RequestResponses >::loop()
 
 		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
-			std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( *reqAction.first->getMediumFilter() );
 
-			std::list< _RequestResponses > responses;
+			typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound (reqAction.first);
+			typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound (reqAction.first);
 			bool deleteRequest = false;
-			BOOST_FOREACH( CRequestHandler< _RequestResponses > * requestHandler, requestHandlers )
+
+			if ( lower == upper )
 			{
-				if ( requestHandler->isProcessed( reqAction.first ) )
-				{
-					_RequestResponses response = requestHandler->getResponse( reqAction.first );
+				std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( *reqAction.first->getMediumFilter() );
 
-					CSetResponseVisitor< _RequestResponses > visitor( response );
-					reqAction.second->accept( visitor );
-
-					m_actions.push_back( reqAction.second );
-
-					requestHandler->deleteRequest( reqAction.first );
-
-					requestsToErase.push_back( reqAction.first );
-
-					deleteRequest = true;
-				}
-				else
+				BOOST_FOREACH( CRequestHandler< _RequestResponses > * requestHandler, requestHandlers )
 				{
 					requestHandlersToExecute.insert( requestHandler );
 					requestHandler->setRequest( reqAction.first );
+
+					m_currentlyUsedHandlers.insert( std::make_pair( reqAction.first, requestHandler ) );
 				}
+
 			}
+			else
+			{
+				for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
+				{
+					if ( it->second->isProcessed( reqAction.first ) )
+					{
+						_RequestResponses response = it->second->getResponse( reqAction.first );
+
+						CSetResponseVisitor< _RequestResponses > visitor( response );
+						reqAction.second->accept( visitor );
+
+						m_actions.push_back( reqAction.second );
+
+						it->second->deleteRequest( reqAction.first );
+
+						requestsToErase.push_back( reqAction.first );
+
+						deleteRequest = true;
+					}
+					else
+					{
+						// problem ??? assert this??
+					}
+				}
+
+				m_currentlyUsedHandlers.erase( reqAction.first );
+
+			}
+
 			if ( deleteRequest )
 				delete reqAction.first;
 		}
