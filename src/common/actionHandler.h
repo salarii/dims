@@ -54,7 +54,13 @@ struct LessHandlers : public std::binary_function< CRequestHandler< _RequestResp
 
 	bool operator() ( CMedium< _RequestResponses >* const & _medium, CRequestHandler< _RequestResponses >* const & _handlerLhs ) const
 	{
-		return *_handlerLhs < _medium;
+		if ( *_handlerLhs < _medium )
+			return false;
+
+		if ( *_handlerLhs == _medium )
+			return false;
+
+		return true;
 	}
 };
 
