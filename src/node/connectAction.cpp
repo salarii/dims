@@ -172,7 +172,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 	}
 
 
-	boost::statechart::result react( common::CTrackerStats const & _continueEvent )
+	boost::statechart::result react( common::CTrackerStats const & _trackerStats )
 	{
 	}
 

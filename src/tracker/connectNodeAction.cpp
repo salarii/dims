@@ -196,6 +196,15 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	> reactions;
 };
 
+// it is  wrong but  for  now...
+struct CCantReachNode : boost::statechart::state< CCantReachNode, CConnectNodeAction >
+{
+	CCantReachNode( my_context ctx ) : my_base( ctx )
+	{
+		context< CConnectNodeAction >().setRequest( 0 );
+	}
+};
+
 struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction >
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
@@ -205,7 +214,8 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< common::CNodeConnectedEvent, CBothUnidentifiedConnecting >
+	boost::statechart::transition< common::CNodeConnectedEvent, CBothUnidentifiedConnecting >,
+	boost::statechart::transition< common::CCantReachNode, CCantReachNode >
 	> reactions;
 
 };

@@ -200,7 +200,7 @@ template < class ResponsesType >
 class CConnectToNodeRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, int _kind );
+	CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -214,16 +214,14 @@ private:
 
 	CAddress const m_serviceAddress;
 
-	int m_kind;
-
 	uint256 const m_actionKey;
 };
 
 template < class ResponsesType >
-CConnectToNodeRequest< ResponsesType >::CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, int _kind  )
+CConnectToNodeRequest< ResponsesType >::CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, common::CMediumFilter< ResponsesType > * _mediumFilter )
 	:m_trackerAddress( _trackerAddress )
 	,m_serviceAddress( _serviceAddress )
-	,m_kind( _kind )
+	,common::CRequest< ResponsesType >( _mediumFilter )
 {
 }
 

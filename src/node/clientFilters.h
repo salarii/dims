@@ -3,6 +3,8 @@
 
 #include "common/filters.h"
 #include "configureNodeActionHadler.h"
+#include "settingsConnectionProvider.h"
+#include "trackerLocalRanking.h"
 
 namespace  client
 {
@@ -16,22 +18,20 @@ struct CMediumClassFilter : public common::CMediumFilter< NodeResponses >
 
 	std::list< common::CMedium< NodeResponses > *> getMediums( CSettingsConnectionProvider * _settingsMedium )const
 	{
-		/*
-		std::list< CMedium< _RequestResponses > *> mediums;
-		mediums = _trackerNodesManager->getNodesByClass( m_mediumClass );
+
+		std::list< common::CMedium< NodeResponses > *> mediums;
+		mediums = _settingsMedium->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass );
 
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
 		{
-			mediums.resize();
+			mediums.resize( m_mediumNumber );
 		}
-		return mediums;*/
+		return mediums;
 	}
 
 	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
-		/*
-		return getMediumByClass( m_mediumClass, m_mediumNumber );
-		*/
+		return _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, m_mediumNumber );
 	}
 
 	int m_mediumClass;

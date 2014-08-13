@@ -51,7 +51,10 @@ public:
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
-		this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );
+		if ( _param.m_node )
+			this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );
+		else
+			this->m_action->process_event( common::CCantReachNode() );
 	}
 
 	virtual void operator()( common::CIdentificationResult & _param ) const

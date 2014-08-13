@@ -33,7 +33,7 @@ CSettingsConnectionProvider::CSettingsConnectionProvider()
 std::list< common::CMedium< NodeResponses > *>
 CSettingsConnectionProvider::provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter )
 {
-	_mediumFilter.getMediums( this );
+	return _mediumFilter.getMediums( this );
 }
 
 std::list< common::CMedium< NodeResponses > *>

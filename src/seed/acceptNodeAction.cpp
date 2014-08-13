@@ -225,7 +225,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
 		context< CAcceptNodeAction >().setRequest(
-				  new common::CConnectToNodeRequest< SeedResponses >( std::string(""), context< CAcceptNodeAction >().getAddress(), 0 ) );
+				  new common::CConnectToNodeRequest< SeedResponses >( std::string(""), context< CAcceptNodeAction >().getAddress(), new CInternalMediumFilter() ) );
 
 	}
 

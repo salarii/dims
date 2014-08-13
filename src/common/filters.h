@@ -74,7 +74,7 @@ struct CMediumFilter< client::NodeResponses > : public CMediumFilterBase< client
 };
 
 template <>
-struct CMediumFilter< seed::SeedResponses > : public CMediumFilterBase< seed::SeedResponses, common::CNodesManager< seed::SeedResponses > >
+struct CMediumFilter< seed::SeedResponses > : public CMediumFilterBase< seed::SeedResponses, seed::CSeedNodesManager, common::CNodesManager< seed::SeedResponses > >
 {
 };
 
