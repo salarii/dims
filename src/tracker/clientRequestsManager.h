@@ -36,6 +36,8 @@ private:
 	static CClientRequestsManager * ms_instance;
 
 	mutable boost::mutex m_lock;
+	mutable boost::mutex m_requestLock;
+
 	InfoRequestRecord m_getInfoRequest;
 	InfoResponseRecord m_infoResponseRecord;
 	static uint256 ms_currentToken;

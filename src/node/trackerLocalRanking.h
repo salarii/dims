@@ -64,6 +64,8 @@ public:
 	void removeMonitor( common::CNodeStatistic const & _undeterminedTracker );
 
 	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber );
+
+	common::CMedium< NodeResponses > * getSpecificTracker( long long unsigned _trackerPtr ) const;
 private:
 	CTrackerLocalRanking();
 
@@ -77,6 +79,8 @@ private:
 	std::set< common::CTrackerStats, CompareReputationTracker > m_reputationRanking;
 
 	std::map< std::string, common::CMedium< NodeResponses > * > m_createdMediums;
+
+	std::map< long long unsigned, common::CMedium< NodeResponses > * > m_mediumRegister;
 
 	std::set< common::CUnidentifiedStats > m_unidentifiedNodes;
 
@@ -97,6 +101,7 @@ CTrackerLocalRanking::getNetworkConnection( Stats const & _stats )
 
 	common::CMedium< NodeResponses > * medium = static_cast<common::CMedium< NodeResponses > *>( new CNetworkClient( QString::fromStdString( _stats.m_ip ), common::ratcoinParams().getDefaultClientPort() ) );
 	m_createdMediums.insert( std::make_pair( _stats.m_ip, medium ) );
+	m_mediumRegister.insert( std::make_pair( common::convertToInt( medium ), medium ) );
 
 	return medium;
 }

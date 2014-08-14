@@ -79,7 +79,7 @@ CClientRequestsManager::getInstance( )
 uint256
 CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
+	boost::lock_guard<boost::mutex> lock( m_requestLock );
 	m_getInfoRequest.insert( std::make_pair( ms_currentToken, _nodeRequest ) );
 	return ms_currentToken++;
 }
@@ -87,7 +87,7 @@ CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )
 void
 CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest, uint256 const & _hash )
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
+	boost::lock_guard<boost::mutex> lock( m_requestLock );
 	m_getInfoRequest.insert( std::make_pair( _hash, _nodeRequest ) );
 }
 
@@ -131,7 +131,7 @@ CClientRequestsManager::processRequestLoop()
 	{
 		MilliSleep(1000);
 		{
-			boost::lock_guard<boost::mutex> lock( m_lock );
+			boost::lock_guard<boost::mutex> lock( m_requestLock );
 
 			BOOST_FOREACH( InfoRequestRecord::value_type request, m_getInfoRequest )
 			{

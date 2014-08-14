@@ -22,7 +22,7 @@ namespace client
 
 CSettingsMedium::CSettingsMedium()
 	: m_serviced( true )
-	, m_trackerStats( "local", 0, 0,"127.0.0.1" )
+	, m_trackerStats( CPubKey(), 0, 0,"127.0.0.1" )
 {
 }
 

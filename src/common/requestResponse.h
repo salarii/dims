@@ -30,23 +30,23 @@ struct CAccountBalance
 
 struct CNodeStatistic
 {
-	CNodeStatistic( CKeyID const & _keyId, std::string _ip, unsigned int _port ): m_keyId( _keyId ), m_ip( _ip ), m_port( _port ){}
+	CNodeStatistic( CPubKey const & _key, std::string _ip, unsigned int _port ): m_key( _key ), m_ip( _ip ), m_port( _port ){}
 
 	bool operator<( CNodeStatistic const & _nodeStats ) const
 	{
-		return m_keyId < _nodeStats.m_keyId;
+		return m_key.GetID() < _nodeStats.m_key.GetID();
 	}
 
-	CKeyID m_keyId;
+	CPubKey m_key;
 	std::string m_ip;
 	unsigned int m_port;
 };
 
 struct CTrackerStats : boost::statechart::event< CTrackerStats >
 {
-	CTrackerStats( std::string _publicKey = "", unsigned int  _reputation = 0, float _price = 0.0, std::string _ip = "")
+	CTrackerStats( CPubKey _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, std::string _ip = "")
 		:m_publicKey( _publicKey ), m_reputation( _reputation ), m_price( _price ), m_ip( _ip ){}
-	std::string m_publicKey;
+	CPubKey m_publicKey;
 	unsigned int  m_reputation;
 	float m_price;
 	std::string m_ip;
@@ -69,10 +69,11 @@ struct CMonitorInfo
 	std::vector< std::string > m_info;
 };
 
-struct CPending
+struct CPending : boost::statechart::event< CPending >
 {
-	CPending( uint256 const & _token ):m_token(_token){};
+	CPending( uint256 const & _token, long long unsigned _networkPtr ):m_token( _token ),m_networkPtr( _networkPtr ){};
 	uint256 m_token;
+	long long unsigned m_networkPtr;
 };
 
 struct CSystemError

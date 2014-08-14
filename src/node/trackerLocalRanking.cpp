@@ -73,7 +73,7 @@ CTrackerLocalRanking::removeMonitor( common::CNodeStatistic const & _monitor )
 std::list< common::CMedium< NodeResponses > *>
 CTrackerLocalRanking::provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter )
 {
-	_mediumFilter.getMediums( this );
+	return _mediumFilter.getMediums( this );
 }
 
 std::list< common::CMedium< NodeResponses > *>
@@ -120,6 +120,16 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 		mediums.resize( _mediumNumber );
 	return mediums;
 }
+
+common::CMedium< NodeResponses > *
+CTrackerLocalRanking::getSpecificTracker( long long unsigned _trackerPtr ) const
+{
+	std::map< long long unsigned, common::CMedium< NodeResponses > * >::const_iterator iterator = m_mediumRegister.find( _trackerPtr );
+
+	return iterator != m_mediumRegister.end() ? iterator->second : 0;
+
+}
+
 
 float
 CTrackerLocalRanking::getPrice()

@@ -47,6 +47,9 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 		std::list< common::CMedium< NodeResponses > *> mediums;
+		common::CMedium< NodeResponses > * medium = _trackerLocalRanking->getSpecificTracker( m_ptr );
+		if ( medium )
+			mediums.push_back( medium );
 
 		return mediums;
 	}

@@ -10,6 +10,7 @@
 #include "sendTransactionAction.h"
 #include "sendInfoRequestAction.h"
 #include "helper.h"
+#include "common/support.h"
 
 #include <QHostAddress>
 
@@ -211,7 +212,7 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 		{
 			uint256 token;
 			stream >> token;
-			_requestResponse.push_back( common::CPending(token) );
+			_requestResponse.push_back( common::CPending( token, common::convertToInt(this) ) );
 
 		}
 		else if ( messageType == common::CMainRequestType::TransactionStatusReq )

@@ -226,7 +226,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 	{
 		context< CConnectNodeAction >().setRequest( 0 );
 
-		CTrackerNodesManager::getInstance()->setValidNode( common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey().GetID(), context< CConnectNodeAction >().getServiceAddress(), common::CRole::Tracker ) );
+		CTrackerNodesManager::getInstance()->setValidNode( common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress(), common::CRole::Tracker ) );
 
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
 	}

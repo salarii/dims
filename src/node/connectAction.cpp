@@ -82,13 +82,13 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		m_lastAskTime = GetTime();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	boost::statechart::result react( common::CPending const & _pending )
 	{
 		int64_t time = GetTime();
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			// second parameter is problematic, maybe this  should  be  indicator  of  very  specific connection
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Unknown ) ) );
+			context< CConnectAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		}
 		else
 		{
@@ -136,7 +136,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CPending >,
 	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
 	boost::statechart::custom_reaction< common::CErrorEvent >
 	> reactions;
@@ -167,17 +167,20 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	boost::statechart::result react( common::CPending const & _pending )
 	{
+		context< CConnectAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CMediumClassFilter( _pending.m_networkPtr ) ) );
 	}
 
 
 	boost::statechart::result react( common::CTrackerStats const & _trackerStats )
 	{
+		CTrackerLocalRanking::getInstance()->addTracker( _trackerStats );
+		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( common::CNodeStatistic( _trackerStats.m_publicKey, _trackerStats.m_ip,0 ) );
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CPending >,
 	boost::statechart::custom_reaction< common::CTrackerStats >
 	> reactions;
 };

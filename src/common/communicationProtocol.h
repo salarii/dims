@@ -141,7 +141,7 @@ struct CValidNodeInfo
 	{
 	}
 
-	CValidNodeInfo(	CKeyID _key, CAddress _address, int _role ):m_key( _key ), m_address( _address ), m_role( _role )
+	CValidNodeInfo(	CPubKey _key, CAddress _address, int _role ):m_key( _key ), m_address( _address ), m_role( _role )
 	{
 	}
 
@@ -150,7 +150,7 @@ struct CValidNodeInfo
 		return m_key < _validNodeInfo.m_key;
 	}
 
-	CKeyID m_key;
+	CPubKey m_key;
 	CAddress m_address;
 	int m_role;
 };

@@ -118,7 +118,10 @@ public:
 		this->m_action->process_event( common::CErrorEvent() );
 	}
 
-	//common::CPending
+	void operator()(CPending & _peding ) const
+	{
+		this->m_action->process_event( _peding );
+	}
 };
 
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )
