@@ -71,9 +71,9 @@ struct CMonitorInfo
 
 struct CPending : boost::statechart::event< CPending >
 {
-	CPending( uint256 const & _token, long long unsigned _networkPtr ):m_token( _token ),m_networkPtr( _networkPtr ){};
+	CPending( uint256 const & _token, uintptr_t _networkPtr ):m_token( _token ),m_networkPtr( _networkPtr ){};
 	uint256 m_token;
-	long long unsigned m_networkPtr;
+	uintptr_t m_networkPtr;
 };
 
 struct CSystemError

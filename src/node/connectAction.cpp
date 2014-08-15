@@ -87,7 +87,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		int64_t time = GetTime();
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
-			// second parameter is problematic, maybe this  should  be  indicator  of  very  specific connection
+// how  to  fix  this???
 			context< CConnectAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		}
 		else
@@ -143,7 +143,6 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 	std::set< common::CValidNodeInfo > m_uniqueNodes;
 
-	// replace  those  tricks  by  real  time  getTime()
 	int64_t m_lastAskTime;
 };
 

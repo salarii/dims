@@ -40,7 +40,7 @@ struct CMediumClassFilter : public common::CMediumFilter< NodeResponses >
 
 struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 {
-	CSpecificMediumFilter( long long unsigned _ptr )
+	CSpecificMediumFilter( uintptr_t _ptr )
 	: m_ptr( _ptr )
 	{}
 
@@ -53,7 +53,7 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 
 		return mediums;
 	}
-	long long unsigned m_ptr;
+	uintptr_t m_ptr;
 };
 
 

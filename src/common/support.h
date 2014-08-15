@@ -6,6 +6,8 @@
 #ifndef SUPPORT_H
 #define SUPPORT_H
 
+#include <stdint.h>
+
 namespace  common
 {
 
@@ -36,9 +38,9 @@ struct CReadWrite
 };
 
 template < class T >
-long long unsigned convertToInt( T * _t )
+uintptr_t convertToInt( T * _t )
 {
-	return static_cast< unsigned long long >( (long long )_t );
+	return reinterpret_cast< uintptr_t >( _t );
 }
 
 }

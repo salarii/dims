@@ -65,7 +65,7 @@ public:
 
 	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber );
 
-	common::CMedium< NodeResponses > * getSpecificTracker( long long unsigned _trackerPtr ) const;
+	common::CMedium< NodeResponses > * getSpecificTracker( uintptr_t _trackerPtr ) const;
 private:
 	CTrackerLocalRanking();
 
@@ -80,7 +80,7 @@ private:
 
 	std::map< std::string, common::CMedium< NodeResponses > * > m_createdMediums;
 
-	std::map< long long unsigned, common::CMedium< NodeResponses > * > m_mediumRegister;
+	std::map< uintptr_t, common::CMedium< NodeResponses > * > m_mediumRegister;
 
 	std::set< common::CUnidentifiedStats > m_unidentifiedNodes;
 

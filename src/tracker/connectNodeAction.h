@@ -26,7 +26,7 @@ public:
 
 	CConnectNodeAction( CAddress const & _addrConnect );
 
-	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, long long unsigned _mediumPtr );
+	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 
@@ -40,9 +40,9 @@ public:
 
 	std::vector< unsigned char > const & getPayload() const;
 
-	void setMediumPtr( long long unsigned _mediumPtr );
+	void setMediumPtr( uintptr_t _mediumPtr );
 
-	long long unsigned getMediumPtr() const;
+	uintptr_t getMediumPtr() const;
 
 	CPubKey getPublicKey() const;
 
@@ -64,7 +64,7 @@ private:
 
 	CPubKey m_key;
 
-	long long unsigned m_mediumPtr;
+	uintptr_t m_mediumPtr;
 };
 
 

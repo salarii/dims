@@ -290,7 +290,7 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 	}
 };
 
-CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, long long unsigned _mediumPtr )
+CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr )
 : CCommunicationAction( _actionKey )
 , m_payload( _payload )
 , m_request( 0 )
@@ -364,7 +364,7 @@ CConnectNodeAction::getPayload() const
 	return m_payload;
 }
 
-long long unsigned
+uintptr_t
 CConnectNodeAction::getMediumPtr() const
 {
 	return m_mediumPtr;
@@ -384,7 +384,7 @@ CConnectNodeAction::setPublicKey( CPubKey const & _pubKey )
 
 
 void
-CConnectNodeAction::setMediumPtr( long long unsigned _mediumPtr )
+CConnectNodeAction::setMediumPtr( uintptr_t _mediumPtr )
 {
 	m_mediumPtr = _mediumPtr;
 }

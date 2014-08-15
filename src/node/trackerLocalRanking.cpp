@@ -122,9 +122,9 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 }
 
 common::CMedium< NodeResponses > *
-CTrackerLocalRanking::getSpecificTracker( long long unsigned _trackerPtr ) const
+CTrackerLocalRanking::getSpecificTracker( uintptr_t _trackerPtr ) const
 {
-	std::map< long long unsigned, common::CMedium< NodeResponses > * >::const_iterator iterator = m_mediumRegister.find( _trackerPtr );
+	std::map< uintptr_t, common::CMedium< NodeResponses > * >::const_iterator iterator = m_mediumRegister.find( _trackerPtr );
 
 	return iterator != m_mediumRegister.end() ? iterator->second : 0;
 

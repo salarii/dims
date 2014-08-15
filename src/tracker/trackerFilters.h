@@ -36,9 +36,16 @@ struct CMediumClassFilter : public common::CMediumFilter< TrackerResponses >
 	int m_mediumNumber;
 };
 
+/*
+getting given medium, referencing it by pointer, is problematic in some cases ( multiple inheritance ) it is also unaesthetic and bad  practice.
+maybe at some point replace it by keyID??
+
+
+*/
+
 struct CSpecificMediumFilter : public common::CMediumFilter< TrackerResponses >
 {
-	CSpecificMediumFilter( long long unsigned _ptr )
+	CSpecificMediumFilter( uintptr_t _ptr )
 	: m_ptr( _ptr )
 	{}
 
@@ -50,7 +57,7 @@ struct CSpecificMediumFilter : public common::CMediumFilter< TrackerResponses >
 
 		return mediums;
 	}
-	long long unsigned m_ptr;
+	uintptr_t m_ptr;
 };
 
 }

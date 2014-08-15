@@ -21,7 +21,7 @@ class CBufferAsStream;
 namespace client
 {
 
-class CNetworkClient : public QThread, public common::CMedium< NodeResponses >
+class CNetworkClient : public common::CMedium< NodeResponses >, public QThread
 {
 public:
     enum ConnectionInfo

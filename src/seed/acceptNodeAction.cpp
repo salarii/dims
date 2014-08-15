@@ -298,7 +298,7 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CAccept
 
 };
 
-CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, long long unsigned _mediumPtr )
+CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr )
 : common::CCommunicationAction( _actionKey )
 , m_payload( _payload )
 , m_request( 0 )
@@ -355,14 +355,14 @@ CAcceptNodeAction::getPayload() const
 	return m_payload;
 }
 
-long long unsigned
+uintptr_t
 CAcceptNodeAction::getMediumPtr() const
 {
 	return m_mediumPtr;
 }
 
 void
-CAcceptNodeAction::setMediumPtr( long long unsigned _mediumPtr )
+CAcceptNodeAction::setMediumPtr( uintptr_t _mediumPtr )
 {
 	m_mediumPtr = _mediumPtr;
 }

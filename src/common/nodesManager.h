@@ -38,7 +38,7 @@ public:
 
 	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
 
-	common::CMedium< RequestType > * findNodeMedium( long long unsigned _ptr ) const;
+	common::CMedium< RequestType > * findNodeMedium( uintptr_t _ptr ) const;
 
 	std::list< common::CMedium< RequestType > *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const;
 
@@ -141,7 +141,7 @@ CNodesManager< ResponseType >::provideConnection( CMediumFilter< ResponseType > 
 
 template < class ResponseType >
 common::CMedium< ResponseType > *
-CNodesManager< ResponseType >::findNodeMedium( long long unsigned _ptr ) const
+CNodesManager< ResponseType >::findNodeMedium( uintptr_t _ptr ) const
 {
 	typename std::map< unsigned int, CNodeMedium< ResponseType >* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
 

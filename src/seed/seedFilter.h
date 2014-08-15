@@ -9,7 +9,7 @@ namespace seed
 
 struct CSpecificMediumFilter : public common::CMediumFilter< SeedResponses >
 {
-	CSpecificMediumFilter( long long unsigned _ptr )
+	CSpecificMediumFilter( uintptr_t _ptr )
 	: m_ptr( _ptr )
 	{}
 
@@ -21,7 +21,7 @@ struct CSpecificMediumFilter : public common::CMediumFilter< SeedResponses >
 
 		return mediums;
 	}
-	long long unsigned m_ptr;
+	uintptr_t m_ptr;
 };
 
 
