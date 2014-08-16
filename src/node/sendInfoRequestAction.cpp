@@ -78,9 +78,9 @@ CMonitorInfoRequest::getMediumFilter() const
 	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
-CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter )
+CInfoRequestContinue::CInfoRequestContinue( std::map< uintptr_t, uint256 > & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter )
 	: common::CRequest< NodeResponses >( _mediumFilter )
-	, m_token( _token )
+	, m_nodeToToken( _nodeToToken )
 {
 }
 

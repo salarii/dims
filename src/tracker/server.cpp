@@ -40,7 +40,7 @@ public:
 		*m_pushStream << _dummy;
 	}
 
-	void operator()( common::CNetworkInfoResult const & _networkInfo ) const
+	void operator()( common::CClientNetworkInfoResult const & _networkInfo ) const
 	{
 		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
 		*m_pushStream << _networkInfo;

@@ -48,7 +48,7 @@ public:
 		{
 			validNodesInfo.push_back( validNodeInfo );
 		}
-		CClientRequestsManager::getInstance()->setClientResponse( m_hash, validNodesInfo );
+		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CClientNetworkInfoResult( validNodesInfo, common::CAuthenticationProvider::getInstance()->getMyKey(), common::CRole::Tracker ) );
 	}
 
 

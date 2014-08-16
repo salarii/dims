@@ -11,7 +11,7 @@ struct CAvailableCoins;
 
 class CMediumException;
 
-struct CNetworkInfoResult;
+struct CClientNetworkInfoResult;
 
 struct CContinueResult;
 }
@@ -20,7 +20,7 @@ namespace client
 {
 
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, common::CTransactionStatus, common::CAccountBalance, common::CTrackerStats, common::CMonitorInfo, common::CPending, common::CAvailableCoins, CDnsInfo, common::CNetworkInfoResult, common::CContinueResult > NodeResponseList;
+typedef boost::mpl::list< common::CMediumException, common::CTransactionStatus, common::CAccountBalance, common::CTrackerStats, common::CMonitorInfo, common::CPending, common::CAvailableCoins, CDnsInfo, common::CClientNetworkInfoResult, common::CContinueResult > NodeResponseList;
 
 typedef boost::make_variant_over< NodeResponseList >::type NodeResponses;
 }

@@ -35,6 +35,8 @@ public:
 	common::ActionStatus::Enum state();
 
 	void setRequest( common::CRequest< NodeResponses >* _request );
+
+	bool isRequestReady() const;
 private:
 	common::CRequest< NodeResponses >* m_request;
 };

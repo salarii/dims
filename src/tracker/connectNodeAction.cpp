@@ -76,6 +76,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -127,6 +128,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -169,6 +171,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -188,6 +191,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -245,6 +249,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	boost::statechart::result react( const common::CAckEvent & _ackEvent )
@@ -275,6 +280,7 @@ struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		context< CConnectNodeAction >().setRequest( 0 );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<

@@ -161,7 +161,10 @@ void
 CNetworkClient::add( CInfoRequestContinue const * _request )
 {
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
-	*m_pushStream << _request->m_token;
+
+	assert( _request->m_nodeToToken.find( common::convertToInt(this) ) != _request->m_nodeToToken.end() );
+
+	*m_pushStream << _request->m_nodeToToken.find( common::convertToInt(this) )->second;
 }
 
 void
@@ -245,8 +248,10 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 		}
 		else if ( messageType == common::CMainRequestType::NetworkInfoReq )
 		{
-			common::CNetworkInfoResult networkResult;
+			common::CClientNetworkInfoResult networkResult;
 			stream >> networkResult;
+
+			networkResult.m_nodeIndicator = common::convertToInt(this);
 			_requestResponse.push_back( networkResult );
 		}
 		else

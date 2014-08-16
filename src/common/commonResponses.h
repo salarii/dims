@@ -71,7 +71,9 @@ struct CRoleResult
 
 struct CNetworkInfoResult
 {
+
 	CNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){}
+
 	CNetworkInfoResult(){}
 
 	IMPLEMENT_SERIALIZE
@@ -80,6 +82,29 @@ struct CNetworkInfoResult
 	)
 
 	std::vector< CValidNodeInfo > m_networkInfo;
+};
+
+
+struct CClientNetworkInfoResult
+{
+
+	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole  ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ),m_nodeIndicator( 0 ){}
+
+	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole , uintptr_t _nodeIndicator ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ),m_nodeIndicator( _nodeIndicator ){}
+
+	CClientNetworkInfoResult(){}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_networkInfo);
+		READWRITE(m_selfKey);
+		READWRITE(m_selfRole);
+	)
+
+	std::vector< CValidNodeInfo > m_networkInfo;
+	CPubKey m_selfKey;
+	int m_selfRole;
+	uintptr_t m_nodeIndicator;
 };
 
 class CSelfNode;

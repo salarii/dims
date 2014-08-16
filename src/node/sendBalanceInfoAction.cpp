@@ -68,7 +68,7 @@ CSendBalanceInfoAction::execute()
 		}
         else if ( m_token )
         {
-			return new CInfoRequestContinue( *m_token, new CMediumClassFilter( RequestKind::Balance ) );
+//			return new CInfoRequestContinue( *m_token, new CMediumClassFilter( RequestKind::Balance ) );
         }
     }
     return 0;

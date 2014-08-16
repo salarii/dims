@@ -76,11 +76,11 @@ public:
 struct CInfoRequestContinue : public common::CRequest< NodeResponses >
 {
 public:
-	CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter );
+	CInfoRequestContinue( std::map< uintptr_t, uint256 > & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 
-	uint256 const m_token;
+	std::map< uintptr_t, uint256 > & m_nodeToToken;
 };
 
 }

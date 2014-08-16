@@ -42,11 +42,19 @@ struct CRoleEvent : boost::statechart::event< CRoleEvent >
 
 struct CNetworkInfoEvent : boost::statechart::event< CNetworkInfoEvent >
 {
-	CNetworkInfoEvent( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){};
-
+	CNetworkInfoEvent( std::vector< CValidNodeInfo > const & _networkInfo):m_networkInfo( _networkInfo ){};
 	std::vector< CValidNodeInfo > m_networkInfo;
 };
 
+struct CClientNetworkInfoEvent : boost::statechart::event< CClientNetworkInfoEvent >
+{
+	CClientNetworkInfoEvent( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ), m_nodeIndicator( 0 ){};
+	CClientNetworkInfoEvent( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole , uintptr_t _nodeIndicator ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ), m_nodeIndicator( _nodeIndicator ){};
+	std::vector< CValidNodeInfo > m_networkInfo;
+	CPubKey m_selfKey;
+	int m_selfRole;
+	uintptr_t m_nodeIndicator;
+};
 
 struct CErrorEvent : boost::statechart::event< CErrorEvent >
 {

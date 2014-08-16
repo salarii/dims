@@ -47,6 +47,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 			m_lastAskTime = time;
 			context< CConnectAction >().setRequest( new CDnsInfoRequest() );
 		}
+		return discard_event();
 	}
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
@@ -54,6 +55,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		if ( _dnsInfo.m_addresses.empty() )
 		{
 			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
+			return discard_event();
 		}
 		else
 		{
@@ -73,6 +75,13 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	int64_t m_lastAskTime;
 };
 
+/*
+crap
+nodes should be  asked about ip-s first
+all the rest info about  node  should  be gotten  from given node
+create error  handlig  functionality
+in cases where some of  nodes  are  out of reach
+*/
 struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnectAction >
 {
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
@@ -84,44 +93,58 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
+		m_nodeToToken.insert( std::make_pair( _pending.m_networkPtr, _pending.m_token ) );
+
+		m_pending.insert( _pending.m_networkPtr );
+
 		int64_t time = GetTime();
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
-// how  to  fix  this???
-			context< CConnectAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+			if ( !context< CConnectAction >().isRequestReady() )
+					context< CConnectAction >().setRequest( new CInfoRequestContinue( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			return discard_event();
 		}
 		else
 		{
-			bool moniorPresent = false;
 
 			if ( !m_uniqueNodes.size() )
 			{
 				return transit< CRecognizeNetwork >();
 			}
 
-			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_uniqueNodes )
-			{
-				if ( validNode.m_role == common::CRole::Monitor )
-				{
-					moniorPresent = true;
-					CTrackerLocalRanking::getInstance()->addMonitor( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
-				}
-				else if ( validNode.m_role == common::CRole::Monitor )
-				{
-					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
-				}
-			}
-			return moniorPresent ? transit< CMonitorPresent >() : transit< CWithoutMonitor >();
+			bool moniorPresent = false;
 
+			analyseData( moniorPresent );
+
+			return moniorPresent ? transit< CMonitorPresent >() : transit< CWithoutMonitor >();
 		}
 	}
 
-	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
+	boost::statechart::result react( common::CClientNetworkInfoEvent const & _networkInfo )
 	{
+		m_pending.erase( _networkInfo.m_nodeIndicator );
+
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, _networkInfo.m_networkInfo )
 		{
 			m_uniqueNodes.insert( validNode );
 		}
+
+		if ( !m_pending.size() )
+		{
+			if ( !m_uniqueNodes.size() )
+			{
+				return transit< CRecognizeNetwork >();
+			}
+
+			bool moniorPresent = false;
+
+			analyseData( moniorPresent );
+
+			return moniorPresent ? transit< CMonitorPresent >() : transit< CWithoutMonitor >();
+		}
+
+		return discard_event();
+
 	}
 
 	boost::statechart::result react( common::CErrorEvent const & _networkInfo )
@@ -135,15 +158,41 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Unknown ) ) );
 	}
 
+	void analyseData( bool & _isMonitorPresent )
+	{
+		_isMonitorPresent = false;
+
+		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_uniqueNodes )
+		{
+			if ( validNode.m_role == common::CRole::Monitor )
+			{
+				_isMonitorPresent = true;
+				CTrackerLocalRanking::getInstance()->addMonitor( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
+			}
+			else if ( validNode.m_role == common::CRole::Monitor )
+			{
+				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
+			}
+		}
+	}
+
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
+	boost::statechart::custom_reaction< common::CClientNetworkInfoEvent >,
 	boost::statechart::custom_reaction< common::CErrorEvent >
 	> reactions;
 
+
+	std::set< common::CValidNodeInfo > m_selfDescribedNodes;
+	// in  future be  careful with  those
 	std::set< common::CValidNodeInfo > m_uniqueNodes;
 
+	std::set< uintptr_t > m_pending;
+
 	int64_t m_lastAskTime;
+
+	std::map< uintptr_t, uint256 > m_nodeToToken;
 };
 
 
@@ -168,15 +217,18 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CConnectAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CMediumClassFilter( _pending.m_networkPtr ) ) );
+//		context< CConnectAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CMediumClassFilter( _pending.m_networkPtr ) ) );
 	}
 
 
 	boost::statechart::result react( common::CTrackerStats const & _trackerStats )
 	{
+
 		CTrackerLocalRanking::getInstance()->addTracker( _trackerStats );
 		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( common::CNodeStatistic( _trackerStats.m_publicKey, _trackerStats.m_ip,0 ) );
 	}
+
+	// continue event
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
@@ -198,6 +250,14 @@ CConnectAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor 
 
 common::CRequest< NodeResponses >*
 CConnectAction::execute()
+{
+	common::CRequest< NodeResponses >* request = m_request;
+	m_request = 0;
+	return request;
+}
+
+bool
+CConnectAction::isRequestReady() const
 {
 	return m_request;
 }

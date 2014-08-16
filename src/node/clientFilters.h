@@ -40,20 +40,24 @@ struct CMediumClassFilter : public common::CMediumFilter< NodeResponses >
 
 struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 {
-	CSpecificMediumFilter( uintptr_t _ptr )
-	: m_ptr( _ptr )
+	CSpecificMediumFilter( std::set< uintptr_t > const & _nodes )
+		: m_nodes( _nodes )
 	{}
 
 	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
-		std::list< common::CMedium< NodeResponses > *> mediums;
-		common::CMedium< NodeResponses > * medium = _trackerLocalRanking->getSpecificTracker( m_ptr );
-		if ( medium )
-			mediums.push_back( medium );
 
+		std::list< common::CMedium< NodeResponses > *> mediums;
+
+		BOOST_FOREACH( uintptr_t nodePtr , m_nodes )
+		{
+			common::CMedium< NodeResponses > * medium = _trackerLocalRanking->getSpecificTracker( nodePtr );
+			if ( medium )
+				mediums.push_back( medium );
+		}
 		return mediums;
 	}
-	uintptr_t m_ptr;
+	 std::set< uintptr_t > const & m_nodes;
 };
 
 
