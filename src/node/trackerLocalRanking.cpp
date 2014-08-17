@@ -40,6 +40,19 @@ CTrackerLocalRanking::addUnidentifiedNode( common::CUnidentifiedStats const & _u
 	m_unidentifiedNodes.insert( _unidentifiedNode );
 }
 
+
+bool
+CTrackerLocalRanking::isInUnidentified( common::CUnidentifiedStats const & _unidentifiedNode ) const
+{
+	return m_unidentifiedNodes.find( _unidentifiedNode ) != m_unidentifiedNodes.end();
+}
+
+void
+CTrackerLocalRanking::clearUnidentified()
+{
+	m_unidentifiedNodes.clear();
+}
+
 void
 CTrackerLocalRanking::removeUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode )
 {

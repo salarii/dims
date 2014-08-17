@@ -88,9 +88,9 @@ struct CNetworkInfoResult
 struct CClientNetworkInfoResult
 {
 
-	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole  ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ),m_nodeIndicator( 0 ){}
+	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole  ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ), m_ip(), m_nodeIndicator( 0 ){}
 
-	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole , uintptr_t _nodeIndicator ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ),m_nodeIndicator( _nodeIndicator ){}
+	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole , std::string _ip, uintptr_t _nodeIndicator ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ), m_ip( _ip ),m_nodeIndicator( _nodeIndicator ){}
 
 	CClientNetworkInfoResult(){}
 
@@ -104,6 +104,7 @@ struct CClientNetworkInfoResult
 	std::vector< CValidNodeInfo > m_networkInfo;
 	CPubKey m_selfKey;
 	int m_selfRole;
+	std::string m_ip;
 	uintptr_t m_nodeIndicator;
 };
 

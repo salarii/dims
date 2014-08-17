@@ -50,6 +50,8 @@ struct CTrackerStats : boost::statechart::event< CTrackerStats >
 	unsigned int  m_reputation;
 	float m_price;
 	std::string m_ip;
+	uintptr_t m_nodeIndicator;
+
 };
 
 struct CUnidentifiedStats

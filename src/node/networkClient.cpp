@@ -234,6 +234,8 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 			common::CTrackerStats trackerInfo;
 
 			readTrackerInfo( stream, trackerInfo, TrackerDescription );
+
+			trackerInfo.m_nodeIndicator = common::convertToInt(this);
 			_requestResponse.push_back( trackerInfo );
 
 		}
@@ -252,6 +254,7 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 			stream >> networkResult;
 
 			networkResult.m_nodeIndicator = common::convertToInt(this);
+			networkResult.m_ip = m_ip.toStdString();
 			_requestResponse.push_back( networkResult );
 		}
 		else

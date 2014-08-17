@@ -53,6 +53,10 @@ public:
 
 	void addUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode );
 
+	bool isInUnidentified( common::CUnidentifiedStats const & _unidentifiedNode ) const;
+
+	void clearUnidentified();
+
 	void removeUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode );
 
 	void addUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker );
