@@ -21,6 +21,42 @@ CTrackerController::getInstance()
 	return ms_instance;
 }
 
+float
+CTrackerController::getPrice() const
+{
+	return m_price;
+}
+
+void
+CTrackerController::setPrice( float _price )
+{
+	m_price = _price;
+}
+
+int
+CTrackerController::getMaxPrice() const
+{
+	return m_maxPrice;
+}
+
+void
+CTrackerController::setMaxPrice( int _price )
+{
+	m_maxPrice = _price;
+}
+
+int
+CTrackerController::getMinPrice() const
+{
+	return m_minPrice;
+}
+
+void
+CTrackerController::setMinPrice( int _price )
+{
+	m_minPrice = _price;
+}
+
 CTrackerController::CTrackerController()
 {
 	initiate();

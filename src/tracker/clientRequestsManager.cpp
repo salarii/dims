@@ -7,6 +7,7 @@
 #include "getBalanceAction.h"
 #include "base58.h"
 #include "trackerNodesManager.h"
+#include "trackerController.h"
 
 #include <boost/foreach.hpp>
 
@@ -24,7 +25,8 @@ public:
 
 	void operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
-
+		CTrackerController * trackerController = CTrackerController::getInstance();
+		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTrackerSpecificStats( trackerController->getPrice(), trackerController->getMaxPrice(), trackerController->getMinPrice() ) );
 	}
 
 	void operator()( CTransactionMessage const & _transactionMessage ) const
@@ -50,8 +52,6 @@ public:
 		}
 		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CClientNetworkInfoResult( validNodesInfo, common::CAuthenticationProvider::getInstance()->getMyKey(), common::CRole::Tracker ) );
 	}
-
-
 private:
 	uint256 const m_hash;
 };
@@ -90,6 +90,7 @@ CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest, uint256 co
 	boost::lock_guard<boost::mutex> lock( m_requestLock );
 	m_getInfoRequest.insert( std::make_pair( _hash, _nodeRequest ) );
 }
+
 
 ClientResponse
 CClientRequestsManager::getResponse( uint256 const & _token )

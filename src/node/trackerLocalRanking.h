@@ -51,21 +51,21 @@ public:
 
 	void addTracker( common::CTrackerStats const & _trackerStats );
 
-	void addUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode );
+	void addUnidentifiedNode( std::string const & _ip, common::CUnidentifiedStats const & _unidentifiedNode );
 
-	bool isInUnidentified( common::CUnidentifiedStats const & _unidentifiedNode ) const;
+	bool isInUnidentified( std::string const & _ip ) const;
 
-	void clearUnidentified();
+	void removeUnidentifiedNode( std::string const & _ip );
 
-	void removeUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode );
+	void addUndeterminedTracker( std::string const & _ip, common::CNodeStats const & _undeterminedTracker );
 
-	void addUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker );
+	bool getUndeterminedTracker( std::string const & _ip, common::CNodeStats & _undeterminedTracker );
 
-	void removeUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker );
+	void removeUndeterminedTracker( std::string const & _ip );
 
-	void addMonitor( common::CNodeStatistic const & _undeterminedTracker );
+	void addMonitor( std::string const & _ip, common::CNodeStats const & _undeterminedTracker );
 
-	void removeMonitor( common::CNodeStatistic const & _undeterminedTracker );
+	void removeMonitor( std::string const & _ip );
 
 	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber );
 
@@ -86,12 +86,16 @@ private:
 
 	std::map< uintptr_t, common::CMedium< NodeResponses > * > m_mediumRegister;
 
-	std::set< common::CUnidentifiedStats > m_unidentifiedNodes;
+	std::map< std::string, common::CUnidentifiedStats > m_unidentifiedNodes;
 
 	// this  is  definitely not final version
-	std::set< common::CNodeStatistic > m_monitors;
+	std::map< std::string, common::CNodeStats > m_monitors;
 
-	std::set< common::CNodeStatistic > m_undeterminedTrackers;
+	std::map< std::string, common::CNodeStats > m_undeterminedTrackers;
+
+	typedef std::pair< std::string, common::CUnidentifiedStats > Unidentified;
+
+	typedef std::pair< std::string, common::CNodeStats > NodeStats;
 };
 
 

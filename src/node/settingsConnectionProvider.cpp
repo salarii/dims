@@ -20,7 +20,6 @@ CSettingsConnectionProvider::getInstance()
 void
 CSettingsConnectionProvider::setTrackerIp( std::string const & _ip )
 {
-	m_settingsMedium->setTrackerIp( _ip );
 }
 
 

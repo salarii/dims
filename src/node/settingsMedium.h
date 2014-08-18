@@ -37,8 +37,6 @@ public:
 
 	void add( CRequest const * _request );
 
-	void add( CTrackersInfoRequest const * _request );
-
 	void add( CDnsInfoRequest const * _request );
 
 	void add( common::CContinueReqest< NodeResponses > const * _request );
@@ -49,13 +47,10 @@ public:
 
 	void clearResponses();
 
-	void setTrackerIp( std::string const & _ip );
-
 private:
 	void getSeedIps( vector<CAddress> & _vAdd );
 private:
 	bool m_serviced;
-	common::CTrackerStats m_trackerStats;
 	std::vector< client::NodeResponses > m_requestResponse;
 };
 

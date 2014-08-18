@@ -36,7 +36,6 @@ struct CTransactionMessage
 
 struct CTrackerStatsReq
 {
-	std::vector< int > m_requestedInfo;
 };
 
 struct CMonitorInfoReq

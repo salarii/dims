@@ -9,7 +9,6 @@
 #include "sendBalanceInfoAction.h"
 #include "sendTransactionAction.h"
 #include "sendInfoRequestAction.h"
-#include "helper.h"
 #include "common/support.h"
 
 #include <QHostAddress>
@@ -231,13 +230,12 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 		}
 		else if ( messageType == common::CMainRequestType::TrackerInfoReq )
 		{
-			common::CTrackerStats trackerInfo;
+			common::CTrackerSpecificStats trackerSpecificStats;
 
-			readTrackerInfo( stream, trackerInfo, TrackerDescription );
+			stream >> trackerSpecificStats;
 
-			trackerInfo.m_nodeIndicator = common::convertToInt(this);
-			_requestResponse.push_back( trackerInfo );
-
+			common::CNodeSpecific< common::CTrackerSpecificStats > stats( trackerSpecificStats, m_ip.toStdString(), common::convertToInt(this));
+			_requestResponse.push_back( stats );
 		}
 		else if ( messageType == common::CMainRequestType::RequestSatatusReq )
 		{
@@ -253,9 +251,8 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 			common::CClientNetworkInfoResult networkResult;
 			stream >> networkResult;
 
-			networkResult.m_nodeIndicator = common::convertToInt(this);
-			networkResult.m_ip = m_ip.toStdString();
-			_requestResponse.push_back( networkResult );
+			common::CNodeSpecific< common::CClientNetworkInfoResult > stats( networkResult, m_ip.toStdString(), common::convertToInt(this));
+			_requestResponse.push_back( stats );
 		}
 		else
 		{

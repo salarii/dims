@@ -8,7 +8,6 @@
 #include "settingsMedium.h"
 #include "sendInfoRequestAction.h"
 
-#include "helper.h"
 #include "common/nodeMessages.h"
 #include "common/commonEvents.h"
 #include "common/ratcoinParams.h"
@@ -22,14 +21,7 @@ namespace client
 
 CSettingsMedium::CSettingsMedium()
 	: m_serviced( true )
-	, m_trackerStats( CPubKey(), 0, 0,"127.0.0.1" )
 {
-}
-
-void
-CSettingsMedium::setTrackerIp( std::string const & _ip )
-{
-	m_trackerStats.m_ip = _ip;
 }
 
 bool
@@ -41,22 +33,6 @@ CSettingsMedium::serviced() const
 void
 CSettingsMedium::add( CRequest const * _request )
 {
-}
-
-void
-CSettingsMedium::add( CTrackersInfoRequest const * _request )
-{
-	try
-	{
-		m_requestResponse.push_back( m_trackerStats );
-
-		m_serviced = false;
-
-	}
-	catch (std::exception& _ex)
-	{
-		// service it at some point
-	}
 }
 
 void

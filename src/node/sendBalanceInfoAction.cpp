@@ -9,7 +9,6 @@
 #include "clientFilters.h"
 
 #include "serialize.h"
-#include "helper.h"
 #include "base58.h"
 #include "common/nodeMessages.h"
 

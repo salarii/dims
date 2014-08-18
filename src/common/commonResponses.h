@@ -71,7 +71,6 @@ struct CRoleResult
 
 struct CNetworkInfoResult
 {
-
 	CNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){}
 
 	CNetworkInfoResult(){}
@@ -88,9 +87,9 @@ struct CNetworkInfoResult
 struct CClientNetworkInfoResult
 {
 
-	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole  ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ), m_ip(), m_nodeIndicator( 0 ){}
+	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole  ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ){}
 
-	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole , std::string _ip, uintptr_t _nodeIndicator ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ), m_ip( _ip ),m_nodeIndicator( _nodeIndicator ){}
+	CClientNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole , std::string _ip, uintptr_t _nodeIndicator ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ){}
 
 	CClientNetworkInfoResult(){}
 
@@ -104,6 +103,28 @@ struct CClientNetworkInfoResult
 	std::vector< CValidNodeInfo > m_networkInfo;
 	CPubKey m_selfKey;
 	int m_selfRole;
+};
+
+struct CTrackerSpecificStats
+{
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_price);
+	READWRITE(m_maxPrice);
+	READWRITE(m_minPrice);
+	)
+	CTrackerSpecificStats(){};
+	CTrackerSpecificStats( float _price, unsigned int _maxPrice, unsigned int _minPrice ):m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ){};
+
+	float m_price;
+	unsigned int m_maxPrice;
+	unsigned int m_minPrice;
+};
+
+template < class _Stats >
+struct CNodeSpecific : public _Stats
+{
+	CNodeSpecific( _Stats const & _stats, std::string const & _ip, uintptr_t _nodeIndicator ):_Stats( _stats ), m_ip( _ip ), m_nodeIndicator( _nodeIndicator ){}
 	std::string m_ip;
 	uintptr_t m_nodeIndicator;
 };

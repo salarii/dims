@@ -61,7 +61,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		{
 			BOOST_FOREACH( CAddress const & address, _dnsInfo.m_addresses )
 			{
-				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( common::CUnidentifiedStats( address.ToStringIP(), address.GetPort() ) );
+				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedStats( address.ToStringIP(), address.GetPort() ) );
 			}
 			return transit< CRecognizeNetwork >();
 		}
@@ -78,7 +78,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 /*
 definitely total crap
 ???
-nodes should be  asked about ip-s first
+nodes should be  asked about ip-s first???
 all the rest info about  node  should  be gotten  from given node
 create error  handlig  functionality
 in cases where some of  nodes  are  out of reach
@@ -108,7 +108,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		}
 		else
 		{
-			CTrackerLocalRanking::getInstance()->clearUnidentified();
+
 			if ( !m_uniqueNodes.size() )
 			{
 				return transit< CRecognizeNetwork >();
@@ -126,15 +126,15 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		m_pending.erase( _networkInfo.m_nodeIndicator );
 
-		common::CNodeStatistic validNodeInfo( _networkInfo.m_selfKey, _networkInfo.m_ip, common::ratcoinParams().getDefaultClientPort() );
+		common::CNodeStats validNodeInfo( _networkInfo.m_selfKey, _networkInfo.m_ip, common::ratcoinParams().getDefaultClientPort() );
 
 		if ( _networkInfo.m_selfRole == common::CRole::Monitor )
 		{
-			CTrackerLocalRanking::getInstance()->addMonitor( validNodeInfo );
+			CTrackerLocalRanking::getInstance()->addMonitor( _networkInfo.m_ip, validNodeInfo );
 		}
 		else if ( _networkInfo.m_selfRole == common::CRole::Tracker )
 		{
-			CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNodeInfo );
+			CTrackerLocalRanking::getInstance()->addUndeterminedTracker( _networkInfo.m_ip, validNodeInfo );
 		}
 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, _networkInfo.m_networkInfo )
@@ -177,16 +177,16 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_uniqueNodes )
 		{
-			if ( !CTrackerLocalRanking::getInstance()->isInUnidentified( common::CUnidentifiedStats( validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) ) )
+			if ( !CTrackerLocalRanking::getInstance()->isInUnidentified( validNode.m_address.ToStringIP() ) )
 			{
 				if ( validNode.m_role == common::CRole::Monitor )
 				{
 					_isMonitorPresent = true;
-					CTrackerLocalRanking::getInstance()->addMonitor( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
+					CTrackerLocalRanking::getInstance()->addMonitor( validNode.m_address.ToStringIP(), common::CNodeStats( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
 				}
 				else if ( validNode.m_role == common::CRole::Tracker )
 				{
-					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( common::CNodeStatistic( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
+					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNode.m_address.ToStringIP(), common::CNodeStats( validNode.m_key, validNode.m_address.ToStringIP(), common::ratcoinParams().getDefaultClientPort() ) );
 				}
 			}
 		}
@@ -251,11 +251,23 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 	}
 
 
-	boost::statechart::result react( common::CTrackerStats const & _trackerStats )
+	boost::statechart::result react( common::CTrackerStatsEvent const & _trackerStats )
 	{
+		common::CNodeStats undeterminedTracker;
+		CTrackerLocalRanking::getInstance()->getUndeterminedTracker( _trackerStats.m_ip, undeterminedTracker );
 
-		CTrackerLocalRanking::getInstance()->addTracker( _trackerStats );
-		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( common::CNodeStatistic( _trackerStats.m_publicKey, _trackerStats.m_ip,0 ) );
+		common::CTrackerStats trackerStats(
+			  undeterminedTracker.m_key
+			, 0
+			, _trackerStats.m_price
+			, _trackerStats.m_maxPrice
+			, _trackerStats.m_minPrice
+			, undeterminedTracker.m_ip
+			, undeterminedTracker.m_port
+			);
+
+		CTrackerLocalRanking::getInstance()->addTracker( trackerStats );
+		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( _trackerStats.m_ip );
 
 		m_pending.erase( _trackerStats.m_nodeIndicator );
 
@@ -272,7 +284,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
-	boost::statechart::custom_reaction< common::CTrackerStats >
+	boost::statechart::custom_reaction< common::CTrackerStatsEvent >
 	> reactions;
 
 	std::set< uintptr_t > m_pending;

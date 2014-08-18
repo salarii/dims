@@ -40,6 +40,12 @@ public:
 		*m_pushStream << _dummy;
 	}
 
+	void operator()( CTrackerSpecificStats const & _trackerSpecificStats ) const
+	{
+		common::serializeEnum( *m_pushStream, CMainRequestType::TrackerInfoReq );
+		*m_pushStream << _trackerSpecificStats;
+	}
+
 	void operator()( common::CClientNetworkInfoResult const & _networkInfo ) const
 	{
 		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
@@ -178,7 +184,9 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::TrackerInfoReq )
 		{
-
+			common::serializeEnum( pushStream, CMainRequestType::TrackerInfoReq );
+			uint256 token = m_clientRequestManager->addRequest( CTrackerStatsReq() );
+			pushStream << token;
 		}
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
@@ -227,12 +235,5 @@ void runServer()
 
 	server->start();
 }
-/*
-int sendBytes(
-const void * buffer,
-int length,
-int flags = 0
-);
 
-*/
 }

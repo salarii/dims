@@ -35,52 +35,59 @@ CTrackerLocalRanking::addTracker( common::CTrackerStats const & _trackerStats )
 }
 
 void
-CTrackerLocalRanking::addUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode )
+CTrackerLocalRanking::addUnidentifiedNode( std::string const & _ip, common::CUnidentifiedStats const & _unidentifiedNode )
 {
-	m_unidentifiedNodes.insert( _unidentifiedNode );
+	m_unidentifiedNodes.insert( std::make_pair( _ip, _unidentifiedNode ) );
 }
 
 
 bool
-CTrackerLocalRanking::isInUnidentified( common::CUnidentifiedStats const & _unidentifiedNode ) const
+CTrackerLocalRanking::isInUnidentified( std::string const & _ip ) const
 {
-	return m_unidentifiedNodes.find( _unidentifiedNode ) != m_unidentifiedNodes.end();
+	return m_unidentifiedNodes.find( _ip ) != m_unidentifiedNodes.end();
 }
 
 void
-CTrackerLocalRanking::clearUnidentified()
+CTrackerLocalRanking::removeUnidentifiedNode( std::string const & _ip )
 {
-	m_unidentifiedNodes.clear();
+	m_unidentifiedNodes.erase( _ip );
 }
 
 void
-CTrackerLocalRanking::removeUnidentifiedNode( common::CUnidentifiedStats const & _unidentifiedNode )
+CTrackerLocalRanking::addUndeterminedTracker( std::string const & _ip, common::CNodeStats const & _undeterminedTracker )
 {
-	m_unidentifiedNodes.erase( _unidentifiedNode );
+	m_undeterminedTrackers.insert( std::make_pair( _ip, _undeterminedTracker ) );
+}
+
+bool
+CTrackerLocalRanking::getUndeterminedTracker( std::string const & _ip, common::CNodeStats & _undeterminedTracker )
+{
+	std::map< std::string, common::CNodeStats >::const_iterator iterator = m_undeterminedTrackers.find( _ip );
+
+	if ( iterator == m_undeterminedTrackers.end() )
+		return false;
+
+	_undeterminedTracker = iterator->second;
+
+	return true;
 }
 
 void
-CTrackerLocalRanking::addUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker )
+CTrackerLocalRanking::removeUndeterminedTracker( std::string const & _ip )
 {
-	m_undeterminedTrackers.insert( _undeterminedTracker );
+	m_undeterminedTrackers.erase( _ip );
 }
 
 void
-CTrackerLocalRanking::removeUndeterminedTracker( common::CNodeStatistic const & _undeterminedTracker )
+CTrackerLocalRanking::addMonitor( std::string const & _ip, common::CNodeStats const & _monitor )
 {
-	m_undeterminedTrackers.erase( _undeterminedTracker );
+	m_monitors.insert( std::make_pair( _ip, _monitor ) );
 }
 
 void
-CTrackerLocalRanking::addMonitor( common::CNodeStatistic const & _monitor )
+CTrackerLocalRanking::removeMonitor( std::string const & _ip )
 {
-	m_monitors.insert( _monitor );
-}
-
-void
-CTrackerLocalRanking::removeMonitor( common::CNodeStatistic const & _monitor )
-{
-	m_monitors.erase( _monitor );
+	m_monitors.erase( _ip );
 }
 
 std::list< common::CMedium< NodeResponses > *>
@@ -99,9 +106,9 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 	case common::RequestKind::Unknown:
 		if ( m_unidentifiedNodes.begin() != m_unidentifiedNodes.end() )
 		{
-			BOOST_FOREACH( common::CUnidentifiedStats const & stats, m_unidentifiedNodes )
+			BOOST_FOREACH( Unidentified const & stats, m_unidentifiedNodes )
 			{
-				mediums.push_back( getNetworkConnection( stats ) );
+				mediums.push_back( getNetworkConnection( stats.second ) );
 			}
 		}
 		break;
@@ -110,7 +117,7 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 		{
 			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
 			{
-				mediums.push_back( getNetworkConnection( stats ) );
+				mediums.push_back( getNetworkConnection( stats) );
 			}
 		}
 		break;
