@@ -103,9 +103,9 @@ public:
 		this->m_action->process_event( CClientNetworkInfoEvent( _networkInfo.m_networkInfo, _networkInfo.m_selfKey, _networkInfo.m_selfRole, _networkInfo.m_ip, _networkInfo.m_nodeIndicator ) );
 	}
 
-	void operator()( common::CNodeSpecific< CTrackerStats > & _trackerStats ) const
+	void operator()( common::CNodeSpecific< CTrackerSpecificStats > & _trackerStats ) const
 	{
-		this->m_action->process_event( common::CTrackerStatsEvent( _trackerStats.m_reputation, _trackerStats.m_price, _trackerStats.m_maxPrice, _trackerStats.m_minPrice, _trackerStats.m_ip, _trackerStats.m_nodeIndicator ) );
+		this->m_action->process_event( common::CTrackerStatsEvent( 0, _trackerStats.m_price, _trackerStats.m_maxPrice, _trackerStats.m_minPrice, _trackerStats.m_ip, _trackerStats.m_nodeIndicator ) );
 	}
 
 	void operator()( common::CContinueResult & _continue ) const

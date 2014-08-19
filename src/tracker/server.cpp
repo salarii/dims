@@ -184,7 +184,7 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::TrackerInfoReq )
 		{
-			common::serializeEnum( pushStream, CMainRequestType::TrackerInfoReq );
+			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token = m_clientRequestManager->addRequest( CTrackerStatsReq() );
 			pushStream << token;
 		}

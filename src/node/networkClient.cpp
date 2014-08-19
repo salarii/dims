@@ -172,6 +172,13 @@ CNetworkClient::add( CRecognizeNetworkRequest const * _request )
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::NetworkInfoReq );
 }
 
+void
+CNetworkClient::add( CTrackersInfoRequest const * _request )
+{
+	common::serializeEnum( *m_pushStream, common::CMainRequestType::TrackerInfoReq );
+}
+
+
 bool
 CNetworkClient::flush()
 {

@@ -112,6 +112,15 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 			}
 		}
 		break;
+	case common::RequestKind::UndeterminedTrackers:
+		if ( m_undeterminedTrackers.begin() != m_undeterminedTrackers.end() )
+		{
+			BOOST_FOREACH( NodeStats const & stats, m_undeterminedTrackers )
+			{
+				mediums.push_back( getNetworkConnection( stats.second ) );
+			}
+		}
+	break;
 	case common::RequestKind::Transaction:
 		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
 		{

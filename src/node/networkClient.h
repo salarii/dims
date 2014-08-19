@@ -51,6 +51,8 @@ public:
 
 	void add( CRecognizeNetworkRequest const * _request );
 
+	void add( CTrackersInfoRequest const * _request );
+
 	bool flush();
 
 	void clearResponses();
