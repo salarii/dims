@@ -9,6 +9,8 @@
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
 #include "connectNodeAction.h"
+#include "synchronizationAction.h"
+#include "synchronizationEvents.h"
 
 namespace tracker
 {
@@ -44,7 +46,16 @@ CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 	}
 }
 
-//simple_state::triggering_event()
+boost::statechart::result
+CSynchronizing::react( CTrackerConnectedEvent const & _event )
+{
+	CSynchronizationAction * synchronizationAction = new CSynchronizationAction();
+
+	common::CActionHandler< TrackerResponses >::getInstance()->executeAction( synchronizationAction );
+	synchronizationAction->process_event( CSwitchToSynchronizing() );
+
+	return transit< CConnected >();// do it  after  synchronization  finishes ????
+}
 
 boost::statechart::result
 CStandAlone::react( CGetStateEvent const & _event )
@@ -54,7 +65,8 @@ CStandAlone::react( CGetStateEvent const & _event )
 
 CConnected::CConnected( my_context ctx ) : my_base( ctx )
 {
-
+		CTrackerConnectedEvent const* trackerConnectedEvent
+				= dynamic_cast< CTrackerConnectedEvent const* >( simple_state::triggering_event() );
 }
 
 

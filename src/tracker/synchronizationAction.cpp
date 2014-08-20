@@ -17,7 +17,7 @@
 #include "synchronizationAction.h"
 #include "synchronizationRequests.h"
 #include "trackerFilters.h"
-
+#include "synchronizationEvents.h"
 #include "segmentFileStorage.h"
 
 #define CONFIRM_LIMIT 6
@@ -31,21 +31,7 @@ unsigned const SynchronisedWaitTime = SynchronisingWaitTime * 2;
 struct CSynchronizingGetInfo;
 struct CSynchronizedGetInfo;
 
-struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
-{
-};
 
-struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
-{
-};
-
-struct CAssistRequestEvent : boost::statechart::event< CAssistRequestEvent >
-{
-};
-
-struct CGetNextBlockEvent : boost::statechart::event< CGetNextBlockEvent >
-{
-};
 
 struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInfoEvent >
 {

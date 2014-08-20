@@ -227,6 +227,8 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 				= boost::assign::list_of(TrackerInfo::Ip)(TrackerInfo::Price)(TrackerInfo::Rating)(TrackerInfo::PublicKey)(TrackerInfo::MinPrice)(TrackerInfo::MaxPrice);
 
 		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
+
+		m_lastAskTime = GetTime();
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )

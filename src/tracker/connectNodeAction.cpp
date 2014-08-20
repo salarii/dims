@@ -11,6 +11,7 @@
 
 #include "trackerNodesManager.h"
 #include "trackerFilters.h"
+#include "trackerController.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -20,6 +21,7 @@
 namespace tracker
 {
 
+unsigned int const TrackerLoopTime = 10;
 
 struct CUnconnected; struct CBothUnidentifiedConnected;
 
@@ -233,8 +235,30 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 		CTrackerNodesManager::getInstance()->setValidNode( common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress(), common::CRole::Tracker ) );
 
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
+
+		CTrackerController::getInstance();
+
+		m_enterStateTime = GetTime();
 	}
 
+	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	{
+
+		return discard_event();
+
+		int64_t time = GetTime();
+		if ( time - m_enterStateTime < TrackerLoopTime )
+		{
+			context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		}
+		else
+		{
+			context< CConnectNodeAction >().setRequest( 0 );
+		}
+		return discard_event();
+	}
+
+	int64_t m_enterStateTime;
 };
 
 struct CStop;
@@ -251,7 +275,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
-
+// old  ways,  refactor  this
 	boost::statechart::result react( const common::CAckEvent & _ackEvent )
 	{
 		std::vector< common::CValidNodeInfo > validNodesInfo;

@@ -16,6 +16,19 @@ struct CGetStateEvent : boost::statechart::event< CGetStateEvent >
 {
 };
 
+struct CEmptyNetwork : boost::statechart::event< CGetStateEvent >
+{};
+
+struct CExistingNetwork : boost::statechart::event< CGetStateEvent >
+{};
+
+struct CTrackerConnectedEvent : boost::statechart::event< CTrackerConnectedEvent >
+{
+	CTrackerConnectedEvent(){}
+};
+
+
+// do I need this
 struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTrackerRequest >
 {
 	CConnectWithTrackerRequest( std::string const & _trackerAddress ):m_trackerAddress( _trackerAddress ){};

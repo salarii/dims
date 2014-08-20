@@ -24,22 +24,47 @@ struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchr
 	typedef boost::statechart::transition< CInitialSynchronizationDoneEvent, CStandAlone > reactions;
 };
 
+
+struct CConnected;
+struct CLeading;
+struct CSynchronizing;
+
 struct CStandAlone : boost::statechart::state< CStandAlone, CTrackerController >
 {
 	CStandAlone( my_context  ctx );
 
-	typedef boost::mpl::list<
-	  boost::statechart::custom_reaction< CGetStateEvent > > reactions;
-
 	boost::statechart::result react( CGetStateEvent const & _event );
+
+	typedef boost::mpl::list<
+	  boost::statechart::custom_reaction< CGetStateEvent >
+	, boost::statechart::transition< CEmptyNetwork, CLeading >
+	, boost::statechart::transition< CExistingNetwork, CSynchronizing > > reactions;
 };
 
+struct CLeading : boost::statechart::state< CLeading, CTrackerController >
+{
+	CLeading( my_context ctx ) : my_base( ctx ){}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CTrackerConnectedEvent, CConnected > > reactions;
+};
+
+struct CSynchronizing : boost::statechart::state< CSynchronizing, CTrackerController >
+{
+	CSynchronizing( my_context ctx ) : my_base( ctx ){}
+// not right, since  first connection will trigger synchronization
+// this is outside action handler so I can't deffer this in "normal way"
+// is  this irrelevant ???????, when monitors will came this  will change anyway ??????
+
+	boost::statechart::result react( CTrackerConnectedEvent const & _event );
+
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< CTrackerConnectedEvent > > reactions;
+};
 
 struct CConnected : boost::statechart::state< CConnected, CTrackerController >
 {
-	typedef boost::mpl::list<
-	  boost::statechart::custom_reaction< CGetStateEvent > > reactions;
-
 	CConnected( my_context ctx );
 
 	boost::statechart::result react( CGetStateEvent const & _event )
@@ -47,6 +72,8 @@ struct CConnected : boost::statechart::state< CConnected, CTrackerController >
 		return discard_event();
 	}
 
+	typedef boost::mpl::list<
+	  boost::statechart::custom_reaction< CGetStateEvent > > reactions;
 };
 
 }
