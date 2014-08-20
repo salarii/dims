@@ -12,6 +12,7 @@
 #include "trackerNodesManager.h"
 #include "trackerFilters.h"
 #include "trackerController.h"
+#include "trackerControllerEvents.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -236,16 +237,13 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
 
-		CTrackerController::getInstance();
+		CTrackerController::getInstance()->process_event( CTrackerConnectedEvent() );
 
 		m_enterStateTime = GetTime();
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-
-		return discard_event();
-
 		int64_t time = GetTime();
 		if ( time - m_enterStateTime < TrackerLoopTime )
 		{
