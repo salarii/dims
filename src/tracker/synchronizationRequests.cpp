@@ -11,7 +11,7 @@ namespace tracker
 {
 
 CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp )
-	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::DimsNodes ) )
+	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Trackers ) )
 	, m_actionKey( _actionKey )
 	, m_timeStamp( _timeStamp )
 {
@@ -33,6 +33,12 @@ uint256
 CGetSynchronizationInfoRequest::getActionKey() const
 {
 	return m_actionKey;
+}
+
+uint64_t
+CGetSynchronizationInfoRequest::getTimeStamp() const
+{
+	return m_timeStamp;
 }
 
 CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )

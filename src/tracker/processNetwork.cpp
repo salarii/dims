@@ -10,7 +10,7 @@
 
 #include "trackerNodeMedium.h"
 #include "connectNodeAction.h"
-
+#include "synchronizationAction.h"
 
 namespace tracker
 {
@@ -76,21 +76,18 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
 		{
-			common::CIdentifyMessage identifyMessage;
-			convertPayload( message, identifyMessage );
+			common::CSynchronizationInfo synchronizationInfo;
+			convertPayload( message, synchronizationInfo );
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationInfo.m_actionKey ) )
 			{
-				nodeMedium->setResponse( identifyMessage.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+				nodeMedium->setResponse( synchronizationInfo.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp ) );
 			}
 			else
 			{
-				CConnectNodeAction * connectTrackerAction
-						= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
-
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CSynchronizationAction() );
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )

@@ -19,6 +19,8 @@ class CSynchronizationAction : public common::CAction< TrackerResponses >, publi
 public:
 	CSynchronizationAction();
 
+	CSynchronizationAction( uintptr_t _nodeIndicator, uint64_t _timeStamp );
+
 	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
@@ -37,7 +39,9 @@ private:
 
 	uint256 m_currentHash;
 
-	unsigned long long m_nodeIdentifier;
+	uint64_t m_timeStamp;
+
+	uintptr_t m_nodeIdentifier;
 };
 
 }

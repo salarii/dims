@@ -156,6 +156,11 @@ CNodesManager< ResponseType >::getNodesByClass( CMediumKinds::Enum _nodesClass )
 	{
 		return m_nodeMediums;
 	}
+	if ( CMediumKinds::Trackers == _nodesClass )
+	{
+		// not ok
+		return m_nodeMediums;
+	}
 
 }
 

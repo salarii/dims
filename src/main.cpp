@@ -3875,7 +3875,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 		{
-			boost::lock_guard<boost::mutex> lock( pto->m_mediumLock );
+			LOCK( pto->m_mediumLock );
 
 			BOOST_FOREACH( CBloomFilter const & filter, pto->m_filterSendQueue)
 			{

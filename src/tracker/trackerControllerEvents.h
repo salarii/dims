@@ -16,12 +16,6 @@ struct CGetStateEvent : boost::statechart::event< CGetStateEvent >
 {
 };
 
-struct CEmptyNetwork : boost::statechart::event< CGetStateEvent >
-{};
-
-struct CExistingNetwork : boost::statechart::event< CGetStateEvent >
-{};
-
 struct CTrackerConnectedEvent : boost::statechart::event< CTrackerConnectedEvent >
 {
 	CTrackerConnectedEvent(){}

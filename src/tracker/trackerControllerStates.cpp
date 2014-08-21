@@ -16,10 +16,6 @@ namespace tracker
 {
 
 
-CInitialSynchronization::CInitialSynchronization()
-{
-}
-
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 {
 	// search for  seeder  action
@@ -33,6 +29,7 @@ CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 		{
 			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 		}
+		m_synchronize = true;
 	}
 	else
 	{
@@ -43,25 +40,28 @@ CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 		{
 			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 		}
+		m_synchronize = false;
 	}
 }
 
+
 boost::statechart::result
-CSynchronizing::react( CTrackerConnectedEvent const & _event )
+CStandAlone::react( CTrackerConnectedEvent const & _event )
+{
+	return m_synchronize ? transit< CSynchronizing >() : transit< CConnected >();// do it  after  synchronization  finishes ????
+}
+
+
+
+CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )
 {
 	CSynchronizationAction * synchronizationAction = new CSynchronizationAction();
 
 	common::CActionHandler< TrackerResponses >::getInstance()->executeAction( synchronizationAction );
 	synchronizationAction->process_event( CSwitchToSynchronizing() );
 
-	return transit< CConnected >();// do it  after  synchronization  finishes ????
 }
 
-boost::statechart::result
-CStandAlone::react( CGetStateEvent const & _event )
-{
-	return discard_event();
-}
 
 CConnected::CConnected( my_context ctx ) : my_base( ctx )
 {

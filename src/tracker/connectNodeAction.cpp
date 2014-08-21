@@ -231,7 +231,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().setRequest( 0 );
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 
 		CTrackerNodesManager::getInstance()->setValidNode( common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress(), common::CRole::Tracker ) );
 

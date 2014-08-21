@@ -25,6 +25,8 @@ public:
 	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	uint256 getActionKey() const;
+
+	uint64_t getTimeStamp() const;
 private:
 	uint256 const m_actionKey;
 

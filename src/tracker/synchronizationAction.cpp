@@ -24,8 +24,11 @@
 
 namespace tracker
 {
-// those  times  should be  connected to  action  hadler  parameters at  some  point
+
+unsigned const SynchronisingGetInfoTime = 10;
+
 unsigned const SynchronisingWaitTime = 15;
+
 unsigned const SynchronisedWaitTime = SynchronisingWaitTime * 2;
 
 struct CSynchronizingGetInfo;
@@ -70,17 +73,15 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx ), m_waitTime( SynchronisingWaitTime )
 	{
 		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), 0 ) );
+		m_waitTime = GetTime();
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		if ( !context< CSynchronizationAction >().isRequestInitialized() )
-		{
-			m_waitTime--;
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
-		}
-
-		if ( !m_waitTime )
+		long long unsigned time = GetTime();
+		if ( time - m_waitTime < SynchronisingGetInfoTime )
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		else
 			return transit< CSynchronizing >();
 	}
 
@@ -91,14 +92,16 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 			m_bestTimeStamp = _synchronizationInfoEvent.m_timeStamp;
 			context< CSynchronizationAction >().setNodeIdentifier( _synchronizationInfoEvent.m_nodeIdentifier );
 		}
+		context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CSynchronizationAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 	}
+
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< CSynchronizationInfoEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 
-	unsigned int m_waitTime;
+	long long unsigned m_waitTime;
 
 	// best synchronising option
 	uint64_t m_bestTimeStamp;
@@ -205,7 +208,14 @@ CSynchronizationAction::CSynchronizationAction()
 	initiate();
 }
 
-
+CSynchronizationAction::CSynchronizationAction( uintptr_t _nodeIndicator, uint64_t _timeStamp )
+	: m_request( 0 )
+	, m_nodeIdentifier( _nodeIndicator )
+	, m_timeStamp( _timeStamp )
+{
+	initiate();
+	process_event( CSwitchToSynchronized() );
+}
 
 common::CRequest< TrackerResponses >*
 CSynchronizationAction::execute()

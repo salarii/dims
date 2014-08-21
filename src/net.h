@@ -238,7 +238,7 @@ public:
     NodeId id;
 
 	// messages to send
-	mutable boost::mutex m_mediumLock;
+	CCriticalSection m_mediumLock;
 	std::vector< CBloomFilter > m_filterSendQueue; // one has to  expect that only one filter will be send, vector serves here for comfort
 	std::vector< uint256 > m_blockQueue; // hashes of block from which origin transactions will be asked
 protected:

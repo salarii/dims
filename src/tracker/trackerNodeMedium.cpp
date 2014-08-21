@@ -19,6 +19,8 @@ CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 
 	synchronizationInfo.m_actionKey = _request->getActionKey();
 
+	synchronizationInfo.m_timeStamp = _request->getTimeStamp();
+
 	common::CMessage message( synchronizationInfo );
 
 	m_messages.push_back( message );
