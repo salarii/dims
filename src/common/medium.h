@@ -9,7 +9,6 @@
 
 #include "visitorConfigurationUtilities.h"
 
-// this is  weak point of  this implementation I don't know  how to get rid of this at the moment
 #include "tracker/trackerRequestsList.h"
 #include "node/nodeRequestList.h"
 #include "node/configureNodeActionHadler.h"
@@ -63,6 +62,7 @@ public:
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,15 ) const * _request ){};
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,16 ) const * _request ){};
 	virtual void add( VisitorParam( tracker::TrackerRequestsList ,17 ) const * _request ){};
+	virtual void add( VisitorParam( tracker::TrackerRequestsList ,18 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 

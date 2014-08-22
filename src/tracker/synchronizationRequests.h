@@ -12,7 +12,7 @@
 
 namespace tracker
 {
-
+struct CSpecificMediumFilter;
 struct CDiskBlock;
 
 class CGetSynchronizationInfoRequest : public common::CRequest< TrackerResponses >
@@ -32,6 +32,24 @@ private:
 
 	uint64_t const m_timeStamp;
 };
+
+class CSynchronizationAssistanceRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CSynchronizationAssistanceRequest( uint256 const & _actionKey, CSpecificMediumFilter * _specificMediumFilter );
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+
+
+};
+
+
 
 class CGetNextBlockRequest : public common::CRequest< TrackerResponses >
 {

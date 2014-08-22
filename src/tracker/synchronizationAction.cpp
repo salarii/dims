@@ -113,6 +113,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 {
 	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx ), m_waitTime( SynchronisedWaitTime )
 	{
+		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -123,13 +124,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 //			return transit< CSynchronizing >();
 	}
 
-	boost::statechart::result react( CSynchronizationInfoEvent const & _synchronizationInfoEvent )
-	{
-		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() ) );
-	}
-
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CSynchronizationInfoEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::transition< CSynchronizeRequestEvent, CSynchronized >
 	> reactions;
@@ -144,8 +139,12 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 {
 	CSynchronizing( my_context ctx ) : my_base( ctx )
 	{
+		context< CSynchronizationAction >().setRequest(
+					new CSynchronizationAssistanceRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+	}
 
-		context< CSynchronizationAction >().getNodeIdentifier();
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
 		context< CSynchronizationAction >().setRequest(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
@@ -161,6 +160,7 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< CTransactionBlockEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
