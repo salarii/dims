@@ -152,6 +152,12 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 	boost::statechart::result react( CTransactionBlockEvent const & _transactionBlockEvent )
 	{
 		//_transactionBlockEvent.m_discBlock  work in  progress
+
+		if ( _transactionBlockEvent.m_discBlock )
+			context< CSynchronizationAction >().setRequest(
+						new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		else
+			context< CSynchronizationAction >().setRequest( 0 );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

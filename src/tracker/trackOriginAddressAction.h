@@ -12,9 +12,9 @@
 
 namespace tracker
 {
-struct CUninitiated;
+struct CUninitiatedTrackAction;
 
-class CTrackOriginAddressAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiated >
+class CTrackOriginAddressAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
 {
 public:
 	CTrackOriginAddressAction();

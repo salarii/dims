@@ -46,9 +46,9 @@ use  at  least  three node  and  compare  results, in case of inconsistency of d
 struct CReadingData;
 
 
-struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddressAction >
+struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackAction, CTrackOriginAddressAction >
 {
-	CUninitiated( my_context ctx ) : my_base( ctx )
+	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
 	{
 		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
@@ -91,7 +91,7 @@ struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddres
 		}
 		else
 		{
-			return transit< CUninitiated >();
+			return transit< CUninitiatedTrackAction >();
 		}
 	}
 
