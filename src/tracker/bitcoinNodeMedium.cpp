@@ -95,6 +95,10 @@ CBitcoinNodeMedium::setResponse( CTransaction const & _tx )
 //m_merkle may be  cleared ?? is this  really a potential problem ??
 // if  so  I have to remember last processed  hash
 	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	if ( m_merkles.empty() )
+		return;
+
 	std::vector<uint256> match;
 	m_merkles.back().txn.ExtractMatches( match );
 
@@ -116,11 +120,6 @@ CBitcoinNodeMedium::setResponse( CTransaction const & _tx )
 
 	reloadResponses();
 }
-
-
-
-
-// else
 
 
 }
