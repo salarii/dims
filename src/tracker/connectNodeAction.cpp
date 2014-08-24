@@ -233,7 +233,8 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 
-		CTrackerNodesManager::getInstance()->setValidNode( common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress(), common::CRole::Tracker ) );
+		((common::CNodesManager< TrackerResponses >*)CTrackerNodesManager::getInstance())
+				->setValidNode( context< CConnectNodeAction >().getMediumPtr() );
 
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
 
@@ -257,6 +258,10 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 	}
 
 	int64_t m_enterStateTime;
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
 };
 
 struct CStop;

@@ -34,6 +34,8 @@ public:
 
 	CNodeMedium< RequestType > * addNode( common::CSelfNode * _node );
 
+	void setValidNode( uintptr_t const & _validNodeIdentifier );
+
 	std::list< common::CMedium< RequestType > *> provideConnection( CMediumFilter< RequestType > const & _mediumFilter );
 
 	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
@@ -90,6 +92,16 @@ CNodesManager< RequestType >::addNode( common::CSelfNode * _node )
 	m_ptrToNodes.insert( std::make_pair( convertToInt( _node ), medium ) );
 
 	return medium;
+}
+
+template < class RequestType >
+void
+CNodesManager< RequestType >::setValidNode( uintptr_t const & _validNodeIdentifier )
+{
+	typename std::map< unsigned int, CNodeMedium< RequestType >* >::iterator iterator = m_ptrToNodes.find( _validNodeIdentifier );
+
+	if ( iterator != m_ptrToNodes.end() )
+		m_nodeMediums.push_back( iterator->second );
 }
 
 template < class RequestType >

@@ -15,7 +15,7 @@ struct CMediumClassFilter : public common::CMediumFilter< TrackerResponses >
 		m_mediumNumber( _mediumNumber )
 	{}
 
-	std::list< common::CMedium< TrackerResponses > *> getMediums( CTrackerNodesManager * _trackerNodesManager )const
+	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
 	{
 		std::list< common::CMedium< TrackerResponses > *> mediums;
 		mediums = _trackerNodesManager->getNodesByClass( ( common::CMediumKinds::Enum )m_mediumClass );
