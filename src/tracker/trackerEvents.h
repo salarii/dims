@@ -25,7 +25,13 @@ struct CMerkleBlocksEvent : boost::statechart::event< CMerkleBlocksEvent >
 	long long const m_id;
 };
 
+struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInfoEvent >
+{
+	CSynchronizationInfoEvent( uint64_t _timeStamp, unsigned int _nodeIdentifier ):m_timeStamp( _timeStamp ),m_nodeIdentifier(_nodeIdentifier){}
 
+	uint64_t const m_timeStamp;
+	unsigned int m_nodeIdentifier;
+};
 
 }
 

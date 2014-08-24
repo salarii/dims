@@ -19,8 +19,7 @@
 #include "trackerFilters.h"
 #include "synchronizationEvents.h"
 #include "segmentFileStorage.h"
-
-#define CONFIRM_LIMIT 6
+#include "trackerEvents.h"
 
 namespace tracker
 {
@@ -29,20 +28,8 @@ unsigned const SynchronisingGetInfoTime = 10;
 
 unsigned const SynchronisingWaitTime = 15;
 
-unsigned const SynchronisedWaitTime = SynchronisingWaitTime * 2;
-
 struct CSynchronizingGetInfo;
 struct CSynchronizedGetInfo;
-
-
-
-struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInfoEvent >
-{
-	CSynchronizationInfoEvent( uint64_t _timeStamp, unsigned int _nodeIdentifier ):m_timeStamp( _timeStamp ),m_nodeIdentifier(_nodeIdentifier){}
-
-	uint64_t const m_timeStamp;
-	unsigned int m_nodeIdentifier;
-};
 
 struct CDiskBlock;
 
@@ -74,6 +61,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	{
 		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), 0 ) );
 		m_waitTime = GetTime();
+		m_bestTimeStamp = 0;
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -111,24 +99,33 @@ struct CSynchronized;
 
 struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CSynchronizationAction >
 {
-	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx ), m_waitTime( SynchronisedWaitTime )
+	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest(
-															  context< CSynchronizationAction >().getActionKey()
+															context< CSynchronizationAction >().getActionKey()
 															, CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) )
 														);
+
+		m_waitTime = GetTime();
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		if ( m_waitTime-- )
+
+		if ( GetTime() - m_waitTime < SynchronisingWaitTime )
 			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
-//		else
-//			return transit< CSynchronizing >();
+		else
+			context< CSynchronizationAction >().setRequest( 0 );
+	}
+
+	boost::statechart::result react( CGetNextBlockEvent const & _getNextBlockEvent )
+	{
+		return transit< CSynchronized >();
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< CGetNextBlockEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::transition< CSynchronizeRequestEvent, CSynchronized >
 	> reactions;
@@ -166,7 +163,7 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
 
 	typedef boost::mpl::list<
@@ -190,16 +187,16 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		{
 			CDiskBlock * diskBlock = new CDiskBlock;
 			CSegmentFileStorage::getInstance()->getBlock( m_currentBlock, *diskBlock );
-
-
 		}
 		else
+		{
 			;//end request
+		}
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
 
 	typedef boost::mpl::list<

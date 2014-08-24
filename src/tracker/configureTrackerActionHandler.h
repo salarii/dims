@@ -35,9 +35,10 @@ struct CRequestedMerkles
 
 struct CSynchronizationInfoResult
 {
-	CSynchronizationInfoResult( uint64_t const _timeStamp ):m_timeStamp( _timeStamp ){};
+	CSynchronizationInfoResult( uint64_t const _timeStamp, uintptr_t _nodeIndicator ):m_timeStamp( _timeStamp ),m_nodeIndicator( _nodeIndicator ){};
 
 	uint64_t m_timeStamp;
+	uintptr_t m_nodeIndicator;
 };
 
 // list all desired types

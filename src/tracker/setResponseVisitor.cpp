@@ -10,6 +10,7 @@
 #include "trackerEvents.h"
 #include "connectNodeAction.h"
 #include "trackOriginAddressAction.h"
+#include "synchronizationAction.h"
 
 namespace common
 {
@@ -83,11 +84,27 @@ public:
 	}
 };
 
-template < class _Action >
-class CSynchronizationResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+class CSetTrackOriginAddressResult : public CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList >
 {
 public:
-	CSynchronizationResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+	CSetTrackOriginAddressResult( tracker::CTrackOriginAddressAction * const _action ):CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::CContinueResult & _param ) const
+	{
+		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
+	}
+
+	virtual void operator()( tracker::CRequestedMerkles & _param ) const
+	{
+		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_id ) );
+	}
+};
+
+
+class CSetSynchronizationResult : public CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList >
+{
+public:
+	CSetSynchronizationResult( tracker::CSynchronizationAction * const _action ):CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList >( _action ){};
 
 	virtual void operator()( common::CContinueResult & _param ) const
 	{
@@ -99,6 +116,10 @@ public:
 		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_id ) );
 	}
 
+	virtual void operator()( tracker::CSynchronizationInfoResult & _param ) const
+	{
+		this->m_action->process_event( tracker::CSynchronizationInfoEvent( _param.m_timeStamp, _param.m_nodeIndicator ) );
+	}
 };
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
@@ -134,8 +155,15 @@ CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CConnectNodeAc
 void
 CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CTrackOriginAddressAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList > const &)CSynchronizationResult< tracker::CTrackOriginAddressAction >( &_action ), m_trackerResponses );
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList > const &)CSetTrackOriginAddressResult( &_action ), m_trackerResponses );
 }
+
+void
+CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CSynchronizationAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList > const &)CSetSynchronizationResult( &_action ), m_trackerResponses );
+}
+
 
 
 }

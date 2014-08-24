@@ -76,6 +76,13 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
 		{
+			CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
+
+			common::CMessage orginalMessage;
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+				assert( !"service it somehow" );
+
 			common::CSynchronizationInfo synchronizationInfo;
 			convertPayload( message, synchronizationInfo );
 
@@ -83,7 +90,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationInfo.m_actionKey ) )
 			{
-				nodeMedium->setResponse( synchronizationInfo.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp ) );
+				nodeMedium->setResponse( synchronizationInfo.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp, convertToInt( nodeMedium->getNode() ) ) );
 			}
 			else
 			{
@@ -93,28 +100,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CSynchronizationInfo synchronizationInfo;
-
-			common::convertPayload( orginalMessage, synchronizationInfo );
-
-			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationInfo.m_actionKey ) )
-			{
-				nodeMedium->setResponse( synchronizationInfo.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp ) );
-			}
-			else
-			{
-				/*CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( synchronizationInfo.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
-			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
