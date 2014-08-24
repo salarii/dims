@@ -179,7 +179,18 @@ struct CSynchronizationInfo
 	uint64_t m_timeStamp;
 	uint256 m_actionKey;
 };
+/*
+struct CSynchronizationBlock
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_actionKey);
+		READWRITE();
+	)
 
+	uint256 m_actionKey;
+};
+*/
 struct CMessage
 {
 public:

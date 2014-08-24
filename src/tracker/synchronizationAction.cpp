@@ -113,7 +113,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 
-		if ( GetTime() - m_waitTime < SynchronisingWaitTime )
+		if ( GetTime() - m_waitTime < SynchronisingWaitTime * 2 )
 			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
 		else
 			context< CSynchronizationAction >().setRequest( 0 );
@@ -141,19 +141,11 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 	CSynchronizing( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().setRequest(
-					new CSynchronizationAssistanceRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		context< CSynchronizationAction >().setRequest(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
 
 	boost::statechart::result react( CTransactionBlockEvent const & _transactionBlockEvent )
 	{
-		//_transactionBlockEvent.m_discBlock  work in  progress
-
 		if ( _transactionBlockEvent.m_discBlock )
 			context< CSynchronizationAction >().setRequest(
 						new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
@@ -167,7 +159,6 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< CTransactionBlockEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
@@ -187,11 +178,18 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		{
 			CDiskBlock * diskBlock = new CDiskBlock;
 			CSegmentFileStorage::getInstance()->getBlock( m_currentBlock, *diskBlock );
+
+			context< CSynchronizationAction >().setRequest( new CSetNextBlockRequest(
+						  context< CSynchronizationAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
+						, diskBlock ) );
+
 		}
 		else
 		{
 			;//end request
 		}
+		context< CSynchronizationAction >().setRequest( 0 );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

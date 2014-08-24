@@ -27,6 +27,23 @@ CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 
 	m_indexes.push_back( synchronizationInfo.m_actionKey );
 }
+/*
+void
+CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
+{
+	common::CSynchronizationInfo synchronizationInfo;
 
+	common::CMessage message( synchronizationInfo );
 
+	m_messages.push_back( message );
+
+	m_indexes.push_back( synchronizationInfo.m_actionKey );
+}
+
+void
+CTrackerNodeMedium::add( CSetNextBlockRequest const * _request )
+{
+
+}
+*/
 }

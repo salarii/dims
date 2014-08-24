@@ -48,31 +48,6 @@ CGetSynchronizationInfoRequest::getTimeStamp() const
 	return m_timeStamp;
 }
 
-CSynchronizationAssistanceRequest::CSynchronizationAssistanceRequest( uint256 const & _actionKey, CSpecificMediumFilter * _specificMediumFilter )
-	: common::CRequest< TrackerResponses >( _specificMediumFilter )
-	, m_actionKey( _actionKey )
-{
-}
-
-void
-CSynchronizationAssistanceRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-common::CMediumFilter< TrackerResponses > *
-CSynchronizationAssistanceRequest::getMediumFilter() const
-{
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
-}
-
-uint256
-CSynchronizationAssistanceRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-
 CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
 	: common::CRequest< TrackerResponses >( _mediumFilter )
 	, m_actionKey( _actionKey )

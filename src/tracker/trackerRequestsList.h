@@ -32,7 +32,6 @@ class CConnectToTrackerRequest;
 class CAskForTransactionsRequest;
 class CSetBloomFilterRequest;
 class CGetSynchronizationInfoRequest;
-class CSynchronizationAssistanceRequest;
 class CGetNextBlockRequest;
 class CSetNextBlockRequest;
 class CTransactionsKnownRequest;
@@ -40,7 +39,7 @@ class CTransactionsAckRequest;
 class CTransactionsDoublespendRequest;
 class CTransactionsNotOkRequest;
 
-typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, common::CIdentifyRequest<TrackerResponses>, common::CIdentifyResponse<TrackerResponses>, common::CContinueReqest<TrackerResponses>, CAskForTransactionsRequest, CSetBloomFilterRequest, CGetSynchronizationInfoRequest, CSynchronizationAssistanceRequest, CGetNextBlockRequest, CSetNextBlockRequest, CTransactionsKnownRequest, CTransactionsAckRequest, CTransactionsDoublespendRequest, CTransactionsNotOkRequest, common::CNetworkRoleRequest< TrackerResponses >, common::CKnownNetworkInfoRequest< TrackerResponses >, common::CAckRequest< TrackerResponses > > TrackerRequestsList;
+typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, common::CIdentifyRequest<TrackerResponses>, common::CIdentifyResponse<TrackerResponses>, common::CContinueReqest<TrackerResponses>, CAskForTransactionsRequest, CSetBloomFilterRequest, CGetSynchronizationInfoRequest, CGetNextBlockRequest, CSetNextBlockRequest, CTransactionsKnownRequest, CTransactionsAckRequest, CTransactionsDoublespendRequest, CTransactionsNotOkRequest, common::CNetworkRoleRequest< TrackerResponses >, common::CKnownNetworkInfoRequest< TrackerResponses >, common::CAckRequest< TrackerResponses > > TrackerRequestsList;
 
 }
 

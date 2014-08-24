@@ -23,6 +23,10 @@ public:
 	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< TrackerResponses >( _selfNode ){};
 
 	void add( CGetSynchronizationInfoRequest const * _request );
+/*
+	void add( CGetNextBlockRequest const * _request );
+
+	void add( CSetNextBlockRequest const * _request );*/
 private:
 };
 

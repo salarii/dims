@@ -52,6 +52,7 @@ public:
 	CDiskBlock( CSimpleBuddy const & _simpleBuddy = CSimpleBuddy() );
 	IMPLEMENT_SERIALIZE
 	(
+	READWRITE(*(CSimpleBuddy*)this);
 	READWRITE(PTRFLATDATA(m_area, ms_buddySize ));
 	)
 
