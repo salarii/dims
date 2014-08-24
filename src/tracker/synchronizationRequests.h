@@ -20,6 +20,8 @@ class CGetSynchronizationInfoRequest : public common::CRequest< TrackerResponses
 public:
 	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp );
 
+	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;

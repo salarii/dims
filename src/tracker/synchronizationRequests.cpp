@@ -17,6 +17,13 @@ CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & 
 {
 }
 
+CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_actionKey( _actionKey )
+	, m_timeStamp( _timeStamp )
+{
+}
+
 void
 CGetSynchronizationInfoRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {

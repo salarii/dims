@@ -113,7 +113,11 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 {
 	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx ), m_waitTime( SynchronisedWaitTime )
 	{
-		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() ) );
+		context< CSynchronizationAction >().setRequest( new CGetSynchronizationInfoRequest(
+															  context< CSynchronizationAction >().getActionKey()
+															, CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
+															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) )
+														);
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
