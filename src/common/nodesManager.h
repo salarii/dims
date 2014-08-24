@@ -32,7 +32,7 @@ public:
 
 	void connectNodes();
 
-	CNodeMedium< RequestType > * addNode( common::CSelfNode * _node );
+	void addNode( CNodeMedium< RequestType > * _medium );
 
 	void setValidNode( uintptr_t const & _validNodeIdentifier );
 
@@ -83,15 +83,12 @@ CNodesManager< RequestType >::CNodesManager()
 }
 
 template < class RequestType >
-CNodeMedium< RequestType > *
-CNodesManager< RequestType >::addNode( common::CSelfNode * _node )
+void
+CNodesManager< RequestType >::addNode( CNodeMedium< RequestType > * _medium )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
 
-	CNodeMedium< RequestType > * medium = new CNodeMedium< RequestType >( _node );
-	m_ptrToNodes.insert( std::make_pair( convertToInt( _node ), medium ) );
-
-	return medium;
+	m_ptrToNodes.insert( std::make_pair( convertToInt( _medium->getNode() ), _medium ) );
 }
 
 template < class RequestType >

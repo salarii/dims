@@ -36,7 +36,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 // it is  stupid  to call this over and over again
 	if ( !CTrackerNodesManager::getInstance()->getMediumForNode( pfrom ) )
 	{
-		CTrackerNodesManager::getInstance()->addNode( pfrom );
+		CTrackerNodesManager::getInstance()->addNode( new CTrackerNodeMedium( pfrom ) );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
@@ -87,7 +87,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CSynchronizationAction() );
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction(
+							new CSynchronizationAction( synchronizationInfo.m_actionKey, convertToInt( nodeMedium->getNode() ), synchronizationInfo.m_timeStamp ) );
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )

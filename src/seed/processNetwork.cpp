@@ -34,7 +34,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 // it is  stupid  to call this over and over again
 	if ( !CSeedNodesManager::getInstance()->getMediumForNode( pfrom ) )
 	{
-		CSeedNodesManager::getInstance()->addNode( pfrom );
+		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( pfrom ) );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )

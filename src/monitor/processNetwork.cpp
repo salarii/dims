@@ -43,7 +43,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 // it is  stupid  to call this over and over again
 	if ( !common::CNodesManager<MonitorResponses>::getInstance()->getMediumForNode( pfrom ) )
 	{
-		common::CNodesManager<MonitorResponses>::getInstance()->addNode( pfrom );
+		common::CNodesManager<MonitorResponses>::getInstance()->addNode( new common::CNodeMedium< MonitorResponses >( pfrom ) );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )

@@ -214,8 +214,9 @@ CSynchronizationAction::CSynchronizationAction()
 	initiate();
 }
 
-CSynchronizationAction::CSynchronizationAction( uintptr_t _nodeIndicator, uint64_t _timeStamp )
-	: m_request( 0 )
+CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp )
+	: common::CCommunicationAction( _actionKey )
+	, m_request( 0 )
 	, m_nodeIdentifier( _nodeIndicator )
 	, m_timeStamp( _timeStamp )
 {

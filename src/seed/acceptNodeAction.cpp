@@ -15,6 +15,7 @@
 
 #include "acceptNodeAction.h"
 #include "seedNodesManager.h"
+#include "seedNodeMedium.h"
 
 #include "seedDb.h"
 #include "seedFilter.h"
@@ -176,7 +177,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CAcceptNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
-		CSeedNodesManager::getInstance()->addNode( connectedEvent->m_node );
+		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
 		context< CAcceptNodeAction >().setRequest( new common::CIdentifyRequest<SeedResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CAcceptNodeAction >().getPayload(), context< CAcceptNodeAction >().getActionKey() ) );
 
 	}

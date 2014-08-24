@@ -19,7 +19,7 @@ class CSynchronizationAction : public common::CAction< TrackerResponses >, publi
 public:
 	CSynchronizationAction();
 
-	CSynchronizationAction( uintptr_t _nodeIndicator, uint64_t _timeStamp );
+	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 

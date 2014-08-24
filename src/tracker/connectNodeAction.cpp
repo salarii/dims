@@ -13,6 +13,7 @@
 #include "trackerFilters.h"
 #include "trackerController.h"
 #include "trackerControllerEvents.h"
+#include "trackerNodeMedium.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -165,7 +166,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CConnectNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
-		CTrackerNodesManager::getInstance()->addNode( connectedEvent->m_node );
+		CTrackerNodesManager::getInstance()->addNode( new CTrackerNodeMedium( connectedEvent->m_node ) );
 
 		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
 
