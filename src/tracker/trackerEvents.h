@@ -33,6 +33,26 @@ struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInf
 	unsigned int m_nodeIdentifier;
 };
 
+struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent >
+{
+/*	CTransactionBlockEvent( CDiskBlock * _discBlock ):m_discBlock( _discBlock )
+	{
+	}
+	CDiskBlock * m_discBlock;*/
+};
+
+struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
+{
+};
+
+struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
+{
+};
+
+struct CGetNextBlockEvent : boost::statechart::event< CGetNextBlockEvent >
+{
+};
+
 }
 
 

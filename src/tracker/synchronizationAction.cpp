@@ -17,7 +17,6 @@
 #include "synchronizationAction.h"
 #include "synchronizationRequests.h"
 #include "trackerFilters.h"
-#include "synchronizationEvents.h"
 #include "segmentFileStorage.h"
 #include "trackerEvents.h"
 
@@ -32,14 +31,6 @@ struct CSynchronizingGetInfo;
 struct CSynchronizedGetInfo;
 
 struct CDiskBlock;
-
-struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent >
-{
-	CTransactionBlockEvent( CDiskBlock * _discBlock ):m_discBlock( _discBlock )
-	{
-	}
-	CDiskBlock * m_discBlock;
-};
 
 struct CSynchronizeRequestEvent : boost::statechart::event< CTransactionBlockEvent >
 {
@@ -146,10 +137,10 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 
 	boost::statechart::result react( CTransactionBlockEvent const & _transactionBlockEvent )
 	{
-		if ( _transactionBlockEvent.m_discBlock )
+/*		if ( _transactionBlockEvent.m_discBlock )
 			context< CSynchronizationAction >().setRequest(
 						new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-		else
+		else*/
 			context< CSynchronizationAction >().setRequest( 0 );
 	}
 
@@ -187,9 +178,9 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		}
 		else
 		{
-			;//end request
+			context< CSynchronizationAction >().setRequest( 0 );
 		}
-		context< CSynchronizationAction >().setRequest( 0 );
+
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

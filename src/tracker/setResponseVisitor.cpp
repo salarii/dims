@@ -120,6 +120,16 @@ public:
 	{
 		this->m_action->process_event( tracker::CSynchronizationInfoEvent( _param.m_timeStamp, _param.m_nodeIndicator ) );
 	}
+
+	virtual void operator()( tracker::CSynchronizationBlockResult & _param ) const
+	{
+		this->m_action->process_event( tracker::CTransactionBlockEvent() );
+	}
+
+	virtual void operator()( common::CGetPrompt & _param ) const
+	{
+		this->m_action->process_event( tracker::CGetNextBlockEvent(  ) );
+	}
 };
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )

@@ -56,6 +56,10 @@ struct CContinueResult
 	uint256 m_id;
 };
 
+struct CGetPrompt
+{
+};
+
 struct CMediumException : public std::exception
 {
 public:

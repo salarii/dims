@@ -44,25 +44,25 @@ public:
 
 	virtual bool getResponse( std::vector< tracker::TrackerResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,10 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,11 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,12 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,13 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,14 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,15 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,16 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,17 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,18 ) const * _request ){};
+
+	virtual void add( tracker::CGetBalanceRequest const * _request ){};
+	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
+	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
+	virtual void add( common::CIdentifyRequest<tracker::TrackerResponses> const * _request ){};
+	virtual void add( common::CIdentifyResponse<tracker::TrackerResponses> const * _request ){};
+	virtual void add( common::CContinueReqest<tracker::TrackerResponses> const * _request ){};
+	virtual void add( tracker::CAskForTransactionsRequest const * _request ){};
+	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
+	virtual void add( tracker::CGetSynchronizationInfoRequest const * _request ){};
+	virtual void add( tracker::CGetNextBlockRequest const * _request ){};
+	virtual void add( tracker::CSetNextBlockRequest const * _request ){};
+	virtual void add( tracker::CTransactionsKnownRequest const * _request ){};
+	virtual void add( tracker::CTransactionsAckRequest const * _request ){};
+	virtual void add( tracker::CTransactionsDoublespendRequest const * _request ){};
+	virtual void add( tracker::CTransactionsNotOkRequest const * _request ){};
+	virtual void add( common::CNetworkRoleRequest< tracker::TrackerResponses > const * _request ){};
+	virtual void add( common::CKnownNetworkInfoRequest< tracker::TrackerResponses > const * _request ){};
+	virtual void add( common::CAckRequest< tracker::TrackerResponses > const * _request ){};
 	virtual ~CMedium(){};
 };
 

@@ -26,6 +26,8 @@ struct CPayloadKind
 		RoleInfo,
 		NetworkInfo,
 		SynchronizationInfo,
+		SynchronizationGet,
+		SynchronizationBlock,
 		Uninitiated,
 		Ack
 	};
@@ -179,18 +181,26 @@ struct CSynchronizationInfo
 	uint64_t m_timeStamp;
 	uint256 m_actionKey;
 };
-/*
+
+struct CSynchronizationGetBlock
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_actionKey);
+	)
+	uint256 m_actionKey;
+};
+
 struct CSynchronizationBlock
 {
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_actionKey);
-		READWRITE();
 	)
 
 	uint256 m_actionKey;
 };
-*/
+
 struct CMessage
 {
 public:
@@ -200,6 +210,8 @@ public:
 	CMessage( CKnownNetworkInfo const & _knownNetworkInfo );
 	CMessage( CSynchronizationInfo const & _synchronizationInfo );
 	CMessage( CAck const & _synchronizationInfo );
+	CMessage( CSynchronizationGetBlock const & _synchronizationInfo );
+	CMessage( CSynchronizationBlock const & _synchronizationInfo );
 
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );

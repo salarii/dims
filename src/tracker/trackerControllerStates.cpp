@@ -10,7 +10,7 @@
 #include "common/actionHandler.h"
 #include "connectNodeAction.h"
 #include "synchronizationAction.h"
-#include "synchronizationEvents.h"
+#include "trackerEvents.h"
 
 namespace tracker
 {

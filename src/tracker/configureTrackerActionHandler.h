@@ -41,8 +41,13 @@ struct CSynchronizationInfoResult
 	uintptr_t m_nodeIndicator;
 };
 
+struct CSynchronizationBlockResult
+{
+};
+
+
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult, CRequestedMerkles, CSynchronizationInfoResult, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult, CRequestedMerkles, CSynchronizationInfoResult, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }
