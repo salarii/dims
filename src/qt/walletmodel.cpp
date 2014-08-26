@@ -20,6 +20,7 @@
 #include "wallet.h"
 #include "walletdb.h" // for BackupWallet
 
+#include "node/clientControl.h"
 //node
 #include "common/periodicActionExecutor.h"
 #include "node/sendBalanceInfoAction.h"
@@ -43,6 +44,7 @@ WalletModel::WalletModel(CWallet *wallet, OptionsModel *optionsModel, QObject *p
     transactionTableModel = new TransactionTableModel(wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
 
+	client::CClientControl::getInstance()->setAddressTableModel( addressTableModel );
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));

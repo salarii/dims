@@ -75,6 +75,8 @@ public:
      */
     int lookupAddress(const QString &address) const;
 
+	std::vector< std::string > getAddresses() const;
+
     EditStatus getEditStatus() const { return editStatus; }
 
 private:

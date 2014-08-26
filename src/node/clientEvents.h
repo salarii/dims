@@ -8,6 +8,21 @@
 namespace client
 {
 
+struct CNetworkDiscoveredEvent : boost::statechart::event< CDnsInfo >
+{
+	CNetworkDiscoveredEvent( unsigned int _trackers, unsigned int _monitors ): m_trackers( _trackers ), m_monitors( _monitors ){}
+
+	unsigned int m_trackers;
+	unsigned int m_monitors;
+
+};
+
+struct CCoinsEvent : boost::statechart::event< CCoinsEvent >
+{
+	CCoinsEvent( std::map< uint256, CCoins > const & _coins ):m_coins( _coins ){}
+
+	std::map< uint256, CCoins > m_coins;
+};
 
 }
 

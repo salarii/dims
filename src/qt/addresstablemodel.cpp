@@ -505,6 +505,21 @@ int AddressTableModel::lookupAddress(const QString &address) const
     }
 }
 
+std::vector< std::string >
+AddressTableModel::getAddresses() const
+{
+	std::vector< std::string > addresses;
+
+	unsigned int rows = rowCount( QModelIndex() );
+
+	for ( unsigned int i = 0; i < rows; ++i )
+	{
+		addresses.push_back( data( index(i, Address, QModelIndex()), Qt::DisplayRole ).toString().toStdString() );
+	}
+
+	return addresses;
+}
+
 void AddressTableModel::emitDataChanged(int idx)
 {
     emit dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length()-1, QModelIndex()));

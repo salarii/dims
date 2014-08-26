@@ -42,12 +42,12 @@ public:
 
 	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
-		this->m_action->setInProgressToken( _transactionStatus.m_token );
+//		this->m_action->setInProgressToken( _transactionStatus.m_token );
 	}
 
 	void operator()(CPending & _peding ) const
 	{
-		this->m_action->setInProgressToken( _peding.m_token );
+//		this->m_action->setInProgressToken( _peding.m_token );
 	}
 };
 
@@ -71,7 +71,7 @@ public:
 
 	void operator()(CMediumException & _systemError ) const
     {
-		this->m_action->setMediumError( _systemError.m_error );
+//
     }
 };
 
@@ -83,7 +83,7 @@ public:
 
 	void operator()(CAvailableCoins & _availableCoins ) const
 	{
-		this->m_action->setBalance( _availableCoins.m_availableCoins );
+//		this->m_action->setBalance( _availableCoins.m_availableCoins );
 	}
 };
 

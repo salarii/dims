@@ -2,11 +2,18 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <boost/statechart/transition.hpp>
+#include <boost/statechart/state.hpp>
+#include <boost/statechart/custom_reaction.hpp>
+
 #include "sendBalanceInfoAction.h"
 #include "common/setResponseVisitor.h"
+#include "common/commonEvents.h"
 #include "sendInfoRequestAction.h"
 
 #include "clientFilters.h"
+#include "clientControl.h"
+#include "clientEvents.h"
 
 #include "serialize.h"
 #include "base58.h"
@@ -19,10 +26,75 @@ using namespace  common;
 namespace client
 {
 
-CSendBalanceInfoAction::CSendBalanceInfoAction( std::string const _pubKey )
-	: m_pubKey( _pubKey )
-	, m_actionStatus( common::ActionStatus::Unprepared )
+struct CSwitchToGetBalanceEvent : boost::statechart::event< CSwitchToGetBalanceEvent >
 {
+};
+
+struct CGetBalanceInfo;
+
+struct CGetData : boost::statechart::state< CGetBalanceInfo, CSendBalanceInfoAction >
+{
+	CGetData( my_context ctx ) : my_base( ctx )
+	{
+		context< CSendBalanceInfoAction >().setAddresses( CClientControl::getInstance()->getAvailableAddresses() );
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CSwitchToGetBalanceEvent, CGetBalanceInfo >
+	> reactions;
+};
+
+struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalanceInfoAction >
+{
+	CGetBalanceInfo( my_context ctx ) : my_base( ctx )
+	{
+		m_addressIndex = 0;
+	}
+
+	boost::statechart::result react( CCoinsEvent const & _coinsEvent )
+	{
+
+		CBitcoinAddress address;
+//		address.SetString( m_pubKey );
+
+		CKeyID keyId;
+		address.GetKeyID( keyId );
+		typedef std::map< uint256, CCoins >::value_type  MapElement;
+		std::vector< CAvailableCoin > availableCoins;
+		BOOST_FOREACH( MapElement const & coins, _coinsEvent.m_coins )
+		{
+			std::vector< CAvailableCoin > tempCoins = context< CSendBalanceInfoAction >().getAvailableCoins( coins.second, keyId, coins.first );
+			availableCoins.insert(availableCoins.end(), tempCoins.begin(), tempCoins.end());
+		}
+		CWallet::getInstance()->setAvailableCoins( keyId, availableCoins );
+
+		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
+
+		if ( m_addressIndex < m_addresses.size() )
+			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
+		else
+			context< CSendBalanceInfoAction >().setRequest( 0 );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		context< CSendBalanceInfoAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Balance ) ) );
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< CCoinsEvent >
+	> reactions;
+
+	unsigned int m_addressIndex;
+};
+
+CSendBalanceInfoAction::CSendBalanceInfoAction( bool _autoDelete )
+	: common::CAction< NodeResponses >( _autoDelete )
+{
+	initiate();
 }
 
 void
@@ -34,70 +106,25 @@ CSendBalanceInfoAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 common::CRequest< NodeResponses >*
 CSendBalanceInfoAction::execute()
 {
-	if ( m_actionStatus == ActionStatus::Unprepared )
-    {
-		m_actionStatus = ActionStatus::InProgress;
-        return new CBalanceRequest( m_pubKey );
-    }
-	else if ( m_actionStatus == ActionStatus::InProgress )
-    {
-        if ( m_balance )
-        {
-			CBitcoinAddress address;
-			address.SetString( m_pubKey );
-
-			CKeyID keyId;
-			address.GetKeyID( keyId );
-			typedef std::map< uint256, CCoins >::value_type  MapElement;
-			std::vector< CAvailableCoin > availableCoins;
-			BOOST_FOREACH( MapElement & coins, *m_balance)
-			{
-				std::vector< CAvailableCoin > tempCoins = getAvailableCoins( coins.second, keyId, coins.first );
-				availableCoins.insert(availableCoins.end(), tempCoins.begin(), tempCoins.end());
-			}
-			CWallet::getInstance()->setAvailableCoins( keyId, availableCoins );
-			m_actionStatus = ActionStatus::Done;
-			return 0;
-        }
-		else if ( m_mediumError )
-		{
-			// handle medium error somehow
-			m_actionStatus = ActionStatus::Done;
-			return 0;
-		}
-        else if ( m_token )
-        {
-//			return new CInfoRequestContinue( *m_token, new CMediumClassFilter( RequestKind::Balance ) );
-        }
-    }
     return 0;
-}
-
-void
-CSendBalanceInfoAction::setMediumError( boost::optional< common::ErrorType::Enum > const & _error )
-{
-	m_mediumError = _error;
-}
-void
-CSendBalanceInfoAction::setBalance( boost::optional< std::map< uint256, CCoins > > const & _balance )
-{
-	m_balance = _balance;
-}
-
-void
-CSendBalanceInfoAction::setInProgressToken( boost::optional< uint256 > const & _token )
-{
-	m_token = _token;
 }
 
 void
 CSendBalanceInfoAction::reset()
 {
-	CAction::reset();
+	initiate();
+}
 
-	m_balance.reset();
+void
+CSendBalanceInfoAction::setAddresses( std::vector< std::string > const & _addresses )
+{
+	m_addresses = _addresses;
+}
 
-	m_token.reset();
+std::vector< std::string > const &
+CSendBalanceInfoAction::getAddresses() const
+{
+	return m_addresses;
 }
 
 std::vector< CAvailableCoin >
@@ -147,6 +174,11 @@ CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const 
 	return availableCoins;
 }
 
+void
+CSendBalanceInfoAction::setRequest( common::CRequest< NodeResponses > * _request )
+{
+	m_request = _request;
+}
 
 CBalanceRequest::CBalanceRequest( std::string _address )
 	: common::CRequest< NodeResponses >( new CMediumClassFilter( RequestKind::Balance ) )
