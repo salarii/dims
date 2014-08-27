@@ -18,6 +18,8 @@
 #include <boost/assign/list_of.hpp>
 
 #include "clientFilters.h"
+#include "clientControl.h"
+#include "clientEvents.h"
 
 namespace client
 {
@@ -229,6 +231,8 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 
 		m_lastAskTime = GetTime();
+
+		m_trackerAdded = 0;
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -246,12 +250,13 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 		}
 		else
 		{
+			CClientControl::getInstance()->process_event( CNetworkDiscoveredEvent( m_trackerAdded, 0 ) );// fix  this 0, 0
+
 			context< CConnectAction >().setRequest( 0 );
 
 			return discard_event();
 		}
 	}
-
 
 	boost::statechart::result react( common::CTrackerStatsEvent const & _trackerStats )
 	{
@@ -269,12 +274,15 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 			);
 
 		CTrackerLocalRanking::getInstance()->addTracker( trackerStats );
+		m_trackerAdded++;
+
 		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( _trackerStats.m_ip );
 
 		m_pending.erase( _trackerStats.m_nodeIndicator );
 
 		if ( !m_pending.size() )
 		{
+			CClientControl::getInstance()->process_event( CNetworkDiscoveredEvent( m_trackerAdded, 0 ) ); // fix  this 0, 0
 			context< CConnectAction >().setRequest( 0 );
 		}
 
@@ -294,6 +302,8 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 	int64_t m_lastAskTime;
 
 	std::map< uintptr_t, uint256 > m_nodeToToken;
+
+	unsigned int m_trackerAdded;
 };
 
 CConnectAction::CConnectAction()

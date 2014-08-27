@@ -15,6 +15,8 @@
 #include "addresstablemodel.h"
 #include "clientControl.h"
 
+#include "ui_interface.h"
+
 namespace client
 {
 CClientControl * CClientControl::ms_instance = 0;
@@ -40,6 +42,8 @@ struct CClientConnected : boost::statechart::state< CClientConnected, CClientCon
 		// set to gui that it is connected to network
 		CNetworkDiscoveredEvent const* discoveredEvent
 				= dynamic_cast< CNetworkDiscoveredEvent const* >( simple_state::triggering_event() );
+
+		uiInterface.NotifyNumConnectionsChanged( discoveredEvent->m_trackers, discoveredEvent->m_monitors );
 
 		common::CPeriodicActionExecutor< client::NodeResponses >::getInstance()->addAction( new CSendBalanceInfoAction( false ), 6000 );
 	}

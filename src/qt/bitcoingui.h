@@ -128,7 +128,7 @@ signals:
 
 public slots:
     /** Set number of connections shown in the UI */
-    void setNumConnections(int count);
+	void setNumConnections(int _trackerCount, int _monitorCount);
 
     /** Notify the user of an event from the core network or transaction handling code.
        @param[in] title     the message box / notification title

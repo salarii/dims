@@ -36,7 +36,9 @@ public:
 
     OptionsModel *getOptionsModel();
 
-    int getNumConnections() const;
+	int getNumTrackerConnections() const;
+
+	int getNumTrackerMonitor() const;
 
     quint64 getTotalBytesRecv() const;
     quint64 getTotalBytesSent() const;
@@ -71,7 +73,7 @@ private:
     void unsubscribeFromCoreSignals();
 
 signals:
-    void numConnectionsChanged(int count);
+	void numConnectionsChanged(int, int);
     void alertsChanged(const QString &warnings);
     void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
 
@@ -80,7 +82,7 @@ signals:
 
 public slots:
     void updateTimer();
-    void updateNumConnections(int numConnections);
+	void updateNumConnections(int numTrackerConnections,int numMonitorConnections);
     void updateAlert(const QString &hash, int status);
 };
 

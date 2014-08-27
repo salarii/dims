@@ -37,6 +37,7 @@ struct CGetData : boost::statechart::state< CGetBalanceInfo, CSendBalanceInfoAct
 	CGetData( my_context ctx ) : my_base( ctx )
 	{
 		context< CSendBalanceInfoAction >().setAddresses( CClientControl::getInstance()->getAvailableAddresses() );
+		context< CSendBalanceInfoAction >().process_event( CSwitchToGetBalanceEvent() );
 	}
 
 	typedef boost::mpl::list<
@@ -49,6 +50,12 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 	CGetBalanceInfo( my_context ctx ) : my_base( ctx )
 	{
 		m_addressIndex = 0;
+		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
+
+		if ( m_addressIndex < m_addresses.size() )
+			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
+		else
+			context< CSendBalanceInfoAction >().setRequest( 0 );
 	}
 
 	boost::statechart::result react( CCoinsEvent const & _coinsEvent )

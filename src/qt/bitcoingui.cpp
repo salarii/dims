@@ -401,8 +401,9 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
         createTrayIconMenu();
 
         // Keep up to date with client
-        setNumConnections(clientModel->getNumConnections());
-        connect(clientModel, SIGNAL(numConnectionsChanged(int)), this, SLOT(setNumConnections(int)));
+		setNumConnections(clientModel->getNumTrackerConnections(),clientModel->getNumTrackerMonitor());
+
+		connect(clientModel, SIGNAL(numConnectionsChanged(int,int)), this, SLOT(setNumConnections(int,int)));
 
         connect(clientModel, SIGNAL(numBlocksChanged(int,int)), this, SLOT(setNumBlocks(int,int)));
 
@@ -607,19 +608,37 @@ void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 }
 #endif
 
-void BitcoinGUI::setNumConnections(int count)
+void BitcoinGUI::setNumConnections(int _trackerCount, int _monitorCount)
 {
-    QString icon;
-    switch(count)
-    {
-    case 0: icon = ":/icons/connect_0"; break;
-    case 1: case 2: case 3: icon = ":/icons/connect_1"; break;
-    case 4: case 5: case 6: icon = ":/icons/connect_2"; break;
-    case 7: case 8: case 9: icon = ":/icons/connect_3"; break;
-    default: icon = ":/icons/connect_4"; break;
-    }
-    labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to Bitcoin network", "", count));
+	QString icon;
+
+	if ( _monitorCount )
+	{
+		switch(_monitorCount)
+		{
+		case 1: case 2: icon = ":/icons/connect_2"; break;
+		default: icon = ":/icons/connect_3"; break;
+		}
+	}
+	else if ( _trackerCount )
+	{
+		switch(_trackerCount)
+		{
+		case 1: case 2: icon = ":/icons/connect_1"; break;
+		default: icon = ":/icons/connect_2"; break;
+		}
+	}
+	else
+	{
+		icon = ":/icons/connect_0";
+		labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+		labelConnectionsIcon->setToolTip(tr("synchronizing with dims network", "" ));
+		return;
+	}
+
+	labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+	labelConnectionsIcon->setToolTip(tr("network active, with %1 connection(s) to trackers %2 connection(s) to  monitors").arg(_trackerCount).arg(_monitorCount));
+
 }
 
 void BitcoinGUI::message(const QString &title, const QString &message, unsigned int style, bool *ret)

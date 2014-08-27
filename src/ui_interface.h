@@ -85,7 +85,7 @@ public:
     boost::signals2::signal<void ()> NotifyBlocksChanged;
 
     /** Number of network connections changed. */
-    boost::signals2::signal<void (int newNumConnections)> NotifyNumConnectionsChanged;
+	boost::signals2::signal<void (int , int)> NotifyNumConnectionsChanged;
 
     /**
      * New, updated or cancelled alert.
