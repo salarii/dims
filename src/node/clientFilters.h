@@ -44,6 +44,11 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 		: m_nodes( _nodes )
 	{}
 
+	CSpecificMediumFilter( uintptr_t const _node )
+	{
+		m_nodes.insert( _node );
+	}
+
 	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 
@@ -57,7 +62,7 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 		}
 		return mediums;
 	}
-	 std::set< uintptr_t > const & m_nodes;
+	 std::set< uintptr_t > m_nodes;
 };
 
 

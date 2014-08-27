@@ -26,38 +26,23 @@ using namespace  common;
 namespace client
 {
 
-struct CSwitchToGetBalanceEvent : boost::statechart::event< CSwitchToGetBalanceEvent >
-{
-};
-
-struct CGetBalanceInfo;
-
-struct CGetData : boost::statechart::state< CGetBalanceInfo, CSendBalanceInfoAction >
-{
-	CGetData( my_context ctx ) : my_base( ctx )
-	{
-		context< CSendBalanceInfoAction >().setAddresses( CClientControl::getInstance()->getAvailableAddresses() );
-		context< CSendBalanceInfoAction >().process_event( CSwitchToGetBalanceEvent() );
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::transition< CSwitchToGetBalanceEvent, CGetBalanceInfo >
-	> reactions;
-};
-
 struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalanceInfoAction >
 {
 	CGetBalanceInfo( my_context ctx ) : my_base( ctx )
 	{
-		m_addressIndex = 0;
-		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
+		std::vector< std::string > const & addresses = CClientControl::getInstance()->getAvailableAddresses();
 
-		if ( m_addressIndex < m_addresses.size() )
-			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
+		context< CSendBalanceInfoAction >().setAddresses( addresses );
+
+		m_addressIndex = 0;
+
+		if ( m_addressIndex < addresses.size() )
+			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
 		else
 			context< CSendBalanceInfoAction >().setRequest( 0 );
 	}
-
+	// imporant  how  many trackers  service  this
+	// here I assume  that  one. ??? is this correct ???
 	boost::statechart::result react( CCoinsEvent const & _coinsEvent )
 	{
 
@@ -84,18 +69,23 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CSendBalanceInfoAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Balance ) ) );
+		context< CSendBalanceInfoAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CPending >,
 	boost::statechart::custom_reaction< CCoinsEvent >
 	> reactions;
 
 	unsigned int m_addressIndex;
+
+	std::set< uintptr_t > m_pending;
+
+	std::map< uintptr_t, uint256 > m_nodeToToken;
 };
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( bool _autoDelete )
@@ -113,12 +103,13 @@ CSendBalanceInfoAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 common::CRequest< NodeResponses >*
 CSendBalanceInfoAction::execute()
 {
-    return 0;
+	return m_request;
 }
 
 void
 CSendBalanceInfoAction::reset()
 {
+	common::CAction< NodeResponses >::reset();
 	initiate();
 }
 
@@ -188,7 +179,7 @@ CSendBalanceInfoAction::setRequest( common::CRequest< NodeResponses > * _request
 }
 
 CBalanceRequest::CBalanceRequest( std::string _address )
-	: common::CRequest< NodeResponses >( new CMediumClassFilter( RequestKind::Balance ) )
+	: common::CRequest< NodeResponses >( new CMediumClassFilter( RequestKind::Balance, 1 ) )
 	, m_address( _address )
 {
 }

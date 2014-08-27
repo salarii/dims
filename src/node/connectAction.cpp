@@ -105,7 +105,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
-					context< CConnectAction >().setRequest( new CInfoRequestContinue( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+					context< CConnectAction >().setRequest( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
 			return discard_event();
 		}
 		else
@@ -245,7 +245,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
-					context< CConnectAction >().setRequest( new CInfoRequestContinue( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+					context< CConnectAction >().setRequest( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
 			return discard_event();
 		}
 		else

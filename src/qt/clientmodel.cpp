@@ -146,7 +146,7 @@ static void NotifyNumConnectionsChanged(ClientModel *clientmodel, int newNumTrac
 {
     // Too noisy: qDebug() << "NotifyNumConnectionsChanged : " + QString::number(newNumConnections);
     QMetaObject::invokeMethod(clientmodel, "updateNumConnections", Qt::QueuedConnection,
-							  Q_ARG(int, newNumTrackerConnections)/*,Q_ARG(int, newNumMonitorConnections)*/);
+							  Q_ARG(int, newNumTrackerConnections),Q_ARG(int, newNumMonitorConnections));
 }
 
 static void NotifyAlertChanged(ClientModel *clientmodel, const uint256 &hash, ChangeType status)

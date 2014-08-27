@@ -13,6 +13,7 @@ class CContinueReqest;
 namespace client
 {
 struct CBalanceRequest;
+struct CInfoRequestContinueComplex;
 struct CInfoRequestContinue;
 struct CTransactionStatusRequest;
 struct CTransactionSendRequest;
@@ -21,7 +22,7 @@ struct CMonitorInfoRequest;
 struct CDnsInfoRequest;
 struct CRecognizeNetworkRequest;
 
-typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, common::CContinueReqest< NodeResponses >, CRecognizeNetworkRequest > NodeRequestsList;
+typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinueComplex, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, common::CContinueReqest< NodeResponses >, CRecognizeNetworkRequest > NodeRequestsList;
 
 }
 

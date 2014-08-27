@@ -73,14 +73,24 @@ public:
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 };
 
-struct CInfoRequestContinue : public common::CRequest< NodeResponses >
+struct CInfoRequestContinueComplex : public common::CRequest< NodeResponses >
 {
 public:
-	CInfoRequestContinue( std::map< uintptr_t, uint256 > & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter );
+	CInfoRequestContinueComplex( std::map< uintptr_t, uint256 > const & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 
-	std::map< uintptr_t, uint256 > & m_nodeToToken;
+	std::map< uintptr_t, uint256 > const & m_nodeToToken;
+};
+
+struct CInfoRequestContinue : public common::CRequest< NodeResponses >
+{
+public:
+	CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter );
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
+	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
+
+	uint256 const m_token;
 };
 
 }

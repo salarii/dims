@@ -19,9 +19,9 @@
 namespace client
 {
 
-struct CGetData;
+struct CGetBalanceInfo;
 
-class CSendBalanceInfoAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetData >
+class CSendBalanceInfoAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetBalanceInfo >
 {
 public:
 	CSendBalanceInfoAction( bool _autoDelete );

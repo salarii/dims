@@ -157,13 +157,21 @@ CNetworkClient::add( CTransactionSendRequest const * _request )
 }
 
 void
-CNetworkClient::add( CInfoRequestContinue const * _request )
+CNetworkClient::add( CInfoRequestContinueComplex const * _request )
 {
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
 
 	assert( _request->m_nodeToToken.find( common::convertToInt(this) ) != _request->m_nodeToToken.end() );
 
 	*m_pushStream << _request->m_nodeToToken.find( common::convertToInt(this) )->second;
+}
+
+void
+CNetworkClient::add( CInfoRequestContinue const * _request )
+{
+	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
+
+	*m_pushStream << _request->m_token;
 }
 
 void

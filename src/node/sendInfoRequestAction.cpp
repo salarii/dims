@@ -78,9 +78,27 @@ CMonitorInfoRequest::getMediumFilter() const
 	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
-CInfoRequestContinue::CInfoRequestContinue( std::map< uintptr_t, uint256 > & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter )
+CInfoRequestContinueComplex::CInfoRequestContinueComplex( std::map< uintptr_t, uint256 > const & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter )
 	: common::CRequest< NodeResponses >( _mediumFilter )
 	, m_nodeToToken( _nodeToToken )
+{
+}
+
+void
+CInfoRequestContinueComplex::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+common::CMediumFilter< NodeResponses > *
+CInfoRequestContinueComplex::getMediumFilter() const
+{
+	return common::CRequest< NodeResponses >::m_mediumFilter;
+}
+
+CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter )
+	: common::CRequest< NodeResponses >( _mediumFilter )
+	, m_token( _token )
 {
 }
 

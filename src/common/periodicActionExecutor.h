@@ -3,6 +3,7 @@
 
 #include "common/action.h"
 #include "common/actionHandler.h"
+#include "util.h"
 
 namespace common
 {
@@ -11,21 +12,21 @@ template < class _RequestResponses >
 class CDefferedAction
 {
 public:
-	CDefferedAction( CAction< _RequestResponses >* _action, unsigned int _deffer );
+	CDefferedAction( CAction< _RequestResponses >* _action, int64_t _deffer );
 
 	bool isReady();
 
 	void execute();
 private:
-	unsigned int const m_deffer;
-	unsigned int m_cnt;
+	int64_t const m_deffer;
+	int64_t m_time;
 	CAction< _RequestResponses >* m_action;
 };
 
 template < class _RequestResponses >
-CDefferedAction< _RequestResponses >::CDefferedAction( CAction< _RequestResponses >* _action, unsigned int _deffer )
+CDefferedAction< _RequestResponses >::CDefferedAction( CAction< _RequestResponses >* _action, int64_t _deffer )
 	: m_deffer( _deffer )
-	, m_cnt( 0 )
+	, m_time( GetTimeMillis() - m_deffer )
 	, m_action( _action )
 {
 }
@@ -38,17 +39,11 @@ CDefferedAction< _RequestResponses >::isReady()
 
 	if ( m_action->isExecuted() )
 	{
+		m_time = GetTimeMillis();
 		m_action->reset();
-		m_cnt = m_deffer;
 	}
 
-	if(!m_cnt--)
-	{
-		m_cnt = ( unsigned int )-1;
-		return true;
-	}
-
-	return false;
+	return GetTimeMillis() - m_time < m_deffer ? false : true;
 }
 
 template < class _RequestResponses >
@@ -103,8 +98,7 @@ void
 CPeriodicActionExecutor< _RequestResponses >::addAction( CAction< _RequestResponses > * _action, unsigned int _milisec )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	unsigned int ticks = _milisec / m_sleepTime ? _milisec / m_sleepTime : 1;
-	m_periodicActions.push_back( CDefferedAction< _RequestResponses >( _action, ticks ) );
+	m_periodicActions.push_back( CDefferedAction< _RequestResponses >( _action, _milisec ) );
 }
 
 template < class _RequestResponses >

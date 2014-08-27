@@ -26,7 +26,7 @@ struct CompareBalancedTracker : public std::binary_function< common::CTrackerSta
 {
 	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
 	{
-		return true;
+		return _tracker1.m_reputation < _tracker2.m_reputation;
 	}
 };
 
