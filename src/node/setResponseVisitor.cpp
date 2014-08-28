@@ -13,6 +13,7 @@
 #include "configureNodeActionHadler.h"
 
 #include "clientResponses.h"
+#include "clientEvents.h"
 
 #include <boost/any.hpp>
 #include <boost/optional.hpp>
@@ -75,18 +76,21 @@ public:
     }
 };
 
-template < class _Action >
-class CGetBalance : public CResponseVisitorBase< _Action, client::NodeResponseList >
+class CSetBalanceInfoAction : public CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList >
 {
 public:
-	CGetBalance( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
+	CSetBalanceInfoAction( client::CSendBalanceInfoAction * const _action ):CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList >( _action ){};
 
-	void operator()(CAvailableCoins & _availableCoins ) const
+	void operator()( CPending & _peding ) const
 	{
-//		this->m_action->setBalance( _availableCoins.m_availableCoins );
+		this->m_action->process_event( _peding );
+	}
+
+	void operator()( common::CAvailableCoins & _availableCoins ) const
+	{
+		this->m_action->process_event( client::CCoinsEvent( _availableCoins.m_availableCoins ) );
 	}
 };
-
 
 class CSetConnectAction : public CResponseVisitorBase< client::CConnectAction, client::NodeResponseList >
 {
@@ -145,10 +149,7 @@ CSetResponseVisitor< client::NodeResponses >::visit( client::CConnectAction & _a
 void
 CSetResponseVisitor< client::NodeResponses >::visit( client::CSendBalanceInfoAction & _action )
 {
-	// ugly old  way
-	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetBalance< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetToken< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CGetMediumError< client::CSendBalanceInfoAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CSetBalanceInfoAction( &_action ), m_requestResponse );
 }
 
 void

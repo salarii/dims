@@ -37,7 +37,10 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		m_addressIndex = 0;
 
 		if ( m_addressIndex < addresses.size() )
+		{
+			m_pubKey = addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
+		}
 		else
 			context< CSendBalanceInfoAction >().setRequest( 0 );
 	}
@@ -47,7 +50,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 	{
 
 		CBitcoinAddress address;
-//		address.SetString( m_pubKey );
+		address.SetString( m_pubKey );
 
 		CKeyID keyId;
 		address.GetKeyID( keyId );
@@ -63,7 +66,10 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
 
 		if ( m_addressIndex < m_addresses.size() )
+		{
+			m_pubKey = m_addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
+		}
 		else
 			context< CSendBalanceInfoAction >().setRequest( 0 );
 		return discard_event();
@@ -86,6 +92,8 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 	std::set< uintptr_t > m_pending;
 
 	std::map< uintptr_t, uint256 > m_nodeToToken;
+
+	std::string m_pubKey;
 };
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( bool _autoDelete )
