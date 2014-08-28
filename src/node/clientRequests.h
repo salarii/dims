@@ -1,0 +1,4 @@
+#ifndef CLIENTREQUESTS_H
+#define CLIENTREQUESTS_H
+
+#endif // CLIENTREQUESTS_H

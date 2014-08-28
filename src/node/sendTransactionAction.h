@@ -7,6 +7,7 @@
 
 #include <boost/optional.hpp>
 
+#include <boost/statechart/state_machine.hpp>
 
 #include "common/action.h"
 #include "common/request.h"
@@ -25,7 +26,9 @@ class CSetResponseVisitor;
 namespace client
 {
 
-class CSendTransactionAction : public common::CAction< NodeResponses >
+struct CPrepareAndSendTransaction;
+
+class CSendTransactionAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
 {
 public:
 	CSendTransactionAction( const CTransaction & _Transaction );
@@ -34,23 +37,21 @@ public:
 
 	common::CRequest< NodeResponses > * execute();
 
-	void setTransactionStatus( boost::optional< common::TransactionsStatus::Enum > const _transactionStatus );
+	void setRequest( common::CRequest< NodeResponses > * _request );
 
-	void setInProgressToken(  boost::optional< uint256 > const & _token );
-
+	CTransaction const & getTransaction() const;
 private:
 	CTransaction m_transaction;
-	common::TransactionsStatus::Enum m_status;
-	uint256 m_token;
 
 	common::ActionStatus::Enum m_actionStatus;
 	
+	common::CRequest< NodeResponses > * m_request;
 };
 
 struct CTransactionStatusRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTransactionStatusRequest( uint256 const & _token );
+	CTransactionStatusRequest( uint256 const & _token, common::CMediumFilter< NodeResponses > * _medium );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 	uint256 m_token;
@@ -59,7 +60,7 @@ public:
 struct CTransactionSendRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTransactionSendRequest( CTransaction const & _transaction );
+	CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< NodeResponses > * _medium );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 	CTransaction m_transaction;

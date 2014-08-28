@@ -30,7 +30,7 @@ public:
 
 	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
-		this->m_action->setTransactionStatus( _transactionStatus.m_status );
+
 	}
 
 };
@@ -43,12 +43,12 @@ public:
 
 	void operator()(CTransactionStatus & _transactionStatus ) const
 	{
-//		this->m_action->setInProgressToken( _transactionStatus.m_token );
+
 	}
 
 	void operator()(CPending & _peding ) const
 	{
-//		this->m_action->setInProgressToken( _peding.m_token );
+
 	}
 };
 

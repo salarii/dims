@@ -14,6 +14,7 @@
 #include "clientFilters.h"
 #include "clientControl.h"
 #include "clientEvents.h"
+#include "clientRequests.h"
 
 #include "serialize.h"
 #include "base58.h"

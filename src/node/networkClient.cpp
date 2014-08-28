@@ -9,7 +9,10 @@
 #include "sendBalanceInfoAction.h"
 #include "sendTransactionAction.h"
 #include "sendInfoRequestAction.h"
+#include "clientRequests.h"
+
 #include "common/support.h"
+
 
 #include <QHostAddress>
 

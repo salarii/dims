@@ -65,6 +65,42 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 	 std::set< uintptr_t > m_nodes;
 };
 
+struct CMediumClassWithExceptionFilter : public common::CMediumFilter< NodeResponses >
+{
+	CMediumClassWithExceptionFilter( int _mediumClass, uintptr_t const & _exceptionPtr, int _mediumNumber = -1 )
+		: m_mediumClass( _mediumClass ),
+		  m_exceptionPtr( _exceptionPtr ),
+		  m_mediumNumber( _mediumNumber )
+	{}
+
+	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
+	{
+		std::list< common::CMedium< NodeResponses > *> mediums;
+		mediums = _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, -1 );
+
+		common::CMedium< NodeResponses > * medium = _trackerLocalRanking->getSpecificTracker( m_exceptionPtr );
+
+		if ( mediums.size() <= 1 )
+			return mediums;
+
+		std::list< common::CMedium< NodeResponses > *>::iterator iterator = std::find( mediums.begin(), mediums.end(), medium );
+
+		if ( iterator != mediums.end() )
+		{
+			mediums.erase( iterator );
+		}
+
+		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
+		{
+			mediums.resize( m_mediumNumber );
+		}
+
+		return mediums;
+	}
+	int m_mediumClass;
+	uintptr_t m_exceptionPtr;
+	int m_mediumNumber;
+};
 
 }
 

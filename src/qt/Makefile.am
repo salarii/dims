@@ -138,6 +138,7 @@ QT_MOC_CPP = \
 
 CLIENT_H = \
   ../node/clientControl.h \
+  ../node/clientRequests.h \
   ../node/connectAction.h \
   ../node/controlRequests.h \
   ../node/init.h \
@@ -155,6 +156,7 @@ CLIENT_H = \
 CLIENT_CPP = \
   ../node/actionHandlerDefinitions.cpp \
   ../node/clientControl.cpp \
+  ../node/clientRequests.cpp \
   ../node/connectAction.cpp \
   ../node/controlRequests.cpp \
   ../node/init.cpp \

@@ -83,16 +83,6 @@ public:
 	std::map< uintptr_t, uint256 > const & m_nodeToToken;
 };
 
-struct CInfoRequestContinue : public common::CRequest< NodeResponses >
-{
-public:
-	CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter );
-	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
-
-	uint256 const m_token;
-};
-
 }
 
 #endif // SEND_INFO_REQUEST_ACTION_H
