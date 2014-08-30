@@ -43,8 +43,7 @@ public:
 	bool checkIfCoinsAvailable( CTransaction const & _tx ) const;
 	//time  stamp or  something needed
 	//
-	bool validateTransactionBundle( std::vector< CTransaction > const & _transaction );
-
+	bool validateTransactionBundle( std::vector< CTransaction > const & _transactions, std::vector< unsigned int > & _invalidTransactions );
 
 	void addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  );
 

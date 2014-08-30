@@ -24,6 +24,14 @@ struct CCoinsEvent : boost::statechart::event< CCoinsEvent >
 	std::map< uint256, CCoins > m_coins;
 };
 
+struct CTransactionAckEvent : boost::statechart::event< CTransactionAckEvent >
+{
+	CTransactionAckEvent( common::TransactionsStatus::Enum _status, CTransaction _transactionSend ): m_status( _status ), m_transactionSend( _transactionSend ){}
+	common::TransactionsStatus::Enum m_status;
+	CTransaction m_transactionSend;
+};
+
+
 }
 
 #endif // CLIENTEVENTS_H

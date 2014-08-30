@@ -13,8 +13,8 @@ namespace tracker
 
 struct CValidationEvent : boost::statechart::event< CValidationEvent >
 {
-	CValidationEvent( bool _valid ):m_valid( _valid ){};
-	bool m_valid;
+	CValidationEvent( std::vector< unsigned int > const & _invalidTransactionIndexes ):m_invalidTransactionIndexes( _invalidTransactionIndexes ){};
+	std::vector< unsigned int > m_invalidTransactionIndexes;
 };
 
 struct CMerkleBlocksEvent : boost::statechart::event< CMerkleBlocksEvent >

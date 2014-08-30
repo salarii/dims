@@ -20,49 +20,6 @@
 
 namespace common
 {
-// I belive  this  crap will look and work much better when I will convert all action into  state machines
-// optionally I can always fix some  issues with partial specialisations ( this  will be  even uglier though )
-template < class _Action >
-class CGetTransactionStatus : public CResponseVisitorBase< _Action, client::NodeResponseList >
-{
-public:
-	CGetTransactionStatus( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
-
-	void operator()(CTransactionStatus & _transactionStatus ) const
-	{
-
-	}
-
-};
-
-template < class _Action >
-class CGetToken : public CResponseVisitorBase< _Action, client::NodeResponseList >
-{
-public:
-	CGetToken( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
-
-	void operator()(CTransactionStatus & _transactionStatus ) const
-	{
-
-	}
-
-	void operator()(CPending & _peding ) const
-	{
-
-	}
-};
-
-template < class _Action >
-class CGetTrackerInfo : public CResponseVisitorBase< _Action, client::NodeResponseList >
-{
-public:
-	CGetTrackerInfo( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
-
-	void operator()(CTrackerStats & _transactionStatus ) const
-	{
-		this->m_action->setTrackerInfo( _transactionStatus );
-	}
-};
 
 template < class _Action >
 class CGetMediumError : public CResponseVisitorBase< _Action, client::NodeResponseList >
@@ -74,6 +31,26 @@ public:
     {
 //
     }
+};
+class CSetTransactionAction : public CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList >
+{
+public:
+	CSetTransactionAction( client::CSendTransactionAction * const _action ):CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList >( _action ){};
+
+	void operator()( CPending & _peding ) const
+	{
+		this->m_action->process_event( _peding );
+	}
+
+	void operator()( common::CTransactionStatus & _transactionStats ) const
+	{
+		this->m_action->process_event( _transactionStats );
+	}
+
+	void operator()( common::CTransactionAck & _transactionAck ) const
+	{
+		this->m_action->process_event( client::CTransactionAckEvent( ( common::TransactionsStatus::Enum )_transactionAck.m_status, _transactionAck.m_transaction ) );
+	}
 };
 
 class CSetBalanceInfoAction : public CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList >
@@ -136,8 +113,7 @@ CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeR
 void 
 CSetResponseVisitor< client::NodeResponses >::visit( client::CSendTransactionAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList > const &)CGetTransactionStatus< client::CSendTransactionAction >( &_action ), m_requestResponse );
-	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList > const &)CGetToken< client::CSendTransactionAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList > const &)CSetTransactionAction( &_action ), m_requestResponse );
 }
 
 void

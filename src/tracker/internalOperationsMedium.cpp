@@ -80,9 +80,9 @@ CInternalOperationsMedium::add( common::CContinueReqest<TrackerResponses> const 
 void
 CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 {
-	//this is  simplified to maximum, hence correct only in some cases
-	bool valid = CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions() );
-	m_trackerResponses.push_back( CValidationResult( valid ) );
+	std::vector< unsigned int > invalidTransactions;
+	CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions(), invalidTransactions );
+	m_trackerResponses.push_back( CValidationResult( invalidTransactions ) );
 }
 
 

@@ -109,6 +109,20 @@ struct CClientNetworkInfoResult
 	int m_selfRole;
 };
 
+struct CTransactionAck
+{
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_status);
+	READWRITE(m_transaction);
+	)
+	CTransactionAck(){}
+	CTransactionAck( int _status, CTransaction const & _transaction ):m_status(_status),m_transaction(_transaction){}
+
+	int m_status;
+	CTransaction m_transaction;
+};
+
 struct CTrackerSpecificStats
 {
 	IMPLEMENT_SERIALIZE

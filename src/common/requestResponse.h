@@ -11,16 +11,17 @@
 #include "common/transactionStatus.h"
 #include "errorResponse.h"
 #include "key.h"
+#include "core.h"
 
 #include <boost/statechart/event.hpp>
 
 namespace common
 {
 
-struct CTransactionStatus
+struct CTransactionStatus : boost::statechart::event< CTransactionStatus >
 {
 	common::TransactionsStatus::Enum m_status;
-	uint256 m_token;
+	uint256 m_transactionHash;
 };
 
 struct CAccountBalance

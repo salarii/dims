@@ -242,6 +242,12 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 			//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (TransactionsStatus::Enum )status ) ) );
 
 		}
+		else if ( messageType == common::CMainRequestType::Transaction )
+		{
+			common::CTransactionAck transactionAck;
+			stream >> transactionAck;
+			_requestResponse.push_back( transactionAck );
+		}
 		else if ( messageType == common::CMainRequestType::MonitorInfoReq )
 		{
 

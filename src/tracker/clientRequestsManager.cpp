@@ -32,6 +32,7 @@ public:
 	void operator()( CTransactionMessage const & _transactionMessage ) const
 	{
 		CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
+
 	}
 
 	void operator()( CAddressBalanceReq const & _addressBalanceReq ) const

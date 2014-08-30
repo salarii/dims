@@ -155,22 +155,29 @@ CTransactionRecordManager::checkIfCoinsAvailable( CTransaction const & _tx ) con
 }
 
 bool
-CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction > const & _transaction )
+CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction > const & _transactions, std::vector< unsigned int > & _invalidTransactions )
 {
 	CValidationState state;
 	unsigned int flags = SCRIPT_VERIFY_NOCACHE | SCRIPT_VERIFY_NONE;
 
 	CCheckQueueControl<CScriptCheck> control( &scriptcheckqueue);
 
-	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	unsigned int transactionIndex = 0;
+	BOOST_FOREACH( CTransaction const & transaction, _transactions )
 	{
-			std::vector<CScriptCheck> vChecks;
+		transactionIndex++;
+
+		std::vector<CScriptCheck> vChecks;
 		if ( !CheckInputs(transaction, state, *m_coinsViewCache, true, flags, &vChecks ) )
 			return false;
 
 		control.Add(vChecks);
+		// for now every transaction  separetely
+
+		if ( !control.Wait() )
+			_invalidTransactions.push_back( transactionIndex );
 	}
-	return control.Wait();
+	return true;
 }
 
 bool

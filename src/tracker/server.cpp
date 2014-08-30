@@ -51,6 +51,12 @@ public:
 		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
 		*m_pushStream << _networkInfo;
 	}
+
+	void operator()( common::CTransactionAck const & _transactionAck ) const
+	{
+		common::serializeEnum( *m_pushStream, CMainRequestType::Transaction );
+		*m_pushStream << _transactionAck;
+	}
 private:
 	CBufferAsStream * const m_pushStream;
 

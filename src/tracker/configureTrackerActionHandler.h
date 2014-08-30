@@ -20,8 +20,8 @@ struct CDummyResponse{};
 
 struct CValidationResult
 {
-	CValidationResult( bool _valid ):m_valid( _valid ){};
-	bool m_valid;
+	CValidationResult( std::vector< unsigned int > const & _invalidTransactionIndexes ):m_invalidTransactionIndexes( _invalidTransactionIndexes ){};
+	std::vector< unsigned int > m_invalidTransactionIndexes;
 };
 
 struct CRequestedMerkles

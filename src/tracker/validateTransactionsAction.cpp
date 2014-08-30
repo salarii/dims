@@ -11,16 +11,10 @@
 
 #include "trackerEvents.h"
 #include "transactionRecordManager.h"
+#include "clientRequestsManager.h"
 
 namespace tracker
 {
-// this is  conceptualy not clear  piece of  code
-/*
- I see it  in this  fashion  in the future
-initial
-stand alone     network mode
-
-*/
 
 struct CValidateTransactionsEvent : boost::statechart::event< CValidateTransactionsEvent >
 {
@@ -93,7 +87,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CValidateTransaction
 	}
 };
 /*
-when  transaction  bundle  is  approach
+when  transaction  bundle  is  approaching
 generate request  to inform  every  node about it
 remember all with  exception  of  node which send  bundle analyse  respponses
 validate transaction
@@ -106,7 +100,7 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 {
 	CApproved( my_context ctx ) : my_base( ctx )
 	{
-// instead of  calling  some  sort of request I will try to include  new transaction directly
+// instead of  calling  some  sort of request I will try to include  new transactions directly
 		context< CValidateTransactionsAction >().m_request = 0;
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
 			context< CValidateTransactionsAction >().m_transactions );
@@ -135,10 +129,51 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 
 	boost::statechart::result react( const CValidationEvent & _event )
 	{
-		if ( _event.m_valid )
-			return transit< CApproved >();
-		else
+		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().m_transactions;
+
+		BOOST_FOREACH( unsigned int index, _event.m_invalidTransactionIndexes )
+		{
+			CClientRequestsManager::getInstance()->setClientResponse( transactions.at( index ).GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, transactions.at( index ) ) );
+		}
+
+		//bit  faster  removal
+		if ( !_event.m_invalidTransactionIndexes.empty() )
+		{
+			std::vector< CTransaction >::iterator last = transactions.begin() + _event.m_invalidTransactionIndexes.at(0);
+			std::vector< CTransaction >::iterator previous = last;
+			for ( unsigned int i = 1; i < _event.m_invalidTransactionIndexes.size(); ++i )
+			{
+				std::vector< CTransaction >::iterator next = transactions.begin() + (unsigned int)_event.m_invalidTransactionIndexes[ i ];
+				unsigned int distance = std::distance( previous, next );
+				if ( distance > 1 )
+				{
+					std::copy( previous + 1, next, last );
+
+					last = last + distance - 1;
+				}
+
+				previous = next;
+			}
+
+			if ( previous + 1 != transactions.end() )
+			{
+				std::copy( previous + 1, transactions.end(), last );
+				last += std::distance( previous + 1, transactions.end() );
+
+			}
+			transactions.resize( std::distance( transactions.begin(), last ) );
+		}
+
+		BOOST_FOREACH( CTransaction const & transaction, transactions )
+		{
+			CClientRequestsManager::getInstance()->setClientResponse( transaction.GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, transaction ) );
+		}
+
+		if ( transactions.empty() )
 			return transit< CRejected >();
+		else
+			return transit< CApproved >();
+
 	}
 };
 

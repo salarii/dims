@@ -40,21 +40,33 @@ public:
 	void setRequest( common::CRequest< NodeResponses > * _request );
 
 	CTransaction const & getTransaction() const;
+
+	void setProcessingTrackerPtr( 	uintptr_t _ptr );
+
+	uintptr_t getProcessingTrackerPtr() const;
+
+	void setValidatedTransactionHash( uint256 _hash );
+
+	uint256 getValidatedTransactionHash() const;
 private:
 	CTransaction m_transaction;
 
 	common::ActionStatus::Enum m_actionStatus;
 	
 	common::CRequest< NodeResponses > * m_request;
+
+	uintptr_t m_processingTrackerPtr;
+
+	uint256 m_validatedTransactionHash;
 };
 
 struct CTransactionStatusRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTransactionStatusRequest( uint256 const & _token, common::CMediumFilter< NodeResponses > * _medium );
+	CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
-	uint256 m_token;
+	uint256 m_transactionHash;
 };
 
 struct CTransactionSendRequest : public common::CRequest< NodeResponses >
@@ -64,6 +76,7 @@ public:
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 	CTransaction m_transaction;
+
 };
 
 

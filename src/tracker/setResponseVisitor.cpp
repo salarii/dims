@@ -35,7 +35,7 @@ public:
 
 	virtual void operator()( tracker::CValidationResult & _param ) const
 	{
-		this->m_action->process_event( tracker::CValidationEvent( _param.m_valid ) );
+		this->m_action->process_event( tracker::CValidationEvent( _param.m_invalidTransactionIndexes ) );
 	}
 
 	virtual void operator()( common::CErrorEvent & _param ) const

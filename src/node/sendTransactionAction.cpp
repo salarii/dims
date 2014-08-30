@@ -12,6 +12,7 @@
 #include "common/medium.h"
 #include "clientFilters.h"
 #include "clientRequests.h"
+#include "clientEvents.h"
 
 #include "configureNodeActionHadler.h"
 #include "serialize.h"
@@ -20,6 +21,8 @@ using namespace common;
 
 namespace client
 {
+
+struct CCheckTransactionStatus;
 
 struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTransaction, CSendTransactionAction >
 {
@@ -30,29 +33,57 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 //  ack here
 	boost::statechart::result react( common::CPending const & _pending )
 	{
+		context< CSendTransactionAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
 		context< CSendTransactionAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
+	boost::statechart::result react( CTransactionAckEvent const & _transactionSendAck )
+	{
+// todo, check status and validity of the transaction propagated
+		if ( _transactionSendAck.m_status == common::TransactionsStatus::Valdated )
+		{
+			return transit< CCheckTransactionStatus >();
+		}
+		else
+		{
+			context< CSendTransactionAction >().setRequest( 0 );
+		}
+
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CPending >
+	  boost::statechart::custom_reaction< common::CPending >
+	, boost::statechart::custom_reaction< CTransactionAckEvent >
 	> reactions;
 };
-/*
-get
-transaction and hash
 
-
-*/
 struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStatus, CSendTransactionAction >
 {
 	CCheckTransactionStatus( my_context ctx ) : my_base( ctx )
 	{
-	//	context< CSendTransactionAction >().setRequest( new CTransactionStatusRequest( m_token ) );
+		context< CSendTransactionAction >().setRequest(
+					new CTransactionStatusRequest(
+						  context< CSendTransactionAction >().getValidatedTransactionHash()
+						, new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
+	}
+
+	boost::statechart::result react( common::CPending const & _pending )
+	{
+		context< CSendTransactionAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTransactionStatus const & _transactionStats )
+	{
+// check status till transaction will be confirmed
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-//	boost::statechart::custom_reaction< common::CPending >
+	  boost::statechart::custom_reaction<  common::CPending >
+	, boost::statechart::custom_reaction< common::CTransactionStatus >
 	> reactions;
 };
 
@@ -89,11 +120,33 @@ CSendTransactionAction::getTransaction() const
 	return m_transaction;
 }
 
+void
+CSendTransactionAction::setProcessingTrackerPtr( uintptr_t _ptr )
+{
+	m_processingTrackerPtr = _ptr;
+}
 
+uintptr_t
+CSendTransactionAction::getProcessingTrackerPtr() const
+{
+	return m_processingTrackerPtr;
+}
 
-CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _token, common::CMediumFilter< NodeResponses > * _medium )
+void
+CSendTransactionAction::setValidatedTransactionHash( uint256 _hash )
+{
+	m_validatedTransactionHash = _hash;
+}
+
+uint256
+CSendTransactionAction::getValidatedTransactionHash() const
+{
+	return m_validatedTransactionHash;
+}
+
+CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium )
 	: common::CRequest< NodeResponses >( _medium )
-	, m_token( _token )
+	, m_transactionHash( _transactionHash )
 {
 }
 

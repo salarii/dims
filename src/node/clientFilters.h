@@ -67,10 +67,10 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 
 struct CMediumClassWithExceptionFilter : public common::CMediumFilter< NodeResponses >
 {
-	CMediumClassWithExceptionFilter( int _mediumClass, uintptr_t const & _exceptionPtr, int _mediumNumber = -1 )
-		: m_mediumClass( _mediumClass ),
-		  m_exceptionPtr( _exceptionPtr ),
-		  m_mediumNumber( _mediumNumber )
+	CMediumClassWithExceptionFilter( uintptr_t const & _exceptionPtr, int _mediumClass, int _mediumNumber = -1 )
+		: m_exceptionPtr( _exceptionPtr )
+		, m_mediumClass( _mediumClass )
+		, m_mediumNumber( _mediumNumber )
 	{}
 
 	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const

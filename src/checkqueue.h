@@ -113,7 +113,7 @@ private:
             }
             // execute work
             BOOST_FOREACH(T &check, vChecks)
-                if (fOk)
+				if (fOk)
                     fOk = check();
             vChecks.clear();
         } while(true);

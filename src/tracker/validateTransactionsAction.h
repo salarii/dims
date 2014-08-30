@@ -29,7 +29,7 @@ public:
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 private:
 	common::CRequest< TrackerResponses >* m_request;
-	std::vector< CTransaction > m_transactions;
+	std::vector< CTransaction > m_transactions;// deque ??? because  removal  from this contaier may  happen
 };
 
 }
