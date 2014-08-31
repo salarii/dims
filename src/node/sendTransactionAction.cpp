@@ -77,7 +77,17 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 
 	boost::statechart::result react( common::CTransactionStatus const & _transactionStats )
 	{
-// check status till transaction will be confirmed
+		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
+		{
+			context< CSendTransactionAction >().setRequest( 0 );
+		}
+		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
+		{
+			context< CSendTransactionAction >().setRequest(
+						new CTransactionStatusRequest(
+							  context< CSendTransactionAction >().getValidatedTransactionHash()
+							, new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
+		}
 		return discard_event();
 	}
 

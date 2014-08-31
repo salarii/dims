@@ -43,6 +43,7 @@ CTransactionRecordManager::getInstance( )
 CTransactionRecordManager::CTransactionRecordManager()
 :scriptcheckqueue(32)
 {
+	m_lastUsedTime = 0;
 	// cache size calculations
 	size_t nTotalCache = (GetArg("-dbcache", nDefaultDbCache) << 20);
 	if (nTotalCache < (nMinDbCache << 20))
@@ -322,8 +323,11 @@ CTransactionRecordManager::setTransactionToTemporary( CTransaction const & _tran
 		if ( m_usedTimes.size() == PeriodsCount )
 		{
 			std::set< uint64_t >::iterator iterator = m_usedTimes.begin();
-			m_recentTransactions.erase( *iterator );
-			m_usedTimes.erase( iterator );
+			if ( iterator != m_usedTimes.end() )
+			{
+				m_recentTransactions.erase( *iterator );
+				m_usedTimes.erase( iterator );
+			}
 		}
 		m_usedTimes.insert( m_lastUsedTime );
 		m_lastUsedTime = time;
@@ -331,6 +335,11 @@ CTransactionRecordManager::setTransactionToTemporary( CTransaction const & _tran
 
 	std::map< uint64_t, std::map< uint256, CTransaction > >::iterator iterator =
 			m_recentTransactions.find( m_lastUsedTime );
+
+	if ( iterator == m_recentTransactions.end() )
+	{
+		iterator = m_recentTransactions.insert( std::make_pair( m_lastUsedTime, std::map< uint256, CTransaction >() ) ).first;
+	}
 
 	iterator->second.insert( std::make_pair( _transaction.GetHash(), _transaction ) );
 }
