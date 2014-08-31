@@ -191,7 +191,7 @@ CTcpServerConnection::handleIncommingBuffor()
 			pullStream >> transaction;
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token = transaction.GetHash();
-			m_clientRequestManager->addRequest( transaction, token );
+			m_clientRequestManager->addRequest( CTransactionMessage( transaction ), token );
 			pushStream << token;
 		}
 		else if ( messageType == CMainRequestType::TrackerInfoReq )
@@ -206,7 +206,11 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::TransactionStatusReq )
 		{
-
+			uint256 hash;
+			pullStream >> hash;
+			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
+			m_clientRequestManager->addRequest( CTransactionStatusReq( hash ), hash );
+			pushStream << hash;
 		}
 		else if ( messageType == CMainRequestType::BalanceInfoReq )
 		{

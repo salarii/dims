@@ -47,6 +47,8 @@ public:
 
 	void add( CTransactionSendRequest const * _request );
 
+	void add( CTransactionStatusRequest const * _request );
+
 	void add( CInfoRequestContinueComplex const * _request );
 
 	void add( CInfoRequestContinue const * _request );

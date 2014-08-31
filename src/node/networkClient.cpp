@@ -160,6 +160,14 @@ CNetworkClient::add( CTransactionSendRequest const * _request )
 }
 
 void
+CNetworkClient::add( CTransactionStatusRequest const * _request )
+{
+	common::serializeEnum( *m_pushStream, common::CMainRequestType::TransactionStatusReq );
+
+	*m_pushStream << _request->m_transactionHash;
+}
+
+void
 CNetworkClient::add( CInfoRequestContinueComplex const * _request )
 {
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
