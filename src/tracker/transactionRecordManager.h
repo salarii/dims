@@ -58,6 +58,12 @@ public:
 	bool retrieveInputIds( CTxIn const & _txin, uint160 & _keyIds, CCoins const & _prevCoins  );
 
 	bool retrieveKeyIds( CTxOut const & _txout, uint160 & _keyId, CAllowedTypes const & _allowedType ) const;
+
+// included  here when  confirmed
+	bool setTransactionToTemporary( CTransaction const & _transaction );
+
+	bool getTransaction( uint256 const & _hash, CTransaction & _transaction ) const;
+// additional strages  for  accepted  validated  double   spending  in future
 private:
 	void synchronize();
 	void askForTokens();
@@ -75,6 +81,15 @@ private:
 
 	mutable boost::mutex m_transactionLock;
 	std::vector< CTransaction > m_transactionPool;
+// recently addmited transactions
+	mutable boost::mutex m_recentTransactionsLock;
+	std::map< uint64_t, std::map< uint256, CTransaction > > m_recentTransactions;
+	uint64_t m_lastUsedTime;
+	std::set< uint64_t > m_usedTimes;
+
+
+
+
 
 };
 

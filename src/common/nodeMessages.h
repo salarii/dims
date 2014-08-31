@@ -34,6 +34,12 @@ struct CTransactionMessage
 	CTransaction m_transaction;
 };
 
+struct CTransactionStatusReq
+{
+	CTransactionStatusReq( uint256 const & _hash ):m_hash( _hash ){};
+	uint256 m_hash;
+};
+
 struct CTrackerStatsReq
 {
 };
@@ -59,7 +65,7 @@ struct CNetworkInfoReq
 	CNetworkInfoReq(){}
 };
 
-typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq, CTransactionMessage, CNetworkInfoReq > NodeRequest;
+typedef boost::variant< CTrackerStatsReq, CAddressBalanceReq, CTransactionMessage, CNetworkInfoReq, CTransactionStatusReq > NodeRequest;
 
 }
 

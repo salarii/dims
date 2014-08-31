@@ -20,6 +20,7 @@ namespace common
 
 struct CTransactionStatus : boost::statechart::event< CTransactionStatus >
 {
+	CTransactionStatus(	common::TransactionsStatus::Enum _status, uint256 const & _transactionHash ):m_status( _status ), m_transactionHash( _transactionHash ){}
 	common::TransactionsStatus::Enum m_status;
 	uint256 m_transactionHash;
 };

@@ -237,10 +237,10 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 		}
 		else if ( messageType == common::CMainRequestType::TransactionStatusReq )
 		{
-			int status;
-			stream >> status;
-			//m_processedRequests.insert( std::make_pair( m_newRequest[counter], CTransactionStatus( (TransactionsStatus::Enum )status ) ) );
+			common::CTransactionStatusResponse transactionStatus;
+			stream >> transactionStatus;
 
+			_requestResponse.push_back( common::CTransactionStatus( ( common::TransactionsStatus::Enum )transactionStatus.m_status, transactionStatus.m_transactionHash ) );
 		}
 		else if ( messageType == common::CMainRequestType::Transaction )
 		{

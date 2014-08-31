@@ -57,6 +57,12 @@ public:
 		common::serializeEnum( *m_pushStream, CMainRequestType::Transaction );
 		*m_pushStream << _transactionAck;
 	}
+
+	void operator()( common::CTransactionStatusResponse const & _transactionStatus ) const
+	{
+		common::serializeEnum( *m_pushStream, CMainRequestType::TransactionStatusReq );
+		*m_pushStream << _transactionStatus;
+	}
 private:
 	CBufferAsStream * const m_pushStream;
 

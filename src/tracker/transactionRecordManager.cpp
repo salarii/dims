@@ -145,6 +145,11 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 	m_addressToCoinsViewCache->flush();
 	m_coinsViewCache->Flush();
 
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	{
+		setTransactionToTemporary( transaction );
+	}
+
 	return true;
 }
 
@@ -302,6 +307,55 @@ CTransactionRecordManager::synchronize()
 void
 CTransactionRecordManager::askForTokens()
 {
+}
+
+uint64_t const UsedTimePeriod = 240;
+unsigned int const PeriodsCount = 4;
+
+bool
+CTransactionRecordManager::setTransactionToTemporary( CTransaction const & _transaction )
+{
+	boost::lock_guard<boost::mutex> lock( m_recentTransactionsLock );
+	uint64_t time = GetTime();
+	if ( time - m_lastUsedTime > UsedTimePeriod )
+	{
+		if ( m_usedTimes.size() == PeriodsCount )
+		{
+			std::set< uint64_t >::iterator iterator = m_usedTimes.begin();
+			m_recentTransactions.erase( *iterator );
+			m_usedTimes.erase( iterator );
+		}
+		m_usedTimes.insert( m_lastUsedTime );
+		m_lastUsedTime = time;
+	}
+
+	std::map< uint64_t, std::map< uint256, CTransaction > >::iterator iterator =
+			m_recentTransactions.find( m_lastUsedTime );
+
+	iterator->second.insert( std::make_pair( _transaction.GetHash(), _transaction ) );
+}
+
+// this is short search, long will be needed at some point
+bool
+CTransactionRecordManager::getTransaction( uint256 const & _hash, CTransaction & _transaction ) const
+{
+	boost::lock_guard<boost::mutex> lock( m_recentTransactionsLock );
+
+	std::map< uint64_t, std::map< uint256, CTransaction > >::const_iterator iterator = m_recentTransactions.begin();
+
+	while( iterator != m_recentTransactions.end() )
+	{
+		std::map< uint256, CTransaction >::const_iterator it = iterator->second.find( _hash );
+
+		if ( it != iterator->second.end() )
+		{
+			_transaction = it->second;
+			return true;
+		}
+
+		iterator++;
+	}
+	return false;
 }
 
 }

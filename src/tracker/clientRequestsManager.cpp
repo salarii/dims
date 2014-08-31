@@ -23,6 +23,16 @@ class CHandleClientRequestVisitor : public boost::static_visitor< void >
 public:
 	CHandleClientRequestVisitor(uint256 const & _hash):m_hash( _hash ){};
 
+	void operator()( CTransactionStatusReq const & _transactionStatus ) const
+	{
+		// shoudn't be handled this way
+		CTransaction transaction;
+		if ( CTransactionRecordManager::getInstance()->getTransaction( _transactionStatus.m_hash, transaction ) )
+			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTransactionStatusResponse( common::TransactionsStatus::Confirmed, transaction.GetHash() ) );
+		else
+			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTransactionStatusResponse( common::TransactionsStatus::Unconfirmed, _transactionStatus.m_hash ) );
+	}
+
 	void operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
 		CTrackerController * trackerController = CTrackerController::getInstance();
