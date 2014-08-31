@@ -166,7 +166,7 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 
 		BOOST_FOREACH( CTransaction const & transaction, transactions )
 		{
-			CClientRequestsManager::getInstance()->setClientResponse( transaction.GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, transaction ) );
+			CClientRequestsManager::getInstance()->setClientResponse( transaction.GetHash(), common::CTransactionAck( common::TransactionsStatus::Valdated, transaction ) );
 		}
 
 		if ( transactions.empty() )
