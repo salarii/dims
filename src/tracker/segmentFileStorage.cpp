@@ -184,6 +184,11 @@ CSegmentFileStorage::includeTransactions( std::vector< CTransaction > const & _t
 {
 	boost::lock_guard<boost::mutex> lock(m_storeTransLock);
 	m_transactionQueue->insert( std::make_pair( _timeStamp, _transactions ) );
+
+	BOOST_FOREACH( CTransaction const & transaction, _transactions )
+	{
+		m_locationUsedFromLastUpdate.insert( transaction.m_location );
+	}
 }
 
 CSegmentHeader &

@@ -43,6 +43,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 // todo, check status and validity of the transaction propagated
 		if ( _transactionSendAck.m_status == common::TransactionsStatus::Valdated )
 		{
+			context< CSendTransactionAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );
 			return transit< CCheckTransactionStatus >();
 		}
 		else
