@@ -29,6 +29,8 @@ public:
 
 	void setRequest( common::CRequest< SeedResponses >* _request );
 
+	common::CRequest< SeedResponses > const * getRequest() const;
+
 	CAddress getAddress() const;
 
 	std::vector< unsigned char > const & getPayload() const;

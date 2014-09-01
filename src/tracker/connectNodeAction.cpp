@@ -287,7 +287,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		}
 		return discard_event();
 	}
-// old  ways,  refactor  this
+
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
 	{
 		std::vector< common::CValidNodeInfo > validNodesInfo;

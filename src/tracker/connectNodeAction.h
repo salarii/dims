@@ -13,6 +13,11 @@
 #include <boost/statechart/state_machine.hpp>
 
 #include "protocol.h"
+/*
+current communication protocol is ineffective
+consider using ack  request after  every successful message  reception
+*/
+
 
 namespace tracker
 {

@@ -239,11 +239,22 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 
 struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAcceptNodeAction >
 {
-	ConnectedToTracker( my_context ctx ) : my_base( ctx )
+	// system is not suitable for sending many requests one after another
+	// play  ugly here to overcome this
+	// maybe instead of  this mess use ack event to  confirm
+	ConnectedToTracker( my_context ctx ) : my_base( ctx ), m_request( 0 )
 	{
 		context< CAcceptNodeAction >().setValid( true );
-		// vicious usage of CKnownNetworkInfoRequest
-		context< CAcceptNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), std::vector< common::CValidNodeInfo >(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+
+		if ( !context< CAcceptNodeAction >().getRequest() )// allow execution if something is there
+		{
+			context< CAcceptNodeAction >().setRequest(
+						new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), std::vector< common::CValidNodeInfo >(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
+		}
+		else
+		{
+			m_request = new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), std::vector< common::CValidNodeInfo >(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) );
+		}
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
@@ -261,13 +272,18 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest< SeedResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		if ( m_request )
+			context< CAcceptNodeAction >().setRequest( m_request );
+		else
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest< SeedResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
+
+	common::CRequest< SeedResponses >* m_request;
 };
 
 struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CAcceptNodeAction >
@@ -283,7 +299,6 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CAccep
 	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
 	{
 		context< CAcceptNodeAction >().setRequest( 0 );
-
 	}
 };
 
@@ -324,7 +339,9 @@ CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
 common::CRequest< SeedResponses >*
 CAcceptNodeAction::execute()
 {
-	return m_request;
+	common::CRequest< SeedResponses >* request = m_request;
+	m_request = 0;
+	return request;
 }
 
 void
@@ -337,6 +354,12 @@ void
 CAcceptNodeAction::setRequest( common::CRequest< SeedResponses >* _request )
 {
 	m_request = _request;
+}
+
+common::CRequest< SeedResponses > const *
+CAcceptNodeAction::getRequest() const
+{
+	return m_request;
 }
 
 CAddress
