@@ -242,6 +242,8 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
 		context< CAcceptNodeAction >().setValid( true );
+		// vicious usage of CKnownNetworkInfoRequest
+		context< CAcceptNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), std::vector< common::CValidNodeInfo >(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
@@ -257,12 +259,6 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 		}
 	}
 
-	boost::statechart::result react( const common::CAckEvent & _ackEvent )
-	{
-		context< CAcceptNodeAction >().setRequest( new common::CAckRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-	}
-
-
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest< SeedResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
@@ -270,7 +266,6 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 };

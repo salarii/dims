@@ -34,6 +34,8 @@ public:
 
 	void setRequest( common::CRequest< TrackerResponses >* _request );
 
+	common::CRequest< TrackerResponses > const * getRequest() const;
+
 	std::string getAddress() const;
 
 	CAddress getServiceAddress() const;

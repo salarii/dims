@@ -24,6 +24,7 @@ namespace tracker
 {
 
 unsigned int const TrackerLoopTime = 10;
+unsigned int const SeedLoopTime = 15;
 
 struct CUnconnected; struct CBothUnidentifiedConnected;
 
@@ -142,7 +143,6 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 		case common::CRole::Tracker:
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
-			context< CConnectNodeAction >().setRequest( new common::CAckRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 			return transit< ConnectedToSeed >();
 		case common::CRole::Monitor:
 			return transit< ConnectedToMonitor >();
@@ -271,16 +271,24 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 {
 	ConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
-
+		m_enterStateTime = GetTime();
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		int64_t time = GetTime();
+		if ( time - m_enterStateTime < SeedLoopTime )
+		{
+			context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		}
+		else
+		{
+			context< CConnectNodeAction >().setRequest( 0 );
+		}
 		return discard_event();
 	}
 // old  ways,  refactor  this
-	boost::statechart::result react( const common::CAckEvent & _ackEvent )
+	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
 	{
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 
@@ -293,9 +301,11 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		return transit< CStop >();
 	}
 
+	int64_t m_enterStateTime;
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
 	> reactions;
 };
 
@@ -365,7 +375,9 @@ CConnectNodeAction::CConnectNodeAction( std::string const & _nodeAddress )
 common::CRequest< TrackerResponses >*
 CConnectNodeAction::execute()
 {
-	return m_request;
+	common::CRequest< TrackerResponses >* request = m_request;
+	m_request = 0;
+	return request;
 }
 
 void
@@ -378,6 +390,12 @@ void
 CConnectNodeAction::setRequest( common::CRequest< TrackerResponses >* _request )
 {
 	m_request = _request;
+}
+
+common::CRequest< TrackerResponses > const *
+CConnectNodeAction::getRequest() const
+{
+	return m_request;
 }
 
 std::string
