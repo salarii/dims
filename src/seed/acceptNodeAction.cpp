@@ -20,7 +20,7 @@
 #include "seedDb.h"
 #include "seedFilter.h"
 
-
+// ugly as hell, refactor as soon as possible
 namespace seed
 {
 extern CAddrDb db;
@@ -271,7 +271,10 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		if ( m_request )
+		{
 			context< CAcceptNodeAction >().setRequest( m_request );
+			m_request = 0;
+		}
 		else
 			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest< SeedResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
