@@ -31,6 +31,8 @@ public:
 
 	common::CRequest< SeedResponses > const * getRequest() const;
 
+	void setAddress( CAddress const & _address );
+
 	CAddress getAddress() const;
 
 	std::vector< unsigned char > const & getPayload() const;
@@ -46,7 +48,8 @@ public:
 	~CAcceptNodeAction(){};
 private:
 	common::CRequest< SeedResponses >* m_request;
-	CAddress const m_nodeAddress;
+	CAddress m_nodeAddress;
+
 
 	static int const ms_randomPayloadLenght = 32;
 

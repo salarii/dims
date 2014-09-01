@@ -240,6 +240,8 @@ CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
 	m_messages.push_back( message );
 
 	m_indexes.push_back( _request->getActionKey() );
+
+	m_responses.insert( std::make_pair( _request->getActionKey(), common::CAckPromptResult() ) );
 }
 
 }

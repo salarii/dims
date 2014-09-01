@@ -6,6 +6,7 @@
 #include "nodeMessages.h"
 
 #include <boost/variant.hpp>
+#include <boost/statechart/event.hpp>
 
 #include <exception>
 #include "errorResponse.h"
@@ -54,6 +55,10 @@ struct CContinueResult
 {
 	CContinueResult( uint256 const &_key ):m_id(_key){};
 	uint256 m_id;
+};
+
+struct CAckPromptResult : boost::statechart::event< CAckPromptResult >
+{
 };
 
 struct CGetPrompt
