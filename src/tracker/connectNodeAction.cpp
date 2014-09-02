@@ -234,7 +234,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-	context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().setRequest( new common::CAckRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -243,7 +243,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		return discard_event();
 	}
 
-	boost::statechart::result react( const common::CIntroduceEvent & _introduceEvent )
+	boost::statechart::result react( common::CIntroduceEvent const & _introduceEvent )
 	{
 		uint256 hash = Hash( &_introduceEvent.m_payload.front(), &_introduceEvent.m_payload.back() );
 
@@ -260,10 +260,16 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
+	{
+		createIdentifyResponse( context< CConnectNodeAction >() );
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CIntroduceEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::transition< common::CAckPromptResult, CPairIdentifiedConnected >
+	boost::statechart::custom_reaction< common::CAckPromptResult >,
+	boost::statechart::transition< common::CAckEvent, CPairIdentifiedConnected >
 	> reactions;
 };
 
