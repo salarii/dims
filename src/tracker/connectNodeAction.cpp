@@ -60,6 +60,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -73,13 +74,12 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
-
+/*
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
-
+*/
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		switch ( m_role )
@@ -99,7 +99,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CRoleEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CAckPromptResult >,
+//	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 
@@ -152,19 +152,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
-
-		uint256 hash = Hash( &requestedEvent->m_payload.front(), &requestedEvent->m_payload.back() );
-
-		if ( requestedEvent->m_key.Verify( hash, requestedEvent->m_signed ) )
-		{
-			CTrackerNodesManager::getInstance()->setPublicKey( requestedEvent->m_address, requestedEvent->m_key );
-			context< CConnectNodeAction >().setRequest( new common::CAckRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		}
-		else
-		{
-			context< CConnectNodeAction >().setRequest( 0 );
-		}
+		createIdentifyResponse( context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -246,8 +234,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		createIdentifyResponse( context< CConnectNodeAction >() );
-
+	context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -256,16 +243,27 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	boost::statechart::result react( const common::CIntroduceEvent & _introduceEvent )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		uint256 hash = Hash( &_introduceEvent.m_payload.front(), &_introduceEvent.m_payload.back() );
+
+		if ( _introduceEvent.m_key.Verify( hash, _introduceEvent.m_signed ) )
+		{
+			CTrackerNodesManager::getInstance()->setPublicKey( _introduceEvent.m_address, _introduceEvent.m_key );
+			context< CConnectNodeAction >().setRequest( new common::CAckRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		}
+		else
+		{
+			context< CConnectNodeAction >().setRequest( 0 );
+		}
+
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< common::CIntroduceEvent, CPairIdentifiedConnected >,
+	boost::statechart::custom_reaction< common::CIntroduceEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::transition< common::CAckPromptResult, CPairIdentifiedConnected >
 	> reactions;
 };
 

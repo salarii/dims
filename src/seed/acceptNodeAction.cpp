@@ -146,7 +146,6 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::transition< common::CAckEvent, CDetermineRoleConnecting >
@@ -159,7 +158,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 {
 	CDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -268,11 +267,11 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 	boost::statechart::result react( const common::CIntroduceEvent & _introduceEvent )
 	{
-		uint256 hash = Hash( _introduceEvent.m_payload.front(), _introduceEvent.m_payload.back() );
+		uint256 hash = Hash( &_introduceEvent.m_payload.front(), &_introduceEvent.m_payload.back() );
 
 		if ( _introduceEvent.m_key.Verify( hash, _introduceEvent.m_signed ) )
 		{
-			CSeedNodesManager::getInstance()->setPublicKey( requestedEvent->m_address, requestedEvent->m_key );
+			CSeedNodesManager::getInstance()->setPublicKey( _introduceEvent.m_address, _introduceEvent.m_key );
 			context< CAcceptNodeAction >().setRequest( new common::CAckRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 			context< CAcceptNodeAction >().setAddress( _introduceEvent.m_address );
 		}
@@ -319,7 +318,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 
 struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAcceptNodeAction >
 {
-	ConnectedToTracker( my_context ctx ) : my_base( ctx ), m_request( 0 )
+	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
 		context< CAcceptNodeAction >().setValid( true );
 
