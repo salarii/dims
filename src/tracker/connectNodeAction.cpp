@@ -23,8 +23,8 @@
 namespace tracker
 {
 
-unsigned int const TrackerLoopTime = 10;
-unsigned int const SeedLoopTime = 15;
+unsigned int const TrackerLoopTime = 20;
+unsigned int const SeedLoopTime = 25;
 
 struct CUnconnected; struct CBothUnidentifiedConnected;
 
