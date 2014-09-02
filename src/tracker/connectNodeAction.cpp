@@ -152,7 +152,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		createIdentifyResponse( context< CConnectNodeAction >() );
+		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -177,12 +177,6 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
-	{
-		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
@@ -192,8 +186,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CRoleEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CAckPromptResult >
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
 
