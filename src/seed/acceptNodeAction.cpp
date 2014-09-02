@@ -68,7 +68,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -347,7 +347,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 
 		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_networkInfo )
 		{
-			if ( validNodeInfo.m_role == common::CRole::Seed || validNodeInfo.m_role == common::CRole::Monitor )
+			if ( validNodeInfo.m_role == common::CRole::Tracker || validNodeInfo.m_role == common::CRole::Monitor )
 			{
 				db.Add( validNodeInfo.m_address );
 			}
