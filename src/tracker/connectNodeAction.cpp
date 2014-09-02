@@ -74,13 +74,8 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
-/*
+
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
-	{
-		return discard_event();
-	}
-*/
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		switch ( m_role )
 		{
@@ -94,6 +89,11 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			break;
 		}
 		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	typedef boost::mpl::list<

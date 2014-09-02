@@ -174,6 +174,11 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
+	{
+		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+	}
+
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		switch ( m_role )
@@ -195,6 +200,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CRoleEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 
@@ -205,7 +211,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -214,8 +220,28 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 		return discard_event();
 	}
 
+	boost::statechart::result react( const common::CIntroduceEvent & _introduceEvent )
+	{
+		uint256 hash = Hash( &_introduceEvent.m_payload.front(), &_introduceEvent.m_payload.back() );
+
+		if ( _introduceEvent.m_key.Verify( hash, _introduceEvent.m_signed ) )
+		{
+			CSeedNodesManager::getInstance()->setPublicKey( _introduceEvent.m_address, _introduceEvent.m_key );
+			context< CAcceptNodeAction >().setRequest( new common::CAckRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			context< CAcceptNodeAction >().setAddress( _introduceEvent.m_address );
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setValid( false );
+			context< CAcceptNodeAction >().setRequest( 0 );
+		}
+
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CIntroduceEvent >,
 	boost::statechart::transition< common::CAckEvent, CDetermineRoleConnected >
 	> reactions;
 };
@@ -228,7 +254,6 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CAcceptNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
-		// looks funny that  I set it in this  state, but let  it  be
 		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
 		context< CAcceptNodeAction >().setRequest( new common::CIdentifyRequest<SeedResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CAcceptNodeAction >().getPayload(), context< CAcceptNodeAction >().getActionKey() ) );
 
@@ -259,24 +284,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		return discard_event();
 	}
 
-	boost::statechart::result react( const common::CIntroduceEvent & _introduceEvent )
-	{
-		uint256 hash = Hash( &_introduceEvent.m_payload.front(), &_introduceEvent.m_payload.back() );
 
-		if ( _introduceEvent.m_key.Verify( hash, _introduceEvent.m_signed ) )
-		{
-			CSeedNodesManager::getInstance()->setPublicKey( _introduceEvent.m_address, _introduceEvent.m_key );
-			context< CAcceptNodeAction >().setRequest( new common::CAckRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-			context< CAcceptNodeAction >().setAddress( _introduceEvent.m_address );
-		}
-		else
-		{
-			context< CAcceptNodeAction >().setValid( false );
-			context< CAcceptNodeAction >().setRequest( 0 );
-		}
-
-		return discard_event();
-	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
@@ -285,7 +293,6 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CIntroduceEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::transition< common::CAckEvent, CPairIdentifiedConnected >
 	> reactions;

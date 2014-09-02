@@ -78,9 +78,14 @@ public:
 		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_networkInfo ) );
 	}
 
-	virtual void operator()( common::CAckPromptResult & _param )
+	virtual void operator()( common::CAckPromptResult & _param ) const
 	{
 		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		this->m_action->process_event( common::CAckEvent() );
 	}
 };
 
