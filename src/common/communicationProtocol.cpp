@@ -129,8 +129,6 @@ CMessage::CMessage( CSynchronizationGetBlock const & _synchronizationInfo )
 	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
 	createPayload( _synchronizationInfo, m_payload );
-
-	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
 CMessage::CMessage( CSynchronizationBlock const & _synchronizationInfo )

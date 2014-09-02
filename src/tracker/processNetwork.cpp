@@ -154,17 +154,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
 		{
-			CPubKey pubKey;
-			if ( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-				;
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
 			common::CAck ack;
 
-			common::convertPayload( orginalMessage, ack );
+			common::convertPayload( message, ack );
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
