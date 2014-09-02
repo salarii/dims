@@ -242,7 +242,7 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CIntroduceEvent >,
-	boost::statechart::transition< common::CAckEvent, CDetermineRoleConnected >
+	boost::statechart::transition< common::CAckPromptResult, CDetermineRoleConnected >
 	> reactions;
 };
 
