@@ -68,6 +68,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -85,12 +86,6 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackPromptResult )
-	{
 		switch ( m_role )
 		{
 		case common::CRole::Tracker:
@@ -105,6 +100,12 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckEvent const & _ackPromptResult )
+	{
+		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CRoleEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
@@ -114,6 +115,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 	int m_role;
 };
+
 
 struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConnecting, CAcceptNodeAction >
 {
@@ -246,7 +248,6 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 	> reactions;
 };
 
-
 struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentifiedConnecting, CAcceptNodeAction >
 {
 	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
@@ -265,9 +266,16 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::transition< common::CIntroduceEvent, CPairIdentifiedConnecting >,
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
 
@@ -312,7 +320,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
 		context< CAcceptNodeAction >().setRequest(
-				  new common::CConnectToNodeRequest< SeedResponses >( std::string(""), context< CAcceptNodeAction >().getAddress(), new CInternalMediumFilter() ) );
+					new common::CConnectToNodeRequest< SeedResponses >( std::string(""), context< CAcceptNodeAction >().getAddress(), new CInternalMediumFilter() ) );
 
 	}
 
@@ -384,12 +392,12 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CAccept
 };
 
 CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr )
-: common::CCommunicationAction( _actionKey )
-, m_payload( _payload )
-, m_request( 0 )
-, m_passive( true )
-, m_mediumPtr( _mediumPtr )
-, m_valid( false )
+	: common::CCommunicationAction( _actionKey )
+	, m_payload( _payload )
+	, m_request( 0 )
+	, m_passive( true )
+	, m_mediumPtr( _mediumPtr )
+	, m_valid( false )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
