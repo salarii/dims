@@ -347,7 +347,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 
 		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_networkInfo )
 		{
-			if ( validNodeInfo.m_role == common::CRole::Tracker || validNodeInfo.m_role == common::CRole::Monitor )
+			if ( validNodeInfo.m_role == common::CRole::Seed || validNodeInfo.m_role == common::CRole::Monitor )
 			{
 				db.Add( validNodeInfo.m_address );
 			}
