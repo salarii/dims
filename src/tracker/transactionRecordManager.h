@@ -49,6 +49,10 @@ public:
 
 	bool addValidatedTransactionBundle( std::vector< CTransaction > const & _transaction );
 
+	void addTransactionToStorage( CTransaction const & _tx );
+
+	bool addTransactionsToStorage( std::vector< CTransaction > const & _transaction );
+
 	void loop();
 
 	bool getCoins( std::vector< uint256 > const & _transaction,  std::vector< CCoins > & _coins ) const;
@@ -86,11 +90,6 @@ private:
 	std::map< uint64_t, std::map< uint256, CTransaction > > m_recentTransactions;
 	uint64_t m_lastUsedTime;
 	std::set< uint64_t > m_usedTimes;
-
-
-
-
-
 };
 
 

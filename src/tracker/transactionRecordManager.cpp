@@ -74,16 +74,11 @@ CTransactionRecordManager::~CTransactionRecordManager()
 void
 CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  )
 {
-	// this is both bad and risky but I need it
-	CTransaction tx( _tx );
-	tx.m_location = CSegmentFileStorage::getInstance()->getPosition( _tx );
-	CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
-
-	CCoins coins(tx);
+	CCoins coins(_tx);
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
 
-	m_coinsViewCache->SetCoins(tx.GetHash() , coins);
-	m_addressToCoinsViewCache->setCoins( _keyId, tx.GetHash() );
+	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
+	m_addressToCoinsViewCache->setCoins( _keyId, _tx.GetHash() );
 
 	bool pfMissingInputs;
 	CValidationState state;
@@ -92,6 +87,27 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uin
 	//AcceptToMemoryPool(*m_memPool, state, _tx, false, &pfMissingInputs, false);
 	m_addressToCoinsViewCache->flush();
 	m_coinsViewCache->Flush();
+}
+
+void
+CTransactionRecordManager::addTransactionToStorage( CTransaction const & _tx )
+{
+	CTransaction tx( _tx );
+	tx.m_location = CSegmentFileStorage::getInstance()->getPosition( _tx );
+	CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
+}
+
+bool
+CTransactionRecordManager::addTransactionsToStorage( std::vector< CTransaction > const & _transaction )
+{
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	{
+		CTransaction tx( transaction );
+		tx.m_location = CSegmentFileStorage::getInstance()->getPosition( tx );
+		CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
+	}
+
+	return true;
 }
 
 bool
@@ -150,13 +166,6 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 	BOOST_FOREACH( CTransaction const & transaction, _transaction )
 	{
 		setTransactionToTemporary( transaction );
-	}
-
-	BOOST_FOREACH( CTransaction const & transaction, _transaction )
-	{
-		CTransaction tx( transaction );
-		tx.m_location = CSegmentFileStorage::getInstance()->getPosition( tx );
-		CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
 	}
 
 	return true;

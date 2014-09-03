@@ -85,16 +85,6 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 	CAuthenticationProvider::getInstance()->sign( hash, m_header.m_signedHash );
 }
 
-template < class T >
-void
-createPayload( T const & message, std::vector< unsigned char > & _payload )
-{
-	unsigned int size = ::GetSerializeSize( message, SER_NETWORK, PROTOCOL_VERSION );
-	_payload.resize( size );
-	CBufferAsStream stream( (char*)&_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
-	stream << message;
-}
-
 CMessage::CMessage( CIdentifyMessage const & _identifyMessage )
 	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
@@ -129,14 +119,6 @@ CMessage::CMessage( CSynchronizationGetBlock const & _synchronizationInfo )
 	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
 	createPayload( _synchronizationInfo, m_payload );
-}
-
-CMessage::CMessage( CSynchronizationBlock const & _synchronizationInfo )
-	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
-{
-	createPayload( _synchronizationInfo, m_payload );
-
-	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
 CMessage::CMessage( CAck const & _ack )

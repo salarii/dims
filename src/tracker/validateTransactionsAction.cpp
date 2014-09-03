@@ -104,6 +104,9 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 		context< CValidateTransactionsAction >().m_request = 0;
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
 			context< CValidateTransactionsAction >().m_transactions );
+
+		CTransactionRecordManager::getInstance()->addTransactionsToStorage(
+					context< CValidateTransactionsAction >().m_transactions );
 	}
 
 };

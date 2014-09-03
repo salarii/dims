@@ -97,5 +97,11 @@ CSetNextBlockRequest::getActionKey() const
 	return m_actionKey;
 }
 
+CDiskBlock *
+CSetNextBlockRequest::getBlock() const
+{
+	return m_discBlock;
+}
+
 
 }

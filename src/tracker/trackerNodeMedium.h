@@ -8,10 +8,32 @@
 #include "common/nodeMedium.h"
 #include "common/communicationProtocol.h"
 
+#include "segmentFileStorage.h"
+
 #include <boost/variant.hpp>
 
 namespace tracker
 {
+// not good place  to put  this
+struct CSynchronizationBlock
+{
+	CSynchronizationBlock( CDiskBlock * _diskBlock ):m_diskBlock( _diskBlock ){}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_actionKey);
+		READWRITE(*m_diskBlock);
+	)
+
+	uint256 m_actionKey;
+	CDiskBlock * m_diskBlock;
+};
+
+struct CTrackerMessage : public common::CMessage
+{
+public:
+	CTrackerMessage( CSynchronizationBlock const & _synchronizationBlock );
+};
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 

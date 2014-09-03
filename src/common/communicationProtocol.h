@@ -182,22 +182,13 @@ struct CSynchronizationInfo
 	uint256 m_actionKey;
 };
 
+
 struct CSynchronizationGetBlock
 {
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_actionKey);
 	)
-	uint256 m_actionKey;
-};
-
-struct CSynchronizationBlock
-{
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_actionKey);
-	)
-
 	uint256 m_actionKey;
 };
 
@@ -211,7 +202,6 @@ public:
 	CMessage( CSynchronizationInfo const & _synchronizationInfo );
 	CMessage( CAck const & _synchronizationInfo );
 	CMessage( CSynchronizationGetBlock const & _synchronizationInfo );
-	CMessage( CSynchronizationBlock const & _synchronizationInfo );
 
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
@@ -269,6 +259,16 @@ public:
 protected:
 	uint256 m_actionKey;
 };
+
+template < class T >
+void
+createPayload( T const & message, std::vector< unsigned char > & _payload )
+{
+	unsigned int size = ::GetSerializeSize( message, SER_NETWORK, PROTOCOL_VERSION );
+	_payload.resize( size );
+	CBufferAsStream stream( (char*)&_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
+	stream << message;
+}
 
 }
 

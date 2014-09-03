@@ -8,7 +8,7 @@
 namespace tracker
 {
 
-class CDiskBlock;
+struct CDiskBlock;
 
 class CSegmentHeader;
 

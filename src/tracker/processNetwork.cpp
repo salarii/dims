@@ -102,6 +102,31 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		{
 
 		}
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock )
+		{
+			CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
+
+			common::CMessage orginalMessage;
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+				assert( !"service it somehow" );
+
+			CSynchronizationBlock synchronizationBlock( new CDiskBlock );
+			common::convertPayload( orginalMessage, synchronizationBlock );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationBlock.m_actionKey ) )
+			{
+				nodeMedium->setResponse( synchronizationBlock.m_actionKey, CSynchronizationBlockResult( synchronizationBlock.m_diskBlock ) );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+
+			}
+
+		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
 			CPubKey pubKey;

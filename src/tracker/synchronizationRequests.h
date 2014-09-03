@@ -59,6 +59,8 @@ public:
 	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	uint256 getActionKey() const;
+
+	CDiskBlock * getBlock() const;
 private:
 	uint256 const m_actionKey;
 

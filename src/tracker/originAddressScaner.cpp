@@ -88,6 +88,7 @@ COriginAddressScaner::updateTransactionRecord( long long const _timeStamp )
 		//add transaction  to  pool and   view
 
 		CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew, publicKey );
+		CTransactionRecordManager::getInstance()->addTransactionToStorage( txNew );
 	}
 }
 

@@ -35,7 +35,7 @@ typedef unsigned int CounterType;
 struct CRecord
 {
 	CRecord( unsigned int _blockNumber = 0,unsigned char _isEmptySpace = 0 ):m_blockNumber(_blockNumber),m_isEmptySpace(_isEmptySpace){}
-	int m_blockNumber;
+	unsigned int m_blockNumber;
 	unsigned char m_isEmptySpace;
 
     IMPLEMENT_SERIALIZE

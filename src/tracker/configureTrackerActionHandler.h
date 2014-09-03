@@ -41,8 +41,15 @@ struct CSynchronizationInfoResult
 	uintptr_t m_nodeIndicator;
 };
 
+struct CDiskBlock;
+
 struct CSynchronizationBlockResult
 {
+	CSynchronizationBlockResult(){}
+
+	CSynchronizationBlockResult( CDiskBlock * _discBlock ):m_discBlock( _discBlock ){}
+
+	CDiskBlock * m_discBlock;
 };
 
 

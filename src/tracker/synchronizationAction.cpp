@@ -137,11 +137,15 @@ struct CSynchronizing : boost::statechart::state< CSynchronizing, CSynchronizati
 
 	boost::statechart::result react( CTransactionBlockEvent const & _transactionBlockEvent )
 	{
-/*		if ( _transactionBlockEvent.m_discBlock )
+		if ( !_transactionBlockEvent.m_discBlock )
+			context< CSynchronizationAction >().setRequest( 0 );
+		else
+		{
+			CSegmentFileStorage::getInstance()->setDiscBlock( *_transactionBlockEvent.m_discBlock );
+
 			context< CSynchronizationAction >().setRequest(
 						new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-		else*/
-			context< CSynchronizationAction >().setRequest( 0 );
+		}
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )

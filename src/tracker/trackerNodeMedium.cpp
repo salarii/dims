@@ -12,6 +12,15 @@
 namespace tracker
 {
 
+CTrackerMessage::CTrackerMessage( CSynchronizationBlock const & _synchronizationInfo )
+{
+	m_header = common::CHeader( (int)common::CPayloadKind::SynchronizationBlock, std::vector<unsigned char>(), GetTime(), CPubKey() );
+
+	common::createPayload( _synchronizationInfo, m_payload );
+
+	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 void
 CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 {
@@ -43,9 +52,11 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 void
 CTrackerNodeMedium::add( CSetNextBlockRequest const * _request )
 {
-	common::CSynchronizationBlock synchronizationBlock;
+	CSynchronizationBlock synchronizationBlock( _request->getBlock() );
 
-	common::CMessage message( synchronizationBlock );
+	synchronizationBlock.m_actionKey = _request->getActionKey();
+
+	CTrackerMessage message( synchronizationBlock );
 
 	m_messages.push_back( message );
 

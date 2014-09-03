@@ -128,7 +128,7 @@ public:
 
 	virtual void operator()( tracker::CSynchronizationBlockResult & _param ) const
 	{
-		this->m_action->process_event( tracker::CTransactionBlockEvent() );
+		this->m_action->process_event( tracker::CTransactionBlockEvent( _param.m_discBlock ) );
 	}
 
 	virtual void operator()( common::CGetPrompt & _param ) const
