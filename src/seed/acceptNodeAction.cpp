@@ -100,7 +100,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckEvent const & _ackPromptResult )
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
