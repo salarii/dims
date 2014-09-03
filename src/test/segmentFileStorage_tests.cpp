@@ -83,12 +83,15 @@ BOOST_AUTO_TEST_CASE( basics )
 	boost::thread( boost::bind(&tracker::CSegmentFileStorage::flushLoop, fileStorage) );
 
 	std::vector< CTransaction > transactions = getTransactionArray();
-
+	while(1)
+	{
 	std::transform( transactions.begin(), transactions.end(), transactions.begin(), CSetLocation() );
 
 	fileStorage->includeTransactions( transactions, 0 );
+	MilliSleep( 1000 );
 
-	while(1);
+	}
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

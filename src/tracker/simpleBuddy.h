@@ -63,7 +63,7 @@ private:
 private:
 	char m_full;
 
-	unsigned char m_tree[1 << ms_buddyBaseLevel << 1 ];
+	unsigned char m_tree[( 1 << ms_buddyBaseLevel ) * 2 ];
 };
 
 }

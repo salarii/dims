@@ -41,7 +41,7 @@ CSimpleBuddy::CSimpleBuddy( CSimpleBuddy const & _simpleBuddy )
 {
 	m_full = _simpleBuddy.m_full;
 
-	memcpy( m_tree, _simpleBuddy.m_tree, 1 << ms_buddyBaseLevel << 1 );
+	memcpy( m_tree, _simpleBuddy.m_tree, ( 1 << ms_buddyBaseLevel ) * 2 );
 }
 
 CSimpleBuddy &
@@ -49,7 +49,7 @@ CSimpleBuddy::operator=( CSimpleBuddy const & _simpleBuddy )
 {
 	m_full = _simpleBuddy.m_full;
 
-	memcpy( m_tree, _simpleBuddy.m_tree, 1 << ms_buddyBaseLevel << 1 );
+	memcpy( m_tree, _simpleBuddy.m_tree, ( 1 << ms_buddyBaseLevel ) * 2 );
 
 	return *this;
 }
@@ -64,7 +64,7 @@ CSimpleBuddy::indexOffset(int _index, int _level) const
 
 CSimpleBuddy::CSimpleBuddy()
 {
-	memset(m_tree , NODE_UNUSED , 1 << ms_buddyBaseLevel << 1);
+	memset(m_tree , NODE_UNUSED , (1 << ms_buddyBaseLevel) * 2);
 }
 
 CSimpleBuddy::~CSimpleBuddy()
@@ -205,7 +205,7 @@ CSimpleBuddy::buddyFree(int offset)
 unsigned int
 CSimpleBuddy::getBuddyLevel( size_t const _transactionSize )
 {
-	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
+	size_t baseUnit = getBuddySize( ms_buddyBaseLevel );
 
 	unsigned int level = ms_buddyBaseLevel;
 

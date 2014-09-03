@@ -152,21 +152,33 @@ public:
 	{
 		CCacheElement( CLocation const & _location ):m_discBlock(0), m_location(_location){};
 
-		CCacheElement( CDiskBlock* _discBlock, CLocation const _location ):m_discBlock( _discBlock ),m_location(_location){};
+		CCacheElement( CDiskBlock* _discBlock, CLocation const _location ):m_discBlock( _discBlock ){};
+
+		CCacheElement( CCacheElement const & _cacheElement ):m_discBlock( _cacheElement.m_discBlock ){};
 
 		CDiskBlock* m_discBlock;
 
 		CLocation const m_location;
 
-		~CCacheElement()
-		{
-			if ( m_discBlock )
-				delete m_discBlock;
-		}
-
 		bool operator<( CCacheElement const & _cacheElement ) const
 		{
 			return m_location < _cacheElement.m_location;
+		}
+	};
+
+	class CDiscBlockCache : public mruset< CCacheElement >
+	{
+	public:
+		CDiscBlockCache(): mruset< CCacheElement >(1){}
+
+		std::pair<iterator, bool> insert( CCacheElement const & x)
+		{
+			if ( nMaxSize && queue.size() == nMaxSize )
+			{
+				CCacheElement & cacheElement = queue.front();
+				delete cacheElement.m_discBlock;
+			}
+			mruset< CCacheElement >::insert( x );
 		}
 	};
 public:
@@ -286,7 +298,7 @@ private:
 
 	UsedBlocks m_usedBlocks;
 
-	mruset< CCacheElement > m_discBlockCache;
+	CDiscBlockCache m_discBlockCache;
 
 	std::set< CLocation > m_locationUsedFromLastUpdate;
 };

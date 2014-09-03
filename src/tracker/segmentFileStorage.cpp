@@ -46,7 +46,7 @@ CDiskBlock::CDiskBlock( CSimpleBuddy const & _simpleBuddy )
 void *
 CDiskBlock::translateToAddress( unsigned int _index ) const
 {
-	size_t baseUnit = ms_buddySize >> ms_buddyBaseLevel;
+	size_t baseUnit = getBuddySize( ms_buddyBaseLevel );
 	return (void *)&m_area[ _index * baseUnit ];
 }
 
@@ -324,7 +324,7 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 	}
 	m_locationUsedFromLastUpdate.insert( location );
 
-	return createFullPosition( last ? last - 1: 1, index, reqLevel, bucket );
+	return createFullPosition( last ? last - 1: 0, index, reqLevel, bucket );
 }
 
 bool
