@@ -42,6 +42,8 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 {
 	common::CGet get;
 
+	get.m_actionKey = _request->getActionKey();
+
 	common::CMessage message( get );
 
 	m_messages.push_back( message );

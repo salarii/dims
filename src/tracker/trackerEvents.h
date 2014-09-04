@@ -51,9 +51,6 @@ struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
 {
 };
 
-struct CGetNextBlockEvent : boost::statechart::event< CGetNextBlockEvent >
-{
-};
 
 }
 

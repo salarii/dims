@@ -115,13 +115,13 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 			context< CSynchronizationAction >().setRequest( 0 );
 	}
 
-	boost::statechart::result react( CGetNextBlockEvent const & _getNextBlockEvent )
+	boost::statechart::result react( common::CGetEvent const & _getEvent )
 	{
 		return transit< CSynchronized >();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CGetNextBlockEvent >,
+	boost::statechart::custom_reaction< common::CGetEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::transition< CSynchronizeRequestEvent, CSynchronized >
 	> reactions;
@@ -169,21 +169,30 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	CSynchronized( my_context ctx ) : my_base( ctx ),m_currentBlock( 0 )
 	{
 		m_storedBlocks = CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
+
+		assert( m_storedBlocks );
+
+		setBlock();
 	}
+
+	void setBlock()
+	{
+		CDiskBlock * diskBlock = new CDiskBlock;
+		CSegmentFileStorage::getInstance()->getBlock( m_currentBlock++, *diskBlock );
+
+		context< CSynchronizationAction >().setRequest( new CSetNextBlockRequest(
+					  context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
+					, diskBlock ) );
+	}
+
 
 	boost::statechart::result react( common::CGetEvent const & _getEvent )
 	{
 		//_transactionBlockEvent.m_discBlock  work in  progress
 		if ( m_currentBlock < m_storedBlocks )
 		{
-			CDiskBlock * diskBlock = new CDiskBlock;
-			CSegmentFileStorage::getInstance()->getBlock( m_currentBlock, *diskBlock );
-
-			context< CSynchronizationAction >().setRequest( new CSetNextBlockRequest(
-						  context< CSynchronizationAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
-						, diskBlock ) );
-
+			setBlock();
 		}
 		else
 		{

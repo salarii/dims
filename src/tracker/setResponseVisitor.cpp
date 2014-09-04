@@ -138,7 +138,7 @@ public:
 
 	virtual void operator()( common::CGetPrompt & _param ) const
 	{
-		this->m_action->process_event( tracker::CGetNextBlockEvent(  ) );
+		this->m_action->process_event( common::CGetEvent() );
 	}
 };
 
