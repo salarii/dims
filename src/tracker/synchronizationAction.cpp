@@ -60,8 +60,13 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 		long long unsigned time = GetTime();
 		if ( time - m_waitTime < SynchronisingGetInfoTime )
 			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
-		else
+		else if ( m_bestTimeStamp > 0 )
+		{
+			context< CSynchronizationAction >().setRequest( 0 );
 			return transit< CSynchronizing >();
+		}
+		else
+			return discard_event();
 	}
 
 	boost::statechart::result react( CSynchronizationInfoEvent const & _synchronizationInfoEvent )

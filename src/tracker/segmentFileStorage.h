@@ -301,6 +301,8 @@ private:
 	CDiscBlockCache m_discBlockCache;
 
 	std::set< CLocation > m_locationUsedFromLastUpdate;
+
+	uint64_t m_lastFlushTime;
 };
 
 }

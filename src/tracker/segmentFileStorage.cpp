@@ -160,6 +160,7 @@ CSegmentFileStorage::getInstance()
 
 CSegmentFileStorage::CSegmentFileStorage()
 : m_recentlyStored(MAX_BUCKET)
+, m_lastFlushTime( 0 )
 {
 	fillHeaderBuffor();
 
@@ -363,7 +364,7 @@ CSegmentFileStorage::calculateLocation( uint64_t const _fullPosition )
 uint64_t
 CSegmentFileStorage::getTimeStampOfLastFlush()
 {
-	return 0;
+	return m_lastFlushTime;
 }
 
 unsigned int
@@ -447,8 +448,9 @@ CSegmentFileStorage::flushLoop()
 
 			while( iterator != m_processedTransactionQueue->end() )
 			{
-				// save time stamp in database
-				//
+				// todo save time stamp in database
+				m_lastFlushTime = GetTime();
+
 				BOOST_FOREACH( CTransaction const & transaction, iterator->second )
 				{
 					uint64_t location = transaction.m_location;

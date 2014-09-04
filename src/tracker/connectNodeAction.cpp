@@ -79,6 +79,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	{
 		switch ( m_role )
 		{
+		case common::CRole::Tracker:
 			CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
