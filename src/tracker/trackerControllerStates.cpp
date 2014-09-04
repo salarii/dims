@@ -29,7 +29,6 @@ CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 		{
 			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 		}
-		m_synchronize = true;
 	}
 	else
 	{
@@ -40,18 +39,8 @@ CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 		{
 			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 		}
-		m_synchronize = false;
 	}
 }
-
-
-boost::statechart::result
-CStandAlone::react( CTrackerConnectedEvent const & _event )
-{
-	return m_synchronize ? transit< CSynchronizing >() : transit< CConnected >();// do it  after  synchronization  finishes ????
-}
-
-
 
 CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )
 {
@@ -65,8 +54,6 @@ CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )
 
 CConnected::CConnected( my_context ctx ) : my_base( ctx )
 {
-		CTrackerConnectedEvent const* trackerConnectedEvent
-				= dynamic_cast< CTrackerConnectedEvent const* >( simple_state::triggering_event() );
 }
 
 

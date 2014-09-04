@@ -105,7 +105,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 	{
 
 		if ( GetTime() - m_waitTime < SynchronisingWaitTime * 2 )
-			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
+			context< CSynchronizationAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 		else
 			context< CSynchronizationAction >().setRequest( 0 );
 	}

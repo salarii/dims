@@ -16,11 +16,15 @@ struct CGetStateEvent : boost::statechart::event< CGetStateEvent >
 {
 };
 
-struct CTrackerConnectedEvent : boost::statechart::event< CTrackerConnectedEvent >
+struct CConnectedToTrackerEvent : boost::statechart::event< CConnectedToTrackerEvent >
 {
-	CTrackerConnectedEvent(){}
+	CConnectedToTrackerEvent(){}
 };
 
+struct CTrackerConnectingEvent : boost::statechart::event< CTrackerConnectingEvent >
+{
+	CTrackerConnectingEvent(){}
+};
 
 // do I need this
 struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTrackerRequest >

@@ -79,7 +79,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	{
 		switch ( m_role )
 		{
-		case common::CRole::Tracker:
+			CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
 			return transit< ConnectedToSeed >();
@@ -178,6 +178,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 		switch ( m_role )
 		{
 		case common::CRole::Tracker:
+			CTrackerController::getInstance()->process_event( CTrackerConnectingEvent() );
 			return transit< ConnectedToTracker >();
 		case common::CRole::Seed:
 			return transit< ConnectedToSeed >();
@@ -334,8 +335,6 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 				->setValidNode( context< CConnectNodeAction >().getMediumPtr() );
 
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
-
-		CTrackerController::getInstance()->process_event( CTrackerConnectedEvent() );
 
 		m_enterStateTime = GetTime();
 	}

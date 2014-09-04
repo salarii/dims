@@ -33,12 +33,9 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CTrackerController >
 {
 	CStandAlone( my_context  ctx );
 
-	boost::statechart::result react( CTrackerConnectedEvent const & _event );
-
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CTrackerConnectedEvent > > reactions;
-
-	bool m_synchronize;
+	boost::statechart::transition< CConnectedToTrackerEvent, CSynchronizing >,
+	boost::statechart::transition< CTrackerConnectingEvent, CConnected > > reactions;
 };
 
 struct CSynchronizing : boost::statechart::state< CSynchronizing, CTrackerController >
