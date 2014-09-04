@@ -171,7 +171,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		m_storedBlocks = CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
 	}
 
-	boost::statechart::result react( CGetNextBlockEvent const & _getNextBlockEvent )
+	boost::statechart::result react( common::CGetEvent const & _getEvent )
 	{
 		//_transactionBlockEvent.m_discBlock  work in  progress
 		if ( m_currentBlock < m_storedBlocks )
@@ -198,7 +198,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CGetNextBlockEvent >,
+	boost::statechart::custom_reaction< common::CGetEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 

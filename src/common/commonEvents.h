@@ -91,6 +91,10 @@ struct CAckEvent : boost::statechart::event< CAckEvent >
 {
 };
 
+struct CGetEvent : boost::statechart::event< CGetEvent >
+{
+};
+
 }
 
 #endif // COMMON_EVENTS_H

@@ -87,6 +87,11 @@ public:
 	{
 		this->m_action->process_event( common::CAckEvent() );
 	}
+
+	virtual void operator()( common::CGetPrompt & _param ) const
+	{
+		this->m_action->process_event( common::CGetEvent() );
+	}
 };
 
 class CSetTrackOriginAddressResult : public CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList >

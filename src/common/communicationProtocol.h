@@ -29,7 +29,8 @@ struct CPayloadKind
 		SynchronizationGet,
 		SynchronizationBlock,
 		Uninitiated,
-		Ack
+		Ack,
+		Get
 	};
 };
 
@@ -183,7 +184,7 @@ struct CSynchronizationInfo
 };
 
 
-struct CSynchronizationGetBlock
+struct CGet
 {
 	IMPLEMENT_SERIALIZE
 	(
@@ -201,7 +202,7 @@ public:
 	CMessage( CKnownNetworkInfo const & _knownNetworkInfo );
 	CMessage( CSynchronizationInfo const & _synchronizationInfo );
 	CMessage( CAck const & _synchronizationInfo );
-	CMessage( CSynchronizationGetBlock const & _synchronizationInfo );
+	CMessage( CGet const & _synchronizationInfo );
 
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );

@@ -40,13 +40,13 @@ CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 void
 CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 {
-	common::CSynchronizationGetBlock synchronizationGetBlock;
+	common::CGet get;
 
-	common::CMessage message( synchronizationGetBlock );
+	common::CMessage message( get );
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( synchronizationGetBlock.m_actionKey );
+	m_indexes.push_back( get.m_actionKey );
 }
 
 void
