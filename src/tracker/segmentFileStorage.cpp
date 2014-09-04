@@ -9,6 +9,7 @@
 #include <boost/foreach.hpp>
 #include "core.h"
 #include "coins.h"
+#include "blockInfoDatabase.h"
 
 namespace tracker
 {
@@ -165,6 +166,8 @@ CSegmentFileStorage::CSegmentFileStorage()
 	fillHeaderBuffor();
 
 	m_transactionQueue = new TransactionQueue;
+
+	CBlockInfoDatabase::getInstance()->loadTimeOfFlush( m_lastFlushTime );
 }
 
 void
@@ -450,6 +453,7 @@ CSegmentFileStorage::flushLoop()
 			{
 				// todo save time stamp in database
 				m_lastFlushTime = GetTime();
+				CBlockInfoDatabase::getInstance()->storeTimeOfFlush( m_lastFlushTime );
 
 				BOOST_FOREACH( CTransaction const & transaction, iterator->second )
 				{
