@@ -499,6 +499,13 @@ CSegmentFileStorage::flushLoop()
 				}
 			}
 
+			unsigned int headerId = 0;
+			BOOST_FOREACH( CSegmentHeader const & header, m_headersCache )
+			{
+				saveBlock( headerId, header );
+				headerId++;
+			}
+
 			// reload  mruset
 			BOOST_FOREACH( UsedBlocks::value_type const & block, m_usedBlocks )
 			{

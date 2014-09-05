@@ -7,7 +7,7 @@
 namespace tracker
 {
 template<>
-unsigned int const common::CActionHandler< TrackerResponses >::m_sleepTime = 1000;
+unsigned int const common::CActionHandler< TrackerResponses >::m_sleepTime = 500;
 template<>
 common::CActionHandler< TrackerResponses > * common::CActionHandler< TrackerResponses >::ms_instance = NULL;
 
