@@ -13,13 +13,10 @@
 
 namespace tracker
 {
-/*
-split to two files
-how  to  append  new  content  to file 
-does  the  serialisation  doing i t  right ??
 
-fflush(file);
-*/
+std::string const
+CSegmentFileStorage::m_baseDirectory = "//network//";
+
 size_t CSegmentFileStorage::m_lastSegmentIndex = 0;
 
 const std::string
@@ -31,8 +28,6 @@ CSegmentFileStorage::ms_headerFileName = "serheaders";
 std::map< unsigned int, unsigned int > CDiskBlock::m_currentLastBlockIds;
 
 #define assert(a) ;
-
-
 
 CDiskBlock::CDiskBlock( CSimpleBuddy const & _simpleBuddy )
 	:CSimpleBuddy( _simpleBuddy )
@@ -209,25 +204,33 @@ CSegmentFileStorage::createNewHeader()
 bool
 CSegmentFileStorage::getBlock( unsigned int _index, CDiskBlock & _discBlock )
 {
-	return m_accessFile.loadSegmentFromFile< CDiskBlock >( _index, ms_segmentFileName, _discBlock );
+	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	path += m_baseDirectory + ms_segmentFileName;
+	return m_accessFile.loadSegmentFromFile< CDiskBlock >( _index, path.string(), _discBlock );
 }
 
 bool
 CSegmentFileStorage::getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader )
 {
-	return m_accessFile.loadSegmentFromFile< CSegmentHeader >( _index, ms_headerFileName, _segmentHeader );
+	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	path += m_baseDirectory + ms_headerFileName;
+	return m_accessFile.loadSegmentFromFile< CSegmentHeader >( _index, path.string(), _segmentHeader );
 }
 
 void
 CSegmentFileStorage::saveBlock( unsigned int _index, CSegmentHeader const & _header )
 {
-	m_accessFile.saveSegmentToFile( _index, ms_headerFileName, _header );
+	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	path += m_baseDirectory + ms_headerFileName;
+	m_accessFile.saveSegmentToFile( _index, path.string(), _header );
 }
 
 void
 CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
 {
-	m_accessFile.saveSegmentToFile( _index, ms_segmentFileName, _block );
+	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	path += m_baseDirectory + ms_segmentFileName;
+	m_accessFile.saveSegmentToFile( _index, path.string(), _block );
 }
 
 
@@ -332,19 +335,29 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 }
 
 bool
-CSegmentFileStorage::findBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber ) const
+CSegmentFileStorage::assignBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber )
 {
 	uint64_t location = _location.m_location;
 
 	unsigned int header = getPosition( location )/ CSegmentHeader::getNumberOfFullBucketSets();
 	std::vector< CSegmentHeader >::const_iterator iterator = m_headersCache.begin();
 
-	if ( iterator == m_headersCache.end() )
-		return false;
-	std::advance( iterator , header );
+	assert( iterator == m_headersCache.end() );
+
+	while ( header >= m_headersCache.size() )
+	{
+		createNewHeader();
+	}
+
+	std::advance( iterator, header );
 
 	CRecord record = iterator->getRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets() );
 
+	if ( record.m_isEmptySpace )
+	{
+		record.m_isEmptySpace = 0;
+		record.m_blockNumber = m_lastSegmentIndex;
+	}
 	_bockNumber = record.m_blockNumber;
 	return true;
 }
@@ -411,7 +424,7 @@ CDiskBlock*
 CSegmentFileStorage::getDiscBlock( uint64_t const _location )
 {
 	unsigned int blockNumber = 0;
-	if ( !findBlockNumberInHeaderCache( _location, blockNumber ) )
+	if ( !assignBlockNumberInHeaderCache( _location, blockNumber ) )
 		return 0;
 
 	CDiskBlock * diskBlock = new CDiskBlock;
@@ -487,7 +500,7 @@ CSegmentFileStorage::flushLoop()
 
 			BOOST_FOREACH( UsedBlocks::value_type const & block, m_usedBlocks )
 			{
-				if ( findBlockNumberInHeaderCache( block.first, blockNumber ) )
+				if ( assignBlockNumberInHeaderCache( block.first, blockNumber ) )
 				{
 					saveBlock( blockNumber, *block.second );
 				}
@@ -505,9 +518,20 @@ CSegmentFileStorage::flushLoop()
 				saveBlock( headerId, header );
 				headerId++;
 			}
-
 			// reload  mruset
+
+			UsedBlocks nonCacheBlocks;
 			BOOST_FOREACH( UsedBlocks::value_type const & block, m_usedBlocks )
+			{
+				CCacheElement cacheElement( block.second, block.first.m_location );
+
+				if ( m_discBlockCache.find( cacheElement ) == m_discBlockCache.end() )
+				{
+					nonCacheBlocks.insert( std::make_pair( block.first, block.second ) );
+				}
+			}
+
+			BOOST_FOREACH( UsedBlocks::value_type const & block, nonCacheBlocks )
 			{
 				CCacheElement cacheElement( block.second, block.first.m_location );
 
@@ -524,7 +548,6 @@ CSegmentFileStorage::flushLoop()
 			m_locationUsedFromLastUpdate.clear();
 
 			delete m_processedTransactionQueue;
-			m_accessFile.flush(ms_headerFileName);
 
 			//rebuild merkle and store it, in database
 			boost::this_thread::interruption_point();

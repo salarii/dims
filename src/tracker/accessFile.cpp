@@ -4,6 +4,7 @@
 
 #include "common/ratcoinParams.h"
 #include "accessFile.h"
+#include "util.h"
 
 namespace tracker
 {
@@ -16,9 +17,6 @@ template<> unsigned int const CSerializedTypes<CDiskBlock>::m_key = 1;
 
 template<> unsigned int const CSerializedTypes<CSegmentHeader>::m_key = 2;
 
-std::string const
-CAccessFile::m_baseDirectory = "//network//";
-
 CAccessFile::CAccessFile()
 {
 }
@@ -27,7 +25,7 @@ CAccessFile::CAccessFile()
 bool
 CAccessFile::fileExist(std::string const & _name ) const
 {
-	boost::filesystem::path path( common::ratcoinParams().getDefaultDirectory() + m_baseDirectory + _name );
+	boost::filesystem::path path( _name );
 
     return boost::filesystem::exists(path);
 }
@@ -52,18 +50,6 @@ CAccessFile::openDiskFile(long int const pos, std::string _path, bool fReadOnly)
         }
     }
     return file;
-}
-
-void
-CAccessFile::flush( std::string const & _fileName )
-{
-	std::map< std::string, FILE* >::iterator iterator = m_accessed.find( _fileName );
-
-
-	if ( iterator == m_accessed.end() )
-		return;
-	else
-		fflush(iterator->second);
 }
 
 }

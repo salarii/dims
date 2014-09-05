@@ -994,19 +994,19 @@ boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
 #endif
 }
 
-static boost::filesystem::path pathCached[CChainParams::MAX_NETWORK_TYPES+1];
+static boost::filesystem::path pathCached[(int)common::AppType::SizeOfEnum];
 static CCriticalSection csPathCached;
-
+//this is not  correct fix it
 const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
 
     LOCK(csPathCached);
 
-    int nNet = CChainParams::MAX_NETWORK_TYPES;
-    if (fNetSpecific) nNet = Params().NetworkID();
+	int nNet = common::AppType::SizeOfEnum;
+	if (fNetSpecific) nNet = _appType;
 
-    fs::path &path = pathCached[nNet];
+	fs::path &path = pathCached[(int)_appType];
 
     // This can be called during exceptions by LogPrintf(), so we cache the
     // value so we don't have to do memory allocations after that.
@@ -1032,7 +1032,7 @@ const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool 
 
 void ClearDatadirCache()
 {
-    std::fill(&pathCached[0], &pathCached[CChainParams::MAX_NETWORK_TYPES+1],
+	std::fill(&pathCached[0], &pathCached[(int)common::AppType::SizeOfEnum],
               boost::filesystem::path());
 }
 

@@ -34,7 +34,7 @@ typedef unsigned int CounterType;
 
 struct CRecord
 {
-	CRecord( unsigned int _blockNumber = 0,unsigned char _isEmptySpace = 0 ):m_blockNumber(_blockNumber),m_isEmptySpace(_isEmptySpace){}
+	CRecord( unsigned int _blockNumber = 0,unsigned char _isEmptySpace = 1 ):m_blockNumber(_blockNumber),m_isEmptySpace(_isEmptySpace){}
 	unsigned int m_blockNumber;
 	unsigned char m_isEmptySpace;
 
@@ -243,7 +243,7 @@ private:
 
 	unsigned int calculateBlockIndex( void * _block );
 
-	bool findBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber ) const;
+	bool assignBlockNumberInHeaderCache( CLocation const & _location, unsigned int & _bockNumber );
 
 	void getLocationOfFreeRecordForBucket( unsigned int const _bucket, CLocation & _location );
 
@@ -303,6 +303,8 @@ private:
 	std::set< CLocation > m_locationUsedFromLastUpdate;
 
 	uint64_t m_lastFlushTime;
+
+	static std::string const m_baseDirectory;
 };
 
 }

@@ -24,10 +24,11 @@ struct AppType
 {
 	enum Enum
 	{
-		  Client
+		  Client = 0
 		, Tracker
 		, Monitor
 		, Seed
+		, SizeOfEnum
 	};
 };
 

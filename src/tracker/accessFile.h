@@ -37,20 +37,13 @@ public:
 	bool fileExist(std::string const & _name ) const;
 
 	FILE* openDiskFile(long int const pos, std::string _path, bool fReadOnly);
-
-	void flush( std::string const & _fileName );
 private:
 	template < class T >
 	unsigned int getSerialSize( T const & _t);
 private:
-	std::map< std::string, FILE* > m_accessed;
-
-	static std::string const m_baseDirectory;
-
 	std::map< unsigned int , unsigned int > m_serializeSize;
 
 };
-
 
 template< class T >
 bool
@@ -59,20 +52,14 @@ CAccessFile::loadSegmentFromFile( unsigned int _index, std::string const & _file
 	if (!fileExist(_fileName))
 		return false;
 
-	std::map< std::string, FILE* >::iterator iterator = m_accessed.find( _fileName );
-
-	if ( iterator == m_accessed.end() )
-		return false;
-
-	FILE * fileStream = iterator->second;
+	FILE * fileStream ;
 
 	unsigned int serialSize = getSerialSize( _t );
 
-	long int current =  ftell ( fileStream );
-	fseek(fileStream, serialSize * _index - current, SEEK_SET);
+	fileStream = openDiskFile( serialSize * _index, _fileName, false);
 
-	unsigned int bufferedSize = 1 << KiloByteShift * 4;
-	CBufferedFile blkdat(fileStream, bufferedSize, bufferedSize, SER_DISK, CLIENT_VERSION);
+	unsigned int bufferedSize = (1 << KiloByteShift) * 4;
+	CBufferedFile blkdat(fileStream, 2*serialSize, serialSize, SER_DISK, CLIENT_VERSION);
 
 	blkdat >> _t;
 
@@ -103,11 +90,10 @@ template< class T >
 void
 CAccessFile::saveSegmentToFile( unsigned int _index, std::string const & _fileName, T const & _block )
 {
-	std::map< std::string, FILE* >::iterator iterator = m_accessed.find( _fileName );
-
 	unsigned int serialSize = getSerialSize( _block );
 
-	FILE * fileStream = openDiskFile( serialSize * _index, common::ratcoinParams().getDefaultDirectory() + m_baseDirectory + _fileName, false);
+	FILE * fileStream;
+		fileStream = openDiskFile( serialSize * _index, _fileName, false);
 
 	CAutoFile autoFile(fileStream, SER_DISK, CLIENT_VERSION);
 	autoFile << _block;
