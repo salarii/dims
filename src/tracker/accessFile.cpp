@@ -17,7 +17,7 @@ template<> unsigned int const CSerializedTypes<CDiskBlock>::m_key = 1;
 template<> unsigned int const CSerializedTypes<CSegmentHeader>::m_key = 2;
 
 std::string const
-CAccessFile::m_baseDirectory = common::ratcoinParams().getDefaultDirectory() + "//network//";
+CAccessFile::m_baseDirectory = "//network//";
 
 CAccessFile::CAccessFile()
 {
@@ -27,7 +27,7 @@ CAccessFile::CAccessFile()
 bool
 CAccessFile::fileExist(std::string const & _name ) const
 {
-    boost::filesystem::path path( m_baseDirectory + _name );
+	boost::filesystem::path path( common::ratcoinParams().getDefaultDirectory() + m_baseDirectory + _name );
 
     return boost::filesystem::exists(path);
 }
