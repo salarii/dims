@@ -6,12 +6,13 @@
 #ifndef ACCESS_FILE_H
 #define ACCESS_FILE_H
 
-#include "serialize.h"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "version.h"
+#include "common/ratcoinParams.h"
 
+#include "serialize.h"
+#include "version.h"
 #include "simpleBuddy.h"
 
 namespace tracker
@@ -106,7 +107,7 @@ CAccessFile::saveSegmentToFile( unsigned int _index, std::string const & _fileNa
 
 	unsigned int serialSize = getSerialSize( _block );
 
-	FILE * fileStream = openDiskFile( serialSize * _index, m_baseDirectory + _fileName, false);
+	FILE * fileStream = openDiskFile( serialSize * _index, common::ratcoinParams().getDefaultDirectory() + m_baseDirectory + _fileName, false);
 
 	CAutoFile autoFile(fileStream, SER_DISK, CLIENT_VERSION);
 	autoFile << _block;
