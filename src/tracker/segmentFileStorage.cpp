@@ -101,7 +101,7 @@ inline
 bool
 CSegmentHeader::givenRecordUsed(unsigned int _index ) const
 {
-	return m_records[_index].m_blockNumber;
+	return !( m_records[_index].m_isEmptySpace );
 }
 
 unsigned int
@@ -124,8 +124,8 @@ CSegmentHeader::setNextHeaderFlag()
 }
 
 
-CRecord const &
-CSegmentHeader::getRecord(unsigned int _bucket, unsigned int _index ) const
+CRecord &
+CSegmentHeader::getRecord(unsigned int _bucket, unsigned int _index )
 {
 	assert( getNumberOfFullBucketSets() > _index );
 	return m_records[ _index * MAX_BUCKET  + _bucket ];
@@ -163,6 +163,8 @@ CSegmentFileStorage::CSegmentFileStorage()
 	m_transactionQueue = new TransactionQueue;
 
 	CBlockInfoDatabase::getInstance()->loadTimeOfFlush( m_lastFlushTime );
+
+	m_alreadyStoredSegents = calculateStoredBlockNumber();
 }
 
 void
@@ -204,6 +206,9 @@ CSegmentFileStorage::createNewHeader()
 bool
 CSegmentFileStorage::getBlock( unsigned int _index, CDiskBlock & _discBlock )
 {
+	if ( m_alreadyStoredSegents <= _index )
+		return false;
+
 	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
 	path += m_baseDirectory + ms_segmentFileName;
 	return m_accessFile.loadSegmentFromFile< CDiskBlock >( _index, path.string(), _discBlock );
@@ -228,6 +233,8 @@ CSegmentFileStorage::saveBlock( unsigned int _index, CSegmentHeader const & _hea
 void
 CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
 {
+	if ( _index >= m_alreadyStoredSegents )
+		m_alreadyStoredSegents = _index + 1;
 	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
 	path += m_baseDirectory + ms_segmentFileName;
 	m_accessFile.saveSegmentToFile( _index, path.string(), _block );
@@ -287,7 +294,7 @@ CSegmentFileStorage::getLocationOfFreeRecordForBucket( unsigned int const _bucke
 }
 
 uint64_t
-CSegmentFileStorage::getPosition( CTransaction const & _transaction )
+CSegmentFileStorage::assignPosition( CTransaction const & _transaction )
 {
 	boost::lock_guard<boost::mutex> lock( m_locationTobuddy );
 
@@ -307,8 +314,11 @@ CSegmentFileStorage::getPosition( CTransaction const & _transaction )
 			TransactionLocationToBuddy::iterator buddy = m_transactionLocationToBuddy.find( calculateLocation( bucket, i ) );
 			index = buddy->second->buddyAlloc( reqLevel );
 			if ( index == -1 )
+			{
+				int k = 9;
+				k++;
 				continue;
-
+			}
 			return createFullPosition( i, index, reqLevel, bucket );
 		}
 	}
@@ -340,23 +350,23 @@ CSegmentFileStorage::assignBlockNumberInHeaderCache( CLocation const & _location
 	uint64_t location = _location.m_location;
 
 	unsigned int header = getPosition( location )/ CSegmentHeader::getNumberOfFullBucketSets();
-	std::vector< CSegmentHeader >::const_iterator iterator = m_headersCache.begin();
-
-	assert( iterator == m_headersCache.end() );
+	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
 
 	while ( header >= m_headersCache.size() )
 	{
 		createNewHeader();
+
+		iterator = m_headersCache.begin();
 	}
 
 	std::advance( iterator, header );
 
-	CRecord record = iterator->getRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets() );
+	CRecord & record = iterator->getRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets() );
 
 	if ( record.m_isEmptySpace )
 	{
 		record.m_isEmptySpace = 0;
-		record.m_blockNumber = m_lastSegmentIndex;
+		record.m_blockNumber = m_lastSegmentIndex++;
 	}
 	_bockNumber = record.m_blockNumber;
 	return true;
@@ -667,10 +677,9 @@ CSegmentFileStorage::fillHeaderBuffor()
 	}
 	else
 	{
-		if (! getSegmentHeader( 0, header ) )
+		if ( getSegmentHeader( 0, header ) )
 		{
 			m_headersCache.push_back(header);
-			return;
 		}
 	}
 
@@ -691,11 +700,13 @@ CSegmentFileStorage::calculateBlockIndex( void * _block )
 unsigned int
 CSegmentFileStorage::calculateStoredBlockNumber() const
 {
+	// acquire lock
 	unsigned int blockCnt = 0;
 	BOOST_FOREACH( CSegmentHeader header, m_headersCache )
 	{
 		blockCnt += header.getAllUsedRecordsNumber();
 	}
+	return blockCnt;
 }
 
 bool

@@ -71,7 +71,7 @@ struct CSetLocation
 	CTransaction operator()( CTransaction const & _transaction )
 	{
 		CTransaction transaction( _transaction );
-		transaction.m_location = tracker::CSegmentFileStorage::getInstance()->getPosition( _transaction );
+		transaction.m_location = tracker::CSegmentFileStorage::getInstance()->assignPosition( _transaction );
 		return transaction;
 	}
 };

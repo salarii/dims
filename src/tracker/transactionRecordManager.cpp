@@ -93,7 +93,7 @@ void
 CTransactionRecordManager::addTransactionToStorage( CTransaction const & _tx )
 {
 	CTransaction tx( _tx );
-	tx.m_location = CSegmentFileStorage::getInstance()->getPosition( _tx );
+	tx.m_location = CSegmentFileStorage::getInstance()->assignPosition( _tx );
 	CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
 }
 
@@ -103,7 +103,7 @@ CTransactionRecordManager::addTransactionsToStorage( std::vector< CTransaction >
 	BOOST_FOREACH( CTransaction const & transaction, _transaction )
 	{
 		CTransaction tx( transaction );
-		tx.m_location = CSegmentFileStorage::getInstance()->getPosition( tx );
+		tx.m_location = CSegmentFileStorage::getInstance()->assignPosition( tx );
 		CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
 	}
 

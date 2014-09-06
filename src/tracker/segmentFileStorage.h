@@ -26,7 +26,7 @@ class CCoins;
 namespace tracker
 {
 
-#define BLOCK_SIZE ( 1 << 12 )
+#define BLOCK_SIZE ( 1 << 8 )//( 1 << 12 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
 #define MAX_BUCKET ( 0x2 ) // not more than 0xff
 
@@ -88,7 +88,7 @@ public:
 
 	void setNextHeaderFlag();
 
-	CRecord const & getRecord(  unsigned int _bucket, unsigned int _index ) const;
+	CRecord & getRecord(  unsigned int _bucket, unsigned int _index );
 
 	static unsigned int getNumberOfFullBucketSets();
 
@@ -152,9 +152,7 @@ public:
 	{
 		CCacheElement( CLocation const & _location ):m_discBlock(0), m_location(_location){};
 
-		CCacheElement( CDiskBlock* _discBlock, CLocation const _location ):m_discBlock( _discBlock ){};
-
-		CCacheElement( CCacheElement const & _cacheElement ):m_discBlock( _cacheElement.m_discBlock ){};
+		CCacheElement( CDiskBlock* _discBlock, CLocation const _location ):m_discBlock( _discBlock ), m_location(_location){};
 
 		CDiskBlock* m_discBlock;
 
@@ -198,7 +196,7 @@ public:
 
 	static CSegmentFileStorage* getInstance();
 
-	uint64_t getPosition( CTransaction const & _transaction );
+	uint64_t assignPosition( CTransaction const & _transaction );
 
 	// very  risky to  calculate  the same  thing from the same thing
 	static uint64_t calculateLocation( unsigned int _bucket, unsigned int _position );
@@ -305,6 +303,8 @@ private:
 	uint64_t m_lastFlushTime;
 
 	static std::string const m_baseDirectory;
+
+	unsigned int m_alreadyStoredSegents;
 };
 
 }
