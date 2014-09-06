@@ -165,6 +165,8 @@ CSegmentFileStorage::CSegmentFileStorage()
 	CBlockInfoDatabase::getInstance()->loadTimeOfFlush( m_lastFlushTime );
 
 	m_alreadyStoredSegents = calculateStoredBlockNumber();
+
+	retriveState();
 }
 
 void
@@ -314,11 +316,8 @@ CSegmentFileStorage::assignPosition( CTransaction const & _transaction )
 			TransactionLocationToBuddy::iterator buddy = m_transactionLocationToBuddy.find( calculateLocation( bucket, i ) );
 			index = buddy->second->buddyAlloc( reqLevel );
 			if ( index == -1 )
-			{
-				int k = 9;
-				k++;
 				continue;
-			}
+
 			return createFullPosition( i, index, reqLevel, bucket );
 		}
 	}
@@ -702,11 +701,40 @@ CSegmentFileStorage::calculateStoredBlockNumber() const
 {
 	// acquire lock
 	unsigned int blockCnt = 0;
-	BOOST_FOREACH( CSegmentHeader header, m_headersCache )
+	BOOST_FOREACH( CSegmentHeader const & header, m_headersCache )
 	{
 		blockCnt += header.getAllUsedRecordsNumber();
 	}
 	return blockCnt;
+}
+
+void
+CSegmentFileStorage::retriveState()
+{
+	for ( unsigned int bucket = 0; bucket < MAX_BUCKET; ++bucket )
+	{
+		m_usedBuddy.insert( std::make_pair( bucket, 0 ) );
+	}
+
+	CDiskBlock diskBlock;
+	BOOST_FOREACH( CSegmentHeader & header, m_headersCache )
+	{
+		for ( unsigned int setId = 0; setId < header.getNumberOfFullBucketSets(); ++setId )
+		{
+			for ( unsigned int bucket = 0; bucket < MAX_BUCKET; ++bucket )
+			{
+				CRecord const & record = header.getRecord( bucket, setId );
+				if ( !record.m_isEmptySpace )
+				{
+					getBlock( record.m_blockNumber, diskBlock );
+
+					m_transactionLocationToBuddy.insert( std::make_pair( CLocation( bucket, m_usedBuddy.at( bucket ) ), new CSimpleBuddy( diskBlock ) ) );
+					m_usedBuddy.at( bucket )++;
+				}
+			}
+		}
+	}
+
 }
 
 bool

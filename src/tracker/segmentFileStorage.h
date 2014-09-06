@@ -10,6 +10,7 @@ separate headers  and  blocks?
 */
 #include <list>
 #include <boost/thread.hpp>
+#include <boost/atomic.hpp>
 
 #include "uint256.h"
 #include "serialize.h"
@@ -251,6 +252,7 @@ private:
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
 
+	void retriveState();
 private:
 	mutable boost::mutex m_headerCacheLock;
 
@@ -265,6 +267,8 @@ private:
 	typedef std::map< CLocation, CSimpleBuddy* > TransactionLocationToBuddy;
 
 private:
+	boost::atomic< int > m_synchronizationInProgress;
+
 	static CSegmentFileStorage * ms_instance;
 
 	static const std::string ms_segmentFileName;
