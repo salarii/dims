@@ -27,9 +27,9 @@ class CCoins;
 namespace tracker
 {
 
-#define BLOCK_SIZE ( 1 << 8 )//( 1 << 12 )
+#define BLOCK_SIZE ( 1 << 10 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
-#define MAX_BUCKET ( 0x2 ) // not more than 0xff
+#define MAX_BUCKET ( 0x10 ) // not more than 0xff
 
 typedef unsigned int CounterType;
 
@@ -99,7 +99,7 @@ public:
 		READWRITE(FLATDATA(m_records));
 		READWRITE(m_headerHash);
 	)
-
+// wrong??
 	static unsigned int const  m_recordsNumber =  ( BLOCK_SIZE - sizeof( unsigned int )*2 -  sizeof( uint256 ) )/ sizeof( CRecord );
 
 	CRecord const & setNewRecord( unsigned int _bucked, unsigned int _position, CRecord const & _record );
@@ -168,7 +168,7 @@ public:
 	class CDiscBlockCache : public mruset< CCacheElement >
 	{
 	public:
-		CDiscBlockCache(): mruset< CCacheElement >(1){}
+		CDiscBlockCache(): mruset< CCacheElement >(m_maximumSize){}
 
 		std::pair<iterator, bool> insert( CCacheElement const & x)
 		{
@@ -179,6 +179,8 @@ public:
 			}
 			mruset< CCacheElement >::insert( x );
 		}
+	private:
+		static unsigned int const m_maximumSize = 32;
 	};
 public:
 	bool setDiscBlock( CDiskBlock const & _discBlock );
@@ -246,8 +248,6 @@ private:
 
 	void getLocationOfFreeRecordForBucket( unsigned int const _bucket, CLocation & _location );
 
-	CRecord const & createRecordForBlock( CLocation const & _recordIndex );
-
 	void setRecord( CLocation const & _location, CRecord const & _record );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
@@ -292,8 +292,6 @@ private:
 	//this is  good for synchronisation concerning short absence, but it should contain rather timestamps and transactions
 	mruset< CStore > m_recentlyStored;
 
-	static size_t m_lastSegmentIndex;
-
 	CAccessFile m_accessFile;
 
 	std::vector< CDiskBlock* > m_discBlocksInCurrentFlush;
@@ -308,7 +306,9 @@ private:
 
 	static std::string const m_baseDirectory;
 
-	unsigned int m_alreadyStoredSegents;
+	static size_t m_lastSegmentIndex;
+	// most probably there is  some logic error if  I  have to use this
+	unsigned int m_alreadyStoredSegments;
 };
 
 }

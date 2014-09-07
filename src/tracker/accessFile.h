@@ -52,7 +52,7 @@ CAccessFile::loadSegmentFromFile( unsigned int _index, std::string const & _file
 	if (!fileExist(_fileName))
 		return false;
 
-	FILE * fileStream ;
+	FILE * fileStream;
 
 	unsigned int serialSize = getSerialSize( _t );
 
@@ -62,6 +62,8 @@ CAccessFile::loadSegmentFromFile( unsigned int _index, std::string const & _file
 	CBufferedFile blkdat(fileStream, 2*serialSize, serialSize, SER_DISK, CLIENT_VERSION);
 
 	blkdat >> _t;
+
+	fclose(fileStream);
 
 	return true;
 }

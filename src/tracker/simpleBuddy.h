@@ -50,9 +50,9 @@ public:
 
 	~CSimpleBuddy();
 public:
-	static unsigned int const ms_buddyBaseLevel = 16;
+	static unsigned int const ms_buddyBaseLevel = 12;
 
-	static unsigned int const ms_buddySize = ( 1 << KiloByteShift)* 1024; // in bytes
+	static unsigned int const ms_buddySize = ( 1 << KiloByteShift)* 512; // in bytes
 private:
 
 	void markParent(int _index);

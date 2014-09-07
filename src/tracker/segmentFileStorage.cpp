@@ -164,8 +164,8 @@ CSegmentFileStorage::CSegmentFileStorage()
 
 	CBlockInfoDatabase::getInstance()->loadTimeOfFlush( m_lastFlushTime );
 
-	m_alreadyStoredSegents = calculateStoredBlockNumber();
-
+	m_alreadyStoredSegments = calculateStoredBlockNumber();
+	m_lastSegmentIndex = m_alreadyStoredSegments;
 	retriveState();
 }
 
@@ -208,7 +208,7 @@ CSegmentFileStorage::createNewHeader()
 bool
 CSegmentFileStorage::getBlock( unsigned int _index, CDiskBlock & _discBlock )
 {
-	if ( m_alreadyStoredSegents <= _index )
+	if ( m_alreadyStoredSegments <= _index )
 		return false;
 
 	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
@@ -235,31 +235,11 @@ CSegmentFileStorage::saveBlock( unsigned int _index, CSegmentHeader const & _hea
 void
 CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
 {
-	if ( _index >= m_alreadyStoredSegents )
-		m_alreadyStoredSegents = _index + 1;
+	if ( _index >= m_alreadyStoredSegments )
+		m_alreadyStoredSegments = _index + 1;
 	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
 	path += m_baseDirectory + ms_segmentFileName;
 	m_accessFile.saveSegmentToFile( _index, path.string(), _block );
-}
-
-
-CRecord const &
-CSegmentFileStorage::createRecordForBlock( CLocation const & _location )
-{
-	uint64_t location = _location.m_location;
-
-	unsigned int header = getPosition( location )/ CSegmentHeader::getNumberOfFullBucketSets();
-
-	std::vector< CSegmentHeader >::iterator iterator = m_headersCache.begin();
-
-	for ( unsigned int i = m_headersCache.size(); i < header; ++i )
-	{
-			m_headersCache.push_back( CSegmentHeader() );
-	}
-
-	std::advance( iterator, header );
-
-	return iterator->setNewRecord( getBucket( location ), getPosition( location ) % CSegmentHeader::getNumberOfFullBucketSets(), CRecord(m_lastSegmentIndex++,1) );
 }
 
 void
@@ -513,12 +493,6 @@ CSegmentFileStorage::flushLoop()
 				{
 					saveBlock( blockNumber, *block.second );
 				}
-				else
-				{
-					CRecord const & record = createRecordForBlock( block.first );
-
-					saveBlock( record.m_blockNumber, *block.second );
-				}
 			}
 
 			unsigned int headerId = 0;
@@ -711,11 +685,13 @@ CSegmentFileStorage::calculateStoredBlockNumber() const
 void
 CSegmentFileStorage::retriveState()
 {
-	for ( unsigned int bucket = 0; bucket < MAX_BUCKET; ++bucket )
+	if ( !m_headersCache.empty() )
 	{
-		m_usedBuddy.insert( std::make_pair( bucket, 0 ) );
+		for ( unsigned int bucket = 0; bucket < MAX_BUCKET; ++bucket )
+		{
+			m_usedBuddy.insert( std::make_pair( bucket, 0 ) );
+		}
 	}
-
 	CDiskBlock diskBlock;
 	BOOST_FOREACH( CSegmentHeader & header, m_headersCache )
 	{
