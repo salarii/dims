@@ -63,6 +63,8 @@ struct CAckPromptResult : boost::statechart::event< CAckPromptResult >
 
 struct CGetPrompt
 {
+	CGetPrompt( int _type ):m_type( _type ){}
+	int m_type;
 };
 
 struct CMediumException : public std::exception

@@ -90,7 +90,7 @@ public:
 
 	virtual void operator()( common::CGetPrompt & _param ) const
 	{
-		this->m_action->process_event( common::CGetEvent() );
+		this->m_action->process_event( common::CGetEvent(_param.m_type) );
 	}
 };
 
@@ -131,14 +131,14 @@ public:
 		this->m_action->process_event( tracker::CSynchronizationInfoEvent( _param.m_timeStamp, _param.m_nodeIndicator ) );
 	}
 
-	virtual void operator()( tracker::CSynchronizationBlockResult & _param ) const
+	virtual void operator()( tracker::CSynchronizationBlockResult<tracker::CDiskBlock> & _param ) const
 	{
-		this->m_action->process_event( tracker::CTransactionBlockEvent( _param.m_discBlock ) );
+		this->m_action->process_event( tracker::CTransactionBlockEvent<tracker::CDiskBlock>( _param.m_discBlock, _param.m_blockIndex ) );
 	}
 
 	virtual void operator()( common::CGetPrompt & _param ) const
 	{
-		this->m_action->process_event( common::CGetEvent() );
+		this->m_action->process_event( common::CGetEvent( _param.m_type ) );
 	}
 };
 

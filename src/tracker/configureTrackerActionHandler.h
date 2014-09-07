@@ -42,19 +42,23 @@ struct CSynchronizationInfoResult
 };
 
 struct CDiskBlock;
+struct CSegmentHeader;
 
+template < class Block >
 struct CSynchronizationBlockResult
 {
 	CSynchronizationBlockResult(){}
 
-	CSynchronizationBlockResult( CDiskBlock * _discBlock ):m_discBlock( _discBlock ){}
+	CSynchronizationBlockResult( Block * _discBlock, unsigned int _blockIndex ):m_discBlock( _discBlock ), m_blockIndex( _blockIndex ){}
 
-	CDiskBlock * m_discBlock;
+	Block * m_discBlock;
+
+	unsigned int m_blockIndex;
 };
 
 
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult, CRequestedMerkles, CSynchronizationInfoResult, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult, common::CAckPromptResult > TrackerResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CContinueResult, CRequestedMerkles, CSynchronizationInfoResult, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult< CSegmentHeader >, CSynchronizationBlockResult< CDiskBlock >, common::CAckPromptResult > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

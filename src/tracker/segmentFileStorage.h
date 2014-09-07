@@ -183,7 +183,13 @@ public:
 		static unsigned int const m_maximumSize = 32;
 	};
 public:
-	bool setDiscBlock( CDiskBlock const & _discBlock );
+	void setSynchronizationInProgress();
+
+	void releaseSynchronizationInProgress();
+
+	bool setDiscBlock( CDiskBlock const & _discBlock, unsigned int _index, std::vector< CTransaction > & _transactions  );
+
+	bool setDiscBlock( CSegmentHeader const & _segmentHeader, unsigned int _index );
 
 	void includeTransaction( CTransaction const & _transaction, uint64_t const _timeStamp );
 
@@ -227,6 +233,8 @@ public:
 	void saveBlock( unsigned int _index, CDiskBlock const & _block );
 
 	unsigned int calculateStoredBlockNumber() const;
+
+	unsigned int getStoredHeaderCount() const;
 private:
 	CSegmentFileStorage();
 

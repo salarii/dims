@@ -93,6 +93,8 @@ struct CAckEvent : boost::statechart::event< CAckEvent >
 
 struct CGetEvent : boost::statechart::event< CGetEvent >
 {
+	CGetEvent( int _type ):m_type(_type){}
+	int m_type;
 };
 
 }

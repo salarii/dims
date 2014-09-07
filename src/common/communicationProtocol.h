@@ -28,6 +28,7 @@ struct CPayloadKind
 		SynchronizationInfo,
 		SynchronizationGet,
 		SynchronizationBlock,
+		SynchronizationHeader,
 		Uninitiated,
 		Ack,
 		Get
@@ -189,8 +190,10 @@ struct CGet
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_actionKey);
+		READWRITE(m_type);
 	)
 	uint256 m_actionKey;
+	int m_type;
 };
 
 struct CMessage

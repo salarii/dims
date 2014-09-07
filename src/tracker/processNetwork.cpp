@@ -118,7 +118,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( get.m_actionKey ) )
 			{
-				nodeMedium->setResponse( get.m_actionKey, common::CGetPrompt() );
+				nodeMedium->setResponse( get.m_actionKey, common::CGetPrompt( get.m_type ) );
 			}
 			else
 			{
@@ -134,21 +134,44 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
 
-			CSynchronizationBlock synchronizationBlock( new CDiskBlock );
+			CSynchronizationBlock synchronizationBlock( new CDiskBlock, -1 );
 			common::convertPayload( orginalMessage, synchronizationBlock );
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationBlock.m_actionKey ) )
 			{
-				nodeMedium->setResponse( synchronizationBlock.m_actionKey, CSynchronizationBlockResult( synchronizationBlock.m_diskBlock ) );
+				nodeMedium->setResponse( synchronizationBlock.m_actionKey, CSynchronizationBlockResult< CDiskBlock >( synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex ) );
 			}
 			else
 			{
 				assert(!"it should be existing action");
 
 			}
+		}
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader )
+		{
+			CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
 
+			common::CMessage orginalMessage;
+			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
+				assert( !"service it somehow" );
+
+			CSynchronizationSegmentHeader synchronizationSegmentHeader( new CSegmentHeader, -1 );
+			common::convertPayload( orginalMessage, synchronizationSegmentHeader );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationSegmentHeader.m_actionKey ) )
+			{
+				nodeMedium->setResponse( synchronizationSegmentHeader.m_actionKey, CSynchronizationBlockResult< CSegmentHeader >( synchronizationSegmentHeader.m_segmentHeader, synchronizationSegmentHeader.m_blockIndex ) );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+
+			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{

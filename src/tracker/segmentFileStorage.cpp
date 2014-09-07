@@ -157,6 +157,7 @@ CSegmentFileStorage::getInstance()
 CSegmentFileStorage::CSegmentFileStorage()
 : m_recentlyStored(MAX_BUCKET)
 , m_lastFlushTime( 0 )
+, m_synchronizationInProgress( 0 )
 {
 	fillHeaderBuffor();
 
@@ -429,6 +430,11 @@ CSegmentFileStorage::flushLoop()
 {
 	while(1)
 	{
+		if ( m_synchronizationInProgress )
+		{
+			MilliSleep(1000);
+			continue;
+		}
 		{
 			TransactionLocationToBuddy processedLocationToBuddy;
 
@@ -682,6 +688,13 @@ CSegmentFileStorage::calculateStoredBlockNumber() const
 	return blockCnt;
 }
 
+//maybe not correct
+unsigned int
+CSegmentFileStorage::getStoredHeaderCount() const
+{
+	return m_headersCache.size();
+}
+
 void
 CSegmentFileStorage::retriveState()
 {
@@ -713,35 +726,34 @@ CSegmentFileStorage::retriveState()
 
 }
 
-bool
-CSegmentFileStorage::setDiscBlock( CDiskBlock const & _discBlock )
+void
+CSegmentFileStorage::setSynchronizationInProgress()
 {
-	std::vector< CTransaction > transactions;
-
-	if ( !readTransactions( _discBlock, transactions ) )
-		return false;
-
-	saveBlock( m_lastSegmentIndex, _discBlock );
-
-	CLocation location;
-
-	getLocationOfFreeRecordForBucket( calculateBucket( transactions.front().GetHash() ), location );
-
-	CRecord record;
-	record.m_blockNumber = m_lastSegmentIndex++;
-
-	setRecord( location, record );
-
-	m_transactionLocationToBuddy.insert( std::make_pair( location, new CSimpleBuddy( (CSimpleBuddy const & )_discBlock ) ) );
-
-	//load cache
+	m_synchronizationInProgress = 1;
 }
 
+void
+CSegmentFileStorage::releaseSynchronizationInProgress()
+{
+	m_synchronizationInProgress = 0;
+}
+
+bool
+CSegmentFileStorage::setDiscBlock( CDiskBlock const & _discBlock, unsigned int _index, std::vector< CTransaction > & _transactions )
+{
+	saveBlock( _index, _discBlock );
+
+	if ( !readTransactions( _discBlock, _transactions ) )
+		return false;
+}
+
+bool
+CSegmentFileStorage::setDiscBlock( CSegmentHeader const & _segmentHeader, unsigned int _index )
+{
+	saveBlock( _index, _segmentHeader );
+}
 
 /*
- load CBlocks fro  outside
- rebuild  headers  from  this
-
 
 check merkle ?? set  merkle hash in  headers??
  get all transactions by  level from  down  to  top
@@ -750,11 +762,6 @@ check merkle ?? set  merkle hash in  headers??
  hash vector of  hashes
  this  is  has of  single  block
  from  this  create  merkle  tree
-
-
-void
-CSegmentFileStorage::
-
 
 
 */

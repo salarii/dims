@@ -55,7 +55,8 @@ public:
 	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
 	virtual void add( tracker::CGetSynchronizationInfoRequest const * _request ){};
 	virtual void add( tracker::CGetNextBlockRequest const * _request ){};
-	virtual void add( tracker::CSetNextBlockRequest const * _request ){};
+	virtual void add( tracker::CSetNextBlockRequest< tracker::CDiskBlock > const * _request ){};
+	virtual void add( tracker::CSetNextBlockRequest< tracker::CSegmentHeader > const * _request ){};
 	virtual void add( tracker::CTransactionsKnownRequest const * _request ){};
 	virtual void add( tracker::CTransactionsAckRequest const * _request ){};
 	virtual void add( tracker::CTransactionsDoublespendRequest const * _request ){};

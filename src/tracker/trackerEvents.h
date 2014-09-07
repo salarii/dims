@@ -35,12 +35,14 @@ struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInf
 
 struct CDiskBlock;
 
-struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent >
+template < class Block >
+struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent<Block> >
 {
-	CTransactionBlockEvent( CDiskBlock * _discBlock ):m_discBlock( _discBlock )
+	CTransactionBlockEvent( Block * _discBlock, unsigned int _blockIndex ):m_discBlock( _discBlock ),m_blockIndex( _blockIndex )
 	{
 	}
-	CDiskBlock * m_discBlock;
+	Block * m_discBlock;
+	unsigned int m_blockIndex;
 };
 
 struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >

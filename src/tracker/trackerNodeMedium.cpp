@@ -21,6 +21,15 @@ CTrackerMessage::CTrackerMessage( CSynchronizationBlock const & _synchronization
 	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CTrackerMessage::CTrackerMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader )
+{
+	m_header = common::CHeader( (int)common::CPayloadKind::SynchronizationHeader, std::vector<unsigned char>(), GetTime(), CPubKey() );
+
+	common::createPayload( _synchronizationSegmentHeader, m_payload );
+
+	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 void
 CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 {
@@ -44,6 +53,8 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 
 	get.m_actionKey = _request->getActionKey();
 
+	get.m_type = _request->getBlockKind();
+
 	common::CMessage message( get );
 
 	m_messages.push_back( message );
@@ -52,9 +63,23 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 }
 
 void
-CTrackerNodeMedium::add( CSetNextBlockRequest const * _request )
+CTrackerNodeMedium::add( CSetNextBlockRequest< CSegmentHeader > const * _request )
 {
-	CSynchronizationBlock synchronizationBlock( _request->getBlock() );
+	CSynchronizationSegmentHeader synchronizationSegmentHeader( _request->getBlock(), _request->getBlockIndex() );
+
+	synchronizationSegmentHeader.m_actionKey = _request->getActionKey();
+
+	CTrackerMessage message( synchronizationSegmentHeader );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( synchronizationSegmentHeader.m_actionKey );
+}
+
+void
+CTrackerNodeMedium::add( CSetNextBlockRequest< CDiskBlock > const * _request )
+{
+	CSynchronizationBlock synchronizationBlock( _request->getBlock(), _request->getBlockIndex() );
 
 	synchronizationBlock.m_actionKey = _request->getActionKey();
 

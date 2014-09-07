@@ -360,6 +360,17 @@ CTransactionRecordManager::setTransactionToTemporary( CTransaction const & _tran
 
 	iterator->second.insert( std::make_pair( _transaction.GetHash(), _transaction ) );
 }
+//ugly
+void
+CTransactionRecordManager::deleteCoinViewDB()
+{
+	delete m_coinsViewCache;
+	size_t nTotalCache = (GetArg("-dbcache", nDefaultDbCache) << 20);
+	size_t nCoinDBCache = nTotalCache / 2;
+	boost::filesystem::remove_all( GetDataDir(common::AppType::Tracker) / "chainstate" );
+	m_coinsViewCache = new CCoinsViewCache(*(new CCoinsViewDB(nCoinDBCache, false, fReindex)));
+
+}
 
 // this is short search, long will be needed at some point
 bool

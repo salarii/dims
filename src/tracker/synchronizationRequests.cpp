@@ -48,9 +48,10 @@ CGetSynchronizationInfoRequest::getTimeStamp() const
 	return m_timeStamp;
 }
 
-CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, int _blockKind  )
 	: common::CRequest< TrackerResponses >( _mediumFilter )
 	, m_actionKey( _actionKey )
+	, m_blockKind( _blockKind )
 {
 }
 
@@ -72,36 +73,10 @@ CGetNextBlockRequest::getActionKey() const
 	return m_actionKey;
 }
 
-CSetNextBlockRequest::CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, CDiskBlock * _discBlock )
-	: common::CRequest< TrackerResponses >( _mediumFilter )
-	, m_actionKey( _actionKey )
-	, m_discBlock( _discBlock )
+int
+CGetNextBlockRequest::getBlockKind() const
 {
+	return m_blockKind;
 }
-
-void
-CSetNextBlockRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-common::CMediumFilter< TrackerResponses > *
-CSetNextBlockRequest::getMediumFilter() const
-{
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
-}
-
-uint256
-CSetNextBlockRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-CDiskBlock *
-CSetNextBlockRequest::getBlock() const
-{
-	return m_discBlock;
-}
-
 
 }

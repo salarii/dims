@@ -6,6 +6,8 @@
 #define SYNCHRONIZATION_REQUESTS_H
 
 #include "common/request.h"
+#include "common/medium.h"
+
 #include "configureTrackerActionHandler.h"
 
 #include <boost/statechart/event.hpp>
@@ -38,21 +40,26 @@ private:
 class CGetNextBlockRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, int _blockKind );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
 
 	uint256 getActionKey() const;
+
+	int getBlockKind() const;
 private:
 	uint256 const m_actionKey;
+
+	int m_blockKind;
 };
 
+template < class Block >
 class CSetNextBlockRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, CDiskBlock * _discBlock );
+	CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
@@ -60,12 +67,60 @@ public:
 
 	uint256 getActionKey() const;
 
-	CDiskBlock * getBlock() const;
+	Block * getBlock() const;
+
+	unsigned int getBlockIndex() const;
 private:
 	uint256 const m_actionKey;
 
-	CDiskBlock * m_discBlock;
+	Block * m_discBlock;
+
+	unsigned int m_blockIndex;
 };
+
+template < class Block >
+CSetNextBlockRequest< Block >::CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_actionKey( _actionKey )
+	, m_discBlock( _discBlock )
+	, m_blockIndex( _blockIndex )
+{
+}
+
+template < class Block >
+void
+CSetNextBlockRequest< Block >::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class Block >
+common::CMediumFilter< TrackerResponses > *
+CSetNextBlockRequest< Block >::getMediumFilter() const
+{
+	return common::CRequest< TrackerResponses >::m_mediumFilter;
+}
+
+template < class Block >
+uint256
+CSetNextBlockRequest< Block >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class Block >
+Block *
+CSetNextBlockRequest< Block >::getBlock() const
+{
+	return m_discBlock;
+}
+
+template < class Block >
+unsigned int
+CSetNextBlockRequest< Block >::getBlockIndex() const
+{
+	return m_blockIndex;
+}
 
 }
 
