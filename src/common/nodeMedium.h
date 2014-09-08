@@ -50,6 +50,8 @@ public:
 
 	void add( CAckRequest< ResponseType > const * _request );
 
+	void add( CEndRequest< ResponseType > const * _request );
+
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
 
 	common::CSelfNode * getNode() const;
@@ -242,6 +244,22 @@ CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
 	m_indexes.push_back( _request->getActionKey() );
 
 	m_responses.insert( std::make_pair( _request->getActionKey(), common::CAckPromptResult() ) );
+}
+
+
+template < class ResponseType >
+void
+CNodeMedium< ResponseType >::add( CEndRequest< ResponseType > const * _request )
+{
+	common::CEnd end;
+
+	end.m_actionKey = _request->getActionKey();
+
+	common::CMessage message( end );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
 }
 
 }

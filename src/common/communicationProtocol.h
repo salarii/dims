@@ -31,7 +31,8 @@ struct CPayloadKind
 		SynchronizationHeader,
 		Uninitiated,
 		Ack,
-		Get
+		Get,
+		End
 	};
 };
 
@@ -131,6 +132,15 @@ struct CAck
 	uint256 m_actionKey;
 };
 
+struct CEnd
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_actionKey);
+	)
+
+	uint256 m_actionKey;
+};
 
 struct CValidNodeInfo
 {
@@ -204,8 +214,9 @@ public:
 	CMessage( CNetworkRole const & _networkRole );
 	CMessage( CKnownNetworkInfo const & _knownNetworkInfo );
 	CMessage( CSynchronizationInfo const & _synchronizationInfo );
-	CMessage( CAck const & _synchronizationInfo );
-	CMessage( CGet const & _synchronizationInfo );
+	CMessage( CAck const & _ack );
+	CMessage( CGet const & _get );
+	CMessage( CEnd const & _end );
 
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );

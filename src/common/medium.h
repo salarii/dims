@@ -64,6 +64,7 @@ public:
 	virtual void add( common::CNetworkRoleRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( common::CAckRequest< tracker::TrackerResponses > const * _request ){};
+	virtual void add( common::CEndRequest< tracker::TrackerResponses > const * _request ){};
 	virtual ~CMedium(){};
 };
 

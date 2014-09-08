@@ -136,9 +136,19 @@ public:
 		this->m_action->process_event( tracker::CTransactionBlockEvent<tracker::CDiskBlock>( _param.m_discBlock, _param.m_blockIndex ) );
 	}
 
+	virtual void operator()( tracker::CSynchronizationBlockResult<tracker::CSegmentHeader> & _param ) const
+	{
+		this->m_action->process_event( tracker::CTransactionBlockEvent<tracker::CSegmentHeader>( _param.m_discBlock, _param.m_blockIndex ) );
+	}
+
 	virtual void operator()( common::CGetPrompt & _param ) const
 	{
 		this->m_action->process_event( common::CGetEvent( _param.m_type ) );
+	}
+
+	virtual void operator()( common::CEndEvent & _param ) const
+	{
+		this->m_action->process_event( _param );
 	}
 };
 

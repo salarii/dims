@@ -54,7 +54,6 @@ public:
 	{
 		this->m_action->process_event( common::CAckEvent() );
 	}
-
 };
 
 

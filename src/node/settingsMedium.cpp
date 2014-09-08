@@ -12,6 +12,8 @@
 #include "common/commonEvents.h"
 #include "common/ratcoinParams.h"
 #include "common/commonResponses.h"
+#include "common/mediumRequests.h"
+
 #include "clientResponses.h"
 
 using namespace common;

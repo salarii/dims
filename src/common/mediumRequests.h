@@ -376,8 +376,6 @@ public:
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
-
-	std::vector< CValidNodeInfo > m_networkInfo;
 };
 
 template < class ResponsesType >
@@ -408,7 +406,48 @@ CAckRequest< ResponsesType >::getActionKey() const
 	return m_actionKey;
 }
 
+template < class ResponsesType >
+class CEndRequest : public common::CRequest< ResponsesType >
+{
+public:
+	CEndRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
+	void accept( common::CMedium< ResponsesType > * _medium ) const;
+
+	common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+};
+
+template < class ResponsesType >
+CEndRequest< ResponsesType >::CEndRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
+	: common::CRequest< ResponsesType >( _mediumFilter )
+	, m_actionKey( _actionKey )
+{
+}
+
+template < class ResponsesType >
+void
+CEndRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class ResponsesType >
+common::CMediumFilter< ResponsesType > *
+CEndRequest< ResponsesType >::getMediumFilter() const
+{
+	return common::CRequest< ResponsesType >::m_mediumFilter;
+}
+
+template < class ResponsesType >
+uint256
+CEndRequest< ResponsesType >::getActionKey() const
+{
+	return m_actionKey;
+}
 
 }
 

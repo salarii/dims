@@ -22,6 +22,10 @@ class CKnownNetworkInfoRequest;
 
 template < class RequestType >
 class CAckRequest;
+
+template < class RequestType >
+class CEndRequest;
+
 }
 
 namespace tracker

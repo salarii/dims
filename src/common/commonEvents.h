@@ -3,7 +3,7 @@
 
 #include <boost/statechart/event.hpp>
 #include "net.h"
-#include "mediumRequests.h"
+
 namespace common
 {
 
@@ -88,6 +88,10 @@ struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectingE
 };
 
 struct CAckEvent : boost::statechart::event< CAckEvent >
+{
+};
+
+struct CEndEvent : boost::statechart::event< CEndEvent >
 {
 };
 

@@ -4,14 +4,14 @@
 #include <boost/mpl/list.hpp>
 #include <boost/variant/variant.hpp>
 #include "common/commonResponses.h"
-
+#include "common/commonEvents.h"
 
 namespace seed
 {
 
 struct CDummyResponse{};
 
-typedef boost::mpl::list< common::CMediumException, common::CContinueResult, common::CIdentificationResult, common::CConnectedNode, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CAckPromptResult > SeedResponseList;
+typedef boost::mpl::list< common::CMediumException, common::CContinueResult, common::CIdentificationResult, common::CConnectedNode, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CEndEvent, common::CAckPromptResult > SeedResponseList;
 
 typedef boost::make_variant_over< SeedResponseList >::type SeedResponses;
 

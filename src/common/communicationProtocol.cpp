@@ -123,6 +123,14 @@ CMessage::CMessage( CGet const & _get )
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CEnd const & _end )
+	: m_header( (int)CPayloadKind::End, std::vector<unsigned char>(), GetTime(), CPubKey() )
+{
+	createPayload( _end, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 CMessage::CMessage( CAck const & _ack )
 	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey() )
 {
