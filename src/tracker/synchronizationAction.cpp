@@ -41,9 +41,6 @@ struct CSynchronizedGetInfo;
 
 struct CDiskBlock;
 
-struct CSynchronizeRequestEvent : boost::statechart::event< CSynchronizeRequestEvent >
-{
-};
 
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
 {
@@ -133,8 +130,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CGetEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::transition< CSynchronizeRequestEvent, CSynchronized >
+	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 
 	unsigned int m_waitTime;
