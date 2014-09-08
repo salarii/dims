@@ -183,6 +183,7 @@ public:
 		static unsigned int const m_maximumSize = 32;
 	};
 public:
+	// possibly not good enough
 	void setSynchronizationInProgress();
 
 	void releaseSynchronizationInProgress();
@@ -235,6 +236,10 @@ public:
 	unsigned int calculateStoredBlockNumber() const;
 
 	unsigned int getStoredHeaderCount() const;
+
+	bool getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader );
+
+	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
 private:
 	CSegmentFileStorage();
 
@@ -243,10 +248,6 @@ private:
 	unsigned int calculateBucket( uint256 const & _coinsHash ) const;
 
 	void * getNextFreeBlock();
-
-	bool getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader );
-
-	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
 
 	void fillHeaderBuffor();
 
