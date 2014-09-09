@@ -29,9 +29,8 @@ namespace tracker
 {
 uint const UsedMediumNumber = 3;
 uint const MaxMerkleNumber = 1000;
-uint const WaitResultTime = 60;
-uint const StallCnt = 5; // 3 ?? enough ??
-
+uint const WaitResultTime = 30;
+uint const CleanTime = 2;
 uint const SynchronizedTreshold = 10;
 
 /*
@@ -48,7 +47,7 @@ struct CReadingData;
 
 struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackAction, CTrackOriginAddressAction >
 {
-	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
+	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
 		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
@@ -56,7 +55,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
 
-		if ( vNodes.size() >= UsedMediumNumber )
+		if ( vNodes.size() >= UsedMediumNumber &&  GetTime() - m_time > CleanTime )//waiting  time  is needed because of  valid  design of  action  handler, there are  other ways  to  fight it but  this is simple
 		{
 			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
 			return transit< CReadingData >();
@@ -73,50 +72,23 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 
+	uint m_time;
 };
-// this  is  bad I  have  other  solution for  this  effect
-struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddressAction >
-{
-	CStallAction( my_context ctx ) : my_base( ctx ), m_counter( StallCnt )
-	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
-	}
-
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		if ( m_counter-- )
-		{
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
-			return discard_event();
-		}
-		else
-		{
-			return transit< CUninitiatedTrackAction >();
-		}
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
-
-	uint m_counter;
-};
-
 
 struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddressAction >
 {
-	CReadingData( my_context ctx ) : my_base( ctx ), m_counter( WaitResultTime )
+	CReadingData( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		if ( m_counter-- )
+		if ( GetTime() - m_time < WaitResultTime )
 			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) ) );
 		else
 		{
 			context< CTrackOriginAddressAction >().clear();
-			return transit< CStallAction >();
+			return transit< CUninitiatedTrackAction >();
 		}
 	}
 
@@ -135,7 +107,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	boost::statechart::custom_reaction< CMerkleBlocksEvent >
 	> reactions;
 
-	uint m_counter;
+	uint m_time;
 };
 
 
