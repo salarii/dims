@@ -14,6 +14,7 @@
 
 #include "common/mediumKinds.h"
 
+#include "transactionRecordManager.h"
 #include "synchronizationAction.h"
 #include "synchronizationRequests.h"
 #include "trackerFilters.h"
@@ -143,6 +144,9 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 {
 	CSynchronizingBlocks( my_context ctx ) : my_base( ctx )
 	{
+		CTransactionRecordManager::getInstance()->clearCoinViewDB();
+		CTransactionRecordManager::getInstance()->clearAddressToCoinsDatabase();
+
 		context< CSynchronizationAction >().setRequest(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
 	}
@@ -155,6 +159,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 		context< CSynchronizationAction >().setRequest(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
+
+		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle( transactions );
 
 		return discard_event();
 	}
@@ -207,6 +213,8 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 
 	boost::statechart::result react( CTransactionBlockEvent< CSegmentHeader > const & _transactionBlockEvent )
 	{
+		CSegmentFileStorage::getInstance()->setDiscBlock( *_transactionBlockEvent.m_discBlock, _transactionBlockEvent.m_blockIndex );
+
 		context< CSynchronizationAction >().setRequest(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Header ) );
 

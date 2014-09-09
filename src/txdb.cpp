@@ -107,6 +107,11 @@ bool CBlockTreeDB::ReadLastBlockFile(int &nFile) {
     return Read('l', nFile);
 }
 
+void CCoinsViewDB::clearView()
+{
+	db.clear();
+}
+
 bool CCoinsViewDB::GetStats(CCoinsStats &stats) {
     leveldb::Iterator *pcursor = db.NewIterator();
     pcursor->SeekToFirst();

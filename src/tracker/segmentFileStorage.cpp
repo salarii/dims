@@ -581,6 +581,7 @@ CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vecto
 		level--;
 	}
 	//sanity
+	/*
 	std::vector< uint256 > hashes;
 
 	unsigned int bucket = -1;
@@ -598,7 +599,7 @@ CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vecto
 			bucket = calculateBucket( hashes.back() );
 		}
 	}
-
+*/
 	/* should  I play with merkle here??? */
 
 }

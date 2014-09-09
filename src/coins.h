@@ -279,6 +279,9 @@ public:
     // Calculate statistics about the unspent transaction output set
     virtual bool GetStats(CCoinsStats &stats);
 
+	// possibly not  ok
+	virtual void clearView();
+
     // As we use CCoinsViews polymorphically, have a virtual destructor
     virtual ~CCoinsView() {}
 };
@@ -292,7 +295,7 @@ protected:
 
 public:
     CCoinsViewBacked(CCoinsView &viewIn);
-    bool GetCoins(const uint256 &txid, CCoins &coins);
+	bool GetCoins(const uint256 &txid, CCoins &coins);
     bool SetCoins(const uint256 &txid, const CCoins &coins);
     bool HaveCoins(const uint256 &txid);
     uint256 GetBestBlock();
@@ -300,6 +303,7 @@ public:
     void SetBackend(CCoinsView &viewIn);
     bool BatchWrite(const std::map<uint256, CCoins> &mapCoins, const uint256 &hashBlock);
     bool GetStats(CCoinsStats &stats);
+	void clearView();
 };
 
 

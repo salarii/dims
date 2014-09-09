@@ -33,43 +33,56 @@ CAddressToCoinsDatabase::CAddressToCoinsDatabase(size_t nCacheSize, bool fMemory
 {
 }
 
-bool CAddressToCoinsDatabase::getCoinsAmount(const uint160 &_keyId, uint64_t & _amount )
+bool
+CAddressToCoinsDatabase::getCoinsAmount(const uint160 &_keyId, uint64_t & _amount )
 {
 	return db.Read( std::make_pair('a', _keyId), _amount );
 }
 
-bool CAddressToCoinsDatabase::setCoinsAmount(uint160 const &_keyId, uint64_t const _amount)
+bool
+CAddressToCoinsDatabase::setCoinsAmount(uint160 const &_keyId, uint64_t const _amount)
 {
 	return db.Write( std::make_pair('a', _keyId), _amount );
 }
 
-bool CAddressToCoinsDatabase::getCoin(CKeyType const &_keyId, uint256 &coins)
+bool
+CAddressToCoinsDatabase::getCoin(CKeyType const &_keyId, uint256 &coins)
 {
 	return db.Read( std::make_pair('c', _keyId), coins );
 }
 
-bool CAddressToCoinsDatabase::setCoin(CKeyType const &_keyId, uint256 const &coins)
+bool
+CAddressToCoinsDatabase::setCoin(CKeyType const &_keyId, uint256 const &coins)
 {
 	return db.Write( std::make_pair('c', _keyId), coins );
 }
 
-bool CAddressToCoinsDatabase::eraseCoin( uint256 const &_keyId )
+bool
+CAddressToCoinsDatabase::eraseCoin( uint256 const &_keyId )
 {
 	return db.Erase( std::make_pair('c', _keyId) );
 }
 
-bool CAddressToCoinsDatabase::haveCoin(uint160 const &_keyId)
+bool
+CAddressToCoinsDatabase::haveCoin(uint160 const &_keyId)
 {
 	return db.Exists( std::make_pair( 'a', _keyId ) );
 }
 
-bool CAddressToCoinsDatabase::haveCoin(CKeyType const &_keyId)
+void
+CAddressToCoinsDatabase::clearView()
+{
+	return db.clear();
+}
+
+bool
+CAddressToCoinsDatabase::haveCoin(CKeyType const &_keyId)
 {
 	return db.Exists( std::make_pair( 'c', _keyId ) );
 }
 
-CAddressToCoins::CAddressToCoins(size_t _cacheSize)
-:CAddressToCoinsDatabase(_cacheSize)
+CAddressToCoins::CAddressToCoins( size_t _cacheSize)
+:CAddressToCoinsDatabase( _cacheSize, false, false )
 {
 
 }
@@ -227,6 +240,12 @@ CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 	return true;
 }
 
+void
+CAddressToCoins::clearView()
+{
+	CAddressToCoinsDatabase::clearView();
+}
+
 CAddressToCoinsViewCache * CAddressToCoinsViewCache::ms_instance = NULL;
 
 CAddressToCoinsViewCache*
@@ -336,6 +355,17 @@ CAddressToCoinsViewCache::flush()
 	if (ok)
 		insertCacheCoins.clear();
 	return ok;
+}
+
+void
+CAddressToCoinsViewCache::clearView()
+{
+	m_addressToCoins.clearView();
+}
+
+CAddressToCoinsViewCache::~CAddressToCoinsViewCache()
+{
+	ms_instance = 0;
 }
 
 }

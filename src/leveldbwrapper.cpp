@@ -36,7 +36,9 @@ static leveldb::Options GetOptions(size_t nCacheSize) {
 }
 
 CLevelDBWrapper::CLevelDBWrapper(const boost::filesystem::path &path, size_t nCacheSize, bool fMemory, bool fWipe) {
-    penv = NULL;
+
+	usedPath = path;
+	penv = NULL;
     readoptions.verify_checksums = true;
     iteroptions.verify_checksums = true;
     iteroptions.fill_cache = false;
@@ -53,10 +55,22 @@ CLevelDBWrapper::CLevelDBWrapper(const boost::filesystem::path &path, size_t nCa
         }
         boost::filesystem::create_directory(path);
         LogPrintf("Opening LevelDB in %s\n", path.string());
-    }
+	}
     leveldb::Status status = leveldb::DB::Open(options, path.string(), &pdb);
+
     HandleError(status);
-    LogPrintf("Opened LevelDB successfully\n");
+
+	LogPrintf("Opened LevelDB successfully\n");
+}
+
+void
+CLevelDBWrapper::clear()
+{
+	if ( pdb )
+		delete pdb;
+	leveldb::Status status = leveldb::DB::Open(options, usedPath.string(), &pdb);
+	HandleError(status);
+	LogPrintf("Cleared LevelDB successfully\n");
 }
 
 CLevelDBWrapper::~CLevelDBWrapper() {

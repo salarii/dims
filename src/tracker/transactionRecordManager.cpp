@@ -362,14 +362,15 @@ CTransactionRecordManager::setTransactionToTemporary( CTransaction const & _tran
 }
 //ugly
 void
-CTransactionRecordManager::deleteCoinViewDB()
+CTransactionRecordManager::clearCoinViewDB()
 {
-	delete m_coinsViewCache;
-	size_t nTotalCache = (GetArg("-dbcache", nDefaultDbCache) << 20);
-	size_t nCoinDBCache = nTotalCache / 2;
-	boost::filesystem::remove_all( GetDataDir(common::AppType::Tracker) / "chainstate" );
-	m_coinsViewCache = new CCoinsViewCache(*(new CCoinsViewDB(nCoinDBCache, false, fReindex)));
+	m_coinsViewCache->clearView();
+}
 
+void
+CTransactionRecordManager::clearAddressToCoinsDatabase()
+{
+	m_addressToCoinsViewCache->clearView();
 }
 
 // this is short search, long will be needed at some point

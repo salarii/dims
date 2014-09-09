@@ -68,10 +68,14 @@ public:
 
 	bool getTransaction( uint256 const & _hash, CTransaction & _transaction ) const;
 // additional strages  for  accepted  validated  double   spending  in future
-	void deleteCoinViewDB();
+	void clearCoinViewDB();
+
+	void clearAddressToCoinsDatabase();
 private:
 	void synchronize();
+
 	void askForTokens();
+
 	CTransactionRecordManager();
 private:
 	static CTransactionRecordManager * ms_instance;

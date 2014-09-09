@@ -78,6 +78,8 @@ private:
     // the database itself
     leveldb::DB *pdb;
 
+	boost::filesystem::path usedPath;
+
 public:
     CLevelDBWrapper(const boost::filesystem::path &path, size_t nCacheSize, bool fMemory = false, bool fWipe = false);
     ~CLevelDBWrapper();
@@ -104,6 +106,8 @@ public:
         }
         return true;
     }
+
+	void clear();
 
     template<typename K, typename V> bool Write(const K& key, const V& value, bool fSync = false) throw(leveldb_error) {
         CLevelDBBatch batch;

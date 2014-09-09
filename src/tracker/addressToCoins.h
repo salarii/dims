@@ -50,6 +50,8 @@ protected:
 	template< class Batch >
 	bool batchWrite( Batch& _batchWrite );
 	bool GetStats(CCoinsStats &stats);
+
+	void clearView();
 };
 
 template< class Batch >
@@ -62,13 +64,15 @@ CAddressToCoinsDatabase::batchWrite( Batch & _batchWrite )
 class CAddressToCoins : public CAddressToCoinsDatabase
 {
 public:
-	CAddressToCoins(size_t _cacheSize);
+	CAddressToCoins( size_t _cacheSize);
 	bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount);
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
 	bool getCoins( uint160 const &_keyId, std::map< uint256 , uint256 > &_coins );
 	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
 	bool eraseCoin( uint160 const &_keyId, uint256 const & _coin );
 	bool batchWrite( std::multimap<uint160,uint256> const &mapCoins );
+
+	void clearView();
 };
 
 
@@ -87,8 +91,12 @@ public:
 	bool flush();
 
 	static CAddressToCoinsViewCache* getInstance();
+
+	void clearView();
+
+	~CAddressToCoinsViewCache();
 private:
-	CAddressToCoinsViewCache(size_t _cacheSize = 1 << 26):m_addressToCoins(_cacheSize){};
+	CAddressToCoinsViewCache( size_t _cacheSize = 1 << 26):m_addressToCoins( _cacheSize){};
 
 	static CAddressToCoinsViewCache * ms_instance;
 	std::map<uint160,uint256>::iterator fetchCoins( uint160 const &_keyId, bool secondPass = false );

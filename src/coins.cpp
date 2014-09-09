@@ -56,7 +56,7 @@ uint256 CCoinsView::GetBestBlock() { return uint256(0); }
 bool CCoinsView::SetBestBlock(const uint256 &hashBlock) { return false; }
 bool CCoinsView::BatchWrite(const std::map<uint256, CCoins> &mapCoins, const uint256 &hashBlock) { return false; }
 bool CCoinsView::GetStats(CCoinsStats &stats) { return false; }
-
+void CCoinsView::clearView(){}
 
 CCoinsViewBacked::CCoinsViewBacked(CCoinsView &viewIn) : base(&viewIn) { }
 bool CCoinsViewBacked::GetCoins(const uint256 &txid, CCoins &coins) { return base->GetCoins(txid, coins); }
@@ -67,7 +67,7 @@ bool CCoinsViewBacked::SetBestBlock(const uint256 &hashBlock) { return base->Set
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
 bool CCoinsViewBacked::BatchWrite(const std::map<uint256, CCoins> &mapCoins, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
 bool CCoinsViewBacked::GetStats(CCoinsStats &stats) { return base->GetStats(stats); }
-
+void CCoinsViewBacked::clearView(){ base->clearView(); }
 CCoinsViewCache::CCoinsViewCache(CCoinsView &baseIn, bool fDummy) : CCoinsViewBacked(baseIn), hashBlock(0) { }
 
 bool CCoinsViewCache::GetCoins(const uint256 &txid, CCoins &coins) {

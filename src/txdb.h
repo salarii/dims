@@ -40,6 +40,7 @@ public:
     bool SetBestBlock(const uint256 &hashBlock);
     bool BatchWrite(const std::map<uint256, CCoins> &mapCoins, const uint256 &hashBlock);
     bool GetStats(CCoinsStats &stats);
+	void clearView();
 };
 
 /** Access to the block database (blocks/index/) */
