@@ -241,6 +241,24 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			}
 		}
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::End )
+		{
+			common::CEnd end;
+
+			common::convertPayload( message, end );
+
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( end.m_actionKey ) )
+			{
+				nodeMedium->setResponse( end.m_actionKey, common::CEndEvent() );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+
+			}
+		}
 		//NetworkInfo
 	}
 	return true;

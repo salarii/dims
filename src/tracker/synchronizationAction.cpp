@@ -166,7 +166,15 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CEndEvent )
+	boost::statechart::result react( common::CEndEvent const & )
+	{
+		context< CSynchronizationAction >().setRequest( new common::CAckRequest< TrackerResponses >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+		return discard_event();
+	}
+
+
+	boost::statechart::result react( common::CAckPromptResult const & )
 	{
 		context< CSynchronizationAction >().setRequest( 0 );
 
@@ -181,6 +189,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< CTransactionBlockEvent< CDiskBlock > >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CEndEvent >
 	> reactions;
 };
@@ -283,6 +292,13 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckEvent const & )
+	{
+		context< CSynchronizationAction >().setRequest( 0 );
+
+		return discard_event();
+	}
+
 	~CSynchronized()
 	{
 		delete m_diskBlock;
@@ -293,7 +309,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CGetEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 
 	unsigned int m_storedBlocks;

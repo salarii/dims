@@ -150,6 +150,16 @@ public:
 	{
 		this->m_action->process_event( _param );
 	}
+
+	virtual void operator()( common::CAckPromptResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		this->m_action->process_event( common::CAckEvent() );
+	}
 };
 
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
