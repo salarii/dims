@@ -10,6 +10,7 @@
 #include <boost/statechart/state_machine.hpp>
 #include "main.h"
 
+// please add excluding of bad nodes( not responding )
 namespace tracker
 {
 struct CUninitiatedTrackAction;

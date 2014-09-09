@@ -17,26 +17,26 @@
 namespace tracker
 {
 
-COriginAddressScaner * COriginAddressScaner::ms_instance = NULL;
+COriginAddressScanner * COriginAddressScanner::ms_instance = NULL;
 	
-COriginAddressScaner*
-COriginAddressScaner::getInstance( )
+COriginAddressScanner*
+COriginAddressScanner::getInstance( )
 {
 	if ( !ms_instance )
 	{
-		ms_instance = new COriginAddressScaner();
+		ms_instance = new COriginAddressScanner();
 	};
 	return ms_instance;
 }
 
-COriginAddressScaner::COriginAddressScaner()
+COriginAddressScanner::COriginAddressScanner()
 	: m_currentTime( 0 )
 	, m_totalBalance( 0 )
 {
 }
 
 void
-COriginAddressScaner::addTransaction( long long const _timeStamp, CTransaction const&  _tx)
+COriginAddressScanner::addTransaction( long long const _timeStamp, CTransaction const&  _tx)
 {
 	boost::lock_guard<boost::mutex> lock(m_lock);
 
@@ -62,7 +62,7 @@ COriginAddressScaner::addTransaction( long long const _timeStamp, CTransaction c
 }
 
 void
-COriginAddressScaner::updateTransactionRecord( long long const _timeStamp )
+COriginAddressScanner::updateTransactionRecord( long long const _timeStamp )
 {
 	boost::lock_guard<boost::mutex> lock(m_lock);
 	std::vector< std::vector< unsigned char > > keys;
@@ -93,7 +93,7 @@ COriginAddressScaner::updateTransactionRecord( long long const _timeStamp )
 }
 
 void
-COriginAddressScaner::loop()
+COriginAddressScanner::loop()
 {
 	while(1)
 	{
@@ -118,7 +118,7 @@ COriginAddressScaner::loop()
 
 }
 
-void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
+void COriginAddressScanner::createBaseTransaction(CTransaction const &  _tx)
 {
 	unsigned int valueSum = 0, totalInputSum = 0;
 	for (unsigned int i = 0; i < _tx.vout.size(); i++)
@@ -200,7 +200,7 @@ void COriginAddressScaner::createBaseTransaction(CTransaction const &  _tx)
 				// this is  buggy right now
 				txNew.vout[0].nValue = valueSum;
 				//add transaction  to  pool and   view
-
+				CTransactionRecordManager::getInstance()->addTransactionToStorage( txNew );
 				CTransactionRecordManager::getInstance()->addCoinbaseTransaction( txNew, publicKey);
 				return;
 

@@ -357,7 +357,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			{
 				BOOST_FOREACH( CTransaction const & transaction, toInclude )
 				{
-					tracker::COriginAddressScaner::getInstance()->addTransaction( 0, transaction );
+					tracker::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
 				}
 			}
 

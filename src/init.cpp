@@ -1042,7 +1042,7 @@ seed_insecure_rand();
 
 	
 /* create  threads of  action  handler */
-	threadGroup.create_thread( boost::bind( &tracker::COriginAddressScaner::loop, tracker::COriginAddressScaner::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &tracker::COriginAddressScanner::loop, tracker::COriginAddressScanner::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< tracker::TrackerResponses >::loop, common::CActionHandler< tracker::TrackerResponses >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
