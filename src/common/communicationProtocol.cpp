@@ -59,21 +59,22 @@ CTransactionBundle::CTransactionBundle( std::vector< CTransaction > const & _bun
 {
 }
 
-CHeader::CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey )
+CHeader::CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey, uint256 const & _actionKey )
 	: m_payloadKind( (int)_payloadKind )
 	, m_signedHash( _signedHash )
 	, m_time( _time )
 	, m_prevKey( _prevKey )
+	, m_actionKey( _actionKey )
 {
 }
 
 CMessage::CMessage()
-	: m_header( (int)CPayloadKind::Uninitiated, std::vector<unsigned char>(), 0, CPubKey() )
+	: m_header( (int)CPayloadKind::Uninitiated, std::vector<unsigned char>(), 0, CPubKey(), uint256() )
 {
 }
 
-CMessage::CMessage( std::vector< CTransaction > const & _bundle )
-	: m_header( (int)CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	unsigned int size = ::GetSerializeSize( _bundle, SER_NETWORK, PROTOCOL_VERSION );
 	m_payload.resize( size );
@@ -85,62 +86,62 @@ CMessage::CMessage( std::vector< CTransaction > const & _bundle )
 	CAuthenticationProvider::getInstance()->sign( hash, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CIdentifyMessage const & _identifyMessage )
-	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _identifyMessage, m_payload );
 }
 
-CMessage::CMessage( CNetworkRole const & _networkRole )
-	: m_header( (int)CPayloadKind::RoleInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( CNetworkRole const & _networkRole, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::RoleInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _networkRole, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CKnownNetworkInfo const & _knownNetworkInfo )
-	: m_header( (int)CPayloadKind::NetworkInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( CKnownNetworkInfo const & _knownNetworkInfo, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::NetworkInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _knownNetworkInfo, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CSynchronizationInfo const & _synchronizationInfo )
-	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _synchronizationInfo, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CGet const & _get )
-	: m_header( (int)CPayloadKind::Get, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( CGet const & _get, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::Get, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _get, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CEnd const & _end )
-	: m_header( (int)CPayloadKind::End, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( CEnd const & _end, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::End, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _end, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CAck const & _ack )
-	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey() )
+CMessage::CMessage( CAck const & _ack, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _ack, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash )
-	: m_header( _message.m_header.m_payloadKind, _signedHash, GetTime(), _prevKey )
+CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey )
+	: m_header( _message.m_header.m_payloadKind, _signedHash, GetTime(), _prevKey, _actionKey )
 {
 /*	m_payload = ( void* )new CMessage(_message);
 

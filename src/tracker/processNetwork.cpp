@@ -41,9 +41,27 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
-		if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+		if (
+				message.m_header.m_payloadKind == common::CPayloadKind::Transactions
+			)
 		{
+			CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{
+				assert( !"for now assert this" );
+				return true;
+			}
 
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+			}
+			else
+			{
+				//
+			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
 		{
@@ -56,19 +74,18 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( identifyMessage.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr  ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr  ) );
 			}
 			else
 			{
 				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction(
-							  identifyMessage.m_actionKey
+							  message.m_header.m_actionKey
 							, identifyMessage.m_payload
 							, convertToInt( nodeMedium->getNode() ) );
 
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
-
 			}
 
 		}
@@ -86,14 +103,14 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationInfo.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( synchronizationInfo.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp, convertToInt( nodeMedium->getNode() ) ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp, convertToInt( nodeMedium->getNode() ) ) );
 			}
 			else
 			{
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction(
-							new CSynchronizationAction( synchronizationInfo.m_actionKey, convertToInt( nodeMedium->getNode() ), synchronizationInfo.m_timeStamp ) );
+							new CSynchronizationAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ), synchronizationInfo.m_timeStamp ) );
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
@@ -114,9 +131,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( get.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( get.m_actionKey, common::CGetPrompt( get.m_type ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CGetPrompt( get.m_type ) );
 			}
 			else
 			{
@@ -137,9 +154,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationBlock.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( synchronizationBlock.m_actionKey, CSynchronizationBlockResult< CDiskBlock >( synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, CSynchronizationBlockResult< CDiskBlock >( synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex ) );
 			}
 			else
 			{
@@ -161,9 +178,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationSegmentHeader.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( synchronizationSegmentHeader.m_actionKey, CSynchronizationBlockResult< CSegmentHeader >( synchronizationSegmentHeader.m_segmentHeader, synchronizationSegmentHeader.m_blockIndex ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, CSynchronizationBlockResult< CSegmentHeader >( synchronizationSegmentHeader.m_segmentHeader, synchronizationSegmentHeader.m_blockIndex ) );
 			}
 			else
 			{
@@ -186,9 +203,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( networkRole.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( networkRole.m_actionKey, common::CRoleResult( networkRole.m_role ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CRoleResult( networkRole.m_role ) );
 			}
 			else
 			{
@@ -211,9 +228,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( knownNetworkInfo.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( knownNetworkInfo.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
 			}
 			else
 			{
@@ -229,9 +246,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( ack.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( ack.m_actionKey, common::CAckResult() );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CAckResult() );
 			}
 			else
 			{
@@ -247,9 +264,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( end.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( end.m_actionKey, common::CEndEvent() );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CEndEvent() );
 			}
 			else
 			{

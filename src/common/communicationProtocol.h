@@ -32,6 +32,8 @@ struct CPayloadKind
 		Uninitiated,
 		Ack,
 		Get,
+		AckTransactions,
+		StatusTransactions,
 		End
 	};
 };
@@ -88,7 +90,7 @@ struct CHeader
 		READWRITE(m_actionKey);
 	)
 
-	CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey );
+	CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey, uint256 const & _actionKey );
 	int m_payloadKind;
 	std::vector<unsigned char> m_signedHash;
 	int64_t m_time;
@@ -103,13 +105,11 @@ struct CIdentifyMessage
 		READWRITE(m_payload);
 		READWRITE(m_key);
 		READWRITE(m_signed);
-		READWRITE(m_actionKey);
 	)
 
 	std::vector<unsigned char> m_payload;
 	CPubKey m_key;
 	std::vector<unsigned char> m_signed;
-	uint256 m_actionKey;
 };
 
 struct CNetworkRole
@@ -117,31 +117,23 @@ struct CNetworkRole
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_role);
-		READWRITE(m_actionKey);
 	)
 
 	int m_role;
-	uint256 m_actionKey;
 };
 
 struct CAck
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_actionKey);
 	)
-
-	uint256 m_actionKey;
 };
 
 struct CEnd
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_actionKey);
 	)
-
-	uint256 m_actionKey;
 };
 
 struct CValidNodeInfo
@@ -177,11 +169,9 @@ struct CKnownNetworkInfo
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_networkInfo);
-		READWRITE(m_actionKey);
 	)
 
 	std::vector< CValidNodeInfo > m_networkInfo;
-	uint256 m_actionKey;
 };
 
 struct CSynchronizationInfo
@@ -189,11 +179,9 @@ struct CSynchronizationInfo
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_timeStamp);
-		READWRITE(m_actionKey);
 	)
 
 	uint64_t m_timeStamp;
-	uint256 m_actionKey;
 };
 
 
@@ -201,10 +189,8 @@ struct CGet
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_actionKey);
 		READWRITE(m_type);
 	)
-	uint256 m_actionKey;
 	int m_type;
 };
 
@@ -212,15 +198,15 @@ struct CMessage
 {
 public:
 	CMessage();
-	CMessage( CIdentifyMessage const & _identifyMessage );
-	CMessage( CNetworkRole const & _networkRole );
-	CMessage( CKnownNetworkInfo const & _knownNetworkInfo );
-	CMessage( CSynchronizationInfo const & _synchronizationInfo );
-	CMessage( CAck const & _ack );
-	CMessage( CGet const & _get );
-	CMessage( CEnd const & _end );
-	CMessage( std::vector< CTransaction > const & _bundle );
-	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
+	CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey );
+	CMessage( CNetworkRole const & _networkRole, uint256 const & _actionKey );
+	CMessage( CKnownNetworkInfo const & _knownNetworkInfo, uint256 const & _actionKey );
+	CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey );
+	CMessage( CAck const & _ack, uint256 const & _actionKey );
+	CMessage( CGet const & _get, uint256 const & _actionKey );
+	CMessage( CEnd const & _end, uint256 const & _actionKey );
+	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
+	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey );
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);

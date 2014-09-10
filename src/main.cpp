@@ -1339,25 +1339,25 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, CCoinsViewCach
 
 void static FlushBlockFile(bool fFinalize = false)
 {
-    LOCK(cs_LastBlockFile);
+	LOCK(cs_LastBlockFile);
 
-    CDiskBlockPos posOld(nLastBlockFile, 0);
+	CDiskBlockPos posOld(nLastBlockFile, 0);
 
-    FILE *fileOld = OpenBlockFile(posOld);
-    if (fileOld) {
-        if (fFinalize)
-            TruncateFile(fileOld, infoLastBlockFile.nSize);
-        FileCommit(fileOld);
-        fclose(fileOld);
-    }
+	FILE *fileOld = OpenBlockFile(posOld);
+	if (fileOld) {
+		if (fFinalize)
+			TruncateFile(fileOld, infoLastBlockFile.nSize);
+		FileCommit(fileOld);
+		fclose(fileOld);
+	}
 
-    fileOld = OpenUndoFile(posOld);
-    if (fileOld) {
-        if (fFinalize)
-            TruncateFile(fileOld, infoLastBlockFile.nUndoSize);
-        FileCommit(fileOld);
-        fclose(fileOld);
-    }
+	fileOld = OpenUndoFile(posOld);
+	if (fileOld) {
+		if (fFinalize)
+			TruncateFile(fileOld, infoLastBlockFile.nUndoSize);
+		FileCommit(fileOld);
+		fclose(fileOld);
+	}
 }
 
 bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigned int nAddSize);

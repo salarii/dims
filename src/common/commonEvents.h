@@ -100,6 +100,7 @@ struct CEndEvent : boost::statechart::event< CEndEvent >
 {
 };
 
+
 struct CGetEvent : boost::statechart::event< CGetEvent >
 {
 	CGetEvent( int _type ):m_type(_type){}

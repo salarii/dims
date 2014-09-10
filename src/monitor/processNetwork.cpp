@@ -65,7 +65,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::CNodeMedium<MonitorResponses> * nodeMedium = common::CNodesManager<MonitorResponses>::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
 				uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
 			//	nodeMedium->setResponse( hash, common::CIdentificationResult<MonitorResponses>( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );

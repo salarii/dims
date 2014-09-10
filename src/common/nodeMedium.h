@@ -158,9 +158,7 @@ CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _requ
 
 	identifyMessage.m_payload = _request->getPayload();
 
-	identifyMessage.m_actionKey = _request->getActionKey();
-
-	common::CMessage message( identifyMessage );
+	common::CMessage message( identifyMessage, _request->getActionKey() );
 
 	m_messages.push_back( message );
 
@@ -179,9 +177,7 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _req
 
 	identifyMessage.m_key = _request->getKey();
 
-	identifyMessage.m_actionKey = _request->getActionKey();
-
-	common::CMessage message( identifyMessage );
+	common::CMessage message( identifyMessage, _request->getActionKey() );
 
 	m_messages.push_back( message );
 
@@ -201,11 +197,9 @@ CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _r
 {
 	common::CNetworkRole networkRole;
 
-	networkRole.m_actionKey = _request->getActionKey();
-
 	networkRole.m_role = _request->getRole();
 
-	common::CMessage message( networkRole );
+	common::CMessage message( networkRole, _request->getActionKey() );
 
 	m_messages.push_back( message );
 
@@ -218,11 +212,9 @@ CNodeMedium< ResponseType >::add( CKnownNetworkInfoRequest< ResponseType > const
 {
 	common::CKnownNetworkInfo knownNetwork;
 
-	knownNetwork.m_actionKey = _request->getActionKey();
-
 	knownNetwork.m_networkInfo = _request->getNetworkInfo();
 
-	common::CMessage message( knownNetwork );
+	common::CMessage message( knownNetwork, _request->getActionKey() );
 
 	m_messages.push_back( message );
 
@@ -235,9 +227,7 @@ CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
 {
 	common::CAck ack;
 
-	ack.m_actionKey = _request->getActionKey();
-
-	common::CMessage message( ack );
+	common::CMessage message( ack, _request->getActionKey() );
 
 	m_messages.push_back( message );
 
@@ -253,9 +243,7 @@ CNodeMedium< ResponseType >::add( CEndRequest< ResponseType > const * _request )
 {
 	common::CEnd end;
 
-	end.m_actionKey = _request->getActionKey();
-
-	common::CMessage message( end );
+	common::CMessage message( end, _request->getActionKey() );
 
 	m_messages.push_back( message );
 

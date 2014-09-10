@@ -179,6 +179,16 @@ struct CAckResult
 {
 };
 
+struct CMessageResult
+{
+	CMessageResult( CMessage const & _message, uintptr_t _nodeIndicator, CPubKey const & _pubKey ): m_message( _message ),m_nodeIndicator( _nodeIndicator ), m_pubKey( _pubKey ){}
+
+	CMessage m_message;
+	uintptr_t m_nodeIndicator;
+	CPubKey m_pubKey;
+};
+
+
 }
 
 #endif // TRACKER_RESPONSES_H

@@ -21,12 +21,10 @@ struct CSynchronizationBlock
 
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_actionKey);
 		READWRITE(*m_diskBlock);
 		READWRITE(m_blockIndex);
 	)
 
-	uint256 m_actionKey;
 	CDiskBlock * m_diskBlock;
 	unsigned int m_blockIndex;
 };
@@ -37,12 +35,10 @@ struct CSynchronizationSegmentHeader
 
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_actionKey);
 		READWRITE(*m_segmentHeader);
 		READWRITE(m_blockIndex);
 	)
 
-	uint256 m_actionKey;
 	CSegmentHeader * m_segmentHeader;
 	unsigned int m_blockIndex;
 };
@@ -50,9 +46,9 @@ struct CSynchronizationSegmentHeader
 struct CTrackerMessage : public common::CMessage
 {
 public:
-	CTrackerMessage( CSynchronizationBlock const & _synchronizationBlock );
+	CTrackerMessage( CSynchronizationBlock const & _synchronizationBlock, uint256 const & _actionKey );
 
-	CTrackerMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader );
+	CTrackerMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey );
 };
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
