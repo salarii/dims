@@ -140,13 +140,7 @@ void Shutdown()
         if (pwalletMain)
             pwalletMain->SetBestChain(chainActive.GetLocator());
 #endif
-        if (pblocktree)
-            pblocktree->Flush();
-        if (pcoinsTip)
-            pcoinsTip->Flush();
-        delete pcoinsTip; pcoinsTip = NULL;
         delete pcoinsdbview; pcoinsdbview = NULL;
-        delete pblocktree; pblocktree = NULL;
     }
 #ifdef ENABLE_WALLET
     if (pwalletMain)
@@ -334,7 +328,6 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
             LoadExternalBlockFile(file, &pos);
             nFile++;
         }
-        pblocktree->WriteReindexing(false);
         fReindex = false;
         LogPrintf("Reindexing finished\n");
         // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
@@ -813,12 +806,7 @@ seed_insecure_rand();
         do {
             try {
                 UnloadBlockIndex();
-                delete pcoinsTip;
                 delete pcoinsdbview;
-                delete pblocktree;
-
-                if (fReindex)
-                    pblocktree->WriteReindexing(true);
 
                /* if (!LoadBlockIndex()) {
                     strLoadError = _("Error loading block database");

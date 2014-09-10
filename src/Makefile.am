@@ -249,7 +249,7 @@ libbitcoin_cli_a_SOURCES = \
 
 nodist_libbitcoin_common_a_SOURCES = $(top_srcdir)/src/obj/build.h
 #
-# this repetition is temporary work around
+# this repetition is temporary workaround
 # dims_tracker binary #
 dims_tracker_LDADD = \
   libdims_tracker.a \

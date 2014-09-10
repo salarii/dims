@@ -96,7 +96,6 @@ static const uint64_t nMinDiskSpace = 52428800;
 
 
 class CCoinsDB;
-class CBlockTreeDB;
 struct CDiskBlockPos;
 class CTxUndo;
 class CScriptCheck;
@@ -993,12 +992,6 @@ extern CChain chainActive;
 
 /** The currently best known chain of headers (some of which may be invalid). */
 extern CChain chainMostWork;
-
-/** Global variable that points to the active CCoinsView (protected by cs_main) */
-extern CCoinsViewCache *pcoinsTip;
-
-/** Global variable that points to the active block tree (protected by cs_main) */
-extern CBlockTreeDB *pblocktree;
 
 struct CBlockTemplate
 {
