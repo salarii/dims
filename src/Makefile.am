@@ -90,7 +90,9 @@ TRACKER_CORE_H = \
   tracker/trackOriginAddressAction.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
-  tracker/validateTransactionsRequest.h
+  tracker/validateTransactionsRequest.h \
+  leveldbwrapper.h \
+  txdb.h 
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -113,7 +115,6 @@ BITCOIN_CORE_H = \
   init.h \
   key.h \
   keystore.h \
-  leveldbwrapper.h \
   limitedmap.h \
   main.h \
   mruset.h \
@@ -129,7 +130,6 @@ BITCOIN_CORE_H = \
   sync.h \
   threadsafety.h \
   tinyformat.h \
-  txdb.h \
   txmempool.h \
   ui_interface.h \
   uint256.h \
@@ -189,8 +189,9 @@ TRACKER_CORE_CPP = \
   tracker/transactionRecordManager.cpp \
   tracker/trackOriginAddressAction.cpp \
   tracker/validateTransactionsAction.cpp \
-  tracker/validateTransactionsRequest.cpp
- 
+  tracker/validateTransactionsRequest.cpp \
+  leveldbwrapper.cpp \
+  txdb.cpp
   
 libbitcoin_server_a_SOURCES = \
   db.cpp \
@@ -204,14 +205,12 @@ libbitcoin_server_a_SOURCES = \
   coins.cpp \
   init.cpp \
   keystore.cpp \
-  leveldbwrapper.cpp \
   main.cpp \
   net.cpp \
   noui.cpp \
   rpcmisc.cpp \
   rpcnet.cpp \
   rpcrawtransaction.cpp \
-  txdb.cpp \
   txmempool.cpp \
   rpcdump.cpp \
   rpcwallet.cpp \
