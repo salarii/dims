@@ -206,8 +206,6 @@ void COriginAddressScanner::createBaseTransaction(CTransaction const &  _tx)
 
 			}
 		}
-
-
 	}
 }
 

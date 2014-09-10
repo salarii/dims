@@ -22,8 +22,6 @@ CSettingsConnectionProvider::setTrackerIp( std::string const & _ip )
 {
 }
 
-
-// in the future here  mediums from  user settings  should appear for now it  is mostly dummy stuff
 CSettingsConnectionProvider::CSettingsConnectionProvider()
 {
 	m_settingsMedium = new CSettingsMedium();

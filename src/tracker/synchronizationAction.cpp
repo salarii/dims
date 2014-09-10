@@ -20,6 +20,8 @@
 #include "trackerFilters.h"
 #include "segmentFileStorage.h"
 #include "trackerEvents.h"
+#include "trackerController.h"
+#include "trackerControllerEvents.h"
 
 namespace tracker
 {
@@ -182,6 +184,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 	boost::statechart::result react( common::CAckPromptResult const & )
 	{
+		CTrackerController::getInstance()->process_event( CSynchronizedWithNetworkEvent() );
+
 		context< CSynchronizationAction >().setRequest( 0 );
 
 		return discard_event();

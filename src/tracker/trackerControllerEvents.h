@@ -21,6 +21,10 @@ struct CConnectedToTrackerEvent : boost::statechart::event< CConnectedToTrackerE
 	CConnectedToTrackerEvent(){}
 };
 
+struct CSynchronizedWithNetworkEvent : boost::statechart::event< CSynchronizedWithNetworkEvent >
+{
+};
+
 struct CTrackerConnectingEvent : boost::statechart::event< CTrackerConnectingEvent >
 {
 	CTrackerConnectingEvent(){}

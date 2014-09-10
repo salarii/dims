@@ -24,6 +24,9 @@ public:
 
 	int getMinPrice() const;
 	void setMinPrice( int _price );
+
+	bool isConnected() const;
+	bool setConnected( bool _connected );
 private:
 	CTrackerController();
 
@@ -35,6 +38,8 @@ private:
 	unsigned int m_maxPrice;
 
 	unsigned int m_minPrice;
+
+	bool m_connected;
 };
 
 

@@ -41,14 +41,13 @@ class CTransactionsKnownRequest;
 class CTransactionsAckRequest;
 class CTransactionsDoublespendRequest;
 class CTransactionsNotOkRequest;
+class CTransactionsPropagationRequest;
 
 template < class Block >
 class CSetNextBlockRequest;
 
 struct CSegmentHeader;
 struct CDiskBlock;
-
-//typedef boost::mpl::list< CGetBalanceRequest, CValidateTransactionsRequest, CConnectToTrackerRequest, common::CIdentifyRequest<TrackerResponses>, common::CIdentifyResponse<TrackerResponses>, common::CContinueReqest<TrackerResponses>, CAskForTransactionsRequest, CSetBloomFilterRequest, CGetSynchronizationInfoRequest, CGetNextBlockRequest, CSetNextBlockRequest, CTransactionsKnownRequest, CTransactionsAckRequest, CTransactionsDoublespendRequest, CTransactionsNotOkRequest, common::CNetworkRoleRequest< TrackerResponses >, common::CKnownNetworkInfoRequest< TrackerResponses >, common::CAckRequest< TrackerResponses > > TrackerRequestsList;
 
 }
 

@@ -89,6 +89,11 @@ struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectingE
 
 struct CAckEvent : boost::statechart::event< CAckEvent >
 {
+	CAckEvent(){};
+	CAckEvent( uintptr_t _nodePtr ):m_nodePtr( _nodePtr )
+	{}
+
+	uintptr_t m_nodePtr;
 };
 
 struct CEndEvent : boost::statechart::event< CEndEvent >

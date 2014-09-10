@@ -21,14 +21,33 @@ void CValidateTransactionsRequest::accept( common::CMedium< TrackerResponses > *
 	_medium->add( this );
 }
 
-common::CMediumFilter< TrackerResponses > *
-CValidateTransactionsRequest::getMediumFilter() const
+std::vector< CTransaction > const &
+CValidateTransactionsRequest::getTransactions() const
 {
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
+	return m_transactions;
+}
+
+CTransactionsPropagationRequest::CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_transactions( _transactions )
+	, m_actionKey( _actionKey )
+{
+}
+
+void
+CTransactionsPropagationRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+uint256
+CTransactionsPropagationRequest::getActionKey() const
+{
+	return m_actionKey;
 }
 
 std::vector< CTransaction > const &
-CValidateTransactionsRequest::getTransactions() const
+CTransactionsPropagationRequest::getTransactions() const
 {
 	return m_transactions;
 }
@@ -44,12 +63,6 @@ CTransactionsKnownRequest::accept( common::CMedium< TrackerResponses > * _medium
 	_medium->add( this );
 }
 
-common::CMediumFilter< TrackerResponses > *
-CTransactionsKnownRequest::getMediumFilter() const
-{
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
-}
-
 CTransactionsAckRequest::CTransactionsAckRequest()
 	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 {
@@ -59,12 +72,6 @@ void
 CTransactionsAckRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {
 	_medium->add( this );
-}
-
-common::CMediumFilter< TrackerResponses > *
-CTransactionsAckRequest::getMediumFilter() const
-{
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 CTransactionsDoublespendRequest::CTransactionsDoublespendRequest()
@@ -78,12 +85,6 @@ CTransactionsDoublespendRequest::accept( common::CMedium< TrackerResponses > * _
 	_medium->add( this );
 }
 
-common::CMediumFilter< TrackerResponses > *
-CTransactionsDoublespendRequest::getMediumFilter() const
-{
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
-}
-
 CTransactionsNotOkRequest::CTransactionsNotOkRequest()
 	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 {
@@ -93,12 +94,6 @@ void
 CTransactionsNotOkRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {
 	_medium->add( this );
-}
-
-common::CMediumFilter< TrackerResponses > *
-CTransactionsNotOkRequest::getMediumFilter() const
-{
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
 }
 
 }

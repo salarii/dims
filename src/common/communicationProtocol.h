@@ -85,6 +85,7 @@ struct CHeader
 		READWRITE(m_signedHash);
 		READWRITE(m_time);
 		READWRITE(m_prevKey);
+		READWRITE(m_actionKey);
 	)
 
 	CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey );
@@ -92,6 +93,7 @@ struct CHeader
 	std::vector<unsigned char> m_signedHash;
 	int64_t m_time;
 	CPubKey m_prevKey;
+	uint256 m_actionKey;
 };
 
 struct CIdentifyMessage
@@ -217,7 +219,6 @@ public:
 	CMessage( CAck const & _ack );
 	CMessage( CGet const & _get );
 	CMessage( CEnd const & _end );
-
 	CMessage( std::vector< CTransaction > const & _bundle );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash );
 	IMPLEMENT_SERIALIZE

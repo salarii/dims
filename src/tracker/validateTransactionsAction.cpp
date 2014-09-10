@@ -12,6 +12,8 @@
 #include "trackerEvents.h"
 #include "transactionRecordManager.h"
 #include "clientRequestsManager.h"
+#include "trackerController.h"
+#include "trackerFilters.h"
 
 namespace tracker
 {
@@ -24,10 +26,6 @@ struct CTransactionsKnownEvent : boost::statechart::event< CTransactionsKnownEve
 {
 };
 
-struct CTransactionsAckEvent : boost::statechart::event< CTransactionsAckEvent >
-{
-};
-
 struct CTransactionsDoublespendEvent : boost::statechart::event< CTransactionsDoublespendEvent >
 {
 };
@@ -36,7 +34,7 @@ struct CTransactionsNotOkEvent : boost::statechart::event< CTransactionsNotOkEve
 {
 };
 
-struct CPropagationSummaryEvent : boost::statechart::event< CPropagationSummaryEvent >
+struct CTransactionsAckEvent : boost::statechart::event< CTransactionsAckEvent >
 {
 };
 
@@ -89,34 +87,76 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CValidateTransaction
 /*
 when  transaction  bundle  is  approaching
 generate request  to inform  every  node about it
-remember all with  exception  of  node which send  bundle analyse  respponses
+remember all with  exception  of  node which send  bundle analyse  responses
 validate transaction
 send  double  spend
 not ok
 generate Ack  or  pass Ack
-
 */
+
+struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
+{
+	CPropagateBundle( my_context ctx ) : my_base( ctx )
+	{
+		context< CValidateTransactionsAction >().setRequest(
+					new CTransactionsPropagationRequest(
+								context< CValidateTransactionsAction >().getTransactions(),
+								context< CValidateTransactionsAction >().getActionKey(),
+								new CMediumClassFilter( common::CMediumKinds::Trackers )
+								)
+					);
+	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _event )
+	{
+		m_participating.insert( _event.m_nodePtr );
+		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CValidateTransactionsAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( CTransactionsAckEvent const & _event )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< CTransactionsAckEvent >
+	> reactions;
+
+	std::set< uintptr_t > m_participating;
+};
+
+
 struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAction >
 {
 	CApproved( my_context ctx ) : my_base( ctx )
 	{
+
 // instead of  calling  some  sort of request I will try to include  new transactions directly
-		context< CValidateTransactionsAction >().m_request = 0;
+/*		context< CValidateTransactionsAction >().m_request = 0;
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
 			context< CValidateTransactionsAction >().m_transactions );
 
 		CTransactionRecordManager::getInstance()->addTransactionsToStorage(
-					context< CValidateTransactionsAction >().m_transactions );
+					context< CValidateTransactionsAction >().m_transactions );*/
 	}
 
 };
-// not  ok  means
+
 struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAction >
 {
 	CRejected( my_context ctx ) : my_base( ctx )
 	{
-// error should be indicated, at some point
-		context< CValidateTransactionsAction >().m_request = 0;
+
+		context< CValidateTransactionsAction >().setRequest( 0 );
 	}
 };
 
@@ -126,13 +166,13 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 
 	CInitial( my_context ctx ) : my_base( ctx )
 	{
-		context< CValidateTransactionsAction >().m_request =
-				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().m_transactions );
+		context< CValidateTransactionsAction >().setRequest(
+				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions() ) );
 	}
 
-	boost::statechart::result react( const CValidationEvent & _event )
+	boost::statechart::result react( CValidationEvent const & _event )
 	{
-		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().m_transactions;
+		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().acquireTransactions();
 
 		BOOST_FOREACH( unsigned int index, _event.m_invalidTransactionIndexes )
 		{
@@ -175,8 +215,9 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 		if ( transactions.empty() )
 			return transit< CRejected >();
 		else
-			return transit< CApproved >();
-
+		{
+			return CTrackerController::getInstance()->isConnected() ? transit< CPropagateBundle >() : transit< CApproved >();
+		}
 	}
 };
 
@@ -200,6 +241,22 @@ CValidateTransactionsAction::accept( common::CSetResponseVisitor< TrackerRespons
 	_visitor.visit( *this );
 }
 
+void
+CValidateTransactionsAction::setRequest( common::CRequest< TrackerResponses > * _request )
+{
+	m_request = _request;
+}
 
+std::vector< CTransaction > const &
+CValidateTransactionsAction::getTransactions() const
+{
+	return m_transactions;
+}
+
+std::vector< CTransaction > &
+CValidateTransactionsAction::acquireTransactions()
+{
+	return m_transactions;
+}
 
 }

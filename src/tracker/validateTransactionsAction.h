@@ -13,20 +13,21 @@
 namespace tracker
 {
 
-struct CInitial; struct CApproved; struct CRejected;
-
-class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >
+struct CInitial;
+// extremely simplified
+class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >, public common::CCommunicationAction
 {
-public:
-	// loks ugly but I don't want to allow anyone else than machine internal states to modify its private data
-	friend class CInitial;
-	friend class CApproved;
-	friend class CRejected;
 public:
 	CValidateTransactionsAction( std::vector< CTransaction > const & _transactions );
 	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+
+	void setRequest( common::CRequest< TrackerResponses > * _request );
+
+	std::vector< CTransaction > const & getTransactions() const;
+
+	std::vector< CTransaction > & acquireTransactions();
 private:
 	common::CRequest< TrackerResponses >* m_request;
 	std::vector< CTransaction > m_transactions;// deque ??? because  removal  from this contaier may  happen

@@ -71,6 +71,8 @@ public:
 	void add( CSetNextBlockRequest< CSegmentHeader > const * _request );
 
 	void add( CSetNextBlockRequest< CDiskBlock > const * _request );
+
+	void add( CTransactionsPropagationRequest const * _request );
 private:
 };
 

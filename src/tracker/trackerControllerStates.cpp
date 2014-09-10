@@ -11,6 +11,7 @@
 #include "connectNodeAction.h"
 #include "synchronizationAction.h"
 #include "trackerEvents.h"
+#include "trackerController.h"
 
 namespace tracker
 {
@@ -54,6 +55,7 @@ CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )
 
 CConnected::CConnected( my_context ctx ) : my_base( ctx )
 {
+	CTrackerController::getInstance()->setConnected( true );
 }
 
 

@@ -10,7 +10,7 @@ struct CMediumKinds
 	{
 		  Internal
 		, BitcoinsNodes
-		, DimsNodes // quarantine after this
+		, DimsNodes
 		, Trackers
 	};
 };

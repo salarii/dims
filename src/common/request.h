@@ -40,8 +40,9 @@ struct CRequest
 	CRequest( common::CMediumFilter< _RequestResponses > * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter ){}
 
 	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
-// reconsider this  int
-	virtual CMediumFilter< _RequestResponses > * getMediumFilter() const = 0;
+
+	virtual CMediumFilter< _RequestResponses > * getMediumFilter() const{ return m_mediumFilter; }
+
 	virtual ~CRequest()
 	{
 		if ( m_mediumFilter )

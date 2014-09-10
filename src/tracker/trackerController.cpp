@@ -57,6 +57,18 @@ CTrackerController::setMinPrice( int _price )
 	m_minPrice = _price;
 }
 
+bool
+CTrackerController::isConnected() const
+{
+	return m_connected;
+}
+
+bool
+CTrackerController::setConnected( bool _connected )
+{
+	m_connected = _connected;
+}
+
 CTrackerController::CTrackerController()
 {
 	initiate();

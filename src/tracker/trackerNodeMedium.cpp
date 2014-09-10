@@ -8,6 +8,7 @@
 #include "trackerNodesManager.h"
 #include "connectNodeAction.h"
 #include "synchronizationRequests.h"
+#include "validateTransactionsRequest.h"
 
 namespace tracker
 {
@@ -60,6 +61,16 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 	m_messages.push_back( message );
 
 	m_indexes.push_back( get.m_actionKey );
+}
+
+void
+CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
+{
+	common::CMessage message( _request->getTransactions() );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
 }
 
 void
