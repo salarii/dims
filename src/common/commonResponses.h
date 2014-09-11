@@ -190,7 +190,6 @@ struct CMessageResult : boost::statechart::event< CMessageResult >
 	CPubKey m_pubKey;
 };
 
-
 }
 
 #endif // TRACKER_RESPONSES_H

@@ -20,73 +20,8 @@
 namespace tracker
 {
 
-struct CValidateTransactionsEvent : boost::statechart::event< CValidateTransactionsEvent >
-{
-};
-
-struct CTransactionsKnownEvent : boost::statechart::event< CTransactionsKnownEvent >
-{
-};
-
-struct CTransactionsDoublespendEvent : boost::statechart::event< CTransactionsDoublespendEvent >
-{
-};
-
-struct CTransactionsNotOkEvent : boost::statechart::event< CTransactionsNotOkEvent >
-{
-};
-
-struct CTransactionsAckEvent : boost::statechart::event< CTransactionsAckEvent >
-{
-};
-
-struct CErrorEvent : boost::statechart::event< CErrorEvent >
-{
-};
-
 struct CNetworkPresent;
 
-struct CNoTransaction : boost::statechart::state< CNoTransaction, CValidateTransactionsAction >
-{
-	//send  ack
-	CNoTransaction( my_context ctx ) : my_base( ctx )
-	{
-	}
-
-	boost::statechart::result react( CValidateTransactionsEvent const & _validateTransactionsEvent )
-	{
-			return transit< CNetworkPresent >();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CValidateTransactionsEvent >
-	> reactions;
-};
-
-struct CNetworkPresent : boost::statechart::state< CNetworkPresent, CValidateTransactionsAction >
-{
-	CNetworkPresent( my_context ctx ) : my_base( ctx )
-	{
-		// choose nodes,  exclude  seeds, monitors, only  trackers  without one  who  sent bundle
-	}
-
-	boost::statechart::result react( CTransactionsKnownEvent const & _transactionsKnownEvent )
-	{
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CTransactionsKnownEvent >
-	> reactions;
-};
-
-struct CStandAlone : boost::statechart::state< CStandAlone, CValidateTransactionsAction >
-{
-	CStandAlone( my_context ctx ) : my_base( ctx )
-	{
-		// validate internally
-		// if  so  generate  acks ????
-	}
-};
 /*
 when  transaction  bundle  is  approaching
 generate request  to inform  every  node about it
@@ -96,6 +31,39 @@ send  double  spend
 not ok
 generate Ack  or  pass Ack
 */
+
+struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateTransactionsAction >
+{
+	CBroadcastBundle( my_context ctx ) : my_base( ctx )
+	{
+
+	}
+/*
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< CValidationEvent >,
+	boost::statechart::custom_reaction< common::CAckPromptResult >
+	> reactions;*/
+};
+
+struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, CValidateTransactionsAction >
+{
+	CPassBundleInvalidate( my_context ctx ) : my_base( ctx )
+	{
+
+	}
+/*
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< CValidationEvent >,
+	boost::statechart::custom_reaction< common::CAckPromptResult >
+	> reactions;
+*/
+};
 
 struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransactionsAction >
 {
@@ -113,10 +81,9 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().acquireTransactions();
 		convertPayload( orginalMessage, transactions );
 
-		m_inititingNode = messageResult->m_nodeIndicator;
+		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
 
-			context< CValidateTransactionsAction >().setRequest(
-						new CValidateTransactionsRequest( transactions ) );
+		context< CValidateTransactionsAction >().setRequest( new common::CAckRequest< TrackerResponses >( context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
 	}
 
 	boost::statechart::result react( CValidationEvent const & _event )
@@ -125,41 +92,33 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 		if ( _event.m_invalidTransactionIndexes.empty() )
 		{
-			// pass along to all but initiating node
-
+			transit<CBroadcastBundle>();
 		}
 		else
 		{
-
+			transit<CPassBundleInvalidate>();
 		}
-
-
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckEvent const & _event )
+	boost::statechart::result react( common::CAckPromptResult const & _ackPromptResult )
 	{
-
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
+		context< CValidateTransactionsAction >().setRequest(
+					new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< CValidationEvent >
+	boost::statechart::custom_reaction< CValidationEvent >,
+	boost::statechart::custom_reaction< common::CAckPromptResult >,
+	boost::statechart::custom_reaction< common::CAckPromptResult >
 	> reactions;
-
-	uintptr_t m_inititingNode;
 };
 
 struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
@@ -188,15 +147,9 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 		return discard_event();
 	}
 
-	boost::statechart::result react( CTransactionsAckEvent const & _event )
-	{
-		return discard_event();
-	}
-
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< CTransactionsAckEvent >
+	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 
 	std::set< uintptr_t > m_participating;
@@ -234,7 +187,7 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 	CInitial( my_context ctx ) : my_base( ctx )
 	{
 		context< CValidateTransactionsAction >().setRequest(
-				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions() ) );
+				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
 	boost::statechart::result react( CValidationEvent const & _event )
@@ -325,5 +278,18 @@ CValidateTransactionsAction::acquireTransactions()
 {
 	return m_transactions;
 }
+
+void
+CValidateTransactionsAction::setInitiatingNode( uintptr_t _initiatingNode )
+{
+	m_initiatingNode = _initiatingNode;
+}
+
+uintptr_t
+CValidateTransactionsAction::getInitiatingNode() const
+{
+	return m_initiatingNode;
+}
+
 
 }

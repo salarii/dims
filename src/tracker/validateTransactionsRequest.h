@@ -12,16 +12,37 @@
 namespace tracker
 {
 
+class CMediumClassFilter;
+
 class  CValidateTransactionsRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions );
+	CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CMediumFilter< TrackerResponses > * _mediumFilter );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	std::vector< CTransaction > const & getTransactions() const;
 private:
 	std::vector< CTransaction > const m_transactions;
+};
+
+
+// one  template  for  all below
+
+class  CPassMessageRequest : public common::CRequest< TrackerResponses >
+{
+public:
+	CPassMessageRequest( common::CMessage const & _message, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+
+	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	common::CMessage const & getMessage() const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+
+	common::CMessage m_message;
 };
 
 class CTransactionsPropagationRequest : public common::CRequest< TrackerResponses >

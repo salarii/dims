@@ -10,8 +10,8 @@
 namespace tracker
 {
 
-CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions )
-	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
 	, m_transactions( _transactions )
 {
 }
@@ -25,6 +25,31 @@ std::vector< CTransaction > const &
 CValidateTransactionsRequest::getTransactions() const
 {
 	return m_transactions;
+}
+
+CPassMessageRequest::CPassMessageRequest(  common::CMessage const & _message, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_actionKey( _actionKey )
+	, m_message( _message )
+{
+}
+
+void
+CPassMessageRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+common::CMessage const &
+CPassMessageRequest::getMessage() const
+{
+	return m_message;
+}
+
+uint256
+CPassMessageRequest::getActionKey() const
+{
+	return m_actionKey;
 }
 
 CTransactionsPropagationRequest::CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )

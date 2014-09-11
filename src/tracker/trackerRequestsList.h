@@ -39,6 +39,7 @@ class CGetSynchronizationInfoRequest;
 class CGetNextBlockRequest;
 class CTransactionsStatusRequest;
 class CTransactionsPropagationRequest;
+class CPassMessageRequest;
 
 template < class Block >
 class CSetNextBlockRequest;

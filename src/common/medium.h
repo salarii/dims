@@ -63,6 +63,7 @@ public:
 	virtual void add( common::CAckRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( common::CEndRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( tracker::CTransactionsPropagationRequest const * _request ){};
+	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual ~CMedium(){};
 };
 
