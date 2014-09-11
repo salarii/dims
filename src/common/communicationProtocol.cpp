@@ -138,14 +138,20 @@ CMessage::CMessage( CAck const & _ack, uint256 const & _actionKey )
 	createPayload( _ack, m_payload );
 }
 
-CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey )
-	: m_header( _message.m_header.m_payloadKind, _signedHash, GetTime(), _prevKey, _actionKey )
+CMessage::CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey )
+: m_header( (int)CPayloadKind::StatusTransactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
-/*	m_payload = ( void* )new CMessage(_message);
+	createPayload( _transactionsBundleStatus, m_payload );
 
-	m_header.m_signedHash = _signedHash;
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
 
-	m_header.m_time = GetTime();*/
+CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::Message, _signedHash, GetTime(), _prevKey, _actionKey )
+{
+	createPayload( _message, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
 uint256

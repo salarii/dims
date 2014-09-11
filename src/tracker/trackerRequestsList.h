@@ -37,10 +37,7 @@ class CAskForTransactionsRequest;
 class CSetBloomFilterRequest;
 class CGetSynchronizationInfoRequest;
 class CGetNextBlockRequest;
-class CTransactionsKnownRequest;
-class CTransactionsAckRequest;
-class CTransactionsDoublespendRequest;
-class CTransactionsNotOkRequest;
+class CTransactionsStatusRequest;
 class CTransactionsPropagationRequest;
 
 template < class Block >

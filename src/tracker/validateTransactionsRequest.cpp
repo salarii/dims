@@ -52,46 +52,13 @@ CTransactionsPropagationRequest::getTransactions() const
 	return m_transactions;
 }
 
-CTransactionsKnownRequest::CTransactionsKnownRequest()
+CTransactionsStatusRequest::CTransactionsStatusRequest()
 	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 {
 }
 
 void
-CTransactionsKnownRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-CTransactionsAckRequest::CTransactionsAckRequest()
-	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
-{
-}
-
-void
-CTransactionsAckRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-CTransactionsDoublespendRequest::CTransactionsDoublespendRequest()
-	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
-{
-}
-
-void
-CTransactionsDoublespendRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-CTransactionsNotOkRequest::CTransactionsNotOkRequest()
-	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
-{
-}
-
-void
-CTransactionsNotOkRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
+CTransactionsStatusRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {
 	_medium->add( this );
 }

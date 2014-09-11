@@ -13,6 +13,8 @@
 #include "net.h"
 #include "communicationProtocol.h"
 
+#include <boost/statechart/event.hpp>
+
 namespace common
 {
 
@@ -179,7 +181,7 @@ struct CAckResult
 {
 };
 
-struct CMessageResult
+struct CMessageResult : boost::statechart::event< CMessageResult >
 {
 	CMessageResult( CMessage const & _message, uintptr_t _nodeIndicator, CPubKey const & _pubKey ): m_message( _message ),m_nodeIndicator( _nodeIndicator ), m_pubKey( _pubKey ){}
 

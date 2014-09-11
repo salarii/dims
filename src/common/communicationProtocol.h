@@ -34,6 +34,7 @@ struct CPayloadKind
 		Get,
 		AckTransactions,
 		StatusTransactions,
+		Message,
 		End
 	};
 };
@@ -110,6 +111,16 @@ struct CIdentifyMessage
 	std::vector<unsigned char> m_payload;
 	CPubKey m_key;
 	std::vector<unsigned char> m_signed;
+};
+
+struct CTransactionsBundleStatus
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_status );
+	)
+
+	unsigned int m_status;
 };
 
 struct CNetworkRole
@@ -205,6 +216,7 @@ public:
 	CMessage( CAck const & _ack, uint256 const & _actionKey );
 	CMessage( CGet const & _get, uint256 const & _actionKey );
 	CMessage( CEnd const & _end, uint256 const & _actionKey );
+	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey );
 	IMPLEMENT_SERIALIZE

@@ -57,10 +57,7 @@ public:
 	virtual void add( tracker::CGetNextBlockRequest const * _request ){};
 	virtual void add( tracker::CSetNextBlockRequest< tracker::CDiskBlock > const * _request ){};
 	virtual void add( tracker::CSetNextBlockRequest< tracker::CSegmentHeader > const * _request ){};
-	virtual void add( tracker::CTransactionsKnownRequest const * _request ){};
-	virtual void add( tracker::CTransactionsAckRequest const * _request ){};
-	virtual void add( tracker::CTransactionsDoublespendRequest const * _request ){};
-	virtual void add( tracker::CTransactionsNotOkRequest const * _request ){};
+	virtual void add( tracker::CTransactionsStatusRequest const * _request ){};
 	virtual void add( common::CNetworkRoleRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( common::CAckRequest< tracker::TrackerResponses > const * _request ){};

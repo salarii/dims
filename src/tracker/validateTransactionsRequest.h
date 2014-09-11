@@ -40,40 +40,14 @@ private:
 	std::vector< CTransaction > const m_transactions;
 };
 
-
-class  CTransactionsKnownRequest : public common::CRequest< TrackerResponses >
+// most likely temporary solution
+class  CTransactionsStatusRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CTransactionsKnownRequest();
+	CTransactionsStatusRequest();
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 };
-
-class  CTransactionsAckRequest : public common::CRequest< TrackerResponses >
-{
-public:
-	CTransactionsAckRequest();
-
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
-
-};
-
-class  CTransactionsDoublespendRequest : public common::CRequest< TrackerResponses >
-{
-public:
-	CTransactionsDoublespendRequest();
-
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
-};
-
-class  CTransactionsNotOkRequest : public common::CRequest< TrackerResponses >
-{
-public:
-	CTransactionsNotOkRequest();
-
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
-};
-
 
 }
 

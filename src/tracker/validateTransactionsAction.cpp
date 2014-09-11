@@ -7,6 +7,8 @@
 #include <boost/statechart/event.hpp>
 
 #include "common/setResponseVisitor.h"
+#include "common/commonResponses.h"
+
 #include "validateTransactionsRequest.h"
 
 #include "trackerEvents.h"
@@ -46,6 +48,7 @@ struct CNetworkPresent;
 
 struct CNoTransaction : boost::statechart::state< CNoTransaction, CValidateTransactionsAction >
 {
+	//send  ack
 	CNoTransaction( my_context ctx ) : my_base( ctx )
 	{
 	}
@@ -94,6 +97,71 @@ not ok
 generate Ack  or  pass Ack
 */
 
+struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransactionsAction >
+{
+	CPassBundle( my_context ctx ) : my_base( ctx )
+	{
+		common::CMessageResult const* messageResult = dynamic_cast< common::CMessageResult const* >( simple_state::triggering_event() );
+
+		assert( messageResult->m_message.m_header.m_payloadKind == common::CPayloadKind::Transactions );
+
+		common::CMessage orginalMessage;
+
+		if ( !common::CommunicationProtocol::unwindMessage( messageResult->m_message, orginalMessage, GetTime(), messageResult->m_pubKey ) );
+		assert( !"service it somehow" );
+
+		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().acquireTransactions();
+		convertPayload( orginalMessage, transactions );
+
+		m_inititingNode = messageResult->m_nodeIndicator;
+
+			context< CValidateTransactionsAction >().setRequest(
+						new CValidateTransactionsRequest( transactions ) );
+	}
+
+	boost::statechart::result react( CValidationEvent const & _event )
+	{
+		// for  now  all or  nothing  philosophy
+
+		if ( _event.m_invalidTransactionIndexes.empty() )
+		{
+			// pass along to all but initiating node
+
+		}
+		else
+		{
+
+		}
+
+
+	}
+
+	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	{
+		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _event )
+	{
+
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< CValidationEvent >
+	> reactions;
+
+	uintptr_t m_inititingNode;
+};
+
 struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
 {
 	CPropagateBundle( my_context ctx ) : my_base( ctx )
@@ -133,7 +201,6 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 
 	std::set< uintptr_t > m_participating;
 };
-
 
 struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAction >
 {
