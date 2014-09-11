@@ -136,8 +136,6 @@ CMessage::CMessage( CAck const & _ack, uint256 const & _actionKey )
 	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _ack, m_payload );
-
-	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey )
