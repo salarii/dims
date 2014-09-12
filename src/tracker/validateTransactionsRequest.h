@@ -12,6 +12,16 @@
 namespace tracker
 {
 
+struct CBundleStatus
+{
+	enum Enum
+	{
+		  Ack
+		, NotValid
+		, Known
+	};
+};
+
 class CMediumClassFilter;
 
 class  CValidateTransactionsRequest : public common::CRequest< TrackerResponses >
@@ -65,9 +75,15 @@ private:
 class  CTransactionsStatusRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CTransactionsStatusRequest();
+	CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+
+	CBundleStatus::Enum m_bundleStatus;
 };
 
 }

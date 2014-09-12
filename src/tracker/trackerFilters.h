@@ -36,12 +36,23 @@ struct CMediumClassFilter : public common::CMediumFilter< TrackerResponses >
 	int m_mediumNumber;
 };
 
-/*
-getting given medium, referencing it by pointer, is problematic in some cases ( multiple inheritance ) it is also unaesthetic and bad  practice.
-maybe at some point replace it by keyID??
+struct CNodeExceptionFilter : public common::CMediumFilter< TrackerResponses >
+{
+	CNodeExceptionFilter( uintptr_t _exception ):m_exception( _exception )
+	{}
 
+	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
+	{
+		std::list< common::CMedium< TrackerResponses > *> mediums;
 
-*/
+		mediums = _trackerNodesManager->getNodesByClass( common::CMediumKinds::Trackers );
+		mediums.remove( _trackerNodesManager->findNodeMedium( m_exception ) );
+
+		return mediums;
+	}
+
+	uintptr_t m_exception;
+};
 
 struct CSpecificMediumFilter : public common::CMediumFilter< TrackerResponses >
 {
@@ -59,6 +70,29 @@ struct CSpecificMediumFilter : public common::CMediumFilter< TrackerResponses >
 	}
 	uintptr_t m_ptr;
 };
+
+struct CComplexMediumFilter : public common::CMediumFilter< TrackerResponses >
+{
+	CComplexMediumFilter( std::set< uintptr_t > const & _nodes )
+		: m_nodes( _nodes )
+	{}
+
+	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
+	{
+
+		std::list< common::CMedium< TrackerResponses > *> mediums;
+
+		BOOST_FOREACH( uintptr_t nodePtr , m_nodes )
+		{
+			common::CMedium< TrackerResponses > * medium = _nodesManager->findNodeMedium( nodePtr );
+			if ( medium )
+				mediums.push_back( medium );
+		}
+		return mediums;
+	}
+	 std::set< uintptr_t > const & m_nodes;
+};
+
 
 }
 

@@ -32,12 +32,18 @@ public:
 	void setInitiatingNode( uintptr_t _initiatingNode );
 
 	uintptr_t getInitiatingNode() const;
+
+	void setMessage( common::CMessage const & _message );
+
+	common::CMessage getMessage() const;
 private:
 	common::CRequest< TrackerResponses >* m_request;
 
 	std::vector< CTransaction > m_transactions;// deque ??? because  removal  from this contaier may  happen
 
 	uintptr_t m_initiatingNode;
+
+	common::CMessage m_message;
 };
 
 }

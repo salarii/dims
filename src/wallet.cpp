@@ -787,13 +787,6 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
                 continue;
             }
 
-            CBlock block;
-            ReadBlockFromDisk(block, pindex);
-            BOOST_FOREACH(CTransaction& tx, block.vtx)
-            {
-                if (AddToWalletIfInvolvingMe(tx.GetHash(), tx, &block, fUpdate))
-                    ret++;
-            }
             pindex = chainActive.Next(pindex);
         }
     }

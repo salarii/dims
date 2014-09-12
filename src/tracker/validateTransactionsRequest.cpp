@@ -77,8 +77,10 @@ CTransactionsPropagationRequest::getTransactions() const
 	return m_transactions;
 }
 
-CTransactionsStatusRequest::CTransactionsStatusRequest()
-	: common::CRequest< TrackerResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+CTransactionsStatusRequest::CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: common::CRequest< TrackerResponses >( _mediumFilter )
+	, m_actionKey( _actionKey )
+	,m_bundleStatus( _bundleStatus )
 {
 }
 
@@ -86,6 +88,12 @@ void
 CTransactionsStatusRequest::accept( common::CMedium< TrackerResponses > * _medium ) const
 {
 	_medium->add( this );
+}
+
+uint256
+CTransactionsStatusRequest::getActionKey() const
+{
+	return m_actionKey;
 }
 
 }
