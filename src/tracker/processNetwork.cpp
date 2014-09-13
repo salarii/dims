@@ -11,6 +11,7 @@
 #include "trackerNodeMedium.h"
 #include "connectNodeAction.h"
 #include "synchronizationAction.h"
+#include "validateTransactionsAction.h"
 
 namespace tracker
 {
@@ -60,7 +61,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				//
+				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message );
+
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )

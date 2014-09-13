@@ -93,4 +93,24 @@ CTrackerNodeMedium::add( CSetNextBlockRequest< CDiskBlock > const * _request )
 	m_indexes.push_back( _request->getActionKey() );
 }
 
+void
+CTrackerNodeMedium::add( CTransactionsStatusRequest const * _request )
+{
+	common::CMessage message( common::CTransactionsBundleStatus( _request->getBundleStatus() ), _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
+}
+
+void
+CTrackerNodeMedium::add( CPassMessageRequest const * _request )
+{
+	common::CMessage message( _request->getMessage(), _request->getPreviousKey(), _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
+}
+
 }

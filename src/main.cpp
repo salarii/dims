@@ -1345,26 +1345,6 @@ bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, C
     return true;
 }
 
-// Update the on-disk chain state.
-bool static WriteChainState(CValidationState &state) {
-    static int64_t nLastWrite = 0;
-    if (!IsInitialBlockDownload() || pcoinsTip->GetCacheSize() > nCoinCacheSize || GetTimeMicros() > nLastWrite + 600*1000000) {
-        // Typical CCoins structures on disk are around 100 bytes in size.
-        // Pushing a new one to the database can cause it to be written
-        // twice (once in the log, and once in the tables). This is already
-        // an overestimation, as most will delete an existing entry or
-        // overwrite one. Still, use a conservative safety factor of 2.
-        if (!CheckDiskSpace(100 * 2 * 2 * pcoinsTip->GetCacheSize()))
-            return state.Error("out of disk space");
-
-
-        if (!pcoinsTip->Flush())
-            return state.Abort(_("Failed to write to coin database"));
-        nLastWrite = GetTimeMicros();
-    }
-    return true;
-}
-
 // Update chainActive and related internal data structures.
 void static UpdateTip(CBlockIndex *pindexNew) {
     chainActive.SetTip(pindexNew);
@@ -1412,9 +1392,6 @@ bool static DisconnectTip(CValidationState &state) {
     }
     if (fBenchmark)
         LogPrintf("- Disconnect: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
-    // Write the chain state to disk, if necessary.
-    if (!WriteChainState(state))
-        return false;
 
     // Update chainActive and related variables.
     UpdateTip(pindexDelete->pprev);
@@ -1425,9 +1402,6 @@ bool static DisconnectTip(CValidationState &state) {
 bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew) {
     assert(pindexNew->pprev == chainActive.Tip());
 
-    // Write the chain state to disk, if necessary.
-    if (!WriteChainState(state))
-		return false;
     // Update chainActive & related variables.
     UpdateTip(pindexNew);
     return true;

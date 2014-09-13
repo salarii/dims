@@ -42,17 +42,21 @@ private:
 class  CPassMessageRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CPassMessageRequest( common::CMessage const & _message, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CPassMessageRequest( common::CMessage const & _message, uint256 const & _actionKey, CPubKey const & _prevKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
 
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	common::CMessage const & getMessage() const;
 
 	uint256 getActionKey() const;
+
+	CPubKey const & getPreviousKey() const;
 private:
 	uint256 const m_actionKey;
 
 	common::CMessage m_message;
+
+	CPubKey const m_prevKey;
 };
 
 class CTransactionsPropagationRequest : public common::CRequest< TrackerResponses >
@@ -80,6 +84,8 @@ public:
 	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 	uint256 getActionKey() const;
+
+	CBundleStatus::Enum getBundleStatus() const;
 private:
 	uint256 const m_actionKey;
 

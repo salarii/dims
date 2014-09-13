@@ -19,6 +19,9 @@ class CValidateTransactionsAction : public common::CAction< TrackerResponses >,p
 {
 public:
 	CValidateTransactionsAction( std::vector< CTransaction > const & _transactions );
+
+	CValidateTransactionsAction( common::CMessage const & _message );
+
 	virtual common::CRequest< TrackerResponses >* execute();
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );

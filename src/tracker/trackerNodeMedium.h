@@ -69,6 +69,10 @@ public:
 	void add( CSetNextBlockRequest< CDiskBlock > const * _request );
 
 	void add( CTransactionsPropagationRequest const * _request );
+
+	void add( CTransactionsStatusRequest const * _request );
+
+	void add( CPassMessageRequest const * _request );
 private:
 };
 

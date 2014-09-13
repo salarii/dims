@@ -120,7 +120,9 @@ struct CTransactionsBundleStatus
 		READWRITE( m_status );
 	)
 
-	unsigned int m_status;
+	CTransactionsBundleStatus( unsigned int _status ):m_status( _status ){}
+
+	int m_status;
 };
 
 struct CNetworkRole
@@ -218,7 +220,7 @@ public:
 	CMessage( CEnd const & _end, uint256 const & _actionKey );
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
-	CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey );
+	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);

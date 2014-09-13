@@ -33,6 +33,13 @@ not ok
 generate Ack  or  pass Ack
 */
 
+struct COriginOfTransactionEvent : boost::statechart::event< COriginOfTransactionEvent >
+{
+};
+
+struct CPasingTransactionEvent : boost::statechart::event< COriginOfTransactionEvent >
+{
+};
 
 struct CSendAcceptBudle : boost::statechart::state< CSendAcceptBudle, CValidateTransactionsAction >
 {
@@ -123,6 +130,8 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
 
 		context< CValidateTransactionsAction >().setRequest( new common::CAckRequest< TrackerResponses >( context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
+
+		m_pubKey = messageResult->m_pubKey;
 	}
 
 	boost::statechart::result react( CValidationEvent const & _event )
@@ -139,7 +148,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 			}
 			else
 			{
-				CPassMessageRequest( context< CValidateTransactionsAction >().getMessage(), context< CValidateTransactionsAction >().getActionKey(), filter );
+				CPassMessageRequest( context< CValidateTransactionsAction >().getMessage(), context< CValidateTransactionsAction >().getActionKey(), m_pubKey, filter );
 				transit<CBroadcastBundle>();
 			}
 		}
@@ -167,6 +176,8 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 	boost::statechart::custom_reaction< CValidationEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >
 	> reactions;
+
+	CPubKey m_pubKey;
 };
 
 struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
@@ -228,11 +239,10 @@ struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAct
 	}
 };
 
-struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsAction >
+struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTransactionsAction >
 {
-	typedef boost::statechart::custom_reaction< CValidationEvent > reactions;
 
-	CInitial( my_context ctx ) : my_base( ctx )
+	COriginInitial( my_context ctx ) : my_base( ctx )
 	{
 		context< CValidateTransactionsAction >().setRequest(
 				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
@@ -287,6 +297,32 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 			return CTrackerController::getInstance()->isConnected() ? transit< CPropagateBundle >() : transit< CApproved >();
 		}
 	}
+
+	typedef boost::statechart::custom_reaction< CValidationEvent > reactions;
+};
+
+
+struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsAction >
+{
+	CInitial( my_context ctx ) : my_base( ctx )
+	{
+	}
+
+	boost::statechart::result react( COriginOfTransactionEvent const & _event )
+	{
+		return transit< COriginInitial >();
+	}
+
+	boost::statechart::result react( CPasingTransactionEvent const & _event )
+	{
+		return transit< CPassBundle >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< COriginOfTransactionEvent >,
+	boost::statechart::custom_reaction< CPasingTransactionEvent >
+	> reactions;
+
 };
 
 CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransaction > const & _transactions )
@@ -295,6 +331,13 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 	, m_transactions( _transactions )
 {
 	initiate();
+	process_event( COriginOfTransactionEvent() );
+}
+
+CValidateTransactionsAction::CValidateTransactionsAction( common::CMessage const & _message )
+{
+	initiate();
+	process_event( CPasingTransactionEvent() );
 }
 
 common::CRequest< TrackerResponses >*

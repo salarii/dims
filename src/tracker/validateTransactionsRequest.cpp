@@ -27,10 +27,11 @@ CValidateTransactionsRequest::getTransactions() const
 	return m_transactions;
 }
 
-CPassMessageRequest::CPassMessageRequest(  common::CMessage const & _message, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+CPassMessageRequest::CPassMessageRequest(  common::CMessage const & _message, uint256 const & _actionKey, CPubKey const & _prevKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
 	: common::CRequest< TrackerResponses >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_message( _message )
+	, m_prevKey( _prevKey )
 {
 }
 
@@ -50,6 +51,12 @@ uint256
 CPassMessageRequest::getActionKey() const
 {
 	return m_actionKey;
+}
+
+CPubKey const &
+CPassMessageRequest::getPreviousKey() const
+{
+	return m_prevKey;
 }
 
 CTransactionsPropagationRequest::CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
@@ -94,6 +101,12 @@ uint256
 CTransactionsStatusRequest::getActionKey() const
 {
 	return m_actionKey;
+}
+
+CBundleStatus::Enum
+CTransactionsStatusRequest::getBundleStatus() const
+{
+	return m_bundleStatus;
 }
 
 }

@@ -146,8 +146,8 @@ CMessage::CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus,
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, std::vector<unsigned char> const & _signedHash, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Message, _signedHash, GetTime(), _prevKey, _actionKey )
+CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::Message, std::vector<unsigned char>(), GetTime(), _prevKey, _actionKey )
 {
 	createPayload( _message, m_payload );
 
