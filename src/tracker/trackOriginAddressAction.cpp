@@ -168,6 +168,7 @@ CTrackOriginAddressAction::requestFiltered()
 	{
 		if ( index == 0 )
 		{
+			CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
 			m_request = new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) );
 			return;
 		}

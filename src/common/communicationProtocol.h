@@ -139,14 +139,18 @@ struct CAck
 {
 	IMPLEMENT_SERIALIZE
 	(
+		READWRITE(m_dummy);
 	)
+	int m_dummy;
 };
 
 struct CEnd
 {
 	IMPLEMENT_SERIALIZE
 	(
+		READWRITE(m_dummy);
 	)
+	int m_dummy;
 };
 
 struct CValidNodeInfo
