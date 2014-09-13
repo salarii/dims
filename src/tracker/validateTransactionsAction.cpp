@@ -218,14 +218,13 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 {
 	CApproved( my_context ctx ) : my_base( ctx )
 	{
-
-// instead of  calling  some  sort of request I will try to include  new transactions directly
-/*		context< CValidateTransactionsAction >().m_request = 0;
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
-			context< CValidateTransactionsAction >().m_transactions );
+			context< CValidateTransactionsAction >().getTransactions() );
 
 		CTransactionRecordManager::getInstance()->addTransactionsToStorage(
-					context< CValidateTransactionsAction >().m_transactions );*/
+					context< CValidateTransactionsAction >().getTransactions() );
+
+		context< CValidateTransactionsAction >().setRequest( 0 );
 	}
 
 };
