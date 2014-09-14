@@ -38,6 +38,16 @@ public:
 		this->m_action->process_event( tracker::CValidationEvent( _param.m_invalidTransactionIndexes ) );
 	}
 
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		this->m_action->process_event( common::CAckEvent() );
+	}
+
 	virtual void operator()( common::CErrorEvent & _param ) const
 	{
 		//handle it somehow

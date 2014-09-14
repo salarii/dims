@@ -61,8 +61,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message );
-
+				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction();
+				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
 			}
 		}

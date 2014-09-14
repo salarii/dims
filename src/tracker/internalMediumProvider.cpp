@@ -32,6 +32,20 @@ CInternalMediumProvider::provideConnection( common::CMediumFilter< TrackerRespon
 	return _mediumFilter.getMediums( this );
 }
 
+void
+CInternalMediumProvider::registerRemoveCallback( CNodeSignals& nodeSignals )
+{
+	nodeSignals.NotifyTrackerNode.connect( bind( &CInternalMediumProvider::removeNodeCallback, this, _1) );
+}
+
+void
+CInternalMediumProvider::removeNodeCallback( CNode * node )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_nodeToMedium.erase( node );
+
+}
+
 
 std::list< common::CMedium< TrackerResponses > *>
 CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )

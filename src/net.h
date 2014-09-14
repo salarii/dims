@@ -73,6 +73,7 @@ struct CNodeSignals
 	boost::signals2::signal<bool (CNode*, CDataStream&)> ProcessMessage;
     boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
     boost::signals2::signal<void (NodeId)> FinalizeNode;
+	boost::signals2::signal<void (CNode*)> NotifyTrackerNode;
 };
 
 
@@ -328,6 +329,9 @@ public:
 
     ~CNode()
     {
+
+		GetNodeSignals().NotifyTrackerNode(this);
+
         if (hSocket != INVALID_SOCKET)
         {
             closesocket(hSocket);

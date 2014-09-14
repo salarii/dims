@@ -27,7 +27,11 @@ public:
 	std::list< common::CMedium< TrackerResponses > *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
 	static CInternalMediumProvider* getInstance( );
+
+	void registerRemoveCallback( CNodeSignals& nodeSignals );
 private:
+	void removeNodeCallback( CNode * node );
+
 	CInternalMediumProvider();
 private:
 	mutable boost::mutex m_mutex;

@@ -968,6 +968,8 @@ seed_insecure_rand();
 
 	common::CActionHandler< tracker::TrackerResponses >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
 
+	tracker::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
+
 	// ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));

@@ -37,7 +37,7 @@ struct COriginOfTransactionEvent : boost::statechart::event< COriginOfTransactio
 {
 };
 
-struct CPasingTransactionEvent : boost::statechart::event< COriginOfTransactionEvent >
+struct CPasingTransactionEvent : boost::statechart::event< CPasingTransactionEvent >
 {
 };
 
@@ -312,14 +312,9 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 		return transit< COriginInitial >();
 	}
 
-	boost::statechart::result react( CPasingTransactionEvent const & _event )
-	{
-		return transit< CPassBundle >();
-	}
-
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< COriginOfTransactionEvent >,
-	boost::statechart::custom_reaction< CPasingTransactionEvent >
+	boost::statechart::transition< common::CMessageResult, CPassBundle >
 	> reactions;
 
 };
@@ -333,10 +328,9 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 	process_event( COriginOfTransactionEvent() );
 }
 
-CValidateTransactionsAction::CValidateTransactionsAction( common::CMessage const & _message )
+CValidateTransactionsAction::CValidateTransactionsAction()
 {
 	initiate();
-	process_event( CPasingTransactionEvent() );
 }
 
 common::CRequest< TrackerResponses >*

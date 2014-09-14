@@ -76,14 +76,9 @@ CMessage::CMessage()
 CMessage::CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey )
 	: m_header( (int)CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
-	unsigned int size = ::GetSerializeSize( _bundle, SER_NETWORK, PROTOCOL_VERSION );
-	m_payload.resize( size );
-	CBufferAsStream stream( (char*)&m_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
-	stream << _bundle;
+	createPayload( _bundle, m_payload );
 
-	uint256 hash = Hash( &m_payload.front(), &m_payload.back() );
-
-	CAuthenticationProvider::getInstance()->sign( hash, m_header.m_signedHash );
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
 CMessage::CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey )
