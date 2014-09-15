@@ -234,6 +234,8 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 		{
 			return transit< CApproved >();
 		}
+
+		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CValidateTransactionsAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		return discard_event();
 	}
 
