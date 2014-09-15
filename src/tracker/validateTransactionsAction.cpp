@@ -121,8 +121,8 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 		common::CMessage orginalMessage;
 
-		if ( !common::CommunicationProtocol::unwindMessage( messageResult->m_message, orginalMessage, GetTime(), messageResult->m_pubKey ) );
-		assert( !"service it somehow" );
+		if ( !common::CommunicationProtocol::unwindMessage( messageResult->m_message, orginalMessage, GetTime(), messageResult->m_pubKey ) )
+			assert( !"service it somehow" );
 
 		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().acquireTransactions();
 		convertPayload( orginalMessage, transactions );
@@ -144,23 +144,24 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 			if ( CTrackerNodesManager::getInstance()->provideConnection( *filter ).empty() )
 			{
 				delete filter;
-				transit<CSendAcceptBudle>();
+				return transit<CSendAcceptBudle>();
 			}
 			else
 			{
 				CPassMessageRequest( context< CValidateTransactionsAction >().getMessage(), context< CValidateTransactionsAction >().getActionKey(), m_pubKey, filter );
-				transit<CBroadcastBundle>();
+				return transit<CBroadcastBundle>();
 			}
 		}
 		else
 		{
-			transit<CPassBundleInvalidate>();
+			return transit<CPassBundleInvalidate>();
 		}
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		//context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId,  ) );
+		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 		return discard_event();
 	}
 
@@ -180,9 +181,11 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 	CPubKey m_pubKey;
 };
 
+struct CApproved;
+// simplified,  ignore  result from  others  trackers  for now, no  confirmation  message
 struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
 {
-	CPropagateBundle( my_context ctx ) : my_base( ctx )
+	CPropagateBundle( my_context ctx ) : my_base( ctx ), m_totalWaitTime( 20 )
 	{
 		context< CValidateTransactionsAction >().setRequest(
 					new CTransactionsPropagationRequest(
@@ -191,27 +194,62 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 								new CMediumClassFilter( common::CMediumKinds::Trackers )
 								)
 					);
+
+		m_time = GetTime();
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
+		if ( GetTime() - m_time > m_totalWaitTime )
+			return transit< CApproved >();
 		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _event )
 	{
+		//not needed for the time being
 		m_participating.insert( _event.m_nodePtr );
 		context< CValidateTransactionsAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CValidateTransactionsAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CMessageResult const & _event )
+	{
+		assert( _event.m_message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions );
+
+		common::CMessage orginalMessage;
+
+		if ( !common::CommunicationProtocol::unwindMessage( _event.m_message, orginalMessage, GetTime(), _event.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CTransactionsBundleStatus status;
+		convertPayload( orginalMessage, status );
+
+		//  do  nothing with  result  right  now
+
+
+		m_participating.erase( _event.m_nodeIndicator  );
+		if ( m_participating.empty() )
+		{
+
+
+			return transit< CApproved >();
+		}
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 
 	std::set< uintptr_t > m_participating;
+
+	uint64_t m_time;
+
+	uint64_t const m_totalWaitTime;
 };
 
 struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAction >

@@ -120,6 +120,7 @@ struct CTransactionsBundleStatus
 		READWRITE( m_status );
 	)
 
+	CTransactionsBundleStatus(){}
 	CTransactionsBundleStatus( unsigned int _status ):m_status( _status ){}
 
 	int m_status;

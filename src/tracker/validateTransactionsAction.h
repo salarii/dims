@@ -14,7 +14,7 @@ namespace tracker
 {
 
 struct CInitial;
-// extremely simplified
+// extremely simplified,  no  confirmation message
 class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >, public common::CCommunicationAction
 {
 public:

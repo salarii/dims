@@ -142,7 +142,7 @@ CMessage::CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus,
 }
 
 CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Message, std::vector<unsigned char>(), GetTime(), _prevKey, _actionKey )
+	: m_header( (int)_message.m_header.m_payloadKind, std::vector<unsigned char>(), GetTime(), _prevKey, _actionKey )
 {
 	createPayload( _message, m_payload );
 
