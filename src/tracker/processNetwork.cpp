@@ -43,7 +43,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
 		if (
-				message.m_header.m_payloadKind == common::CPayloadKind::Transactions
+			   message.m_header.m_payloadKind == common::CPayloadKind::Transactions
+			|| message.m_header.m_payloadKind == CPayloadKind::StatusTransactions
 			)
 		{
 			CPubKey pubKey;
@@ -61,7 +62,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction();
+				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
 				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
 			}

@@ -232,8 +232,6 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 		m_participating.erase( _event.m_nodeIndicator  );
 		if ( m_participating.empty() )
 		{
-
-
 			return transit< CApproved >();
 		}
 		return discard_event();
@@ -366,7 +364,9 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 	process_event( COriginOfTransactionEvent() );
 }
 
-CValidateTransactionsAction::CValidateTransactionsAction()
+CValidateTransactionsAction::CValidateTransactionsAction( uint256 const & _actionKey )
+	: CCommunicationAction( _actionKey )
+	, m_request( 0 )
 {
 	initiate();
 }
