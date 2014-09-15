@@ -44,7 +44,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	{
 		if (
 			   message.m_header.m_payloadKind == common::CPayloadKind::Transactions
-			|| message.m_header.m_payloadKind == CPayloadKind::StatusTransactions
+			|| message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions
 			)
 		{
 			CPubKey pubKey;
