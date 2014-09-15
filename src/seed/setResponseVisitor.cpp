@@ -52,7 +52,7 @@ public:
 
 	virtual void operator()( common::CAckResult & _param ) const
 	{
-		this->m_action->process_event( common::CAckEvent() );
+		this->m_action->process_event( common::CAckEvent( _param.m_nodePtr ) );
 	}
 };
 

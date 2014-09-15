@@ -179,6 +179,11 @@ struct CConnectedNode
 
 struct CAckResult
 {
+	CAckResult(){};
+	CAckResult( uintptr_t _nodePtr ):m_nodePtr( _nodePtr )
+	{}
+
+	uintptr_t m_nodePtr;
 };
 
 struct CMessageResult : boost::statechart::event< CMessageResult >
