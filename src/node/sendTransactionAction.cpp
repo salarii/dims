@@ -13,6 +13,7 @@
 #include "clientFilters.h"
 #include "clientRequests.h"
 #include "clientEvents.h"
+#include "clientControl.h"
 
 #include "configureNodeActionHadler.h"
 #include "serialize.h"
@@ -43,6 +44,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 // todo, check status and validity of the transaction propagated
 		if ( _transactionSendAck.m_status == common::TransactionsStatus::Valdated )
 		{
+			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
 			context< CSendTransactionAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );
 			return transit< CCheckTransactionStatus >();
 		}

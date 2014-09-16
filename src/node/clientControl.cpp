@@ -72,6 +72,24 @@ CClientControl::getAvailableAddresses() const
 	return m_addressTableModel->getAddresses();
 }
 
+void
+CClientControl::updateTotalBalance( int64_t _totalBalance )
+{
+	m_clientSignals.m_updateTotalBalance( _totalBalance );
+}
+
+void
+CClientControl::addTransactionToModel( CTransaction const & _transaction )
+{
+	m_clientSignals.m_putTransactionIntoModel( _transaction );
+}
+
+CClientSignals &
+CClientControl::acquireClientSignals()
+{
+	return m_clientSignals;
+}
+
 CClientControl::CClientControl()
 {
 	initiate();

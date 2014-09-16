@@ -5,13 +5,14 @@
 #include "transactiontablemodel.h"
 
 #include "addresstablemodel.h"
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "transactiondesc.h"
 #include "transactionrecord.h"
 #include "walletmodel.h"
+#include "node/clientControl.h"
 
 #include "main.h"
 #include "sync.h"
@@ -87,11 +88,31 @@ public:
         }
     }
 
-    /* Update our model of the wallet incrementally, to synchronize our model of the wallet
-       with that of the core.
 
-       Call with transaction that was added, removed or changed.
-     */
+	void includeTransaction( CTransaction const & _transaction )
+	{
+
+		// Added -- insert at the right position
+		QList<TransactionRecord> toInsert =
+				TransactionRecord::decomposeTransaction(wallet, _transaction);
+		if(!toInsert.isEmpty()) /* only if something to insert */
+		{
+			parent->beginInsertRows(QModelIndex(), cachedWallet.size(), cachedWallet.size()+toInsert.size()-1);
+			int insert_idx = cachedWallet.size();
+			foreach(const TransactionRecord &rec, toInsert)
+			{
+				cachedWallet.insert(insert_idx, rec);
+				insert_idx += 1;
+			}
+			parent->endInsertRows();
+		}
+
+	}
+	/* Update our model of the wallet incrementally, to synchronize our model of the wallet
+	   with that of the core.
+
+	   Call with transaction that was added, removed or changed.
+	 */
     void updateWallet(const uint256 &hash, int status)
     {
         qDebug() << "TransactionTablePriv::updateWallet : " + QString::fromStdString(hash.ToString()) + " " + QString::number(status);
@@ -102,14 +123,14 @@ public:
             std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(hash);
             bool inWallet = mi != wallet->mapWallet.end();
 
-            // Find bounds of this transaction in model
-            QList<TransactionRecord>::iterator lower = qLowerBound(
-                cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
-            QList<TransactionRecord>::iterator upper = qUpperBound(
-                cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
-            int lowerIndex = (lower - cachedWallet.begin());
-            int upperIndex = (upper - cachedWallet.begin());
-            bool inModel = (lower != upper);
+			// Find bounds of this transaction in model
+			QList<TransactionRecord>::iterator lower = qLowerBound(
+				cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
+			QList<TransactionRecord>::iterator upper = qUpperBound(
+				cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
+			int lowerIndex = (lower - cachedWallet.begin());
+			int upperIndex = (upper - cachedWallet.begin());
+			bool inModel = (lower != upper);
 
             // Determine whether to show transaction or not
             bool showTransaction = (inWallet && TransactionRecord::showTransaction(mi->second));
@@ -240,6 +261,8 @@ TransactionTableModel::TransactionTableModel(CWallet* wallet, WalletModel *paren
     timer->start(MODEL_UPDATE_DELAY);
 
     connect(walletModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+
+	client::CClientControl::getInstance()->acquireClientSignals().m_putTransactionIntoModel.connect( boost::bind( &TransactionTableModel::includeTransaction, this, _1 ) );
 }
 
 TransactionTableModel::~TransactionTableModel()
@@ -253,6 +276,11 @@ void TransactionTableModel::updateTransaction(const QString &hash, int status)
     updated.SetHex(hash.toStdString());
 
     priv->updateWallet(updated, status);
+}
+
+void TransactionTableModel::includeTransaction(CTransaction const & _transaction )
+{
+	priv->includeTransaction(_transaction);
 }
 
 void TransactionTableModel::updateConfirmations()
@@ -438,7 +466,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
 
 QString TransactionTableModel::formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed) const
 {
-	QString str = CRatcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), wtx->credit + wtx->debit);
+	QString str = CDimsUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), wtx->credit + wtx->debit);
     if(showUnconfirmed)
     {
         if(!wtx->status.confirmed || wtx->status.maturity != TransactionStatus::Mature)

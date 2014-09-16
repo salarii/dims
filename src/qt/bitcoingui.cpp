@@ -4,7 +4,7 @@
 
 #include "bitcoingui.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -230,14 +230,14 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     addAddressAction->setToolTip(addAddressAction->statusTip());
     addAddressAction->setCheckable(true);
     tabGroup->addAction(addAddressAction);
-
+/*
     receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and bitcoin: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
     receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(receiveCoinsAction);
-
+*/
     historyAction = new QAction(QIcon(":/icons/history"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
@@ -251,8 +251,8 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
-    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
+	//connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+	//connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(addAddressAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -384,7 +384,7 @@ void BitcoinGUI::createToolBars()
         toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         toolbar->addAction(overviewAction);
         toolbar->addAction(sendCoinsAction);
-        toolbar->addAction(receiveCoinsAction);
+		//toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
 	  toolbar->addAction(addAddressAction);
         overviewAction->setChecked(true);
@@ -448,7 +448,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
 {
     overviewAction->setEnabled(enabled);
     sendCoinsAction->setEnabled(enabled);
-    receiveCoinsAction->setEnabled(enabled);
+	//receiveCoinsAction->setEnabled(enabled);
     historyAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
@@ -506,7 +506,7 @@ void BitcoinGUI::createTrayIconMenu()
     trayIconMenu->addAction(toggleHideAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(sendCoinsAction);
-    trayIconMenu->addAction(receiveCoinsAction);
+	//trayIconMenu->addAction(receiveCoinsAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(signMessageAction);
     trayIconMenu->addAction(verifyMessageAction);
@@ -748,7 +748,7 @@ void BitcoinGUI::incomingTransaction(const QString& date, int unit, qint64 amoun
                 "Type: %3\n"
                 "Address: %4\n")
                   .arg(date)
-                  .arg(CRatcoinUnits::formatWithUnit(unit, amount, true))
+				  .arg(CDimsUnits::formatWithUnit(unit, amount, true))
                   .arg(type)
                   .arg(address), CClientUIInterface::MSG_INFORMATION);
 }

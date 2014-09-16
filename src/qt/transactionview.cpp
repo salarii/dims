@@ -5,7 +5,7 @@
 #include "transactionview.h"
 
 #include "addresstablemodel.h"
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "csvmodelwriter.h"
 #include "editaddressdialog.h"
 #include "guiutil.h"
@@ -256,7 +256,7 @@ void TransactionView::changedAmount(const QString &amount)
     if(!transactionProxyModel)
         return;
     qint64 amount_parsed = 0;
-    if(CRatcoinUnits::parse(model->getOptionsModel()->getDisplayUnit(), amount, &amount_parsed))
+    if(CDimsUnits::parse(model->getOptionsModel()->getDisplayUnit(), amount, &amount_parsed))
     {
         transactionProxyModel->setMinAmount(amount_parsed);
     }

@@ -5,7 +5,7 @@
 #include "overviewpage.h"
 #include "ui_overviewpage.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -17,6 +17,9 @@
 #include <QAbstractItemDelegate>
 #include <QPainter>
 #include <QHBoxLayout>
+
+#include "node/clientControl.h"
+
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3
 
@@ -24,7 +27,7 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(): QAbstractItemDelegate(), unit(CRatcoinUnits::rat)
+	TxViewDelegate(): QAbstractItemDelegate(), unit(CDimsUnits::dims)
     {
 
     }
@@ -72,7 +75,7 @@ public:
             foreground = option.palette.color(QPalette::Text);
         }
         painter->setPen(foreground);
-        QString amountText = CRatcoinUnits::formatWithUnit(unit, amount, true);
+		QString amountText = CDimsUnits::formatWithUnit(unit, amount, true);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");
@@ -124,6 +127,8 @@ OverviewPage::OverviewPage(QWidget *parent) :
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
+
+	client::CClientControl::getInstance()->acquireClientSignals().m_updateTotalBalance.connect( boost::bind(&OverviewPage::setBalance, this, _1 , 0, 0 ) );
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -143,10 +148,10 @@ void OverviewPage::setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 
     currentBalance = balance;
     currentUnconfirmedBalance = unconfirmedBalance;
     currentImmatureBalance = immatureBalance;
-    ui->labelBalance->setText(CRatcoinUnits::formatWithUnit(unit, balance));
-    ui->labelUnconfirmed->setText(CRatcoinUnits::formatWithUnit(unit, unconfirmedBalance));
-    ui->labelImmature->setText(CRatcoinUnits::formatWithUnit(unit, immatureBalance));
-    ui->labelTotal->setText(CRatcoinUnits::formatWithUnit(unit, balance + unconfirmedBalance + immatureBalance));
+	ui->labelBalance->setText(CDimsUnits::formatWithUnit(unit, balance));
+	ui->labelUnconfirmed->setText(CDimsUnits::formatWithUnit(unit, unconfirmedBalance));
+	ui->labelImmature->setText(CDimsUnits::formatWithUnit(unit, immatureBalance));
+	ui->labelTotal->setText(CDimsUnits::formatWithUnit(unit, balance + unconfirmedBalance + immatureBalance));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users

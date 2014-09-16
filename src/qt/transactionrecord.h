@@ -12,6 +12,7 @@
 
 class CWallet;
 class CWalletTx;
+class CTransaction;
 
 /** UI model for transaction status. The transaction status is the part of a transaction that will change over time.
  */
@@ -105,8 +106,9 @@ public:
      */
     static bool showTransaction(const CWalletTx &wtx);
     static QList<TransactionRecord> decomposeTransaction(const CWallet *wallet, const CWalletTx &wtx);
+	static QList<TransactionRecord> decomposeTransaction( CWallet const * _wallet, CTransaction const &_transaction );
 
-    /** @name Immutable transaction attributes
+	/** @name Immutable transaction attributes
       @{*/
     uint256 hash;
     qint64 time;

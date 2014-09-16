@@ -34,7 +34,7 @@ public:
         ProxyPort,              // int
         ProxySocksVersion,      // int
         Fee,                    // qint64
-        DisplayUnit,            // CRatcoinUnits::Unit
+        DisplayUnit,            // CDimsUnits::Unit
         DisplayAddresses,       // bool
         Language,               // QString
         CoinControlFeatures,    // bool

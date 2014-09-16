@@ -29,7 +29,7 @@ namespace client
 
 struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalanceInfoAction >
 {
-	CGetBalanceInfo( my_context ctx ) : my_base( ctx )
+	CGetBalanceInfo( my_context ctx ) : my_base( ctx ), m_total( 0 )
 	{
 		std::vector< std::string > const & addresses = CClientControl::getInstance()->getAvailableAddresses();
 
@@ -66,13 +66,18 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 
 		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
 
+		updateTotal( availableCoins );
+
 		if ( m_addressIndex < m_addresses.size() )
 		{
 			m_pubKey = m_addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
 		}
 		else
+		{
+			CClientControl::getInstance()->updateTotalBalance( m_total );
 			context< CSendBalanceInfoAction >().setRequest( 0 );
+		}
 		return discard_event();
 	}
 
@@ -82,6 +87,13 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		return discard_event();
 	}
 
+	void updateTotal( std::vector< CAvailableCoin > const & _availableCoin )
+	{
+		BOOST_FOREACH( CAvailableCoin const & coin, _availableCoin )
+		{
+			m_total += coin.m_coin.nValue;
+		}
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
@@ -95,6 +107,8 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 	std::map< uintptr_t, uint256 > m_nodeToToken;
 
 	std::string m_pubKey;
+
+	int64_t m_total;
 };
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( bool _autoDelete )

@@ -363,9 +363,9 @@ struct CAvailableCoin
 	CAvailableCoin(){}; // risky??
 	CAvailableCoin( CTxOut const & _coin, unsigned int _position,uint256 const & _hash ):m_coin( _coin ), m_position(_position),m_hash( _hash ){};
 
-	bool operator==( CAvailableCoin const & _availbleCoin ) const
+	bool operator==( CAvailableCoin const & _availableCoin ) const
 	{
-		return m_coin == _availbleCoin.m_coin && m_position == _availbleCoin.m_position && m_hash == _availbleCoin.m_hash;
+		return m_coin == _availableCoin.m_coin && m_position == _availableCoin.m_position && m_hash == _availableCoin.m_hash;
 	}
 
 	CTxOut m_coin;

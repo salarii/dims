@@ -5,7 +5,7 @@
 #include "guiutil.h"
 
 #include "bitcoinaddressvalidator.h"
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "qvalidatedlineedit.h"
 #include "walletmodel.h"
 
@@ -133,7 +133,7 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-				if(!CRatcoinUnits::parse(CRatcoinUnits::rat, i->second, &rv.amount))
+				if(!CDimsUnits::parse(CDimsUnits::dims, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -172,7 +172,7 @@ QString formatBitcoinURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-		ret += QString("?amount=%1").arg(CRatcoinUnits::format(CRatcoinUnits::rat, info.amount));
+		ret += QString("?amount=%1").arg(CDimsUnits::format(CDimsUnits::dims, info.amount));
         paramCount++;
     }
 

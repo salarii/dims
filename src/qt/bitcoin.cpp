@@ -509,9 +509,9 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("Bitcoin");
     QApplication::setOrganizationDomain("bitcoin.org");
     if (isaTestNet) // Separate UI settings for testnets
-        QApplication::setApplicationName("Ratcoin-client-testnet");
+		QApplication::setApplicationName("Dims-client-testnet");
     else
-        QApplication::setApplicationName("Ratcoin-client");
+		QApplication::setApplicationName("Dims-client");
 
     /// 4. Initialization of translations, so that intro dialog is in user's language
     // Now that QSettings are accessible, initialize translations

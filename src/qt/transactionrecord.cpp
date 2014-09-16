@@ -17,6 +17,127 @@ bool TransactionRecord::showTransaction(const CWalletTx &wtx)
     return true;
 }
 
+QList<TransactionRecord> TransactionRecord::decomposeTransaction( CWallet const * _wallet, CTransaction const &_transaction )
+{
+	QList<TransactionRecord> parts;
+	int64_t nTime = GetTime();
+	int64_t nCredit = _wallet->GetCredit( _transaction );
+	int64_t nDebit = _wallet->GetDebit( _transaction );
+	int64_t nNet = nCredit - nDebit;
+	uint256 hash = _transaction.GetHash();
+//	std::map<std::string, std::string> mapValue = wtx.mapValue;
+
+	if (nNet > 0 || _transaction.IsCoinBase())
+	{
+		//
+		// Credit
+		//
+		BOOST_FOREACH(const CTxOut& txout, _transaction.vout)
+		{
+			if(_wallet->IsMine(txout))
+			{
+				TransactionRecord sub(hash, nTime);
+				CTxDestination address;
+				sub.idx = parts.size(); // sequence number
+				sub.credit = txout.nValue;
+				if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*_wallet, address))
+				{
+					// Received by Bitcoin Address
+					sub.type = TransactionRecord::RecvWithAddress;
+					sub.address = CBitcoinAddress(address).ToString();
+				}
+				else
+				{
+					// Received by IP connection (deprecated features), or a multisignature or other non-simple transaction
+					sub.type = TransactionRecord::RecvFromOther;
+
+				}
+				if (_transaction.IsCoinBase())
+				{
+					// Spooned
+					sub.type = TransactionRecord::Generated;
+				}
+
+				parts.append(sub);
+			}
+		}
+	}
+	else
+	{
+		bool fAllFromMe = true;
+		BOOST_FOREACH(const CTxIn& txin, _transaction.vin)
+				fAllFromMe = fAllFromMe && _wallet->IsMine(txin);
+
+		bool fAllToMe = true;
+		BOOST_FOREACH(const CTxOut& txout, _transaction.vout)
+				fAllToMe = fAllToMe && _wallet->IsMine(txout);
+
+		if (fAllFromMe && fAllToMe)
+		{
+			// Payment to self
+			int64_t nChange = _wallet->GetChange(_transaction);
+
+			parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
+										   -(nDebit - nChange), nCredit - nChange));
+		}
+		else if (fAllFromMe)
+		{
+			//
+			// Debit
+			//
+			int64_t nTxFee = nDebit - _transaction.GetValueOut();
+
+			for (unsigned int nOut = 0; nOut < _transaction.vout.size(); nOut++)
+			{
+				const CTxOut& txout = _transaction.vout[nOut];
+				TransactionRecord sub(hash, nTime);
+				sub.idx = parts.size();
+
+				if(_wallet->IsMine(txout))
+				{
+					// Ignore parts sent to self, as this is usually the change
+					// from a transaction sent back to our own address.
+					continue;
+				}
+
+				CTxDestination address;
+				if (ExtractDestination(txout.scriptPubKey, address))
+				{
+					// Sent to Bitcoin Address
+					sub.type = TransactionRecord::SendToAddress;
+					sub.address = CBitcoinAddress(address).ToString();
+				}
+				else
+				{
+					// Sent to IP, or other non-address transaction like OP_EVAL
+					sub.type = TransactionRecord::SendToOther;
+
+				}
+
+				int64_t nValue = txout.nValue;
+				/* Add fee to first output */
+				if (nTxFee > 0)
+				{
+					nValue += nTxFee;
+					nTxFee = 0;
+				}
+				sub.debit = -nValue;
+
+				parts.append(sub);
+			}
+		}
+		else
+		{
+			//
+			// Mixed debit transaction, can't break down payees
+			//
+			parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
+		}
+	}
+
+	return parts;
+}
+
 /*
  * Decompose CWallet transaction to model transaction records.
  */
