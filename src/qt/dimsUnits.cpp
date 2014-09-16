@@ -2,121 +2,121 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 
 #include <QStringList>
 
-CRatcoinUnits::CRatcoinUnits(QObject *parent):
+CDimsUnits::CDimsUnits(QObject *parent):
 		QAbstractListModel(parent),
 		unitlist(availableUnits())
 {
 }
 
-QList<CRatcoinUnits::Unit> CRatcoinUnits::availableUnits()
+QList<CDimsUnits::Unit> CDimsUnits::availableUnits()
 {
-	QList<CRatcoinUnits::Unit> unitlist;
-	unitlist.append(rat);
-	unitlist.append(krat);
-	unitlist.append(Mrat);
-	unitlist.append(Grat);
-	unitlist.append(Trat);
+	QList<CDimsUnits::Unit> unitlist;
+	unitlist.append(dims);
+	unitlist.append(Kdims);
+	unitlist.append(Mdims);
+	unitlist.append(Gdims);
+	unitlist.append(Tdims);
 	return unitlist;
 }
 
-bool CRatcoinUnits::valid(int unit)
+bool CDimsUnits::valid(int unit)
 {
 	switch(unit)
 	{
-	case rat:
-	case krat:
-	case Mrat:
-	case Grat:
-	case Trat:
+	case dims:
+	case Kdims:
+	case Mdims:
+	case Gdims:
+	case Tdims:
 		return true;
 	default:
 		return false;
 	}
 }
 
-QString CRatcoinUnits::name(int unit)
+QString CDimsUnits::name(int unit)
 {
 	switch(unit)
 	{
-	case rat: return QString("Rat");
-	case krat: return QString("KRat");
-	case Mrat: return QString("MRat");
-	case Grat: return QString("GRat");
-	case Trat: return QString("TRat");
+	case dims: return QString("coins");
+	case Kdims: return QString("Kcoins");
+	case Mdims: return QString("Mcoins");
+	case Gdims: return QString("Gcoins");
+	case Tdims: return QString("Tcoins");
 	default: return QString("???");
 	}
 }
 
-QString CRatcoinUnits::description(int unit)
+QString CDimsUnits::description(int unit)
 {
 	switch(unit)
 	{
-	case rat: return QString("Ratcoins");
-	case krat: return QString("Kilo-Ratcoins (1 * 10^3)");
-	case Mrat: return QString("Mega-Ratcoins (1 * 10^6");
-	case Grat: return QString("Giga-Ratcoins (1 * 10^9");
-	case Trat: return QString("Terra-Ratcoins (1 * 10^12)");
+	case dims: return QString("coins");
+	case Kdims: return QString("Kilo-coins (1 * 10^3)");
+	case Mdims: return QString("Mega-coins (1 * 10^6");
+	case Gdims: return QString("Giga-coins (1 * 10^9");
+	case Tdims: return QString("Terra-coins (1 * 10^12)");
 	default: return QString("???");
 	}
 }
 
-qint64 CRatcoinUnits::factor(int unit)
+qint64 CDimsUnits::factor(int unit)
 {
 	switch(unit)
 	{
-	case rat:  return 1;
-	case krat: return 1000;
-	case Mrat: return 1000000;
-	case Grat: return 1000000000;
-	case Trat: return 1000000000000;
+	case dims:  return 1;
+	case Kdims: return 1000;
+	case Mdims: return 1000000;
+	case Gdims: return 1000000000;
+	case Tdims: return 1000000000000;
 	default:   return 100000000;
 	}
 }
 
-qint64 CRatcoinUnits::maxAmount(int unit)
+qint64 CDimsUnits::maxAmount(int unit)
 {
 	switch(unit)
 	{
-	case rat:  return Q_INT64_C(2100000000000000);
-	case krat: return Q_INT64_C(2100000000000);
-	case Mrat: return Q_INT64_C(2100000000);
-	case Grat: return Q_INT64_C(2100000);
-	case Trat: return Q_INT64_C(2100);
+	case dims:  return Q_INT64_C(2100000000000000);
+	case Kdims: return Q_INT64_C(2100000000000);
+	case Mdims: return Q_INT64_C(2100000000);
+	case Gdims: return Q_INT64_C(2100000);
+	case Tdims: return Q_INT64_C(2100);
 	default:   return 0;
 	}
 }
 
-int CRatcoinUnits::amountDigits(int unit)
+int CDimsUnits::amountDigits(int unit)
 {
 	switch(unit)
 	{
-	case rat:  return 16;
-	case krat: return 13;
-	case Mrat: return 10;
-	case Grat: return 7;
-	case Trat: return 4;
+	case dims:  return 16;
+	case Kdims: return 13;
+	case Mdims: return 10;
+	case Gdims: return 7;
+	case Tdims: return 4;
 	default: return 0;
 	}
 }
 
-int CRatcoinUnits::decimals(int unit)
+int CDimsUnits::decimals(int unit)
 {
 	switch(unit)
 	{
-	case rat:  return 0;
-	case krat: return 3;
-	case Mrat: return 6;
-	case Grat: return 9;
-	case Trat: return 12;
+	case dims:  return 0;
+	case Kdims: return 3;
+	case Mdims: return 6;
+	case Gdims: return 9;
+	case Tdims: return 12;
 	default: return 0;
 	}
 }
 
-QString CRatcoinUnits::format(int unit, qint64 n, bool fPlus)
+QString CDimsUnits::format(int unit, qint64 n, bool fPlus)
 {
 	// Note: not using straight sprintf here because we do NOT want
 	// localized number formatting.
@@ -143,12 +143,12 @@ QString CRatcoinUnits::format(int unit, qint64 n, bool fPlus)
 	return quotient_str + QString(".") + remainder_str;
 }
 
-QString CRatcoinUnits::formatWithUnit(int unit, qint64 amount, bool plussign)
+QString CDimsUnits::formatWithUnit(int unit, qint64 amount, bool plussign)
 {
 	return format(unit, amount, plussign) + QString(" ") + name(unit);
 }
 
-bool CRatcoinUnits::parse(int unit, const QString &value, qint64 *val_out)
+bool CDimsUnits::parse(int unit, const QString &value, qint64 *val_out)
 {
 	if(!valid(unit) || value.isEmpty())
 		return false; // Refuse to parse invalid unit or empty string
@@ -185,13 +185,13 @@ bool CRatcoinUnits::parse(int unit, const QString &value, qint64 *val_out)
 	return ok;
 }
 
-int CRatcoinUnits::rowCount(const QModelIndex &parent) const
+int CDimsUnits::rowCount(const QModelIndex &parent) const
 {
 	Q_UNUSED(parent);
 	return unitlist.size();
 }
 
-QVariant CRatcoinUnits::data(const QModelIndex &index, int role) const
+QVariant CDimsUnits::data(const QModelIndex &index, int role) const
 {
 	int row = index.row();
 	if(row >= 0 && row < unitlist.size())

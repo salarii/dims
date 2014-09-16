@@ -27,7 +27,7 @@ std::string & getRatcoinOriginPublicAddress()
 	ratcoinOriginPublicAddress.resize(1);
 	*ratcoinOriginPublicAddress.begin() = 4; //means 65 bytes
 
-	char ratcoinOriginPublicAddressPayload[64] = "HiThisIsRatcoinOriginAddressItIsThePlaceWhereNewRatcoinsAreBorn";
+	char ratcoinOriginPublicAddressPayload[64] = "ThisIsDimsOriginAddressSendHereYourBitcoinsAndReclaimThemInDims";
 
 	ratcoinOriginPublicAddress += ratcoinOriginPublicAddressPayload;
 

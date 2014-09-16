@@ -52,7 +52,7 @@ struct TargetType
 };
 
 
-class CRatcoinParams : public CNetworkParams
+class CDimsParams : public CNetworkParams
 {
 public:
     const uint256& HashOfBitcoinGenesisBlock() const { return hashGenesisBlock; }
@@ -74,7 +74,7 @@ public:
 protected:
 
 
-    CRatcoinParams()
+	CDimsParams()
     {
 	 m_defaultDirectory = boost::assign::map_list_of< TargetType::Enum, std::string >
 			 (TargetType::ClientWindows, "DimsClient")
@@ -110,7 +110,7 @@ protected:
  * Return the currently selected parameters. This won't change after app startup
  * outside of the unit tests.
  */
-CRatcoinParams const &ratcoinParams();
+CDimsParams const &ratcoinParams();
 
 /** Sets the params returned by Params() to those for the given network. */
 void SelectRatcoinParams(CNetworkParams::Network network);

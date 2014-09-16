@@ -70,7 +70,7 @@ bool AppInit(int argc, char* argv[])
 		// Parameters
 		//
 		// If Qt is used, parameters/tracker.conf are parsed in qt/bitcoin.cpp's main()
-			common::CRatcoinParams::setAppType( common::AppType::Monitor);
+			common::CDimsParams::setAppType( common::AppType::Monitor);
 		ParseParameters(argc, argv);
 		if (!boost::filesystem::is_directory(GetDataDir(common::AppType::Monitor, false)))
 		{

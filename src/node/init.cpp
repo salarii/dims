@@ -96,7 +96,7 @@ bool static Bind(const CService &addr, unsigned int flags) {
 bool AppInit1(boost::thread_group& threadGroup)
 {
 	seed_insecure_rand();
-	common::CRatcoinParams::setAppType( common::AppType::Client);
+	common::CDimsParams::setAppType( common::AppType::Client);
 	// ********************************************************* Step 1: setup
 #ifdef _MSC_VER
 	// Turn off Microsoft heap dump noise

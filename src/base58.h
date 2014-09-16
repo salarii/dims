@@ -190,7 +190,7 @@ protected:
     typedef std::vector<unsigned char, zero_after_free_allocator<unsigned char> > vector_uchar;
     vector_uchar vchData;
 
-	CBase58Data( CNetworkParams const * _networkParams= &GetNetworkParams< common::CRatcoinParams >() )
+	CBase58Data( CNetworkParams const * _networkParams= &GetNetworkParams< common::CDimsParams >() )
 	    : m_networkParams( _networkParams )
     {
         vchVersion.clear();
@@ -301,24 +301,24 @@ public:
         return fCorrectSize && fKnownVersion;
     }
 
-	CBitcoinAddress( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
+	CBitcoinAddress( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {
     }
 
-	CBitcoinAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
+	CBitcoinAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {
         Set(dest);
     }
 
-	CBitcoinAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(strAddress);
     }
 
-	CBitcoinAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(pszAddress);
@@ -391,13 +391,13 @@ public:
         return SetString(strSecret.c_str());
     }
 
-	CBitcoinSecret(const CKey& vchSecret, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinSecret(const CKey& vchSecret, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
     	: CBase58Data( _networkParams )
     {
         SetKey(vchSecret);
     }
 
-	CBitcoinSecret( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinSecret( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
     }
@@ -419,12 +419,12 @@ public:
         return ret;
     }
 
-	CBitcoinExtKeyBase(const K &key, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinExtKeyBase(const K &key, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetKey(key);
     }
-	CBitcoinExtKeyBase( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
+	CBitcoinExtKeyBase( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {}
 };

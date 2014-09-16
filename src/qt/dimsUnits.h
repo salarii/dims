@@ -8,23 +8,23 @@
 /** Ratcoin unit definitions. Encapsulates parsing and formatting
    and serves as list model for drop-down selection boxes.
 */
-class CRatcoinUnits: public QAbstractListModel
+class CDimsUnits: public QAbstractListModel
 {
 	Q_OBJECT
 
 public:
-	explicit CRatcoinUnits(QObject *parent);
+	explicit CDimsUnits(QObject *parent);
 
 	/** Bitcoin units.
 	  @note Source: https://en.bitcoin.it/wiki/Units . Please add only sensible ones
 	 */
 	enum Unit
 	{
-		rat,
-		krat,
-		Mrat,
-		Grat,
-		Trat
+		dims,
+		Kdims,
+		Mdims,
+		Gdims,
+		Tdims
 	};
 
 	//! @name Static API
@@ -67,8 +67,8 @@ public:
 	///@}
 
 private:
-	QList<CRatcoinUnits::Unit> unitlist;
+	QList<CDimsUnits::Unit> unitlist;
 };
-typedef CRatcoinUnits::Unit CRatcoinUnit;
+typedef CDimsUnits::Unit CRatcoinUnit;
 
 #endif // RATCOIN_UNITS_H

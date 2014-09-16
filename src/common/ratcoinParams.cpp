@@ -19,9 +19,9 @@ using namespace boost::assign;
 namespace common
 {
 
-AppType::Enum CRatcoinParams::m_appType;
+AppType::Enum CDimsParams::m_appType;
 
-class CMainRatcoinParams : public CRatcoinParams
+class CMainRatcoinParams : public CDimsParams
 {
 public:
 	CMainRatcoinParams() {
@@ -41,9 +41,9 @@ public:
 
 		vSeeds.push_back(CDNSSeedData("vps.dims.red", "seed.dims.red"));
 
-		base58Prefixes[PUBKEY_ADDRESS] = list_of(60);//R
-		base58Prefixes[SCRIPT_ADDRESS] = list_of(60);//r
-		base58Prefixes[SECRET_KEY] =     list_of(60);//
+		base58Prefixes[PUBKEY_ADDRESS] = list_of(30);
+		base58Prefixes[SCRIPT_ADDRESS] = list_of(30);
+		base58Prefixes[SECRET_KEY] =     list_of(135);//
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);//
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);//
 
@@ -103,9 +103,9 @@ public:
 		vSeeds.clear();
 		vSeeds.push_back(CDNSSeedData("vps.dims.red", "seed.dims.red"));
 
-		base58Prefixes[PUBKEY_ADDRESS] = list_of(0x7a);  // time to set this ??
-		base58Prefixes[SCRIPT_ADDRESS] = list_of(0x7a);
-		base58Prefixes[SECRET_KEY]     = list_of(0x7a);
+		base58Prefixes[PUBKEY_ADDRESS] = list_of(90);
+		base58Prefixes[SCRIPT_ADDRESS] = list_of(90);
+		base58Prefixes[SECRET_KEY]     = list_of(137);
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
 	}
@@ -117,18 +117,18 @@ static CTestRatcoinParams testNetParams;
 static CMainRatcoinParams *pCurrentParams = &mainParams;
 
 CNetworkParams const &
-CRatcoinParams::getNetworkParameters()
+CDimsParams::getNetworkParameters()
 {
 	return *pCurrentParams;
 }
 
-CRatcoinParams const &ratcoinParams()
+CDimsParams const &ratcoinParams()
 {
 	return *pCurrentParams;
 }
 
 std::string
-CRatcoinParams::getDefaultDirectory() const
+CDimsParams::getDefaultDirectory() const
 {
 	assert( m_defaultDirectory.find(convertAppType( getAppType() )) != m_defaultDirectory.end() );
 	return m_defaultDirectory.find(convertAppType( getAppType() ))->second;

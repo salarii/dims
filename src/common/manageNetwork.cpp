@@ -66,9 +66,9 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 	inaddr_any.s_addr = INADDR_ANY;
 
 #ifdef USE_IPV6
-	bound = bind(CService(in6addr_any, GetListenPort< common::CRatcoinParams >()), BF_NONE);
+	bound = bind(CService(in6addr_any, GetListenPort< common::CDimsParams >()), BF_NONE);
 #endif
-	bound = bind(CService(inaddr_any, GetListenPort< common::CRatcoinParams >()), BF_REPORT_ERROR );
+	bound = bind(CService(inaddr_any, GetListenPort< common::CDimsParams >()), BF_REPORT_ERROR );
 
 	if (m_semOutbound == NULL) {
 		// initialize semaphore
@@ -205,7 +205,7 @@ CManageNetwork::addLocal(const CService& addr, int nScore)
 bool 
 CManageNetwork::addLocal(const CNetAddr &addr, int nScore)
 {
-	return AddLocal(CService(addr, GetListenPort< common::CRatcoinParams >()), nScore);
+	return AddLocal(CService(addr, GetListenPort< common::CDimsParams >()), nScore);
 }
 
 void
@@ -582,7 +582,7 @@ CManageNetwork::threadOpenAddedConnections()
 		BOOST_FOREACH(string& strAddNode, lAddresses)
 		{
 			vector<CService> vservNode(0);
-			if(Lookup(strAddNode.c_str(), vservNode, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort(), fNameLookup, 0))
+			if(Lookup(strAddNode.c_str(), vservNode, GetNetworkParams< common::CDimsParams >().GetDefaultPort(), fNameLookup, 0))
 			{
 				lservAddressesToAdd.push_back(vservNode);
 				{
@@ -706,7 +706,7 @@ CManageNetwork::threadOpenConnections()
 				continue;
 
 			// do not allow non-default ports, unless after 50 invalid addresses selected already
-			if (addr.GetPort() != GetNetworkParams< common::CRatcoinParams >().GetDefaultPort() && nTries < 50)
+			if (addr.GetPort() != GetNetworkParams< common::CDimsParams >().GetDefaultPort() && nTries < 50)
 				continue;
 
 			addrConnect = addr;
@@ -916,7 +916,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 
 	// Connect
 	SOCKET hSocket;
-	if (pszDest ? ConnectSocketByName(addrConnect, hSocket, pszDest, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort()) : ConnectSocket(addrConnect, hSocket))
+	if (pszDest ? ConnectSocketByName(addrConnect, hSocket, pszDest, GetNetworkParams< common::CDimsParams >().GetDefaultPort()) : ConnectSocket(addrConnect, hSocket))
 	{
 		addrman.Attempt(addrConnect);
 

@@ -36,6 +36,19 @@ enum DBErrors
     DB_NEED_REWRITE
 };
 
+struct CTransactionModelAtributes
+{
+	CTransactionModelAtributes(){}
+	CTransactionModelAtributes(	uint256 _hash, uint64_t _time, int _type, std::string _address, uint64_t _debit, uint64_t _credit)
+		: m_hash(_hash), m_time( _time ), m_type(_type), m_address( _address ), m_debit( _debit ), m_credit(_credit ){}
+	uint256 m_hash;
+	uint64_t m_time;
+	int m_type;
+	std::string m_address;
+	uint64_t m_debit;
+	uint64_t m_credit;
+};
+
 class CKeyMetadata
 {
 public:
