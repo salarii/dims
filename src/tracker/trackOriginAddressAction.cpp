@@ -23,8 +23,6 @@
 #include "trackerControllerEvents.h"
 #include "trackerFilters.h"
 
-#define CONFIRM_LIMIT 6
-
 namespace tracker
 {
 uint const UsedMediumNumber = 3;
@@ -164,7 +162,7 @@ CTrackOriginAddressAction::requestFiltered()
 {
 	CBlockIndex * index = chainActive.Tip();
 	// for  now  for  simplicity reasons
-	for ( int i = 0; i < CONFIRM_LIMIT; i++ )
+	for ( int i = 0; i < Params().getConfirmationNumber(); i++ )
 	{
 		if ( index == 0 )
 		{

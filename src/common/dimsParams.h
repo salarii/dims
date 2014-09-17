@@ -71,6 +71,7 @@ public:
     virtual unsigned int getDefaultClientPort() const = 0;
 	static void setAppType( AppType::Enum const _appType ){ m_appType = _appType; }
 	static AppType::Enum getAppType(){ return m_appType; }
+
 protected:
 
 
@@ -104,6 +105,7 @@ protected:
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::map< TargetType::Enum, std::string > m_defaultDirectory;
 	static AppType::Enum m_appType;
+
 };
 
 /**

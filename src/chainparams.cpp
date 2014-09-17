@@ -190,7 +190,9 @@ public:
             vFixedSeeds.push_back(addr);
         }
 		m_originAddress = CPubKey(getRatcoinOriginPublicAddress().c_str(), &getRatcoinOriginPublicAddress().c_str()[65]).GetID();
-    }
+
+		m_confirmation = 6;
+	}
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
     virtual Network NetworkID() const { return CNetworkParams::MAIN; }
@@ -240,16 +242,16 @@ public:
         // Modify the testnet genesis block so the timestamp is valid for a later start.
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 32);
         genesis.nVersion =2;
-		genesis.nTime = 1398416844;
-		genesis.hashPrevBlock = uint256("0x000000007b35f82798dcf2fe4bc39af96911ef5224778710403d6d7b43b01e30");
+		genesis.nTime = 1410941780;
+		genesis.hashPrevBlock = uint256("0x0000000000001add52229c43410e8c78ce8aef7d8252ae6c599a7e2cd1f86c8f");
 
-		genesis.hashMerkleRoot = uint256("0xd7a9a034b65a1334431fce9667176634d0b1d20c37bb5feec7c99691f8c87839");
+		genesis.hashMerkleRoot = uint256("b09a6a0876d033242bf6f830b4ad4786cdea89e2a6af94925faa644edee54e32");
 
 		genesis.nBits = 486604799;
-		genesis.nNonce = 1861716224;
+		genesis.nNonce = 2932979456;
         hashGenesisBlock = genesis.GetHash();
 
-		assert(hashGenesisBlock == uint256("0x000000000045f2135f5ed826c4b131b32014ac266dd9792415a6f03a31096960"));
+		assert(hashGenesisBlock == uint256("0x000000008a9ca4275adf5468336eff14dbfafca7ccb944043151e5461655821c"));
 		vFixedSeeds.clear();
 		for (unsigned int i = 0; i < ARRAYLEN(pnSeedTest); i++)
 		{
@@ -276,7 +278,7 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x35)(0x87)(0xCF);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x35)(0x83)(0x94);
 
-
+		m_confirmation = 2;
     }
     virtual Network NetworkID() const { return CNetworkParams::TESTNET; }
 };

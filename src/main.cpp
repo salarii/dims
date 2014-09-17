@@ -1529,6 +1529,8 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
     setBlockIndexValid.insert(pindexNew);
 
+	if ( chainActive.Height() > Params().getConfirmationNumber() && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
+		return false;
     // New best?
     if (!ActivateBestChain(state))
         return false;

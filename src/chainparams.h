@@ -40,7 +40,7 @@ public:
     int RPCPort() const { return nRPCPort; }
 
 	vector<unsigned char> const getOriginAddressKeyId() const{ return vector<unsigned char>(m_originAddress.begin(), m_originAddress.end()); }
-
+	int getConfirmationNumber() const{ return m_confirmation; }
     static CNetworkParams const & getNetworkParameters();
 protected:
     CChainParams() {}
@@ -58,7 +58,7 @@ protected:
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
 
 	uint160 m_originAddress;
-
+	int m_confirmation;
 };
 
 /**

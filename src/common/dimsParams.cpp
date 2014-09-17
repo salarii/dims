@@ -108,6 +108,7 @@ public:
 		base58Prefixes[SECRET_KEY]     = list_of(137);
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
+
 	}
 	virtual CNetworkParams::Network NetworkID() const { return CNetworkParams::TESTNET; }
 };
