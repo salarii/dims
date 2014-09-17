@@ -31,7 +31,7 @@
      <x>30</x>
      <y>10</y>
      <width>541</width>
-     <height>132</height>
+     <height>144</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -75,7 +75,7 @@
     <item>
      <widget class="QLabel" name="keyLabel1">
       <property name="text">
-       <string>Paste bitcoin or ratcoin private key</string>
+       <string>Paste bitcoin or dims private key</string>
       </property>
      </widget>
     </item>
