@@ -25,8 +25,9 @@ namespace seed
 {
 extern CAddrDb db;
 
-struct CUnconnected; struct CBothUnidentifiedConnected;
+struct CUnconnected; struct CBothUnidentifiedConnected; struct CCantReachNode;
 
+uint64_t const WaitTime = 10;
 
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CAcceptNodeAction >
 {
@@ -68,6 +69,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		m_time = GetTime();
 		context< CAcceptNodeAction >().setRequest( new common::CNetworkRoleRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
@@ -80,8 +82,15 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			return discard_event();
+		}
 	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
@@ -114,6 +123,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	> reactions;
 
 	int m_role;
+	uint64_t m_time;
 };
 
 
@@ -121,6 +131,8 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 {
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		m_time = GetTime();
+
 		common::CIntroduceEvent const* requestedEvent = dynamic_cast< common::CIntroduceEvent const* >( simple_state::triggering_event() );
 
 		uint256 hash = Hash( &requestedEvent->m_payload.front(), &requestedEvent->m_payload.back() );
@@ -137,8 +149,15 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			return discard_event();
+		}
 	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _roleEvent )
@@ -154,12 +173,14 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	> reactions;
 
 	int m_role;
+	uint64_t m_time;
 };
 
 struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnected, CAcceptNodeAction >
 {
 	CDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
+		m_time = GetTime();
 		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
@@ -172,8 +193,15 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			return discard_event();
+		}
 	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
@@ -207,19 +235,28 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	> reactions;
 
 	int m_role;
+	uint64_t m_time;
 };
 
 struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConnected, CAcceptNodeAction >
 {
 	CPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
+		m_time = GetTime();
 		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			return discard_event();
+		}
 	}
 
 	boost::statechart::result react( const common::CIntroduceEvent & _introduceEvent )
@@ -246,12 +283,15 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 	boost::statechart::custom_reaction< common::CIntroduceEvent >,
 	boost::statechart::transition< common::CAckPromptResult, CDetermineRoleConnected >
 	> reactions;
+
+	uint64_t m_time;
 };
 
 struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentifiedConnecting, CAcceptNodeAction >
 {
 	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		m_time = GetTime();
 
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CAcceptNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
@@ -262,8 +302,15 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			return discard_event();
+		}
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -277,22 +324,31 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
+
+	uint64_t m_time;
 };
 
 struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedConnected, CAcceptNodeAction >
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
+		m_time = GetTime();
+
 		context< CAcceptNodeAction >().setRequest( new common::CAckRequest<SeedResponses>( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest<SeedResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			return discard_event();
+		}
 	}
-
-
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
@@ -304,6 +360,8 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::transition< common::CAckEvent, CPairIdentifiedConnected >
 	> reactions;
+
+	uint64_t m_time;
 };
 
 struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAction >
@@ -335,6 +393,8 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
+		m_time = GetTime();
+
 		context< CAcceptNodeAction >().setValid( true );
 
 		context< CAcceptNodeAction >().setRequest(
@@ -357,15 +417,24 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CAcceptNodeAction >().setRequest( new common::CContinueReqest< SeedResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest< SeedResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 
-		return discard_event();
+			return discard_event();
+		}
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
+
+	uint64_t m_time;
 };
 
 struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CAcceptNodeAction >
@@ -383,7 +452,6 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CAccep
 		context< CAcceptNodeAction >().setRequest( 0 );
 	}
 };
-
 
 
 struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CAcceptNodeAction >

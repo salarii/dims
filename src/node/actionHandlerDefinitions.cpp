@@ -9,7 +9,7 @@
 namespace client
 {
 template<>
-unsigned int const common::CActionHandler< NodeResponses >::m_sleepTime = 500;
+unsigned int const common::CActionHandler< NodeResponses >::m_sleepTime = 100;
 template<>
 common::CActionHandler< NodeResponses > * common::CActionHandler< NodeResponses >::ms_instance = NULL;
 

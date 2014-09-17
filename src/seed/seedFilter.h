@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #ifndef SEED_FILTER_H
 #define SEED_FILTER_H
 

@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #ifndef SEED_DB_H_
 #define SEED_DB_H_
 

@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>

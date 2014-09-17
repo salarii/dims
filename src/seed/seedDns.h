@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #ifndef SEED_DNS_H_
 #define SEED_DNS_H_ 1
 

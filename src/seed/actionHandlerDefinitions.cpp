@@ -9,7 +9,7 @@ namespace seed
 {
 
 template<>
-unsigned int const common::CActionHandler< SeedResponses >::m_sleepTime = 1000;
+unsigned int const common::CActionHandler< SeedResponses >::m_sleepTime = 100;
 template<>
 common::CActionHandler< SeedResponses > * common::CActionHandler< SeedResponses >::ms_instance = NULL;
 

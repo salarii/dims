@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #include "seedDb.h"
 #include <stdlib.h>
 

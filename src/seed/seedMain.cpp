@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #include <algorithm>
 
 #define __STDC_FORMAT_MACROS
