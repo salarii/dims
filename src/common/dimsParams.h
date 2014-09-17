@@ -110,7 +110,7 @@ protected:
  * Return the currently selected parameters. This won't change after app startup
  * outside of the unit tests.
  */
-CDimsParams const &ratcoinParams();
+CDimsParams const &dimsParams();
 
 /** Sets the params returned by Params() to those for the given network. */
 void SelectRatcoinParams(CNetworkParams::Network network);
@@ -124,12 +124,12 @@ bool SelectRatcoinParamsFromCommandLine();
 inline bool TestNet()
 {
     // Note: it's deliberate that this returns "false" for regression test mode.
-    return ratcoinParams().NetworkID() == CNetworkParams::TESTNET;
+	return dimsParams().NetworkID() == CNetworkParams::TESTNET;
 }
 
 inline bool RegTest()
 {
-    return ratcoinParams().NetworkID() == CNetworkParams::REGTEST;
+	return dimsParams().NetworkID() == CNetworkParams::REGTEST;
 }
 
 TargetType::Enum

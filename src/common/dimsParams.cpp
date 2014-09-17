@@ -5,7 +5,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "chainparams.h"
-#include "ratcoinParams.h"
+#include "dimsParams.h"
 
 #include "assert.h"
 #include "core.h"
@@ -21,10 +21,10 @@ namespace common
 
 AppType::Enum CDimsParams::m_appType;
 
-class CMainRatcoinParams : public CDimsParams
+class CMainDimsParams : public CDimsParams
 {
 public:
-	CMainRatcoinParams() {
+	CMainDimsParams() {
 
 		m_defaultClientPort = 0x1000;
 		unsigned int pnSeed[] ={};
@@ -77,15 +77,15 @@ protected:
 	vector<CAddress> vFixedSeeds;
     unsigned int m_defaultClientPort;
 };
-static CMainRatcoinParams mainParams;
+static CMainDimsParams mainParams;
 
 
 //
 // Testnet (v3)
 //
-class CTestRatcoinParams : public CMainRatcoinParams {
+class CTestDimsParams : public CMainDimsParams {
 public:
-	CTestRatcoinParams() {
+	CTestDimsParams() {
 
 		m_defaultClientPort = 0x1400;
 		// The message start string is designed to be unlikely to occur in normal data.
@@ -112,9 +112,9 @@ public:
 	virtual CNetworkParams::Network NetworkID() const { return CNetworkParams::TESTNET; }
 };
 
-static CTestRatcoinParams testNetParams;
+static CTestDimsParams testNetParams;
 
-static CMainRatcoinParams *pCurrentParams = &mainParams;
+static CMainDimsParams *pCurrentParams = &mainParams;
 
 CNetworkParams const &
 CDimsParams::getNetworkParameters()
@@ -122,7 +122,7 @@ CDimsParams::getNetworkParameters()
 	return *pCurrentParams;
 }
 
-CDimsParams const &ratcoinParams()
+CDimsParams const &dimsParams()
 {
 	return *pCurrentParams;
 }
