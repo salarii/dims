@@ -15,7 +15,7 @@
 #include "protocol.h"
 #include "sync.h"
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 
 #define MIN_RETRY 1000
 
@@ -151,7 +151,7 @@ public:
 
 	  // interesting functionality  how  to make it  working  ???
 	  return true;
-	if (ip.GetPort() != common::ratcoinParams().GetDefaultPort()) return false;
+	if (ip.GetPort() != common::dimsParams().GetDefaultPort()) return false;
     if (!(services & NODE_NETWORK)) return false;
     if (!ip.IsRoutable()) return false;
     if (clientVersion && clientVersion < REQUIRE_VERSION) return false;

@@ -974,7 +974,7 @@ boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
     // Unix: ~/.bitcoin
 #ifdef WIN32
     // Windows
-	return GetSpecialFolderPath(CSIDL_APPDATA) / common::ratcoinParams().getDefaultDirectory();
+	return GetSpecialFolderPath(CSIDL_APPDATA) / common::dimsParams().getDefaultDirectory();
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -986,10 +986,10 @@ boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-	return pathRet / common::ratcoinParams().getDefaultDirectory();
+	return pathRet / common::dimsParams().getDefaultDirectory();
 #else
     // Unix
-	return pathRet / common::ratcoinParams().getDefaultDirectory();
+	return pathRet / common::dimsParams().getDefaultDirectory();
 #endif
 #endif
 }

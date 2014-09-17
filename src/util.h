@@ -13,7 +13,7 @@
 #include "compat.h"
 #include "serialize.h"
 #include "tinyformat.h"
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 
 #include <cstdio>
 #include <exception>

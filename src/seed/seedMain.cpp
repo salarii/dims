@@ -12,7 +12,7 @@
 #include "seedDb.h"
 #include "processNetwork.h"
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
 
@@ -370,7 +370,7 @@ extern "C" void* ThreadSeeder(void*) {
       vector<CNetAddr> ips;
       LookupHost(seeds[i].c_str(), ips);
       for (vector<CNetAddr>::iterator it = ips.begin(); it != ips.end(); it++) {
-		db.Add(CAddress(CService(*it, common::ratcoinParams().GetDefaultPort() )), true);
+		db.Add(CAddress(CService(*it, common::dimsParams().GetDefaultPort() )), true);
       }
     }
 	MilliSleep(1800000);

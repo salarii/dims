@@ -10,7 +10,7 @@
 
 #include "common/nodeMessages.h"
 #include "common/commonEvents.h"
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 #include "common/commonResponses.h"
 #include "common/mediumRequests.h"
 
@@ -51,7 +51,7 @@ CSettingsMedium::add( CDnsInfoRequest const * _request )
 void
 CSettingsMedium::getSeedIps( vector<CAddress> & _vAdd )
 {
-	const vector<CDNSSeedData> &vSeeds = ratcoinParams().DNSSeeds();
+	const vector<CDNSSeedData> &vSeeds = dimsParams().DNSSeeds();
 
 	BOOST_FOREACH(const CDNSSeedData &seed, vSeeds) {
 		if (HaveNameProxy()) {
@@ -64,7 +64,7 @@ CSettingsMedium::getSeedIps( vector<CAddress> & _vAdd )
 				BOOST_FOREACH(CNetAddr& ip, vIPs)
 				{
 					int nOneDay = 24*3600;
-					CAddress addr = CAddress(CService(ip, ratcoinParams().GetDefaultPort()));
+					CAddress addr = CAddress(CService(ip, dimsParams().GetDefaultPort()));
 					addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
 					_vAdd.push_back(addr);
 				}

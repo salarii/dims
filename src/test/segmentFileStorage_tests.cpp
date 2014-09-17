@@ -78,6 +78,10 @@ struct CSetLocation
 
 BOOST_AUTO_TEST_CASE( basics )
 {
+	CBitcoinAddress  address( &GetNetworkParams< CChainParams >() );
+	address.Set( CKeyID( uint160( Params().getOriginAddressKeyId() ) ) );
+	std::string    addresso = address.ToString();
+
 	tracker::CSegmentFileStorage * fileStorage = tracker::CSegmentFileStorage::getInstance();
 
 	boost::thread( boost::bind(&tracker::CSegmentFileStorage::flushLoop, fileStorage) );

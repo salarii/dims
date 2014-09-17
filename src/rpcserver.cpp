@@ -26,7 +26,7 @@
 #include <boost/shared_ptr.hpp>
 #include "json/json_spirit_writer_template.h"
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 
 using namespace std;
 using namespace boost;
@@ -524,7 +524,7 @@ void StartRPCThreads()
     // Try a dual IPv6/IPv4 socket, falling back to separate IPv4 and IPv6 sockets
     const bool loopback = !mapArgs.count("-rpcallowip");
     asio::ip::address bindAddress = loopback ? asio::ip::address_v6::loopback() : asio::ip::address_v6::any();
-	ip::tcp::endpoint endpoint(bindAddress, GetArg("-rpcport", common::ratcoinParams().RPCPort()));
+	ip::tcp::endpoint endpoint(bindAddress, GetArg("-rpcport", common::dimsParams().RPCPort()));
     boost::system::error_code v6_only_error;
     boost::shared_ptr<ip::tcp::acceptor> acceptor(new ip::tcp::acceptor(*rpc_io_service));
 

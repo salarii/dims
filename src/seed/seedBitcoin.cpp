@@ -157,7 +157,7 @@ class CNode {
   bool ProcessMessages() {
     if (vRecv.empty()) return false;
     do {
-	  CDataStream::iterator pstart = search(vRecv.begin(), vRecv.end(), BEGIN(common::ratcoinParams().MessageStart()), END(common::ratcoinParams().MessageStart()));
+	  CDataStream::iterator pstart = search(vRecv.begin(), vRecv.end(), BEGIN(common::dimsParams().MessageStart()), END(common::dimsParams().MessageStart()));
       int nHeaderSize = vRecv.GetSerializeSize(CMessageHeader());
       if (vRecv.end() - pstart < nHeaderSize) {
         if (vRecv.size() > nHeaderSize) {

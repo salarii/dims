@@ -10,12 +10,15 @@ import sys
 from subprocess import check_output
 
 def main():
-    lines = sys.stdin.readlines()
 
+    f = open('log.txt', 'r')
+    
+    lines = f.readlines()
+    
     ips = []
-    pattern = re.compile(r"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}):8333")
+    pattern = re.compile(r"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})")
     for line in lines:
-        m = pattern.match(line)
+        m = pattern.match(line) 
         if m is None:
             continue
         ip = 0
@@ -23,6 +26,7 @@ def main():
             ip = ip + (int(m.group(i+1)) << (8*(i)))
         if ip == 0:
             continue
+	 
         ips.append(ip)
 
     for row in range(0, min(NSEEDS,len(ips)), 8):

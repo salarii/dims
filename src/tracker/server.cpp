@@ -12,7 +12,7 @@
 #include "common/nodeMessages.h"
 #include "clientRequestsManager.h"
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 #include "common/support.h"
 
 using namespace common;
@@ -246,7 +246,7 @@ void runServer()
 {
 	Poco::Net::TCPServer * server = new Poco::Net::TCPServer(
 												  new Poco::Net::TCPServerConnectionFactoryImpl<CTcpServerConnection>()
-												, Poco::Net::ServerSocket(common::ratcoinParams().getDefaultClientPort())
+												, Poco::Net::ServerSocket(common::dimsParams().getDefaultClientPort())
 												);
 
 	server->start();

@@ -37,7 +37,7 @@ COMMON_H = \
   common/nodeMessages.h \
   common/nodesManager.h \
   common/periodicActionExecutor.h \
-  common/ratcoinParams.h \
+  common/dimsParams.h \
   common/responseVisitorInternal.h \
   common/requestHandler.h \
   common/requestResponse.h \
@@ -52,7 +52,7 @@ COMMON_CPP = \
   common/commonResponses.cpp \
   common/databaseManager.cpp \
   common/manageNetwork.cpp \
-  common/ratcoinParams.cpp \
+  common/dimsParams.cpp \
   common/selfNode.cpp 
   
 # tracker core #

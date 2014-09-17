@@ -9,7 +9,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 
 #include "serialize.h"
 #include "version.h"
