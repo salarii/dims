@@ -96,6 +96,8 @@ public:
 
 	~CAddressToCoinsViewCache();
 private:
+	mutable boost::mutex m_cacheLock;
+
 	CAddressToCoinsViewCache( size_t _cacheSize = 1 << 26):m_addressToCoins( _cacheSize){};
 
 	static CAddressToCoinsViewCache * ms_instance;

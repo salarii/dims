@@ -10,6 +10,8 @@
 #include "core.h"
 #include "coins.h"
 #include "blockInfoDatabase.h"
+#include "supportTransactionsDatabase.h"
+#include <boost/algorithm/cxx11/any_of.hpp>
 
 namespace tracker
 {
@@ -180,7 +182,22 @@ CSegmentFileStorage::includeTransaction( CTransaction const & _transaction, uint
 
 	m_transactionQueue->insert( std::make_pair( _timeStamp, transactions ) );
 
+	addToRecentlyUsed( _transaction );
+}
+
+void
+CSegmentFileStorage::addToRecentlyUsed( CTransaction const & _transaction )
+{
 	m_locationUsedFromLastUpdate.insert( _transaction.m_location );
+
+	BOOST_FOREACH( CTxIn const & txIn, _transaction.vin )
+	{
+		uint64_t location;
+		if ( !CSupportTransactionsDatabase::getInstance()->getTransactionLocation( txIn.prevout.hash, location ) )
+			assert( !"serious problem" );
+
+		m_locationUsedFromLastUpdate.insert( CLocation(location) );
+	}
 }
 
 void
@@ -191,7 +208,7 @@ CSegmentFileStorage::includeTransactions( std::vector< CTransaction > const & _t
 
 	BOOST_FOREACH( CTransaction const & transaction, _transactions )
 	{
-		m_locationUsedFromLastUpdate.insert( transaction.m_location );
+		addToRecentlyUsed( transaction );
 	}
 }
 
@@ -423,8 +440,35 @@ CSegmentFileStorage::getDiscBlock( uint64_t const _location )
 
 	return diskBlock;
 }
-// add logic  to limit  max amount of disc flushes. I don't want  to spend to much time in this logic
 
+CBufferAsStream
+CSegmentFileStorage::createStreamForGivenLocation( uint64_t const _location, std::pair< CLocation, CDiskBlock* > & _usedBlock )
+{
+	std::map< CLocation,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( _location );
+	if ( usedBlock == m_usedBlocks.end() )
+	{
+		mruset< CCacheElement >::iterator cacheIterator = m_discBlockCache.find( CLocation( _location ) );
+		if ( cacheIterator != m_discBlockCache.end() )
+			usedBlock = m_usedBlocks.insert( std::make_pair( _location, cacheIterator->m_discBlock ) ).first;
+		else
+			usedBlock = m_usedBlocks.insert( std::make_pair( _location, getDiscBlock( _location ) ) ).first;
+	}
+
+	_usedBlock = *usedBlock;
+
+	return CBufferAsStream(
+				(char *)usedBlock->second->translateToAddress( getIndex( _location ) )
+				, usedBlock->second->getBuddySize( getLevel( _location ) )
+				, SER_DISK
+				, CLIENT_VERSION);
+}
+
+bool
+isValid( CTxOut const & _txOut )
+{
+	return !_txOut.IsNull();
+}
+// add logic  to limit  max amount of disc flushes. I don't want  to spend to much time in this logic
 void 
 CSegmentFileStorage::flushLoop()
 {
@@ -465,27 +509,40 @@ CSegmentFileStorage::flushLoop()
 
 				BOOST_FOREACH( CTransaction const & transaction, iterator->second )
 				{
-					uint64_t location = transaction.m_location;
-					std::map< CLocation,CDiskBlock* >::iterator usedBlock =  m_usedBlocks.find( location );
-					if ( usedBlock == m_usedBlocks.end() )
-					{
-						mruset< CCacheElement >::iterator cacheIterator = m_discBlockCache.find( CLocation( location ) );
-						if ( cacheIterator != m_discBlockCache.end() )
-							usedBlock = m_usedBlocks.insert( std::make_pair( location, cacheIterator->m_discBlock ) ).first;
-						else
-							usedBlock = m_usedBlocks.insert( std::make_pair( location, getDiscBlock( location ) ) ).first;
-					}
+					std::pair< CLocation,CDiskBlock* > usedBlock;
 
-					CBufferAsStream stream(
-								(char *)usedBlock->second->translateToAddress( getIndex( transaction.m_location ) )
-								, usedBlock->second->getBuddySize( getLevel( transaction.m_location ) )
-								, SER_DISK
-								, CLIENT_VERSION);
+					CBufferAsStream stream( createStreamForGivenLocation( transaction.m_location, usedBlock ) );
 
 					stream << transaction;
 
 					assert( m_discBlockCache.find( location ) != m_discBlockCache.end() );
-					*(CSimpleBuddy*)usedBlock->second = *processedLocationToBuddy.find( location )->second;
+					*(CSimpleBuddy*)usedBlock.second = *processedLocationToBuddy.find( transaction.m_location )->second;
+
+					BOOST_FOREACH( CTxIn const & txIn, transaction.vin )
+					{
+						uint64_t location;
+						if ( !CSupportTransactionsDatabase::getInstance()->getTransactionLocation( txIn.prevout.hash, location ) )
+							assert( !"serious problem" );
+
+						CBufferAsStream stream( createStreamForGivenLocation( transaction.m_location, usedBlock ) );
+
+						CTransaction inTransaction;
+
+						stream >> inTransaction;
+
+						inTransaction.vout[ txIn.prevout.n ].SetNull();
+
+						if ( boost::algorithm::any_of( inTransaction.vout.begin(), inTransaction.vout.end(), isValid ) )
+						{
+							stream << inTransaction;
+						}
+						else
+						{
+							CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( inTransaction.GetHash() );
+							usedBlock.second->buddyFree( getIndex( location ) );
+							processedLocationToBuddy.find( transaction.m_location )->second->buddyFree( getIndex( location ) );
+						}
+					}
 				}
 				iterator++;
 			}
@@ -538,10 +595,9 @@ CSegmentFileStorage::flushLoop()
 
 			delete m_processedTransactionQueue;
 
-			//rebuild merkle and store it, in database
 			boost::this_thread::interruption_point();
 			//MilliSleep(40000);
-			MilliSleep(400);//only for  debug such short period of time
+			MilliSleep(1000);//only for  debug such short period of time
 		}
 	}
 }

@@ -48,6 +48,8 @@ public:
 
 	~CSupportTransactionsDatabase();
 private:
+	mutable boost::mutex m_cacheLock;
+
 	CSupportTransactionsDatabase( size_t _cacheSize = 1 << 26):m_transactionSpecificData( _cacheSize){};
 
 	static CSupportTransactionsDatabase * ms_instance;

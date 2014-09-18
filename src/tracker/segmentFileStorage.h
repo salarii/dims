@@ -241,6 +241,9 @@ public:
 
 	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
 private:
+	CBufferAsStream
+	createStreamForGivenLocation( uint64_t const _location, std::pair< CLocation, CDiskBlock* > & _usedBlock );
+
 	CSegmentFileStorage();
 
 	CSegmentHeader & createNewHeader();
@@ -258,6 +261,8 @@ private:
 	void getLocationOfFreeRecordForBucket( unsigned int const _bucket, CLocation & _location );
 
 	void setRecord( CLocation const & _location, CRecord const & _record );
+
+	void addToRecentlyUsed( CTransaction const & _transaction );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
 

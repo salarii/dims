@@ -1528,10 +1528,18 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     pindexNew->nUndoPos = 0;
     pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
 
-	// is  this  always correct ??
-	if ( chainActive.Height() && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
-		return false;
+	if ( chainActive.Height() != -1 && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
+	{
+		// this  test for  testnet
+		CBlockIndex* pindexNew = 0;
+		do
+		{
+			pindexNew = pindexNew->pprev;
 
+			if ( !pindexNew )
+				return false;
+		}while( chainActive.Genesis()->GetBlockHash() != pindexNew->GetBlockHash() );
+	}
 	setBlockIndexValid.insert(pindexNew);
 
     // New best?

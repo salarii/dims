@@ -260,6 +260,8 @@ CAddressToCoinsViewCache::getInstance()
 
 bool CAddressToCoinsViewCache::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins )
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
 	std::map<uint160,uint256>::iterator it = fetchCoins(_keyId);
 
 	while(it != cacheCoins.end() && it->first == _keyId)
@@ -273,18 +275,25 @@ bool CAddressToCoinsViewCache::getCoins( uint160 const &_keyId, std::vector< uin
 
 bool CAddressToCoinsViewCache::setCoins( uint160 const &_keyId, uint256 const & _coin )
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
 	insertCacheCoins.insert( std::make_pair( _keyId, _coin ) );
 	return true;
 }
 
 bool CAddressToCoinsViewCache::haveCoins(const uint160 &txid)
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
 	return fetchCoins(txid) != cacheCoins.end();
 }
 
 std::map<uint160,uint256>::iterator
 CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 {
+	if ( !secondPass )
+		boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
 	std::map<uint160,uint256>::iterator it = cacheCoins.lower_bound(_keyId);
 
 	if ( it != cacheCoins.end() && it->first == _keyId )
@@ -339,6 +348,8 @@ CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 bool
 CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId, uint256 const & _coin )
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
 	std::multimap<uint160,uint256>::iterator iterator = cacheCoins.find( _keyId );
 
 	if ( iterator != cacheCoins.end() && iterator->second == _coin )
@@ -351,6 +362,8 @@ CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId, uint256 const & _co
 bool 
 CAddressToCoinsViewCache::flush()
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
 	bool ok = m_addressToCoins.batchWrite(insertCacheCoins);
 	if (ok)
 		insertCacheCoins.clear();
@@ -360,6 +373,9 @@ CAddressToCoinsViewCache::flush()
 void
 CAddressToCoinsViewCache::clearView()
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
+	insertCacheCoins.clear();
 	m_addressToCoins.clearView();
 }
 

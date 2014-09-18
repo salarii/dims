@@ -72,6 +72,7 @@ CSupportTransactionsDatabase::getInstance()
 bool
 CSupportTransactionsDatabase::getTransactionLocation( uint256 const &_hash, uint64_t & _location )
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 	std::map<uint256,uint64_t>::iterator iterator = m_transactionToLocationCache.find( _hash );
 
 	if ( iterator != m_transactionToLocationCache.end() )
@@ -90,6 +91,7 @@ CSupportTransactionsDatabase::getTransactionLocation( uint256 const &_hash, uint
 bool
 CSupportTransactionsDatabase::setTransactionLocation( uint256 const &_hash, uint64_t & _location )
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 	m_transactionToLocationCache.insert( std::make_pair( _hash, _location ) );
 	return true;
 }
@@ -97,6 +99,7 @@ CSupportTransactionsDatabase::setTransactionLocation( uint256 const &_hash, uint
 bool
 CSupportTransactionsDatabase::eraseTransactionLocation( uint256 const &_hash )
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 	bool result = m_transactionToLocationCache.erase( _hash );
 
 	return result ||  m_transactionSpecificData.eraseTransactionLocation( _hash );
@@ -105,6 +108,7 @@ CSupportTransactionsDatabase::eraseTransactionLocation( uint256 const &_hash )
 bool
 CSupportTransactionsDatabase::flush()
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 	CBatchWrite< uint256, uint64_t, 'l' > locations;
 
 	typedef std::pair<uint256,uint64_t> Element;
@@ -123,6 +127,8 @@ CSupportTransactionsDatabase::flush()
 void
 CSupportTransactionsDatabase::clearView()
 {
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+	m_transactionToLocationCache.clear();
 	m_transactionSpecificData.clearView();
 }
 
