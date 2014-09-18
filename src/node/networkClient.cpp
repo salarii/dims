@@ -29,7 +29,7 @@ CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
 {
 	m_socket = new QTcpSocket(this);
 
-	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_DISK, CLIENT_VERSION);
+	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_NETWORK, CLIENT_VERSION);
 	m_pushStream->SetPos(0);
     startThread();
 }
@@ -227,7 +227,7 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 	CBufferAsStream stream(
 		  (char*)m_pullBuffer.m_buffer
 		, m_pullBuffer.m_usedSize
-		, SER_DISK
+		, SER_NETWORK
 		, CLIENT_VERSION);
 
 	while( !stream.eof() )

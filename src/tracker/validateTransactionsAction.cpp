@@ -41,6 +41,8 @@ struct CPasingTransactionEvent : boost::statechart::event< CPasingTransactionEve
 {
 };
 
+struct CApproved;
+
 struct CSendAcceptBudle : boost::statechart::state< CSendAcceptBudle, CValidateTransactionsAction >
 {
 	CSendAcceptBudle( my_context ctx ) : my_base( ctx )
@@ -50,7 +52,7 @@ struct CSendAcceptBudle : boost::statechart::state< CSendAcceptBudle, CValidateT
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
 	{
-		context< CValidateTransactionsAction >().setRequest( 0 );
+		return transit< CApproved >();
 		return discard_event();
 	}
 
@@ -181,11 +183,10 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 	CPubKey m_pubKey;
 };
 
-struct CApproved;
 // simplified,  ignore  result from  others  trackers  for now, no  confirmation  message
 struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
 {
-	CPropagateBundle( my_context ctx ) : my_base( ctx ), m_totalWaitTime( 20 )
+	CPropagateBundle( my_context ctx ) : my_base( ctx ), m_totalWaitTime( 30 )
 	{
 		context< CValidateTransactionsAction >().setRequest(
 					new CTransactionsPropagationRequest(

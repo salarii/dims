@@ -204,6 +204,11 @@ public:
         READWRITE(vin);
         READWRITE(vout);
         READWRITE(nLockTime);
+//most likely temporary solution
+		if ( nType == SER_DISK )
+		{
+			READWRITE(m_location);
+		}
     )
 
     void SetNull()

@@ -101,6 +101,8 @@ CTransactionRecordManager::addTransactionToStorage( CTransaction const & _tx )
 
 	m_supportTransactionsDatabase->setTransactionLocation( _tx.GetHash(), tx.m_location );
 	CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
+
+	m_supportTransactionsDatabase->flush();
 }
 
 bool
@@ -111,10 +113,10 @@ CTransactionRecordManager::addTransactionsToStorage( std::vector< CTransaction >
 		CTransaction tx( transaction );
 		tx.m_location = CSegmentFileStorage::getInstance()->assignPosition( tx );
 
-				m_supportTransactionsDatabase->setTransactionLocation( tx.GetHash(), tx.m_location );
+		m_supportTransactionsDatabase->setTransactionLocation( tx.GetHash(), tx.m_location );
 		CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
 	}
-
+	m_supportTransactionsDatabase->flush();
 	return true;
 }
 

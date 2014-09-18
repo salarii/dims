@@ -89,7 +89,7 @@ CSupportTransactionsDatabase::getTransactionLocation( uint256 const &_hash, uint
 }
 
 bool
-CSupportTransactionsDatabase::setTransactionLocation( uint256 const &_hash, uint64_t & _location )
+CSupportTransactionsDatabase::setTransactionLocation( uint256 const &_hash, uint64_t const _location )
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 	m_transactionToLocationCache.insert( std::make_pair( _hash, _location ) );

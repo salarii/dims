@@ -82,7 +82,7 @@ CTcpServerConnection::CTcpServerConnection(Poco::Net::StreamSocket const & _serv
 	, pushStream(
 		(char*)m_outgoingBuffer.m_buffer
 		, MaxBufferSize
-		, SER_DISK
+		, SER_NETWORK
 		, CLIENT_VERSION)*/
 {
 	m_clientRequestManager = CClientRequestsManager::getInstance();

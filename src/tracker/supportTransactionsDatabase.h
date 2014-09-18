@@ -38,7 +38,7 @@ protected:
 	std::map<uint256,uint64_t> m_transactionToLocationCache;
 public:
 	bool getTransactionLocation( uint256 const &_hash, uint64_t & _location );
-	bool setTransactionLocation( uint256 const &_hash, uint64_t & _location );
+	bool setTransactionLocation( uint256 const &_hash, uint64_t const _location );
 	bool eraseTransactionLocation( uint256 const &_hash );
 	bool flush();
 

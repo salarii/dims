@@ -22,6 +22,7 @@
 #include "trackerEvents.h"
 #include "trackerController.h"
 #include "trackerControllerEvents.h"
+#include "supportTransactionsDatabase.h"
 
 namespace tracker
 {
@@ -161,6 +162,13 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 		context< CSynchronizationAction >().setRequest(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
+
+		BOOST_FOREACH( CTransaction const & transaction, transactions )
+		{
+			CSupportTransactionsDatabase::getInstance()->setTransactionLocation( transaction.GetHash(), transaction.m_location );
+		}
+
+		CSupportTransactionsDatabase::getInstance()->flush();
 
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle( transactions );
 

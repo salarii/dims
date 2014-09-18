@@ -518,29 +518,32 @@ CSegmentFileStorage::flushLoop()
 					assert( m_discBlockCache.find( location ) != m_discBlockCache.end() );
 					*(CSimpleBuddy*)usedBlock.second = *processedLocationToBuddy.find( transaction.m_location )->second;
 
-					BOOST_FOREACH( CTxIn const & txIn, transaction.vin )
+					if ( !transaction.IsCoinBase() )
 					{
-						uint64_t location;
-						if ( !CSupportTransactionsDatabase::getInstance()->getTransactionLocation( txIn.prevout.hash, location ) )
-							assert( !"serious problem" );
-
-						CBufferAsStream stream( createStreamForGivenLocation( transaction.m_location, usedBlock ) );
-
-						CTransaction inTransaction;
-
-						stream >> inTransaction;
-
-						inTransaction.vout[ txIn.prevout.n ].SetNull();
-
-						if ( boost::algorithm::any_of( inTransaction.vout.begin(), inTransaction.vout.end(), isValid ) )
+						BOOST_FOREACH( CTxIn const & txIn, transaction.vin )
 						{
-							stream << inTransaction;
-						}
-						else
-						{
-							CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( inTransaction.GetHash() );
-							usedBlock.second->buddyFree( getIndex( location ) );
-							processedLocationToBuddy.find( transaction.m_location )->second->buddyFree( getIndex( location ) );
+							uint64_t location;
+							if ( !CSupportTransactionsDatabase::getInstance()->getTransactionLocation( txIn.prevout.hash, location ) )
+								assert( !"serious problem" );
+
+							CBufferAsStream stream( createStreamForGivenLocation( transaction.m_location, usedBlock ) );
+
+							CTransaction inTransaction;
+
+							stream >> inTransaction;
+
+							inTransaction.vout[ txIn.prevout.n ].SetNull();
+
+							if ( boost::algorithm::any_of( inTransaction.vout.begin(), inTransaction.vout.end(), isValid ) )
+							{
+								stream << inTransaction;
+							}
+							else
+							{
+								CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( inTransaction.GetHash() );
+								usedBlock.second->buddyFree( getIndex( location ) );
+								processedLocationToBuddy.find( transaction.m_location )->second->buddyFree( getIndex( location ) );
+							}
 						}
 					}
 				}

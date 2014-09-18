@@ -1531,14 +1531,14 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 	if ( chainActive.Height() != -1 && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
 	{
 		// this  test for  testnet
-		CBlockIndex* pindexNew = 0;
+		CBlockIndex* indexNew = pindexNew;
 		do
 		{
-			pindexNew = pindexNew->pprev;
+			indexNew = indexNew->pprev;
 
-			if ( !pindexNew )
+			if ( !indexNew )
 				return false;
-		}while( chainActive.Genesis()->GetBlockHash() != pindexNew->GetBlockHash() );
+		}while( chainActive.Genesis()->GetBlockHash() != indexNew->GetBlockHash() );
 	}
 	setBlockIndexValid.insert(pindexNew);
 
