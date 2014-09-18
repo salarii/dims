@@ -1527,10 +1527,13 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     pindexNew->nDataPos = pos.nPos;
     pindexNew->nUndoPos = 0;
     pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
-    setBlockIndexValid.insert(pindexNew);
 
-	if ( chainActive.Height() > Params().getConfirmationNumber() && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
+	// is  this  always correct ??
+	if ( chainActive.Height() && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
 		return false;
+
+	setBlockIndexValid.insert(pindexNew);
+
     // New best?
     if (!ActivateBestChain(state))
         return false;
