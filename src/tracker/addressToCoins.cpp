@@ -291,9 +291,6 @@ bool CAddressToCoinsViewCache::haveCoins(const uint160 &txid)
 std::map<uint160,uint256>::iterator
 CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 {
-	if ( !secondPass )
-		boost::lock_guard<boost::mutex> lock( m_cacheLock );
-
 	std::map<uint160,uint256>::iterator it = cacheCoins.lower_bound(_keyId);
 
 	if ( it != cacheCoins.end() && it->first == _keyId )
