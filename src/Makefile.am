@@ -79,6 +79,7 @@ TRACKER_CORE_H = \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/simpleBuddy.h \
+  tracker/supportTransactionsDatabase.h \
   tracker/synchronizationAction.h \
   tracker/synchronizationRequests.h \
   tracker/trackerController.h \
@@ -179,6 +180,7 @@ TRACKER_CORE_CPP = \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/simpleBuddy.cpp \
+  tracker/supportTransactionsDatabase.cpp \
   tracker/synchronizationAction.cpp \
   tracker/synchronizationRequests.cpp \
   tracker/trackerController.cpp \

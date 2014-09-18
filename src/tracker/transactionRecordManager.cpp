@@ -17,6 +17,8 @@
 
 #include "segmentFileStorage.h"
 
+#include "supportTransactionsDatabase.h"
+
 namespace tracker
 {
 
@@ -62,7 +64,9 @@ CTransactionRecordManager::CTransactionRecordManager()
 	m_memPool = new CTxMemPool;
 
 //add  passing  cache  size ??
-	m_addressToCoinsViewCache = CAddressToCoinsViewCache::getInstance(  );
+	m_addressToCoinsViewCache = CAddressToCoinsViewCache::getInstance();
+
+	m_supportTransactionsDatabase = CSupportTransactionsDatabase::getInstance();
 }
 
 CTransactionRecordManager::~CTransactionRecordManager()
@@ -360,7 +364,7 @@ CTransactionRecordManager::setTransactionToTemporary( CTransaction const & _tran
 
 	iterator->second.insert( std::make_pair( _transaction.GetHash(), _transaction ) );
 }
-//ugly
+
 void
 CTransactionRecordManager::clearCoinViewDB()
 {

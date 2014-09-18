@@ -88,11 +88,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				nodeMedium->setResponse( message.m_header.m_actionKey, common::CRoleResult( networkRole.m_role ) );
 			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
 		{
@@ -114,11 +109,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				nodeMedium->setResponse( message.m_header.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
 			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
 		{
@@ -132,11 +122,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				nodeMedium->setResponse( message.m_header.m_actionKey, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
 			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::End )
 		{
@@ -149,10 +134,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
 				nodeMedium->setResponse( message.m_header.m_actionKey, common::CEndEvent() );
-			}
-			else
-			{
-				assert(!"it should be existing action");
 			}
 		}
 	}

@@ -1,1 +1,135 @@
+// Copyright (c) 2014 Dims dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#include "supportTransactionsDatabase.h"
+
+#include <boost/foreach.hpp>
+//#include <stdint.h>
+
+namespace tracker
+{
+
+template <class K, class T, char _prefix >
+class CBatchWrite
+{
+public:
+	void insert( K _key, T _object )
+	{
+		m_batch.Write( std::make_pair(_prefix, _key), _object );
+	}
+	CLevelDBBatch & getBatch(){ return m_batch; }
+private:
+	CLevelDBBatch m_batch;
+};
+
+
+
+CTransactionSpecificData::CTransactionSpecificData(size_t nCacheSize, bool fMemory, bool fWipe)
+: db(GetDataDir(common::AppType::Tracker) / "supportTransactions",
+	nCacheSize,
+	fMemory,
+	fWipe)
+{
+}
+
+bool
+CTransactionSpecificData::getTransactionLocation( uint256 const &_hash, uint64_t & _location )
+{
+	return db.Read( std::make_pair('l', _hash), _location );
+}
+
+bool
+CTransactionSpecificData::setTransactionLocation( uint256 const &_hash, uint64_t & _location )
+{
+	return db.Write( std::make_pair('l', _hash), _location );
+}
+
+bool
+CTransactionSpecificData::eraseTransactionLocation( uint256 const &_hash )
+{
+	return db.Erase( std::make_pair('l', _hash) );
+}
+
+void
+CTransactionSpecificData::clearView()
+{
+	return db.clear();
+}
+
+CSupportTransactionsDatabase * CSupportTransactionsDatabase::ms_instance = NULL;
+
+CSupportTransactionsDatabase*
+CSupportTransactionsDatabase::getInstance()
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CSupportTransactionsDatabase();
+	};
+	return ms_instance;
+}
+
+bool
+CSupportTransactionsDatabase::getTransactionLocation( uint256 const &_hash, uint64_t & _location )
+{
+	std::map<uint256,uint64_t>::iterator iterator = m_transactionToLocationCache.find( _hash );
+
+	if ( iterator != m_transactionToLocationCache.end() )
+	{
+		_location = iterator->second;
+	}
+
+	if ( !m_transactionSpecificData.getTransactionLocation( _hash, _location ) )
+		return false;
+
+	m_transactionToLocationCache.insert( std::make_pair( _hash, _location ) );
+
+	return true;
+}
+
+bool
+CSupportTransactionsDatabase::setTransactionLocation( uint256 const &_hash, uint64_t & _location )
+{
+	m_transactionToLocationCache.insert( std::make_pair( _hash, _location ) );
+	return true;
+}
+
+bool
+CSupportTransactionsDatabase::eraseTransactionLocation( uint256 const &_hash )
+{
+	bool result = m_transactionToLocationCache.erase( _hash );
+
+	return result ||  m_transactionSpecificData.eraseTransactionLocation( _hash );
+}
+
+bool
+CSupportTransactionsDatabase::flush()
+{
+	CBatchWrite< uint256, uint64_t, 'l' > locations;
+
+	typedef std::pair<uint256,uint64_t> Element;
+
+	BOOST_FOREACH( Element const & element, m_transactionToLocationCache )
+	{
+		locations.insert( element.first, element.second );
+	}
+
+	bool ok = m_transactionSpecificData.batchWrite(locations);
+	if (ok)
+		m_transactionToLocationCache.clear();
+	return ok;
+}
+
+void
+CSupportTransactionsDatabase::clearView()
+{
+	m_transactionSpecificData.clearView();
+}
+
+CSupportTransactionsDatabase::~CSupportTransactionsDatabase()
+{
+	ms_instance = 0;
+}
+
+}
 
