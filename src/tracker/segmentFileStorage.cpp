@@ -526,7 +526,7 @@ CSegmentFileStorage::flushLoop()
 							if ( !CSupportTransactionsDatabase::getInstance()->getTransactionLocation( txIn.prevout.hash, location ) )
 								assert( !"serious problem" );
 
-							CBufferAsStream stream( createStreamForGivenLocation( transaction.m_location, usedBlock ) );
+							CBufferAsStream stream( createStreamForGivenLocation( location, usedBlock ) );
 
 							CTransaction inTransaction;
 
