@@ -71,6 +71,8 @@ public:
 	void clearCoinViewDB();
 
 	void clearAddressToCoinsDatabase();
+
+	void clearSupportTransactionsDatabase();
 private:
 	void synchronize();
 

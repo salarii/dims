@@ -240,6 +240,10 @@ public:
 	bool getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader );
 
 	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
+
+	void retriveState();
+
+	void resetState();
 private:
 	CBufferAsStream
 	createStreamForGivenLocation( uint64_t const _location, std::pair< CLocation, CDiskBlock* > & _usedBlock );
@@ -265,8 +269,6 @@ private:
 	void addToRecentlyUsed( CTransaction const & _transaction );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
-
-	void retriveState();
 private:
 	mutable boost::mutex m_headerCacheLock;
 

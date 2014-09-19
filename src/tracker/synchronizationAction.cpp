@@ -149,6 +149,9 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	{
 		CTransactionRecordManager::getInstance()->clearCoinViewDB();
 		CTransactionRecordManager::getInstance()->clearAddressToCoinsDatabase();
+		CTransactionRecordManager::getInstance()->clearSupportTransactionsDatabase();
+
+		CSegmentFileStorage::getInstance()->resetState();
 
 		context< CSynchronizationAction >().setRequest(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
@@ -193,6 +196,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	boost::statechart::result react( common::CAckPromptResult const & )
 	{
 		CTrackerController::getInstance()->process_event( CSynchronizedWithNetworkEvent() );
+
+		CSegmentFileStorage::getInstance()->retriveState();
 
 		context< CSynchronizationAction >().setRequest( 0 );
 

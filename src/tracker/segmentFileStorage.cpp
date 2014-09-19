@@ -161,16 +161,22 @@ CSegmentFileStorage::CSegmentFileStorage()
 , m_lastFlushTime( 0 )
 , m_synchronizationInProgress( 0 )
 {
-	fillHeaderBuffor();
-
 	m_transactionQueue = new TransactionQueue;
 
 	CBlockInfoDatabase::getInstance()->loadTimeOfFlush( m_lastFlushTime );
 
-	m_alreadyStoredSegments = calculateStoredBlockNumber();
-	m_lastSegmentIndex = m_alreadyStoredSegments;
 	retriveState();
 }
+
+void
+CSegmentFileStorage::resetState()
+{
+	m_headersCache.clear();
+	m_alreadyStoredSegments = 0;
+	m_lastSegmentIndex = 0;
+	m_usedBuddy.clear();
+}
+
 
 void
 CSegmentFileStorage::includeTransaction( CTransaction const & _transaction, uint64_t const _timeStamp )
@@ -536,6 +542,7 @@ CSegmentFileStorage::flushLoop()
 
 							if ( boost::algorithm::any_of( inTransaction.vout.begin(), inTransaction.vout.end(), isValid ) )
 							{
+								stream.SetPos(0);
 								stream << inTransaction;
 							}
 							else
@@ -758,6 +765,10 @@ CSegmentFileStorage::getStoredHeaderCount() const
 void
 CSegmentFileStorage::retriveState()
 {
+	fillHeaderBuffor();
+	m_alreadyStoredSegments = calculateStoredBlockNumber();
+	m_lastSegmentIndex = m_alreadyStoredSegments;
+
 	if ( !m_headersCache.empty() )
 	{
 		for ( unsigned int bucket = 0; bucket < MAX_BUCKET; ++bucket )

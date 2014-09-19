@@ -383,6 +383,12 @@ CTransactionRecordManager::clearAddressToCoinsDatabase()
 	m_addressToCoinsViewCache->clearView();
 }
 
+void
+CTransactionRecordManager::clearSupportTransactionsDatabase()
+{
+	m_supportTransactionsDatabase->clearView();
+}
+
 // this is short search, long will be needed at some point
 bool
 CTransactionRecordManager::getTransaction( uint256 const & _hash, CTransaction & _transaction ) const
