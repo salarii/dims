@@ -194,10 +194,6 @@ public:
 
 	void includeTransaction( CTransaction const & _transaction, uint64_t const _timeStamp );
 
-	void eraseTransaction( CTransaction const & _transaction );
-
-	void eraseTransaction( CCoins const & _coins );
-
 	void includeTransactions( std::vector< CTransaction > const & _transactions, uint64_t const _timeStamp );
 
 	bool readTransactions( CDiskBlock const & _discBlock, std::vector< CTransaction > & _transactions );

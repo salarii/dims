@@ -670,36 +670,6 @@ CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vecto
 
 }
 
-void
-CSegmentFileStorage::eraseTransaction( CTransaction const & _transaction )
-{
-}
-
-void
-CSegmentFileStorage::eraseTransaction( CCoins const & _coins )
-{
-/*	int index = -1;
-
-	ToInclude toInclude;// = m_discCache.equal_range(_coins.m_bucket);
-
-	unsigned short recordId;// = _coins.nHeight % CSegmentHeader::m_recordsNumber;
-
-	unsigned short cacheId;// = (_coins.nHeight >> 16)/CSegmentHeader::m_recordsNumber;
-
-	if ( toInclude.first != m_discCache.end() )
-	{
-		for ( CacheIterators cacheIterator = toInclude.first; cacheIterator!=toInclude.second; ++cacheIterator )
-		{
-			cacheId--;
-
-			if ( cacheId == 0 )
-				cacheIterator->second->buddyFree(_coins.nHeight & 0xff);
-			//set  time
-		}
-	}*/
-}
-
-
 unsigned int
 CSegmentFileStorage::calculateBucket( uint256 const & _coinsHash ) const
 {
