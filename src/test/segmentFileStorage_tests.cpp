@@ -86,10 +86,10 @@ BOOST_AUTO_TEST_CASE( basics )
 	std::vector< CTransaction > transactions = getTransactionArray();
 	while(1)
 	{
-		std::transform( transactions.begin(), transactions.end(), transactions.begin(), CSetLocation() );
+	std::transform( transactions.begin(), transactions.end(), transactions.begin(), CSetLocation() );
 
-		fileStorage->includeTransactions( transactions, 0 );
-		MilliSleep( 1000 );
+	fileStorage->includeTransactions( transactions, 0 );
+	MilliSleep( 1000 );
 
 	}
 

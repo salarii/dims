@@ -280,7 +280,7 @@ CSimpleBuddy::getNotEmptyIndexes( int const _level ) const
 	}
 
 	std::list< int > notEmpty;
-	for ( int i = index - 1;i < 2*index ;i++ )
+	for ( int i = index - 1;i < 2*index - 1;i++ )
 	{
 		if ( m_tree[i] == NODE_USED )
 		{
