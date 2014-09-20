@@ -36,6 +36,8 @@ protected:
 	CTransactionSpecificData m_transactionSpecificData;
 
 	std::map<uint256,uint64_t> m_transactionToLocationCache;
+	std::map<uint256,uint64_t> m_transactionToLocationCacheInsert;
+
 public:
 	bool getTransactionLocation( uint256 const &_hash, uint64_t & _location );
 	bool setTransactionLocation( uint256 const &_hash, uint64_t const _location );

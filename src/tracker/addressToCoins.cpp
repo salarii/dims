@@ -260,6 +260,8 @@ CAddressToCoinsViewCache::getInstance()
 
 bool CAddressToCoinsViewCache::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins )
 {
+	_coins.clear();
+
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
 	std::map<uint160,uint256>::iterator it = fetchCoins(_keyId);

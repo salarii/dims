@@ -325,7 +325,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 
 		BOOST_FOREACH( CTransaction const & transaction, transactions )
 		{
-			CClientRequestsManager::getInstance()->setClientResponse( transaction.GetHash(), common::CTransactionAck( common::TransactionsStatus::Valdated, transaction ) );
+			CClientRequestsManager::getInstance()->setClientResponse( transaction.GetHash(), common::CTransactionAck( common::TransactionsStatus::Validated, transaction ) );
 		}
 
 		if ( transactions.empty() )

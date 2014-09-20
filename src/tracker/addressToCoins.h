@@ -10,6 +10,7 @@
 
 namespace tracker
 {
+// probably the  weakest point of  it all
 
 struct CCoinsStats
 {
@@ -85,7 +86,7 @@ protected:
 	std::multimap<uint160,uint256> insertCacheCoins;
 public:
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
-	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
+	bool setCoins( uint160 const &_keyId, uint256 const & _coin );// flush is required after this
 	bool haveCoins( uint160 const &_keyId );
 	bool eraseCoins( uint160 const &_keyId, uint256 const & _coin  );
 	bool flush();

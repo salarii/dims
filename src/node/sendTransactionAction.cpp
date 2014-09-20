@@ -42,7 +42,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 	boost::statechart::result react( CTransactionAckEvent const & _transactionSendAck )
 	{
 // todo, check status and validity of the transaction propagated
-		if ( _transactionSendAck.m_status == common::TransactionsStatus::Valdated )
+		if ( _transactionSendAck.m_status == common::TransactionsStatus::Validated )
 		{
 			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
 			context< CSendTransactionAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );

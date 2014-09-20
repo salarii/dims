@@ -92,7 +92,7 @@ bool
 CSupportTransactionsDatabase::setTransactionLocation( uint256 const &_hash, uint64_t const _location )
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
-	m_transactionToLocationCache.insert( std::make_pair( _hash, _location ) );
+	m_transactionToLocationCacheInsert.insert( std::make_pair( _hash, _location ) );
 	return true;
 }
 
@@ -120,7 +120,7 @@ CSupportTransactionsDatabase::flush()
 
 	bool ok = m_transactionSpecificData.batchWrite(locations);
 	if (ok)
-		m_transactionToLocationCache.clear();
+		m_transactionToLocationCacheInsert.clear();
 	return ok;
 }
 
@@ -128,6 +128,7 @@ void
 CSupportTransactionsDatabase::clearView()
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+	m_transactionToLocationCacheInsert.clear();
 	m_transactionToLocationCache.clear();
 	m_transactionSpecificData.clearView();
 }

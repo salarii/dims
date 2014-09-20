@@ -30,6 +30,7 @@ test_bitcoin_LDADD = $(LIBDIMS_TRACKER) $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $
 test_bitcoin_LDADD += $(BDB_LIBS)
 
 test_bitcoin_SOURCES = \
+  addressToCoins_tests.cpp \
   test_ratcoin.cpp \
   uint256_tests.cpp \
   segmentFileStorage_tests.cpp \

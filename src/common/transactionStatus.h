@@ -13,7 +13,7 @@ struct TransactionsStatus
 	enum Enum
 	{
 		  Invalid = 0
-		, Valdated
+		, Validated
 		, Unconfirmed
 		, Ack
 		, DoubleSpend
