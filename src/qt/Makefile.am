@@ -92,6 +92,7 @@ QT_FORMS_UI = \
   forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
+  ../node/moc_applicationServer.cpp \
   moc_addressbookpage.cpp \
   moc_addresstablemodel.cpp \
   moc_addAddressDialog.cpp \
@@ -137,7 +138,7 @@ QT_MOC_CPP = \
   moc_walletview.cpp
 
 CLIENT_H = \
-  ../node/applicationServerMedium.h \
+  ../node/applicationServer.h \
   ../node/clientControl.h \
   ../node/clientRequests.h \
   ../node/connectAction.h \
@@ -156,7 +157,7 @@ CLIENT_H = \
   
 CLIENT_CPP = \
   ../node/actionHandlerDefinitions.cpp \
-  ../node/applicationServerMedium.cpp \
+  ../node/applicationServer.cpp \
   ../node/clientControl.cpp \
   ../node/clientRequests.cpp \
   ../node/connectAction.cpp \

@@ -18,6 +18,7 @@ CAppClient::CAppClient( QString const & _dimsClient )
 
 	conection->connectToServer( _dimsClient );
 }
+
 CAppClient::~CAppClient()
 {
 	if(conection)
