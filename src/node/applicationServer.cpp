@@ -9,6 +9,7 @@
 #include "common/support.h"
 
 #include "appLib/messageType.h"
+#include "appLib/paymentData.h"
 
 namespace client
 {
@@ -39,6 +40,20 @@ CLocalSocket::handleInput()
 	int kind;
 
 	stream >> kind;
+
+	if ( kind == dims::CMessageKind::Expectations )
+	{
+		dims::CExpectationMessage expectationMessage;
+		stream >> expectationMessage;
+
+//		CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
+
+//		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
+	}
+//	else if()
+	{
+
+	}
 
 }
 /*

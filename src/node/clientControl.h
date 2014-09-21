@@ -24,7 +24,7 @@ struct CClientSignals
 	boost::signals2::signal<void ( unsigned int )> m_updateTotalBalance;
 	boost::signals2::signal<void ( CTransaction const & _transaction )> m_putTransactionIntoModel;
 	boost::signals2::signal<void ( uint256 const & _transaction )> m_updateTransactionInModel;
-
+//	boost::signals2::signal<void (  )> m_sendTransaction;
 };
 
 

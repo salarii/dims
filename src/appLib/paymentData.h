@@ -32,18 +32,31 @@ struct CLicenseData
 	std::vector<unsigned char> m_transactionStatusSignature;
 };
 
+template < class Message >
+struct CPackedMessage
+{
+	CPackedMessage( int _messageKind, Message const & _message ):m_messageKind( _messageKind ),m_message(_message)
+	{}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_messageKind);
+		READWRITE(m_message);
+	)
+
+	int m_messageKind;
+	Message m_message;
+};
+
 
 struct CExpectationMessage
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_messageKind);
 		READWRITE(m_privateKey);
 		READWRITE(m_trackers);
 		READWRITE(m_monitors);
 	)
-
-	int m_messageKind;
 	CPrivKey m_privateKey;
 	std::vector<CKeyID> m_trackers;
 	std::vector<CKeyID> m_monitors;
@@ -53,10 +66,8 @@ struct CErrorIndication
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_messageKind);
 		READWRITE(m_errorKind);
 	)
-	int m_messageKind;
 	int m_errorKind;
 };
 
@@ -64,12 +75,10 @@ struct CProofTransaction
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_messageKind);
 		READWRITE(m_trasaction);
 		READWRITE(m_transactionStatusSignature);
 	)
 
-	int m_messageKind;
 	CTransaction m_trasaction;
 	std::vector<unsigned char> m_transactionStatusSignature;
 };

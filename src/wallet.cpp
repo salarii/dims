@@ -1265,6 +1265,151 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 }
 
 bool
+CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CAvailableCoin > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason )
+{
+	std::vector<std::pair<CScript, int64_t> > vecSend;
+
+	int64_t total = 0;
+	BOOST_FOREACH( PAIRTYPE( CKeyID, int64_t ) const & _target, _outputs )
+	{
+		if (_target.second < 0)
+		{
+			strFailReason = _("Transaction amounts must be positive");
+			return false;
+		}
+		total += _target.second;
+		CScript scriptPubKey;
+		scriptPubKey.SetDestination( CTxDestination( _target.first ) );
+		vecSend.push_back( std::pair<CScript, int64_t>( scriptPubKey, _target.second ) );
+	}
+
+	if (vecSend.empty())
+	{
+		strFailReason = _("Transaction amounts must be positive");
+		return false;
+	}
+
+	int64_t trackerFee = _trackerStats.m_price * total;
+
+	if( trackerFee > _trackerStats.m_maxPrice )
+		trackerFee = _trackerStats.m_maxPrice;
+
+	if( trackerFee < _trackerStats.m_minPrice )
+		trackerFee = _trackerStats.m_minPrice;
+
+	{
+		CScript scriptPubKey;
+		scriptPubKey.SetDestination( CTxDestination( _trackerStats.m_key.GetID() ) );
+		vecSend.push_back( std::pair<CScript, int64_t>( scriptPubKey, trackerFee ) );
+	}
+
+	int64_t nValue = total + trackerFee;
+	{
+		LOCK2(cs_main, cs_wallet);
+		{
+			while (true)
+			{
+				wtxNew.vin.clear();
+				wtxNew.vout.clear();
+				wtxNew.fFromMe = true;
+
+				int64_t nTotalValue = nValue;
+				// vouts to the payees
+				BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
+				{
+					CTxOut txout(s.second, s.first);
+					wtxNew.vout.push_back(txout);
+				}
+
+				int64_t requestedValueIn = 0;
+				std::vector< CAvailableCoin > requestedSetCoins;
+
+				std::vector< CAvailableCoin >::const_iterator iterator = _coinsToUse.begin();
+
+				while( iterator != _coinsToUse.end() )
+				{
+					nTotalValue -= iterator->m_coin.nValue;
+					requestedValueIn += iterator->m_coin.nValue;
+
+					if ( nTotalValue <= 0 )
+					{
+						requestedSetCoins.push_back( *iterator );
+						nTotalValue = 0;
+						break;
+					}
+					iterator++;
+				}
+
+				int64_t nValueIn = 0;
+				std::vector< CAvailableCoin > setCoins;
+
+				if (!SelectCoins(nTotalValue, setCoins, nValueIn, 0))
+				{
+					strFailReason = _("Insufficient funds");
+					return false;
+				}
+
+				nValueIn += requestedValueIn;
+
+				setCoins.insert( setCoins.end(), requestedSetCoins.begin(), requestedSetCoins.end() );
+
+				int64_t nChange = nValueIn - nValue;
+//this  I will fix later
+				if (nChange > 0)
+				{
+					// Fill a vout to ourself
+					// TODO: pass in scriptChange instead of reservekey so
+					// change transaction isn't always pay-to-bitcoin-address
+					CScript scriptChange;
+
+					CKeyID keyId;
+					if ( !determineChangeAddress( setCoins, keyId ) )
+						return false;
+					scriptChange.SetDestination(keyId);
+
+					CTxOut newTxOut(nChange, scriptChange);
+
+				  // Insert change txn at random position:
+				  vector<CTxOut>::iterator position = wtxNew.vout.begin()+GetRandInt(wtxNew.vout.size()+1);
+				  wtxNew.vout.insert(position, newTxOut);
+
+				}
+
+				// Fill vin
+				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
+					wtxNew.vin.push_back(CTxIn(coin.m_hash,coin.m_position));
+
+				// Sign
+				int nIn = 0;
+				BOOST_FOREACH(CAvailableCoin const & coin, setCoins)
+				if (!SignSignature(*this, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
+				{
+						strFailReason = _("Signing transaction failed");
+						return false;
+				}
+
+				// Limit size
+				unsigned int nBytes = ::GetSerializeSize(*(CTransaction*)&wtxNew, SER_NETWORK, PROTOCOL_VERSION);
+				if (nBytes >= MAX_STANDARD_TX_SIZE)
+				{
+					strFailReason = _("Transaction too large");
+					return false;
+				}
+
+			/*
+			// don't know  what for is logic below
+
+				wtxNew.AddSupportingTransactions();
+				wtxNew.fTimeReceivedIsTxTime = true;
+			*/
+				break;
+			}
+		}
+	}
+	return true;
+}
+
+bool
 CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
 					   CWalletTx& wtxNew, std::string& strFailReason, const CCoinControl *coinControl )
 {

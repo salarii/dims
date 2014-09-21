@@ -23,11 +23,39 @@ using namespace common;
 namespace client
 {
 
-struct CCheckTransactionStatus;
+struct CServiceByTrackerEvent : boost::statechart::event< CServiceByTrackerEvent >
+{
+	CServiceByTrackerEvent( CKeyID const & _keyId ):m_keyId( _keyId ) {}
+	CKeyID const m_keyId;
+};
 
+struct CResolveByMonitorEvent : boost::statechart::event< CResolveByMonitorEvent >
+{
+};
 
+struct CResolveByMonitor : boost::statechart::state< CPrepareAndSendTransaction, CResolveByMonitor >
+{
+};
 
-struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTransaction, CPayLocalApplicationAction >
+struct CServiceByTracker : boost::statechart::state< CPrepareAndSendTransaction, CServiceByTracker >
+{
+	CServiceByTracker( my_context ctx ) : my_base( ctx )
+	{
+		CServiceByTrackerEvent const* serviceByTrackerEvent = dynamic_cast< CServiceByTrackerEvent const* >( simple_state::triggering_event() );
+		serviceByTrackerEvent
+	}
+
+};
+
+struct CCheckAppData : boost::statechart::state< CPrepareAndSendTransaction, CCheckAppData >
+{
+	CCheckAppData( my_context ctx ) : my_base( ctx )
+	{
+	}
+
+};
+
+struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTransaction, CPrepareAndSendTransaction >
 {
 	CPrepareAndSendTransaction( my_context ctx ) : my_base( ctx )
 	{
@@ -102,12 +130,27 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	> reactions;
 };
 
-CPayLocalApplicationAction::CPayLocalApplicationAction( const CTransaction & _transaction )
+CPayLocalApplicationAction::CPayLocalApplicationAction( CPrivKey const & _privateKey, std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors )
 	: CAction()
-	, m_transaction( _transaction )
-	, m_actionStatus( common::ActionStatus::Unprepared )
+	, m_privateKey(_privateKey)
+	, m_trackers( _trackers )
+	, m_monitors( _monitors )
 {
 	initiate();
+
+	std::vector<CKeyID>::const_iterator iterator = m_trackers.begin();
+
+	while( iterator != m_trackers.end() )
+	{
+		process_event(  );
+	}
+
+	iterator = m_monitors.begin();
+
+	while( iterator != m_monitors.end() )
+	{
+		process_event(  );
+	}
 }
 
 void
@@ -157,6 +200,24 @@ uint256
 CPayLocalApplicationAction::getValidatedTransactionHash() const
 {
 	return m_validatedTransactionHash;
+}
+
+CPrivKey
+CPayLocalApplicationAction::getPrivAppKey() const
+{
+	return m_privateKey;
+}
+
+std::vector<CKeyID> const &
+CPayLocalApplicationAction::getTrackers() const
+{
+	return m_trackers;
+}
+
+std::vector<CKeyID> const &
+CPayLocalApplicationAction::getMonitors() const
+{
+	return m_monitors;
 }
 
 CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium )

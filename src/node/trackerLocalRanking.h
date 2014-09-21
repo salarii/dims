@@ -70,6 +70,10 @@ public:
 	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber );
 
 	common::CMedium< NodeResponses > * getSpecificTracker( uintptr_t _trackerPtr ) const;
+
+	bool isValidMonitorKnown( CKeyID const & _monitorId );
+
+	bool isValidTrackerKnown( CKeyID const & _monitorId );
 private:
 	CTrackerLocalRanking();
 

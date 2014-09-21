@@ -2,6 +2,8 @@
 #define CLIENT_RESPONSES_H
 
 #include <boost/statechart/event.hpp>
+#include "key.h"
+
 #include "protocol.h"
 
 namespace client
@@ -12,6 +14,7 @@ struct CDnsInfo : boost::statechart::event< CDnsInfo >
 	CDnsInfo( std::vector<CAddress> const & _addresses ):m_addresses( _addresses ){}
 	vector<CAddress> m_addresses;
 };
+
 
 }
 

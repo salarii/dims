@@ -23,6 +23,8 @@
 #include <utility>
 #include <vector>
 
+#include "common/requestResponse.h"
+
 // Settings
 extern int64_t nTransactionFee;
 extern bool bSpendZeroConfChange;
@@ -259,6 +261,8 @@ public:
     int64_t GetUnconfirmedBalance() const;
     int64_t GetImmatureBalance() const;
 	bool determineChangeAddress( std::vector< CAvailableCoin > const & _coinsForTransaction, CKeyID & _keyId );
+
+	bool CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CAvailableCoin > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
 	//create transaction from outputs, this may be dead end but I will follow it anyway
 	bool CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
 						   CWalletTx& wtxNew, std::string& strFailReason, const CCoinControl *coinControl = NULL);

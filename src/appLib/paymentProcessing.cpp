@@ -197,10 +197,7 @@ CPaymentProcessing::createHardwareKey( std::vector< unsigned char > const & _har
 void
 CPaymentProcessing::executeDialog( CAppClient & _appClient )
 {
-
 	CExpectationMessage expectationMessage;
-
-	expectationMessage.m_messageKind = CMessageKind::Expectations;
 
 	expectationMessage.m_privateKey = m_licenseData.m_privateKey;
 
@@ -208,12 +205,15 @@ CPaymentProcessing::executeDialog( CAppClient & _appClient )
 
 	expectationMessage.m_trackers = convertToKeyId( PossibleTrackers );
 
+	CPackedMessage< CExpectationMessage > message( CMessageKind::Expectations, expectationMessage );
+
 	size_t size;
-	char * messageBuffer = createMessage( expectationMessage, size );
+	char * messageBuffer = createMessage( message, size );
 
 	_appClient.send( QByteArray::fromRawData( messageBuffer, size ) );
 
 	delete messageBuffer;
+
 }
 
 

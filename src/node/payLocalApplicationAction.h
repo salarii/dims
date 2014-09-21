@@ -26,12 +26,12 @@ class CSetResponseVisitor;
 namespace client
 {
 
-struct CPrepareAndSendTransaction;
+struct CCheckAppData;
 
-class CPayLocalApplicationAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CPayLocalApplicationAction, CPrepareAndSendTransaction >
+class CPayLocalApplicationAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CPayLocalApplicationAction, CCheckAppData >
 {
 public:
-	CPayLocalApplicationAction( const CTransaction & _Transaction );
+	CPayLocalApplicationAction( CPrivKey const & m_privateKey, std::vector<CKeyID> const & m_trackers, std::vector<CKeyID> const & m_monitors );
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
@@ -48,10 +48,18 @@ public:
 	void setValidatedTransactionHash( uint256 _hash );
 
 	uint256 getValidatedTransactionHash() const;
-private:
-	CTransaction m_transaction;
 
-	common::ActionStatus::Enum m_actionStatus;
+	CPrivKey getPrivAppKey() const;
+
+	std::vector<CKeyID> const & getTrackers() const;
+
+	std::vector<CKeyID> const & getMonitors() const;
+private:
+	CPrivKey m_privateKey;
+
+	std::vector<CKeyID> m_trackers;
+
+	std::vector<CKeyID> m_monitors;
 
 	common::CRequest< NodeResponses > * m_request;
 
