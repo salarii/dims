@@ -14,11 +14,16 @@ class CAppClient : public QObject
 {
 	Q_OBJECT
 public:
-	CAppClient( QString const & _dimsClient );
+	CAppClient();
 	~CAppClient();
 
-signals:
-	void send();
+	void connectServer();
+
+	bool isOpen();
+
+	void send( QByteArray const & _message );
+private slots:
+	void what(QLocalSocket::LocalSocketError);
 	void readSocket();
 	void discardSocket();
 private:

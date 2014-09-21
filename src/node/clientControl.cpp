@@ -17,6 +17,8 @@
 
 #include "ui_interface.h"
 
+#include "applicationServer.h"
+
 namespace client
 {
 CClientControl * CClientControl::ms_instance = 0;
@@ -27,6 +29,7 @@ struct CUninitiatedClient : boost::statechart::simple_state< CUninitiatedClient,
 {
 	CUninitiatedClient()
 	{
+		CLocalServer::getInstance();
 		common::CActionHandler< client::NodeResponses >::getInstance()->executeAction( new CConnectAction() );
 	}
 

@@ -5,17 +5,16 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 
-#include "paymentData.h"
 #include "paymentProcessing.h"
+#include "messageType.h"
+#include "appClient.h"
 
 #include "util.h"
 
+#include "base58.h"
+
 namespace dims
 {
-
-extern CKeyID authorId;
-
-extern int Value;
 
 unsigned int const LicenseFileSize = 1024 * 2;
 bool
@@ -193,6 +192,65 @@ CPaymentProcessing::createHardwareKey( std::vector< unsigned char > const & _har
 	key.Set( &seed[0], &seed[ seed.size()-1 ], false );
 
 	return key;
+}
+
+void
+CPaymentProcessing::executeDialog( CAppClient & _appClient )
+{
+
+	CExpectationMessage expectationMessage;
+
+	expectationMessage.m_messageKind = CMessageKind::Expectations;
+
+	expectationMessage.m_privateKey = m_licenseData.m_privateKey;
+
+	expectationMessage.m_monitors = convertToKeyId( PossibleMonitors );
+
+	expectationMessage.m_trackers = convertToKeyId( PossibleTrackers );
+
+	size_t size;
+	char * messageBuffer = createMessage( expectationMessage, size );
+
+	_appClient.send( QByteArray::fromRawData( messageBuffer, size ) );
+
+	delete messageBuffer;
+}
+
+
+template < class Message >
+char *
+CPaymentProcessing::createMessage( Message const & _message, size_t & _size )
+{
+	size_t size = ::GetSerializeSize(_message, SER_NETWORK, PROTOCOL_VERSION);
+
+	char * buffer = new char[size];
+
+	CBufferAsStream stream(
+		  (char*)buffer
+		, size
+		, SER_NETWORK
+		, CLIENT_VERSION);
+
+	stream << _message;
+
+	_size = size;
+	return buffer;
+}
+
+std::vector<CKeyID>
+CPaymentProcessing::convertToKeyId( std::vector< std::string > const & _keys ) const
+{
+	std::vector<CKeyID> keyIds;
+	BOOST_FOREACH( std::string const & stringKey,_keys )
+	{
+		CBitcoinAddress bitcoinAddress(stringKey);
+
+		CKeyID keyId;
+		if ( bitcoinAddress.GetKeyID(keyId) )
+			keyIds.push_back( keyId );
+	}
+
+	return keyIds;
 }
 
 CPaymentProcessing::HardwareKeys

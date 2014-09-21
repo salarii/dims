@@ -2,13 +2,18 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <boost/filesystem.hpp>
+
 #include "appClient.h"
+#include "messageType.h"
+
 #include <QDataStream>
+#include "util.h"
 
 namespace dims
 {
 
-CAppClient::CAppClient( QString const & _dimsClient )
+CAppClient::CAppClient()
 {
 	conection = new QLocalSocket(this);
 
@@ -16,7 +21,20 @@ CAppClient::CAppClient( QString const & _dimsClient )
 
 	connect(conection,SIGNAL(disconnected()),this,SLOT(discardSocket()));
 
-	conection->connectToServer( _dimsClient );
+	connect(conection,SIGNAL(error(QLocalSocket::LocalSocketError)),this,SLOT(what(QLocalSocket::LocalSocketError)));
+}
+
+void
+CAppClient::connectServer()
+{
+	conection->connectToServer( ServerName );
+}
+
+
+bool
+CAppClient::isOpen()
+{
+	conection->isOpen();
 }
 
 CAppClient::~CAppClient()
@@ -37,22 +55,26 @@ void CAppClient::readSocket()
 	}
 }
 
+void
+CAppClient::what(QLocalSocket::LocalSocketError _error )
+{
+}
+
 void CAppClient::discardSocket()
 {
 	conection->deleteLater();
 	conection = 0;
 }
 
-void CAppClient::send()
+void CAppClient::send( QByteArray const & _message )
 {
 	if(conection)
 	{
 		if(conection->isOpen())
 		{
-			QByteArray block;
-			QDataStream out(&block, QIODevice::WriteOnly);
-			out << QString( "pixi" );
-			conection->write(block);
+			size_t bytesWritten = conection->write(_message );
+			if ( bytesWritten== -1 )
+				assert(!"couldn't send anything");
 		}
 		else
 		{

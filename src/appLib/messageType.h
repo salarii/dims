@@ -6,11 +6,14 @@
 namespace dims
 {
 
-QString const ServerName = "DimsClient";
+QString const ServerName = "/tmp/dimsClient";
 
 struct CMessageKind
 {
-
+	enum Enum
+	{
+		Expectations
+	};
 };
 
 }

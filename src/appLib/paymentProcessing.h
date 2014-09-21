@@ -7,13 +7,24 @@
 
 #include "key.h"
 #include "hardwareInfo.h"
+#include "paymentData.h"
 
 // in theory slight changes in hardware are allowed
 namespace dims
 {
+class CAppClient;
 
 extern std::vector< unsigned char > const HardcodedSeed;
 
+extern std::vector< std::string > const PossibleMonitors;
+
+extern std::vector< std::string > const PossibleTrackers;
+
+extern CKeyID authorId;
+
+extern int Value;
+
+//  singleton ??
 class CPaymentProcessing
 {
 public:
@@ -35,7 +46,15 @@ public:
 	void createOrUpdateLicenseFile( CLicenseData const & _licenseData );
 
 	CKey getRandomKey() const;
+
+	void executeDialog( CAppClient & _appClient );
+
 private:
+	template < class Message >
+	char * createMessage( Message const & _message, size_t & _size );
+
+	std::vector<CKeyID> convertToKeyId( std::vector< std::string > const & _keys ) const;
+
 	bool verifyData( CLicenseData const & _licenseData );
 
 	bool analyseOutput( CTransaction const & _tx, CKeyID const & _authorId, int _value );
