@@ -17,6 +17,7 @@
 
 #include "configureNodeActionHadler.h"
 #include "serialize.h"
+#include "base58.h"
 
 using namespace common;
 
@@ -35,6 +36,8 @@ struct CResolveByMonitorEvent : boost::statechart::event< CResolveByMonitorEvent
 
 struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLocalApplicationAction >
 {
+	CResolveByMonitor( my_context ctx ) : my_base( ctx )
+	{}
 };
 
 struct CCheckTransactionStatus;
@@ -100,6 +103,10 @@ struct CCheckAppData : boost::statechart::state< CCheckAppData, CPayLocalApplica
 	{
 	}
 
+	typedef boost::mpl::list<
+	  boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >
+	, boost::statechart::transition< CResolveByMonitorEvent, CResolveByMonitor >
+	> reactions;
 };
 
 struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStatus, CPayLocalApplicationAction >
@@ -242,16 +249,20 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( CPrivKey const & _privat
 
 	std::vector<CKeyID>::const_iterator iterator = m_trackers.begin();
 
+	CTrackerLocalRanking::getInstance()->isValidTrackerKnown( CKeyID() );
+
 	while( iterator != m_trackers.end() )
 	{
-		process_event( CServiceByTrackerEvent( *iterator ) );
+		if ( CTrackerLocalRanking::getInstance()->isValidTrackerKnown( *iterator ) )
+			process_event( CServiceByTrackerEvent( *iterator ) );
 	}
 
 	iterator = m_monitors.begin();
 
 	while( iterator != m_monitors.end() )
 	{
-		process_event( CResolveByMonitorEvent() );
+		if ( CTrackerLocalRanking::getInstance()->isValidMonitorKnown( *iterator ) )
+			process_event( CResolveByMonitorEvent() );
 	}
 }
 
@@ -328,42 +339,6 @@ int64_t
 CPayLocalApplicationAction::getValue() const
 {
 	return m_value;
-}
-
-CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium )
-	: common::CRequest< NodeResponses >( _medium )
-	, m_transactionHash( _transactionHash )
-{
-}
-
-void
-CTransactionStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-common::CMediumFilter< NodeResponses > *
-CTransactionStatusRequest::getMediumFilter() const
-{
-	return common::CRequest< NodeResponses >::m_mediumFilter;
-}
-
-void
-CTransactionSendRequest::accept( CMedium< NodeResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< NodeResponses > * _medium )
-	: common::CRequest< NodeResponses >( _medium )
-	, m_transaction( _transaction )
-{
-}
-
-common::CMediumFilter< NodeResponses > *
-CTransactionSendRequest::getMediumFilter() const
-{
-	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
 }

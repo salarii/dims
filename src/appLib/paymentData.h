@@ -54,10 +54,14 @@ struct CExpectationMessage
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_privateKey);
+		READWRITE(m_targetId);
+		READWRITE(m_value);
 		READWRITE(m_trackers);
 		READWRITE(m_monitors);
 	)
 	CPrivKey m_privateKey;
+	CKeyID m_targetId;
+	int64_t m_value;
 	std::vector<CKeyID> m_trackers;
 	std::vector<CKeyID> m_monitors;
 };

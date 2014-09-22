@@ -37,19 +37,20 @@ public:
 public:
 	CPaymentProcessing(){};
 
-	bool licenseExist();
-
-	FILE* openLicenseFile();
-
-	bool readLicenseFileData( CLicenseData & _licenseData );
-
 	void createOrUpdateLicenseFile( CLicenseData const & _licenseData );
 
 	CKey getRandomKey() const;
 
 	void executeDialog( CAppClient & _appClient );
 
+	bool isLicenseValid();
 private:
+	bool readLicenseFileData();
+
+	FILE* openLicenseFile();
+
+	bool licenseExist();
+
 	template < class Message >
 	char * createMessage( Message const & _message, size_t & _size );
 

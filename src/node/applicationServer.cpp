@@ -11,6 +11,10 @@
 #include "appLib/messageType.h"
 #include "appLib/paymentData.h"
 
+#include "payLocalApplicationAction.h"
+
+#include "common/actionHandler.h"
+
 namespace client
 {
 
@@ -45,10 +49,10 @@ CLocalSocket::handleInput()
 	{
 		dims::CExpectationMessage expectationMessage;
 		stream >> expectationMessage;
+//common::convertToInt( m_localSocket );
+		common::CActionHandler< NodeResponses >::getInstance()->executeAction(
+					new CPayLocalApplicationAction( expectationMessage.m_privateKey, expectationMessage.m_targetId, expectationMessage.m_value, expectationMessage.m_trackers, expectationMessage.m_monitors ) );
 
-//		CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
-
-//		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
 	}
 //	else if()
 	{

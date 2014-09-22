@@ -41,7 +41,7 @@ CPaymentProcessing::openLicenseFile()
 }
 
 bool
-CPaymentProcessing::readLicenseFileData( CLicenseData & _licenseData )
+CPaymentProcessing::readLicenseFileData()
 {
 	if ( !licenseExist() )
 		return false;
@@ -53,7 +53,7 @@ CPaymentProcessing::readLicenseFileData( CLicenseData & _licenseData )
 
 	CBufferedFile licenseStream( license, 2*LicenseFileSize, LicenseFileSize, SER_NETWORK, CLIENT_VERSION);
 
-	licenseStream >> _licenseData;
+	licenseStream >> m_licenseData;
 
 	return true;
 }
@@ -171,7 +171,7 @@ CPaymentProcessing::generateKey()
 	}
 
 	CKey key;
-	key.Set( &seed[0], &seed[ seed.size()-1 ], false );
+	key.Set( &seed[0], &seed[ seed.size() ], false );
 
 	m_licenseData.m_privateKey = key.GetPrivKey();
 }
@@ -189,7 +189,7 @@ CPaymentProcessing::createHardwareKey( std::vector< unsigned char > const & _har
 
 	CKey key;
 
-	key.Set( &seed[0], &seed[ seed.size()-1 ], false );
+	key.Set( &seed[0], &seed[ seed.size() ], false );
 
 	return key;
 }
@@ -197,6 +197,8 @@ CPaymentProcessing::createHardwareKey( std::vector< unsigned char > const & _har
 void
 CPaymentProcessing::executeDialog( CAppClient & _appClient )
 {
+	generateKey();
+
 	CExpectationMessage expectationMessage;
 
 	expectationMessage.m_privateKey = m_licenseData.m_privateKey;
@@ -216,6 +218,20 @@ CPaymentProcessing::executeDialog( CAppClient & _appClient )
 
 }
 
+bool
+CPaymentProcessing::isLicenseValid()
+{
+	if ( !licenseExist() )
+		return false;
+
+	if ( !readLicenseFileData() )
+		return false;
+
+	if ( !verifyData( m_licenseData ) )
+		return false;
+
+	return true;
+}
 
 template < class Message >
 char *
@@ -243,10 +259,10 @@ CPaymentProcessing::convertToKeyId( std::vector< std::string > const & _keys ) c
 	std::vector<CKeyID> keyIds;
 	BOOST_FOREACH( std::string const & stringKey,_keys )
 	{
-		CBitcoinAddress bitcoinAddress(stringKey);
+		CNodeAddress nodeAddress(stringKey);
 
 		CKeyID keyId;
-		if ( bitcoinAddress.GetKeyID(keyId) )
+		if ( nodeAddress.GetKeyID(keyId) )
 			keyIds.push_back( keyId );
 	}
 

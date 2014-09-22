@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef CLIENTREQUESTS_H
-#define CLIENTREQUESTS_H
+#ifndef CLIENT_REQUESTS_H
+#define CLIENT_REQUESTS_H
 
 #include "configureNodeActionHadler.h"
 
@@ -43,4 +43,4 @@ public:
 
 }
 
-#endif // CLIENTREQUESTS_H
+#endif // CLIENT_REQUESTS_H

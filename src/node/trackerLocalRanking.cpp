@@ -4,6 +4,7 @@
 
 #include "trackerLocalRanking.h"
 #include "networkClient.h"
+
 namespace client
 {
 
@@ -163,6 +164,68 @@ CTrackerLocalRanking::getSpecificTracker( uintptr_t _trackerPtr ) const
 
 }
 
+bool
+CTrackerLocalRanking::isValidTrackerKnown( CKeyID const & _trackerId )
+{
+	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+	{
+		if ( trackerStats.m_key.GetID() == _trackerId )
+			return true;
+	}
+
+	return false;
+}
+
+bool
+CTrackerLocalRanking::getTrackerStats( CKeyID const & _trackerId, common::CTrackerStats & _trackerStats )
+{
+	if ( !isValidTrackerKnown( _trackerId ) )
+		return false;
+
+	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+	{
+		if ( trackerStats.m_key.GetID() == _trackerId )
+		{
+			_trackerStats = trackerStats;
+			return true;
+		}
+	}
+	assert( !"can't be here" );
+	return false;
+}
+
+bool
+CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > * _medium )
+{
+	if ( !isValidTrackerKnown( _trackerId ) )
+		return false;
+
+	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+	{
+		if ( trackerStats.m_key.GetID() == _trackerId )
+		{
+			assert( m_createdMediums.find( trackerStats.m_ip ) != m_createdMediums.end() );
+
+			_medium = m_createdMediums.find( trackerStats.m_ip )->second;
+			return true;
+		}
+	}
+
+	assert( !"can't be here" );
+	return false;
+}
+
+bool
+CTrackerLocalRanking::isValidMonitorKnown( CKeyID const & _monitorId )
+{
+	BOOST_FOREACH( PAIRTYPE( std::string, common::CNodeStats ) const & monitor, m_monitors )
+	{
+		if ( monitor.second.m_key.GetID() == _monitorId )
+			return true;
+	}
+
+	return false;
+}
 
 float
 CTrackerLocalRanking::getPrice()
