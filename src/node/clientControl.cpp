@@ -87,6 +87,12 @@ CClientControl::addTransactionToModel( CTransaction const & _transaction )
 	m_clientSignals.m_putTransactionIntoModel( _transaction );
 }
 
+void
+CClientControl::createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CAvailableCoin > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& _wtxNew, std::string& _strFailReason )
+{
+	m_clientSignals.m_createTransaction( _outputs, _coinsToUse, _trackerStats, _wtxNew, _strFailReason );
+}
+
 CClientSignals &
 CClientControl::acquireClientSignals()
 {

@@ -31,15 +31,13 @@ struct CCheckAppData;
 class CPayLocalApplicationAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CPayLocalApplicationAction, CCheckAppData >
 {
 public:
-	CPayLocalApplicationAction( CPrivKey const & m_privateKey, std::vector<CKeyID> const & m_trackers, std::vector<CKeyID> const & m_monitors );
+	CPayLocalApplicationAction( CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors );
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
 	common::CRequest< NodeResponses > * execute();
 
 	void setRequest( common::CRequest< NodeResponses > * _request );
-
-	CTransaction const & getTransaction() const;
 
 	void setProcessingTrackerPtr( 	uintptr_t _ptr );
 
@@ -54,8 +52,16 @@ public:
 	std::vector<CKeyID> const & getTrackers() const;
 
 	std::vector<CKeyID> const & getMonitors() const;
+
+	CKey getPrivKey() const;
+
+	int64_t getValue() const;
 private:
 	CPrivKey m_privateKey;
+
+	int64_t const m_value;
+
+	CKeyID m_targetKey;
 
 	std::vector<CKeyID> m_trackers;
 

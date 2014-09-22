@@ -263,6 +263,8 @@ TransactionTableModel::TransactionTableModel(CWallet* wallet, WalletModel *paren
     connect(walletModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
 	client::CClientControl::getInstance()->acquireClientSignals().m_putTransactionIntoModel.connect( boost::bind( &TransactionTableModel::includeTransaction, this, _1 ) );
+	client::CClientControl::getInstance()->acquireClientSignals().m_createTransaction.connect( boost::bind( &CWallet::CreateTransaction, wallet, _1, _2, _3, _4, _5 ) );
+
 }
 
 TransactionTableModel::~TransactionTableModel()

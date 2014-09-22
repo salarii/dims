@@ -351,6 +351,52 @@ public:
     }
 };
 
+class CNodeAddress : public CBase58Data
+{
+public:
+	bool Set(const CKeyID &_id, common::NodePrefix::Enum _nodePrefix ) {
+		SetData( common::dimsParams().getNodePrefix( _nodePrefix ), &_id, 20);
+		return true;
+	}
+
+	bool IsValid() const
+	{
+		bool fCorrectSize = vchData.size() == 20;
+		bool fKnownVersion = vchVersion == common::dimsParams().getNodePrefix( common::NodePrefix::Tracker ) ||
+							 vchVersion == common::dimsParams().getNodePrefix( common::NodePrefix::Monitor ) ||
+							 vchVersion == common::dimsParams().getNodePrefix( common::NodePrefix::Seed );
+
+		return fCorrectSize && fKnownVersion;
+	}
+
+	CNodeAddress()
+	: CBase58Data( 0 )
+	{
+	}
+
+	CNodeAddress(const std::string & _strAddress )
+	: CBase58Data( 0 )
+	{
+		SetString( _strAddress );
+	}
+
+	CNodeAddress(const char* pszAddress )
+	: CBase58Data( 0 )
+	{
+		SetString(pszAddress);
+	}
+
+	bool GetKeyID(CKeyID &keyID) const {
+		if (!IsValid() )
+			return false;
+		uint160 id;
+		memcpy(&id, &vchData[0], 20);
+		keyID = CKeyID(id);
+		return true;
+	}
+};
+
+
 bool inline CBitcoinAddressVisitor::operator()(const CKeyID &id) const         { return addr->Set(id); }
 bool inline CBitcoinAddressVisitor::operator()(const CScriptID &id) const      { return addr->Set(id); }
 bool inline CBitcoinAddressVisitor::operator()(const CNoDestination &id) const { return false; }

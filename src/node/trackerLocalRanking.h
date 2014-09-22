@@ -73,7 +73,11 @@ public:
 
 	bool isValidMonitorKnown( CKeyID const & _monitorId );
 
-	bool isValidTrackerKnown( CKeyID const & _monitorId );
+	bool isValidTrackerKnown( CKeyID const & _trackerId );
+
+	bool getTrackerStats( CKeyID const & _trackerId, common::CTrackerStats & _trackerStats );
+
+	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > * _medium );
 private:
 	CTrackerLocalRanking();
 

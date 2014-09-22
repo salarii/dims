@@ -60,26 +60,6 @@ private:
 	uint256 m_validatedTransactionHash;
 };
 
-struct CTransactionStatusRequest : public common::CRequest< NodeResponses >
-{
-public:
-	CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium );
-	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
-	uint256 m_transactionHash;
-};
-
-struct CTransactionSendRequest : public common::CRequest< NodeResponses >
-{
-public:
-	CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< NodeResponses > * _medium );
-	void accept( common::CMedium< NodeResponses > * _medium ) const;
-	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
-	CTransaction m_transaction;
-
-};
-
-
 }
 
 #endif // SEND_TRANSACTION_ACTION_H

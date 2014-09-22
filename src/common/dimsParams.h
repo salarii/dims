@@ -51,6 +51,17 @@ struct TargetType
 	};
 };
 
+struct NodePrefix
+{
+	enum Enum
+	{
+		  Tracker = 0
+		, Monitor
+		, Seed
+		, SizeOfEnum
+	};
+};
+
 
 class CDimsParams : public CNetworkParams
 {
@@ -71,7 +82,7 @@ public:
     virtual unsigned int getDefaultClientPort() const = 0;
 	static void setAppType( AppType::Enum const _appType ){ m_appType = _appType; }
 	static AppType::Enum getAppType(){ return m_appType; }
-
+	std::vector<unsigned char> const getNodePrefix( NodePrefix::Enum const _nodePrefix ) const{ return nodesPrefixes[ _nodePrefix ]; }
 protected:
 
 
@@ -103,7 +114,8 @@ protected:
     string strDataDir;
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
-    std::map< TargetType::Enum, std::string > m_defaultDirectory;
+	std::vector<unsigned char> nodesPrefixes[(int)NodePrefix::SizeOfEnum];
+	std::map< TargetType::Enum, std::string > m_defaultDirectory;
 	static AppType::Enum m_appType;
 
 };

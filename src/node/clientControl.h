@@ -9,6 +9,7 @@
 #include <boost/signals2.hpp>
 
 #include <vector>
+#include "wallet.h"
 
 class AddressTableModel;
 
@@ -24,7 +25,7 @@ struct CClientSignals
 	boost::signals2::signal<void ( unsigned int )> m_updateTotalBalance;
 	boost::signals2::signal<void ( CTransaction const & _transaction )> m_putTransactionIntoModel;
 	boost::signals2::signal<void ( uint256 const & _transaction )> m_updateTransactionInModel;
-//	boost::signals2::signal<void (  )> m_sendTransaction;
+	boost::signals2::signal<bool ( std::vector< std::pair< CKeyID, int64_t > > const &, std::vector< CAvailableCoin > const &, common::CTrackerStats const &,CWalletTx&, std::string&)> m_createTransaction;
 };
 
 
@@ -40,6 +41,8 @@ public:
 	void updateTotalBalance( int64_t _totalBalance );
 
 	void addTransactionToModel( CTransaction const & _transaction );
+
+	void createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CAvailableCoin > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
 
 	CClientSignals & acquireClientSignals();
 private:

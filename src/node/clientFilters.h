@@ -69,6 +69,28 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 	 std::set< uintptr_t > m_nodes;
 };
 
+struct CMediumByKeyFilter : public common::CMediumFilter< NodeResponses >
+{
+	CMediumByKeyFilter( CKeyID const & _keyId )
+		: m_keyId( _keyId )
+	{}
+
+	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
+	{
+
+		std::list< common::CMedium< NodeResponses > *> mediums;
+
+		common::CMedium< NodeResponses > * medium;
+
+		if ( _trackerLocalRanking->getSpecificTrackerMedium( m_keyId, medium ) )
+			mediums.push_back( medium );
+
+		return mediums;
+	}
+
+	CKeyID const m_keyId;
+};
+
 struct CMediumClassWithExceptionFilter : public common::CMediumFilter< NodeResponses >
 {
 	CMediumClassWithExceptionFilter( uintptr_t const & _exceptionPtr, int _mediumClass, int _mediumNumber = -1 )

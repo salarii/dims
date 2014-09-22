@@ -47,6 +47,9 @@ public:
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);//
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);//
 
+		nodesPrefixes[NodePrefix::Tracker] = list_of(65);
+		nodesPrefixes[NodePrefix::Monitor] = list_of(50);
+		nodesPrefixes[NodePrefix::Seed] = list_of(63);
 		// Convert the pnSeeds array into usable address objects.
 		for (unsigned int i = 0; i < ARRAYLEN(pnSeed); i++)
 		{
@@ -108,6 +111,10 @@ public:
 		base58Prefixes[SECRET_KEY]     = list_of(137);
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
+
+		nodesPrefixes[NodePrefix::Tracker] = list_of(127);
+		nodesPrefixes[NodePrefix::Monitor] = list_of(110);
+		nodesPrefixes[NodePrefix::Seed] = list_of(125);
 
 	}
 	virtual CNetworkParams::Network NetworkID() const { return CNetworkParams::TESTNET; }

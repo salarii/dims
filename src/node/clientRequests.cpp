@@ -28,4 +28,41 @@ CInfoRequestContinue::getMediumFilter() const
 }
 
 
+CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium )
+	: common::CRequest< NodeResponses >( _medium )
+	, m_transactionHash( _transactionHash )
+{
+}
+
+void
+CTransactionStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+common::CMediumFilter< NodeResponses > *
+CTransactionStatusRequest::getMediumFilter() const
+{
+	return common::CRequest< NodeResponses >::m_mediumFilter;
+}
+
+void
+CTransactionSendRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< NodeResponses > * _medium )
+	: common::CRequest< NodeResponses >( _medium )
+	, m_transaction( _transaction )
+{
+}
+
+common::CMediumFilter< NodeResponses > *
+CTransactionSendRequest::getMediumFilter() const
+{
+	return common::CRequest< NodeResponses >::m_mediumFilter;
+}
+
+
 }

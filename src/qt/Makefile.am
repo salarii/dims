@@ -145,6 +145,7 @@ CLIENT_H = \
   ../node/controlRequests.h \
   ../node/init.h \
   ../node/networkClient.h \
+  ../node/payLocalApplicationAction.h \
   ../node/requestRespond.h \
   ../node/seedProvider.h \
   ../node/sendInfoRequestAction.h \
@@ -164,6 +165,7 @@ CLIENT_CPP = \
   ../node/controlRequests.cpp \
   ../node/init.cpp \
   ../node/networkClient.cpp \
+  ../node/payLocalApplicationAction.cpp \
   ../node/sendTransactionAction.cpp \
   ../node/seedProvider.cpp \
   ../node/sendInfoRequestAction.cpp \
