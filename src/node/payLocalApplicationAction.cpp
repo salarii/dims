@@ -34,6 +34,32 @@ struct CResolveByMonitorEvent : boost::statechart::event< CResolveByMonitorEvent
 {
 };
 
+struct CIndicateErrorEvent : boost::statechart::event< CIndicateErrorEvent >
+{
+	CIndicateErrorEvent( int const _error ):m_error( _error ){}
+	int const m_error;
+};
+
+struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorCondition, CPayLocalApplicationAction >
+{
+	CIndicateErrorCondition( my_context ctx ) : my_base( ctx )
+	{
+		CIndicateErrorEvent const* indicateErrorEvent = dynamic_cast< CIndicateErrorEvent const* >( simple_state::triggering_event() );
+
+		context< CPayLocalApplicationAction >().setRequest( new CErrorForAppPaymentProcessing( (dims::CAppError::Enum)indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocked() ) ) );
+	}
+
+	boost::statechart::result react( common::CPending const & _pending )
+	{
+		context< CPayLocalApplicationAction >().setRequest( 0 );
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CPending >
+	> reactions;
+};
+
 struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLocalApplicationAction >
 {
 	CResolveByMonitor( my_context ctx ) : my_base( ctx )
@@ -104,7 +130,8 @@ struct CCheckAppData : boost::statechart::state< CCheckAppData, CPayLocalApplica
 	}
 
 	typedef boost::mpl::list<
-	  boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >
+	  boost::statechart::transition< CIndicateErrorEvent, CIndicateErrorCondition >
+	, boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >
 	, boost::statechart::transition< CResolveByMonitorEvent, CResolveByMonitor >
 	> reactions;
 };
@@ -237,8 +264,9 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 	> reactions;
 };
 
-CPayLocalApplicationAction::CPayLocalApplicationAction( CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors )
+CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socked, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors )
 	: CAction()
+	, m_socked( _socked )
 	, m_privateKey(_privateKey)
 	, m_value( _value )
 	, m_targetKey( _targetKey )
@@ -251,10 +279,18 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( CPrivKey const & _privat
 
 	CTrackerLocalRanking::getInstance()->isValidTrackerKnown( CKeyID() );
 
+	if ( !CClientControl::getInstance()->executePaymentMessageBox() )
+	{
+		process_event( CIndicateErrorEvent( dims::CAppError::RefusedByClient ) );
+		return;
+	}
+
 	while( iterator != m_trackers.end() )
 	{
 		if ( CTrackerLocalRanking::getInstance()->isValidTrackerKnown( *iterator ) )
+		{
 			process_event( CServiceByTrackerEvent( *iterator ) );
+		}
 	}
 
 	iterator = m_monitors.begin();
@@ -262,7 +298,9 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( CPrivKey const & _privat
 	while( iterator != m_monitors.end() )
 	{
 		if ( CTrackerLocalRanking::getInstance()->isValidMonitorKnown( *iterator ) )
+		{
 			process_event( CResolveByMonitorEvent() );
+		}
 	}
 }
 
@@ -339,6 +377,12 @@ int64_t
 CPayLocalApplicationAction::getValue() const
 {
 	return m_value;
+}
+
+uintptr_t
+CPayLocalApplicationAction::getSocked() const
+{
+	return m_socked;
 }
 
 }

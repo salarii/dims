@@ -64,5 +64,17 @@ CTransactionSendRequest::getMediumFilter() const
 	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
+CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< NodeResponses > * _mediumFlter )
+	: common::CRequest< NodeResponses >( _mediumFlter )
+	, m_error( _error )
+{
+
+}
+
+void
+CErrorForAppPaymentProcessing::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
 
 }

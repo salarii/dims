@@ -33,6 +33,9 @@ class CSendBalanceInfoAction;
 class CSendTransactionAction;
 
 class CConnectAction;
+
+class CPayLocalApplicationAction;
+
 }
 
 namespace monitor
@@ -93,6 +96,8 @@ public:
 	void visit( CAction< client::NodeResponses > & _action );
 
 	void visit( client::CSendBalanceInfoAction & _action );
+
+	void visit( client::CPayLocalApplicationAction & _action );
 private:
 
 	client::NodeResponses m_requestResponse;

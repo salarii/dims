@@ -5,12 +5,13 @@
 #include "common/setResponseVisitor.h"
 #include "common/requestResponse.h"
 #include "common/commonEvents.h"
+#include "common/responseVisitorInternal.h"
 
 #include "sendTransactionAction.h"
 #include "connectAction.h"
 #include "sendBalanceInfoAction.h"
-#include "common/responseVisitorInternal.h"
 #include "configureNodeActionHadler.h"
+#include "payLocalApplicationAction.h"
 
 #include "clientResponses.h"
 #include "clientEvents.h"
@@ -105,6 +106,18 @@ public:
 	}
 };
 
+class CSetPayLocalApplicationAction : public CResponseVisitorBase< client::CPayLocalApplicationAction, client::NodeResponseList >
+{
+public:
+	CSetPayLocalApplicationAction( client::CPayLocalApplicationAction * const _action ):CResponseVisitorBase< client::CPayLocalApplicationAction, client::NodeResponseList >( _action ){};
+
+	void operator()(CPending & _peding ) const
+	{
+		this->m_action->process_event( _peding );
+	}
+
+};
+
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )
 	:m_requestResponse( _requestRespond )
 {
@@ -129,9 +142,14 @@ CSetResponseVisitor< client::NodeResponses >::visit( client::CSendBalanceInfoAct
 }
 
 void
+CSetResponseVisitor< client::NodeResponses >::visit( client::CPayLocalApplicationAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< client::CPayLocalApplicationAction, client::NodeResponseList > const &)CSetPayLocalApplicationAction( &_action ), m_requestResponse );
+}
+
+void
 CSetResponseVisitor< client::NodeResponses >::visit( CAction< client::NodeResponses > & _action )
 {
 }
-
 
 }

@@ -19,6 +19,7 @@
 #include "node/configureNodeActionHadler.h"
 #include "node/trackerLocalRanking.h"
 #include "node/settingsConnectionProvider.h"
+#include "node/applicationServer.h"
 #include "common/periodicActionExecutor.h"
 
 #ifdef ENABLE_WALLET
@@ -252,7 +253,9 @@ void BitcoinCore::initialize()
 	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
 	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
- 
+
+	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
+
         if(rv)
         {
             /* Start a dummy RPC thread if no RPC thread is active yet

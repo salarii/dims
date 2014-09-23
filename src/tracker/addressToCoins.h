@@ -11,7 +11,7 @@
 namespace tracker
 {
 // probably the  weakest point of  it all
-
+// simplified  there will be  time to  fix  it
 struct CCoinsStats
 {
 	uint64_t nTransactions;
@@ -41,13 +41,13 @@ protected:
 
 	CAddressToCoinsDatabase(size_t _cacheSize, bool fMemory = false, bool fWipe = false);
 
-	bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount );
-	bool setCoinsAmount( uint160 const &_keyId, uint64_t const _amount);
-	bool getCoin(CKeyType const &_keyId, uint256 &coin);
-	bool setCoin(CKeyType const &_keyId, uint256 const &coin);
-	bool eraseCoin( uint256 const &_keyId );
-	bool haveCoin(CKeyType const &_keyId);
-	bool haveCoin(uint160 const &_keyId);
+	bool getCoinsAmount( uint160 const &_keyId, char unsigned _bucket, uint64_t & _amount );
+	bool setCoinsAmount( uint160 const &_keyId, char unsigned _bucket, uint64_t const _amount );
+	bool getCoin( CKeyType const &_keyId, char unsigned _bucket, uint256 & coins );
+	bool setCoin( CKeyType const &_keyId, char unsigned _bucket, uint256 const &coins );
+	bool eraseCoin( uint256 const &_keyId, char unsigned _bucket );
+	bool haveCoin( CKeyType const &_keyId, char unsigned _bucket );
+	bool haveCoin(uint160 const &_keyId, char unsigned _bucket );
 	template< class Batch >
 	bool batchWrite( Batch& _batchWrite );
 	bool GetStats(CCoinsStats &stats);
@@ -66,14 +66,17 @@ class CAddressToCoins : public CAddressToCoinsDatabase
 {
 public:
 	CAddressToCoins( size_t _cacheSize);
-	bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount);
+	//bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount);
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
-	bool getCoins( uint160 const &_keyId, std::map< uint256 , uint256 > &_coins );
+	//bool getCoins( uint160 const &_keyId, std::map< uint256 , uint256 > &_coins );
 	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
 	bool eraseCoin( uint160 const &_keyId, uint256 const & _coin );
 	bool batchWrite( std::multimap<uint160,uint256> const &mapCoins );
 
 	void clearView();
+private:
+	char unsigned getBucket( uint256 const & _coins );
+	int unsigned getBucketSize();
 };
 
 
@@ -82,7 +85,7 @@ class CAddressToCoinsViewCache
 protected:
     CAddressToCoins m_addressToCoins;
 
-    std::multimap<uint160,uint256> cacheCoins;
+	std::multimap<uint160,uint256> cacheCoins; //control numbers created??
 	std::multimap<uint160,uint256> insertCacheCoins;
 public:
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );

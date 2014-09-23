@@ -19,6 +19,8 @@
 
 #include "applicationServer.h"
 
+#include <QMessageBox>
+
 namespace client
 {
 CClientControl * CClientControl::ms_instance = 0;
@@ -97,6 +99,12 @@ CClientSignals &
 CClientControl::acquireClientSignals()
 {
 	return m_clientSignals;
+}
+
+bool
+CClientControl::executePaymentMessageBox()
+{
+	return m_clientSignals.m_messageboxPaymentRequest().get_value_or(0) == QMessageBox::Ok ? true : false;
 }
 
 CClientControl::CClientControl()

@@ -90,6 +90,10 @@ public:
 	virtual void add( VisitorParam( client::NodeRequestsList ,11 ) const * _request ){};
 	virtual void add( VisitorParam( client::NodeRequestsList ,12 ) const * _request ){};
 	virtual void add( VisitorParam( client::NodeRequestsList ,13 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,14 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,15 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,16 ) const * _request ){};
+	virtual void add( VisitorParam( client::NodeRequestsList ,17 ) const * _request ){};
 	virtual ~CMedium(){};
 };
 

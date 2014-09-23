@@ -9,6 +9,7 @@
 #include "configureNodeActionHadler.h"
 #include "settingsConnectionProvider.h"
 #include "trackerLocalRanking.h"
+#include "applicationServer.h"
 
 namespace  client
 {
@@ -66,6 +67,23 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 		}
 		return mediums;
 	}
+
+	std::list< common::CMedium< NodeResponses > *> getMediums( CLocalServer * _localServer )const
+	{
+
+		std::list< common::CMedium< NodeResponses > *> mediums;
+
+		CLocalSocket * localSocket;
+
+		BOOST_FOREACH( uintptr_t nodePtr , m_nodes )
+		{
+			if ( CLocalServer::getInstance()->getSocked( nodePtr, localSocket ) )
+				mediums.push_back( localSocket );
+		}
+		return mediums;
+	}
+
+
 	 std::set< uintptr_t > m_nodes;
 };
 

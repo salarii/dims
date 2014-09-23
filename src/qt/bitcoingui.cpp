@@ -2,6 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "node/clientControl.h"
+
 #include "bitcoingui.h"
 
 #include "dimsUnits.h"
@@ -191,6 +193,8 @@ BitcoinGUI::BitcoinGUI(bool fIsTestnet, QWidget *parent) :
 
     // Subscribe to notifications from core
     subscribeToCoreSignals();
+
+	client::CClientControl::getInstance()->acquireClientSignals().m_messageboxPaymentRequest.connect( boost::bind(&BitcoinGUI::handlePaymentRequest, this ) );
 }
 
 BitcoinGUI::~BitcoinGUI()
@@ -862,6 +866,17 @@ void BitcoinGUI::detectShutdown()
     {
         qApp->quit();
     }
+}
+
+int
+BitcoinGUI::handlePaymentRequest()
+{
+	QMessageBox msgBox;
+	msgBox.setText("Application send payment request");
+	msgBox.setInformativeText("Do you want to service request?");
+	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+	msgBox.setDefaultButton(QMessageBox::Ok);
+	return msgBox.exec();
 }
 
 static bool ThreadSafeMessageBox(BitcoinGUI *gui, const std::string& message, const std::string& caption, unsigned int style)

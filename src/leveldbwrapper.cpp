@@ -68,6 +68,7 @@ CLevelDBWrapper::clear()
 {
 	if ( pdb )
 		delete pdb;
+	leveldb::DestroyDB(usedPath.string(), options);
 	leveldb::Status status = leveldb::DB::Open(options, usedPath.string(), &pdb);
 	HandleError(status);
 	LogPrintf("Cleared LevelDB successfully\n");

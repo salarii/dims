@@ -9,6 +9,8 @@
 #include <QLocalSocket>
 
 #include "common/medium.h"
+#include "common/connectionProvider.h"
+
 #include "configureNodeActionHadler.h"
 
 namespace client
@@ -23,6 +25,8 @@ public:
 
 	bool serviced() const throw(common::CMediumException);
 
+	void add( CErrorForAppPaymentProcessing const * _request );
+
 	bool flush();
 
 	void handleInput();
@@ -34,16 +38,22 @@ public:
 	QLocalSocket * getSocket() const;
 protected:
 	QLocalSocket * m_localSocket;
+
+	std::vector< NodeResponses > m_nodeResponses;
 };
 
 
-class CLocalServer :  public QObject
+class CLocalServer :  public QObject, public common::CConnectionProvider< NodeResponses >
 {
 	Q_OBJECT
 public:
 	~CLocalServer();
 
+	std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
+
 	static CLocalServer* getInstance();
+
+	bool getSocked( uintptr_t _ptr, CLocalSocket *& _localSocket ) const;
 private slots:
 
 	void newConnection();

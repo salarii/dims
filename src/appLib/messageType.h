@@ -16,5 +16,15 @@ struct CMessageKind
 	};
 };
 
+struct CAppError
+{
+	enum Enum
+	{
+		  RefusedByClient
+		, NotEnoughFunds
+	};
+};
+
+
 }
 #endif // MESSAGE_TYPE_H

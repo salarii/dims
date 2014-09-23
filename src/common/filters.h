@@ -31,7 +31,7 @@ class CSettingsConnectionProvider;
 
 class CTrackerLocalRanking;
 
-
+class CLocalServer;
 }
 
 namespace monitor
@@ -69,7 +69,7 @@ struct CMediumFilter< tracker::TrackerResponses > : public CMediumFilterBase< tr
 };
 
 template <>
-struct CMediumFilter< client::NodeResponses > : public CMediumFilterBase< client::NodeResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking >
+struct CMediumFilter< client::NodeResponses > : public CMediumFilterBase< client::NodeResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking, client::CLocalServer >
 {
 };
 

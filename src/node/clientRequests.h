@@ -8,7 +8,7 @@
 #include "configureNodeActionHadler.h"
 
 #include "common/request.h"
-
+#include "appLib/messageType.h"
 namespace client
 {
 
@@ -38,8 +38,16 @@ public:
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 	CTransaction m_transaction;
-
 };
+
+struct CErrorForAppPaymentProcessing : public common::CRequest< NodeResponses >
+{
+public:
+	CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< NodeResponses > * _medium );
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
+	int m_error;
+};
+
 
 }
 
