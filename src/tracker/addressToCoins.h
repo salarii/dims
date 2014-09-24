@@ -11,7 +11,7 @@
 namespace tracker
 {
 // probably the  weakest point of  it all
-// simplified  there will be  time to  fix  it
+// there will be  time to  fix  it
 struct CCoinsStats
 {
 	uint64_t nTransactions;
@@ -25,12 +25,19 @@ struct CCoinsStats
 
 struct CKeyType : public uint256
 {
+	CKeyType(){}
+
 	CKeyType( uint160 const & _key )
 	{
 		uint256 temp;
 		temp = _key;
 		temp <<= 96;
 		((uint256 &)*this) = temp;
+	}
+
+	CKeyType( uint256 const & _key )
+	{
+		(uint256&)*this = _key;
 	}
 };
 
@@ -43,6 +50,7 @@ protected:
 
 	bool getCoinsAmount( uint160 const &_keyId, char unsigned _bucket, uint64_t & _amount );
 	bool setCoinsAmount( uint160 const &_keyId, char unsigned _bucket, uint64_t const _amount );
+	bool haveCoinAmount( uint160 const &_keyId, char unsigned _bucket );
 	bool getCoin( CKeyType const &_keyId, char unsigned _bucket, uint256 & coins );
 	bool setCoin( CKeyType const &_keyId, char unsigned _bucket, uint256 const &coins );
 	bool eraseCoin( uint256 const &_keyId, char unsigned _bucket );
@@ -66,7 +74,7 @@ class CAddressToCoins : public CAddressToCoinsDatabase
 {
 public:
 	CAddressToCoins( size_t _cacheSize);
-	//bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount);
+	bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount);
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
 	//bool getCoins( uint160 const &_keyId, std::map< uint256 , uint256 > &_coins );
 	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
@@ -85,8 +93,8 @@ class CAddressToCoinsViewCache
 protected:
     CAddressToCoins m_addressToCoins;
 
-	std::multimap<uint160,uint256> cacheCoins; //control numbers created??
-	std::multimap<uint160,uint256> insertCacheCoins;
+	std::multimap<uint160,uint256> m_cacheCoins; //control numbers created??
+	std::multimap<uint160,uint256> m_insertCacheCoins;
 public:
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
 	bool setCoins( uint160 const &_keyId, uint256 const & _coin );// flush is required after this

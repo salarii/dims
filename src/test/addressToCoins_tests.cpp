@@ -46,7 +46,9 @@ substractVectors( std::vector<uint256> const & _a, std::vector<uint256> const & 
 	return temp;
 }
 
-std::vector<uint256> coins1 = boost::assign::list_of(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)(11)(12)(13);
+std::vector<uint256> coins1 = boost::assign::list_of(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)(11)(12)(13)(3)(4)(257)(258);
+
+std::vector<uint256> coins1Check = boost::assign::list_of(1)(257)(2)(258)(3)(4)(5)(6)(7)(8)(9)(10)(11)(12)(13);
 
 std::vector<uint256> coins2 = std::vector<uint256>( coins1.begin(), coins1.begin() + 5 );
 
@@ -88,7 +90,7 @@ BOOST_AUTO_TEST_CASE( basics )
 	std::vector<uint256> checkCoins;
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
-	BOOST_CHECK( checkCoins == coins1 );
+	BOOST_CHECK( checkCoins == coins1Check );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
 	BOOST_CHECK( checkCoins == coins2 );

@@ -46,6 +46,12 @@ CAddressToCoinsDatabase::setCoinsAmount( uint160 const &_keyId, char unsigned _b
 }
 
 bool
+CAddressToCoinsDatabase::haveCoinAmount( uint160 const &_keyId, char unsigned _bucket )
+{
+	return db.Exists( std::make_pair( _bucket, _keyId ) );
+}
+
+bool
 CAddressToCoinsDatabase::getCoin( CKeyType const &_keyId, char unsigned _bucket, uint256 &coins )
 {
 	return db.Read( std::make_pair( _bucket, _keyId ), coins );
@@ -86,56 +92,64 @@ CAddressToCoins::CAddressToCoins( size_t _cacheSize)
 {
 
 }
-/*
+
 bool CAddressToCoins::getCoinsAmount( uint160 const &_keyId, uint64_t & _amount )
 {
 	_amount = 0;
+
+	uint64_t tmp = 0;
 	CKeyType key( _keyId );
 
-	if ( !haveCoin(_keyId) )
-		return false;
-
-	uint64_t potential;
-//	if ( !CAddressToCoinsDatabase::getCoinsAmount( _keyId, potential ) )
-		return false;
-
-	while( potential-- )
+	for ( int unsigned bucket = 0; bucket < getBucketSize() ; ++bucket )
 	{
-		uint256 coin;
-//		if ( haveCoin((CKeyType&)++key) )
+		if ( !haveCoinAmount( _keyId, bucket ) )
+			continue;
+
+		if ( !CAddressToCoinsDatabase::getCoinsAmount( _keyId, bucket, tmp ) )
+			return false;
+
+		if ( !tmp )
+			continue;
+
+		for ( uint64_t id = 0; id < tmp; ++id )
 		{
-			_amount++;
+			if ( haveCoin(key + id, bucket ) )
+				_amount++;
 		}
 	}
+
 	return true;
 }
-*/
+
 bool
 CAddressToCoins::getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins )
 {
+	uint64_t tmp = 0;
 	CKeyType key( _keyId );
-	uint64_t amount;
 
-	for ( int unsigned i = 0; i < getBucketSize() ; ++i )
+	for ( int unsigned bucket = 0; bucket < getBucketSize() ; ++bucket )
 	{
-		if ( !haveCoin( _keyId, i ) )
+		if ( !haveCoinAmount( _keyId, bucket ) )
 			continue;
 
-		if ( !getCoinsAmount(_keyId, i, amount) )
+		if ( !CAddressToCoinsDatabase::getCoinsAmount( _keyId, bucket, tmp ) )
+			return false;
+
+		if ( !tmp )
 			continue;
 
-		while( amount-- )
+		for ( uint64_t id = 0; id < tmp; ++id )
 		{
-			uint256 coin;
-			if ( haveCoin((CKeyType&)key, i ) )
+			CKeyType tmpKey = key + id;
+
+			if ( haveCoin( tmpKey, bucket ) )
 			{
-				getCoin( key, i,coin );
+				uint256 coin;
+				getCoin( tmpKey, bucket,coin );
 				_coins.push_back( coin );
-				key++;
 			}
 		}
 	}
-
 	return true;
 }
 
@@ -225,30 +239,56 @@ CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 		uint64_t amount = 0;
 		CKeyType key( iterator->first );
 
-		char unsigned bucket = getBucket( iterator->second );
-
-		getCoinsAmount( iterator->first, bucket, amount );
-
+		std::map< unsigned char, uint64_t > amounts;
+		std::map< unsigned char, uint64_t >::const_iterator amountIterator;
+		std::map< std::pair< uint256, unsigned char >, uint256 > m_recentlyIncluded;
 		while( iterator != end )
 		{
+			char unsigned bucket = getBucket( iterator->second );
+
+			amountIterator = amounts.find( bucket );
+			if ( amountIterator != amounts.end() )
+				amount =amountIterator->second;
+			else
+			{
+				if ( !CAddressToCoinsDatabase::getCoinsAmount( iterator->first, bucket, amount ) )
+					amount = 0;
+			}
 			int empty = -1;
 
 			bool include = true;
-			for ( int unsigned i = 0; amount < i ; ++i )
+			for ( int unsigned i = 0; i < amount ; ++i )
 			{
-				if( haveCoin( key, bucket ) )
+				CKeyType tmpKey = key + i;
+
+				std::map< std::pair< uint256, unsigned char >, uint256 >::const_iterator recentIterator =
+						m_recentlyIncluded.find( std::make_pair( tmpKey, bucket ) );
+
+				if ( recentIterator != m_recentlyIncluded.end() )
+				{
+					if ( recentIterator->second == iterator->second )
+					{
+						include = false;
+						break;
+					}
+
+				}
+				else if( !haveCoin( tmpKey, bucket ) )
 				{
 					empty = i;
 				}
 				else
 				{
 					uint256 coin;
-					//		if( getCoins( key, bucket, coin ) )
+					if( getCoin( tmpKey, bucket, coin ) )
 					{
-						if ( coin == iterator->second  )
+						if ( coin == iterator->second )
+						{
 							include = false;
+							break;
+						}
 					}
-					//else
+					else
 					{
 						assert( !"can't get present coins" );
 					}
@@ -257,19 +297,27 @@ CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 
 			if ( include )
 			{
+				CKeyType tmpKey;
+
 				if ( empty != -1 )
 				{
 					//					coinsBatch.insert( key + empty, bucket, iterator->second );
 				}
 				else
 				{
-					coinsBatch.insert( key + amount, bucket, iterator->second );
+					tmpKey = key + amount;
+					coinsBatch.insert( tmpKey, bucket, iterator->second );
 					amount++;
-					iterator++;
 				}
+				m_recentlyIncluded.insert( std::make_pair(std::make_pair( tmpKey, bucket ), iterator->second ) );
+
+				amountBatch.insert( iterator->first, bucket, amount );
+				amounts.insert( std::make_pair( bucket, amount ) );
 			}
+
+			iterator++;
 		}
-		amountBatch.insert( iterator->first, bucket, amount );
+
 
 	}
 
@@ -317,7 +365,7 @@ bool CAddressToCoinsViewCache::getCoins( uint160 const &_keyId, std::vector< uin
 
 	std::map<uint160,uint256>::iterator it = fetchCoins(_keyId);
 
-	while(it != cacheCoins.end() && it->first == _keyId)
+	while( it != m_cacheCoins.upper_bound( _keyId ) )
 	{
 		_coins.push_back( it->second );
 		it++;
@@ -330,7 +378,7 @@ bool CAddressToCoinsViewCache::setCoins( uint160 const &_keyId, uint256 const & 
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
-	insertCacheCoins.insert( std::make_pair( _keyId, _coin ) );
+	m_insertCacheCoins.insert( std::make_pair( _keyId, _coin ) );
 	return true;
 }
 
@@ -338,58 +386,36 @@ bool CAddressToCoinsViewCache::haveCoins(const uint160 &txid)
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
-	return fetchCoins(txid) != cacheCoins.end();
+	return fetchCoins(txid) != m_cacheCoins.end();
 }
 
 std::map<uint160,uint256>::iterator
 CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 {
-	std::map<uint160,uint256>::iterator it = cacheCoins.lower_bound(_keyId);
+	std::map<uint160,uint256>::iterator it = m_cacheCoins.lower_bound(_keyId);
 
-	if ( it != cacheCoins.end() && it->first == _keyId )
+	// expect that if  cache  has it  cache is  right
+	if ( it != m_cacheCoins.end() && it->first == _keyId )
 	{
-		unsigned int distance = std::distance( it, cacheCoins.upper_bound(_keyId));
+		unsigned int distance = std::distance( it, m_cacheCoins.upper_bound(_keyId));
 
 		uint64_t amount;
+// slow  only for  debug purposses
+		{
+		assert( m_addressToCoins.getCoinsAmount( _keyId, amount ) );
 
-		//m_addressToCoins.getCoinsAmount( _keyId, amount );
-
-		if ( distance == amount )
+		assert( distance == amount );
 			return it;
-
-		if ( secondPass )//  ugly  way to indicate error
-			throw;
+		}
 	}
 	std::vector< uint256 > tmp;
 
-	if ( !m_addressToCoins.getCoins( _keyId, tmp ) )
-		return cacheCoins.end();
+	if ( !m_addressToCoins.getCoins( _keyId, tmp ) || tmp.empty() )
+		return m_cacheCoins.end();
 	
 	BOOST_FOREACH( uint256 & coin, tmp )
 	{
-		it = cacheCoins.lower_bound( _keyId );
-
-		if ( it == cacheCoins.end() )
-			cacheCoins.insert(it, std::make_pair(_keyId, coin));
-		else
-		{
-			bool insert = true;
-
-			std::map<uint160,uint256>::iterator upper = cacheCoins.upper_bound(_keyId);
-			while( it!= upper )
-			{
-				if ( it->second == coin )
-				{
-					insert =false;
-					break;
-				}
-
-				it++;
-			}
-
-			if ( insert )
-				cacheCoins.insert(it, std::make_pair(_keyId, coin));
-		}
+			m_cacheCoins.insert(std::make_pair(_keyId, coin));
 	}
 	return fetchCoins(_keyId, true);
 
@@ -400,10 +426,10 @@ CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId, uint256 const & _co
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
-	std::multimap<uint160,uint256>::iterator iterator = cacheCoins.find( _keyId );
+	std::multimap<uint160,uint256>::iterator iterator = m_cacheCoins.find( _keyId );
 
-	if ( iterator != cacheCoins.end() && iterator->second == _coin )
-		cacheCoins.erase( _keyId );
+	if ( iterator != m_cacheCoins.end() && iterator->second == _coin )
+		m_cacheCoins.erase( _keyId );
 
 	m_addressToCoins.eraseCoin( _keyId, _coin );
 	return true;
@@ -414,9 +440,9 @@ CAddressToCoinsViewCache::flush()
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
-	bool ok = m_addressToCoins.batchWrite( insertCacheCoins );
+	bool ok = m_addressToCoins.batchWrite( m_insertCacheCoins );
 	if (ok)
-		insertCacheCoins.clear();
+		m_insertCacheCoins.clear();
 	return ok;
 }
 
@@ -425,7 +451,8 @@ CAddressToCoinsViewCache::clearView()
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
-	insertCacheCoins.clear();
+	m_cacheCoins.clear();
+	m_insertCacheCoins.clear();
 	m_addressToCoins.clearView();
 }
 
