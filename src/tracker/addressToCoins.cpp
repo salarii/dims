@@ -354,7 +354,7 @@ CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 	std::map<uint160,uint256>::iterator it = m_cacheCoins.lower_bound(_keyId);
 
 	// expect that if  cache  has it  cache is  right
-	if ( it != m_cacheCoins.end() && it->first == _keyId )
+	if ( it != m_cacheCoins.upper_bound(_keyId) )
 	{
 		unsigned int distance = std::distance( it, m_cacheCoins.upper_bound(_keyId));
 
@@ -408,7 +408,7 @@ CAddressToCoinsViewCache::flush()
 
 	if (ok)
 	{
-		for( std::multimap<uint160,uint256>::const_iterator it = m_insertCacheCoins.begin(), end = m_insertCacheCoins.end(); it != end; it = m_insertCacheCoins.upper_bound( it->first ) )
+		for( std::multimap<uint160,uint256>::const_iterator it = m_insertCacheCoins.begin(), end = m_insertCacheCoins.end(); it != end;)
 		{
 			std::multimap<uint160,uint256>::const_iterator up = m_insertCacheCoins.upper_bound( it->first );
 			std::set< uint256 > alreadyUsed;
@@ -416,17 +416,16 @@ CAddressToCoinsViewCache::flush()
 			for( std::multimap<uint160,uint256>::const_iterator cacheIt = m_cacheCoins.lower_bound( it->first ), cacheEnd = m_cacheCoins.upper_bound( it->first ); cacheIt != cacheEnd; ++cacheIt )
 			{
 				alreadyUsed.insert( cacheIt->second );
-				it++;
-
 			}
 
-			while( ++it != up )
+			while( it != up )
 			{
 				if ( alreadyUsed.find( it->second ) == alreadyUsed.end() )
 				{
 					alreadyUsed.insert( it->second );
 					m_cacheCoins.insert( *it );
 				}
+				it++;
 			}
 		}
 

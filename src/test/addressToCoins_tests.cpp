@@ -48,7 +48,7 @@ substractVectors( std::vector<uint256> const & _a, std::vector<uint256> const & 
 
 std::vector<uint256> coins1 = boost::assign::list_of(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)(11)(12)(13)(3)(4)(257)(258);
 
-std::vector<uint256> coins1Check = boost::assign::list_of(1)(257)(2)(258)(3)(4)(5)(6)(7)(8)(9)(10)(11)(12)(13);
+std::vector<uint256> coins1Check = boost::assign::list_of(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)(11)(12)(13)(257)(258);
 
 std::vector<uint256> coins2 = std::vector<uint256>( coins1.begin(), coins1.begin() + 5 );
 
@@ -148,15 +148,30 @@ BOOST_AUTO_TEST_CASE( removal )
 	remove( keyId_3, remove3 );
 
 	std::vector<uint256> checkCoins;
-
+	std::vector<uint256> expectedResult;
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins1Check, remove1 ) );
+
+	expectedResult = substractVectors( coins1Check, remove1 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins2, remove2 ) );
+
+	expectedResult = substractVectors( coins2, remove2 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins3, remove3 ) );
+
+	expectedResult = substractVectors( coins3, remove3 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
 
 	// remove twice
 
@@ -165,24 +180,132 @@ BOOST_AUTO_TEST_CASE( removal )
 	remove( keyId_3, remove3 );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins1Check, remove1 ) );
+
+	expectedResult = substractVectors( coins1Check, remove1 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins2, remove2 ) );
+
+	expectedResult = substractVectors( coins2, remove2 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins3, remove3 ) );
+
+	expectedResult = substractVectors( coins3, remove3 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
 
 	//restore
 	initialSetup();
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
+
+	std::sort( checkCoins.begin(), checkCoins.end() );
+
 	BOOST_CHECK( checkCoins == coins1Check );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
+
+	std::sort( checkCoins.begin(), checkCoins.end() );
 	BOOST_CHECK( checkCoins == coins2 );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
+
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	BOOST_CHECK( checkCoins == coins3 );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
+}
+
+// the  same  no  cache, until  first  get  cache is not used, test it
+BOOST_AUTO_TEST_CASE( removalNocacheShort )
+{
+	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
+
+	initialSetup();
+
+	remove( keyId_1, remove1 );
+	remove( keyId_2, remove2 );
+	remove( keyId_3, remove3 );
+
+	// remove twice
+
+	remove( keyId_1, remove1 );
+	remove( keyId_2, remove2 );
+	remove( keyId_3, remove3 );
+
+	std::vector<uint256> checkCoins;
+	std::vector<uint256> expectedResult;
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
+
+	expectedResult = substractVectors( coins1Check, remove1 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
+
+	expectedResult = substractVectors( coins2, remove2 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
+
+	expectedResult = substractVectors( coins3, remove3 );
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	std::sort( expectedResult.begin(), expectedResult.end() );
+
+	BOOST_CHECK( checkCoins == expectedResult );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
+}
+
+BOOST_AUTO_TEST_CASE( removalNocacheLong )
+{
+	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
+
+	initialSetup();
+
+	remove( keyId_1, remove1 );
+	remove( keyId_2, remove2 );
+	remove( keyId_3, remove3 );
+
+	remove( keyId_1, remove1 );
+	remove( keyId_2, remove2 );
+	remove( keyId_3, remove3 );
+
+	//restore
+	initialSetup();
+
+	std::vector<uint256> checkCoins;
+	std::vector<uint256> expectedResult;
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
+
+	std::sort( checkCoins.begin(), checkCoins.end() );
+
+	BOOST_CHECK( checkCoins == coins1Check );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
+
+	std::sort( checkCoins.begin(), checkCoins.end() );
+	BOOST_CHECK( checkCoins == coins2 );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
+
+	std::sort( checkCoins.begin(), checkCoins.end() );
 	BOOST_CHECK( checkCoins == coins3 );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
