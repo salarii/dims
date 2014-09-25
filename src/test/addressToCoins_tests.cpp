@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( basics )
 	initialSetup();
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
-	BOOST_CHECK( checkCoins == coins1 );
+	BOOST_CHECK( checkCoins == coins1Check );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
 	BOOST_CHECK( checkCoins == coins2 );
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( basics )
 	BOOST_CHECK( !tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins ) );
 }
 
-std::vector<uint256> remove1 = boost::assign::list_of(1)(2)(3)(4)(6);
+std::vector<uint256> remove1 = boost::assign::list_of(2)(3)(4)(5)(6)(257)(900);
 
 std::vector<uint256> remove2 = std::vector<uint256>( coins1.begin()+1, coins1.begin() + 3 );
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( removal )
 	std::vector<uint256> checkCoins;
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins1, remove1 ) );
+	BOOST_CHECK( checkCoins == substractVectors( coins1Check, remove1 ) );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
 	BOOST_CHECK( checkCoins == substractVectors( coins2, remove2 ) );
@@ -165,13 +165,25 @@ BOOST_AUTO_TEST_CASE( removal )
 	remove( keyId_3, remove3 );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
-	BOOST_CHECK( checkCoins == substractVectors( coins1, remove1 ) );
+	BOOST_CHECK( checkCoins == substractVectors( coins1Check, remove1 ) );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
 	BOOST_CHECK( checkCoins == substractVectors( coins2, remove2 ) );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
 	BOOST_CHECK( checkCoins == substractVectors( coins3, remove3 ) );
+
+	//restore
+	initialSetup();
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
+	BOOST_CHECK( checkCoins == coins1Check );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
+	BOOST_CHECK( checkCoins == coins2 );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
+	BOOST_CHECK( checkCoins == coins3 );
 
 	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
 }

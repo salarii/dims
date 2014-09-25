@@ -157,73 +157,31 @@ typedef std::map< uint256, uint256 > KeyToCoins;
 
 bool CAddressToCoins::eraseCoin( uint160 const &_keyId, uint256 const & _coin )
 {
-	KeyToCoins keyToCoins;
-	//if ( !getCoins(_keyId, keyToCoins ) )
+	unsigned char bucket = getBucket( _coin );
+
+	if ( !haveCoinAmount( _keyId, bucket ) )
 		return false;
 
-	KeyToCoins::iterator iterator = keyToCoins.begin();
-
-	while( iterator != keyToCoins.end() )
-	{
-		if( iterator->second != _coin )
-		{
-			keyToCoins.erase(iterator++);
-		}
-		else
-		{
-			++iterator;
-		}
-	}
-
-
-	BOOST_FOREACH( KeyToCoins::value_type & coins, keyToCoins )
-	{
-//		CAddressToCoinsDatabase::eraseCoin( coins.first );
-	}
-	return true;
-}
-/*
-bool
-CAddressToCoins::getCoins( uint160 const &_keyId, std::map< uint256 , uint256 > &_coins )
-{
-	CKeyType key( _keyId );
 	uint64_t amount;
+	if ( !CAddressToCoinsDatabase::getCoinsAmount( _keyId, bucket, amount ) )
+		assert( "!database error" );
 
-	if ( !haveCoin(_keyId) )
-		return false;
-
-	//if ( !getCoinsAmount(_keyId, amount) )
-		return false;
-
-	while( amount-- )
+	for ( uint64_t id = 0; id < amount; ++id )
 	{
-		uint256 coin;
-//		if ( haveCoin((CKeyType&)++key) )
+		CKeyType tmpKey( _keyId );
+		tmpKey += id;
+
+		if ( haveCoin( tmpKey, bucket ) )
 		{
-//			getCoin( key, coin );
-			_coins.insert(std::make_pair( key, coin ) );
+			uint256 coin;
+			getCoin( tmpKey, bucket, coin );
+			if ( coin == _coin )
+			{
+				return CAddressToCoinsDatabase::eraseCoin( tmpKey, bucket );
+			}
 		}
 	}
-	return true;
-}
-*/
-bool
-CAddressToCoins::setCoins( uint160 const &_keyId, uint256 const & _coin )
-{
-	uint64_t amount;
-	//if ( !getCoinsAmount(_keyId, amount) )
-		amount = 0;
-
-//	if ( !setCoinsAmount(_keyId, ++amount ) )
-		return false;
-
-	CKeyType key( _keyId );
-//	if ( !setCoin((CKeyType &)++key, _coin ) )
-	{
-//		setCoinsAmount(_keyId, --amount );
-		return false;
-	}
-	return true;
+	return false;
 }
 
 bool
@@ -301,7 +259,8 @@ CAddressToCoins::batchWrite( std::multimap<uint160,uint256> const &mapCoins )
 
 				if ( empty != -1 )
 				{
-					//					coinsBatch.insert( key + empty, bucket, iterator->second );
+					tmpKey = key + empty;
+					coinsBatch.insert( tmpKey, bucket, iterator->second );
 				}
 				else
 				{
@@ -426,10 +385,15 @@ CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId, uint256 const & _co
 {
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
-	std::multimap<uint160,uint256>::iterator iterator = m_cacheCoins.find( _keyId );
+	std::multimap<uint160,uint256>::iterator iterator = m_cacheCoins.lower_bound( _keyId );
 
-	if ( iterator != m_cacheCoins.end() && iterator->second == _coin )
-		m_cacheCoins.erase( _keyId );
+	while( iterator != m_cacheCoins.upper_bound( _keyId ) )
+	{
+		if ( iterator->second == _coin )
+			m_cacheCoins.erase( _keyId );
+
+		iterator++;
+	}
 
 	m_addressToCoins.eraseCoin( _keyId, _coin );
 	return true;
@@ -441,8 +405,33 @@ CAddressToCoinsViewCache::flush()
 	boost::lock_guard<boost::mutex> lock( m_cacheLock );
 
 	bool ok = m_addressToCoins.batchWrite( m_insertCacheCoins );
+
 	if (ok)
+	{
+		for( std::multimap<uint160,uint256>::const_iterator it = m_insertCacheCoins.begin(), end = m_insertCacheCoins.end(); it != end; it = m_insertCacheCoins.upper_bound( it->first ) )
+		{
+			std::multimap<uint160,uint256>::const_iterator up = m_insertCacheCoins.upper_bound( it->first );
+			std::set< uint256 > alreadyUsed;
+
+			for( std::multimap<uint160,uint256>::const_iterator cacheIt = m_cacheCoins.lower_bound( it->first ), cacheEnd = m_cacheCoins.upper_bound( it->first ); cacheIt != cacheEnd; ++cacheIt )
+			{
+				alreadyUsed.insert( cacheIt->second );
+				it++;
+
+			}
+
+			while( ++it != up )
+			{
+				if ( alreadyUsed.find( it->second ) == alreadyUsed.end() )
+				{
+					alreadyUsed.insert( it->second );
+					m_cacheCoins.insert( *it );
+				}
+			}
+		}
+
 		m_insertCacheCoins.clear();
+	}
 	return ok;
 }
 

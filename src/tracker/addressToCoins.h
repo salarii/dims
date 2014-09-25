@@ -76,8 +76,6 @@ public:
 	CAddressToCoins( size_t _cacheSize);
 	bool getCoinsAmount( uint160 const &_keyId, uint64_t & _amount);
 	bool getCoins( uint160 const &_keyId, std::vector< uint256 > &_coins );
-	//bool getCoins( uint160 const &_keyId, std::map< uint256 , uint256 > &_coins );
-	bool setCoins( uint160 const &_keyId, uint256 const & _coin );
 	bool eraseCoin( uint160 const &_keyId, uint256 const & _coin );
 	bool batchWrite( std::multimap<uint160,uint256> const &mapCoins );
 
@@ -92,7 +90,7 @@ class CAddressToCoinsViewCache
 {
 protected:
     CAddressToCoins m_addressToCoins;
-
+// replace  this cache  multimap it is  inefficient
 	std::multimap<uint160,uint256> m_cacheCoins; //control numbers created??
 	std::multimap<uint160,uint256> m_insertCacheCoins;
 public:
