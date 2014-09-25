@@ -20,7 +20,7 @@ extern std::vector< std::string > const PossibleMonitors;
 
 extern std::vector< std::string > const PossibleTrackers;
 
-extern CKeyID authorId;
+extern std::string const AuthorId;
 
 extern int Value;
 

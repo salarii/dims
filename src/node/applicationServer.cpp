@@ -101,7 +101,9 @@ CLocalSocket::getResponse( std::vector< NodeResponses > & _requestResponse ) con
 void
 CLocalSocket::add( CErrorForAppPaymentProcessing const * _request )
 {
-	size_t size = ::GetSerializeSize( _request->m_error, SER_NETWORK, PROTOCOL_VERSION );
+	int messageCode = dims::CMessageKind::ErrorIndicator;
+	size_t size = ::GetSerializeSize( messageCode, SER_NETWORK, PROTOCOL_VERSION );
+	size += ::GetSerializeSize( _request->m_error, SER_NETWORK, PROTOCOL_VERSION );
 
 	char * buffer = new char[size];
 
@@ -111,7 +113,33 @@ CLocalSocket::add( CErrorForAppPaymentProcessing const * _request )
 				, SER_NETWORK
 				, CLIENT_VERSION);
 
+	stream << messageCode;
 	stream << _request->m_error;
+
+	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
+
+	m_nodeResponses.push_back( common::CPending( 0, common::convertToInt( m_localSocket ) ) );
+}
+
+void
+CLocalSocket::add( CProofTransactionAndStatusRequest const * _request )
+{
+	int messageCode = dims::CMessageKind::Transaction;
+	size_t size = ::GetSerializeSize( messageCode, SER_NETWORK, PROTOCOL_VERSION );
+	size += ::GetSerializeSize( _request->m_trasaction, SER_NETWORK, PROTOCOL_VERSION );
+	size += ::GetSerializeSize( _request->m_transactionStatusSignature, SER_NETWORK, PROTOCOL_VERSION );
+
+	char * buffer = new char[size];
+
+	CBufferAsStream stream(
+				(char*)buffer
+				, size
+				, SER_NETWORK
+				, CLIENT_VERSION);
+
+	stream << messageCode;
+	stream << _request->m_trasaction;
+	stream << _request->m_transactionStatusSignature;
 
 	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
 

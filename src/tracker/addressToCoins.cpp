@@ -370,7 +370,7 @@ CAddressToCoinsViewCache::fetchCoins(const uint160 &_keyId, bool secondPass )
 	std::vector< uint256 > tmp;
 
 	if ( !m_addressToCoins.getCoins( _keyId, tmp ) || tmp.empty() )
-		return m_cacheCoins.end();
+		return m_cacheCoins.upper_bound(_keyId);
 	
 	BOOST_FOREACH( uint256 & coin, tmp )
 	{

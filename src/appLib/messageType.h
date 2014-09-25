@@ -12,7 +12,9 @@ struct CMessageKind
 {
 	enum Enum
 	{
-		Expectations
+		  Expectations
+		, ErrorIndicator
+		, Transaction
 	};
 };
 

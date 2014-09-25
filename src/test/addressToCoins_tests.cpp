@@ -311,5 +311,35 @@ BOOST_AUTO_TEST_CASE( removalNocacheLong )
 	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
 }
 
+
+BOOST_AUTO_TEST_CASE( regressionTest )
+{
+	tracker::CAddressToCoinsViewCache::getInstance()->clearView();
+	tracker::CAddressToCoinsViewCache::getInstance()->setCoins( keyId_1, uint256(1) );
+	tracker::CAddressToCoinsViewCache::getInstance()->setCoins( keyId_2, uint256(2) );
+	tracker::CAddressToCoinsViewCache::getInstance()->setCoins( keyId_3, uint256(3) );
+	tracker::CAddressToCoinsViewCache::getInstance()->flush();
+
+	std::vector<uint256> checkCoins;
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_3, checkCoins );
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
+	BOOST_CHECK( checkCoins.front() == uint256(1) );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->eraseCoins( keyId_2, uint256(2) );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_2, checkCoins );
+	BOOST_CHECK( checkCoins.empty() );
+
+	tracker::CAddressToCoinsViewCache::getInstance()->setCoins( keyId_1, uint256(257) );
+	tracker::CAddressToCoinsViewCache::getInstance()->setCoins( keyId_2, uint256(1) );
+	tracker::CAddressToCoinsViewCache::getInstance()->eraseCoins( keyId_1, uint256(110) );
+	tracker::CAddressToCoinsViewCache::getInstance()->eraseCoins( keyId_1, uint256(1) );
+	tracker::CAddressToCoinsViewCache::getInstance()->flush();
+
+	tracker::CAddressToCoinsViewCache::getInstance()->getCoins( keyId_1, checkCoins );
+	BOOST_CHECK( checkCoins.front() == uint256(257) );
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 

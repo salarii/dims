@@ -106,6 +106,7 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 		{
 			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
 			context< CPayLocalApplicationAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );
+			context< CPayLocalApplicationAction >().setFirstTransaction( _transactionSendAck.m_transactionSend );
 			return transit< CCheckTransactionStatus >();
 		}
 		else
@@ -136,6 +137,8 @@ struct CCheckAppData : boost::statechart::state< CCheckAppData, CPayLocalApplica
 	> reactions;
 };
 
+struct CSecondTransaction;
+
 struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStatus, CPayLocalApplicationAction >
 {
 	CCheckTransactionStatus( my_context ctx ) : my_base( ctx )
@@ -156,7 +159,7 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	{
 		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
 		{
-			context< CPayLocalApplicationAction >().setRequest( 0 );
+			return  transit< CSecondTransaction >();
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
 		{
@@ -179,20 +182,20 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 {
 	CSecondTransaction( my_context ctx ) : my_base( ctx )
 	{
-		CServiceByTrackerEvent const* serviceByTrackerEvent = dynamic_cast< CServiceByTrackerEvent const* >( simple_state::triggering_event() );
-
 		std::vector< std::pair< CKeyID, int64_t > > outputs;
 
-		outputs.push_back( std::make_pair( context< CPayLocalApplicationAction >().getPrivKey().GetPubKey().GetID(), context< CPayLocalApplicationAction >().getValue() ) );
+		outputs.push_back( std::make_pair( context< CPayLocalApplicationAction >().getTargetKey(), context< CPayLocalApplicationAction >().getValue() ) );
 
 		common::CTrackerStats trackerStats;
 
 		CWalletTx tx;
 		std::string failReason;
 
-		CClientControl::getInstance()->createTransaction( outputs, std::vector< CAvailableCoin >(), trackerStats, tx, failReason );
+	//	CAvailableCoin
 
-		context< CPayLocalApplicationAction >().setRequest( new CTransactionSendRequest( tx, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) ) );
+	//	CClientControl::getInstance()->createTransaction( outputs, , trackerStats, tx, failReason );
+
+		context< CPayLocalApplicationAction >().setRequest( new CTransactionSendRequest( tx, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -290,6 +293,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socked, CPriv
 		if ( CTrackerLocalRanking::getInstance()->isValidTrackerKnown( *iterator ) )
 		{
 			process_event( CServiceByTrackerEvent( *iterator ) );
+			return;
 		}
 	}
 
@@ -300,6 +304,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socked, CPriv
 		if ( CTrackerLocalRanking::getInstance()->isValidMonitorKnown( *iterator ) )
 		{
 			process_event( CResolveByMonitorEvent() );
+			return;
 		}
 	}
 }
@@ -373,6 +378,12 @@ CPayLocalApplicationAction::getPrivKey() const
 	return key;
 }
 
+CKeyID
+CPayLocalApplicationAction::getTargetKey() const
+{
+	return m_targetKey;
+}
+
 int64_t
 CPayLocalApplicationAction::getValue() const
 {
@@ -384,6 +395,19 @@ CPayLocalApplicationAction::getSocked() const
 {
 	return m_socked;
 }
+
+void
+CPayLocalApplicationAction::setFirstTransaction( CTransaction const & _firstTransaction )
+{
+	m_firstTransaction = _firstTransaction;
+}
+
+CTransaction const &
+CPayLocalApplicationAction::getFirstTransaction() const
+{
+	return m_firstTransaction;
+}
+
 
 }
 

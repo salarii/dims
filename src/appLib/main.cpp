@@ -10,11 +10,11 @@ std::vector< unsigned char > const HardcodedSeed;
 
 std::vector< std::string > const PossibleMonitors;
 
-std::vector< std::string > const PossibleTrackers = boost::assign::list_of( "tC4NgiF8rG3WTXzdbG5B3JXG6dj8G3prSu" );
+std::vector< std::string > const PossibleTrackers = boost::assign::list_of( "tNuH46LxbgdT47qtUHzvmHDpJQyAydYZGn" );
 
-CKeyID authorId;
+std::string const AuthorId = "dKqwKfMdUcxipQ82NzP1NoZ3AtTEUsGMKV";
 
-int Value = 1000;
+int Value = 100000;
 }
 
 int main(int argc, char *argv[])

@@ -77,7 +77,7 @@ public:
 
 	bool getTrackerStats( CKeyID const & _trackerId, common::CTrackerStats & _trackerStats );
 
-	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > * _medium );
+	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium );
 private:
 	CTrackerLocalRanking();
 

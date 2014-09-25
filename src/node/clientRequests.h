@@ -48,6 +48,16 @@ public:
 	int m_error;
 };
 
+struct CProofTransactionAndStatusRequest
+{
+	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature);
+
+public:
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
+	CTransaction const m_trasaction;
+	std::vector<unsigned char> const m_transactionStatusSignature;
+};
+
 
 }
 

@@ -70,7 +70,7 @@ CTrackerController::setConnected( bool _connected )
 }
 
 CTrackerController::CTrackerController()
-	: m_price(0.5)
+	: m_price(0.01)
 	, m_maxPrice(1000000)
 	, m_minPrice(1000)
 {

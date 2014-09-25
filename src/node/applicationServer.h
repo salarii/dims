@@ -27,6 +27,8 @@ public:
 
 	void add( CErrorForAppPaymentProcessing const * _request );
 
+	void add( CProofTransactionAndStatusRequest const * _request );
+
 	bool flush();
 
 	void handleInput();

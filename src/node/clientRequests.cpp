@@ -77,4 +77,17 @@ CErrorForAppPaymentProcessing::accept( common::CMedium< NodeResponses > * _mediu
 	_medium->add( this );
 }
 
+CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature)
+	: m_trasaction( _trasaction )
+	, m_transactionStatusSignature( _transactionStatusSignature )
+{
+}
+
+void
+CProofTransactionAndStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+
 }

@@ -5,6 +5,8 @@
 #include "trackerLocalRanking.h"
 #include "networkClient.h"
 
+#include "base58.h"
+
 namespace client
 {
 
@@ -169,6 +171,11 @@ CTrackerLocalRanking::isValidTrackerKnown( CKeyID const & _trackerId )
 {
 	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
 	{
+CNodeAddress nodeAddress;
+nodeAddress.Set(trackerStats.m_key.GetID(), common::NodePrefix::Tracker);
+std::string name = nodeAddress.ToString();
+
+
 		if ( trackerStats.m_key.GetID() == _trackerId )
 			return true;
 	}
@@ -195,7 +202,7 @@ CTrackerLocalRanking::getTrackerStats( CKeyID const & _trackerId, common::CTrack
 }
 
 bool
-CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > * _medium )
+CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium )
 {
 	if ( !isValidTrackerKnown( _trackerId ) )
 		return false;

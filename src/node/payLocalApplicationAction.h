@@ -55,10 +55,17 @@ public:
 
 	CKey getPrivKey() const;
 
+	CKeyID getTargetKey() const;
+
 	int64_t getValue() const;
 
 	uintptr_t getSocked() const;
+
+	void setFirstTransaction( CTransaction const & _firstTransaction );
+
+	CTransaction const & getFirstTransaction() const;
 private:
+	CTransaction m_firstTransaction;
 
 	uintptr_t m_socked;
 

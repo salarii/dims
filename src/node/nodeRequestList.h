@@ -26,9 +26,9 @@ struct CMonitorInfoRequest;
 struct CDnsInfoRequest;
 struct CRecognizeNetworkRequest;
 struct CErrorForAppPaymentProcessing;
+struct CProofTransactionAndStatusRequest;
 
-
-typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinueComplex, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, common::CContinueReqest< NodeResponses >, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing > NodeRequestsList;
+typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinueComplex, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, common::CContinueReqest< NodeResponses >, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing, CProofTransactionAndStatusRequest > NodeRequestsList;
 
 }
 

@@ -32,9 +32,8 @@ CSendInfoRequestAction::execute()
 	return 0;
 }
 
-CTrackersInfoRequest::CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo, common::CMediumFilter< NodeResponses > * _mediumFilter )
+CTrackersInfoRequest::CTrackersInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter )
 	: common::CRequest< NodeResponses >( _mediumFilter )
-	, m_reqInfo( _reqInfo )
 {
 }
 

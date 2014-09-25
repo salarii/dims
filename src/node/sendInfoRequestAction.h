@@ -56,12 +56,11 @@ private:
 struct CTrackersInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTrackersInfoRequest( std::vector< TrackerInfo::Enum > const & _reqInfo, common::CMediumFilter< NodeResponses > * _mediumFilter );
+	CTrackersInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter );
 	~CTrackersInfoRequest(){};
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 
-	std::vector< TrackerInfo::Enum >const  m_reqInfo;
 	int m_mediumKind;
 };
 

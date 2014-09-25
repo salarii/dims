@@ -25,6 +25,7 @@ DIST_SUBDIRS = . qt test
 COMMON_H = \
   common/actionHandler.h \
   common/action.h \
+  common/analyseTransaction.h \
   common/authenticationProvider.h \
   common/communicationProtocol.h \
   common/commonEvents.h \
@@ -47,6 +48,7 @@ COMMON_H = \
   common/visitorConfigurationUtilities.h 
 
 COMMON_CPP = \
+  common/analyseTransaction.cpp \
   common/authenticationProvider.cpp \
   common/communicationProtocol.cpp \
   common/commonResponses.cpp \

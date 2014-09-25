@@ -64,7 +64,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		{
 			BOOST_FOREACH( CAddress const & address, _dnsInfo.m_addresses )
 			{
-				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedStats( address.ToStringIP(), address.GetPort() ) );
+				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( "127.0.0.1"/*address.ToStringIP()*/, common::CUnidentifiedStats( "127.0.0.1"/*address.ToStringIP()*/, address.GetPort() ) );
 			}
 			return transit< CRecognizeNetwork >();
 		}
@@ -226,10 +226,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 {
 	CWithoutMonitor( my_context ctx ) : my_base( ctx )
 	{
-		std::vector< TrackerInfo::Enum > trackerInfoProfile
-				= boost::assign::list_of(TrackerInfo::Ip)(TrackerInfo::Price)(TrackerInfo::Rating)(TrackerInfo::PublicKey)(TrackerInfo::MinPrice)(TrackerInfo::MaxPrice);
-
-		context< CConnectAction >().setRequest( new CTrackersInfoRequest( trackerInfoProfile, new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
+		context< CConnectAction >().setRequest( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 
 		m_lastAskTime = GetTime();
 

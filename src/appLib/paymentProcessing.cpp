@@ -72,7 +72,14 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 			)
 		return false;
 
-	if ( !analyseOutput( _licenseData.m_trasaction, authorId, Value ) )
+	CBitcoinAddress authorAddress;
+	authorAddress.SetString( AuthorId );
+
+	CKeyID authorKeyId;
+	if ( !authorAddress.GetKeyID( authorKeyId ) )
+		return false;
+
+	if ( !analyseOutput( _licenseData.m_trasaction, authorKeyId, Value ) )
 		return false;
 	CKey key;
 	key.SetPrivKey(_licenseData.m_privateKey, false);
@@ -206,6 +213,19 @@ CPaymentProcessing::executeDialog( CAppClient & _appClient )
 	expectationMessage.m_monitors = convertToKeyId( PossibleMonitors );
 
 	expectationMessage.m_trackers = convertToKeyId( PossibleTrackers );
+	CBitcoinAddress authorAddress;
+	authorAddress.SetString( AuthorId );
+
+	CKeyID authorKeyId;
+	if ( !authorAddress.GetKeyID( authorKeyId ) )
+	{
+		assert( !"shouldn't be here" );
+		return;
+	}
+
+	expectationMessage.m_targetId = authorKeyId;
+
+	expectationMessage.m_value = Value;
 
 	CPackedMessage< CExpectationMessage > message( CMessageKind::Expectations, expectationMessage );
 

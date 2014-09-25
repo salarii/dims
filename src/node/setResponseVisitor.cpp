@@ -116,6 +116,16 @@ public:
 		this->m_action->process_event( _peding );
 	}
 
+	void operator()( common::CTransactionStatus & _transactionStats ) const
+	{
+		this->m_action->process_event( _transactionStats );
+	}
+
+	void operator()( common::CTransactionAck & _transactionAck ) const
+	{
+		this->m_action->process_event( client::CTransactionAckEvent( ( common::TransactionsStatus::Enum )_transactionAck.m_status, _transactionAck.m_transaction ) );
+	}
+
 };
 
 CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )
