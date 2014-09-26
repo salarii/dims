@@ -25,7 +25,7 @@ public:
 struct CTransactionStatusRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium );
+	CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _mediumFilter );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 	uint256 m_transactionHash;
@@ -34,7 +34,7 @@ public:
 struct CTransactionSendRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< NodeResponses > * _medium );
+	CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< NodeResponses > * _mediumFilter );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 	CTransaction m_transaction;
@@ -43,14 +43,14 @@ public:
 struct CErrorForAppPaymentProcessing : public common::CRequest< NodeResponses >
 {
 public:
-	CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< NodeResponses > * _medium );
+	CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< NodeResponses > * _mediumFilter );
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	int m_error;
 };
 
-struct CProofTransactionAndStatusRequest
+struct CProofTransactionAndStatusRequest : public common::CRequest< NodeResponses >
 {
-	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature);
+	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, common::CMediumFilter< NodeResponses > * _mediumFilter );
 
 public:
 	void accept( common::CMedium< NodeResponses > * _medium ) const;

@@ -10,6 +10,8 @@
 #include "common/nodeMessages.h"
 #include "common/setResponseVisitor.h"
 #include "common/medium.h"
+#include "common/analyseTransaction.h"
+
 #include "clientFilters.h"
 #include "clientRequests.h"
 #include "clientEvents.h"
@@ -40,13 +42,22 @@ struct CIndicateErrorEvent : boost::statechart::event< CIndicateErrorEvent >
 	int const m_error;
 };
 
+struct CPassStatusResultEvent : boost::statechart::event< CPassStatusResultEvent >
+{
+	CPassStatusResultEvent( std::vector<unsigned char> const & _signature )
+		: m_signature( _signature )
+	{}
+
+	std::vector<unsigned char> const m_signature;
+};
+
 struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorCondition, CPayLocalApplicationAction >
 {
 	CIndicateErrorCondition( my_context ctx ) : my_base( ctx )
 	{
 		CIndicateErrorEvent const* indicateErrorEvent = dynamic_cast< CIndicateErrorEvent const* >( simple_state::triggering_event() );
 
-		context< CPayLocalApplicationAction >().setRequest( new CErrorForAppPaymentProcessing( (dims::CAppError::Enum)indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocked() ) ) );
+		context< CPayLocalApplicationAction >().setRequest( new CErrorForAppPaymentProcessing( (dims::CAppError::Enum)indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -105,7 +116,6 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 		if ( _transactionSendAck.m_status == common::TransactionsStatus::Validated )
 		{
 			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
-			context< CPayLocalApplicationAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );
 			context< CPayLocalApplicationAction >().setFirstTransaction( _transactionSendAck.m_transactionSend );
 			return transit< CCheckTransactionStatus >();
 		}
@@ -145,7 +155,7 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	{
 		context< CPayLocalApplicationAction >().setRequest(
 					new CTransactionStatusRequest(
-						  context< CPayLocalApplicationAction >().getValidatedTransactionHash()
+						  context< CPayLocalApplicationAction >().getFirstTransaction().GetHash()
 						, new CMediumClassWithExceptionFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
 	}
 
@@ -165,7 +175,7 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 		{
 			context< CPayLocalApplicationAction >().setRequest(
 						new CTransactionStatusRequest(
-							  context< CPayLocalApplicationAction >().getValidatedTransactionHash()
+							  context< CPayLocalApplicationAction >().getFirstTransaction().GetHash()
 							, new CMediumClassWithExceptionFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
 		}
 		return discard_event();
@@ -189,11 +199,20 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 		common::CTrackerStats trackerStats;
 
 		CWalletTx tx;
+
 		std::string failReason;
 
-	//	CAvailableCoin
+		CTransaction const & firstTransaction = context< CPayLocalApplicationAction >().getFirstTransaction();
 
-	//	CClientControl::getInstance()->createTransaction( outputs, , trackerStats, tx, failReason );
+		CTxOut txOut;
+		unsigned int id;
+		if ( !common::findOutputInTransaction( firstTransaction, context< CPayLocalApplicationAction >().getTargetKey(), txOut, id ) )
+			assert( !"something went wrong" );
+
+		std::vector< CAvailableCoin > coinsToUse;
+		coinsToUse.push_back( CAvailableCoin( txOut, id, firstTransaction.GetHash() ) );
+
+		CClientControl::getInstance()->createTransaction( outputs, coinsToUse, trackerStats, tx, failReason );
 
 		context< CPayLocalApplicationAction >().setRequest( new CTransactionSendRequest( tx, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
 	}
@@ -211,7 +230,7 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 		if ( _transactionSendAck.m_status == common::TransactionsStatus::Validated )
 		{
 			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
-			context< CPayLocalApplicationAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );
+			context< CPayLocalApplicationAction >().setSecondTransaction( _transactionSendAck.m_transactionSend );
 			return transit< CCheckTransactionStatus >();
 		}
 		else
@@ -235,8 +254,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 	{
 		context< CPayLocalApplicationAction >().setRequest(
 					new CTransactionStatusRequest(
-						  context< CPayLocalApplicationAction >().getValidatedTransactionHash()
-						, new CMediumClassWithExceptionFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
+						  context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()
+						, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -255,7 +274,7 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 		{
 			context< CPayLocalApplicationAction >().setRequest(
 						new CTransactionStatusRequest(
-							  context< CPayLocalApplicationAction >().getValidatedTransactionHash()
+							  context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()
 							, new CMediumClassWithExceptionFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
 		}
 		return discard_event();
@@ -267,9 +286,31 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 	> reactions;
 };
 
-CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socked, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors )
+struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CPayLocalApplicationAction >
+{
+	CSendTransactionData( my_context ctx ) : my_base( ctx )
+	{
+		CPassStatusResultEvent const* passStatusResultEvent = dynamic_cast< CPassStatusResultEvent const* >( simple_state::triggering_event() );
+
+		context< CPayLocalApplicationAction >().setRequest(
+					new CProofTransactionAndStatusRequest(
+						  context< CPayLocalApplicationAction >().getSecondTransaction()
+						, passStatusResultEvent->m_signature
+						, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
+	}
+
+	boost::statechart::result react( common::CPending const & _pending )
+	{
+		context< CPayLocalApplicationAction >().setRequest( 0 );
+		return discard_event();
+	}
+
+
+};
+
+CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors )
 	: CAction()
-	, m_socked( _socked )
+	, m_socket( _socket )
 	, m_privateKey(_privateKey)
 	, m_value( _value )
 	, m_targetKey( _targetKey )
@@ -340,18 +381,6 @@ CPayLocalApplicationAction::getProcessingTrackerPtr() const
 	return m_processingTrackerPtr;
 }
 
-void
-CPayLocalApplicationAction::setValidatedTransactionHash( uint256 _hash )
-{
-	m_validatedTransactionHash = _hash;
-}
-
-uint256
-CPayLocalApplicationAction::getValidatedTransactionHash() const
-{
-	return m_validatedTransactionHash;
-}
-
 CPrivKey
 CPayLocalApplicationAction::getPrivAppKey() const
 {
@@ -391,9 +420,9 @@ CPayLocalApplicationAction::getValue() const
 }
 
 uintptr_t
-CPayLocalApplicationAction::getSocked() const
+CPayLocalApplicationAction::getSocket() const
 {
-	return m_socked;
+	return m_socket;
 }
 
 void
@@ -408,6 +437,17 @@ CPayLocalApplicationAction::getFirstTransaction() const
 	return m_firstTransaction;
 }
 
+void
+CPayLocalApplicationAction::setSecondTransaction( CTransaction const & _secondTransaction )
+{
+	m_secondTransaction = _secondTransaction;
+}
+
+CTransaction const &
+CPayLocalApplicationAction::getSecondTransaction() const
+{
+	return m_secondTransaction;
+}
 
 }
 

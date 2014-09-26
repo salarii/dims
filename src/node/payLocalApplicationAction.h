@@ -31,7 +31,7 @@ struct CCheckAppData;
 class CPayLocalApplicationAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CPayLocalApplicationAction, CCheckAppData >
 {
 public:
-	CPayLocalApplicationAction( uintptr_t _socked, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors );
+	CPayLocalApplicationAction( uintptr_t _socket, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors );
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
@@ -42,10 +42,6 @@ public:
 	void setProcessingTrackerPtr( 	uintptr_t _ptr );
 
 	uintptr_t getProcessingTrackerPtr() const;
-
-	void setValidatedTransactionHash( uint256 _hash );
-
-	uint256 getValidatedTransactionHash() const;
 
 	CPrivKey getPrivAppKey() const;
 
@@ -59,15 +55,21 @@ public:
 
 	int64_t getValue() const;
 
-	uintptr_t getSocked() const;
+	uintptr_t getSocket() const;
 
 	void setFirstTransaction( CTransaction const & _firstTransaction );
 
 	CTransaction const & getFirstTransaction() const;
+
+	void setSecondTransaction( CTransaction const & _secondTransaction );
+
+	CTransaction const & getSecondTransaction() const;
 private:
 	CTransaction m_firstTransaction;
 
-	uintptr_t m_socked;
+	CTransaction m_secondTransaction;
+
+	uintptr_t m_socket;
 
 	CPrivKey m_privateKey;
 

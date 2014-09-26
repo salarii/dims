@@ -64,8 +64,8 @@ CTransactionSendRequest::getMediumFilter() const
 	return common::CRequest< NodeResponses >::m_mediumFilter;
 }
 
-CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< NodeResponses > * _mediumFlter )
-	: common::CRequest< NodeResponses >( _mediumFlter )
+CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< NodeResponses > * _mediumFilter )
+	: common::CRequest< NodeResponses >( _mediumFilter )
 	, m_error( _error )
 {
 
@@ -77,8 +77,9 @@ CErrorForAppPaymentProcessing::accept( common::CMedium< NodeResponses > * _mediu
 	_medium->add( this );
 }
 
-CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature)
-	: m_trasaction( _trasaction )
+CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, common::CMediumFilter< NodeResponses > * _mediumFilter )
+	: common::CRequest< NodeResponses >( _mediumFilter )
+	, m_trasaction( _trasaction )
 	, m_transactionStatusSignature( _transactionStatusSignature )
 {
 }
