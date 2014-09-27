@@ -306,7 +306,9 @@ struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CP
 		return discard_event();
 	}
 
-
+	typedef boost::mpl::list<
+	  boost::statechart::custom_reaction<  common::CPending >
+	> reactions;
 };
 
 CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors )

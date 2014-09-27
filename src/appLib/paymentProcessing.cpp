@@ -74,6 +74,21 @@ CPaymentProcessing::readLicenseFileData()
 }
 
 bool
+CPaymentProcessing::saveLicenseFileData( CLicenseData const & _licenseData )
+{
+	FILE* license = openLicenseFile();
+
+	if ( license == NULL )
+		return false;
+
+	CAutoFile licenseFile( license, SER_NETWORK, CLIENT_VERSION);
+
+	licenseFile << m_licenseData;
+
+	return true;
+}
+
+bool
 CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 {
 	uint256 hash = Hash( _licenseData.m_privateKey.begin(), _licenseData.m_privateKey.end() );
@@ -213,7 +228,9 @@ CPaymentProcessing::generateKey()
 CKey
 CPaymentProcessing::createHardwareKey( std::vector< unsigned char > const & _hardwareData )
 {
-	std::vector< unsigned char > seed = HardcodedSeed;
+	std::vector< unsigned char > seed;
+
+	std::copy( HardcodedSeed.begin(), HardcodedSeed.end(), std::back_inserter( seed ));
 
 	size_t size = _hardwareData.size();
 
@@ -317,8 +334,10 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 	{
 		stream >> m_licenseData.m_trasaction;
 		stream >> m_licenseData.m_transactionStatusSignature;
+		stream >> m_licenseData.m_trackerPubKey;
 
-
+		signPrivateKey();
+		verifyData( m_licenseData );
 	}
 	else if ( kind == CMessageKind::ErrorIndicator )
 	{

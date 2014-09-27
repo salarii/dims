@@ -117,7 +117,7 @@ CLocalSocket::add( CErrorForAppPaymentProcessing const * _request )
 	stream << _request->m_error;
 
 	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
-
+	m_localSocket->waitForBytesWritten ( -1 );
 	m_nodeResponses.push_back( common::CPending( 0, common::convertToInt( m_localSocket ) ) );
 }
 
@@ -144,7 +144,7 @@ CLocalSocket::add( CProofTransactionAndStatusRequest const * _request )
 	stream << _request->m_servicingTracker;
 
 	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
-
+	m_localSocket->waitForBytesWritten ( -1 );
 	m_nodeResponses.push_back( common::CPending( 0, common::convertToInt( m_localSocket ) ) );
 }
 

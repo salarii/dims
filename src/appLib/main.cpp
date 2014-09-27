@@ -13,7 +13,8 @@
 
 namespace  dims
 {
-std::vector< unsigned char > const HardcodedSeed;
+
+std::string const HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf";
 
 std::vector< std::string > const PossibleMonitors;
 
@@ -38,12 +39,11 @@ int main(int argc, char *argv[])
 
 	dims::CPaymentProcessing * paymentProcessing = dims::CPaymentProcessing::getInstance();
 	button.show();
+
+	dims::CAppClient appClient;
 	if ( !paymentProcessing->isLicenseValid() )
 	{
-		dims::CAppClient appClient;
-
 		QMessageBox::StandardButton reply;
-
 
 		reply = QMessageBox::question( &button, "License missing", "Do you want to pay it now?",
 									  QMessageBox::Yes|QMessageBox::No );
@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
 			}
 
 			paymentProcessing->executeDialog( appClient );
-
 		}
 		else
 		{

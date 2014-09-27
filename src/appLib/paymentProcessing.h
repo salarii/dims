@@ -14,7 +14,7 @@ namespace dims
 {
 class CAppClient;
 
-extern std::vector< unsigned char > const HardcodedSeed;
+extern std::string const HardcodedSeed;
 
 extern std::vector< std::string > const PossibleMonitors;
 
@@ -50,6 +50,8 @@ private:
 	CPaymentProcessing(){};
 
 	bool readLicenseFileData();
+
+	bool saveLicenseFileData( CLicenseData const & _licenseData );
 
 	FILE* openLicenseFile();
 
