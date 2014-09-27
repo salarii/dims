@@ -5,6 +5,9 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 
+#include <QApplication>
+#include <QMessageBox>
+
 #include "paymentProcessing.h"
 #include "messageType.h"
 #include "appClient.h"
@@ -15,6 +18,18 @@
 
 namespace dims
 {
+
+CPaymentProcessing * CPaymentProcessing::ms_instance = NULL;
+
+CPaymentProcessing*
+CPaymentProcessing::getInstance()
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CPaymentProcessing();
+	};
+	return ms_instance;
+}
 
 unsigned int const LicenseFileSize = 1024 * 2;
 bool
@@ -85,6 +100,18 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 	key.SetPrivKey(_licenseData.m_privateKey, false);
 	if ( !analyseInput( _licenseData.m_trasaction, key.GetPubKey().GetID() ) )
 		return false;
+
+	if ( !PossibleTrackers.empty() )
+	{
+		CNodeAddress nodeAddress;
+		nodeAddress.Set( _licenseData.m_trackerPubKey.GetID(), common::NodePrefix::Tracker );
+		std::vector< std::string >::const_iterator iterator = std::find( PossibleTrackers.begin(), PossibleTrackers.end(), nodeAddress.ToString() );
+		if ( iterator != PossibleTrackers.end() )
+		{
+			if ( _licenseData.m_trackerPubKey.Verify( _licenseData.m_trasaction.GetHash(), _licenseData.m_transactionStatusSignature ) )
+				return true;
+		}
+	}
 
 	return true;
 }
@@ -271,6 +298,40 @@ CPaymentProcessing::createMessage( Message const & _message, size_t & _size )
 
 	_size = size;
 	return buffer;
+}
+
+bool
+CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
+{
+	CBufferAsStream stream(
+		  (char*)_buffer
+		, _size
+		, SER_NETWORK
+		, CLIENT_VERSION);
+
+	int kind;
+
+	stream >> kind;
+
+	if ( kind == CMessageKind::Transaction )
+	{
+		stream >> m_licenseData.m_trasaction;
+		stream >> m_licenseData.m_transactionStatusSignature;
+
+
+	}
+	else if ( kind == CMessageKind::ErrorIndicator )
+	{
+		int m_error;
+		stream >> m_error;
+		QMessageBox::question( 0, "error", "Error on client side press Ok to exit", QMessageBox::Ok);
+		QApplication::quit();
+	}
+	else
+	{
+		return false;
+	}
+	return true;
 }
 
 std::vector<CKeyID>

@@ -128,6 +128,7 @@ CLocalSocket::add( CProofTransactionAndStatusRequest const * _request )
 	size_t size = ::GetSerializeSize( messageCode, SER_NETWORK, PROTOCOL_VERSION );
 	size += ::GetSerializeSize( _request->m_trasaction, SER_NETWORK, PROTOCOL_VERSION );
 	size += ::GetSerializeSize( _request->m_transactionStatusSignature, SER_NETWORK, PROTOCOL_VERSION );
+	size += ::GetSerializeSize( _request->m_servicingTracker, SER_NETWORK, PROTOCOL_VERSION );
 
 	char * buffer = new char[size];
 
@@ -140,6 +141,7 @@ CLocalSocket::add( CProofTransactionAndStatusRequest const * _request )
 	stream << messageCode;
 	stream << _request->m_trasaction;
 	stream << _request->m_transactionStatusSignature;
+	stream << _request->m_servicingTracker;
 
 	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
 

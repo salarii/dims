@@ -68,7 +68,7 @@ CPubKey CWallet::GenerateNewKey()
     return pubkey;
 }
 
-bool CWallet::AddKeyPubKey(const CKey& secret, const CPubKey &pubkey)
+bool CWallet::AddKeyPubKey(const CKey& secret, const CPubKey &pubkey, bool invisible)
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata
     if (!CCryptoKeyStore::AddKeyPubKey(secret, pubkey))
@@ -85,9 +85,29 @@ bool CWallet::AddKeyPubKey(const CKey& secret, const CPubKey &pubkey)
 	  }
     }
 
-    if (!SetAddressBook(pubkey.GetID(), "", "receive"))
-	   return false;
-    return true;
+	if ( !invisible )
+	{
+		if (!SetAddressBook(pubkey.GetID(), "", "receive"))
+			return false;
+	}
+	return true;
+}
+
+bool CWallet::RemoveKeyPubKey( const CPubKey &pubkey )
+{
+	AssertLockHeld(cs_wallet); // mapKeyMetadata
+	if (!CCryptoKeyStore::RemoveKeyPubKey(pubkey))
+		return false;
+	if (!fFileBacked)
+		return true;
+	if (!IsCrypted())
+	{
+		if ( !CWalletDB(strWalletFile).EraseKey(pubkey) )
+	  {
+								 return false;
+	  }
+	}
+	return true;
 }
 
 bool CWallet::AddCryptedKey(const CPubKey &vchPubKey,
@@ -1330,10 +1350,9 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 				{
 					nTotalValue -= iterator->m_coin.nValue;
 					requestedValueIn += iterator->m_coin.nValue;
-
+					requestedSetCoins.push_back( *iterator );
 					if ( nTotalValue <= 0 )
 					{
-						requestedSetCoins.push_back( *iterator );
 						nTotalValue = 0;
 						break;
 					}

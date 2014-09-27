@@ -35,8 +35,6 @@ public:
 		CKey m_volumeBased;
 	};
 public:
-	CPaymentProcessing(){};
-
 	void createOrUpdateLicenseFile( CLicenseData const & _licenseData );
 
 	CKey getRandomKey() const;
@@ -44,7 +42,13 @@ public:
 	void executeDialog( CAppClient & _appClient );
 
 	bool isLicenseValid();
+
+	static CPaymentProcessing* getInstance();
+
+	bool serviceMessage( char * _buffer, size_t _size );
 private:
+	CPaymentProcessing(){};
+
 	bool readLicenseFileData();
 
 	FILE* openLicenseFile();
@@ -71,6 +75,8 @@ private:
 	CKey createHardwareKey( std::vector< unsigned char > const & _hardwareData );
 private:
 	CLicenseData m_licenseData;
+
+	static CPaymentProcessing * ms_instance;
 };
 
 

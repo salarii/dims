@@ -248,7 +248,7 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 			common::CTransactionStatusResponse transactionStatus;
 			stream >> transactionStatus;
 
-			_requestResponse.push_back( common::CTransactionStatus( ( common::TransactionsStatus::Enum )transactionStatus.m_status, transactionStatus.m_transactionHash ) );
+			_requestResponse.push_back( common::CTransactionStatus( ( common::TransactionsStatus::Enum )transactionStatus.m_status, transactionStatus.m_transactionHash, transactionStatus.m_signedHash ) );
 		}
 		else if ( messageType == common::CMainRequestType::Transaction )
 		{

@@ -48,7 +48,7 @@ findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId, CTxOu
 				}
 				else
 				{
-					if ( _findId == Hash160( *it ) )
+					if ( _findId == uint160( *it ) )
 					{
 						_txout = txout;
 						_id = i;

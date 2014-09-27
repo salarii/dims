@@ -64,6 +64,14 @@ public:
 	void setSecondTransaction( CTransaction const & _secondTransaction );
 
 	CTransaction const & getSecondTransaction() const;
+
+	void setTrackerStats( common::CTrackerStats const & _trackerStats );
+
+	common::CTrackerStats getTrackerStats() const;
+
+	void setServicingTracker( CPubKey const & _pubKey );
+
+	CPubKey const & getServicingTracker() const;
 private:
 	CTransaction m_firstTransaction;
 
@@ -86,6 +94,10 @@ private:
 	uintptr_t m_processingTrackerPtr;
 
 	uint256 m_validatedTransactionHash;
+
+	common::CTrackerStats m_trackerStats;
+
+	CPubKey m_servicingTracker;
 };
 
 }

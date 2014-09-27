@@ -20,9 +20,10 @@ namespace common
 
 struct CTransactionStatus : boost::statechart::event< CTransactionStatus >
 {
-	CTransactionStatus(	common::TransactionsStatus::Enum _status, uint256 const & _transactionHash ):m_status( _status ), m_transactionHash( _transactionHash ){}
+	CTransactionStatus(	common::TransactionsStatus::Enum _status, uint256 const & _transactionHash, std::vector<unsigned char> const & _signature ):m_status( _status ), m_transactionHash( _transactionHash ), m_signature( _signature ){}
 	common::TransactionsStatus::Enum m_status;
 	uint256 m_transactionHash;
+	std::vector<unsigned char> m_signature;
 };
 
 struct CAccountBalance

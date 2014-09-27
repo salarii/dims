@@ -390,8 +390,10 @@ CAddressToCoinsViewCache::eraseCoins( uint160 const &_keyId, uint256 const & _co
 	while( iterator != m_cacheCoins.upper_bound( _keyId ) )
 	{
 		if ( iterator->second == _coin )
-			m_cacheCoins.erase( _keyId );
-
+		{
+			m_cacheCoins.erase( iterator );
+			break;
+		}
 		iterator++;
 	}
 

@@ -124,11 +124,13 @@ struct CTransactionStatusResponse
 	(
 	READWRITE(m_status);
 	READWRITE(m_transactionHash);
+	READWRITE(m_signedHash);
 	)
 	CTransactionStatusResponse(){}
-	CTransactionStatusResponse(	int _status, uint256 const & _transactionHash ):m_status( _status ), m_transactionHash( _transactionHash ){}
+	CTransactionStatusResponse(	int _status, uint256 const & _transactionHash, std::vector<unsigned char> const & _signedHash = std::vector<unsigned char>() ):m_status( _status ), m_transactionHash( _transactionHash ), m_signedHash(_signedHash){}
 	int m_status;
 	uint256 m_transactionHash;
+	std::vector<unsigned char> m_signedHash;
 };
 
 struct CTransactionAck

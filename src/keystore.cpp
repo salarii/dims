@@ -31,6 +31,17 @@ bool CBasicKeyStore::AddKeyPubKey(const CKey& key, const CPubKey &pubkey)
     return true;
 }
 
+bool CBasicKeyStore::RemoveKeyPubKey( const CPubKey &pubkey )
+{
+	LOCK(cs_KeyStore);
+
+	if ( mapKeys.find( pubkey.GetID() ) == mapKeys.end() )
+		return false;
+
+	mapKeys.erase( pubkey.GetID() );
+	return true;
+}
+
 bool CBasicKeyStore::AddCScript(const CScript& redeemScript)
 {
     LOCK(cs_KeyStore);

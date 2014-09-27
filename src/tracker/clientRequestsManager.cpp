@@ -28,7 +28,11 @@ public:
 		// shoudn't be handled this way
 		CTransaction transaction;
 		if ( CTransactionRecordManager::getInstance()->getTransaction( _transactionStatus.m_hash, transaction ) )
-			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTransactionStatusResponse( common::TransactionsStatus::Confirmed, transaction.GetHash() ) );
+		{
+			std::vector<unsigned char> signedHash;
+			common::CAuthenticationProvider::getInstance()->sign( transaction.GetHash(), signedHash );
+			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTransactionStatusResponse( common::TransactionsStatus::Confirmed, transaction.GetHash(), signedHash ) );
+		}
 		else
 			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTransactionStatusResponse( common::TransactionsStatus::Unconfirmed, _transactionStatus.m_hash ) );
 	}

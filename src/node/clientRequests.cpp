@@ -77,10 +77,11 @@ CErrorForAppPaymentProcessing::accept( common::CMedium< NodeResponses > * _mediu
 	_medium->add( this );
 }
 
-CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, common::CMediumFilter< NodeResponses > * _mediumFilter )
+CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMediumFilter< NodeResponses > * _mediumFilter )
 	: common::CRequest< NodeResponses >( _mediumFilter )
 	, m_trasaction( _trasaction )
 	, m_transactionStatusSignature( _transactionStatusSignature )
+	, m_servicingTracker( _servicingTracker )
 {
 }
 

@@ -4,11 +4,12 @@
 
 #include <boost/filesystem.hpp>
 
+#include <QDataStream>
+
 #include "appClient.h"
 #include "messageType.h"
-
-#include <QDataStream>
 #include "util.h"
+#include "paymentProcessing.h"
 
 namespace dims
 {
@@ -45,14 +46,8 @@ CAppClient::~CAppClient()
 void CAppClient::readSocket()
 {
 	QByteArray block = conection->readAll();
-	QDataStream in(&block, QIODevice::ReadOnly);
-	in.setVersion(QDataStream::Qt_4_0);
-	while (!in.atEnd())
-	{
-		QString receiveString;
-		in >> receiveString;
-		receiveString.prepend(QString("%1 :: ").arg(conection->socketDescriptor()));
-	}
+
+	CPaymentProcessing::getInstance()->serviceMessage( block.data(), block.size() );
 }
 
 void
