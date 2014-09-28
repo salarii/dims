@@ -169,6 +169,14 @@ public:
 
 	std::multimap< uint160, CAvailableCoin > m_availableCoins;
 
+	struct CUpdateCoins
+	{
+		std::multimap< CKeyID, CAvailableCoin > m_toRemove;
+		std::multimap< CKeyID, CAvailableCoin > m_toAdd;
+	};
+
+	std::map< uint256, CUpdateCoins > m_waitingChanges;
+
     int64_t nOrderPosNext;
     std::map<uint256, int> mapRequestCount;
 
@@ -186,6 +194,8 @@ public:
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL) const;
 
     void AvailableCoins(vector<COutput>& vCoins, CKeyID const & _keyID) const;
+	// slow and inefficient but  easy  to use  and  debug
+	bool getKeyForCoin(CAvailableCoin const & _availableCoin, CKeyID & _keyID) const;
 	//this is new high level function
 	//I have to  consider proper  form and place for it
 	uint64_t AvailableCoinsAmount(CKeyID const & _keyID) const;
@@ -198,9 +208,12 @@ public:
     void UnlockAllCoins();
     void ListLockedCoins(std::vector<COutPoint>& vOutpts);
 
-	void setAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
+	void replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
 
-    // keystore implementation
+	void removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins );
+
+	void addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins );
+	// keystore implementation
     // Generate a new key
     CPubKey GenerateNewKey();
     // Adds a key to the store, and saves it to disk.
@@ -264,7 +277,9 @@ public:
     int64_t GetImmatureBalance() const;
 	bool determineChangeAddress( std::vector< CAvailableCoin > const & _coinsForTransaction, CKeyID & _keyId );
 
-	bool CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CAvailableCoin > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
+	void addmitNewTransaction( uint256 const & _initialHash, CTransaction const & _addmitedTransaction );
+
+	bool CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
 	//create transaction from outputs, this may be dead end but I will follow it anyway
 	bool CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
 						   CWalletTx& wtxNew, std::string& strFailReason, const CCoinControl *coinControl = NULL);
@@ -292,6 +307,11 @@ public:
     std::set<CTxDestination> GetAccountAddresses(std::string strAccount) const;
 
     bool IsMine(const CTxIn& txin) const;
+
+	bool IsMine( CKeyID const & _id )
+	{
+		return m_availableCoins.find( _id ) != m_availableCoins.end();
+	}
     int64_t GetDebit(const CTxIn& txin) const;
     bool IsMine(const CTxOut& txout) const
     {

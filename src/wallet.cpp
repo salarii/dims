@@ -1000,6 +1000,19 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, CKeyID const & _keyID) con
 {
 }
 
+bool CWallet::getKeyForCoin(CAvailableCoin const & _availableCoin, CKeyID & _keyId ) const
+{
+	BOOST_FOREACH( PAIRTYPE( uint160, CAvailableCoin ) const & coin, m_availableCoins )
+	{
+		if ( coin.second == _availableCoin )
+		{
+			_keyId = coin.first;
+			return true;
+		}
+	}
+	return false;
+}
+
 uint64_t CWallet::AvailableCoinsAmount(CKeyID const & _keyID) const
 {
 	std::multimap< uint160, CAvailableCoin >::const_iterator low = m_availableCoins.lower_bound(_keyID), up = m_availableCoins.upper_bound(_keyID);
@@ -1196,9 +1209,8 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 		std::vector< CAvailableCoin > vValue;
 		int64_t nTotalLower = 0;
 //reference here is important
-		typedef std::multimap< uint160, CAvailableCoin >::value_type valueType;
 		CAvailableCoin coin;
-		BOOST_FOREACH( valueType const & coinPair, m_availableCoins)
+		BOOST_FOREACH( PAIRTYPE( uint160, CAvailableCoin ) const & coinPair, m_availableCoins)
 		{
 			int64_t n = coinPair.second.m_coin.nValue;
 
@@ -1243,7 +1255,7 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 		//vector<char> vfBest;
 		//int64_t nBest;
 
-		//disable fency stuff in order  to make  debuging/development easier/faster
+		//disable fency stuff for now in order  to make  debuging/development easier/faster
 		/*
 		ApproximateBestSubset(vValue, nTotalLower, nTargetValue, vfBest, nBest, 1000);
 		if (nBest != nTargetValue && nTotalLower >= nTargetValue + CENT)
@@ -1285,10 +1297,13 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 }
 
 bool
-CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CAvailableCoin > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason )
+CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason )
 {
+	CUpdateCoins updateCoins;
+	std::map< int, CKeyID > mine;
 	std::vector<std::pair<CScript, int64_t> > vecSend;
 
+	int id = 0;
 	int64_t total = 0;
 	BOOST_FOREACH( PAIRTYPE( CKeyID, int64_t ) const & _target, _outputs )
 	{
@@ -1301,6 +1316,9 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 		CScript scriptPubKey;
 		scriptPubKey.SetDestination( CTxDestination( _target.first ) );
 		vecSend.push_back( std::pair<CScript, int64_t>( scriptPubKey, _target.second ) );
+		if ( IsMine( _target.first ) )
+			mine.insert( std::make_pair( id, _target.first ) );
+		id++;
 	}
 
 	if (vecSend.empty())
@@ -1335,16 +1353,22 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 
 				int64_t nTotalValue = nValue;
 				// vouts to the payees
+				id = 0;
 				BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
 				{
 					CTxOut txout(s.second, s.first);
 					wtxNew.vout.push_back(txout);
+
+					std::map< int, CKeyID >::iterator mineIterator = mine.find( id );
+					if ( mineIterator != mine.end() )
+						updateCoins.m_toAdd.insert( std::make_pair( mineIterator->second, CAvailableCoin( txout, -1, -1 ) ) );
+					id++;
 				}
 
 				int64_t requestedValueIn = 0;
-				std::vector< CAvailableCoin > requestedSetCoins;
+				std::vector< CSpendCoins > requestedSetCoins;
 
-				std::vector< CAvailableCoin >::const_iterator iterator = _coinsToUse.begin();
+				std::vector< CSpendCoins >::const_iterator iterator = _coinsToUse.begin();
 
 				while( iterator != _coinsToUse.end() )
 				{
@@ -1370,7 +1394,7 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 
 				nValueIn += requestedValueIn;
 
-				setCoins.insert( setCoins.end(), requestedSetCoins.begin(), requestedSetCoins.end() );
+				//setCoins.insert( setCoins.end(), requestedSetCoins.begin(), requestedSetCoins.end() );
 
 				int64_t nChange = nValueIn - nValue;
 //this  I will fix later
@@ -1392,6 +1416,17 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 				  vector<CTxOut>::iterator position = wtxNew.vout.begin()+GetRandInt(wtxNew.vout.size()+1);
 				  wtxNew.vout.insert(position, newTxOut);
 
+				  updateCoins.m_toAdd.insert( std::make_pair( keyId, CAvailableCoin( newTxOut, -1, -1 ) ) );
+
+				}
+
+				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
+				{
+					CKeyID keyId;
+					if ( !getKeyForCoin( coin, keyId ) )
+						assert( !"coin should be present here" );
+					updateCoins.m_toRemove.insert( std::make_pair( keyId, coin ) );
+
 				}
 
 				// Fill vin
@@ -1400,8 +1435,26 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 
 				// Sign
 				int nIn = 0;
-				BOOST_FOREACH(CAvailableCoin const & coin, setCoins)
+				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
 				if (!SignSignature(*this, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
+				{
+						strFailReason = _("Signing transaction failed");
+						return false;
+				}
+
+				CBasicKeyStore basicKeyStore;
+
+				BOOST_FOREACH( CSpendCoins const & spendCoin, requestedSetCoins )
+				{
+					basicKeyStore.AddKeyPubKey( spendCoin.m_key, spendCoin.m_key.GetPubKey() );
+				}
+
+				BOOST_FOREACH( CSpendCoins const & coin, requestedSetCoins )
+					wtxNew.vin.push_back(CTxIn(coin.m_hash,coin.m_position));
+
+				// Sign
+				BOOST_FOREACH( CSpendCoins const & coin, requestedSetCoins)
+				if (!SignSignature(basicKeyStore, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
 				{
 						strFailReason = _("Signing transaction failed");
 						return false;
@@ -1425,7 +1478,70 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 			}
 		}
 	}
+
+	m_waitingChanges.insert( std::make_pair( wtxNew.GetHash(), updateCoins ) );
 	return true;
+}
+
+bool searchInVout(  )
+{
+
+}
+
+void
+CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const & _addmitedTransaction )
+{
+	std::map< uint256, CUpdateCoins >::iterator iterator = m_waitingChanges.find( _initialHash );
+
+	if ( iterator == m_waitingChanges.end() )
+	{
+		assert( !"can't happen" );
+		return;
+	}
+	uint256 hash = _addmitedTransaction.GetHash();
+
+	std::vector< CAvailableCoin > remove;
+	std::vector< CAvailableCoin > add;
+
+	CKeyID keyId = CKeyID( 0 );
+	BOOST_FOREACH( PAIRTYPE( CKeyID const, CAvailableCoin ) & coins, iterator->second.m_toAdd )
+	{
+		if ( keyId != coins.first )
+		{
+
+			addCoins( keyId, add );
+			add.clear();
+			keyId = coins.first;
+		}
+
+		std::vector<CTxOut>::const_iterator txOutIterator = std::find( _addmitedTransaction.vout.begin(), _addmitedTransaction.vout.end(), coins.second.m_coin );
+		if ( txOutIterator == _addmitedTransaction.vout.end() )
+		{
+			assert( !"can't happen" );
+			return;
+		}
+		size_t distance = txOutIterator - _addmitedTransaction.vout.begin();
+
+		coins.second.m_position = distance;
+		coins.second.m_hash = hash;
+
+		add.push_back( coins.second );
+	}
+
+	keyId = CKeyID( 0 );
+
+	BOOST_FOREACH( PAIRTYPE( CKeyID, CAvailableCoin ) const & coins, iterator->second.m_toRemove )
+	{
+		if ( keyId != coins.first )
+		{
+			removeCoins( keyId, remove );
+			remove.clear();
+			keyId = coins.first;
+		}
+
+		remove.push_back( coins.second );
+	}
+
 }
 
 bool
@@ -2263,13 +2379,34 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
 }
 
 void
-CWallet::setAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins )
+CWallet::replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins )
 {
 	AssertLockHeld(cs_wallet);
 
 	m_availableCoins.erase(_keyId);
 
-	BOOST_FOREACH( CAvailableCoin const & availableCoin, _availableCoins )
+	addCoins( _keyId, _availableCoins );
+}
+
+void
+CWallet::removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins )
+{
+	AssertLockHeld(cs_wallet);
+
+
+	for ( std::multimap< uint160, CAvailableCoin >::iterator iterator = m_availableCoins.lower_bound( _keyId ), previous = iterator; iterator != m_availableCoins.upper_bound( _keyId ); previous = iterator )
+	{
+		bool remove = std::find( _previousCoins.begin(), _previousCoins.end(), iterator->second ) != _previousCoins.end();
+		iterator++;
+
+		if ( remove )
+			m_availableCoins.erase( previous );
+	}
+}
+
+void CWallet::addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins )
+{
+	BOOST_FOREACH( CAvailableCoin const & availableCoin, _coins )
 	{
 		m_availableCoins.insert( std::make_pair( _keyId, availableCoin ) );
 	}

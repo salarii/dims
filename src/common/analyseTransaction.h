@@ -9,10 +9,14 @@ class CTransaction;
 class CTxOut;
 class CKeyID;
 
+struct CAvailableCoin;
+
 namespace common
 {
 
 bool findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId , CTxOut & _txout, unsigned int & _id );
+
+std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash );
 
 }
 

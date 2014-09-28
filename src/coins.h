@@ -373,4 +373,11 @@ struct CAvailableCoin
 	uint256 m_hash;
 };
 
+struct CSpendCoins : public CAvailableCoin
+{
+	CSpendCoins( CTxOut const & _coin, unsigned int _position,uint256 const & _hash, CKey const & _key ):CAvailableCoin( _coin, _position, _hash ), m_key( _key ){}
+
+	CKey m_key;
+};
+
 #endif

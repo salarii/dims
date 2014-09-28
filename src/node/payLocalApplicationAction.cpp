@@ -91,7 +91,7 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 		CWalletTx tx;
 		std::string failReason;
 
-		CClientControl::getInstance()->createTransaction( outputs, std::vector< CAvailableCoin >(), trackerStats, tx, failReason );
+		CClientControl::getInstance()->createTransaction( outputs, std::vector< CSpendCoins >(), trackerStats, tx, failReason );
 
 		context< CPayLocalApplicationAction >().setServicingTracker( trackerStats.m_key );
 
@@ -164,6 +164,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	{
 		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
 		{
+			CTransaction const & transaction = context< CPayLocalApplicationAction >().getFirstTransaction();
+
 			return  transit< CSecondTransaction >();
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
@@ -203,14 +205,10 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 		if ( !common::findOutputInTransaction( firstTransaction, context< CPayLocalApplicationAction >().getPrivKey().GetPubKey().GetID(), txOut, id ) )
 			assert( !"something went wrong" );
 
-		std::vector< CAvailableCoin > coinsToUse;
-		coinsToUse.push_back( CAvailableCoin( txOut, id, firstTransaction.GetHash() ) );
-
-		CClientControl::getInstance()->addKey( context< CPayLocalApplicationAction >().getPrivKey(), context< CPayLocalApplicationAction >().getPrivKey().GetPubKey(), true );
+		std::vector< CSpendCoins > coinsToUse;
+		coinsToUse.push_back( CSpendCoins( txOut, id, firstTransaction.GetHash(), context< CPayLocalApplicationAction >().getPrivKey() ) );
 
 		CClientControl::getInstance()->createTransaction( outputs, coinsToUse, context< CPayLocalApplicationAction >().getTrackerStats(), tx, failReason );
-
-		CClientControl::getInstance()->removeKey( context< CPayLocalApplicationAction >().getPrivKey().GetPubKey() );
 
 		context< CPayLocalApplicationAction >().setRequest( new CTransactionSendRequest( tx, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
 	}

@@ -6,10 +6,12 @@
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "sendBalanceInfoAction.h"
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"
+#include "common/analyseTransaction.h"
+
 #include "sendInfoRequestAction.h"
+#include "sendBalanceInfoAction.h"
 
 #include "clientFilters.h"
 #include "clientControl.h"
@@ -55,14 +57,14 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 
 		CKeyID keyId;
 		address.GetKeyID( keyId );
-		typedef std::map< uint256, CCoins >::value_type  MapElement;
+
 		std::vector< CAvailableCoin > availableCoins;
-		BOOST_FOREACH( MapElement const & coins, _coinsEvent.m_coins )
+		BOOST_FOREACH( PAIRTYPE( uint256, CCoins ) const & coins, _coinsEvent.m_coins )
 		{
-			std::vector< CAvailableCoin > tempCoins = context< CSendBalanceInfoAction >().getAvailableCoins( coins.second, keyId, coins.first );
+			std::vector< CAvailableCoin > tempCoins = common::getAvailableCoins( coins.second, keyId, coins.first );
 			availableCoins.insert(availableCoins.end(), tempCoins.begin(), tempCoins.end());
 		}
-		CWallet::getInstance()->setAvailableCoins( keyId, availableCoins );
+		CWallet::getInstance()->replaceAvailableCoins( keyId, availableCoins );
 
 		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
 
@@ -148,52 +150,7 @@ CSendBalanceInfoAction::getAddresses() const
 	return m_addresses;
 }
 
-std::vector< CAvailableCoin >
-CSendBalanceInfoAction::getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash ) const
-{
-	std::vector< CAvailableCoin > availableCoins;
-	unsigned int valueSum = 0, totalInputSum = 0;
-	for (unsigned int i = 0; i < _coins.vout.size(); i++)
-	{
-		const CTxOut& txout = _coins.vout[i];
 
-		opcodetype opcode;
-
-		std::vector<unsigned char> data;
-
-		CScript::const_iterator pc = txout.scriptPubKey.begin();
-		//sanity check
-		while( pc != txout.scriptPubKey.end() )
-		{
-			if (!txout.scriptPubKey.GetOp(pc, opcode, data))
-				return std::vector< CAvailableCoin >();
-		}
-		txnouttype type;
-
-		std::vector< std:: vector<unsigned char> > vSolutions;
-		if (Solver(txout.scriptPubKey, type, vSolutions) &&
-				(type == TX_PUBKEY || type == TX_PUBKEYHASH))
-		{
-			std::vector<std::vector<unsigned char> >::iterator it = vSolutions.begin();
-
-			while( it != vSolutions.end() )
-			{
-
-				if (
-						( ( type == TX_PUBKEY ) && ( _pubId == Hash160( *it ) ) )
-					||	( ( type == TX_PUBKEYHASH ) && ( _pubId == uint160( *it ) ) )
-					)
-				{
-					if ( !txout.IsNull() )
-						availableCoins.push_back( CAvailableCoin( txout, i, _hash ) );
-					break;
-				}
-				it++;
-			}
-		}
-	}
-	return availableCoins;
-}
 
 void
 CSendBalanceInfoAction::setRequest( common::CRequest< NodeResponses > * _request )

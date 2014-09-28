@@ -36,8 +36,6 @@ public:
 
 	std::vector< std::string > const & getAddresses() const;
 
-	std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash ) const;
-
 	void setRequest( common::CRequest< NodeResponses > * _request );
 private:
 	common::CRequest< NodeResponses >* m_request;
