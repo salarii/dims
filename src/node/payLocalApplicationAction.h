@@ -72,7 +72,18 @@ public:
 	void setServicingTracker( CPubKey const & _pubKey );
 
 	CPubKey const & getServicingTracker() const;
+
+	void setFirstInitialHash( uint256 const & _firstInitialHash )
+	{
+		m_firstInitialHash = _firstInitialHash;
+	}
+	uint256 getFirstInitailHash() const
+	{
+		return m_firstInitialHash;
+	}
 private:
+	uint256 m_firstInitialHash;
+
 	CTransaction m_firstTransaction;
 
 	CTransaction m_secondTransaction;

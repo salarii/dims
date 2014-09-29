@@ -46,8 +46,7 @@ WalletModel::WalletModel(CWallet *wallet, OptionsModel *optionsModel, QObject *p
 
 	client::CClientControl::getInstance()->setAddressTableModel( addressTableModel );
 
-	client::CClientControl::getInstance()->acquireClientSignals().m_addKey.connect( boost::bind(&CWallet::AddKeyPubKey, wallet, _1, _2, _3 ) );
-	client::CClientControl::getInstance()->acquireClientSignals().m_removeKey.connect( boost::bind(&CWallet::RemoveKeyPubKey, wallet, _1 ) );
+	client::CClientControl::getInstance()->acquireClientSignals().m_transactionAddmited.connect( boost::bind(&CWallet::addmitNewTransaction, wallet, _1, _2 ) );
 	// This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));

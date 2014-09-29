@@ -1203,7 +1203,7 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 		nValueRet = 0;
 
 		// List of values less than target
-		pair<int64_t,CAvailableCoin*> coinLowestLarger;
+		pair<int64_t,CAvailableCoin const*> coinLowestLarger;
 		coinLowestLarger.first = std::numeric_limits<int64_t>::max();
 		coinLowestLarger.second = NULL;
 		std::vector< CAvailableCoin > vValue;
@@ -1214,21 +1214,20 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 		{
 			int64_t n = coinPair.second.m_coin.nValue;
 
-			coin = coinPair.second;
-
 			if (n == nTargetValue)
 			{
-				setCoinsRet.push_back(coin);
-				nValueRet += coin.m_coin.nValue;
+				setCoinsRet.push_back(coinPair.second);
+				nValueRet += coinPair.second.m_coin.nValue;
 				return true;
 			}
 			else if (n < nTargetValue )
 			{
-				vValue.push_back(coin);
+				vValue.push_back(coinPair.second);
 				nTotalLower += n;
 			}
 			else if (n < coinLowestLarger.first)
 			{
+				coin = coinPair.second;
 				coinLowestLarger = std::make_pair(n, &coin);
 			}
 		}
@@ -1433,15 +1432,6 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
 					wtxNew.vin.push_back(CTxIn(coin.m_hash,coin.m_position));
 
-				// Sign
-				int nIn = 0;
-				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
-				if (!SignSignature(*this, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
-				{
-						strFailReason = _("Signing transaction failed");
-						return false;
-				}
-
 				CBasicKeyStore basicKeyStore;
 
 				BOOST_FOREACH( CSpendCoins const & spendCoin, requestedSetCoins )
@@ -1453,6 +1443,14 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 					wtxNew.vin.push_back(CTxIn(coin.m_hash,coin.m_position));
 
 				// Sign
+				int nIn = 0;
+				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
+				if (!SignSignature(*this, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
+				{
+						strFailReason = _("Signing transaction failed");
+						return false;
+				}
+
 				BOOST_FOREACH( CSpendCoins const & coin, requestedSetCoins)
 				if (!SignSignature(basicKeyStore, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
 				{
@@ -1491,6 +1489,8 @@ bool searchInVout(  )
 void
 CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const & _addmitedTransaction )
 {
+	AssertLockHeld(cs_wallet);
+
 	std::map< uint256, CUpdateCoins >::iterator iterator = m_waitingChanges.find( _initialHash );
 
 	if ( iterator == m_waitingChanges.end() )
@@ -1528,6 +1528,12 @@ CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const 
 		add.push_back( coins.second );
 	}
 
+	if ( !add.empty() )
+	{
+		addCoins( keyId, add );
+		NotifyAddressBookChanged(this, keyId, "", true, "", CT_BALANCE);
+	}
+
 	keyId = CKeyID( 0 );
 
 	BOOST_FOREACH( PAIRTYPE( CKeyID, CAvailableCoin ) const & coins, iterator->second.m_toRemove )
@@ -1540,6 +1546,12 @@ CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const 
 		}
 
 		remove.push_back( coins.second );
+	}
+
+	if ( !remove.empty() )
+	{
+		removeCoins( keyId, remove );
+		NotifyAddressBookChanged(this, keyId, "", true, "", CT_BALANCE);
 	}
 
 }
@@ -2386,13 +2398,13 @@ CWallet::replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCo
 	m_availableCoins.erase(_keyId);
 
 	addCoins( _keyId, _availableCoins );
+
+	NotifyAddressBookChanged(this, _keyId, "", true, "", CT_BALANCE);
 }
 
 void
 CWallet::removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins )
 {
-	AssertLockHeld(cs_wallet);
-
 
 	for ( std::multimap< uint160, CAvailableCoin >::iterator iterator = m_availableCoins.lower_bound( _keyId ), previous = iterator; iterator != m_availableCoins.upper_bound( _keyId ); previous = iterator )
 	{
@@ -2410,8 +2422,6 @@ void CWallet::addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > con
 	{
 		m_availableCoins.insert( std::make_pair( _keyId, availableCoin ) );
 	}
-
-	NotifyAddressBookChanged(this, _keyId, "", true, "", CT_BALANCE);
 }
 
 void CWallet::GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const {

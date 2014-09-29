@@ -22,12 +22,11 @@ struct CUninitiatedClient;
 
 struct CClientSignals
 {
-	boost::signals2::signal<bool( CKey const &, CPubKey const &, bool )> m_addKey;
-	boost::signals2::signal<bool( CPubKey const & )> m_removeKey;
+	boost::signals2::signal<void( uint256 const &, CTransaction const & )> m_transactionAddmited;
 	boost::signals2::signal<int()> m_messageboxPaymentRequest;
 	boost::signals2::signal<void ( unsigned int )> m_updateTotalBalance;
-	boost::signals2::signal<void ( CTransaction const & _transaction )> m_putTransactionIntoModel;
-	boost::signals2::signal<void ( uint256 const & _transaction )> m_updateTransactionInModel;
+	boost::signals2::signal<void ( CTransaction const & )> m_putTransactionIntoModel;
+	boost::signals2::signal<void ( uint256 const & )> m_updateTransactionInModel;
 	boost::signals2::signal<bool ( std::vector< std::pair< CKeyID, int64_t > > const &, std::vector< CSpendCoins > const &, common::CTrackerStats const &,CWalletTx&, std::string&)> m_createTransaction;
 };
 
@@ -51,9 +50,7 @@ public:
 
 	bool executePaymentMessageBox();
 
-	bool addKey( CKey const & _key, CPubKey const & _pubKey, bool _invisible );
-
-	bool removeKey( CPubKey const & _pubKey );
+	void transactionAddmited( uint256 const & _hash, CTransaction const & _transaction );
 private:
 	CClientControl();
 private:

@@ -95,6 +95,8 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 
 		context< CPayLocalApplicationAction >().setServicingTracker( trackerStats.m_key );
 
+		context< CPayLocalApplicationAction >().setFirstInitialHash( tx.GetHash() );
+
 		context< CPayLocalApplicationAction >().setRequest( new CTransactionSendRequest( tx, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) ) );
 	}
 
@@ -164,6 +166,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	{
 		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
 		{
+			CClientControl::getInstance()->transactionAddmited( context< CPayLocalApplicationAction >().getFirstInitailHash(), context< CPayLocalApplicationAction >().getFirstTransaction() );
+
 			CTransaction const & transaction = context< CPayLocalApplicationAction >().getFirstTransaction();
 
 			return  transit< CSecondTransaction >();

@@ -107,16 +107,10 @@ CClientControl::executePaymentMessageBox()
 	return m_clientSignals.m_messageboxPaymentRequest().get_value_or(0) == QMessageBox::Ok ? true : false;
 }
 
-bool
-CClientControl::addKey( CKey const & _key, CPubKey const & _pubKey, bool _invisible )
+void
+CClientControl::transactionAddmited( uint256 const & _hash, CTransaction const & _transaction )
 {
-	return m_clientSignals.m_addKey( _key, _pubKey, _invisible ).get_value_or(0);
-}
-
-bool
-CClientControl::removeKey( CPubKey const & _pubKey )
-{
-	return m_clientSignals.m_removeKey( _pubKey ).get_value_or(0);
+	m_clientSignals.m_transactionAddmited( _hash, _transaction );
 }
 
 CClientControl::CClientControl()

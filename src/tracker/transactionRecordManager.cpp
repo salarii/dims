@@ -198,8 +198,6 @@ CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction 
 	unsigned int transactionIndex = 0;
 	BOOST_FOREACH( CTransaction const & transaction, _transactions )
 	{
-		transactionIndex++;
-
 		std::vector<CScriptCheck> vChecks;
 		if ( !CheckInputs(transaction, state, *m_coinsViewCache, true, flags, &vChecks ) )
 			return false;
@@ -209,6 +207,8 @@ CTransactionRecordManager::validateTransactionBundle( std::vector< CTransaction 
 
 		if ( !control.Wait() )
 			_invalidTransactions.push_back( transactionIndex );
+
+		transactionIndex++;
 	}
 	return true;
 }
