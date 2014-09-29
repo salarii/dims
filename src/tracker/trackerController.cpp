@@ -73,6 +73,7 @@ CTrackerController::CTrackerController()
 	: m_price(0.01)
 	, m_maxPrice(1000000)
 	, m_minPrice(1000)
+	, m_connected( false )
 {
 	initiate();
 }
