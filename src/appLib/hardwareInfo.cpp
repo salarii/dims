@@ -292,10 +292,10 @@ convertToVector( T const t )
 	T temp = t;
 	size_t size = sizeof( T );
 
-	for( unsigned int i ; i < size; ++i )
+	for( unsigned int i = 0; i < size; ++i )
 	{
-		result.push_back( (unsigned char)0xff & t );
-		t >> 8;
+		result.push_back( (unsigned char)0xff & temp );
+		temp >>= 8;
 	}
 
 	return result;
@@ -313,7 +313,7 @@ CHardwareNumbers getHardwareNumbers()
 	u32 mac = 0;
 
 #else
-	unsigned short mac1,mac2;
+	unsigned short mac1 = 0,mac2 = 0;
 	unsigned int mac = 0;
 #endif
 

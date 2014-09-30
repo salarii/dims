@@ -1283,6 +1283,9 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 			}
 			iterator++;
 		}
+
+		if (nTargetValue <= nValueRet )
+			return true;
 /*
 			LogPrint("selectcoins", "SelectCoins() best subset: ");
 			for (unsigned int i = 0; i < vValue.size(); i++)

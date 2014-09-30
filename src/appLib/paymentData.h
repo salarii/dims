@@ -20,6 +20,8 @@ struct CLicenseData
 		READWRITE(m_procSignature);
 		READWRITE(m_volumeSignature);
 		READWRITE(m_trasaction);
+		READWRITE(m_trackerPubKey);
+		READWRITE(m_transactionStatusSignature);
 	)
 
 	CPrivKey m_privateKey;

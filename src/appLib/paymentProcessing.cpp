@@ -19,6 +19,8 @@
 namespace dims
 {
 
+std::string const LicenseFilePath = ".license";
+
 CPaymentProcessing * CPaymentProcessing::ms_instance = NULL;
 
 CPaymentProcessing*
@@ -35,7 +37,7 @@ unsigned int const LicenseFileSize = 1024 * 2;
 bool
 CPaymentProcessing::licenseExist()
 {
-	boost::filesystem::path path( ".license" );
+	boost::filesystem::path path( LicenseFilePath );
 
 	return boost::filesystem::exists(path);
 }
@@ -43,7 +45,7 @@ CPaymentProcessing::licenseExist()
 FILE*
 CPaymentProcessing::openLicenseFile()
 {
-	boost::filesystem::path path = ".license";
+	boost::filesystem::path path = LicenseFilePath;
 
 	FILE* file = fopen(path.string().c_str(), "rb+");
 	if (!file )
@@ -91,7 +93,9 @@ CPaymentProcessing::saveLicenseFileData( CLicenseData const & _licenseData )
 bool
 CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 {
-	uint256 hash = Hash( _licenseData.m_privateKey.begin(), _licenseData.m_privateKey.end() );
+	CKey key;
+	key.SetPrivKey( m_licenseData.m_privateKey, false);
+	uint256 hash = Hash( key.begin(), key.end() );
 
 	HardwareKeys hardwareKeys = createKeys();
 
@@ -111,8 +115,7 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 
 	if ( !analyseOutput( _licenseData.m_trasaction, authorKeyId, Value ) )
 		return false;
-	CKey key;
-	key.SetPrivKey(_licenseData.m_privateKey, false);
+
 	if ( !analyseInput( _licenseData.m_trasaction, key.GetPubKey().GetID() ) )
 		return false;
 
@@ -128,7 +131,7 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 		}
 	}
 
-	return true;
+	return false;
 }
 
 bool
@@ -167,7 +170,7 @@ CPaymentProcessing::analyseOutput( CTransaction const & _tx, CKeyID const & _aut
 				}
 				else
 				{
-					if ( _authorId == Hash160( *it ) && txout.nValue  >= _value )
+					if ( _authorId == uint160( *it ) && txout.nValue  >= _value )
 						return true;
 				}
 				it++;
@@ -338,6 +341,8 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 
 		signPrivateKey();
 		verifyData( m_licenseData );
+
+		saveLicenseFileData( m_licenseData );
 	}
 	else if ( kind == CMessageKind::ErrorIndicator )
 	{
