@@ -171,11 +171,6 @@ CTrackerLocalRanking::isValidTrackerKnown( CKeyID const & _trackerId )
 {
 	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
 	{
-CNodeAddress nodeAddress;
-nodeAddress.Set(trackerStats.m_key.GetID(), common::NodePrefix::Tracker);
-std::string name = nodeAddress.ToString();
-
-
 		if ( trackerStats.m_key.GetID() == _trackerId )
 			return true;
 	}

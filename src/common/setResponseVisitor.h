@@ -40,7 +40,7 @@ class CPayLocalApplicationAction;
 
 namespace monitor
 {
-class CAddTrackerAction;
+class CConnectNodeAction;
 }
 
 namespace seed
@@ -110,7 +110,7 @@ class CSetResponseVisitor< monitor::MonitorResponses >
 public:
 	CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse );
 
-	void visit( monitor::CAddTrackerAction & _action );
+	void visit( monitor::CConnectNodeAction & _action );
 private:
 
 	monitor::MonitorResponses m_requestResponse;

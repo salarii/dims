@@ -8,7 +8,8 @@ bin_PROGRAMS = dims_monitor
 noinst_LIBRARIES = libmonitor.a
 
 MONITOR_H = \
-	addTrackerAction.h \
+	connectNodeAction.h \
+	filters.h \
 	init.h \
 	monitorRequestsList.h \
 	processNetwork.h \
@@ -16,7 +17,7 @@ MONITOR_H = \
 	
 MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
-	addTrackerAction.cpp \
+	connectNodeAction.cpp \
 	init.cpp \
 	monitor.cpp \
 	processNetwork.cpp \

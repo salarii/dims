@@ -10,7 +10,6 @@
 #include "common/nodeMedium.h"
 
 #include "configureMonitorActionHandler.h"
-#include "addTrackerAction.h"
 
 namespace common
 {
@@ -72,8 +71,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CAddTrackerAction * addTrackerAction= new CAddTrackerAction( identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< MonitorResponses >::getInstance()->executeAction( addTrackerAction );
+
 
 			}
 

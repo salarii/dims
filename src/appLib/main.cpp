@@ -18,7 +18,7 @@ std::string const HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf"
 
 std::vector< std::string > const PossibleMonitors;
 
-std::vector< std::string > const PossibleTrackers = boost::assign::list_of( "tGDcQoyfVs8o4v3Md7XQpjhM16TPgbegbt" );
+std::vector< std::string > const PossibleTrackers = boost::assign::list_of( "tJMhNj9DXPnRgDMDjYmCqvnjadQ4oRVfUt" );
 
 std::string const AuthorId = "dKqwKfMdUcxipQ82NzP1NoZ3AtTEUsGMKV";
 

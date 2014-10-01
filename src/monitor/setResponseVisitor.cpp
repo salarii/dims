@@ -5,7 +5,6 @@
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
 
-#include "addTrackerAction.h"
 
 #include "common/commonEvents.h"
 
@@ -34,13 +33,6 @@ public:
 CSetResponseVisitor< monitor::MonitorResponses >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
 {
-}
-
-
-void
-CSetResponseVisitor< monitor::MonitorResponses >::visit( monitor::CAddTrackerAction & _action )
-{
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CAddTrackerAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult< monitor::CAddTrackerAction >( &_action ), m_requestResponse );
 }
 
 }

@@ -13,12 +13,22 @@ class CContinueReqest;
 
 template < class RequestType >
 class CIdentifyResponse;
+
+template < class RequestType >
+class CKnownNetworkInfoRequest;
+
+template < class RequestType >
+class CAckRequest;
+
+template < class RequestType >
+class CNetworkRoleRequest;
+
 }
 
 namespace monitor
 {
 
-typedef boost::mpl::list< common::CIdentifyRequest< MonitorResponses >, common::CContinueReqest< MonitorResponses >, common::CIdentifyResponse< MonitorResponses > > MonitorRequestsList;
+typedef boost::mpl::list< common::CIdentifyRequest< MonitorResponses >, common::CContinueReqest< MonitorResponses >, common::CIdentifyResponse< MonitorResponses >, common::CKnownNetworkInfoRequest< MonitorResponses >, common::CAckRequest< MonitorResponses >, common::CNetworkRoleRequest< MonitorResponses > > MonitorRequestsList;
 
 }
 
