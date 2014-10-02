@@ -5,8 +5,24 @@
 #ifndef MONITOR_CONTROLLER_H
 #define MONITOR_CONTROLLER_H
 
+#include <boost/statechart/state_machine.hpp>
+
 namespace monitor
 {
+
+struct CMonitorInitialSynchronization;
+
+class CMonitorController : public boost::statechart::state_machine< CMonitorController, CMonitorInitialSynchronization >
+{
+public:
+	static CMonitorController* getInstance();
+
+private:
+	CMonitorController();
+
+private:
+	static CMonitorController * ms_instance;
+};
 
 }
 

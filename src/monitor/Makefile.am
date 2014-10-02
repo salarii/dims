@@ -11,6 +11,7 @@ MONITOR_H = \
 	connectNodeAction.h \
 	filters.h \
 	init.h \
+	monitorController.h \
 	monitorRequestsList.h \
 	processNetwork.h \
 	reputationTracer.h
@@ -19,6 +20,7 @@ MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
 	connectNodeAction.cpp \
 	init.cpp \
+	monitorController.cpp \
 	monitor.cpp \
 	processNetwork.cpp \
 	reputationTracer.cpp \
