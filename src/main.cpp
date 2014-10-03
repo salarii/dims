@@ -1540,6 +1540,32 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 				return false;
 		}while( chainActive.Genesis()->GetBlockHash() != indexNew->GetBlockHash() );
 	}
+
+	// set height properly
+	if ( chainActive.Height() != -1 )
+	{
+		CBlockIndex* indexNew = pindexNew;
+
+		unsigned int newHeight = chainActive.Height();
+		do
+		{
+			indexNew = indexNew->pprev;
+			newHeight++;
+
+		}while( chainActive.Tip()->GetBlockHash() != indexNew->GetBlockHash() );
+
+		indexNew = pindexNew;
+
+		do
+		{
+			indexNew->nHeight = newHeight;
+			indexNew = indexNew->pprev;
+			newHeight--;
+
+		}while( chainActive.Tip()->GetBlockHash() != indexNew->GetBlockHash() );
+
+	}
+
 	setBlockIndexValid.insert(pindexNew);
 
     // New best?

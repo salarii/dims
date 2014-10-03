@@ -29,7 +29,7 @@ CReputationTracker::getInstance()
 unsigned int
 CReputationTracker::calculateReputation( uint64_t _passedTime )
 {
-	log( _passedTime ); // obviously it need  to be tuned
+	;
 }
 
 void
@@ -44,7 +44,7 @@ CReputationTracker::loop()
 			tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
 
 		}
-
+// make  estimation
 		BOOST_FOREACH( AllyMonitors::value_type & monitor, m_allyMonitorsRankings )
 		{
 			BOOST_FOREACH( CAllyTrackerData & tracker, monitor.second )
@@ -61,6 +61,13 @@ void
 CReputationTracker::checkValidity( CAllyTrackerData const & _allyTrackerData )
 {
 
+}
+
+void
+CReputationTracker::addTracker( uint160 const _trackerKeyId )
+{
+	m_transactionsAddmited.insert( std::make_pair( _trackerKeyId, 0 ) );
+	m_registeredTrackers.insert( std::make_pair( _trackerKeyId, CTrackerData() ) );
 }
 
 

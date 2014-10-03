@@ -47,6 +47,7 @@
 #include "common/nodesManager.h"
 
 #include "processNetwork.h"
+#include "monitorController.h"
 
 using namespace std;
 using namespace boost;
@@ -626,6 +627,9 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 	// ********************************************************* Step 10: load peers
+
+	CMonitorController::getInstance();
+
 
 	nStart = GetTimeMillis();
 
