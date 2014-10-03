@@ -1528,6 +1528,8 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     pindexNew->nUndoPos = 0;
     pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
 
+	setBlockIndexValid.insert(pindexNew);
+
 	if ( chainActive.Height() != -1 && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
 	{
 		// this  test for  testnet
@@ -1552,6 +1554,8 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 			indexNew = indexNew->pprev;
 			newHeight++;
 
+			if ( !indexNew )
+				return false;
 		}while( chainActive.Tip()->GetBlockHash() != indexNew->GetBlockHash() );
 
 		indexNew = pindexNew;
@@ -1565,8 +1569,6 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 		}while( chainActive.Tip()->GetBlockHash() != indexNew->GetBlockHash() );
 
 	}
-
-	setBlockIndexValid.insert(pindexNew);
 
     // New best?
     if (!ActivateBestChain(state))
