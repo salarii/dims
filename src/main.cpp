@@ -1528,8 +1528,6 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     pindexNew->nUndoPos = 0;
     pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
 
-	setBlockIndexValid.insert(pindexNew);
-
 	if ( chainActive.Height() != -1 && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
 	{
 		// this  test for  testnet
@@ -1544,19 +1542,35 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 	}
 
 	// set height properly
-	if ( chainActive.Height() != -1 )
+	if ( chainActive.Height() != -1 && chainActive.Tip()->GetBlockHash() != pindexNew->pprev->GetBlockHash() )
 	{
 		CBlockIndex* indexNew = pindexNew;
 
+		CBlockIndex* chainIndex = chainActive.Tip();
+
 		unsigned int newHeight = chainActive.Height();
+
+		for ( int i = 0; i < 6; ++i )
+		{
+			if ( !chainIndex->pprev )
+				break;
+
+			chainIndex = chainIndex->pprev;
+
+			newHeight--;
+		}
+
 		do
 		{
 			indexNew = indexNew->pprev;
 			newHeight++;
 
 			if ( !indexNew )
+			{
+				mapBlockIndex.erase( hash );
 				return false;
-		}while( chainActive.Tip()->GetBlockHash() != indexNew->GetBlockHash() );
+			}
+		}while( chainIndex->GetBlockHash() != indexNew->GetBlockHash() );
 
 		indexNew = pindexNew;
 
@@ -1566,9 +1580,11 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 			indexNew = indexNew->pprev;
 			newHeight--;
 
-		}while( chainActive.Tip()->GetBlockHash() != indexNew->GetBlockHash() );
+		}while( chainIndex->GetBlockHash() != indexNew->GetBlockHash() );
 
 	}
+
+	setBlockIndexValid.insert(pindexNew);
 
     // New best?
     if (!ActivateBestChain(state))
