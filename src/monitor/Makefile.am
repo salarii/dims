@@ -12,6 +12,7 @@ MONITOR_H = \
 	filters.h \
 	init.h \
 	monitorController.h \
+	monitorRequests.h \
 	monitorRequestsList.h \
 	processNetwork.h \
 	reputationTracer.h
@@ -20,8 +21,9 @@ MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
 	connectNodeAction.cpp \
 	init.cpp \
-	monitorController.cpp \
 	monitor.cpp \
+	monitorController.cpp \
+	monitorRequests.cpp \
 	processNetwork.cpp \
 	reputationTracer.cpp \
 	setResponseVisitor.cpp

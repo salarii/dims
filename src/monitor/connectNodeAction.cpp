@@ -8,12 +8,13 @@
 #include "common/authenticationProvider.h"
 #include "common/mediumRequests.h"
 
-#include "filters.h"
-
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
+
+#include "filters.h"
+#include "monitorRequests.h"
 
 namespace monitor
 {
@@ -304,8 +305,8 @@ struct CMonitorUnconnected : boost::statechart::state< CMonitorUnconnected, CCon
 {
 	CMonitorUnconnected( my_context ctx ) : my_base( ctx )
 	{
-	//	context< CConnectNodeAction >().setRequest(
-	//			  new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
+		context< CConnectNodeAction >().setRequest(
+				  new CConnectToNodeRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
 	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )

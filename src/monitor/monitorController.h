@@ -10,9 +10,9 @@
 namespace monitor
 {
 
-struct CMonitorInitialSynchronization;
+struct CMonitorStandAlone;
 
-class CMonitorController : public boost::statechart::state_machine< CMonitorController, CMonitorInitialSynchronization >
+class CMonitorController : public boost::statechart::state_machine< CMonitorController, CMonitorStandAlone >
 {
 public:
 	static CMonitorController* getInstance();
