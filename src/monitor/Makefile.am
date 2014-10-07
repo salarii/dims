@@ -11,6 +11,8 @@ MONITOR_H = \
 	connectNodeAction.h \
 	filters.h \
 	init.h \
+	internalMediumProvider.h \
+	internalOperationsMedium.h \
 	monitorController.h \
 	monitorRequests.h \
 	monitorRequestsList.h \
@@ -21,6 +23,8 @@ MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
 	connectNodeAction.cpp \
 	init.cpp \
+	internalMediumProvider.cpp \
+	internalOperationsMedium.cpp \
 	monitor.cpp \
 	monitorController.cpp \
 	monitorRequests.cpp \

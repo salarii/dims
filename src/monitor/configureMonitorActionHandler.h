@@ -15,7 +15,7 @@ namespace monitor
 
 struct CDummyResponse{};
 
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CIdentificationResult, common::CContinueResult, common::CAckPromptResult > MonitorResponseList;
+typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CIdentificationResult, common::CContinueResult, common::CAckPromptResult, common::CConnectedNode > MonitorResponseList;
 
 typedef boost::make_variant_over< MonitorResponseList >::type MonitorResponses;
 

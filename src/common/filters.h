@@ -36,7 +36,7 @@ class CLocalServer;
 
 namespace monitor
 {
-
+class CInternalMediumProvider;
 }
 
 namespace common
@@ -79,7 +79,7 @@ struct CMediumFilter< seed::SeedResponses > : public CMediumFilterBase< seed::Se
 };
 
 template <>
-struct CMediumFilter< monitor::MonitorResponses > : public CMediumFilterBase< monitor::MonitorResponses, common::CNodesManager< monitor::MonitorResponses > >
+struct CMediumFilter< monitor::MonitorResponses > : public CMediumFilterBase< monitor::MonitorResponses, common::CNodesManager< monitor::MonitorResponses >, monitor::CInternalMediumProvider >
 {
 };
 
