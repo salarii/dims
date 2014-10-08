@@ -48,6 +48,7 @@
 
 #include "processNetwork.h"
 #include "monitorController.h"
+#include "internalMediumProvider.h"
 
 using namespace std;
 using namespace boost;
@@ -621,6 +622,8 @@ bool AppInit(boost::thread_group& threadGroup)
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< monitor::MonitorResponses >::loop, common::CActionHandler< monitor::MonitorResponses >::getInstance() ) );
 
+	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)monitor::CInternalMediumProvider::getInstance() );
+
 	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)common::CNodesManager< monitor::MonitorResponses >::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
@@ -662,8 +665,8 @@ bool AppInit(boost::thread_group& threadGroup)
 #endif
 	// InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
-	if (fServer)
-		StartRPCThreads();
+//	if (fServer)
+//		StartRPCThreads();
 
 
 

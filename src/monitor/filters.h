@@ -6,6 +6,8 @@
 #include "common/filters.h"
 #include "common/nodesManager.h"
 
+#include "internalMediumProvider.h"
+
 namespace monitor
 {
 
@@ -28,6 +30,10 @@ struct CMediumClassFilter : public common::CMediumFilter< MonitorResponses >
 		return mediums;
 	}
 
+	std::list< common::CMedium< MonitorResponses > *> getMediums( CInternalMediumProvider * _internalMediumProvider )const
+	{
+		return _internalMediumProvider->getMediumByClass( ( common::CMediumKinds::Enum )m_mediumClass, m_mediumNumber );
+	}
 
 	int m_mediumClass;
 	int m_mediumNumber;

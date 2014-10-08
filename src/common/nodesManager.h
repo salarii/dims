@@ -170,7 +170,7 @@ CNodesManager< ResponseType >::getNodesByClass( CMediumKinds::Enum _nodesClass )
 		// not ok
 		return m_nodeMediums;
 	}
-
+	return std::list< common::CMedium< ResponseType > *>();
 }
 
 
