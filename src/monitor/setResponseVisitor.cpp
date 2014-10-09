@@ -34,11 +34,6 @@ public:
 		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
 	}
 
-	virtual void operator()( common::CRoleResult & _param ) const
-	{
-		this->m_action->process_event( common::CRoleEvent( _param.m_role ) );
-	}
-
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
 	{
 		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_networkInfo ) );
@@ -52,6 +47,11 @@ public:
 	virtual void operator()( common::CAckResult & _param ) const
 	{
 		this->m_action->process_event( common::CAckEvent() );
+	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CGetPrompt & _param ) const

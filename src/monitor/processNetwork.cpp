@@ -49,9 +49,17 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	{
 
 
-		if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+		if ( message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
-			//
+			common::CNodeMedium< MonitorResponses > * nodeMedium = common::CNodesManager< MonitorResponses >::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ) ) );
+			}
+			else
+			{
+			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
 		{
@@ -62,19 +70,35 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			common::CNodeMedium<MonitorResponses> * nodeMedium = common::CNodesManager<MonitorResponses>::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< MonitorResponses > * nodeMedium = common::CNodesManager< MonitorResponses >::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				uint256 hash = Hash( &identifyMessage.m_payload.front(), &identifyMessage.m_payload.back() );
-			//	nodeMedium->setResponse( hash, common::CIdentificationResult<MonitorResponses>( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr  ) );
 			}
 			else
 			{
+			/*	CConnectNodeAction * connectTrackerAction= new CConnectNodeAction(
+							  message.m_header.m_actionKey
+							, identifyMessage.m_payload
+							, convertToInt( nodeMedium->getNode() ) );
 
-
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
 			}
 
+		}
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
+		{
+			common::CAck ack;
+
+			common::convertPayload( message, ack );
+
+			common::CNodeMedium< MonitorResponses > * nodeMedium = common::CNodesManager< MonitorResponses >::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
+			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{

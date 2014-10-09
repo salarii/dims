@@ -214,7 +214,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			else
 			{
 				assert(!"it should be existing action");
-
 			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )

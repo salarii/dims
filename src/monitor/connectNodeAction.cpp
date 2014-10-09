@@ -56,13 +56,20 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 {
 	CMonitorDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Monitor, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
-	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	boost::statechart::result react( common::CMessageResult const & _roleEvent )
 	{
-		m_role = _roleEvent.m_role;
-		context< CConnectNodeAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _roleEvent.m_message, orginalMessage, GetTime(), 			context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		common::CNetworkRole networkRole;
+
+		common::convertPayload( orginalMessage, networkRole );
+
+		m_role = networkRole.m_role;
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -94,7 +101,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
@@ -115,7 +122,6 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 		{
 			context< CConnectNodeAction >().setPublicKey( requestedEvent->m_key );
 
-			//CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), requestedEvent->m_key );
 			context< CConnectNodeAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		}
 		else
