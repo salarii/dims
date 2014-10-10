@@ -14,6 +14,8 @@ MONITOR_H = \
 	internalMediumProvider.h \
 	internalOperationsMedium.h \
 	monitorController.h \
+	monitorNodeMedium.h \
+	monitorNodesManager.h \
 	monitorRequests.h \
 	monitorRequestsList.h \
 	processNetwork.h \
@@ -27,6 +29,8 @@ MONITOR_CPP = \
 	internalOperationsMedium.cpp \
 	monitor.cpp \
 	monitorController.cpp \
+	monitorNodeMedium.cpp \
+	monitorNodesManager.cpp \
 	monitorRequests.cpp \
 	processNetwork.cpp \
 	reputationTracer.cpp \

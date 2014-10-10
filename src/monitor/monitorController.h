@@ -7,6 +7,8 @@
 
 #include <boost/statechart/state_machine.hpp>
 
+#include "uint256.h"
+
 namespace monitor
 {
 
@@ -17,11 +19,32 @@ class CMonitorController : public boost::statechart::state_machine< CMonitorCont
 public:
 	static CMonitorController* getInstance();
 
+	uint256 getPeriod() const
+	{
+		return m_period;
+	}
+	unsigned int getPrice() const
+	{
+		return m_price;
+	}
+
+	void setPeriod( uint256 const _period )
+	{
+		m_period = _period;
+	}
+
+	void setPrice( unsigned int _price )
+	{
+		m_price = _price;
+	}
 private:
 	CMonitorController();
 
 private:
 	static CMonitorController * ms_instance;
+
+	unsigned int m_price;
+	uint256 m_period;
 };
 
 }

@@ -11,13 +11,6 @@
 
 #include "configureMonitorActionHandler.h"
 
-namespace common
-{
-
-template<> common::CNodesManager< monitor::MonitorResponses > * common::CNodesManager< monitor::MonitorResponses >::ms_instance = 0;
-
-}
-
 namespace monitor
 {
 

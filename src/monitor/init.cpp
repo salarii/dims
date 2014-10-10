@@ -49,6 +49,7 @@
 #include "processNetwork.h"
 #include "monitorController.h"
 #include "internalMediumProvider.h"
+#include "monitorNodesManager.h"
 
 using namespace std;
 using namespace boost;
@@ -624,7 +625,7 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)monitor::CInternalMediumProvider::getInstance() );
 
-	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)common::CNodesManager< monitor::MonitorResponses >::getInstance() );
+	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)monitor::CMonitorNodesManager::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 

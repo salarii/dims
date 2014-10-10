@@ -62,7 +62,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 	boost::statechart::result react( common::CMessageResult const & _roleEvent )
 	{
 		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _roleEvent.m_message, orginalMessage, GetTime(), 			context< CConnectNodeAction >().getPublicKey() ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _roleEvent.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
 			assert( !"service it somehow" );
 
 		common::CNetworkRole networkRole;
@@ -70,6 +70,9 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 		common::convertPayload( orginalMessage, networkRole );
 
 		m_role = networkRole.m_role;
+		context< CConnectNodeAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -332,14 +335,7 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 {
 	CMonitorConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-
-		//((common::CNodesManager< MonitorResponses >*)CTrackerNodesManager::getInstance())
-		//		->setValidNode( context< CConnectNodeAction >().getMediumPtr() );
-
-		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
-
-		m_enterStateTime = GetTime();
+	//	context< CConnectNodeAction >().setRequest( new ( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )

@@ -149,6 +149,14 @@ CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CConnectCondition const & _connectCondition, uint256 const & _actionKey )
+: m_header( (int)CPayloadKind::ConnectCondition, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+{
+	createPayload( _connectCondition, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 uint256
 getRandNumber()
 {

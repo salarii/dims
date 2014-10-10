@@ -35,7 +35,8 @@ struct CPayloadKind
 		AckTransactions,
 		StatusTransactions,
 		Message,
-		End
+		End,
+		ConnectCondition
 	};
 };
 
@@ -181,6 +182,20 @@ struct CValidNodeInfo
 	int m_role;
 };
 
+struct CConnectCondition
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_price );
+		READWRITE( m_period );
+	)
+
+	CConnectCondition( unsigned int _price, uint256 const & _period ):m_price( _price ), m_period( _period ){}
+
+	unsigned int m_price;
+	uint256 m_period;
+};
+
 
 struct CKnownNetworkInfo
 {
@@ -226,6 +241,8 @@ public:
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
+	CMessage( CConnectCondition const & _connectCondition, uint256 const & _actionKey );
+
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);
