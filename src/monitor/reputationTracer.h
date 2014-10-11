@@ -6,6 +6,9 @@
 #define REPUTATION_TRACER_H
 
 #include "uint256.h"
+#include "key.h"
+#include "protocol.h"
+
 #include <boost/thread/mutex.hpp>
 
 namespace monitor
@@ -13,9 +16,12 @@ namespace monitor
 
 struct CTrackerData
 {
-	CTrackerData( unsigned int _reputation = 0, uint64_t _networkTime = 0 ):m_reputation( _reputation ), m_networkTime( _networkTime ){}
+	CTrackerData( CAddress _address, unsigned int _reputation, CPubKey _publicKey ): m_address( _address ),m_reputation( _reputation ), m_publicKey( _publicKey ){}
+
+	CAddress m_address;
 	unsigned int m_reputation;
-	uint64_t m_networkTime;
+	CPubKey m_publicKey;
+	//uint64_t m_networkTime;  time  is  important
 };
 
 struct CAllyTrackerData
@@ -44,6 +50,7 @@ private:
 	mutable boost::mutex m_lock;
 
 	typedef std::map< uint160, CTrackerData > RegisteredTrackers;
+
 	typedef std::map< uint160, std::vector< CAllyTrackerData > > AllyMonitors;
 
 	typedef std::map< uint160, uint64_t > TransactionsAddmited;

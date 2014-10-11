@@ -39,9 +39,9 @@ CReputationTracker::loop()
 	{
 		BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
 		{
-			tracker.second.m_networkTime += m_recalculateTime;
+		//	tracker.second.m_networkTime += m_recalculateTime;
 
-			tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
+		//	tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
 
 		}
 // make  estimation
@@ -67,7 +67,7 @@ void
 CReputationTracker::addTracker( uint160 const _trackerKeyId )
 {
 	m_transactionsAddmited.insert( std::make_pair( _trackerKeyId, 0 ) );
-	m_registeredTrackers.insert( std::make_pair( _trackerKeyId, CTrackerData() ) );
+//	m_registeredTrackers.insert( std::make_pair( _trackerKeyId, CTrackerData() ) );
 }
 
 

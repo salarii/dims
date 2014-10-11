@@ -36,7 +36,8 @@ struct CPayloadKind
 		StatusTransactions,
 		Message,
 		End,
-		ConnectCondition
+		ConnectCondition,
+		Result
 	};
 };
 
@@ -188,6 +189,7 @@ struct CConnectCondition
 	(
 		READWRITE( m_price );
 		READWRITE( m_period );
+		READWRITE( m_period );
 	)
 
 	CConnectCondition( unsigned int _price, uint256 const & _period ):m_price( _price ), m_period( _period ){}
@@ -227,6 +229,15 @@ struct CGet
 	int m_type;
 };
 
+struct CResult
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_result );
+	)
+	unsigned int m_result;
+};
+
 struct CMessage
 {
 public:
@@ -242,6 +253,7 @@ public:
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
 	CMessage( CConnectCondition const & _connectCondition, uint256 const & _actionKey );
+	CMessage( CResult const & _result, uint256 const & _actionKey );
 
 	IMPLEMENT_SERIALIZE
 	(

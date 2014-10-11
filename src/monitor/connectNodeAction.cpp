@@ -15,6 +15,9 @@
 
 #include "filters.h"
 #include "monitorRequests.h"
+#include "monitorNodesManager.h"
+
+#include "monitorController.h"
 
 namespace monitor
 {
@@ -252,7 +255,7 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CConnectNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
-		common::CNodesManager< MonitorResponses >::getInstance()->addNode( new common::CNodeMedium< MonitorResponses >( connectedEvent->m_node ) );
+		CMonitorNodesManager::getInstance()->addNode( new common::CNodeMedium< MonitorResponses >( connectedEvent->m_node ) );
 
 		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<MonitorResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
 	}
@@ -335,33 +338,51 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 {
 	CMonitorConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
-	//	context< CConnectNodeAction >().setRequest( new ( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().setRequest( new CConnectCondition( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		int64_t time = GetTime();
-		if ( time - m_enterStateTime < TrackerLoopTime )
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _result )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		common::CResult result;
+
+		common::convertPayload( orginalMessage, result );
+
+		if ( result.m_result )
 		{
-			context< CConnectNodeAction >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+
+			if ( CMonitorController::getInstance()->getPrice() )
+			{
+				// create action send ack
+			}
+			else
+			{
+				// send  ack addmit directly
+
+			}
 		}
 		else
 		{
-			context< CConnectNodeAction >().setRequest( 0 );
+			// ask about status  of  this  tracker
 		}
+//		context< CConnectNodeAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+
 		return discard_event();
 	}
-
-	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
-	{
-		return discard_event();
-	}
-
-	int64_t m_enterStateTime;
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CAckPromptResult >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
 };
 

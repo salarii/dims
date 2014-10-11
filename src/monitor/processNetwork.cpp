@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "processNetwork.h"
+#include "monitorNodesManager.h"
+
 #include "common/nodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
@@ -10,6 +12,7 @@
 #include "common/nodeMedium.h"
 
 #include "configureMonitorActionHandler.h"
+#include "monitorNodeMedium.h"
 
 namespace monitor
 {
@@ -42,9 +45,12 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	{
 
 
-		if ( message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
+		if (
+				   message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
+			)
 		{
-			common::CNodeMedium< MonitorResponses > * nodeMedium = common::CNodesManager< MonitorResponses >::getInstance()->getMediumForNode( pfrom );
+			CMonitorNodeMedium * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -63,7 +69,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			common::CNodeMedium< MonitorResponses > * nodeMedium = common::CNodesManager< MonitorResponses >::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< MonitorResponses > * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -86,7 +92,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( message, ack );
 
-			common::CNodeMedium< MonitorResponses > * nodeMedium = common::CNodesManager< MonitorResponses >::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< MonitorResponses > * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
