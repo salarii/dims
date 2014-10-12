@@ -26,6 +26,9 @@ class CAckRequest;
 template < class RequestType >
 class CEndRequest;
 
+template < class RequestType >
+class CResultRequest;
+
 }
 
 namespace tracker

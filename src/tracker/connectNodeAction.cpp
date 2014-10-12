@@ -25,6 +25,7 @@ namespace tracker
 
 unsigned int const TrackerLoopTime = 20;
 unsigned int const SeedLoopTime = 25;
+unsigned int const MonitorLoopTime = 25;
 
 struct CUnconnected; struct CBothUnidentifiedConnected;
 
@@ -417,10 +418,70 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 	> reactions;
 };
 
+struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConnectNodeAction >
+{
+	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
+	{
+		m_enterStateTime = GetTime();
+		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+	}
+
+	boost::statechart::result react( common::CConnectConditionEvent const & _connectCondition )
+	{
+		unsigned int result = 0;
+
+		CMonitorData & acquireMonitorData = CTrackerController::getInstance()->acquireMonitorData();
+
+		if ( !acquireMonitorData.m_isAdmitted )
+		{
+			if ( acquireMonitorData.m_allowAdmission )
+			{
+				if ( acquireMonitorData.m_accepableRatio >= ( double )_connectCondition.m_price / ( double )_connectCondition.m_period )
+				{
+					result = 1;
+				}
+			}
+
+		}
+		context< CConnectNodeAction >().setRequest( new common::CResultRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), result, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+
+		if ( !result )
+			 transit< CStop >();
+	}
+
+	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	{
+		int64_t time = GetTime();
+		if ( time - m_enterStateTime < MonitorLoopTime )
+		{
+			context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		}
+		else
+		{
+			context< CConnectNodeAction >().setRequest( 0 );
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return transit< CStop >();
+	}
+
+	int64_t m_enterStateTime;
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CConnectConditionEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
 struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
 {
 	CStop( my_context ctx ) : my_base( ctx )
 	{
+		context< CConnectNodeAction >().setRequest( 0 );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -432,14 +493,6 @@ struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >
 	> reactions;
-};
-
-
-struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConnectNodeAction >
-{
-	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
-	{
-	}
 };
 
 CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr )

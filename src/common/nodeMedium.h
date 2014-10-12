@@ -52,6 +52,8 @@ public:
 
 	void add( CEndRequest< ResponseType > const * _request );
 
+	void add( CResultRequest< ResponseType > const * _request );
+
 	void setResponse( uint256 const & _id, ResponseType const & _responses );
 
 	common::CSelfNode * getNode() const;
@@ -244,6 +246,19 @@ CNodeMedium< ResponseType >::add( CEndRequest< ResponseType > const * _request )
 	common::CEnd end;
 
 	common::CMessage message( end, _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
+}
+
+template < class ResponseType >
+void
+CNodeMedium< ResponseType >::add( CResultRequest< ResponseType > const * _request )
+{
+	common::CResult result;
+
+	common::CMessage message( result, _request->getActionKey() );
 
 	m_messages.push_back( message );
 

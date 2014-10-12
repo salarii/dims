@@ -449,6 +449,53 @@ CEndRequest< ResponsesType >::getActionKey() const
 	return m_actionKey;
 }
 
+template < class ResponsesType >
+class CResultRequest : public common::CRequest< ResponsesType >
+{
+public:
+	CResultRequest( uint256 const & _actionKey, unsigned int _result,common::CMediumFilter< ResponsesType > * _mediumFilter );
+
+	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
+
+	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+
+	uint256 getActionKey() const;
+private:
+	unsigned int m_result;
+
+	uint256 const m_actionKey;
+};
+
+template < class ResponsesType >
+CResultRequest< ResponsesType >::CResultRequest( uint256 const & _actionKey, unsigned int _result, common::CMediumFilter< ResponsesType > * _mediumFilter )
+	: common::CRequest< ResponsesType >( _mediumFilter )
+	, m_actionKey( _actionKey )
+	, m_result( _result )
+{
+}
+
+template < class ResponsesType >
+void
+CResultRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class ResponsesType >
+common::CMediumFilter< ResponsesType > *
+CResultRequest< ResponsesType >::getMediumFilter() const
+{
+	return common::CRequest< ResponsesType >::m_mediumFilter;
+}
+
+template < class ResponsesType >
+uint256
+CResultRequest< ResponsesType >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+
 }
 
 #endif // MEDIUM_REQUESTS_H
