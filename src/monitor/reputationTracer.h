@@ -16,12 +16,12 @@ namespace monitor
 
 struct CTrackerData
 {
-	CTrackerData( CAddress _address, unsigned int _reputation, CPubKey _publicKey ): m_address( _address ),m_reputation( _reputation ), m_publicKey( _publicKey ){}
+	CTrackerData( CAddress _address, unsigned int _reputation, CPubKey _publicKey, uint64_t _networkTime ): m_address( _address ),m_reputation( _reputation ), m_publicKey( _publicKey ), m_networkTime( _networkTime ){}
 
 	CAddress m_address;
 	unsigned int m_reputation;
 	CPubKey m_publicKey;
-	//uint64_t m_networkTime;  time  is  important
+	uint64_t m_networkTime;
 };
 
 struct CAllyTrackerData
@@ -36,14 +36,15 @@ class CReputationTracker
 {
 public:
 	static CReputationTracker * getInstance();
+
+	void addTracker( CTrackerData const & _trackerData );
 private:
-	CReputationTracker();
+	CReputationTracker(){};
 
 	unsigned int calculateReputation( uint64_t _passedTime );
 
 	void checkValidity( CAllyTrackerData const & _allyTrackerData );
-
-	void addTracker( uint160 const _trackerKeyId );//	boost::lock_guard<boost::mutex> lock( m_lock );
+	//	boost::lock_guard<boost::mutex> lock( m_lock );
 
 	void loop();
 private:
@@ -53,7 +54,7 @@ private:
 
 	typedef std::map< uint160, std::vector< CAllyTrackerData > > AllyMonitors;
 
-	typedef std::map< uint160, uint64_t > TransactionsAddmited;
+	typedef std::map< uint160, unsigned int > TransactionsAddmited;
 
 	RegisteredTrackers m_registeredTrackers;
 

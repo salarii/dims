@@ -27,8 +27,6 @@ struct CMonitorConnectNodeActionUninitiated;
 class CConnectNodeAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >, public common::CCommunicationAction
 {
 public:
-	CConnectNodeAction( std::string const & _nodeAddress );
-
 	CConnectNodeAction( CAddress const & _addrConnect );
 
 	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr );
@@ -40,8 +38,6 @@ public:
 	void setRequest( common::CRequest< MonitorResponses >* _request );
 
 	common::CRequest< MonitorResponses > const * getRequest() const;
-
-	std::string getAddress() const;
 
 	CAddress getServiceAddress() const;
 
@@ -58,8 +54,6 @@ public:
 	~CConnectNodeAction(){};
 private:
 	common::CRequest< MonitorResponses >* m_request;
-
-	std::string const m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;
 

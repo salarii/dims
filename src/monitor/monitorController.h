@@ -19,7 +19,7 @@ class CMonitorController : public boost::statechart::state_machine< CMonitorCont
 public:
 	static CMonitorController* getInstance();
 
-	uint256 getPeriod() const
+	uint64_t getPeriod() const
 	{
 		return m_period;
 	}
@@ -28,7 +28,7 @@ public:
 		return m_price;
 	}
 
-	void setPeriod( uint256 const _period )
+	void setPeriod( uint64_t const _period )
 	{
 		m_period = _period;
 	}
@@ -44,7 +44,7 @@ private:
 	static CMonitorController * ms_instance;
 
 	unsigned int m_price;
-	uint256 m_period;
+	uint64_t m_period;
 };
 
 }

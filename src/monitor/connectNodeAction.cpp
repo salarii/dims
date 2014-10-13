@@ -16,7 +16,7 @@
 #include "filters.h"
 #include "monitorRequests.h"
 #include "monitorNodesManager.h"
-
+#include "reputationTracer.h"
 #include "monitorController.h"
 
 namespace monitor
@@ -318,7 +318,7 @@ struct CMonitorUnconnected : boost::statechart::state< CMonitorUnconnected, CCon
 	CMonitorUnconnected( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectNodeAction >().setRequest(
-				  new CConnectToNodeRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
+				  new CConnectToNodeRequest( "", context< CConnectNodeAction >().getServiceAddress() ) );
 	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
@@ -368,7 +368,7 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 			else
 			{
 				// send  ack addmit directly
-
+				CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getServiceAddress(), 0, context< CConnectNodeAction >().getPublicKey(), CMonitorController::getInstance()->getPeriod() ) );
 			}
 		}
 		else
@@ -486,20 +486,6 @@ CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
 	process_event( common::CSwitchToConnectingEvent() );
 }
 
-
-CConnectNodeAction::CConnectNodeAction( std::string const & _nodeAddress )
-	: m_nodeAddress( _nodeAddress )
-	, m_request( 0 )
-	, m_passive( false )
-{
-	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
-	{
-		m_payload.push_back( insecure_rand() % 256 );
-	}
-	initiate();
-	process_event( common::CSwitchToConnectingEvent() );
-}
-
 common::CRequest< MonitorResponses >*
 CConnectNodeAction::execute()
 {
@@ -525,13 +511,6 @@ CConnectNodeAction::getRequest() const
 {
 	return m_request;
 }
-
-std::string
-CConnectNodeAction::getAddress() const
-{
-	return m_nodeAddress;
-}
-
 CAddress
 CConnectNodeAction::getServiceAddress() const
 {
