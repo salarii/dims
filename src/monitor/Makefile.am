@@ -8,6 +8,7 @@ bin_PROGRAMS = dims_monitor
 noinst_LIBRARIES = libmonitor.a
 
 MONITOR_H = \
+	clientRequestsManager.h \
 	connectNodeAction.h \
 	filters.h \
 	init.h \
@@ -19,10 +20,12 @@ MONITOR_H = \
 	monitorRequests.h \
 	monitorRequestsList.h \
 	processNetwork.h \
-	reputationTracer.h
+	reputationTracer.h \
+	server.h
 	
 MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
+	clientRequestsManager.cpp \
 	connectNodeAction.cpp \
 	init.cpp \
 	internalMediumProvider.cpp \
@@ -34,6 +37,7 @@ MONITOR_CPP = \
 	monitorRequests.cpp \
 	processNetwork.cpp \
 	reputationTracer.cpp \
+	server.cpp \
 	setResponseVisitor.cpp
 
 libmonitor_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) 

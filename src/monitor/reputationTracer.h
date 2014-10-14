@@ -31,7 +31,7 @@ struct CAllyTrackerData
 	uint64_t m_previousNetworkTime;
 	unsigned int m_countedTime;
 };
-
+// for now  don't track other trackers registered in other monitors
 class CReputationTracker
 {
 public:
