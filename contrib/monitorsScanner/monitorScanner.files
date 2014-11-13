@@ -4,9 +4,9 @@ gen-cpp/monitorsScaner_constants.cpp
 gen-cpp/monitorsScaner_constants.h
 gen-cpp/monitorsScaner_types.cpp
 gen-cpp/monitorsScaner_types.h
+server/dataHandler.cpp
+server/dataHandler.h
 server/informationProvider.cpp
 server/informationProvider.h
 server/monitorsScaner_server.cpp
 client.cpp
-dataHandler.cpp
-dataHandler.h
