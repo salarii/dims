@@ -104,6 +104,10 @@ private:
 	typedef std::pair< std::string, common::CUnidentifiedStats > Unidentified;
 
 	typedef std::pair< std::string, common::CNodeStats > NodeStats;
+	/*
+
+
+*/
 };
 
 

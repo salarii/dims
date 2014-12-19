@@ -218,7 +218,13 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	CMonitorPresent( my_context ctx ) : my_base( ctx )
 	{
 	}
+// ask for  valid monitors and  trackers
+	// ask  monitors  first
 
+	// ask  trackers
+	// reconstruct  network from  this
+	// recursivelly interrogate all
+	// reconstruct  network from  this
 //CTrackersInfoRequest
 };
 

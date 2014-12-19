@@ -55,7 +55,6 @@ void
 init()
 {
 	common::CActionHandler< client::NodeResponses >::getInstance();
-
 }
 
 

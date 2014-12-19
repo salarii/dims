@@ -75,6 +75,16 @@ struct CTrackerStatsEvent : boost::statechart::event< CTrackerStatsEvent >
 	uintptr_t m_nodeIndicator;
 };
 
+struct CMonitorStatsEvent : boost::statechart::event< CMonitorStatsEvent >
+{
+	CMonitorStatsEvent( std::string _ip, uintptr_t _nodeIndicator )
+		: m_ip( _ip )
+		, m_nodeIndicator( _nodeIndicator ){};
+
+	std::string m_ip;
+	uintptr_t m_nodeIndicator;
+};
+
 struct CConnectConditionEvent : boost::statechart::event< CConnectConditionEvent >
 {
 	CConnectConditionEvent( unsigned int _price, uint64_t _period ):m_price( _price ), m_period( _period ){}

@@ -449,8 +449,48 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CAccep
 {
 	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().setRequest( 0 );
+		m_time = GetTime();
+
+		context< CAcceptNodeAction >().setValid( true );
+
+		context< CAcceptNodeAction >().setRequest(
+					new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), std::vector< common::CValidNodeInfo >(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
 	}
+
+	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
+	{
+		context< CAcceptNodeAction >().setRequest( 0 );
+
+		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_networkInfo )
+		{
+			if ( validNodeInfo.m_role == common::CRole::Tracker || validNodeInfo.m_role == common::CRole::Monitor )
+			{
+				db.Add( validNodeInfo.m_address );
+			}
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
+	{
+		if ( GetTime() - m_time > WaitTime )
+		{
+			return transit< CCantReachNode >();
+		}
+		else
+		{
+			context< CAcceptNodeAction >().setRequest( new common::CContinueReqest< SeedResponses >( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+
+			return discard_event();
+		}
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
+	boost::statechart::custom_reaction< common::CContinueEvent >
+	> reactions;
+
+	uint64_t m_time;
 };
 
 
