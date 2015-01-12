@@ -10,7 +10,7 @@ separate headers  and  blocks?
 */
 #include <list>
 #include <boost/thread.hpp>
-#include <boost/atomic.hpp>
+//#include <boost/atomic.hpp>
 
 #include "uint256.h"
 #include "serialize.h"
@@ -279,7 +279,8 @@ private:
 	typedef std::map< CLocation, CSimpleBuddy* > TransactionLocationToBuddy;
 
 private:
-	boost::atomic< int > m_synchronizationInProgress;
+	//boost::atomic< int > some  compatibility issues
+	int m_synchronizationInProgress;//replace it by some kind of atomic type
 
 	static CSegmentFileStorage * ms_instance;
 

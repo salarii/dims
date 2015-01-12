@@ -77,24 +77,18 @@ public:
 
 	virtual bool getResponse( std::vector< client::NodeResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( client::NodeRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,10 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,11 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,12 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,13 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,14 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,15 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,16 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,17 ) const * _request ){};
+	virtual void add(client::CBalanceRequest const * _request ){};
+	virtual void add(client:: CInfoRequestContinueComplex const * _request ){};
+	virtual void add( client::CInfoRequestContinue const * _request ){};
+	virtual void add( client::CTransactionStatusRequest const * _request ){};
+	virtual void add( client::CTransactionSendRequest const * _request ){};
+	virtual void add(client:: CTrackersInfoRequest const * _request ){};
+	virtual void add( client::CMonitorInfoRequest const * _request ){};
+	virtual void add( client::CDnsInfoRequest const * _request ){};
+	virtual void add( common::CContinueReqest< client::NodeResponses > const * _request ){};
+	virtual void add( client::CRecognizeNetworkRequest const * _request ){};
+	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
+	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
 	virtual ~CMedium(){};
 };
 
@@ -107,17 +101,14 @@ public:
 
 	virtual bool getResponse( std::vector< monitor::MonitorResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,10 ) const * _request ){};
+	virtual void add( common::CIdentifyRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CContinueReqest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CIdentifyResponse< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CKnownNetworkInfoRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CAckRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CNetworkRoleRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
+	virtual void add( monitor::CConnectCondition const * _request ){};
 	virtual ~CMedium(){};
 };
 
@@ -130,20 +121,15 @@ public:
 
 	virtual bool getResponse( std::vector< seed::SeedResponses > & _requestResponse ) const = 0;
 	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( seed::SeedRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,10 ) const * _request ){};
+	virtual void add( common::CIdentifyRequest< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CContinueReqest< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CIdentifyResponse< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CConnectToNodeRequest< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CNetworkRoleRequest< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CAckRequest< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CKnownNetworkInfoRequest< seed::SeedResponses > const * _request ){};
 	virtual ~CMedium(){};
 };
 
 }
-
 #endif // MEDIUM_H
