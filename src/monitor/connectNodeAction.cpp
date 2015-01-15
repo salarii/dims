@@ -164,10 +164,19 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
-	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	boost::statechart::result react( common::CMessageResult const & _roleEvent )
 	{
-		m_role = _roleEvent.m_role;
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _roleEvent.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		common::CNetworkRole networkRole;
+
+		common::convertPayload( orginalMessage, networkRole );
+
+		m_role = networkRole.m_role;
 		context< CConnectNodeAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+
 		return discard_event();
 	}
 
@@ -179,7 +188,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
-		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().setRequest( new common::CNetworkRoleRequest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Monitor, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -200,7 +209,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
