@@ -13,6 +13,7 @@
 
 #include "configureMonitorActionHandler.h"
 #include "monitorNodeMedium.h"
+#include "monitor/connectNodeAction.h"
 
 namespace monitor
 {
@@ -77,12 +78,12 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-			/*	CConnectNodeAction * connectTrackerAction= new CConnectNodeAction(
+				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
 							  message.m_header.m_actionKey
 							, identifyMessage.m_payload
 							, convertToInt( nodeMedium->getNode() ) );
 
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
+				common::CActionHandler< MonitorResponses >::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}
