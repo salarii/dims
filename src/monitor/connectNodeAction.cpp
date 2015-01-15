@@ -237,7 +237,7 @@ struct CMonitorPairIdentifiedConnected : boost::statechart::state< CMonitorPairI
 
 		if ( _introduceEvent.m_key.Verify( hash, _introduceEvent.m_signed ) )
 		{
-		//	CTrackerNodesManager::getInstance()->setPublicKey( _introduceEvent.m_address, _introduceEvent.m_key );
+			context< CConnectNodeAction >().setPublicKey(  _introduceEvent.m_key );
 			context< CConnectNodeAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		}
 		else
