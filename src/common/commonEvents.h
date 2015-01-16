@@ -42,6 +42,7 @@ struct CRoleEvent : boost::statechart::event< CRoleEvent >
 
 struct CNetworkInfoEvent : boost::statechart::event< CNetworkInfoEvent >
 {
+	CNetworkInfoEvent(){};
 	CNetworkInfoEvent( std::vector< CValidNodeInfo > const & _networkInfo):m_networkInfo( _networkInfo ){};
 	std::vector< CValidNodeInfo > m_networkInfo;
 };

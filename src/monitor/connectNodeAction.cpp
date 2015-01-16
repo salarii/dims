@@ -419,16 +419,22 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
+	boost::statechart::result react( common::CMessageResult const & _result )
 	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		common::CKnownNetworkInfo knownNetworkInfo;
+
+		// save  this  stuff
+
+		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
+
 		std::vector< common::CValidNodeInfo > validNodesInfo;
-/*
-		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getValidNodes() )
-		{
-			validNodesInfo.push_back( validNodeInfo );
-		}
-		*/
+
 		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), validNodesInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+
 		return discard_event();
 	}
 
@@ -441,7 +447,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
+		boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };

@@ -49,6 +49,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		if (
 				   message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
+				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
 			)
 		{
 			CMonitorNodeMedium * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
