@@ -51,6 +51,8 @@
 #include "internalMediumProvider.h"
 #include "monitorNodesManager.h"
 
+#include "monitor/server.h"
+
 using namespace std;
 using namespace boost;
 
@@ -669,7 +671,7 @@ bool AppInit(boost::thread_group& threadGroup)
 //	if (fServer)
 //		StartRPCThreads();
 
-
+	monitor::runServer();
 
 	// ********************************************************* Step 12: finished
 
