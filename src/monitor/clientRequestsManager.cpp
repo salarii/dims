@@ -1,13 +1,15 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 Dims dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "clientRequestsManager.h"
+
 #include "common/actionHandler.h"
+#include "common/authenticationProvider.h"
+
 #include "base58.h"
 
 #include <boost/foreach.hpp>
-
 
 using namespace common;
 
@@ -28,7 +30,7 @@ public:
 		{
 		//	validNodesInfo.push_back( validNodeInfo );
 		}
-//		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CClientNetworkInfoResult( validNodesInfo, common::CAuthenticationProvider::getInstance()->getMyKey(), common::CRole::Tracker ) );
+		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CClientNetworkInfoResult( validNodesInfo, common::CAuthenticationProvider::getInstance()->getMyKey(), common::CRole::Monitor ) );
 	}
 private:
 	uint256 const m_hash;
