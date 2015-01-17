@@ -52,6 +52,7 @@
 #include "monitorNodesManager.h"
 
 #include "monitor/server.h"
+#include "monitor/clientRequestsManager.h"
 
 using namespace std;
 using namespace boost;
@@ -624,6 +625,8 @@ bool AppInit(boost::thread_group& threadGroup)
 	// ********************************************************* Step 9: import blocks
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< monitor::MonitorResponses >::loop, common::CActionHandler< monitor::MonitorResponses >::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
 
 	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)monitor::CInternalMediumProvider::getInstance() );
 
