@@ -18,7 +18,7 @@ using namespace common;
 namespace tracker
 {
 
-class CHandleClientRequestVisitor : public boost::static_visitor< void >
+class CHandleClientRequestVisitor : public common::CClientRequestVisitorHandlerBase
 {
 public:
 	CHandleClientRequestVisitor(uint256 const & _hash):m_hash( _hash ){};
@@ -92,7 +92,7 @@ CClientRequestsManager::getInstance( )
 }
 
 uint256
-CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )
+CClientRequestsManager::addRequest( NodeRequests const & _nodeRequest )
 {
 	boost::lock_guard<boost::mutex> lock( m_requestLock );
 	m_getInfoRequest.insert( std::make_pair( ms_currentToken, _nodeRequest ) );
@@ -100,7 +100,7 @@ CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest )
 }
 
 void
-CClientRequestsManager::addRequest( NodeRequest const & _nodeRequest, uint256 const & _hash )
+CClientRequestsManager::addRequest( NodeRequests const & _nodeRequest, uint256 const & _hash )
 {
 	boost::lock_guard<boost::mutex> lock( m_requestLock );
 	m_getInfoRequest.insert( std::make_pair( _hash, _nodeRequest ) );

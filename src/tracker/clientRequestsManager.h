@@ -16,9 +16,9 @@ typedef boost::variant< common::CDummy, common::CAvailableCoins, common::CClient
 class CClientRequestsManager
 {
 public:
-	uint256 addRequest( common::NodeRequest const & _nodeRequest );
+	uint256 addRequest( common::NodeRequests const & _nodeRequest );
 
-	void addRequest( common::NodeRequest const & _nodeRequest, uint256 const & _hash );
+	void addRequest( common::NodeRequests const & _nodeRequest, uint256 const & _hash );
 
 	ClientResponse getResponse( uint256 const & _token );
 
@@ -28,7 +28,7 @@ public:
 
 	static CClientRequestsManager* getInstance();
 private:
-	typedef std::map< uint256, common::NodeRequest > InfoRequestRecord;
+	typedef std::map< uint256, common::NodeRequests > InfoRequestRecord;
 	typedef std::map< uint256, ClientResponse > InfoResponseRecord;
 private:
 	CClientRequestsManager();
