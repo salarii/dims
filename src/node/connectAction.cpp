@@ -129,20 +129,22 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		m_pending.erase( _networkInfo.m_nodeIndicator );
 
-		common::CNodeStats validNodeInfo( _networkInfo.m_selfKey, _networkInfo.m_ip, common::dimsParams().getDefaultClientPort() );
-
+		common::CNodeStats nodeStats( _networkInfo.m_selfKey, _networkInfo.m_ip, common::dimsParams().getDefaultClientPort(), common::CRole::Tracker );
 		if ( _networkInfo.m_selfRole == common::CRole::Monitor )
 		{
-			CTrackerLocalRanking::getInstance()->addMonitor( _networkInfo.m_ip, validNodeInfo );
+			nodeStats.m_role = common::CRole::Monitor;
+			CTrackerLocalRanking::getInstance()->addMonitor( _networkInfo.m_ip, nodeStats );
+			m_uniqueNodes.insert( nodeStats );
 		}
 		else if ( _networkInfo.m_selfRole == common::CRole::Tracker )
 		{
-			CTrackerLocalRanking::getInstance()->addUndeterminedTracker( _networkInfo.m_ip, validNodeInfo );
+			CTrackerLocalRanking::getInstance()->addUndeterminedTracker( _networkInfo.m_ip, nodeStats );
+			m_uniqueNodes.insert( nodeStats );
 		}
 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, _networkInfo.m_networkInfo )
 		{
-			m_uniqueNodes.insert( validNode );
+			m_uniqueNodes.insert( common::CNodeStats( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort(), validNode.m_role ) );
 		}
 
 		if ( !m_pending.size() )
@@ -178,18 +180,18 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		_isMonitorPresent = false;
 
-		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_uniqueNodes )
+		BOOST_FOREACH( common::CNodeStats const & validNode, m_uniqueNodes )
 		{
-			if ( !CTrackerLocalRanking::getInstance()->isInUnidentified( validNode.m_address.ToStringIP() ) )
+			if ( !CTrackerLocalRanking::getInstance()->isInUnidentified( validNode.m_ip ) )
 			{
 				if ( validNode.m_role == common::CRole::Monitor )
 				{
 					_isMonitorPresent = true;
-					CTrackerLocalRanking::getInstance()->addMonitor( validNode.m_address.ToStringIP(), common::CNodeStats( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort() ) );
+					CTrackerLocalRanking::getInstance()->addMonitor( validNode.m_ip, validNode );
 				}
 				else if ( validNode.m_role == common::CRole::Tracker )
 				{
-					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNode.m_address.ToStringIP(), common::CNodeStats( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort() ) );
+					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNode.m_ip, validNode );
 				}
 			}
 		}
@@ -203,7 +205,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	> reactions;
 
 	// in  future be  careful with  those
-	std::set< common::CValidNodeInfo > m_uniqueNodes;
+	std::set< common::CNodeStats > m_uniqueNodes;
 
 	std::set< uintptr_t > m_pending;
 

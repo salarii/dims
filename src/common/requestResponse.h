@@ -36,12 +36,18 @@ struct CUnidentifiedStats
 	CUnidentifiedStats(	std::string const & _ip, unsigned int _port ):m_ip( _ip ), m_port( _port ){}
 	std::string m_ip;
 	unsigned int m_port;
+
+	bool operator<( CUnidentifiedStats const & _unidentifiedStats ) const
+	{
+		return m_ip < _unidentifiedStats.m_ip;
+	}
 };
 
 struct CNodeStats : public CUnidentifiedStats
 {
-	CNodeStats( CPubKey const & _key = CPubKey(), std::string _ip = std::string(), unsigned int _port = 0 ): CUnidentifiedStats( _ip, _port ), m_key( _key ){}
+	CNodeStats( CPubKey const & _key = CPubKey(), std::string _ip = std::string(), unsigned int _port = 0, unsigned int _role = -1 ): CUnidentifiedStats( _ip, _port ), m_key( _key ), m_role( _role ){}
 	CPubKey m_key;
+	unsigned int m_role;
 };
 
 
