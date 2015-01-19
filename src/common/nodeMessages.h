@@ -47,6 +47,8 @@ struct CTrackerStatsReq
 
 struct CMonitorInfoReq
 {
+	CMonitorInfoReq(): m_monitorPubKey( 0 ){};
+	CMonitorInfoReq( uint256 _monitorPubKey ): m_monitorPubKey( _monitorPubKey ){};
 	uint256 m_monitorPubKey;
 };
 
@@ -66,7 +68,7 @@ struct CNetworkInfoReq
 	CNetworkInfoReq(){}
 };
 
-typedef boost::mpl::list< CTrackerStatsReq, CAddressBalanceReq, CTransactionMessage, CNetworkInfoReq, CTransactionStatusReq > NodeRequestsList;
+typedef boost::mpl::list< CTrackerStatsReq, CMonitorInfoReq, CAddressBalanceReq, CTransactionMessage, CNetworkInfoReq, CTransactionStatusReq > NodeRequestsList;
 
 typedef boost::make_variant_over< NodeRequestsList >::type NodeRequests;
 

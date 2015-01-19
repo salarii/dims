@@ -34,6 +34,11 @@ public:
 		}
 		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CClientNetworkInfoResult( validNodesInfo, common::CAuthenticationProvider::getInstance()->getMyKey(), common::CRole::Monitor ) );
 	}
+
+	void operator()( CMonitorInfoReq const & _MonitorInfoReq ) const
+	{
+			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CMonitorData() );
+	}
 private:
 	uint256 const m_hash;
 };
@@ -72,7 +77,6 @@ CClientRequestsManager::addRequest( NodeRequests const & _nodeRequest, uint256 c
 	boost::lock_guard<boost::mutex> lock( m_requestLock );
 	m_getInfoRequest.insert( std::make_pair( _hash, _nodeRequest ) );
 }
-
 
 ClientResponse
 CClientRequestsManager::getResponse( uint256 const & _token )

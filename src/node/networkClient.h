@@ -57,6 +57,8 @@ public:
 
 	void add( CTrackersInfoRequest const * _request );
 
+	void add( CMonitorInfoRequest const * _request );
+
 	bool flush();
 
 	void clearResponses();

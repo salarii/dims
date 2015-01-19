@@ -90,6 +90,11 @@ public:
 		this->m_action->process_event( common::CTrackerStatsEvent( 0, _trackerStats.m_price, _trackerStats.m_maxPrice, _trackerStats.m_minPrice, _trackerStats.m_ip, _trackerStats.m_nodeIndicator ) );
 	}
 
+	void operator()( common::CNodeSpecific< CMonitorData > & _monitorData ) const
+	{
+		this->m_action->process_event( common::CMonitorStatsEvent( _monitorData.m_trackers, _monitorData.m_monitors, _monitorData.m_ip, _monitorData.m_nodeIndicator ) );
+	}
+
 	void operator()( common::CContinueResult & _continue ) const
 	{
 		this->m_action->process_event( common::CContinueEvent(_continue.m_id) );

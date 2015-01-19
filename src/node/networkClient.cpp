@@ -197,6 +197,11 @@ CNetworkClient::add( CTrackersInfoRequest const * _request )
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::TrackerInfoReq );
 }
 
+void
+CNetworkClient::add( CMonitorInfoRequest const * _request )
+{
+	common::serializeEnum( *m_pushStream, common::CMainRequestType::MonitorInfoReq );
+}
 
 bool
 CNetworkClient::flush()
@@ -258,7 +263,12 @@ CNetworkClient::getResponse( std::vector< NodeResponses > & _requestResponse ) c
 		}
 		else if ( messageType == common::CMainRequestType::MonitorInfoReq )
 		{
+			common::CMonitorData monitorData;
 
+			stream >> monitorData;
+
+			common::CNodeSpecific< common::CMonitorData > stats( monitorData, m_ip.toStdString(), common::convertToInt(this));
+			_requestResponse.push_back( stats );
 		}
 		else if ( messageType == common::CMainRequestType::TrackerInfoReq )
 		{

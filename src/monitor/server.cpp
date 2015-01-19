@@ -46,6 +46,12 @@ public:
 		*m_pushStream << _trackerSpecificStats;
 	}
 
+	void operator()( CMonitorData const & _monitorData ) const
+	{
+		common::serializeEnum( *m_pushStream, CMainRequestType::MonitorInfoReq );
+		*m_pushStream << _monitorData;
+	}
+
 	void operator()( common::CClientNetworkInfoResult const & _networkInfo ) const
 	{
 		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
@@ -192,7 +198,9 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
-
+			uint256 token = m_clientRequestManager->addRequest( CNetworkInfoReq() );
+			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
+			pushStream << token;
 		}
 		else if ( messageType == CMainRequestType::ContinueReq )
 		{

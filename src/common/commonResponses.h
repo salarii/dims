@@ -163,6 +163,18 @@ struct CTrackerSpecificStats
 	unsigned int m_minPrice;
 };
 
+struct CMonitorData
+{
+	IMPLEMENT_SERIALIZE
+	(
+			READWRITE( m_trackers );
+			READWRITE( m_monitors );
+	)
+	std::vector< CPubKey > m_trackers;
+	std::vector< CPubKey > m_monitors;
+	// recognized  monitors and trackers
+};
+
 template < class _Stats >
 struct CNodeSpecific : public _Stats
 {

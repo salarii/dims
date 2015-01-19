@@ -202,7 +202,9 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
-
+			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
+			uint256 token = m_clientRequestManager->addRequest( CMonitorInfoReq() );
+			pushStream << token;
 		}
 		else if ( messageType == CMainRequestType::TransactionStatusReq )
 		{

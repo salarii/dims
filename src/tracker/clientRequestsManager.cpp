@@ -21,6 +21,8 @@ namespace tracker
 class CHandleClientRequestVisitor : public common::CClientRequestVisitorHandlerBase
 {
 public:
+	using CClientRequestVisitorHandlerBase::operator ();
+
 	CHandleClientRequestVisitor(uint256 const & _hash):m_hash( _hash ){};
 
 	void operator()( CTransactionStatusReq const & _transactionStatus ) const

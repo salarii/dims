@@ -220,6 +220,11 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	CMonitorPresent( my_context ctx ) : my_base( ctx )
 	{
 	}
+	// try  to  recognize  what  monitors  are  accepted by  which  node
+	// determine  network  of  valid monitors
+	// next get list  of  recognized  trackers
+	// go  to  each  one  an  interrogate  them  next
+
 // ask for  valid monitors and  trackers
 	// ask  monitors  first
 
@@ -228,6 +233,15 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	// recursivelly interrogate all
 	// reconstruct  network from  this
 //CTrackersInfoRequest
+//
+	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
+	> reactions;
 };
 
 struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectAction >
