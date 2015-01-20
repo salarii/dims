@@ -67,9 +67,9 @@ public:
 struct CMonitorInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
-	CMonitorInfoRequest();
+	CMonitorInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter );
 	void serialize( CBufferAsStream & _bufferStream ) const;
-	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
+	void accept( common::CMedium< NodeResponses > * _medium ) const;
 };
 
 struct CInfoRequestContinueComplex : public common::CRequest< NodeResponses >

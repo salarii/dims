@@ -26,6 +26,7 @@ namespace client
 {
 const unsigned DnsAskLoopTime = 20;//seconds
 const unsigned NetworkAskLoopTime = 20;//seconds
+const unsigned MonitorAskLoopTime = 20;//seconds
 
 struct CMonitorPresent;
 struct CWithoutMonitor;
@@ -182,17 +183,14 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		BOOST_FOREACH( common::CNodeStats const & validNode, m_uniqueNodes )
 		{
-			if ( !CTrackerLocalRanking::getInstance()->isInUnidentified( validNode.m_ip ) )
+			if ( validNode.m_role == common::CRole::Monitor )
 			{
-				if ( validNode.m_role == common::CRole::Monitor )
-				{
-					_isMonitorPresent = true;
-					CTrackerLocalRanking::getInstance()->addMonitor( validNode.m_ip, validNode );
-				}
-				else if ( validNode.m_role == common::CRole::Tracker )
-				{
-					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNode.m_ip, validNode );
-				}
+				_isMonitorPresent = true;
+				CTrackerLocalRanking::getInstance()->addMonitor( validNode.m_ip, validNode );
+			}
+			else if ( validNode.m_role == common::CRole::Tracker )
+			{
+				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNode.m_ip, validNode );
 			}
 		}
 	}
@@ -219,6 +217,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 {
 	CMonitorPresent( my_context ctx ) : my_base( ctx )
 	{
+		context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
+		m_lastAskTime = GetTime();
 	}
 	// try  to  recognize  what  monitors  are  accepted by  which  node
 	// determine  network  of  valid monitors
@@ -234,14 +234,40 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	// reconstruct  network from  this
 //CTrackersInfoRequest
 //
+	boost::statechart::result react( common::CPending const & _pending )
+	{
+		m_nodeToToken.insert( std::make_pair( _pending.m_networkPtr, _pending.m_token ) );
+
+		m_pending.insert( _pending.m_networkPtr );
+
+		int64_t time = GetTime();
+		if ( time - m_lastAskTime < MonitorAskLoopTime )
+		{
+			if ( !context< CConnectAction >().isRequestReady() )
+					context< CConnectAction >().setRequest( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			return discard_event();
+		}
+		else
+		{
+			context< CConnectAction >().setRequest( 0 );
+
+			return discard_event();
+		}
+	}
+
 	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
 	{
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CPending >,
 	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
 	> reactions;
+
+	std::set< uintptr_t > m_pending;
+	int64_t m_lastAskTime;
+	std::map< uintptr_t, uint256 > m_nodeToToken;
 };
 
 struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectAction >

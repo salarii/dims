@@ -22,6 +22,7 @@ struct RequestKind
 		Balance,
 		Seed,
 		UndeterminedTrackers,
+		Monitors,
 		Unknown
 	};
 };

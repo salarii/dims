@@ -128,6 +128,15 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 			}
 		}
 	break;
+	case common::RequestKind::Monitors:
+		if ( m_monitors.begin() != m_monitors.end() )
+		{
+			BOOST_FOREACH( NodeStats const & stats, m_monitors )
+			{
+				mediums.push_back( getNetworkConnection( stats.second ) );
+			}
+		}
+	break;
 	case common::RequestKind::Transaction:
 		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
 		{

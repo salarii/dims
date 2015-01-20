@@ -62,22 +62,15 @@ CTrackersInfoRequest::getMediumFilter() const
 }
 
 
-CMonitorInfoRequest::CMonitorInfoRequest()
-	: common::CRequest< NodeResponses >( new CMediumClassFilter( -1 ) )
+CMonitorInfoRequest::CMonitorInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter )
+	: common::CRequest< NodeResponses >( _mediumFilter )
 {
-
 }
 
 void
-CMonitorInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
+CMonitorInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
 {
-
-}
-
-common::CMediumFilter< NodeResponses > *
-CMonitorInfoRequest::getMediumFilter() const
-{
-	return common::CRequest< NodeResponses >::m_mediumFilter;
+	_medium->add( this );
 }
 
 CInfoRequestContinueComplex::CInfoRequestContinueComplex( std::map< uintptr_t, uint256 > const & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter )
