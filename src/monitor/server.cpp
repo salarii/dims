@@ -198,7 +198,7 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
-			uint256 token = m_clientRequestManager->addRequest( CNetworkInfoReq() );
+			uint256 token = m_clientRequestManager->addRequest( CMonitorInfoReq() );
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 		}
