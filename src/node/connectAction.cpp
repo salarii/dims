@@ -257,7 +257,60 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
 	{
+	//	_monitorStatsEvent.m_monitors
+
+				std::vector< CPubKey > m_trackers;
+				std::vector< CPubKey > m_monitors;
 		return discard_event();
+	}
+
+	void  analyseThisShit()
+	{
+
+		// obejdź  każdy  po  kole
+		//m_monitorInputData
+
+		BOOST_FOREACH( PAIRTYPE( CPubKey, std::vector< CPubKey > ) const & dixit, m_monitorInputData )
+		{
+
+		//m_monitorOutput
+		}
+		BOOST_FOREACH( std::vector< CPubKey > const & output, m_monitorOutput )
+		{
+//			std::vector< CPubKey >::iterator it = std::find ( output.begin(), output.end(), dixit );
+
+			std::list< std::vector< CPubKey >::iterator > m_present;
+
+//			if ( iterator != output.end() )
+			{
+
+
+			}
+//			else
+			{
+
+			}
+
+			BOOST_FOREACH( PAIRTYPE( CPubKey, std::vector< CPubKey > ) const & pppp, m_monitorInputData )
+			{
+
+//				std::vector< CPubKey >::iterator is = std::find ( pppp.second.begin(), pppp.second.end(), dixit );
+//				/m_monitorOutput
+
+
+
+			}
+
+
+
+
+		}
+
+
+
+//m_monitorOutput
+
+
 	}
 
 	typedef boost::mpl::list<
@@ -268,6 +321,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	std::set< uintptr_t > m_pending;
 	int64_t m_lastAskTime;
 	std::map< uintptr_t, uint256 > m_nodeToToken;
+	std::map< CPubKey, std::vector< CPubKey > > m_monitorInputData;
+	set< std::vector< CPubKey > > m_monitorOutput;
 };
 
 struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectAction >
