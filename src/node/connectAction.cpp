@@ -267,51 +267,96 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	void  analyseThisShit()
 	{
 
-		// obejdź  każdy  po  kole
-		//m_monitorInputData
-
-		BOOST_FOREACH( PAIRTYPE( CPubKey, std::vector< CPubKey > ) const & dixit, m_monitorInputData )
+		BOOST_FOREACH( PAIRTYPE( CPubKey, std::vector< CPubKey > ) const & monitorData, m_monitorInputData )
 		{
+			CPubKey const & monitor = monitorData.first;
+			//m_monitorOutput
 
-		//m_monitorOutput
+			BOOST_FOREACH( PAIRTYPE( CPubKey, std::vector< CPubKey > ) const & monitorReferenceData, m_monitorInputData )
+			{
+				std::vector< CPubKey > const & validMonitors = monitorReferenceData.second;
+
+				std::vector< CPubKey >::const_iterator isIterator = std::find ( validMonitors.begin(), validMonitors.end(), monitor );
+
+				if ( isPresent( validMonitors, monitor ) && isPresent( monitorData.second, *isIterator ) )
+				{
+					// admit both
+					// this can be done more efficient way but here performence is irrelevant, stick to simplicity
+					// don't know  if it is really needed( done this  way at least, but something have to be done it is clear )
+
+					std::vector< std::vector< CPubKey > > newOutputGroup;
+					// ugly
+					std::map< std::vector< CPubKey >, std::vector< CPubKey > > changeGroup;
+					BOOST_FOREACH( std::vector< CPubKey > const & output, m_monitorOutput )
+					{
+						std::vector< CPubKey > valid;
+						bool firstPresent = false, secondPresent = false;
+
+						BOOST_FOREACH( CPubKey const & outMonitor, output )
+						{
+							if ( outMonitor == monitor )
+							{
+								firstPresent = true;
+								valid.push_back( outMonitor );
+							}
+							else if ( outMonitor == monitorReferenceData.first )
+							{
+								secondPresent = true;
+								valid.push_back( outMonitor );
+							}
+							else
+							{
+								if (
+										isPresent( monitorData.second, outMonitor )
+										&& isPresent( validMonitors, outMonitor )
+										)
+								{
+									valid.push_back( outMonitor );
+								}
+							}
+						}
+
+						if ( valid.size() == output.size() )
+						{
+							std::vector< CPubKey > newOnes;
+							if ( !firstPresent )
+								newOnes.push_back( monitor );
+							if ( !secondPresent )
+								newOnes.push_back( monitorReferenceData.first );
+
+							changeGroup.insert( std::make_pair( output, newOnes ) );
+						}
+						else
+						{
+							newOutputGroup.push_back( valid );
+						}
+					}
+					// there are two monitors to be admited, see if there exist suitable list if not create new one
+
+					BOOST_FOREACH( std::vector< CPubKey > & newGroup, newOutputGroup )
+					{
+						m_monitorOutput.insert( newGroup );
+					}
+
+					BOOST_FOREACH( PAIRTYPE( std::vector< CPubKey >, std::vector< CPubKey > ) const & change, changeGroup )
+					{
+						std::vector< CPubKey > changed = change.first;
+						m_monitorOutput.erase( change.first );
+						changed.insert( changed.end(), change.second.begin(), change.second.end());
+					}
+
+				}
+			}
 		}
-		BOOST_FOREACH( std::vector< CPubKey > const & output, m_monitorOutput )
-		{
-//			std::vector< CPubKey >::iterator it = std::find ( output.begin(), output.end(), dixit );
-
-			std::list< std::vector< CPubKey >::iterator > m_present;
-
-//			if ( iterator != output.end() )
-			{
-
-
-			}
-//			else
-			{
-
-			}
-
-			BOOST_FOREACH( PAIRTYPE( CPubKey, std::vector< CPubKey > ) const & pppp, m_monitorInputData )
-			{
-
-//				std::vector< CPubKey >::iterator is = std::find ( pppp.second.begin(), pppp.second.end(), dixit );
-//				/m_monitorOutput
-
-
-
-			}
-
-
-
-
-		}
-
-
-
-//m_monitorOutput
-
-
 	}
+
+
+template < typename Container, typename Value >
+bool
+isPresent( Container const & _container, Value const & _value )
+{
+	return _container.end() != std::find ( _container.begin(), _container.end(), _value );
+}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
