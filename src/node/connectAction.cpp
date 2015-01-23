@@ -257,11 +257,72 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
 	{
-	//	_monitorStatsEvent.m_monitors
+		m_pending.erase( _monitorStatsEvent.m_nodeIndicator );
 
-				std::vector< CPubKey > m_trackers;
-				std::vector< CPubKey > m_monitors;
+		m_monitorInputData.insert(
+					std::make_pair( CTrackerLocalRanking::getInstance()->getNodeByKey( _monitorStatsEvent.m_ip ), _monitorStatsEvent.m_monitors ) );
+
+		if ( !m_pending.size() )
+		{
+		//	CClientControl::getInstance()->process_event( CNetworkDiscoveredEvent( m_trackerAdded, 0 ) );
+
+			context< CConnectAction >().setRequest( 0 );
+		}
+		// biggest with preffered
+
+
+		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
 		return discard_event();
+	}
+	struct CSortObject
+	{
+		CSortObject( set< std::vector< CPubKey > >::const_iterator & _iterator, unsigned int _size ):m_iterator( _iterator ),m_size( _size ){}
+
+		bool operator<( CSortObject const & _sortObject ) const
+		{
+			return m_size < _sortObject.m_size;
+		}
+
+		set< std::vector< CPubKey > >::const_iterator m_iterator;
+		unsigned int m_size;
+	};
+
+std::vector< CPubKey > chooseMonitors()
+	{
+		set< std::vector< CPubKey > >::const_iterator iterator = m_monitorOutput.begin();
+		std::vector< CSortObject > sorted;
+
+		while( iterator != m_monitorOutput.end() )
+		{
+			sorted.push_back( CSortObject( iterator, iterator->size() ) );
+			iterator++;
+		}
+		std::sort( sorted.begin(), sorted.end() );
+		std::reverse( sorted.begin(), sorted.end() );
+
+		vector<CPubKey> const publicKeys = common::dimsParams().getPreferedMonitorsAddresses();
+
+		if ( publicKeys.empty() )
+		{
+			if ( !sorted.empty() )
+			{
+				return *sorted.front().m_iterator;
+			}
+			return std::vector< CPubKey >();
+		}
+		else
+		{
+			BOOST_FOREACH( CSortObject const & object, sorted )
+			{
+				BOOST_FOREACH( CPubKey const & pubKey, publicKeys )
+				{
+					if ( isPresent( *object.m_iterator, pubKey ) )
+						return *object.m_iterator;
+				}
+			}
+			return std::vector< CPubKey >();
+		}
+
 	}
 
 	void  analyseThisShit()
@@ -350,13 +411,12 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		}
 	}
 
-
-template < typename Container, typename Value >
-bool
-isPresent( Container const & _container, Value const & _value )
-{
-	return _container.end() != std::find ( _container.begin(), _container.end(), _value );
-}
+	template < typename Container, typename Value >
+	bool
+	isPresent( Container const & _container, Value const & _value )
+	{
+		return _container.end() != std::find ( _container.begin(), _container.end(), _value );
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,

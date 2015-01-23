@@ -66,6 +66,11 @@ public:
 		}
 	}
 
+		vector<CPubKey> const & getPreferedMonitorsAddresses() const
+		{
+			return vector<CPubKey>();
+		}
+
 	virtual Network NetworkID() const { return CNetworkParams::MAIN; }
 
 	virtual const vector<CAddress>& FixedSeeds() const {
@@ -117,6 +122,12 @@ public:
 		nodesPrefixes[NodePrefix::Seed] = list_of(125);
 
 	}
+
+	vector<CPubKey> const & getPreferedMonitorsAddresses() const
+	{
+		return vector<CPubKey>();
+	}
+
 	virtual CNetworkParams::Network NetworkID() const { return CNetworkParams::TESTNET; }
 };
 

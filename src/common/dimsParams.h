@@ -10,6 +10,8 @@
 #include "bignum.h"
 #include "uint256.h"
 #include "networksParameters.h"
+#include "key.h"
+
 #include <vector>
 
 #include <boost/thread/mutex.hpp>
@@ -66,23 +68,24 @@ struct NodePrefix
 class CDimsParams : public CNetworkParams
 {
 public:
-    const uint256& HashOfBitcoinGenesisBlock() const { return hashGenesisBlock; }
-    const MessageStartChars& MessageStart() const { return pchMessageStart; }
-    const vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
-     int GetDefaultPort() const { return nDefaultPort; }
-    virtual bool RequireRPCPassword() const { return true; }
-    const string& DataDir() const { return strDataDir; }
-    virtual Network NetworkID() const = 0;
-    const vector<CDNSSeedData>& DNSSeeds() const { return vSeeds; }
-    const std::vector<unsigned char> &Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
-    virtual const vector<CAddress>& FixedSeeds() const = 0;
-    int RPCPort() const { return nRPCPort; }
-    static CNetworkParams const & getNetworkParameters();
+	const uint256& HashOfBitcoinGenesisBlock() const { return hashGenesisBlock; }
+	const MessageStartChars& MessageStart() const { return pchMessageStart; }
+	const vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
+	int GetDefaultPort() const { return nDefaultPort; }
+	virtual bool RequireRPCPassword() const { return true; }
+	const string& DataDir() const { return strDataDir; }
+	virtual Network NetworkID() const = 0;
+	const vector<CDNSSeedData>& DNSSeeds() const { return vSeeds; }
+	const std::vector<unsigned char> &Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
+	virtual const vector<CAddress>& FixedSeeds() const = 0;
+	int RPCPort() const { return nRPCPort; }
+	static CNetworkParams const & getNetworkParameters();
 	std::string getDefaultDirectory() const;
-    virtual unsigned int getDefaultClientPort() const = 0;
+	virtual unsigned int getDefaultClientPort() const = 0;
 	static void setAppType( AppType::Enum const _appType ){ m_appType = _appType; }
 	static AppType::Enum getAppType(){ return m_appType; }
 	std::vector<unsigned char> const getNodePrefix( NodePrefix::Enum const _nodePrefix ) const{ return nodesPrefixes[ _nodePrefix ]; }
+	virtual const vector<CPubKey>& getPreferedMonitorsAddresses() const = 0;
 protected:
 
 

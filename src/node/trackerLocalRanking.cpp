@@ -205,6 +205,12 @@ CTrackerLocalRanking::getTrackerStats( CKeyID const & _trackerId, common::CTrack
 	return false;
 }
 
+CPubKey const &
+CTrackerLocalRanking::getNodeByKey( std::string const & _ip ) const
+{
+	return CPubKey();
+}
+
 bool
 CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium )
 {

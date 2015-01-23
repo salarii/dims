@@ -78,6 +78,8 @@ public:
 	bool getTrackerStats( CKeyID const & _trackerId, common::CTrackerStats & _trackerStats );
 
 	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium );
+
+	CPubKey const & getNodeByKey( std::string const & _ip ) const;
 private:
 	CTrackerLocalRanking();
 
