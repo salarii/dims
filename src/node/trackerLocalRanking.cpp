@@ -63,13 +63,22 @@ CTrackerLocalRanking::removeUnidentifiedNode( std::string const & _ip )
 void
 CTrackerLocalRanking::addUndeterminedTracker( std::string const & _ip, common::CNodeStats const & _undeterminedTracker )
 {
-	m_undeterminedTrackers.insert( std::make_pair( _ip, _undeterminedTracker ) );
+	CPubKey pubKey = getNodeByKey( _ip );
+
+	if ( !pubKey.IsValid() )
+	{
+		setNodeAndKey( _ip, _undeterminedTracker.m_key );
+		pubKey = _undeterminedTracker.m_key;
+	}
+	m_undeterminedTrackers.insert( std::make_pair( pubKey, _undeterminedTracker ) );
 }
 
 bool
 CTrackerLocalRanking::getUndeterminedTracker( std::string const & _ip, common::CNodeStats & _undeterminedTracker )
 {
-	std::map< std::string, common::CNodeStats >::const_iterator iterator = m_undeterminedTrackers.find( _ip );
+	CPubKey pubKey = getNodeByKey( _ip );
+
+	std::map< CPubKey, common::CNodeStats >::const_iterator iterator = m_undeterminedTrackers.find( pubKey );
 
 	if ( iterator == m_undeterminedTrackers.end() )
 		return false;
@@ -82,19 +91,36 @@ CTrackerLocalRanking::getUndeterminedTracker( std::string const & _ip, common::C
 void
 CTrackerLocalRanking::removeUndeterminedTracker( std::string const & _ip )
 {
-	m_undeterminedTrackers.erase( _ip );
+	CPubKey pubKey = getNodeByKey( _ip );
+
+	if ( pubKey.IsValid() )
+	{
+		m_undeterminedTrackers.erase( pubKey );
+	}
 }
 
 void
 CTrackerLocalRanking::addMonitor( std::string const & _ip, common::CNodeStats const & _monitor )
 {
-	m_monitors.insert( std::make_pair( _ip, _monitor ) );
+	CPubKey pubKey = getNodeByKey( _ip );
+
+	if ( !pubKey.IsValid() )
+	{
+		setNodeAndKey( _ip, _monitor.m_key );
+		pubKey = _monitor.m_key;
+	}
+	m_monitors.insert( std::make_pair( pubKey, _monitor ) );
 }
 
 void
 CTrackerLocalRanking::removeMonitor( std::string const & _ip )
 {
-	m_monitors.erase( _ip );
+	CPubKey pubKey = getNodeByKey( _ip );
+
+	if ( pubKey.IsValid() )
+	{
+		m_monitors.erase( pubKey );
+	}
 }
 
 std::list< common::CMedium< NodeResponses > *>
@@ -122,7 +148,7 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 	case common::RequestKind::UndeterminedTrackers:
 		if ( m_undeterminedTrackers.begin() != m_undeterminedTrackers.end() )
 		{
-			BOOST_FOREACH( NodeStats const & stats, m_undeterminedTrackers )
+			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeStats ) const & stats, m_undeterminedTrackers )
 			{
 				mediums.push_back( getNetworkConnection( stats.second ) );
 			}
@@ -131,7 +157,7 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 	case common::RequestKind::Monitors:
 		if ( m_monitors.begin() != m_monitors.end() )
 		{
-			BOOST_FOREACH( NodeStats const & stats, m_monitors )
+			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeStats ) const & stats, m_monitors )
 			{
 				mediums.push_back( getNetworkConnection( stats.second ) );
 			}
@@ -208,7 +234,22 @@ CTrackerLocalRanking::getTrackerStats( CKeyID const & _trackerId, common::CTrack
 CPubKey const &
 CTrackerLocalRanking::getNodeByKey( std::string const & _ip ) const
 {
-	return CPubKey();
+	std::map< std::string, CPubKey >::const_iterator iterator = m_ipToKey.find( _ip );
+	if ( iterator != m_ipToKey.end() )
+	{
+		return iterator->second;
+	}
+	else
+	{
+		return CPubKey();
+	}
+
+}
+
+void
+CTrackerLocalRanking::setNodeAndKey( std::string const & _ip, CPubKey const _pubKey )
+{
+	m_ipToKey.insert( std::make_pair( _ip, _pubKey ) );
 }
 
 bool
@@ -235,7 +276,7 @@ CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, commo
 bool
 CTrackerLocalRanking::isValidMonitorKnown( CKeyID const & _monitorId )
 {
-	BOOST_FOREACH( PAIRTYPE( std::string, common::CNodeStats ) const & monitor, m_monitors )
+	BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeStats ) const & monitor, m_monitors )
 	{
 		if ( monitor.second.m_key.GetID() == _monitorId )
 			return true;

@@ -80,6 +80,8 @@ public:
 	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium );
 
 	CPubKey const & getNodeByKey( std::string const & _ip ) const;
+
+	void setNodeAndKey( std::string const & _ip, CPubKey const _pubKey );
 private:
 	CTrackerLocalRanking();
 
@@ -99,13 +101,13 @@ private:
 	std::map< std::string, common::CUnidentifiedStats > m_unidentifiedNodes;
 
 	// this  is  definitely not final version
-	std::map< std::string, common::CNodeStats > m_monitors;
+	std::map< CPubKey, common::CNodeStats > m_monitors;
 
-	std::map< std::string, common::CNodeStats > m_undeterminedTrackers;
+	std::map< CPubKey, common::CNodeStats > m_undeterminedTrackers;
+
+	std::map< std::string, CPubKey > m_ipToKey;
 
 	typedef std::pair< std::string, common::CUnidentifiedStats > Unidentified;
-
-	typedef std::pair< std::string, common::CNodeStats > NodeStats;
 	/*
 
 
