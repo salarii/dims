@@ -3070,7 +3070,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         }
     }
 
-
     else if (strCommand == "pong")
     {
         int64_t pingUsecEnd = GetTimeMicros();

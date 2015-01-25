@@ -154,10 +154,10 @@ public:
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
-        genesis.nVersion = 1;
-        genesis.nTime    = 1231006505;
-        genesis.nBits    = 0x1d00ffff;
-        genesis.nNonce   = 2083236893;
+		genesis.nVersion = 1;
+		genesis.nTime    = 1231006505;
+		genesis.nBits    = 0x1d00ffff;
+		genesis.nNonce   = 2083236893;
 
         hashGenesisBlock = genesis.GetHash();
         assert(hashGenesisBlock == uint256("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
@@ -241,17 +241,19 @@ public:
 
         // Modify the testnet genesis block so the timestamp is valid for a later start.
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 32);
-        genesis.nVersion =2;
-		genesis.nTime = 1410941780;
-		genesis.hashPrevBlock = uint256("0x0000000000001add52229c43410e8c78ce8aef7d8252ae6c599a7e2cd1f86c8f");
+		genesis.nVersion =2;
 
-		genesis.hashMerkleRoot = uint256("b09a6a0876d033242bf6f830b4ad4786cdea89e2a6af94925faa644edee54e32");
+		genesis.hashPrevBlock = uint256("0x00000000a4aade9f8ae51f79c9d3481eb700aaa817f913f08727423465625aa7");
 
-		genesis.nBits = 486604799;
-		genesis.nNonce = 2932979456;
-        hashGenesisBlock = genesis.GetHash();
+		genesis.hashMerkleRoot = uint256("0x0bae176f2325b02584f3cf8590a0eaa8088c5ed347c367d8b7d921bc8c645c74");
 
-		assert(hashGenesisBlock == uint256("0x000000008a9ca4275adf5468336eff14dbfafca7ccb944043151e5461655821c"));
+		genesis.nTime    = 1422232333;
+		genesis.nBits    = 486604799;
+		genesis.nNonce   = 958923456;
+
+		hashGenesisBlock = genesis.GetHash();
+
+		assert(hashGenesisBlock == uint256("0x000000008a7c1e0076bdb99e73f101bb02381fd9e7f2ec997501a3f19769345e"));
 		vFixedSeeds.clear();
 		for (unsigned int i = 0; i < ARRAYLEN(pnSeedTest); i++)
 		{
