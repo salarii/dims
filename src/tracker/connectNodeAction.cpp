@@ -426,8 +426,17 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
-	boost::statechart::result react( common::CConnectConditionEvent const & _connectCondition )
+
+	boost::statechart::result react( common::CMessageResult const & _connectCondition )
 	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _connectCondition.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		common::CConnectCondition connectCondition;
+
+		common::convertPayload( orginalMessage, connectCondition );
+
 		unsigned int result = 0;
 
 		CMonitorData & acquireMonitorData = CTrackerController::getInstance()->acquireMonitorData();
@@ -436,7 +445,7 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 		{
 			if ( acquireMonitorData.m_allowAdmission )
 			{
-				if ( acquireMonitorData.m_accepableRatio >= ( double )_connectCondition.m_price / ( double )_connectCondition.m_period )
+				if ( acquireMonitorData.m_accepableRatio >= ( double )connectCondition.m_price / ( double )connectCondition.m_period.GetLow64() )
 				{
 					result = 1;
 				}
@@ -472,7 +481,7 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< common::CConnectConditionEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };

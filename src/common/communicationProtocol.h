@@ -189,9 +189,9 @@ struct CConnectCondition
 	(
 		READWRITE( m_price );
 		READWRITE( m_period );
-		READWRITE( m_period );
 	)
 
+	CConnectCondition():m_price( 0 ),m_period( 0 ){}
 	CConnectCondition( unsigned int _price, uint256 const & _period ):m_price( _price ), m_period( _period ){}
 
 	unsigned int m_price;

@@ -90,13 +90,6 @@ struct CMonitorStatsEvent : boost::statechart::event< CMonitorStatsEvent >
 	uintptr_t m_nodeIndicator;
 };
 
-struct CConnectConditionEvent : boost::statechart::event< CConnectConditionEvent >
-{
-	CConnectConditionEvent( unsigned int _price, uint64_t _period ):m_price( _price ), m_period( _period ){}
-	unsigned int m_price;
-	uint64_t m_period;
-};
-
 struct CResultEvent : boost::statechart::event< CResultEvent >
 {
 	CResultEvent( bool _result ):m_result( _result ){}

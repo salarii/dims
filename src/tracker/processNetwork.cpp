@@ -67,6 +67,22 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
 			}
 		}
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition )
+		{
+			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{
+				assert( !"for now assert this" );
+				return true;
+			}
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+			}
+		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
 		{
 			//
