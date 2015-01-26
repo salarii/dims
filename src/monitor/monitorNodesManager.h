@@ -22,8 +22,6 @@ class CMonitorNodesManager : public common::CNodesManager< MonitorResponses >
 {
 public:
 	static CMonitorNodesManager * getInstance();
-
-	CMonitorNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 private:
 	CMonitorNodesManager();
 private:

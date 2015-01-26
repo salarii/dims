@@ -31,12 +31,6 @@ CSeedNodesManager::CSeedNodesManager()
 {
 }
 
-CSeedNodeMedium*
-CSeedNodesManager::getMediumForNode( common::CSelfNode * _node ) const
-{
-	return static_cast< CSeedNodeMedium* >( common::CNodesManager< SeedResponses >::getMediumForNode( _node ) );
-}
-
 std::list< common::CMedium< SeedResponses > *>
 CSeedNodesManager::provideConnection( common::CMediumFilter<SeedResponses> const & _mediumFilter )
 {

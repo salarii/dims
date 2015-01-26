@@ -33,12 +33,6 @@ CTrackerNodesManager::CTrackerNodesManager()
 {
 }
 
-CTrackerNodeMedium*
-CTrackerNodesManager::getMediumForNode( common::CSelfNode * _node ) const
-{
-	return static_cast< CTrackerNodeMedium* >( common::CNodesManager< TrackerResponses >::getMediumForNode( _node ) );
-}
-
 std::set< common::CValidNodeInfo > const &
 CTrackerNodesManager::getValidNodes() const
 {

@@ -38,7 +38,7 @@ public:
 
 	std::list< common::CMedium< RequestType > *> provideConnection( CMediumFilter< RequestType > const & _mediumFilter );
 
-	CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
+	virtual CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
 
 	common::CMedium< RequestType > * findNodeMedium( uintptr_t _ptr ) const;
 

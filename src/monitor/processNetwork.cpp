@@ -52,7 +52,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
 			)
 		{
-			CMonitorNodeMedium * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< MonitorResponses > * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{

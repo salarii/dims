@@ -21,8 +21,6 @@ class CSeedNodesManager : public common::CNodesManager< SeedResponses >
 public:
 	static CSeedNodesManager * getInstance();
 
-	CSeedNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
-
 	std::list< common::CMedium< SeedResponses > *> provideConnection( common::CMediumFilter< SeedResponses > const & _mediumFilter );
 
 	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );

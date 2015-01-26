@@ -32,10 +32,4 @@ CMonitorNodesManager::CMonitorNodesManager()
 {
 }
 
-CMonitorNodeMedium*
-CMonitorNodesManager::getMediumForNode( common::CSelfNode * _node ) const
-{
-	return static_cast< CMonitorNodeMedium* >( common::CNodesManager< MonitorResponses >::getMediumForNode( _node ) );
-}
-
 }

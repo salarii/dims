@@ -27,8 +27,6 @@ public:
 
 	static CTrackerNodesManager * getInstance();
 
-	CTrackerNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
-
 	std::set< common::CValidNodeInfo > const & getValidNodes() const;
 
 	void setValidNode( common::CValidNodeInfo const & _validNodeInfo );
