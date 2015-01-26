@@ -13,11 +13,12 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "filters.h"
-#include "monitorRequests.h"
-#include "monitorNodesManager.h"
-#include "reputationTracer.h"
-#include "monitorController.h"
+#include "monitor/filters.h"
+#include "monitor/monitorRequests.h"
+#include "monitor/monitorNodesManager.h"
+#include "monitor/reputationTracer.h"
+#include "monitor/monitorController.h"
+#include "monitor/monitorNodeMedium.h"
 
 namespace monitor
 {
@@ -264,7 +265,7 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CConnectNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
-		CMonitorNodesManager::getInstance()->addNode( new common::CNodeMedium< MonitorResponses >( connectedEvent->m_node ) );
+		CMonitorNodesManager::getInstance()->addNode( new CMonitorNodeMedium( connectedEvent->m_node ) );
 
 		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<MonitorResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
 	}
