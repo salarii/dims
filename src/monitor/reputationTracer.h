@@ -14,14 +14,27 @@
 namespace monitor
 {
 
+class CRankingDatabase;
+
 struct CTrackerData
 {
-	CTrackerData( CAddress _address, unsigned int _reputation, CPubKey _publicKey, uint64_t _networkTime ): m_address( _address ),m_reputation( _reputation ), m_publicKey( _publicKey ), m_networkTime( _networkTime ){}
+	CTrackerData(){}
+	CTrackerData( CAddress _address, unsigned int _reputation, CPubKey _publicKey, uint64_t _networkTime, uint64_t _contractTime ): m_address( _address ),m_reputation( _reputation ), m_publicKey( _publicKey ), m_networkTime( _networkTime ), m_contractTime( _contractTime ){}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_address);
+		READWRITE(m_reputation);
+		READWRITE(m_publicKey);
+		READWRITE(m_networkTime);
+		READWRITE(m_contractTime);
+	)
 
 	CAddress m_address;
 	unsigned int m_reputation;
 	CPubKey m_publicKey;
 	uint64_t m_networkTime;
+	uint64_t m_contractTime;
 };
 
 struct CAllyTrackerData
@@ -38,8 +51,10 @@ public:
 	static CReputationTracker * getInstance();
 
 	void addTracker( CTrackerData const & _trackerData );
+
+	void deleteTracker( CPubKey const & _pubKey );
 private:
-	CReputationTracker(){};
+	CReputationTracker();
 
 	unsigned int calculateReputation( uint64_t _passedTime );
 
@@ -65,6 +80,8 @@ private:
 	static CReputationTracker * ms_instance;
 
 	static uint64_t const m_recalculateTime;
+
+	CRankingDatabase * m_rankingDatabase;
 };
 
 }

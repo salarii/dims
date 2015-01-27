@@ -1,3 +1,4 @@
+// Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 Dims dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -129,11 +130,6 @@ ReadKeyValue( std::map< CKeyID, CPubKey > & _keys, CPubKey & _selfKey, CCryptoKe
 				return false;
 			}
 
-			// Old wallets store keys as "key" [pubkey] => [privkey]
-			// ... which was slow for wallets with lots of keys, because the public key is re-derived from the private key
-			// using EC operations as a checksum.
-			// Newer wallets store keys as "key"[pubkey] => [privkey][hash(pubkey,privkey)], which is much faster while
-			// remaining backwards-compatible.
 			try
 			{
 				_ssValue >> hash;

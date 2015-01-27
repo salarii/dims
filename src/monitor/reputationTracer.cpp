@@ -9,6 +9,8 @@
 
 #include <boost/foreach.hpp>
 
+#include "monitor/rankingDatabase.h"
+
 namespace monitor
 {
 double const PreviousReptationRatio = 0.95;// I want  to preserve  a lot
@@ -20,6 +22,11 @@ unsigned int const OneTransactionGain = 10;
 CReputationTracker * CReputationTracker::ms_instance = NULL;
 
 uint64_t const CReputationTracker::m_recalculateTime = 10000;// this  time is  vital how frequent it should be???
+
+CReputationTracker::CReputationTracker()
+{
+	m_rankingDatabase = new CRankingDatabase( "rankingData", "rc+" );
+}
 
 CReputationTracker*
 CReputationTracker::getInstance()
@@ -45,7 +52,7 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 		}
 	}
 
-	unsigned int boostForAll = maxTransactionNumber * OneTransactionGain * RelativeToMax;
+	unsigned int boostForAll = ( maxTransactionNumber + 1 )* OneTransactionGain * RelativeToMax;
 
 	BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
 	{
@@ -64,7 +71,6 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 	}
 
 	m_transactionsAddmited.clear();
-
 }
 
 void

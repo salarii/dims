@@ -20,6 +20,7 @@ MONITOR_H = \
 	monitorRequests.h \
 	monitorRequestsList.h \
 	processNetwork.h \
+	rankingDatabase.h \
 	reputationTracer.h \
 	server.h
 	
@@ -36,6 +37,7 @@ MONITOR_CPP = \
 	monitorNodesManager.cpp \
 	monitorRequests.cpp \
 	processNetwork.cpp \
+	rankingDatabase.cpp \
 	reputationTracer.cpp \
 	server.cpp \
 	setResponseVisitor.cpp

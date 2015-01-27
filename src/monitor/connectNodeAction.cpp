@@ -376,8 +376,8 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 			}
 			else
 			{
-				// send  ack addmit directly
-				CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getServiceAddress(), 0, context< CConnectNodeAction >().getPublicKey(), CMonitorController::getInstance()->getPeriod() ) );
+						context< CConnectNodeAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+				CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getServiceAddress(), 0, context< CConnectNodeAction >().getPublicKey(), CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 			}
 		}
 		else
