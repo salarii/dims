@@ -6,6 +6,7 @@
 
 #include "common/actionHandler.h"
 #include "common/authenticationProvider.h"
+#include "monitor/reputationTracer.h"
 
 #include "base58.h"
 
@@ -37,7 +38,15 @@ public:
 
 	void operator()( CMonitorInfoReq const & _MonitorInfoReq ) const
 	{
-			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CMonitorData() );
+		std::vector< CPubKey > monitors;
+		monitors.push_back( common::CAuthenticationProvider::getInstance()->getMyKey() );
+
+		// risky in  this  way
+		monitors.insert( monitors.end(), CReputationTracker::getInstance()->getAllyMonitors().begin(), CReputationTracker::getInstance()->getAllyMonitors().end());
+
+		CMonitorData monitorData( CReputationTracker::getInstance()->getTrackers(), monitors );
+
+		CClientRequestsManager::getInstance()->setClientResponse( m_hash, monitorData );
 	}
 private:
 	uint256 const m_hash;

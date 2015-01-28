@@ -170,6 +170,11 @@ struct CMonitorData
 			READWRITE( m_trackers );
 			READWRITE( m_monitors );
 	)
+
+	CMonitorData(){};
+
+	CMonitorData( std::vector< CPubKey > const & _trackers, std::vector< CPubKey > const & _monitors ):m_trackers( _trackers ), m_monitors( _monitors ){};
+
 	std::vector< CPubKey > m_trackers;
 	std::vector< CPubKey > m_monitors;
 	// recognized  monitors and trackers

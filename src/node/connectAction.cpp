@@ -80,8 +80,6 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 };
 
 /*
-definitely total crap
-???
 nodes should be  asked about ip-s first???
 all the rest info about  node  should  be gotten  from given node
 create error  handlig  functionality
@@ -224,15 +222,6 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	// determine  network  of  valid monitors
 	// next get list  of  recognized  trackers
 	// go  to  each  one  an  interrogate  them  next
-
-// ask for  valid monitors and  trackers
-	// ask  monitors  first
-
-	// ask  trackers
-	// reconstruct  network from  this
-	// recursivelly interrogate all
-	// reconstruct  network from  this
-//CTrackersInfoRequest
 //
 	boost::statechart::result react( common::CPending const & _pending )
 	{
@@ -249,6 +238,9 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		}
 		else
 		{
+			analyseAllData();
+			chooseMonitors();
+
 			context< CConnectAction >().setRequest( 0 );
 
 			return discard_event();
@@ -262,14 +254,12 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_monitorInputData.insert(
 					std::make_pair( CTrackerLocalRanking::getInstance()->getNodeByKey( _monitorStatsEvent.m_ip ), _monitorStatsEvent.m_monitors ) );
 
-		if ( !m_pending.size() )
+		if ( m_pending.empty() )
 		{
-		//	CClientControl::getInstance()->process_event( CNetworkDiscoveredEvent( m_trackerAdded, 0 ) );
-
+			analyseAllData();
+			chooseMonitors();
 			context< CConnectAction >().setRequest( 0 );
 		}
-		// biggest with preffered
-
 
 		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
 		return discard_event();
@@ -288,7 +278,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	};
 
 std::vector< CPubKey > chooseMonitors()
-	{
+{
 		set< std::vector< CPubKey > >::const_iterator iterator = m_monitorOutput.begin();
 		std::vector< CSortObject > sorted;
 
@@ -325,7 +315,7 @@ std::vector< CPubKey > chooseMonitors()
 
 	}
 
-	void  analyseThisShit()
+	void analyseAllData()
 	{
 
 		BOOST_FOREACH( PAIRTYPE( CPubKey, std::vector< CPubKey > ) const & monitorData, m_monitorInputData )

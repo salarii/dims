@@ -53,6 +53,12 @@ public:
 	void addTracker( CTrackerData const & _trackerData );
 
 	void deleteTracker( CPubKey const & _pubKey );
+
+	// both function, not finall form
+	std::vector< CPubKey > const & getTrackers() const{};
+
+	std::vector< CPubKey > const & getAllyMonitors() const{};
+
 private:
 	CReputationTracker();
 
