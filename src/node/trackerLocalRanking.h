@@ -67,6 +67,8 @@ public:
 
 	void removeMonitor( std::string const & _ip );
 
+	void resetMonitors();
+
 	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber );
 
 	common::CMedium< NodeResponses > * getSpecificTracker( uintptr_t _trackerPtr ) const;

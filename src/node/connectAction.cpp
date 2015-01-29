@@ -222,7 +222,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	// determine  network  of  valid monitors
 	// next get list  of  recognized  trackers
 	// go  to  each  one  an  interrogate  them  next
-//
+	//
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		m_nodeToToken.insert( std::make_pair( _pending.m_networkPtr, _pending.m_token ) );
@@ -266,20 +266,31 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	}
 	struct CSortObject
 	{
-		CSortObject( set< std::vector< CPubKey > >::const_iterator & _iterator, unsigned int _size ):m_iterator( _iterator ),m_size( _size ){}
+		CSortObject( set< std::set< CPubKey > >::const_iterator & _iterator, unsigned int _size ):m_iterator( _iterator ),m_size( _size ){}
 
 		bool operator<( CSortObject const & _sortObject ) const
 		{
 			return m_size < _sortObject.m_size;
 		}
 
-		set< std::vector< CPubKey > >::const_iterator m_iterator;
+		set< std::set< CPubKey > >::const_iterator m_iterator;
 		unsigned int m_size;
 	};
 
-std::vector< CPubKey > chooseMonitors()
-{
-		set< std::vector< CPubKey > >::const_iterator iterator = m_monitorOutput.begin();
+	void
+	processData()
+	{
+		// here  loop over data, try  find new monitors
+		// add new  monitors   add  them  to  register  and  one more  time  ask  for  data  but  try  to  exclude   already  used  ones
+
+		analyseAllData();
+		std::set< CPubKey > monitors = chooseMonitors();
+
+	}
+
+	std::set< CPubKey > chooseMonitors()
+	{
+		set< std::set< CPubKey > >::const_iterator iterator = m_monitorOutput.begin();
 		std::vector< CSortObject > sorted;
 
 		while( iterator != m_monitorOutput.end() )
@@ -298,7 +309,7 @@ std::vector< CPubKey > chooseMonitors()
 			{
 				return *sorted.front().m_iterator;
 			}
-			return std::vector< CPubKey >();
+			return std::set< CPubKey >();
 		}
 		else
 		{
@@ -310,7 +321,7 @@ std::vector< CPubKey > chooseMonitors()
 						return *object.m_iterator;
 				}
 			}
-			return std::vector< CPubKey >();
+			return std::set< CPubKey >();
 		}
 
 	}
@@ -334,70 +345,79 @@ std::vector< CPubKey > chooseMonitors()
 					// admit both
 					// this can be done more efficient way but here performence is irrelevant, stick to simplicity
 					// don't know  if it is really needed( done this  way at least, but something have to be done it is clear )
+					std::vector< std::set< CPubKey > > newOutputGroup;
 
-					std::vector< std::vector< CPubKey > > newOutputGroup;
-					// ugly
-					std::map< std::vector< CPubKey >, std::vector< CPubKey > > changeGroup;
-					BOOST_FOREACH( std::vector< CPubKey > const & output, m_monitorOutput )
+					if ( m_monitorOutput.empty() )
 					{
-						std::vector< CPubKey > valid;
-						bool firstPresent = false, secondPresent = false;
+						std::set< CPubKey > newOutput;
 
-						BOOST_FOREACH( CPubKey const & outMonitor, output )
+						newOutput.insert( monitor );
+						newOutput.insert( *isIterator );
+						m_monitorOutput.insert( newOutput );
+					}
+					else
+					{
+						// ugly
+						std::map< std::set< CPubKey >, std::set< CPubKey > > changeGroup;
+						BOOST_FOREACH( std::set< CPubKey > const & output, m_monitorOutput )
 						{
-							if ( outMonitor == monitor )
+							std::set< CPubKey > valid;
+							bool firstPresent = false, secondPresent = false;
+
+							BOOST_FOREACH( CPubKey const & outMonitor, output )
 							{
-								firstPresent = true;
-								valid.push_back( outMonitor );
+								if ( outMonitor == monitor )
+								{
+									valid.insert( outMonitor );
+								}
+								else if ( outMonitor == monitorReferenceData.first )
+								{
+									valid.insert( outMonitor );
+								}
+								else
+								{
+									if (
+											isPresent( monitorData.second, outMonitor )
+											&& isPresent( validMonitors, outMonitor )
+											)
+									{
+										valid.insert( outMonitor );
+									}
+								}
 							}
-							else if ( outMonitor == monitorReferenceData.first )
+
+							if ( valid.size() == output.size() )
 							{
-								secondPresent = true;
-								valid.push_back( outMonitor );
+								std::set< CPubKey > newOnes;
+								if ( !firstPresent )
+									newOnes.insert( monitor );
+								if ( !secondPresent )
+									newOnes.insert( monitorReferenceData.first );
+
+								changeGroup.insert( std::make_pair( output, newOnes ) );
 							}
 							else
 							{
-								if (
-										isPresent( monitorData.second, outMonitor )
-										&& isPresent( validMonitors, outMonitor )
-										)
-								{
-									valid.push_back( outMonitor );
-								}
+								newOutputGroup.push_back( valid );
 							}
 						}
-
-						if ( valid.size() == output.size() )
-						{
-							std::vector< CPubKey > newOnes;
-							if ( !firstPresent )
-								newOnes.push_back( monitor );
-							if ( !secondPresent )
-								newOnes.push_back( monitorReferenceData.first );
-
-							changeGroup.insert( std::make_pair( output, newOnes ) );
-						}
-						else
-						{
-							newOutputGroup.push_back( valid );
-						}
-					}
 					// there are two monitors to be admited, see if there exist suitable list if not create new one
+						BOOST_FOREACH( std::set< CPubKey > & newGroup, newOutputGroup )
+						{
+							m_monitorOutput.insert( newGroup );
+						}
 
-					BOOST_FOREACH( std::vector< CPubKey > & newGroup, newOutputGroup )
-					{
-						m_monitorOutput.insert( newGroup );
+						BOOST_FOREACH( PAIRTYPE( std::set< CPubKey >, std::set< CPubKey > ) const & change, changeGroup )
+						{
+							std::set< CPubKey > changed = change.first;
+							m_monitorOutput.erase( change.first );
+							changed.insert( change.second.begin(), change.second.end());
+							m_monitorOutput.insert( changed );
+						}
 					}
-
-					BOOST_FOREACH( PAIRTYPE( std::vector< CPubKey >, std::vector< CPubKey > ) const & change, changeGroup )
-					{
-						std::vector< CPubKey > changed = change.first;
-						m_monitorOutput.erase( change.first );
-						changed.insert( changed.end(), change.second.begin(), change.second.end());
-					}
-
 				}
 			}
+
 		}
 	}
 
@@ -417,7 +437,7 @@ std::vector< CPubKey > chooseMonitors()
 	int64_t m_lastAskTime;
 	std::map< uintptr_t, uint256 > m_nodeToToken;
 	std::map< CPubKey, std::vector< CPubKey > > m_monitorInputData;
-	set< std::vector< CPubKey > > m_monitorOutput;
+	set< std::set< CPubKey > > m_monitorOutput;
 };
 
 struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectAction >

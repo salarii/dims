@@ -68,7 +68,7 @@ public:
 
 		vector<CPubKey> const & getPreferedMonitorsAddresses() const
 		{
-			return vector<CPubKey>();
+			return m_prefferedMonitors;
 		}
 
 	virtual Network NetworkID() const { return CNetworkParams::MAIN; }
@@ -83,7 +83,8 @@ public:
     }
 protected:
 	vector<CAddress> vFixedSeeds;
-    unsigned int m_defaultClientPort;
+	unsigned int m_defaultClientPort;
+	vector<CPubKey> m_prefferedMonitors;// vital parameter !!!
 };
 static CMainDimsParams mainParams;
 
@@ -121,11 +122,6 @@ public:
 		nodesPrefixes[NodePrefix::Monitor] = list_of(110);
 		nodesPrefixes[NodePrefix::Seed] = list_of(125);
 
-	}
-
-	vector<CPubKey> const & getPreferedMonitorsAddresses() const
-	{
-		return vector<CPubKey>();
 	}
 
 	virtual CNetworkParams::Network NetworkID() const { return CNetworkParams::TESTNET; }

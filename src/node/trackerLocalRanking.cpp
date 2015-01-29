@@ -113,6 +113,12 @@ CTrackerLocalRanking::addMonitor( std::string const & _ip, common::CNodeStats co
 }
 
 void
+CTrackerLocalRanking::resetMonitors()
+{
+	m_monitors.clear();
+}
+
+void
 CTrackerLocalRanking::removeMonitor( std::string const & _ip )
 {
 	CPubKey pubKey = getNodeByKey( _ip );
