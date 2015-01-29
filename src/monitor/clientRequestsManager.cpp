@@ -41,8 +41,9 @@ public:
 		std::vector< CPubKey > monitors;
 		monitors.push_back( common::CAuthenticationProvider::getInstance()->getMyKey() );
 
+		std::vector< CPubKey > allyMonitors =  CReputationTracker::getInstance()->getAllyMonitors();
 		// risky in  this  way
-		monitors.insert( monitors.end(), CReputationTracker::getInstance()->getAllyMonitors().begin(), CReputationTracker::getInstance()->getAllyMonitors().end());
+		monitors.insert( monitors.end(), allyMonitors.begin(), allyMonitors.end() );
 
 		CMonitorData monitorData( CReputationTracker::getInstance()->getTrackers(), monitors );
 
