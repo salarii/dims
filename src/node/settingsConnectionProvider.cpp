@@ -28,7 +28,7 @@ CSettingsConnectionProvider::setTrackerIp( std::string const & _ip )
 
 CSettingsConnectionProvider::CSettingsConnectionProvider()
 {
-	m_settingsMedium = new CSettingsMedium();
+	m_settingsMedium = client::CDefaultMedium::getInstance();
 }
 
 std::list< common::CMedium< NodeResponses > *>

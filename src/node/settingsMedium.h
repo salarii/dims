@@ -28,10 +28,11 @@ class CTrackersInfoRequest;
 struct CRequest;
 
 
-class CSettingsMedium : public common::CMedium< NodeResponses >
+class CDefaultMedium : public common::CMedium< NodeResponses >
 {
 public:
-	CSettingsMedium();
+
+	static CDefaultMedium * getInstance();
 
 	bool serviced() const;
 
@@ -48,8 +49,12 @@ public:
 	void clearResponses();
 
 private:
+	CDefaultMedium();
+
 	void getSeedIps( vector<CAddress> & _vAdd );
 private:
+	static CDefaultMedium * ms_instance;
+
 	bool m_serviced;
 	std::vector< client::NodeResponses > m_requestResponse;
 };

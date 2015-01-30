@@ -21,24 +21,36 @@ using namespace common;
 namespace client
 {
 
-CSettingsMedium::CSettingsMedium()
+CDefaultMedium * CDefaultMedium::ms_instance = NULL;
+
+CDefaultMedium*
+CDefaultMedium::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CDefaultMedium();
+	};
+	return ms_instance;
+}
+
+CDefaultMedium::CDefaultMedium()
 	: m_serviced( true )
 {
 }
 
 bool
-CSettingsMedium::serviced() const
+CDefaultMedium::serviced() const
 {
 	return m_serviced;
 }
 
 void
-CSettingsMedium::add( CRequest const * _request )
+CDefaultMedium::add( CRequest const * _request )
 {
 }
 
 void
-CSettingsMedium::add( CDnsInfoRequest const * _request )
+CDefaultMedium::add( CDnsInfoRequest const * _request )
 {
 	vector< CAddress > addresses;
 	getSeedIps( addresses );
@@ -49,7 +61,7 @@ CSettingsMedium::add( CDnsInfoRequest const * _request )
 }
 
 void
-CSettingsMedium::getSeedIps( vector<CAddress> & _vAdd )
+CDefaultMedium::getSeedIps( vector<CAddress> & _vAdd )
 {
 	const vector<CDNSSeedData> &vSeeds = dimsParams().DNSSeeds();
 
@@ -75,26 +87,26 @@ CSettingsMedium::getSeedIps( vector<CAddress> & _vAdd )
 }
 
 void
-CSettingsMedium::add( common::CContinueReqest< NodeResponses > const * _request )
+CDefaultMedium::add( common::CContinueReqest< NodeResponses > const * _request )
 {
 	m_requestResponse.push_back( common::CContinueResult( _request->getRequestId() ) );
 }
 
 
 bool
-CSettingsMedium::flush()
+CDefaultMedium::flush()
 {
 	m_serviced = true;
 }
 
 bool
-CSettingsMedium::getResponse( std::vector< client::NodeResponses > & _requestResponse ) const
+CDefaultMedium::getResponse( std::vector< client::NodeResponses > & _requestResponse ) const
 {
 	_requestResponse = m_requestResponse;
 }
 
 void
-CSettingsMedium::clearResponses()
+CDefaultMedium::clearResponses()
 {
 	m_requestResponse.clear();
 }

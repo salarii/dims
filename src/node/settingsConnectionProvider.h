@@ -10,7 +10,7 @@
 
 namespace client
 {
-class CSettingsMedium;
+class CDefaultMedium;
 
 class CSettingsConnectionProvider : public common::CConnectionProvider< NodeResponses >
 {
@@ -28,7 +28,7 @@ private:
 private:
 	static CSettingsConnectionProvider * ms_instance;
 
-	CSettingsMedium * m_settingsMedium;
+	CDefaultMedium * m_settingsMedium;
 };
 
 }

@@ -228,8 +228,10 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_nodeToToken.insert( std::make_pair( _pending.m_networkPtr, _pending.m_token ) );
 
 		m_pending.insert( _pending.m_networkPtr );
+		m_checked.insert( _pending.m_networkPtr );
 
 		int64_t time = GetTime();
+
 		if ( time - m_lastAskTime < MonitorAskLoopTime )
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
@@ -238,9 +240,6 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		}
 		else
 		{
-			analyseAllData();
-			chooseMonitors();
-
 			context< CConnectAction >().setRequest( 0 );
 
 			return discard_event();
@@ -256,9 +255,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 		if ( m_pending.empty() )
 		{
-			analyseAllData();
-			chooseMonitors();
-			context< CConnectAction >().setRequest( 0 );
+			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
+//			context< CConnectAction >().setRequest( 0 );
 		}
 
 		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
@@ -282,6 +280,11 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		// here  loop over data, try  find new monitors
 		// add new  monitors   add  them  to  register  and  one more  time  ask  for  data  but  try  to  exclude   already  used  ones
+
+		// kiedy  odpalic??
+
+		// i z  tym  poroblemo
+
 
 		analyseAllData();
 		std::set< CPubKey > monitors = chooseMonitors();
@@ -433,6 +436,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
 	> reactions;
 
+	std::set< uintptr_t > m_checked;
 	std::set< uintptr_t > m_pending;
 	int64_t m_lastAskTime;
 	std::map< uintptr_t, uint256 > m_nodeToToken;
