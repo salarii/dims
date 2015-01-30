@@ -31,31 +31,43 @@ struct CAccountBalance
 
 };
 
-struct CUnidentifiedStats
+struct CUnidentifiedNodeInfo
 {
-	CUnidentifiedStats(	std::string const & _ip, unsigned int _port ):m_ip( _ip ), m_port( _port ){}
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_ip);
+	READWRITE(m_port);
+	)
+	CUnidentifiedNodeInfo(	std::string const & _ip, unsigned int _port ):m_ip( _ip ), m_port( _port ){}
 	std::string m_ip;
 	unsigned int m_port;
 
-	bool operator<( CUnidentifiedStats const & _unidentifiedStats ) const
+	bool operator<( CUnidentifiedNodeInfo const & _unidentifiedStats ) const
 	{
 		return m_ip < _unidentifiedStats.m_ip;
 	}
 };
 
-struct CNodeStats : public CUnidentifiedStats
+struct CNodeInfo : public CUnidentifiedNodeInfo
 {
-	CNodeStats( CPubKey const & _key = CPubKey(), std::string _ip = std::string(), unsigned int _port = 0, unsigned int _role = -1 ): CUnidentifiedStats( _ip, _port ), m_key( _key ), m_role( _role ){}
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(*(CUnidentifiedNodeInfo*)this);
+	READWRITE(m_key);
+	READWRITE(m_role);
+	)
+
+	CNodeInfo( CPubKey const & _key = CPubKey(), std::string _ip = std::string(), unsigned int _port = 0, unsigned int _role = -1 ): CUnidentifiedNodeInfo( _ip, _port ), m_key( _key ), m_role( _role ){}
 	CPubKey m_key;
 	unsigned int m_role;
 };
 
 
 // add max/min price
-struct CTrackerStats : public CNodeStats
+struct CTrackerStats : public CNodeInfo
 {
 	CTrackerStats( CPubKey _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, unsigned int _maxPrice = 0, unsigned int _minPrice = 0, std::string _ip = "", unsigned int _port = -1 )
-		: CNodeStats( _publicKey, _ip, _port ), m_reputation( _reputation ), m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ){}
+		: CNodeInfo( _publicKey, _ip, _port ), m_reputation( _reputation ), m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ){}
 	unsigned int  m_reputation;
 	float m_price;
 	unsigned int m_maxPrice;

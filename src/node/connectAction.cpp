@@ -65,7 +65,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		{
 			BOOST_FOREACH( CAddress const & address, _dnsInfo.m_addresses )
 			{
-				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedStats( address.ToStringIP(), address.GetPort() ) );
+				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
 			}
 			return transit< CRecognizeNetwork >();
 		}
@@ -128,7 +128,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		m_pending.erase( _networkInfo.m_nodeIndicator );
 
-		common::CNodeStats nodeStats( _networkInfo.m_selfKey, _networkInfo.m_ip, common::dimsParams().getDefaultClientPort(), common::CRole::Tracker );
+		common::CNodeInfo nodeStats( _networkInfo.m_selfKey, _networkInfo.m_ip, common::dimsParams().getDefaultClientPort(), common::CRole::Tracker );
 		if ( _networkInfo.m_selfRole == common::CRole::Monitor )
 		{
 			nodeStats.m_role = common::CRole::Monitor;
@@ -143,7 +143,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, _networkInfo.m_networkInfo )
 		{
-			m_uniqueNodes.insert( common::CNodeStats( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort(), validNode.m_role ) );
+			m_uniqueNodes.insert( common::CNodeInfo( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort(), validNode.m_role ) );
 		}
 
 		if ( !m_pending.size() )
@@ -179,7 +179,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		_isMonitorPresent = false;
 
-		BOOST_FOREACH( common::CNodeStats const & validNode, m_uniqueNodes )
+		BOOST_FOREACH( common::CNodeInfo const & validNode, m_uniqueNodes )
 		{
 			if ( validNode.m_role == common::CRole::Monitor )
 			{
@@ -201,7 +201,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	> reactions;
 
 	// in  future be  careful with  those
-	std::set< common::CNodeStats > m_uniqueNodes;
+	std::set< common::CNodeInfo > m_uniqueNodes;
 
 	std::set< uintptr_t > m_pending;
 
@@ -240,23 +240,44 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		}
 		else
 		{
-			context< CConnectAction >().setRequest( 0 );
+			m_checked.insert( m_pending.begin(), m_pending.end() );
+			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 
 			return discard_event();
 		}
 	}
 
+	boost::statechart::result react( common::CNoMedium const & _noMedium )
+	{
+		analyseAllData();
+		std::set< CPubKey > monitors = chooseMonitors();
+
+// reset  trackers
+// sort out trackers
+// reset monitors
+/*
+
+		m_monitorsInfo
+		m_trackersInfo*/
+		return discard_event();
+	}
+
 	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
 	{
 		m_pending.erase( _monitorStatsEvent.m_nodeIndicator );
+//load  all  structures
+		std::vector< CPubKey > monitorKeys;
+		BOOST_FOREACH( common::CNodeInfo const & nodeInfo, _monitorStatsEvent.m_monitors )
+		{
+			monitorKeys.push_back( nodeInfo.m_key );
+		}
 
 		m_monitorInputData.insert(
-					std::make_pair( CTrackerLocalRanking::getInstance()->getNodeByKey( _monitorStatsEvent.m_ip ), _monitorStatsEvent.m_monitors ) );
+					std::make_pair( CTrackerLocalRanking::getInstance()->getNodeByKey( _monitorStatsEvent.m_ip ), monitorKeys ) );
 
 		if ( m_pending.empty() )
 		{
 			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
-//			context< CConnectAction >().setRequest( 0 );
 		}
 
 		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
@@ -274,22 +295,6 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		set< std::set< CPubKey > >::const_iterator m_iterator;
 		unsigned int m_size;
 	};
-
-	void
-	processData()
-	{
-		// here  loop over data, try  find new monitors
-		// add new  monitors   add  them  to  register  and  one more  time  ask  for  data  but  try  to  exclude   already  used  ones
-
-		// kiedy  odpalic??
-
-		// i z  tym  poroblemo
-
-
-		analyseAllData();
-		std::set< CPubKey > monitors = chooseMonitors();
-
-	}
 
 	std::set< CPubKey > chooseMonitors()
 	{
@@ -433,9 +438,12 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
+	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
 	> reactions;
 
+	std::map< CPubKey, std::vector< CNodeStats > > m_monitorsInfo;
+	std::map< CPubKey, std::vector< CNodeStats > > m_trackersInfo;
 	std::set< uintptr_t > m_checked;
 	std::set< uintptr_t > m_pending;
 	int64_t m_lastAskTime;
@@ -480,7 +488,7 @@ struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectActi
 
 	boost::statechart::result react( common::CTrackerStatsEvent const & _trackerStats )
 	{
-		common::CNodeStats undeterminedTracker;
+		common::CNodeInfo undeterminedTracker;
 		CTrackerLocalRanking::getInstance()->getUndeterminedTracker( _trackerStats.m_ip, undeterminedTracker );
 
 		common::CTrackerStats trackerStats(

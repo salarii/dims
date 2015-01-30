@@ -38,14 +38,36 @@ public:
 
 	void operator()( CMonitorInfoReq const & _MonitorInfoReq ) const
 	{
-		std::vector< CPubKey > monitors;
-		monitors.push_back( common::CAuthenticationProvider::getInstance()->getMyKey() );
+		std::vector< common::CNodeInfo > monitors, trackers;
 
-		std::vector< CPubKey > allyMonitors = CReputationTracker::getInstance()->getAllyMonitors();
-		// risky in  this  way
-		monitors.insert( monitors.end(), allyMonitors.begin(), allyMonitors.end() );
+		// problematic??  how to manage  self??
+		//monitors.push_back( common::CAuthenticationProvider::getInstance()->getMyKey() );
 
-		CMonitorData monitorData( CReputationTracker::getInstance()->getTrackers(), monitors );
+		std::vector< CAllyMonitorData > allyMonitors = CReputationTracker::getInstance()->getAllyMonitors();
+
+		BOOST_FOREACH( CAllyMonitorData const & allyMonitorData, allyMonitors )
+		{
+			monitors.push_back(
+						common::CNodeInfo(
+									  allyMonitorData.m_publicKey
+									, allyMonitorData.m_address.ToStringIPPort()
+									, allyMonitorData.m_address.GetPort()
+									, common::CRole::Monitor ));
+		}
+
+		std::vector< CTrackerData > trackersData = CReputationTracker::getInstance()->getTrackers();
+
+		BOOST_FOREACH( CTrackerData const & trackerData, trackersData )
+		{
+			trackers.push_back(
+						common::CNodeInfo(
+									  trackerData.m_publicKey
+									, trackerData.m_address.ToStringIPPort()
+									, trackerData.m_address.GetPort()
+									, common::CRole::Tracker ));
+		}
+
+		CMonitorData monitorData( trackers, monitors );
 
 		CClientRequestsManager::getInstance()->setClientResponse( m_hash, monitorData );
 	}

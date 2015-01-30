@@ -37,6 +37,22 @@ struct CTrackerData
 	uint64_t m_contractTime;
 };
 
+
+struct CAllyMonitorData
+{
+	CAllyMonitorData(){}
+	CAllyMonitorData( CAddress _address, CPubKey _publicKey ): m_address( _address ), m_publicKey( _publicKey ){}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_address);
+		READWRITE(m_publicKey);
+	)
+
+	CAddress m_address;
+	CPubKey m_publicKey;
+};
+
 struct CAllyTrackerData
 {
 	unsigned int m_reputation;
@@ -55,9 +71,9 @@ public:
 	void deleteTracker( CPubKey const & _pubKey );
 
 	// both function, not finall form
-	std::vector< CPubKey > getTrackers() const{ return std::vector< CPubKey >(); }
+	std::vector< CTrackerData > getTrackers() const{ return std::vector< CTrackerData >(); }
 
-	std::vector< CPubKey > getAllyMonitors() const{ return std::vector< CPubKey >(); }
+	std::vector< CAllyMonitorData > getAllyMonitors() const{ return std::vector< CAllyMonitorData >(); }
 
 private:
 	CReputationTracker();

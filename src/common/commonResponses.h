@@ -15,6 +15,8 @@
 
 #include <boost/statechart/event.hpp>
 
+#include "common/requestResponse.h"
+
 namespace common
 {
 
@@ -26,6 +28,9 @@ struct CDummy
 		READWRITE( m_token );
 	)
 };
+
+struct CNoMedium : boost::statechart::event< CNoMedium >
+{};
 
 struct CAvailableCoins
 {
@@ -173,10 +178,10 @@ struct CMonitorData
 
 	CMonitorData(){};
 
-	CMonitorData( std::vector< CPubKey > const & _trackers, std::vector< CPubKey > const & _monitors ):m_trackers( _trackers ), m_monitors( _monitors ){};
+	CMonitorData( std::vector< common::CNodeInfo > const & _trackers, std::vector< common::CNodeInfo > const & _monitors ):m_trackers( _trackers ), m_monitors( _monitors ){};
 
-	std::vector< CPubKey > m_trackers;
-	std::vector< CPubKey > m_monitors;
+	std::vector< common::CNodeInfo > m_trackers;
+	std::vector< common::CNodeInfo > m_monitors;
 	// recognized  monitors and trackers
 };
 

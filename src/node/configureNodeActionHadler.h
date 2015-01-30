@@ -27,13 +27,15 @@ struct CNodeSpecific;
 struct CTransactionAck;
 
 struct CMonitorData;
+
+struct CNoMedium;
 }
 
 namespace client
 {
 
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, common::CTransactionStatus, common::CTransactionAck, common::CAccountBalance, common::CTrackerStats, common::CMonitorInfo, common::CPending, common::CAvailableCoins, CDnsInfo, common::CNodeSpecific< common::CClientNetworkInfoResult >, common::CContinueResult, common::CNodeSpecific< common::CTrackerSpecificStats >, common::CNodeSpecific< common::CMonitorData > > NodeResponseList;
+typedef boost::mpl::list< common::CNoMedium, common::CMediumException, common::CTransactionStatus, common::CTransactionAck, common::CAccountBalance, common::CTrackerStats, common::CMonitorInfo, common::CPending, common::CAvailableCoins, CDnsInfo, common::CNodeSpecific< common::CClientNetworkInfoResult >, common::CContinueResult, common::CNodeSpecific< common::CTrackerSpecificStats >, common::CNodeSpecific< common::CMonitorData > > NodeResponseList;
 
 typedef boost::make_variant_over< NodeResponseList >::type NodeResponses;
 }

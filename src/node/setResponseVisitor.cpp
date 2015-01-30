@@ -80,6 +80,11 @@ public:
 		this->m_action->process_event( _dnsInfo );
 	}
 
+	void operator()( common::CNoMedium & _noMedium ) const
+	{
+		this->m_action->process_event( _noMedium );
+	}
+
 	void operator()( common::CNodeSpecific< CClientNetworkInfoResult > & _networkInfo ) const
 	{
 		this->m_action->process_event( CClientNetworkInfoEvent( _networkInfo.m_networkInfo, _networkInfo.m_selfKey, _networkInfo.m_selfRole, _networkInfo.m_ip, _networkInfo.m_nodeIndicator ) );

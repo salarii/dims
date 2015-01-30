@@ -26,7 +26,7 @@ namespace client
 
 class CTrackersInfoRequest;
 struct CRequest;
-
+struct CMonitorInfoRequest;
 
 class CDefaultMedium : public common::CMedium< NodeResponses >
 {
@@ -39,6 +39,8 @@ public:
 	void add( CRequest const * _request );
 
 	void add( CDnsInfoRequest const * _request );
+
+	void add( CMonitorInfoRequest const * _request );
 
 	void add( common::CContinueReqest< NodeResponses > const * _request );
 
