@@ -115,7 +115,7 @@ CSendTransactionAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 }
 
 
-CRequest< NodeResponses > *
+common::CRequest< NodeResponses > *
 CSendTransactionAction::execute()
 {
 	return m_request;

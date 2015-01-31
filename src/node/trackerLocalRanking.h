@@ -83,9 +83,11 @@ public:
 
 	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium );
 
-	CPubKey const & getNodeByKey( std::string const & _ip ) const;
+	CPubKey const & getNodeKey( std::string const & _ip ) const;
 
-	void setNodeAndKey( std::string const & _ip, CPubKey const _pubKey );
+	common::CNodeInfo const & getNodeInfo( CPubKey const & _key ) const;
+
+	void setIpAndKey( std::string const & _ip, CPubKey const _pubKey );
 private:
 	CTrackerLocalRanking();
 

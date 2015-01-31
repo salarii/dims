@@ -271,10 +271,18 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		{
 			monitorKeys.push_back( nodeInfo.m_key );
 		}
+		CPubKey monitorKey = CTrackerLocalRanking::getInstance()->getNodeKey( _monitorStatsEvent.m_ip );
+// looks stupid but for sake of algorithm
+		monitorKeys.push_back( monitorKey );
 
+		m_monitorsInfo.insert( std::make_pair( monitorKey, _monitorStatsEvent.m_monitors ) );
+		m_trackersInfo.insert( std::make_pair( monitorKey, _monitorStatsEvent.m_trackers ) );
+
+		//CTrackerLocalRanking::getInstance()->addMonitor();
+/*
 		m_monitorInputData.insert(
-					std::make_pair( CTrackerLocalRanking::getInstance()->getNodeByKey( _monitorStatsEvent.m_ip ), monitorKeys ) );
-
+					std::make_pair( , monitorKeys ) );
+*/
 		if ( m_pending.empty() )
 		{
 			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
@@ -442,8 +450,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
 	> reactions;
 
-	std::map< CPubKey, std::vector< CNodeStats > > m_monitorsInfo;
-	std::map< CPubKey, std::vector< CNodeStats > > m_trackersInfo;
+	std::map< CPubKey, std::vector< common::CNodeInfo > > m_monitorsInfo;
+	std::map< CPubKey, std::vector< common::CNodeInfo > > m_trackersInfo;
 	std::set< uintptr_t > m_checked;
 	std::set< uintptr_t > m_pending;
 	int64_t m_lastAskTime;

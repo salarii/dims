@@ -11,6 +11,8 @@
 #include "trackerLocalRanking.h"
 #include "applicationServer.h"
 
+#include "settingsMedium.h"
+
 namespace  client
 {
 
@@ -142,6 +144,12 @@ struct CMediumClassWithExceptionFilter : public common::CMediumFilter< NodeRespo
 			}
 
 		}
+		if ( mediums.empty() )
+		{
+			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
+			return mediums;
+		}
+
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
 		{
 			mediums.resize( m_mediumNumber );

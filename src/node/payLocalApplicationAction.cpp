@@ -362,7 +362,7 @@ CPayLocalApplicationAction::accept( common::CSetResponseVisitor< NodeResponses >
 }
 
 
-CRequest< NodeResponses > *
+common::CRequest< NodeResponses > *
 CPayLocalApplicationAction::execute()
 {
 	return m_request;
