@@ -29,7 +29,7 @@ const unsigned NetworkAskLoopTime = 20;//seconds
 const unsigned MonitorAskLoopTime = 20;//seconds
 
 struct CMonitorPresent;
-struct CWithoutMonitor;
+struct CDetermineTrackers;
 struct CRecognizeNetwork;
 
 struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConnectAction >
@@ -110,7 +110,6 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		}
 		else
 		{
-
 			if ( !m_uniqueNodes.size() )
 			{
 				return transit< CRecognizeNetwork >();
@@ -120,7 +119,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 			analyseData( moniorPresent );
 
-			return moniorPresent ? transit< CMonitorPresent >() : transit< CWithoutMonitor >();
+			return moniorPresent ? transit< CMonitorPresent >() : transit< CDetermineTrackers >();
 		}
 	}
 
@@ -132,12 +131,12 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		if ( _networkInfo.m_selfRole == common::CRole::Monitor )
 		{
 			nodeStats.m_role = common::CRole::Monitor;
-			CTrackerLocalRanking::getInstance()->addMonitor( _networkInfo.m_ip, nodeStats );
+			CTrackerLocalRanking::getInstance()->addMonitor( nodeStats );
 			m_uniqueNodes.insert( nodeStats );
 		}
 		else if ( _networkInfo.m_selfRole == common::CRole::Tracker )
 		{
-			CTrackerLocalRanking::getInstance()->addUndeterminedTracker( _networkInfo.m_ip, nodeStats );
+			CTrackerLocalRanking::getInstance()->addUndeterminedTracker( nodeStats );
 			m_uniqueNodes.insert( nodeStats );
 		}
 
@@ -150,14 +149,14 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		{
 			if ( !m_uniqueNodes.size() )
 			{
-				return transit< CWithoutMonitor >(); // not  ok
+				return transit< CDetermineTrackers >(); // not  ok
 			}
 
 			bool moniorPresent = false;
 
 			analyseData( moniorPresent );
 
-			return moniorPresent ? transit< CMonitorPresent >() : transit< CWithoutMonitor >();
+			return moniorPresent ? transit< CMonitorPresent >() : transit< CDetermineTrackers >();
 		}
 
 		return discard_event();
@@ -184,11 +183,11 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 			if ( validNode.m_role == common::CRole::Monitor )
 			{
 				_isMonitorPresent = true;
-				CTrackerLocalRanking::getInstance()->addMonitor( validNode.m_ip, validNode );
+				CTrackerLocalRanking::getInstance()->addMonitor( validNode );
 			}
 			else if ( validNode.m_role == common::CRole::Tracker )
 			{
-				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNode.m_ip, validNode );
+				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( validNode );
 			}
 		}
 	}
@@ -252,14 +251,29 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		analyseAllData();
 		std::set< CPubKey > monitors = chooseMonitors();
 
-// reset  trackers
-// sort out trackers
-// reset monitors
-/*
+		CTrackerLocalRanking::getInstance()->resetMonitors();
+		CTrackerLocalRanking::getInstance()->resetTrackers();
 
-		m_monitorsInfo
-		m_trackersInfo*/
-		return discard_event();
+		BOOST_FOREACH( CPubKey const & key, monitors )
+		{
+			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator monitorsInfoIterator = m_monitorsInfo.find( key );
+			assert( monitorsInfoIterator != m_monitorsInfo.end() );
+
+			BOOST_FOREACH( common::CNodeInfo const & info, monitorsInfoIterator->second )
+			{
+				CTrackerLocalRanking::getInstance()->addMonitor( info );
+			}
+
+			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackersInfoIterator = m_trackersInfo.find( key );
+
+			assert( trackersInfoIterator != m_trackersInfo.end() );
+
+			BOOST_FOREACH( common::CNodeInfo const & info, trackersInfoIterator->second )
+			{
+				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( info );
+			}
+		}
+		return transit< CDetermineTrackers >();
 	}
 
 	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
@@ -270,19 +284,22 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		BOOST_FOREACH( common::CNodeInfo const & nodeInfo, _monitorStatsEvent.m_monitors )
 		{
 			monitorKeys.push_back( nodeInfo.m_key );
+			CTrackerLocalRanking::getInstance()->addMonitor( nodeInfo );
 		}
-		CPubKey monitorKey = CTrackerLocalRanking::getInstance()->getNodeKey( _monitorStatsEvent.m_ip );
-// looks stupid but for sake of algorithm
-		monitorKeys.push_back( monitorKey );
+		CPubKey monitorKey;
+		CTrackerLocalRanking::getInstance()->getNodeKey( _monitorStatsEvent.m_ip, monitorKey );
 
-		m_monitorsInfo.insert( std::make_pair( monitorKey, _monitorStatsEvent.m_monitors ) );
+	// looks stupid but for sake of algorithm
+		monitorKeys.push_back( monitorKey );
+		std::vector< common::CNodeInfo > monitorNodeInfo = _monitorStatsEvent.m_monitors;
+
+		common::CNodeInfo nodeInfo;
+		CTrackerLocalRanking::getInstance()->getNodeInfo( monitorKey, nodeInfo );
+		monitorNodeInfo.push_back( nodeInfo );
+
+		m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
 		m_trackersInfo.insert( std::make_pair( monitorKey, _monitorStatsEvent.m_trackers ) );
 
-		//CTrackerLocalRanking::getInstance()->addMonitor();
-/*
-		m_monitorInputData.insert(
-					std::make_pair( , monitorKeys ) );
-*/
 		if ( m_pending.empty() )
 		{
 			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
@@ -460,9 +477,9 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	set< std::set< CPubKey > > m_monitorOutput;
 };
 
-struct CWithoutMonitor : boost::statechart::state< CWithoutMonitor, CConnectAction >
+struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConnectAction >
 {
-	CWithoutMonitor( my_context ctx ) : my_base( ctx )
+	CDetermineTrackers( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectAction >().setRequest( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 

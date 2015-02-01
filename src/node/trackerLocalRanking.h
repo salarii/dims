@@ -57,13 +57,13 @@ public:
 
 	void removeUnidentifiedNode( std::string const & _ip );
 
-	void addUndeterminedTracker( std::string const & _ip, common::CNodeInfo const & _undeterminedTracker );
+	void addUndeterminedTracker( common::CNodeInfo const & _undeterminedTracker );
 
 	bool getUndeterminedTracker( std::string const & _ip, common::CNodeInfo & _undeterminedTracker );
 
 	void removeUndeterminedTracker( std::string const & _ip );
 
-	void addMonitor( std::string const & _ip, common::CNodeInfo const & _undeterminedTracker );
+	void addMonitor( common::CNodeInfo const & _undeterminedTracker );
 
 	void removeMonitor( std::string const & _ip );
 
@@ -83,9 +83,9 @@ public:
 
 	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium );
 
-	CPubKey const & getNodeKey( std::string const & _ip ) const;
+	bool getNodeKey( std::string const & _ip, CPubKey & _pubKey ) const;
 
-	common::CNodeInfo const & getNodeInfo( CPubKey const & _key ) const;
+	bool getNodeInfo( CPubKey const & _key, common::CNodeInfo & nodeInfo ) const;
 
 	void setIpAndKey( std::string const & _ip, CPubKey const _pubKey );
 private:
@@ -114,10 +114,7 @@ private:
 	std::map< std::string, CPubKey > m_ipToKey;
 
 	typedef std::pair< std::string, common::CUnidentifiedNodeInfo > Unidentified;
-	/*
 
-
-*/
 };
 
 
