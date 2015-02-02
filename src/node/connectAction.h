@@ -26,7 +26,7 @@ struct CClientUnconnected;
 class CConnectAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
 {
 public:
-	CConnectAction();
+	CConnectAction( bool _autoDelete = true );
 
 	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 

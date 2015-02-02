@@ -280,6 +280,19 @@ CTrackerLocalRanking::setIpAndKey( std::string const & _ip, CPubKey const _pubKe
 	m_ipToKey.insert( std::make_pair( _ip, _pubKey ) );
 }
 
+unsigned int
+CTrackerLocalRanking::monitorCount() const
+{
+	return m_monitors.size();
+}
+
+
+unsigned int
+CTrackerLocalRanking::determinedTrackersCount() const
+{
+	return m_balancedRanking.size();
+}
+
 bool
 CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium )
 {

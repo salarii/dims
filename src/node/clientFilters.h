@@ -38,7 +38,20 @@ struct CMediumClassFilter : public common::CMediumFilter< NodeResponses >
 
 	std::list< common::CMedium< NodeResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
-		return _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, m_mediumNumber );
+		std::list< common::CMedium< NodeResponses > *> mediums = _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, m_mediumNumber );
+
+		if ( mediums.empty() )
+		{
+			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
+			return mediums;
+		}
+
+		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
+		{
+			mediums.resize( m_mediumNumber );
+		}
+
+		return mediums;
 	}
 
 	int m_mediumClass;
@@ -67,6 +80,13 @@ struct CSpecificMediumFilter : public common::CMediumFilter< NodeResponses >
 			if ( medium )
 				mediums.push_back( medium );
 		}
+
+		if ( mediums.empty() )
+		{
+			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
+			return mediums;
+		}
+
 		return mediums;
 	}
 
@@ -104,6 +124,12 @@ struct CMediumByKeyFilter : public common::CMediumFilter< NodeResponses >
 
 		if ( _trackerLocalRanking->getSpecificTrackerMedium( m_keyId, medium ) )
 			mediums.push_back( medium );
+
+		if ( mediums.empty() )
+		{
+			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
+			return mediums;
+		}
 
 		return mediums;
 	}

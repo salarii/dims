@@ -300,6 +300,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
 		m_trackersInfo.insert( std::make_pair( monitorKey, _monitorStatsEvent.m_trackers ) );
 
+		m_monitorInputData.insert( std::make_pair( monitorKey, monitorKeys ) );
+
 		if ( m_pending.empty() )
 		{
 			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
@@ -484,8 +486,6 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 		context< CConnectAction >().setRequest( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 
 		m_lastAskTime = GetTime();
-
-		m_trackerAdded = 0;
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -503,7 +503,10 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 		}
 		else
 		{
-			CClientControl::getInstance()->process_event( CNetworkDiscoveredEvent( m_trackerAdded, 0 ) );// fix  this 0, 0
+			CClientControl::getInstance()->process_event(
+						CNetworkDiscoveredEvent(
+							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
+							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
 			context< CConnectAction >().setRequest( 0 );
 
@@ -527,7 +530,6 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 			);
 
 		CTrackerLocalRanking::getInstance()->addTracker( trackerStats );
-		m_trackerAdded++;
 
 		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( _trackerStats.m_ip );
 
@@ -535,18 +537,31 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 		if ( !m_pending.size() )
 		{
-			CClientControl::getInstance()->process_event( CNetworkDiscoveredEvent( m_trackerAdded, 0 ) ); // fix  this 0, 0
+			CClientControl::getInstance()->process_event(
+						CNetworkDiscoveredEvent(
+							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
+							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
+
 			context< CConnectAction >().setRequest( 0 );
 		}
 
 		return discard_event();
-
 	}
 
-	// continue event
+	boost::statechart::result react( common::CNoMedium const & _noMedium )
+	{
+			CClientControl::getInstance()->process_event(
+						CNetworkDiscoveredEvent(
+							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
+							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
+
+			context< CConnectAction >().setRequest( 0 );
+			return discard_event();
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
+	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CTrackerStatsEvent >
 	> reactions;
 
@@ -555,12 +570,11 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 	int64_t m_lastAskTime;
 
 	std::map< uintptr_t, uint256 > m_nodeToToken;
-
-	unsigned int m_trackerAdded;
 };
 
-CConnectAction::CConnectAction()
-:m_request( 0 )
+CConnectAction::CConnectAction( bool _autoDelete )
+	: CAction( _autoDelete )
+	, m_request( 0 )
 {
 	initiate();
 }

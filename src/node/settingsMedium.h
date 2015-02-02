@@ -42,6 +42,8 @@ public:
 
 	void add( CMonitorInfoRequest const * _request );
 
+	void add( CTrackersInfoRequest const * _request );
+
 	void add( common::CContinueReqest< NodeResponses > const * _request );
 
 	bool flush();

@@ -67,6 +67,12 @@ CDefaultMedium::add( CMonitorInfoRequest const * _request )
 }
 
 void
+CDefaultMedium::add( CTrackersInfoRequest const * _request )
+{
+	m_requestResponse.push_back( CNoMedium() );
+}
+
+void
 CDefaultMedium::getSeedIps( vector<CAddress> & _vAdd )
 {
 	const vector<CDNSSeedData> &vSeeds = dimsParams().DNSSeeds();

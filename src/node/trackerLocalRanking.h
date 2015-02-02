@@ -88,6 +88,10 @@ public:
 	bool getNodeInfo( CPubKey const & _key, common::CNodeInfo & nodeInfo ) const;
 
 	void setIpAndKey( std::string const & _ip, CPubKey const _pubKey );
+
+	unsigned int monitorCount() const;
+
+	unsigned int determinedTrackersCount() const;
 private:
 	CTrackerLocalRanking();
 
