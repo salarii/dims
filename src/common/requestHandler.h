@@ -146,8 +146,9 @@ void
 		*/
 		m_usedMedium->getResponse(requestResponses);
 		m_usedMedium->clearResponses();
-		// this i looks  ugly
+		// this "i" looks  ugly
 		int i = 0;
+		assert( m_newRequest.size() == requestResponses.size() );
 		BOOST_FOREACH( _RequestResponses const & response, requestResponses )
 		{
 			m_processedRequests.insert( std::make_pair( m_newRequest[i++], response ) );

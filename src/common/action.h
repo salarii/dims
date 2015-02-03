@@ -30,22 +30,28 @@ template < class _RequestResponses >
 class CAction
 {
 public:
-	CAction( bool _autoDelete = true ): m_executed( false ), m_autoDelete( _autoDelete ){};
+	CAction( bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_autoDelete( _autoDelete ){};
 
 	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor ) = 0;
 
 	virtual CRequest< _RequestResponses >* execute() = 0;
 
-	bool isExecuted(){ return m_executed; }
+	void setInProgress(){ m_inProgress = true; }
+
+	bool isInProgress()const{ return m_inProgress; };
+
+	bool isExecuted()const{ return m_executed; };
 
 	void setExecuted(){ m_executed = true; }
 
 	bool autoDelete(){ return m_autoDelete; }
 
-	virtual void reset(){ m_executed = false; }
+	virtual void reset(){ m_executed = false; m_inProgress = false; }
 
 	virtual ~CAction(){};
 protected:
+	bool m_inProgress;
+
 	bool m_executed;
 
 	bool const m_autoDelete;

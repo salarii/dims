@@ -36,6 +36,8 @@ public:
 
 	void setRequest( common::CRequest< NodeResponses >* _request );
 
+	void reset();
+
 	bool isRequestReady() const;
 private:
 	common::CRequest< NodeResponses >* m_request;

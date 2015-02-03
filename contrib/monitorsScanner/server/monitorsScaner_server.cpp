@@ -9,6 +9,8 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
+#include "util.h"
+
 #include "informationProvider.h"
 
 #include "common/actionHandler.h"
@@ -58,6 +60,8 @@ unsigned int const common::CPeriodicActionExecutor< client::NodeResponses >::m_s
 void
 init( boost::thread_group & _threadGroup )
 {
+	common::SelectRatcoinParamsFromCommandLine();
+
 	common::CPeriodicActionExecutor< client::NodeResponses > * periodicActionExecutor
 			= common::CPeriodicActionExecutor< client::NodeResponses >::getInstance();
 
@@ -75,6 +79,8 @@ init( boost::thread_group & _threadGroup )
 int main(int argc, char **argv)
 {
 	int port = 9090;
+	ParseParameters(argc, argv);
+
   shared_ptr<MonitorsScanerHandler> handler(new MonitorsScanerHandler());
   shared_ptr<TProcessor> processor(new MonitorsScanerProcessor(handler));
   shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));

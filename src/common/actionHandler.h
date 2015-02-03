@@ -95,7 +95,7 @@ private:
 
 	mutable boost::mutex m_mutex;
 
-	std::list< CAction< _RequestResponses >* > m_actions;
+	std::set< CAction< _RequestResponses >* > m_actions;
 
 	RequestToAction m_reqToAction;
 
@@ -135,7 +135,12 @@ void
 CActionHandler< _RequestResponses >::executeAction( CAction< _RequestResponses >* _action )
 {
 	boost::lock_guard<boost::mutex> lock(m_mutex);
-	m_actions.push_back( _action );
+
+	if ( !_action->isInProgress() )
+	{
+			_action->setInProgress();
+			m_actions.insert( _action );
+	}
 }
 
 template < class _RequestResponses >
@@ -257,7 +262,7 @@ CActionHandler< _RequestResponses >::loop()
 						CSetResponseVisitor< _RequestResponses > visitor( response );
 						reqAction.second->accept( visitor );
 
-						m_actions.push_back( reqAction.second );
+						m_actions.insert( reqAction.second );
 
 						it->second->deleteRequest( reqAction.first );
 

@@ -36,6 +36,8 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 {
 	CClientUnconnected( my_context ctx ) : my_base( ctx )
 	{
+		CTrackerLocalRanking::getInstance()->resetMonitors();
+		CTrackerLocalRanking::getInstance()->resetTrackers();
 		context< CConnectAction >().setRequest( new CDnsInfoRequest() );
 		m_lastAskTime = GetTime();
 	}
@@ -573,7 +575,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 };
 
 CConnectAction::CConnectAction( bool _autoDelete )
-	: CAction( _autoDelete )
+	: common::CAction< NodeResponses >( _autoDelete )
 	, m_request( 0 )
 {
 	initiate();
@@ -597,6 +599,13 @@ bool
 CConnectAction::isRequestReady() const
 {
 	return m_request;
+}
+
+void
+CConnectAction::reset()
+{
+	common::CAction< NodeResponses >::reset();
+	initiate();
 }
 
 void

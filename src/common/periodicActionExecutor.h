@@ -16,6 +16,8 @@ public:
 
 	bool isReady();
 
+	void reset();
+
 	void execute();
 private:
 	int64_t const m_deffer;
@@ -39,12 +41,20 @@ CDefferedAction< _RequestResponses >::isReady()
 
 	if ( m_action->isExecuted() )
 	{
+		reset();
 		m_time = GetTimeMillis();
-		m_action->reset();
 	}
 
 	return GetTimeMillis() - m_time < m_deffer ? false : true;
 }
+
+template < class _RequestResponses >
+void
+CDefferedAction< _RequestResponses >::reset()
+{
+	m_action->reset();
+}
+
 
 template < class _RequestResponses >
 void
@@ -113,7 +123,9 @@ CPeriodicActionExecutor< _RequestResponses >::processingLoop()
 			BOOST_FOREACH( CDefferedAction< _RequestResponses > & action, m_periodicActions)
 			{
 				if ( action.isReady() )
+				{
 					action.execute();
+				}
 			}
 		}
 		MilliSleep(m_sleepTime );

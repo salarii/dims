@@ -74,6 +74,8 @@ CClientControl::setAddressTableModel( AddressTableModel * _addressTableModel )
 std::vector< std::string >
 CClientControl::getAvailableAddresses() const
 {
+	if ( !m_addressTableModel )
+		return std::vector< std::string >();
 	return m_addressTableModel->getAddresses();
 }
 
