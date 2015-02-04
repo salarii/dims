@@ -92,6 +92,10 @@ public:
 	unsigned int monitorCount() const;
 
 	unsigned int determinedTrackersCount() const;
+
+	std::vector< common::CTrackerStats > getTrackers() const;
+
+	std::vector< common::CNodeInfo > getMonitors() const;
 private:
 	CTrackerLocalRanking();
 

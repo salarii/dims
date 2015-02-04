@@ -1,80 +1,65 @@
+// Copyright (c) 2014-2015 Dims dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "informationProvider.h"
 #include <boost/assign.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
-
-
 #include <boost/thread.hpp>
 
+#include <sstream>
+
+#include "node/trackerLocalRanking.h"
+#include "base58.h"
 
 using boost::assign::map_list_of;
 using namespace boost::assign;
 using namespace boost;
 using namespace monitorsScaner;
 
+template < typename ConvertedType >
+std::string
+convert( ConvertedType const & _converted )
+{
+	std::ostringstream stream;
+	stream << _converted;
+	return stream.str();
+}
+
 CInforamtionProvider::CInforamtionProvider()
 {
-// monitors
-// ip  pub_key   name    price   enlisted_trackers
-vec1 = list_of<std::list<std::string> >
-(list_of("192.198.92.99:8333")("15sxZ93LFygg2Rvht6FSTtfxaTcGNSpSc5")("ala")("3456")("2"))
-(list_of("46.137.222.237:8333")("1HMRX31xDbeuthaunjan9oeJtzsGLgutGG")("blo")("4456")("0"))
-(list_of("188.138.9.208:8333")("16wzjmqzDg4qAQyKN2Wei17YJTJuSNNxs2")("udu")("56")("1"))
-(list_of("88.198.240.138:8333")("1HPs3pbCcWnmozEauNKEETx9CmNRHs4ezQ")("aaa")("1")("3"))
-(list_of("162.209.4.125:8333")("17GuvXRgi3NS5LuMmEBGF7ejzSg6mrzwo5")("bbb")("1000")("2"))
-;
-
-vec2 = list_of<std::list<std::string> >
-(list_of("192.198.92.99:8333")("15sxZ93LFygg2Rvht6FSTtfxaTcGNSpSc5")("ala")("3456")("2"))
-(list_of("46.137.222.237:8333")("1HMRX31xDbeuthaunjan9oeJtzsGLgutGG")("blo")("4456")("0"))
-(list_of("188.138.9.208:8333")("16wzjmqzDg4qAQyKN2Wei17YJTJuSNNxs2")("fsd")("56")("1"))
-(list_of("88.198.240.138:8333")("1HPs3pbCcWnmozEauNKEETx9CmNRHs4ezQ")("cbc")("1")("3"))
-(list_of("205.186.129.90:46331")("18ytDTUgTChvgu4JRA2zTLFtiEocmzqAJy")("ppp")("100")("2"))
-(list_of("198.199.109.12:8333")("1NCSLbBHF8CmZcwpWwvUMxnBR73FGirFWW")("nnnn")("188")("2"))
-(list_of("188.40.112.72:8333")("12NepV7sEHb846Fic3gGhSRTCVcrhTBs1r")("vvvv")("90")("0"))
-;
-
-
-vec3 = list_of<std::list<std::string> >
-		   (list_of("192.198.92.99:8333")("15sxZ93LFygg2Rvht6FSTtfxaTcGNSpSc5")("ala")("3456")("2"))
-		   (list_of("46.137.222.237:8333")("1HMRX31xDbeuthaunjan9oeJtzsGLgutGG")("blo")("4456")("0"))
-		   ;
-
-vec4 = list_of<std::list<std::string> >
-		   (list_of("192.198.92.99:8333")("15sxZ93LFygg2Rvht6FSTtfxaTcGNSpSc5")("ala")("3456")("2"))
-		   (list_of("46.137.222.237:8333")("1HMRX31xDbeuthaunjan9oeJtzsGLgutGG")("blo")("4456")("0"))
-		   (list_of("188.138.9.208:8333")("16wzjmqzDg4qAQyKN2Wei17YJTJuSNNxs2")("fsd")("56")("1"))
-		   ;
-
-// tracker
-// ip pub_key  name   reputation  price
-m_trackers = map_list_of<std::string,std::list<std::string> >
-("15sxZ93LFygg2Rvht6FSTtfxaTcGNSpSc5", list_of("173.80.31.182:8333")("16jMDB9cnwhU6Voet5hDGqztoXqxpdpkZG")("aa")("1000")("0.5%"))
-("15sxZ93LFygg2Rvht6FSTtfxaTcGNSpSc5", list_of("108.59.8.83:8333")("13xVwkFzwg1wpmxfgjBEbKN1qGH6K2cbZu")("bb")("200")("0.5%"))
-("16wzjmqzDg4qAQyKN2Wei17YJTJuSNNxs2", list_of("173.168.25.229:8333")("1KpgGybuBchrZ8j8L5aLxgbro4NVvWTmMZ")("cc")("1100")("1%"))
-("1HPs3pbCcWnmozEauNKEETx9CmNRHs4ezQ", list_of("46.183.217.193:8333")("12ZSJPNGRFTSycqACFkrRU7oMAEx6Tkst4")("dd")("1200")("1%"))
-("1HPs3pbCcWnmozEauNKEETx9CmNRHs4ezQ", list_of("69.50.176.75:8333")("1Am5JYKHfF2cndp4uWjynHoat6xYUwaHoD")("ee")("1300")("0.2%"))
-("1HPs3pbCcWnmozEauNKEETx9CmNRHs4ezQ", list_of("216.55.179.254:8312")("196kBVutJ9PPcZQ9rK5ksR2gqVyt9NU2Yp")("ff")("1400")("0.2%"))
-("17GuvXRgi3NS5LuMmEBGF7ejzSg6mrzwo5", list_of("5.79.79.141:8333")("13scT7TusHFUsgSS3E4sbLnUJeWouWot3N")("gg")("1500")("0.2%"))
-("17GuvXRgi3NS5LuMmEBGF7ejzSg6mrzwo5", list_of("54.227.255.14:8333")("1NVehoUBjCdr4DgVXsoHt1puQ9S78a8ypa")("hh")("1600")("1%"))
-("18ytDTUgTChvgu4JRA2zTLFtiEocmzqAJy", list_of("198.58.107.157:8333")("1HC3dc4DubRat1P39YBBkwVRbph3ijbtPQ")("ii")("1700")("1%"))
-("18ytDTUgTChvgu4JRA2zTLFtiEocmzqAJy", list_of("213.189.53.125:8333")("12HvVH9DKdyHTnDY5FwS3A1CUYBVfzUfPZ")("jj")("1800")("0.5%"))
-("1NCSLbBHF8CmZcwpWwvUMxnBR73FGirFWW", list_of("94.23.213.14:8333")("16ibDU3zZdYp5MD25jxLjrunshKY3zwuhE")("kk")("1900")("0.5%"))
-("1NCSLbBHF8CmZcwpWwvUMxnBR73FGirFWW", list_of("46.4.58.69:8337")("13LUcsR2bc4j6mmo7sdU9Y6v7oQqG67i1n")("mm")("2000")("0.5%"));
-
-usedVectorTest = &vec3;
-
-usedVectorMain = &vec1;
-
-usedVector = usedVectorMain;
 }
 
 void
-CInforamtionProvider::changeStorage()
+CInforamtionProvider::reloadData()
 {
-	usedVectorTest = &vec3 == usedVectorTest ? &vec4 : &vec3;
-	usedVectorMain = &vec1 ==  usedVectorTest ? &vec2 : &vec1;
+	std::vector< common::CTrackerStats > trackers = client::CTrackerLocalRanking::getInstance()->getTrackers();
+	BOOST_FOREACH( common::CTrackerStats const & tracker, trackers )
+	{
+
+		CNodeAddress node;
+		node.Set( tracker.m_monitor.GetID(), common::NodePrefix::Monitor );
+		std::string monitor = node.ToString();
+
+		node.Set( tracker.m_key.GetID(), common::NodePrefix::Monitor );
+
+		m_trackers.insert(
+					std::make_pair(
+						monitor
+						, ( std::list<std::string> const & )boost::assign::list_of( tracker.m_ip + ":" + convert( tracker.m_ip ) )( node.ToString() )( "" )( convert( tracker.m_reputation ) )( convert( tracker.m_price ) )
+						)
+				);
+	}
+
+	std::vector< common::CNodeInfo > monitors = client::CTrackerLocalRanking::getInstance()->getMonitors();
+	BOOST_FOREACH( common::CNodeInfo const & monitor, monitors )
+	{
+		CNodeAddress monitorAddress;
+
+		monitorAddress.Set( monitor.m_key.GetID(), common::NodePrefix::Monitor );
+		m_usedMonitorsTest.push_back( boost::assign::list_of( monitor.m_ip + ":" + convert( monitor.m_ip ) )( monitorAddress.ToString() )("")("")("") );
+	}
 }
 
 
@@ -111,7 +96,7 @@ CInforamtionProvider::getMonitorsInfo(monitorsScaner::Data& _monitors) const
 {
 
 	unsigned int rows = 0, columns = 0;
-	BOOST_FOREACH( StringStorage const & storage, *usedVector )
+	BOOST_FOREACH( StringStorage const & storage, m_usedMonitors )
 	{
 		rows++;
 		columns = storage.size();
@@ -136,11 +121,11 @@ CInforamtionProvider::getInfo(monitorsScaner::Data& _return, const InfoRequest& 
 	{
 		if ( infoRequest.networkType == NetworkType::TESTNET )
 		{
-			usedVector = usedVectorTest;
+			m_usedMonitors = m_usedMonitorsTest;
 		}
 		else if ( infoRequest.networkType == NetworkType::MAIN )
 		{
-			usedVector = usedVectorMain;
+			m_usedMonitors = m_usedMonitorsMain;
 		}
 		else
 		{
@@ -161,11 +146,11 @@ CInforamtionProvider::getInfo(monitorsScaner::Data& _return, const InfoRequest& 
 
 
 void 
-CInforamtionProvider::changeStorageThread()
+CInforamtionProvider::reloadThread()
 {
 	while(1)
 	{
-		changeStorage();
+		reloadData();
 		boost::this_thread::sleep(boost::posix_time::seconds(180));
 		boost::this_thread::interruption_point();
 	}

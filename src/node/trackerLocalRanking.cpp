@@ -293,6 +293,29 @@ CTrackerLocalRanking::determinedTrackersCount() const
 	return m_balancedRanking.size();
 }
 
+std::vector< common::CTrackerStats >
+CTrackerLocalRanking::getTrackers() const
+{
+	std::vector< common::CTrackerStats > trackers;
+	BOOST_FOREACH( common::CTrackerStats const & tackerStat, m_balancedRanking )
+	{
+		trackers.push_back( tackerStat );
+	}
+	return trackers;
+}
+
+std::vector< common::CNodeInfo >
+CTrackerLocalRanking::getMonitors() const
+{
+	std::vector< common::CNodeInfo > monitors;
+	BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & monitor, m_monitors )
+	{
+		monitors.push_back( monitor.second );
+	}
+
+	return monitors;
+}
+
 bool
 CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium )
 {

@@ -66,12 +66,13 @@ struct CNodeInfo : public CUnidentifiedNodeInfo
 // add max/min price
 struct CTrackerStats : public CNodeInfo
 {
-	CTrackerStats( CPubKey _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, unsigned int _maxPrice = 0, unsigned int _minPrice = 0, std::string _ip = "", unsigned int _port = -1 )
-		: CNodeInfo( _publicKey, _ip, _port ), m_reputation( _reputation ), m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ){}
+	CTrackerStats( CPubKey const & _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, unsigned int _maxPrice = 0, unsigned int _minPrice = 0, std::string _ip = "", unsigned int _port = -1, CPubKey const & _monitor = CPubKey() )
+		: CNodeInfo( _publicKey, _ip, _port ), m_reputation( _reputation ), m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ), m_monitor( _monitor ){}
 	unsigned int  m_reputation;
 	float m_price;
 	unsigned int m_maxPrice;
 	unsigned int m_minPrice;
+	CPubKey m_monitor;
 };
 
 struct CMonitorInfo

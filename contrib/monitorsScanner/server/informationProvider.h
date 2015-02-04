@@ -1,3 +1,7 @@
+// Copyright (c) 2014-2015 Dims dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef _INFORMATION_PROVIDER_H
 #define _INFORMATION_PROVIDER_H
 
@@ -20,28 +24,20 @@ public:
 
 	void getInfo(monitorsScaner::Data& _return, const monitorsScaner::InfoRequest& infoRequest);
 
-	void changeStorage();
+	void reloadData();
 
-	void changeStorageThread();
+	void reloadThread();
 private:
 	void getTrackers(monitorsScaner::Data& _trackers, std::string _publicKey ) const;
 	void getMonitorsInfo(monitorsScaner::Data& _monitors)const;
 private:
-	std::list<std::list<std::string> > vec1;
-	std::list<std::list<std::string> > vec2;
+	std::list<std::list<std::string> > m_usedMonitorsTest;
 
-	std::list<std::list<std::string> > vec3;
-	std::list<std::list<std::string> > vec4;
+	std::list<std::list<std::string> > m_usedMonitorsMain;
 
-	std::list<std::list<std::string> > * usedVectorTest;
-
-	std::list<std::list<std::string> > * usedVectorMain;
-
-	std::list<std::list<std::string> > * usedVector;
+	std::list<std::list<std::string> > m_usedMonitors;
 
 	std::multimap< std::string,std::list<std::string> > m_trackers;
-
-
 };
 
 
