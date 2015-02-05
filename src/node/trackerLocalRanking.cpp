@@ -316,6 +316,12 @@ CTrackerLocalRanking::getMonitors() const
 	return monitors;
 }
 
+void
+CTrackerLocalRanking::connectNetworkRecognized( boost::signals2::slot< void () > const & _slot )
+{
+	m_recognized.connect( _slot );
+}
+
 bool
 CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium )
 {

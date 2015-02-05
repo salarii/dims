@@ -5,6 +5,8 @@
 #ifndef TRACKER_LOCAL_RANKING_H
 #define TRACKER_LOCAL_RANKING_H
 
+#include <boost/signals2.hpp>
+
 #include <deque>
 #include <set>
 #include <map>
@@ -96,6 +98,8 @@ public:
 	std::vector< common::CTrackerStats > getTrackers() const;
 
 	std::vector< common::CNodeInfo > getMonitors() const;
+
+	void connectNetworkRecognized( boost::signals2::slot< void () > const & _slot );
 private:
 	CTrackerLocalRanking();
 
@@ -123,6 +127,8 @@ private:
 
 	typedef std::pair< std::string, common::CUnidentifiedNodeInfo > Unidentified;
 
+	// this  is  for some  external use
+	boost::signals2::signal< void () > m_recognized;
 };
 
 

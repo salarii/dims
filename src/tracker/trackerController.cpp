@@ -69,6 +69,12 @@ CTrackerController::setConnected( bool _connected )
 	m_connected = _connected;
 }
 
+bool
+CTrackerController::evaluateIfPaymentCorrect() const
+{
+
+}
+
 CTrackerController::CTrackerController()
 	: m_price(0.01)
 	, m_maxPrice(1000000)

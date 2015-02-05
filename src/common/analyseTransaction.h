@@ -18,6 +18,8 @@ bool findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId ,
 
 std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash );
 
+//signature looks crazy, but I need it this way, goal of this  function is to determine how many coins realy left input, needed for fee calculation
+bool getRealCountOfCoinsSpend( CTransaction const & _tx, CKeyID const & _excaption, unsigned int & _outCount );// put tracker keyId in exceptions
 }
 
 #endif // ANALYSE_TRANSACTION_H

@@ -38,6 +38,7 @@ public:
 	bool isConnected() const;
 	bool setConnected( bool _connected );
 
+	bool evaluateIfPaymentCorrect() const;
 	// monitor related
 	CMonitorData & acquireMonitorData()
 	{

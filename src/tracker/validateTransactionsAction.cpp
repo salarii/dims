@@ -8,6 +8,7 @@
 
 #include "common/setResponseVisitor.h"
 #include "common/commonResponses.h"
+#include "common/analyseTransaction.h"
 
 #include "validateTransactionsRequest.h"
 
@@ -282,6 +283,43 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 
 	COriginInitial( my_context ctx ) : my_base( ctx )
 	{
+		/* check fee, move it to some other place??? */
+		std::vector< CTransaction > validTransactions;
+		std::vector< CTransaction > invalidTransactions;
+
+		unsigned int outCount;
+		CTxOut txOut;
+		unsigned int id;
+
+		BOOST_FOREACH( CTransaction const & transaction, context< CValidateTransactionsAction >().getTransactions() )
+		{
+			// fee calculate only for foreign addresses, this is tricky
+			if ( !common::getRealCountOfCoinsSpend(
+						  transaction
+						, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
+						, outCount ) )
+			{
+				invalidTransactions.push_back( transaction );
+			}
+
+
+			if ( !common::findOutputInTransaction(
+								 transaction
+								, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
+								, txOut
+								, id ) )
+			{
+				invalidTransactions.push_back( transaction );
+			}
+		}
+
+/*
+
+			BOOST_FOREACH( unsigned int index, _event.m_invalidTransactionIndexes )
+			{
+				CClientRequestsManager::getInstance()->setClientResponse( transactions.at( index ).GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, transactions.at( index ) ) );
+			}
+*/
 		context< CValidateTransactionsAction >().setRequest(
 				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
