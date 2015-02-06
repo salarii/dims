@@ -70,9 +70,18 @@ CTrackerController::setConnected( bool _connected )
 }
 
 bool
-CTrackerController::evaluateIfPaymentCorrect() const
+CTrackerController::evaluateIfPaymentCorrect( unsigned int _payment, unsigned int _fee ) const
 {
+	unsigned int fee = _payment * m_price;
 
+	if ( fee > m_maxPrice )
+		fee = m_maxPrice;
+	else if ( fee < m_minPrice )
+		fee = m_minPrice;
+
+	unsigned int deviation = fee * m_deviation;
+
+	return ( _fee >= fee - deviation ) && ( _fee <= fee + deviation );
 }
 
 CTrackerController::CTrackerController()
@@ -80,6 +89,7 @@ CTrackerController::CTrackerController()
 	, m_maxPrice(1000000)
 	, m_minPrice(1000)
 	, m_connected( false )
+	, m_deviation(0.001)
 {
 	initiate();
 }

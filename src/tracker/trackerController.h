@@ -38,7 +38,7 @@ public:
 	bool isConnected() const;
 	bool setConnected( bool _connected );
 
-	bool evaluateIfPaymentCorrect() const;
+	bool evaluateIfPaymentCorrect( unsigned int _payment, unsigned int _fee ) const;
 	// monitor related
 	CMonitorData & acquireMonitorData()
 	{
@@ -61,6 +61,8 @@ private:
 	bool m_connected;
 
 	CMonitorData m_monitorData;
+
+	float const m_deviation;
 };
 
 

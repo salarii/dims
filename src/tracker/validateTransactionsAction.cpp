@@ -311,17 +311,20 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 			{
 				invalidTransactions.push_back( transaction );
 			}
+
+			if ( tracker::CTrackerController::getInstance()->evaluateIfPaymentCorrect( outCount, txOut.nValue ) )
+				validTransactions.push_back( transaction );
+			else
+				invalidTransactions.push_back( transaction );
 		}
 
-/*
+		BOOST_FOREACH( CTransaction const & invalid, invalidTransactions )
+		{
+			CClientRequestsManager::getInstance()->setClientResponse( invalid.GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, invalid ) );
+		}
 
-			BOOST_FOREACH( unsigned int index, _event.m_invalidTransactionIndexes )
-			{
-				CClientRequestsManager::getInstance()->setClientResponse( transactions.at( index ).GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, transactions.at( index ) ) );
-			}
-*/
 		context< CValidateTransactionsAction >().setRequest(
-				new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
+				new CValidateTransactionsRequest( validTransactions, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
 	boost::statechart::result react( CValidationEvent const & _event )
