@@ -52,7 +52,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 	boost::statechart::result react( CCoinsEvent const & _coinsEvent )
 	{
 
-		CBitcoinAddress address;
+		CMnemonicAddress address;
 		address.SetString( m_pubKey );
 
 		CKeyID keyId;

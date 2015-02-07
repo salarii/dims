@@ -45,8 +45,6 @@ class CTrackerLocalRanking : public common::CConnectionProvider< NodeResponses >
 public:
 	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
 
-	float getPrice();
-
 	~CTrackerLocalRanking();
 
 	static CTrackerLocalRanking* getInstance();

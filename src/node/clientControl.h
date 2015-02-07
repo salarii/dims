@@ -44,7 +44,9 @@ public:
 
 	void addTransactionToModel( CTransaction const & _transaction );
 
-	void createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
+	bool determineFeeAndTracker( unsigned int _transactionAmount, common::CTrackerStats & _tracker, unsigned int & _fee );
+
+	bool createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
 
 	CClientSignals & acquireClientSignals();
 

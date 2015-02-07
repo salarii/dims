@@ -58,7 +58,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
-		if ( _dnsInfo.m_addresses.empty() )
+/*		if ( _dnsInfo.m_addresses.empty() )
 		{
 			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
 			return discard_event();
@@ -66,11 +66,12 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		else
 		{
 			BOOST_FOREACH( CAddress const & address, _dnsInfo.m_addresses )
-			{
-				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
-			}
+			{*/
+
+				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( "127.0.0.1", common::CUnidentifiedNodeInfo( "127.0.0.1", common::dimsParams().getDefaultClientPort() ) );
+			//}
 			return transit< CRecognizeNetwork >();
-		}
+		//}
 	}
 
 	typedef boost::mpl::list<

@@ -354,11 +354,4 @@ CTrackerLocalRanking::isValidMonitorKnown( CKeyID const & _monitorId )
 
 	return false;
 }
-
-float
-CTrackerLocalRanking::getPrice()
-{
-	return 0.0;
-}
-
 }

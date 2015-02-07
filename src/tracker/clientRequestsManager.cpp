@@ -54,7 +54,7 @@ public:
 	void operator()( CAddressBalanceReq const & _addressBalanceReq ) const
 	{
 		CKeyID keyId;
-		CBitcoinAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
+		CMnemonicAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
 		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction( keyId, m_hash ) );
 	}
 

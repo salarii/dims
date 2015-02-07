@@ -50,7 +50,7 @@ struct CClientConnected : boost::statechart::state< CClientConnected, CClientCon
 
 		uiInterface.NotifyNumConnectionsChanged( discoveredEvent->m_trackers, discoveredEvent->m_monitors );
 
-		common::CPeriodicActionExecutor< client::NodeResponses >::getInstance()->addAction( new CSendBalanceInfoAction( false ), 6000 );
+		common::CPeriodicActionExecutor< client::NodeResponses >::getInstance()->addAction( new CSendBalanceInfoAction( false ), 15000 );
 	}
 };
 
@@ -91,10 +91,16 @@ CClientControl::addTransactionToModel( CTransaction const & _transaction )
 	m_clientSignals.m_putTransactionIntoModel( _transaction );
 }
 
-void
+bool
+CClientControl::determineFeeAndTracker( unsigned int _transactionAmount, common::CTrackerStats & _tracker, unsigned int & _fee )
+{
+
+}
+
+bool
 CClientControl::createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& _wtxNew, std::string& _strFailReason )
 {
-	m_clientSignals.m_createTransaction( _outputs, _coinsToUse, _trackerStats, _wtxNew, _strFailReason );
+	return m_clientSignals.m_createTransaction( _outputs, _coinsToUse, _trackerStats, _wtxNew, _strFailReason );
 }
 
 CClientSignals &

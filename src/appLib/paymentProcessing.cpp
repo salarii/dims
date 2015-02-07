@@ -106,7 +106,7 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 			)
 		return false;
 
-	CBitcoinAddress authorAddress;
+	CMnemonicAddress authorAddress;
 	authorAddress.SetString( AuthorId );
 
 	CKeyID authorKeyId;
@@ -260,7 +260,7 @@ CPaymentProcessing::executeDialog( CAppClient & _appClient )
 	expectationMessage.m_monitors = convertToKeyId( PossibleMonitors );
 
 	expectationMessage.m_trackers = convertToKeyId( PossibleTrackers );
-	CBitcoinAddress authorAddress;
+	CMnemonicAddress authorAddress;
 	authorAddress.SetString( AuthorId );
 
 	CKeyID authorKeyId;

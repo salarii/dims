@@ -287,8 +287,9 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 		std::vector< CTransaction > validTransactions;
 		std::vector< CTransaction > invalidTransactions;
 
-		unsigned int outCount;
+		unsigned int outCount = 0;
 		CTxOut txOut;
+		txOut.nValue = 0;
 		unsigned int id;
 
 		BOOST_FOREACH( CTransaction const & transaction, context< CValidateTransactionsAction >().getTransactions() )
@@ -322,6 +323,8 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 		{
 			CClientRequestsManager::getInstance()->setClientResponse( invalid.GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, invalid ) );
 		}
+
+		context< CValidateTransactionsAction >().setTransactions( validTransactions );
 
 		context< CValidateTransactionsAction >().setRequest(
 				new CValidateTransactionsRequest( validTransactions, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
@@ -443,6 +446,12 @@ std::vector< CTransaction > &
 CValidateTransactionsAction::acquireTransactions()
 {
 	return m_transactions;
+}
+
+void
+CValidateTransactionsAction::setTransactions( std::vector< CTransaction > const & _transactions )
+{
+	m_transactions = _transactions;
 }
 
 void

@@ -1558,7 +1558,7 @@ CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const 
 	}
 
 }
-
+/*
 bool
 CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
 					   CWalletTx& wtxNew, std::string& strFailReason, const CCoinControl *coinControl )
@@ -1662,15 +1662,17 @@ CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecS
 			/*
 			// don't know  what for is logic below
 
-				wtxNew.AddSupportingTransactions();
-				wtxNew.fTimeReceivedIsTxTime = true;
-			*/
+			//	wtxNew.AddSupportingTransactions();
+			//	wtxNew.fTimeReceivedIsTxTime = true;
+
 				break;
 			}
 		}
 	}
 	return true;
 }
+
+*/
 bool CWallet::determineChangeAddress( std::vector< CAvailableCoin > const & _coinsForTransaction, CKeyID & _keyId )
 {
 
@@ -1689,7 +1691,7 @@ bool CWallet::determineChangeAddress( std::vector< CAvailableCoin > const & _coi
 	}
 	return false;
 }
-
+/*
 bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend,
                                 CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, std::string& strFailReason, const CCoinControl* coinControl)
 {
@@ -1783,12 +1785,11 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend,
                     return false;
                 }
  
-		    /*
 			// don't know  what for is logic below
 
-                wtxNew.AddSupportingTransactions();
-                wtxNew.fTimeReceivedIsTxTime = true;
-			*/
+///                wtxNew.AddSupportingTransactions();
+//                wtxNew.fTimeReceivedIsTxTime = true;
+
                 break;
             }
         }
@@ -1803,7 +1804,7 @@ bool CWallet::CreateTransaction(CScript scriptPubKey, int64_t nValue,
     vecSend.push_back(make_pair(scriptPubKey, nValue));
     return CreateTransaction(vecSend, wtxNew, reservekey, nFeeRet, strFailReason, coinControl);
 }
-
+*/
 // Call after CreateTransaction unless you want to abort
 bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
 {
@@ -1847,32 +1848,31 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
 }
 
 
-
+/*
 
 string CWallet::SendMoney(CScript scriptPubKey, int64_t nValue, CWalletTx& wtxNew)
 {
-    CReserveKey reservekey(this);
-    int64_t nFeeRequired;
+	CReserveKey reservekey(this);
 
-    if (IsLocked())
-    {
-        string strError = _("Error: Wallet locked, unable to create transaction!");
-        LogPrintf("SendMoney() : %s", strError);
-        return strError;
-    }
-    string strError;
-    if (!CreateTransaction(scriptPubKey, nValue, wtxNew, reservekey, nFeeRequired, strError))
-    {
-        if (nValue + nFeeRequired > GetBalance())
-            strError = strprintf(_("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!"), FormatMoney(nFeeRequired));
-        LogPrintf("SendMoney() : %s\n", strError);
-        return strError;
-    }
+	if (IsLocked())
+	{
+		string strError = _("Error: Wallet locked, unable to create transaction!");
+		LogPrintf("SendMoney() : %s", strError);
+		return strError;
+	}
+	string strError;
+	if (!CreateTransaction(scriptPubKey, nValue, wtxNew, reservekey, nFeeRequired, strError))
+	{
+		if (nValue + nFeeRequired > GetBalance())
+			strError = strprintf(_("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!"), FormatMoney(nFeeRequired));
+		LogPrintf("SendMoney() : %s\n", strError);
+		return strError;
+	}
 
-    if (!CommitTransaction(wtxNew, reservekey))
-        return _("Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of wallet.dat and coins were spent in the copy but not marked as spent here.");
+	if (!CommitTransaction(wtxNew, reservekey))
+		return _("Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of wallet.dat and coins were spent in the copy but not marked as spent here.");
 
-    return "";
+	return "";
 }
 
 
@@ -1893,7 +1893,7 @@ string CWallet::SendMoneyToDestination(const CTxDestination& address, int64_t nV
 }
 
 
-
+*/
 
 DBErrors CWallet::LoadWallet(bool& fFirstRunRet)
 {
@@ -1957,9 +1957,9 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const string& strNam
             (mi == mapAddressBook.end()) ?  CT_NEW : CT_UPDATED);
     if (!fFileBacked)
         return false;
-    if (!strPurpose.empty() && !CWalletDB(strWalletFile).WritePurpose(CBitcoinAddress(address).ToString(), strPurpose))
+	if (!strPurpose.empty() && !CWalletDB(strWalletFile).WritePurpose(CMnemonicAddress(address).ToString(), strPurpose))
         return false;
-    return CWalletDB(strWalletFile).WriteName(CBitcoinAddress(address).ToString(), strName);
+	return CWalletDB(strWalletFile).WriteName(CMnemonicAddress(address).ToString(), strName);
 }
 
 bool CWallet::DelAddressBook(const CTxDestination& address)
@@ -1970,7 +1970,7 @@ bool CWallet::DelAddressBook(const CTxDestination& address)
     if(fFileBacked)
     {
         // Delete destdata tuples associated with address
-        std::string strAddress = CBitcoinAddress(address).ToString();
+		std::string strAddress = CMnemonicAddress(address).ToString();
         BOOST_FOREACH(const PAIRTYPE(string, string) &item, mapAddressBook[address].destdata)
         {
             CWalletDB(strWalletFile).EraseDestData(strAddress, item.first);
@@ -1981,8 +1981,8 @@ bool CWallet::DelAddressBook(const CTxDestination& address)
     NotifyAddressBookChanged(this, address, "", ::IsMine(*this, address), "", CT_DELETED);
     if (!fFileBacked)
         return false;
-    CWalletDB(strWalletFile).ErasePurpose(CBitcoinAddress(address).ToString());
-    return CWalletDB(strWalletFile).EraseName(CBitcoinAddress(address).ToString());
+	CWalletDB(strWalletFile).ErasePurpose(CMnemonicAddress(address).ToString());
+	return CWalletDB(strWalletFile).EraseName(CMnemonicAddress(address).ToString());
 }
 
 bool CWallet::SetDefaultKey(const CPubKey &vchPubKey)
@@ -2466,7 +2466,7 @@ bool CWallet::AddDestData(const CTxDestination &dest, const std::string &key, co
     mapAddressBook[dest].destdata.insert(std::make_pair(key, value));
     if (!fFileBacked)
         return true;
-    return CWalletDB(strWalletFile).WriteDestData(CBitcoinAddress(dest).ToString(), key, value);
+	return CWalletDB(strWalletFile).WriteDestData(CMnemonicAddress(dest).ToString(), key, value);
 }
 
 bool CWallet::EraseDestData(const CTxDestination &dest, const std::string &key)
@@ -2475,7 +2475,7 @@ bool CWallet::EraseDestData(const CTxDestination &dest, const std::string &key)
         return false;
     if (!fFileBacked)
         return true;
-    return CWalletDB(strWalletFile).EraseDestData(CBitcoinAddress(dest).ToString(), key);
+	return CWalletDB(strWalletFile).EraseDestData(CMnemonicAddress(dest).ToString(), key);
 }
 
 bool CWallet::LoadDestData(const CTxDestination &dest, const std::string &key, const std::string &value)

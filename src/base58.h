@@ -263,19 +263,19 @@ public:
  * Script-hash-addresses have version 5 (or 196 testnet).
  * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
  */
-class CBitcoinAddress;
+class CMnemonicAddress;
 class CBitcoinAddressVisitor : public boost::static_visitor<bool>
 {
 private:
-    CBitcoinAddress *addr;
+	CMnemonicAddress *addr;
 public:
-    CBitcoinAddressVisitor(CBitcoinAddress *addrIn) : addr(addrIn) { }
+	CBitcoinAddressVisitor(CMnemonicAddress *addrIn) : addr(addrIn) { }
     bool operator()(const CKeyID &id) const;
     bool operator()(const CScriptID &id) const;
     bool operator()(const CNoDestination &no) const;
 };
 
-class CBitcoinAddress : public CBase58Data
+class CMnemonicAddress : public CBase58Data
 {
 public:
     bool Set(const CKeyID &id) {
@@ -301,24 +301,24 @@ public:
         return fCorrectSize && fKnownVersion;
     }
 
-	CBitcoinAddress( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
+	CMnemonicAddress( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {
     }
 
-	CBitcoinAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
+	CMnemonicAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {
         Set(dest);
     }
 
-	CBitcoinAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
+	CMnemonicAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(strAddress);
     }
 
-	CBitcoinAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
+	CMnemonicAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(pszAddress);

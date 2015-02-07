@@ -47,7 +47,7 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 	std::vector< CCoins > coins;
 
 	if (
-		   !CAddressToCoinsViewCache::getInstance()->getCoins( _request->getKey(), coinsHashes )
+		   ! CAddressToCoinsViewCache::getInstance()->getCoins( _request->getKey(), coinsHashes )
 		|| !CTransactionRecordManager::getInstance()->getCoins( coinsHashes, coins )
 		)
 	{

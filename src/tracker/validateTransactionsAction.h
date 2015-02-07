@@ -32,6 +32,8 @@ public:
 
 	std::vector< CTransaction > & acquireTransactions();
 
+	void setTransactions( std::vector< CTransaction > const & _transactions );
+
 	void setInitiatingNode( uintptr_t _initiatingNode );
 
 	uintptr_t getInitiatingNode() const;

@@ -326,7 +326,7 @@ SendCoinsDialog::fillCoinControl(qint64 const _outputSum,CCoinControl &_coinCont
 		QVariant data = m_addressModel->data( *iterator, Qt::DisplayRole );
 		QString val = data.toString();
 
-		CBitcoinAddress bitcoinAddress;
+		CMnemonicAddress bitcoinAddress;
 		bitcoinAddress.SetString(val.toStdString());
 		CKeyID keyId;
 		bitcoinAddress.GetKeyID(keyId);
@@ -478,7 +478,7 @@ bool SendCoinsDialog::handlePaymentRequest(const SendCoinsRecipient &rv)
         }
     }
     else {
-        CBitcoinAddress address(rv.address.toStdString());
+		CMnemonicAddress address(rv.address.toStdString());
         if (!address.IsValid()) {
             emit message(strSendCoins, tr("Invalid payment address %1").arg(rv.address),
                 CClientUIInterface::MSG_WARNING);
@@ -669,7 +669,7 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         CoinControlDialog::coinControl->destChange = CNoDestination();
         ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
 
-        CBitcoinAddress addr = CBitcoinAddress(text.toStdString());
+		CMnemonicAddress addr = CMnemonicAddress(text.toStdString());
 
         if (text.isEmpty()) // Nothing entered
         {
