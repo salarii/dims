@@ -7,20 +7,23 @@ noinst_LIBRARIES = libdimsapp.a
 
 
 APP_MOC_CPP = \
-  moc_appClient.cpp
+  moc_appClient.cpp \
+  moc_testApplicaionWidgets.cpp
 
 APP_QT_H = \
   appClient.h \
   hardwareInfo.h \
   messageType.h \
   paymentData.h\
-  paymentProcessing.h
+  paymentProcessing.h \
+  testApplicaionWidgets.h
   
 APP_QT_CPP = \
   appClient.cpp \
   hardwareInfo.cpp \
-  paymentProcessing.cpp
-
+  paymentProcessing.cpp \
+  testApplicaionWidgets.cpp	
+  
 libdimsapp_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) \
    $(QT_DBUS_INCLUDES)
    

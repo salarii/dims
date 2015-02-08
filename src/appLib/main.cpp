@@ -10,6 +10,9 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
+#include <QMainWindow>
+
+#include "testApplicaionWidgets.h"
 
 namespace  dims
 {
@@ -29,23 +32,26 @@ int main(int argc, char *argv[])
 {
 	QApplication app (argc, argv);
 
+	QMainWindow *window = new QMainWindow();
+	window->setWindowTitle( "Mass calculator" );
+	window->setCentralWidget( new CMainWidget );
+
+	window->show();
+
 	if ( argc == 2 )
 	{
 		if ( std::string( argv[1] ) == std::string( "-testnet" ) )
 			common::SelectRatcoinParams(CNetworkParams::TESTNET);
 	}
 
-	QPushButton button ("application paid");
-
 	dims::CPaymentProcessing * paymentProcessing = dims::CPaymentProcessing::getInstance();
-	button.show();
 
 	dims::CAppClient appClient;
 	if ( !paymentProcessing->isLicenseValid() )
 	{
 		QMessageBox::StandardButton reply;
 
-		reply = QMessageBox::question( &button, "License missing", "Do you want to pay it now?",
+		reply = QMessageBox::question( window, "License missing", "Do you want to pay it now?",
 									  QMessageBox::Yes|QMessageBox::No );
 
 		appClient.connectServer();
@@ -53,7 +59,7 @@ int main(int argc, char *argv[])
 		{
 			while ( !appClient.isOpen() )
 			{
-				reply = QMessageBox::question( &button, "dims client not running", "Run dims client and press ok, or no to exit",
+				reply = QMessageBox::question( window, "dims client not running", "Run dims client and press ok, or no to exit",
 											  QMessageBox::Yes|QMessageBox::No);
 				if (reply == QMessageBox::Yes)
 				{
