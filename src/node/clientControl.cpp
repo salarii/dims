@@ -94,7 +94,7 @@ CClientControl::addTransactionToModel( CTransaction const & _transaction )
 bool
 CClientControl::determineFeeAndTracker( unsigned int _transactionAmount, common::CTrackerStats & _tracker, unsigned int & _fee )
 {
-
+	return CTrackerLocalRanking::getInstance()->determineTracker( _transactionAmount, _tracker, _fee );
 }
 
 bool

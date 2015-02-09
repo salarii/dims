@@ -323,6 +323,40 @@ CTrackerLocalRanking::connectNetworkRecognized( boost::signals2::slot< void () >
 }
 
 bool
+CTrackerLocalRanking::determineTracker( unsigned int _amount, common::CTrackerStats & _tracker, unsigned int & _fee )const
+{
+	unsigned int bestFee = -1;
+
+	unsigned int fee;
+	BOOST_FOREACH( common::CTrackerStats const & tracker, m_balancedRanking )
+	{
+		fee = calculateFee( tracker, _amount );
+		if ( bestFee > fee )
+		{
+			_tracker = tracker;
+			_fee = fee;
+			bestFee = fee;
+		}
+	}
+
+	return bestFee != -1;
+}
+
+unsigned int
+CTrackerLocalRanking::calculateFee( common::CTrackerStats const & _trackerStats, unsigned int _amount ) const
+{
+	int64_t trackerFee = _trackerStats.m_price * _amount;
+
+	if( trackerFee > _trackerStats.m_maxPrice )
+		trackerFee = _trackerStats.m_maxPrice;
+
+	if( trackerFee < _trackerStats.m_minPrice )
+		trackerFee = _trackerStats.m_minPrice;
+
+	return trackerFee;
+}
+
+bool
 CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium )
 {
 	if ( !isValidTrackerKnown( _trackerId ) )
