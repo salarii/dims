@@ -100,13 +100,13 @@ public:
 	void connectNetworkRecognized( boost::signals2::slot< void () > const & _slot );
 
 	bool determineTracker( unsigned int _amount, common::CTrackerStats & _tracker, unsigned int & _fee ) const;// rather  it is not what I really need
+
+	unsigned int calculateFee( common::CTrackerStats const & _trackerStats, unsigned int _amount )const;
 private:
 	CTrackerLocalRanking();
 
 	template< typename Stats >
 	common::CMedium< NodeResponses > * getNetworkConnection( Stats const & _stats );
-private:
-	unsigned int calculateFee( common::CTrackerStats const & _trackerStats, unsigned int _amount )const;
 private:
 	static CTrackerLocalRanking * ms_instance;
 	// those  sets should be repeatedly rebuild

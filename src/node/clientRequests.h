@@ -8,6 +8,7 @@
 #include "configureNodeActionHadler.h"
 
 #include "common/request.h"
+#include "common/commonResponses.h"
 #include "appLib/messageType.h"
 namespace client
 {
@@ -50,13 +51,14 @@ public:
 
 struct CProofTransactionAndStatusRequest : public common::CRequest< NodeResponses >
 {
-	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMediumFilter< NodeResponses > * _mediumFilter );
+	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, common::CMediumFilter< NodeResponses > * _mediumFilter );
 
 public:
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 	CTransaction const m_trasaction;
 	std::vector<unsigned char> const m_transactionStatusSignature;
 	CPubKey m_servicingTracker;
+	common::CMonitorData m_monitorData;
 };
 
 

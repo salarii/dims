@@ -284,7 +284,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_pending.erase( _monitorStatsEvent.m_nodeIndicator );
 //load  all  structures
 		std::vector< CPubKey > monitorKeys;
-		BOOST_FOREACH( common::CNodeInfo const & nodeInfo, _monitorStatsEvent.m_monitors )
+		BOOST_FOREACH( common::CNodeInfo const & nodeInfo, _monitorStatsEvent.m_monitorData.m_monitors )
 		{
 			monitorKeys.push_back( nodeInfo.m_key );
 			CTrackerLocalRanking::getInstance()->addMonitor( nodeInfo );
@@ -294,14 +294,14 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 	// looks stupid but for sake of algorithm
 		monitorKeys.push_back( monitorKey );
-		std::vector< common::CNodeInfo > monitorNodeInfo = _monitorStatsEvent.m_monitors;
+		std::vector< common::CNodeInfo > monitorNodeInfo = _monitorStatsEvent.m_monitorData.m_monitors;
 
 		common::CNodeInfo nodeInfo;
 		CTrackerLocalRanking::getInstance()->getNodeInfo( monitorKey, nodeInfo );
 		monitorNodeInfo.push_back( nodeInfo );
 
 		m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
-		m_trackersInfo.insert( std::make_pair( monitorKey, _monitorStatsEvent.m_trackers ) );
+		m_trackersInfo.insert( std::make_pair( monitorKey, _monitorStatsEvent.m_monitorData.m_trackers ) );
 
 		m_monitorInputData.insert( std::make_pair( monitorKey, monitorKeys ) );
 

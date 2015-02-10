@@ -97,7 +97,7 @@ public:
 
 	void operator()( common::CNodeSpecific< CMonitorData > & _monitorData ) const
 	{
-		this->m_action->process_event( common::CMonitorStatsEvent( _monitorData.m_trackers, _monitorData.m_monitors, _monitorData.m_ip, _monitorData.m_nodeIndicator ) );
+		this->m_action->process_event( common::CMonitorStatsEvent( _monitorData, _monitorData.m_ip, _monitorData.m_nodeIndicator ) );
 	}
 
 	void operator()( common::CContinueResult & _continue ) const

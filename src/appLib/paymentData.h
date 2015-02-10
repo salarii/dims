@@ -7,6 +7,7 @@
 
 #include "core.h"
 #include "serialize.h"
+#include "common/commonResponses.h"
 
 namespace dims
 {
@@ -21,6 +22,7 @@ struct CLicenseData
 		READWRITE(m_volumeSignature);
 		READWRITE(m_trasaction);
 		READWRITE(m_trackerPubKey);
+		READWRITE(m_monitorData);
 		READWRITE(m_transactionStatusSignature);
 	)
 
@@ -30,7 +32,7 @@ struct CLicenseData
 	std::vector<unsigned char> m_volumeSignature;
 	CTransaction m_trasaction;
 	CPubKey m_trackerPubKey;// used tracker pub key
-	// in future  I see here signed list of trackers( created  by  choosed monitor )
+	common::CMonitorData m_monitorData;
 	// picked  tracker PubKey
 	std::vector<unsigned char> m_transactionStatusSignature;
 };

@@ -338,6 +338,7 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 		stream >> m_licenseData.m_trasaction;
 		stream >> m_licenseData.m_transactionStatusSignature;
 		stream >> m_licenseData.m_trackerPubKey;
+		stream >> m_licenseData.m_monitorData;
 
 		signPrivateKey();
 		verifyData( m_licenseData );

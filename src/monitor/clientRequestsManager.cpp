@@ -41,7 +41,6 @@ public:
 		std::vector< common::CNodeInfo > monitors, trackers;
 
 		// problematic??  how to manage  self??
-		//monitors.push_back( common::CAuthenticationProvider::getInstance()->getMyKey() );
 
 		std::vector< CAllyMonitorData > allyMonitors = CReputationTracker::getInstance()->getAllyMonitors();
 
@@ -68,6 +67,8 @@ public:
 		}
 
 		CMonitorData monitorData( trackers, monitors );
+
+		CAuthenticationProvider::getInstance()->sign( hashMonitorData( monitorData ), monitorData.m_signed );
 
 		CClientRequestsManager::getInstance()->setClientResponse( m_hash, monitorData );
 	}

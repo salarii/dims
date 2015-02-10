@@ -174,6 +174,7 @@ struct CMonitorData
 	(
 			READWRITE( m_trackers );
 			READWRITE( m_monitors );
+			READWRITE( m_signed );
 	)
 
 	CMonitorData(){};
@@ -182,8 +183,25 @@ struct CMonitorData
 
 	std::vector< common::CNodeInfo > m_trackers;
 	std::vector< common::CNodeInfo > m_monitors;
+	std::vector<unsigned char> m_signed;
 	// recognized  monitors and trackers
 };
+
+inline
+uint256
+hashMonitorData( CMonitorData const & _monitorData )
+{
+	std::vector< unsigned char > monitorsInBytes;
+	std::vector< unsigned char > trackersInBytes;
+
+	common::createPayload( _monitorData.m_monitors, monitorsInBytes );
+	common::createPayload( _monitorData.m_trackers, trackersInBytes );
+
+	monitorsInBytes.insert( monitorsInBytes.end(), trackersInBytes.begin(), trackersInBytes.end() );
+
+	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
+}
+
 
 template < class _Stats >
 struct CNodeSpecific : public _Stats

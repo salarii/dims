@@ -16,7 +16,7 @@
 #include "clientRequests.h"
 #include "clientEvents.h"
 #include "clientControl.h"
-
+#include "sendInfoRequestAction.h""
 #include "configureNodeActionHadler.h"
 #include "serialize.h"
 #include "base58.h"
@@ -26,6 +26,8 @@ using namespace common;
 namespace client
 {
 
+const unsigned MonitorAskLoopTime = 20;//seconds
+
 struct CServiceByTrackerEvent : boost::statechart::event< CServiceByTrackerEvent >
 {
 	CServiceByTrackerEvent( CKeyID const & _keyId ):m_keyId( _keyId ) {}
@@ -34,6 +36,8 @@ struct CServiceByTrackerEvent : boost::statechart::event< CServiceByTrackerEvent
 
 struct CResolveByMonitorEvent : boost::statechart::event< CResolveByMonitorEvent >
 {
+	CResolveByMonitorEvent( CKeyID const & _keyId ):m_keyId( _keyId ) {}
+	CKeyID const m_keyId;
 };
 
 struct CIndicateErrorEvent : boost::statechart::event< CIndicateErrorEvent >
@@ -65,7 +69,61 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLocalApplicationAction >
 {
 	CResolveByMonitor( my_context ctx ) : my_base( ctx )
-	{}
+	{
+		CResolveByMonitorEvent const* serviceByMonitorEvent = dynamic_cast< CResolveByMonitorEvent const* >( simple_state::triggering_event() );
+
+		context< CPayLocalApplicationAction >().setRequest( new CMonitorInfoRequest( new CMediumByKeyFilter( serviceByMonitorEvent->m_keyId ) ) );
+		m_lastAskTime = GetTime();
+	}
+	//
+	boost::statechart::result react( common::CPending const & _pending )
+	{
+		int64_t time = GetTime();
+
+		if ( time - m_lastAskTime < MonitorAskLoopTime )
+		{
+			assert(!"sort this out");
+			return discard_event();
+		}
+		else
+		{
+			context< CPayLocalApplicationAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+			return discard_event();
+		}
+	}
+
+	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
+	{
+			context< CPayLocalApplicationAction >().setMonitorData( _monitorStatsEvent.m_monitorData );
+
+		common::CTrackerStats trackerStats, best;
+
+		CPubKey key;
+		CTrackerLocalRanking::getInstance()->getNodeKey( _monitorStatsEvent.m_ip, key );
+
+		key.Verify( common::hashMonitorData( _monitorStatsEvent.m_monitorData ), _monitorStatsEvent.m_monitorData.m_signed );
+		unsigned int bestFee = -1, fee;
+		BOOST_FOREACH( common::CNodeInfo const & trackers, _monitorStatsEvent.m_monitorData.m_trackers )
+		{
+			CTrackerLocalRanking::getInstance()->getTrackerStats( trackers.m_key.GetID(), trackerStats );
+
+			fee = CTrackerLocalRanking::getInstance()->calculateFee( trackerStats, context< CPayLocalApplicationAction >().getValue() );
+
+			if ( bestFee > fee )
+				best = trackerStats;
+		}
+
+		context< CPayLocalApplicationAction >().process_event( CServiceByTrackerEvent( best.m_key.GetID() ) );
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CPending >,
+	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
+	> reactions;
+
+	std::set< uintptr_t > m_pending;
+	int64_t m_lastAskTime;
 };
 
 struct CCheckTransactionStatus;
@@ -299,6 +357,7 @@ struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CP
 						  context< CPayLocalApplicationAction >().getSecondTransaction()
 						, transactionStatus->m_signature
 						, context< CPayLocalApplicationAction >().getServicingTracker()
+						, context< CPayLocalApplicationAction >().getMonitorData()
 						, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
 	}
 
@@ -349,7 +408,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 	{
 		if ( CTrackerLocalRanking::getInstance()->isValidMonitorKnown( *iterator ) )
 		{
-			process_event( CResolveByMonitorEvent() );
+			process_event( CResolveByMonitorEvent( *iterator  ) );
 			return;
 		}
 	}

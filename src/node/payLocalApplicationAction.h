@@ -14,6 +14,7 @@
 #include "configureNodeActionHadler.h"
 #include "core.h"
 #include "common/transactionStatus.h"
+#include "common/commonResponses.h"
 
 namespace common
 {
@@ -81,6 +82,16 @@ public:
 	{
 		return m_firstInitialHash;
 	}
+
+	void setMonitorData( common::CMonitorData const & _monitorData )
+	{
+		m_monitorData = _monitorData;
+	}
+
+	common::CMonitorData getMonitorData() const
+	{
+		return m_monitorData;
+	}
 private:
 	uint256 m_firstInitialHash;
 
@@ -109,6 +120,8 @@ private:
 	common::CTrackerStats m_trackerStats;
 
 	CPubKey m_servicingTracker;
+
+	common::CMonitorData m_monitorData;
 };
 
 }

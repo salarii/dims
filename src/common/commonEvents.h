@@ -80,14 +80,12 @@ struct CTrackerStatsEvent : boost::statechart::event< CTrackerStatsEvent >
 
 struct CMonitorStatsEvent : boost::statechart::event< CMonitorStatsEvent >
 {
-	CMonitorStatsEvent( 	std::vector< common::CNodeInfo > const & _trackers, std::vector< common::CNodeInfo > const & _monitors, std::string _ip, uintptr_t _nodeIndicator )
-		: m_trackers( _trackers )
-		, m_monitors( _monitors )
+	CMonitorStatsEvent( common::CMonitorData const & _monitorData, std::string _ip, uintptr_t _nodeIndicator )
+		: m_monitorData( _monitorData )
 		, m_ip( _ip )
 		, m_nodeIndicator( _nodeIndicator ){};
 
-	std::vector< common::CNodeInfo > m_trackers;
-	std::vector< common::CNodeInfo > m_monitors;
+	common::CMonitorData m_monitorData;
 	std::string m_ip;
 	uintptr_t m_nodeIndicator;
 };
