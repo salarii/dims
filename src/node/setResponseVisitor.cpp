@@ -64,6 +64,11 @@ public:
 		this->m_action->process_event( _peding );
 	}
 
+	void operator()( common::CNoMedium & _noMedium ) const
+	{
+		this->m_action->process_event( _noMedium );
+	}
+
 	void operator()( common::CAvailableCoins & _availableCoins ) const
 	{
 		this->m_action->process_event( client::CCoinsEvent( _availableCoins.m_availableCoins ) );

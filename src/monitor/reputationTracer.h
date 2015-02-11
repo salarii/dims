@@ -71,9 +71,9 @@ public:
 	void deleteTracker( CPubKey const & _pubKey );
 
 	// both function, not finall form
-	std::vector< CTrackerData > getTrackers() const{ return std::vector< CTrackerData >(); }
+	std::vector< CTrackerData > getTrackers() const;
 
-	std::vector< CAllyMonitorData > getAllyMonitors() const{ return std::vector< CAllyMonitorData >(); }
+	std::vector< CAllyMonitorData > getAllyMonitors() const;
 
 private:
 	CReputationTracker();

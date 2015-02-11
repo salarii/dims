@@ -160,9 +160,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 			return moniorPresent ? transit< CMonitorPresent >() : transit< CDetermineTrackers >();
 		}
-
 		return discard_event();
-
 	}
 
 	boost::statechart::result react( common::CErrorEvent const & _networkInfo )

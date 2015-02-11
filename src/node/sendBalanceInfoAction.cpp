@@ -89,6 +89,12 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CNoMedium const & _noMedium )
+	{
+		context< CSendBalanceInfoAction >().setRequest( 0 );
+		return discard_event();
+	}
+
 	void updateTotal( std::vector< CAvailableCoin > const & _availableCoin )
 	{
 		BOOST_FOREACH( CAvailableCoin const & coin, _availableCoin )
@@ -99,6 +105,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
+	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< CCoinsEvent >
 	> reactions;
 

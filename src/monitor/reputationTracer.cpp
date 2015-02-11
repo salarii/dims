@@ -111,6 +111,26 @@ CReputationTracker::checkValidity( CAllyTrackerData const & _allyTrackerData )
 
 }
 
+std::vector< CTrackerData >
+CReputationTracker::getTrackers() const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	std::vector< CTrackerData >trackers;
+
+	BOOST_FOREACH( PAIRTYPE( uint160, CTrackerData ) const & tracker, m_registeredTrackers )
+	{
+		trackers.push_back( tracker.second );
+	}
+	return trackers;
+}
+
+std::vector< CAllyMonitorData >
+CReputationTracker::getAllyMonitors() const
+{
+	return std::vector< CAllyMonitorData >();
+}
+
+
 void
 CReputationTracker::addTracker( CTrackerData const & _trackerData )
 {
