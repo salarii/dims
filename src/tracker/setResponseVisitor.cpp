@@ -112,6 +112,11 @@ public:
 	{
 		this->m_action->process_event( common::CGetEvent(_param.m_type) );
 	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
 };
 
 class CSetTrackOriginAddressResult : public CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList >
