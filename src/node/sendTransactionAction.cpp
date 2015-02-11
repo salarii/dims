@@ -23,7 +23,7 @@ using namespace common;
 namespace client
 {
 
-struct CCheckTransactionStatus;
+struct CTransactionStatus;
 
 struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTransaction, CSendTransactionAction >
 {
@@ -46,7 +46,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 		{
 			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
 			context< CSendTransactionAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );
-			return transit< CCheckTransactionStatus >();
+			return transit< CTransactionStatus >();
 		}
 		else
 		{
@@ -62,15 +62,22 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 	> reactions;
 };
 
-struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStatus, CSendTransactionAction >
+struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendTransactionAction >
 {
-	CCheckTransactionStatus( my_context ctx ) : my_base( ctx )
+	CTransactionStatus( my_context ctx ) : my_base( ctx )
 	{
+		common::CMediumFilter< NodeResponses > * filter =
+				CTrackerLocalRanking::getInstance()->determinedTrackersCount() > 1 ?
+											(common::CMediumFilter< NodeResponses > *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 )
+										  : (common::CMediumFilter< NodeResponses > *)new CMediumClassFilter( RequestKind::Transaction, 1 );
+
 		context< CSendTransactionAction >().setRequest(
 					new CTransactionStatusRequest(
 						  context< CSendTransactionAction >().getValidatedTransactionHash()
-						, new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
+						, filter
+						) );
 	}
+
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
