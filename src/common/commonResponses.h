@@ -170,6 +170,7 @@ struct CTrackerSpecificStats
 
 struct CMonitorData
 {
+	// most likely self public key, should goes here
 	IMPLEMENT_SERIALIZE
 	(
 			READWRITE( m_trackers );
@@ -185,6 +186,31 @@ struct CMonitorData
 	std::vector< common::CNodeInfo > m_monitors;
 	std::vector<unsigned char> m_signed;
 	// recognized  monitors and trackers
+};
+
+struct CPayApplicationData
+{
+	CPayApplicationData(
+			CTransaction const & _trasaction = CTransaction()
+			, std::vector<unsigned char> const & _transactionStatusSignature = std::vector<unsigned char>()
+			, CPubKey const & _servicingTracker = CPubKey()
+			, common::CMonitorData const & _monitorData = common::CMonitorData()
+			, CPubKey const & _servicingMonitor = CPubKey()
+			);
+
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_trasaction);
+	READWRITE(m_transactionStatusSignature);
+	READWRITE(m_servicingTracker);
+	READWRITE(m_monitorData);
+	READWRITE(m_servicingMonitor);
+	)
+	CTransaction m_trasaction;
+	std::vector<unsigned char> m_transactionStatusSignature;
+	CPubKey m_servicingTracker;
+	common::CMonitorData m_monitorData;
+	CPubKey m_servicingMonitor;
 };
 
 inline

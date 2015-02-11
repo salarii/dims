@@ -13,8 +13,9 @@
 #include "appClient.h"
 
 #include "util.h"
-
 #include "base58.h"
+
+#include "node/clientRequests.h"
 
 namespace dims
 {
@@ -118,6 +119,24 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 
 	if ( !analyseInput( _licenseData.m_trasaction, key.GetPubKey().GetID() ) )
 		return false;
+
+	if ( !PossibleMonitors.empty() )
+	{
+		CNodeAddress nodeAddress;
+		nodeAddress.Set( _licenseData.m_monitorPubKey.GetID(), common::NodePrefix::Monitor );
+		std::vector< std::string >::const_iterator iterator = std::find( PossibleMonitors.begin(), PossibleMonitors.end(), nodeAddress.ToString() );
+		if ( iterator != PossibleMonitors.end() )
+		{
+			BOOST_FOREACH( common::CNodeInfo const & nodeInfo, _licenseData.m_monitorData.m_monitors )
+			{
+				if ( nodeInfo.m_key == _licenseData.m_trackerPubKey )
+				{
+					if ( _licenseData.m_trackerPubKey.Verify( _licenseData.m_trasaction.GetHash(), _licenseData.m_transactionStatusSignature ) )
+						return true;
+				}
+			}
+		}
+	}
 
 	if ( !PossibleTrackers.empty() )
 	{
@@ -335,10 +354,16 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 
 	if ( kind == CMessageKind::Transaction )
 	{
-		stream >> m_licenseData.m_trasaction;
-		stream >> m_licenseData.m_transactionStatusSignature;
-		stream >> m_licenseData.m_trackerPubKey;
-		stream >> m_licenseData.m_monitorData;
+
+		common::CPayApplicationData proofTransactionAndStatus;
+
+		stream >> proofTransactionAndStatus;
+
+		m_licenseData.m_trasaction = proofTransactionAndStatus.m_trasaction;
+		m_licenseData.m_transactionStatusSignature = proofTransactionAndStatus.m_transactionStatusSignature;
+		m_licenseData.m_trackerPubKey = proofTransactionAndStatus.m_servicingTracker;
+		m_licenseData.m_monitorData = proofTransactionAndStatus.m_monitorData;
+		m_licenseData.m_monitorPubKey = proofTransactionAndStatus.m_servicingMonitor;
 
 		signPrivateKey();
 		verifyData( m_licenseData );

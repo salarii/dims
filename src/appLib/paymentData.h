@@ -23,6 +23,7 @@ struct CLicenseData
 		READWRITE(m_trasaction);
 		READWRITE(m_trackerPubKey);
 		READWRITE(m_monitorData);
+		READWRITE(m_monitorPubKey);
 		READWRITE(m_transactionStatusSignature);
 	)
 
@@ -32,6 +33,7 @@ struct CLicenseData
 	std::vector<unsigned char> m_volumeSignature;
 	CTransaction m_trasaction;
 	CPubKey m_trackerPubKey;// used tracker pub key
+	CPubKey m_monitorPubKey;// used monitor pub key
 	common::CMonitorData m_monitorData;
 	// picked  tracker PubKey
 	std::vector<unsigned char> m_transactionStatusSignature;

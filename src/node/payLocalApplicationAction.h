@@ -92,6 +92,16 @@ public:
 	{
 		return m_monitorData;
 	}
+
+	void setServicingMonitor( CPubKey const & _servicingMonitor )
+	{
+		m_servicingMonitor = _servicingMonitor;
+	}
+
+	CPubKey getServicingMonitor() const
+	{
+		return m_servicingMonitor;
+	}
 private:
 	uint256 m_firstInitialHash;
 
@@ -122,6 +132,8 @@ private:
 	CPubKey m_servicingTracker;
 
 	common::CMonitorData m_monitorData;
+
+	CPubKey m_servicingMonitor;
 };
 
 }

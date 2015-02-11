@@ -94,12 +94,14 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 
 	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
 	{
-			context< CPayLocalApplicationAction >().setMonitorData( _monitorStatsEvent.m_monitorData );
+		context< CPayLocalApplicationAction >().setMonitorData( _monitorStatsEvent.m_monitorData );
 
 		common::CTrackerStats trackerStats, best;
 
 		CPubKey key;
 		CTrackerLocalRanking::getInstance()->getNodeKey( _monitorStatsEvent.m_ip, key );
+
+		context< CPayLocalApplicationAction >().setServicingMonitor( key );
 
 		key.Verify( common::hashMonitorData( _monitorStatsEvent.m_monitorData ), _monitorStatsEvent.m_monitorData.m_signed );
 		unsigned int bestFee = -1, fee;
@@ -358,6 +360,7 @@ struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CP
 						, transactionStatus->m_signature
 						, context< CPayLocalApplicationAction >().getServicingTracker()
 						, context< CPayLocalApplicationAction >().getMonitorData()
+						, context< CPayLocalApplicationAction >().getServicingMonitor()
 						, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
 	}
 
