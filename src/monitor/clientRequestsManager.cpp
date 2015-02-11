@@ -61,7 +61,7 @@ public:
 			trackers.push_back(
 						common::CNodeInfo(
 									  trackerData.m_publicKey
-									, trackerData.m_address.ToStringIPPort()
+									, trackerData.m_address.ToStringIP()
 									, trackerData.m_address.GetPort()
 									, common::CRole::Tracker ));
 		}
