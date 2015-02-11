@@ -80,7 +80,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			else
 			{
 				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
-							  message.m_header.m_actionKey
+							  nodeMedium->getNode()->addr
+							, message.m_header.m_actionKey
 							, identifyMessage.m_payload
 							, convertToInt( nodeMedium->getNode() ) );
 

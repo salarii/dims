@@ -477,8 +477,9 @@ struct CMonitorConnectedToMonitor : boost::statechart::state< CMonitorConnectedT
 	}
 };
 
-CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr )
+CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect, uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr )
 : CCommunicationAction( _actionKey )
+, m_addrConnect( _addrConnect )
 , m_payload( _payload )
 , m_request( 0 )
 , m_passive( true )
