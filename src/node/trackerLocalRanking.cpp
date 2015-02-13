@@ -111,11 +111,6 @@ CTrackerLocalRanking::addMonitor( common::CMonitorInfo const & _monitor )
 		pubKey = _monitor.m_key;
 	}
 
-	std::string monitorName;
-	CNodeAddress node;
-	node.Set( pubKey.GetID(), common::NodePrefix::Monitor );
-	monitorName = node.ToString();
-
 	m_monitors.insert( std::make_pair( pubKey, _monitor ) );
 }
 

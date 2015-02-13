@@ -19,7 +19,7 @@ namespace  dims
 
 std::string const HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf";
 
-std::vector< std::string > const PossibleMonitors = boost::assign::list_of( "mYdUGQp4nVm34tQWVmd5mxZKbpqt48csHg" );
+std::vector< std::string > const PossibleMonitors = boost::assign::list_of( "mK8nrDpWDoZ7Ez6x7aZwudwCcP3T9SEHix" );
 
 std::vector< std::string > const PossibleTrackers;
 

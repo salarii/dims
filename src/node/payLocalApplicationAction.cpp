@@ -66,6 +66,8 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 	> reactions;
 };
 
+struct CServiceByTracker;
+
 struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLocalApplicationAction >
 {
 	CResolveByMonitor( my_context ctx ) : my_base( ctx )
@@ -80,7 +82,7 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 	{
 		int64_t time = GetTime();
 
-		if ( time - m_lastAskTime < MonitorAskLoopTime )
+		if ( time - m_lastAskTime > MonitorAskLoopTime )
 		{
 			assert(!"sort this out");
 			return discard_event();
@@ -128,6 +130,7 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
 	boost::statechart::custom_reaction< common::CNoMedium >,
+	boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >,
 	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
 	> reactions;
 

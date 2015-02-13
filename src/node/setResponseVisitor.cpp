@@ -135,6 +135,11 @@ public:
 		this->m_action->process_event( _transactionStats );
 	}
 
+	void operator()( common::CNodeSpecific< CMonitorData > & _monitorData ) const
+	{
+		this->m_action->process_event( common::CMonitorStatsEvent( _monitorData, _monitorData.m_ip, _monitorData.m_nodeIndicator ) );
+	}
+
 	void operator()( common::CNoMedium & _noMedium ) const
 	{
 		this->m_action->process_event( _noMedium );

@@ -74,11 +74,43 @@ struct CGetPrompt
 	int m_type;
 };
 
+struct CExceptionInfo;
+struct CNodeExceptionInfo;
+
+struct CInterpreter
+{
+	virtual void visit( CExceptionInfo const * _exception )
+	{
+	}
+
+	virtual void visit( CNodeExceptionInfo const * _exception )
+	{
+	}
+};
+
+struct CExceptionInfo
+{
+	virtual void accept( CInterpreter * _interpreter ) const
+	{
+		_interpreter->visit( this );
+	}
+};
+
+struct CNodeExceptionInfo : public CExceptionInfo
+{
+	virtual void accept( CInterpreter * _interpreter ) const
+	{
+		_interpreter->visit( this );
+	}
+};
+
 struct CMediumException : public std::exception
 {
 public:
 	CMediumException(ErrorType::Enum _error):m_error(_error){};
 	ErrorType::Enum m_error;
+
+	CExceptionInfo * m_exceptionInfo;
 };
 
 struct CRoleResult

@@ -58,7 +58,7 @@ private:
 private:
 	static CClientControl * ms_instance;
 
-	AddressTableModel * m_addressTableModel;
+	AddressTableModel * m_addressTableModel;// invent  something  else  to  do such a  things, signals??
 
 	CClientSignals m_clientSignals;
 };

@@ -122,6 +122,7 @@ CClientControl::transactionAddmited( uint256 const & _hash, CTransaction const &
 }
 
 CClientControl::CClientControl()
+	: m_addressTableModel( 0 )
 {
 	initiate();
 }
