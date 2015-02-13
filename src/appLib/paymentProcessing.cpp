@@ -368,6 +368,8 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 		signPrivateKey();
 		verifyData( m_licenseData );
 
+		m_enableHook();
+
 		saveLicenseFileData( m_licenseData );
 	}
 	else if ( kind == CMessageKind::ErrorIndicator )

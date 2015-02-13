@@ -62,22 +62,32 @@ struct CNodeInfo : public CUnidentifiedNodeInfo
 	unsigned int m_role;
 };
 
+struct CMonitorInfo : public CNodeInfo
+{
+	CMonitorInfo( CPubKey const & _key = CPubKey(), std::string _ip = std::string(), unsigned int _port = 0, unsigned int _role = -1, std::set< CPubKey > const & _trackersKeys = std::set< CPubKey >() )
+		: CNodeInfo( _key, _ip, _port, _role )
+		, m_trackersKeys( _trackersKeys )
+	{
+	}
+
+	CMonitorInfo( CNodeInfo const & _nodeInfo, std::set< CPubKey > const & _trackersKeys )
+		: CNodeInfo( _nodeInfo )
+		, m_trackersKeys( _trackersKeys )
+	{
+	}
+
+	std::set< CPubKey > m_trackersKeys;
+};
 
 // add max/min price
 struct CTrackerStats : public CNodeInfo
 {
-	CTrackerStats( CPubKey const & _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, unsigned int _maxPrice = 0, unsigned int _minPrice = 0, std::string _ip = "", unsigned int _port = -1, CPubKey const & _monitor = CPubKey() )
-		: CNodeInfo( _publicKey, _ip, _port ), m_reputation( _reputation ), m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ), m_monitor( _monitor ){}
+	CTrackerStats( CPubKey const & _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, unsigned int _maxPrice = 0, unsigned int _minPrice = 0, std::string _ip = "", unsigned int _port = -1, unsigned int _role = -1 )
+		: CNodeInfo( _publicKey, _ip, _port, _role ), m_reputation( _reputation ), m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ){}
 	unsigned int  m_reputation;
 	float m_price;
 	unsigned int m_maxPrice;
 	unsigned int m_minPrice;
-	CPubKey m_monitor;
-};
-
-struct CMonitorInfo
-{
-	std::vector< std::string > m_info;
 };
 
 struct CPending : boost::statechart::event< CPending >

@@ -9,6 +9,8 @@
 #include "hardwareInfo.h"
 #include "paymentData.h"
 
+#include <boost/signals2.hpp>
+
 // in theory slight changes in hardware are allowed
 namespace dims
 {
@@ -46,6 +48,11 @@ public:
 	static CPaymentProcessing* getInstance();
 
 	bool serviceMessage( char * _buffer, size_t _size );
+
+	void setEnableHook( boost::signals2::slot< void() > const & _slot )
+	{
+		m_enableHook.connect( _slot );
+	}
 private:
 	CPaymentProcessing(){};
 
@@ -75,7 +82,10 @@ private:
 	void signPrivateKey();
 
 	CKey createHardwareKey( std::vector< unsigned char > const & _hardwareData );
+
 private:
+	boost::signals2::signal<void ()> m_enableHook;
+
 	CLicenseData m_licenseData;
 
 	static CPaymentProcessing * ms_instance;

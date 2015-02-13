@@ -119,8 +119,15 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CNoMedium const & _noMedium )
+	{
+		assert( !"given monitor does not exist" );
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CPending >,
+	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CMonitorStatsEvent >
 	> reactions;
 
@@ -403,6 +410,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 			process_event( CServiceByTrackerEvent( *iterator ) );
 			return;
 		}
+		iterator++;
 	}
 
 	iterator = m_monitors.begin();
@@ -414,6 +422,8 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 			process_event( CResolveByMonitorEvent( *iterator  ) );
 			return;
 		}
+
+		iterator++;
 	}
 }
 

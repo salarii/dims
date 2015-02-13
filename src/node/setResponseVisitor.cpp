@@ -30,7 +30,6 @@ public:
 
 	void operator()(CMediumException & _systemError ) const
     {
-//
     }
 };
 class CSetTransactionAction : public CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList >
@@ -134,6 +133,11 @@ public:
 	void operator()( common::CTransactionStatus & _transactionStats ) const
 	{
 		this->m_action->process_event( _transactionStats );
+	}
+
+	void operator()( common::CNoMedium & _noMedium ) const
+	{
+		this->m_action->process_event( _noMedium );
 	}
 
 	void operator()( common::CTransactionAck & _transactionAck ) const

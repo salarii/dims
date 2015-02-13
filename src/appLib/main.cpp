@@ -19,9 +19,9 @@ namespace  dims
 
 std::string const HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf";
 
-std::vector< std::string > const PossibleMonitors;
+std::vector< std::string > const PossibleMonitors = boost::assign::list_of( "mYdUGQp4nVm34tQWVmd5mxZKbpqt48csHg" );
 
-std::vector< std::string > const PossibleTrackers = boost::assign::list_of( "tJMhNj9DXPnRgDMDjYmCqvnjadQ4oRVfUt" );
+std::vector< std::string > const PossibleTrackers;
 
 std::string const AuthorId = "dKqwKfMdUcxipQ82NzP1NoZ3AtTEUsGMKV";
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	window->setCentralWidget( new CMainWidget );
 
 	window->show();
-
+	window->setEnabled( false );
 	if ( argc == 2 )
 	{
 		if ( std::string( argv[1] ) == std::string( "-testnet" ) )
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 					return 0;
 				}
 			}
-
+			paymentProcessing->setEnableHook( boost::bind( &QMainWindow::setEnabled, window, true ) );
 			paymentProcessing->executeDialog( appClient );
 		}
 		else

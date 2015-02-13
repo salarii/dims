@@ -122,7 +122,7 @@ struct CMediumByKeyFilter : public common::CMediumFilter< NodeResponses >
 
 		common::CMedium< NodeResponses > * medium;
 
-		if ( _trackerLocalRanking->getSpecificTrackerMedium( m_keyId, medium ) )
+		if ( _trackerLocalRanking->getSpecificMedium( m_keyId, medium ) )
 			mediums.push_back( medium );
 
 		if ( mediums.empty() )

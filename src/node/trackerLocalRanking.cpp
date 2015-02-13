@@ -101,7 +101,7 @@ CTrackerLocalRanking::removeUndeterminedTracker( std::string const & _ip )
 }
 
 void
-CTrackerLocalRanking::addMonitor( common::CNodeInfo const & _monitor )
+CTrackerLocalRanking::addMonitor( common::CMonitorInfo const & _monitor )
 {
 	CPubKey pubKey;
 
@@ -110,6 +110,12 @@ CTrackerLocalRanking::addMonitor( common::CNodeInfo const & _monitor )
 		setIpAndKey( _monitor.m_ip, _monitor.m_key );
 		pubKey = _monitor.m_key;
 	}
+
+	std::string monitorName;
+	CNodeAddress node;
+	node.Set( pubKey.GetID(), common::NodePrefix::Monitor );
+	monitorName = node.ToString();
+
 	m_monitors.insert( std::make_pair( pubKey, _monitor ) );
 }
 
@@ -264,14 +270,25 @@ CTrackerLocalRanking::getNodeKey( std::string const & _ip, CPubKey & _pubKey ) c
 bool
 CTrackerLocalRanking::getNodeInfo( CPubKey const & _key, common::CNodeInfo & _nodeInfo ) const
 {
-	/*
-	std::map< CPubKey, common::CNodeInfo >::const_iterator iterator = m_monitors.find( _ip );
+	{
+		std::map< CPubKey, common::CMonitorInfo >::const_iterator iterator = m_monitors.find( _key );
 
-	if ( iterator != m_ipToKey.end() )
+		if ( iterator != m_monitors.end() )
+		{
+			_nodeInfo = iterator->second;
+			return true;
+		}
+	}
+	{
+		std::map< CPubKey, common::CNodeInfo >::const_iterator iterator = m_undeterminedTrackers.find( _key );
 
-	std::map< CPubKey, common::CNodeInfo > m_monitors;
-
-	std::map< CPubKey, common::CNodeInfo > m_undeterminedTrackers;*/
+		if ( iterator != m_undeterminedTrackers.end() )
+		{
+			_nodeInfo = iterator->second;
+			return true;
+		}
+	}
+	return false;
 }
 
 void
@@ -304,11 +321,11 @@ CTrackerLocalRanking::getTrackers() const
 	return trackers;
 }
 
-std::vector< common::CNodeInfo >
+std::vector< common::CMonitorInfo >
 CTrackerLocalRanking::getMonitors() const
 {
-	std::vector< common::CNodeInfo > monitors;
-	BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & monitor, m_monitors )
+	std::vector< common::CMonitorInfo > monitors;
+	BOOST_FOREACH( PAIRTYPE( CPubKey, common::CMonitorInfo ) const & monitor, m_monitors )
 	{
 		monitors.push_back( monitor.second );
 	}
@@ -357,29 +374,61 @@ CTrackerLocalRanking::calculateFee( common::CTrackerStats const & _trackerStats,
 }
 
 bool
-CTrackerLocalRanking::getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium )
+CTrackerLocalRanking::getMonitorKeyForTracker( CPubKey const & _trackerKey, CPubKey & _monitorKey )
 {
-	if ( !isValidTrackerKnown( _trackerId ) )
-		return false;
-
-	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+	BOOST_FOREACH( PAIRTYPE( CPubKey, common::CMonitorInfo ) const & monitor, m_monitors )
 	{
-		if ( trackerStats.m_key.GetID() == _trackerId )
-		{
-			assert( m_createdMediums.find( trackerStats.m_ip ) != m_createdMediums.end() );
+		std::set< CPubKey >::const_iterator iterator = monitor.second.m_trackersKeys.find( _trackerKey );
 
-			_medium = m_createdMediums.find( trackerStats.m_ip )->second;
+		if ( iterator != monitor.second.m_trackersKeys.end() )
+		{
+			_monitorKey = monitor.first;
 			return true;
 		}
 	}
+	return false;
+}
 
-	assert( !"can't be here" );
+bool
+CTrackerLocalRanking::getSpecificMedium( CKeyID const & _nodeId, common::CMedium< NodeResponses > *& _medium )
+{
+	if ( isValidTrackerKnown( _nodeId ) )
+	{
+
+		BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+		{
+			if ( trackerStats.m_key.GetID() == _nodeId )
+			{
+				assert( m_createdMediums.find( trackerStats.m_ip ) != m_createdMediums.end() );
+
+				_medium = m_createdMediums.find( trackerStats.m_ip )->second;
+				return true;
+			}
+		}
+		assert( !"can't be here" );
+	}
+	else if ( isValidMonitorKnown( _nodeId ) )
+	{
+		BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & monitor, m_monitors )
+		{
+			if ( monitor.first.GetID() == _nodeId )
+			{
+				assert( m_createdMediums.find( monitor.second.m_ip ) != m_createdMediums.end() );
+
+				_medium = m_createdMediums.find( monitor.second.m_ip )->second;
+				return true;
+			}
+		}
+		assert( !"can't be here" );
+	}
 	return false;
 }
 
 bool
 CTrackerLocalRanking::isValidMonitorKnown( CKeyID const & _monitorId )
 {
+
+	//fix
 	BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & monitor, m_monitors )
 	{
 		if ( monitor.second.m_key.GetID() == _monitorId )

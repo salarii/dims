@@ -39,10 +39,14 @@ CInforamtionProvider::reloadData()
 	{
 
 		CNodeAddress node;
-		node.Set( tracker.m_monitor.GetID(), common::NodePrefix::Monitor );
-		std::string monitor = node.ToString();
 
-		node.Set( tracker.m_key.GetID(), common::NodePrefix::Monitor );
+		std::string monitor;
+		CPubKey monitorKey;
+		if ( client::CTrackerLocalRanking::getInstance()->getMonitorKeyForTracker( tracker.m_key, monitorKey ) )
+		{
+			node.Set( monitorKey.GetID(), common::NodePrefix::Monitor );
+			monitor = node.ToString();
+		}
 
 		m_trackers.insert(
 					std::make_pair(
@@ -52,7 +56,7 @@ CInforamtionProvider::reloadData()
 				);
 	}
 
-	std::vector< common::CNodeInfo > monitors = client::CTrackerLocalRanking::getInstance()->getMonitors();
+	std::vector< common::CMonitorInfo > monitors = client::CTrackerLocalRanking::getInstance()->getMonitors();
 	BOOST_FOREACH( common::CNodeInfo const & monitor, monitors )
 	{
 		CNodeAddress monitorAddress;
@@ -151,7 +155,7 @@ CInforamtionProvider::reloadThread()
 	while(1)
 	{
 		reloadData();
-		boost::this_thread::sleep(boost::posix_time::seconds(180));
+		boost::this_thread::sleep(boost::posix_time::seconds(20));
 		boost::this_thread::interruption_point();
 	}
 }

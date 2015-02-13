@@ -63,7 +63,7 @@ public:
 
 	void removeUndeterminedTracker( std::string const & _ip );
 
-	void addMonitor( common::CNodeInfo const & _undeterminedTracker );
+	void addMonitor( common::CMonitorInfo const & _monitor );
 
 	void removeMonitor( std::string const & _ip );
 
@@ -81,7 +81,7 @@ public:
 
 	bool getTrackerStats( CKeyID const & _trackerId, common::CTrackerStats & _trackerStats );
 
-	bool getSpecificTrackerMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium );
+	bool getSpecificMedium( CKeyID const & _trackerId, common::CMedium< NodeResponses > *& _medium );
 
 	bool getNodeKey( std::string const & _ip, CPubKey & _pubKey ) const;
 
@@ -95,13 +95,16 @@ public:
 
 	std::vector< common::CTrackerStats > getTrackers() const;
 
-	std::vector< common::CNodeInfo > getMonitors() const;
+	std::vector< common::CMonitorInfo > getMonitors() const;
 
 	void connectNetworkRecognized( boost::signals2::slot< void () > const & _slot );
 
 	bool determineTracker( unsigned int _amount, common::CTrackerStats & _tracker, unsigned int & _fee ) const;// rather  it is not what I really need
 
 	unsigned int calculateFee( common::CTrackerStats const & _trackerStats, unsigned int _amount )const;
+
+	bool getMonitorKeyForTracker( CPubKey const & _trackerKey, CPubKey & _monitorKey );
+
 private:
 	CTrackerLocalRanking();
 
@@ -121,7 +124,7 @@ private:
 	std::map< std::string, common::CUnidentifiedNodeInfo > m_unidentifiedNodes;
 
 	// this  is  definitely not final version
-	std::map< CPubKey, common::CNodeInfo > m_monitors;
+	std::map< CPubKey, common::CMonitorInfo > m_monitors;
 
 	std::map< CPubKey, common::CNodeInfo > m_undeterminedTrackers;
 
