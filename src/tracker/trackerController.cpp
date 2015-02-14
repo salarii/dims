@@ -21,40 +21,16 @@ CTrackerController::getInstance()
 	return ms_instance;
 }
 
-float
+unsigned int
 CTrackerController::getPrice() const
 {
 	return m_price;
 }
 
 void
-CTrackerController::setPrice( float _price )
+CTrackerController::setPrice( unsigned int _price )
 {
 	m_price = _price;
-}
-
-int
-CTrackerController::getMaxPrice() const
-{
-	return m_maxPrice;
-}
-
-void
-CTrackerController::setMaxPrice( int _price )
-{
-	m_maxPrice = _price;
-}
-
-int
-CTrackerController::getMinPrice() const
-{
-	return m_minPrice;
-}
-
-void
-CTrackerController::setMinPrice( int _price )
-{
-	m_minPrice = _price;
 }
 
 bool
@@ -69,25 +45,8 @@ CTrackerController::setConnected( bool _connected )
 	m_connected = _connected;
 }
 
-bool
-CTrackerController::evaluateIfPaymentCorrect( unsigned int _payment, unsigned int _fee ) const
-{
-	unsigned int fee = _payment * m_price;
-
-	if ( fee > m_maxPrice )
-		fee = m_maxPrice;
-	else if ( fee < m_minPrice )
-		fee = m_minPrice;
-
-	unsigned int deviation = fee * m_deviation;
-
-	return ( _fee >= fee - deviation ) && ( _fee <= fee + deviation );
-}
-
 CTrackerController::CTrackerController()
-	: m_price(0.01)
-	, m_maxPrice(1000000)
-	, m_minPrice(1000)
+	: m_price(1000)
 	, m_connected( false )
 	, m_deviation(0.001)
 {

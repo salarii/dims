@@ -189,15 +189,11 @@ struct CTrackerSpecificStats
 	IMPLEMENT_SERIALIZE
 	(
 	READWRITE(m_price);
-	READWRITE(m_maxPrice);
-	READWRITE(m_minPrice);
 	)
 	CTrackerSpecificStats(){};
-	CTrackerSpecificStats( float _price, unsigned int _maxPrice, unsigned int _minPrice ):m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ){};
+	CTrackerSpecificStats( float _price ):m_price( _price ){};
 
-	float m_price;
-	unsigned int m_maxPrice;
-	unsigned int m_minPrice;
+	unsigned int m_price;
 };
 
 struct CMonitorData

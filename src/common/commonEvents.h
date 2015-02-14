@@ -62,18 +62,14 @@ struct CClientNetworkInfoEvent : boost::statechart::event< CClientNetworkInfoEve
 
 struct CTrackerStatsEvent : boost::statechart::event< CTrackerStatsEvent >
 {
-	CTrackerStatsEvent( unsigned int _reputation, float _price, unsigned int _maxPrice, unsigned int _minPrice, std::string _ip, uintptr_t _nodeIndicator )
+	CTrackerStatsEvent( unsigned int _reputation, float _price, std::string _ip, uintptr_t _nodeIndicator )
 		: m_reputation( _reputation )
 		, m_price( _price )
-		, m_maxPrice( _maxPrice )
-		, m_minPrice( _minPrice )
 		, m_ip( _ip )
 		, m_nodeIndicator( _nodeIndicator ){};
 
 	unsigned int  m_reputation;
-	float m_price;
-	unsigned int m_maxPrice;
-	unsigned int m_minPrice;
+	unsigned int m_price;
 	std::string m_ip;
 	uintptr_t m_nodeIndicator;
 };

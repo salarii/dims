@@ -342,30 +342,15 @@ CTrackerLocalRanking::determineTracker( unsigned int _amount, common::CTrackerSt
 	unsigned int fee;
 	BOOST_FOREACH( common::CTrackerStats const & tracker, m_balancedRanking )
 	{
-		fee = calculateFee( tracker, _amount );
-		if ( bestFee > fee )
+		if ( bestFee > tracker.m_price )
 		{
 			_tracker = tracker;
-			_fee = fee;
-			bestFee = fee;
+			bestFee = tracker.m_price;
 		}
 	}
+	_fee = bestFee;
 
 	return bestFee != -1;
-}
-
-unsigned int
-CTrackerLocalRanking::calculateFee( common::CTrackerStats const & _trackerStats, unsigned int _amount ) const
-{
-	int64_t trackerFee = _trackerStats.m_price * _amount;
-
-	if( trackerFee > _trackerStats.m_maxPrice )
-		trackerFee = _trackerStats.m_maxPrice;
-
-	if( trackerFee < _trackerStats.m_minPrice )
-		trackerFee = _trackerStats.m_minPrice;
-
-	return trackerFee;
 }
 
 bool

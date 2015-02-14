@@ -26,19 +26,12 @@ class CTrackerController : public boost::statechart::state_machine< CTrackerCont
 public:
 	static CTrackerController* getInstance();
 
-	float getPrice() const;
-	void setPrice( float _price );
-
-	int getMaxPrice() const;
-	void setMaxPrice( int _price );
-
-	int getMinPrice() const;
-	void setMinPrice( int _price );
+	unsigned int getPrice() const;
+	void setPrice( unsigned int _price );
 
 	bool isConnected() const;
 	bool setConnected( bool _connected );
 
-	bool evaluateIfPaymentCorrect( unsigned int _payment, unsigned int _fee ) const;
 	// monitor related
 	CMonitorData & acquireMonitorData()
 	{
@@ -52,11 +45,7 @@ private:
 private:
 	static CTrackerController * ms_instance;
 
-	float m_price;
-
-	unsigned int m_maxPrice;
-
-	unsigned int m_minPrice;
+	unsigned int m_price;
 
 	bool m_connected;
 

@@ -82,12 +82,10 @@ struct CMonitorInfo : public CNodeInfo
 // add max/min price
 struct CTrackerStats : public CNodeInfo
 {
-	CTrackerStats( CPubKey const & _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, unsigned int _maxPrice = 0, unsigned int _minPrice = 0, std::string _ip = "", unsigned int _port = -1, unsigned int _role = -1 )
-		: CNodeInfo( _publicKey, _ip, _port, _role ), m_reputation( _reputation ), m_price( _price ), m_maxPrice( _maxPrice ), m_minPrice( _minPrice ){}
+	CTrackerStats( CPubKey const & _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, std::string _ip = "", unsigned int _port = -1, unsigned int _role = -1 )
+		: CNodeInfo( _publicKey, _ip, _port, _role ), m_reputation( _reputation ), m_price( _price ){}
 	unsigned int  m_reputation;
-	float m_price;
-	unsigned int m_maxPrice;
-	unsigned int m_minPrice;
+	unsigned int m_price;
 };
 
 struct CPending : boost::statechart::event< CPending >

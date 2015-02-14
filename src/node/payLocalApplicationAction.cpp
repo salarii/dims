@@ -111,9 +111,7 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 		{
 			CTrackerLocalRanking::getInstance()->getTrackerStats( trackers.m_key.GetID(), trackerStats );
 
-			fee = CTrackerLocalRanking::getInstance()->calculateFee( trackerStats, context< CPayLocalApplicationAction >().getValue() );
-
-			if ( bestFee > fee )
+			if ( bestFee > trackerStats.m_price )
 				best = trackerStats;
 		}
 

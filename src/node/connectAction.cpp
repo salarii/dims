@@ -540,8 +540,6 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 			  undeterminedTracker.m_key
 			, 0
 			, _trackerStats.m_price
-			, _trackerStats.m_maxPrice
-			, _trackerStats.m_minPrice
 			, undeterminedTracker.m_ip
 			, undeterminedTracker.m_port
 			);

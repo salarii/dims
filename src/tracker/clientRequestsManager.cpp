@@ -42,7 +42,7 @@ public:
 	void operator()( CTrackerStatsReq const & _transactionStatus ) const
 	{
 		CTrackerController * trackerController = CTrackerController::getInstance();
-		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTrackerSpecificStats( trackerController->getPrice(), trackerController->getMaxPrice(), trackerController->getMinPrice() ) );
+		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTrackerSpecificStats( trackerController->getPrice() ) );
 	}
 
 	void operator()( CTransactionMessage const & _transactionMessage ) const

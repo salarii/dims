@@ -287,22 +287,12 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 		std::vector< CTransaction > validTransactions;
 		std::vector< CTransaction > invalidTransactions;
 
-		unsigned int outCount = 0;
 		CTxOut txOut;
 		txOut.nValue = 0;
 		unsigned int id;
 
 		BOOST_FOREACH( CTransaction const & transaction, context< CValidateTransactionsAction >().getTransactions() )
 		{
-			// fee calculate only for foreign addresses, this is tricky
-			if ( !common::getRealCountOfCoinsSpend(
-						  transaction
-						, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
-						, outCount ) )
-			{
-				invalidTransactions.push_back( transaction );
-			}
-
 
 			if ( !common::findOutputInTransaction(
 								 transaction
@@ -313,7 +303,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 				invalidTransactions.push_back( transaction );
 			}
 
-			if ( tracker::CTrackerController::getInstance()->evaluateIfPaymentCorrect( outCount, txOut.nValue ) )
+			if ( tracker::CTrackerController::getInstance()->getPrice() <= txOut.nValue )
 				validTransactions.push_back( transaction );
 			else
 				invalidTransactions.push_back( transaction );

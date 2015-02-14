@@ -101,8 +101,6 @@ public:
 
 	bool determineTracker( unsigned int _amount, common::CTrackerStats & _tracker, unsigned int & _fee ) const;// rather  it is not what I really need
 
-	unsigned int calculateFee( common::CTrackerStats const & _trackerStats, unsigned int _amount )const;
-
 	bool getMonitorKeyForTracker( CPubKey const & _trackerKey, CPubKey & _monitorKey );
 
 private:
