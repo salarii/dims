@@ -14,15 +14,15 @@
 
 #include "common/mediumKinds.h"
 
-#include "transactionRecordManager.h"
-#include "synchronizationAction.h"
-#include "synchronizationRequests.h"
-#include "trackerFilters.h"
-#include "segmentFileStorage.h"
-#include "trackerEvents.h"
-#include "trackerController.h"
-#include "trackerControllerEvents.h"
-#include "supportTransactionsDatabase.h"
+#include "tracker/transactionRecordManager.h"
+#include "tracker/synchronizationAction.h"
+#include "tracker/trackerRequests.h"
+#include "tracker/trackerFilters.h"
+#include "tracker/segmentFileStorage.h"
+#include "tracker/trackerEvents.h"
+#include "tracker/trackerController.h"
+#include "tracker/trackerControllerEvents.h"
+#include "tracker/supportTransactionsDatabase.h"
 
 namespace tracker
 {

@@ -12,6 +12,7 @@
 #include "connectNodeAction.h"
 #include "synchronizationAction.h"
 #include "validateTransactionsAction.h"
+#include "provideInfoAction.h"
 
 namespace tracker
 {
@@ -67,7 +68,10 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
 			}
 		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition )
+		else if (
+					  message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition
+				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
+				 )
 		{
 			common::CNodeMedium< TrackerResponses > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
@@ -82,10 +86,17 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				nodeMedium->setResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 			}
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-		{
-			//
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+			{
+				CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
+							  message.m_header.m_actionKey
+							, convertToInt( nodeMedium->getNode() )
+							);
+
+				provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( provideInfoAction );
+			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
 		{

@@ -14,6 +14,7 @@
 #include <boost/statechart/custom_reaction.hpp>
 
 #include "tracker/provideInfoAction.h"
+#include "tracker/trackerRequests.h"
 
 namespace tracker
 {
@@ -25,52 +26,33 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	CProvideInfo( my_context ctx ) : my_base( ctx )
 	{
 		m_enterStateTime = GetTime();
-		context< CProvideInfoAction >().setRequest( new CInfoRequest( new CMediumClassFilter( common::RequestKind::Trackers ) ) );
+		context< CProvideInfoAction >().setRequest( new CDeliverInfoRequest( new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		int64_t time = GetTime();
-		if ( time - m_enterStateTime < SeedLoopTime )
+		if ( time - m_enterStateTime < LoopTime )
 		{
-			context< CAskForUpdate >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CProvideInfoAction >().getMediumPtr() ) ) );
+			context< CProvideInfoAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 		}
 		else
 		{
-			context< CAskForUpdate >().setRequest( 0 );
+			context< CProvideInfoAction >().setRequest( 0 );
 		}
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _result )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), _result.m_message ) )
-			assert( !"service it somehow" );
-
-		common::CKnownNetworkInfo knownNetworkInfo;
-
-		// save  this  stuff
-
-		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
-
-		std::vector< common::CValidNodeInfo > validNodesInfo;
-
-		context< CProvideInfoAction >().setRequest( new common::CKnownNetworkInfoRequest< MonitorResponses >( context< CProvideInfoAction >().getActionKey(), validNodesInfo, new CSpecificMediumFilter( context< CProvideInfoAction >().getMediumPtr() ) ) );
-
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		return transit< CMonitorStop >();
+		context< CProvideInfoAction >().setRequest( 0 );
+		return discard_event();
 	}
 
 	int64_t m_enterStateTime;
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-		boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
@@ -92,38 +74,45 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 	> reactions;
 };
 
-CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey )
+CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: CCommunicationAction( _actionKey )
 	, m_request( 0 )
+	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
 }
 
-common::CRequest< MonitorResponses >*
+common::CRequest< TrackerResponses >*
 CProvideInfoAction::execute()
 {
-	common::CRequest< MonitorResponses >* request = m_request;
+	common::CRequest< TrackerResponses >* request = m_request;
 	m_request = 0;
 	return request;
 }
 
 void
-CProvideInfoAction::accept( common::CSetResponseVisitor< MonitorResponses > & _visitor )
+CProvideInfoAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }
 
 void
-CProvideInfoAction::setRequest( common::CRequest< MonitorResponses >* _request )
+CProvideInfoAction::setRequest( common::CRequest< TrackerResponses >* _request )
 {
 	m_request = _request;
 }
 
-common::CRequest< MonitorResponses > const *
+common::CRequest< TrackerResponses > const *
 CProvideInfoAction::getRequest() const
 {
 	return m_request;
+}
+
+uintptr_t
+CProvideInfoAction::getNodeIndicator() const
+{
+	return m_nodeIndicator;
 }
 
 }

@@ -3,17 +3,17 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "connectNodeAction.h"
-#include "connectToTrackerRequest.h"
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"
 #include "common/authenticationProvider.h"
 #include "common/mediumRequests.h"
 
-#include "trackerNodesManager.h"
-#include "trackerFilters.h"
-#include "trackerController.h"
-#include "trackerControllerEvents.h"
-#include "trackerNodeMedium.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/trackerFilters.h"
+#include "tracker/trackerController.h"
+#include "tracker/trackerControllerEvents.h"
+#include "tracker/trackerNodeMedium.h"
+#include "tracker/trackerRequests.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>

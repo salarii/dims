@@ -61,6 +61,22 @@ CConnectCondition::getMediumFilter() const
 	return m_mediumFilter;
 }
 
+CInfoRequest::CInfoRequest( common::CMediumFilter< MonitorResponses > * _mediumFilter )
+	: common::CRequest< MonitorResponses >( _mediumFilter )
+{
+}
+
+void
+CInfoRequest::accept( common::CMedium< MonitorResponses > * _medium ) const
+{
+	_medium->add( this );
+}
+
+common::CMediumFilter< MonitorResponses > *
+CInfoRequest::getMediumFilter() const
+{
+	return m_mediumFilter;
+}
 
 }
 

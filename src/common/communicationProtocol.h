@@ -156,6 +156,25 @@ struct CEnd
 	int m_dummy;
 };
 
+
+struct CInfoRequest
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+	int m_dummy;
+};
+
+struct CInfoResponse
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+	int m_dummy;
+};
+
 struct CValidNodeInfo
 {
 	IMPLEMENT_SERIALIZE
@@ -249,6 +268,8 @@ public:
 	CMessage( CAck const & _ack, uint256 const & _actionKey );
 	CMessage( CGet const & _get, uint256 const & _actionKey );
 	CMessage( CEnd const & _end, uint256 const & _actionKey );
+	CMessage( CInfoRequest const & _infoRequest, uint256 const & _actionKey );
+	CMessage( CInfoResponse const & _infoResponse, uint256 const & _actionKey );
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );

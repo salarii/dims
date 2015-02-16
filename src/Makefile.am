@@ -67,33 +67,30 @@ TRACKER_CORE_H = \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
   tracker/connectNodeAction.h \
-  tracker/connectToTrackerRequest.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
-  tracker/getBalanceRequest.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
   tracker/originTransactionsDatabase.h \
   tracker/originAddressScaner.h \
   tracker/processNetwork.h \
-  tracker/scanBitcoinNetworkRequest.h \
+  tracker/provideInfoAction.h \
   tracker/segmentFileStorage.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/simpleBuddy.h \
   tracker/supportTransactionsDatabase.h \
   tracker/synchronizationAction.h \
-  tracker/synchronizationRequests.h \
   tracker/trackerController.h \
   tracker/trackerControllerStates.h \
   tracker/trackerControllerEvents.h \
   tracker/trackerNodeMedium.h \
   tracker/trackerNodesManager.h \
   tracker/transactionRecordManager.h \
+  tracker/trackerRequests.h \
   tracker/trackOriginAddressAction.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h \
-  tracker/validateTransactionsRequest.h \
   leveldbwrapper.h \
   txdb.h 
   
@@ -167,33 +164,30 @@ TRACKER_CORE_CPP = \
   tracker/bitcoinNodeMedium.cpp \
   tracker/blockInfoDatabase.cpp \
   tracker/connectNodeAction.cpp \
-  tracker/connectToTrackerRequest.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
-  tracker/getBalanceRequest.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
   tracker/originTransactionsDatabase.cpp \
   tracker/originAddressScaner.cpp \
   tracker/processNetwork.cpp \
+  tracker/provideInfoAction.cpp \
   tracker/rpcTracker.cpp \
-  tracker/scanBitcoinNetworkRequest.cpp \
   tracker/segmentFileStorage.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/simpleBuddy.cpp \
   tracker/supportTransactionsDatabase.cpp \
   tracker/synchronizationAction.cpp \
-  tracker/synchronizationRequests.cpp \
   tracker/trackerController.cpp \
   tracker/trackerControllerEvents.cpp \
   tracker/trackerControllerStates.cpp \
   tracker/trackerNodeMedium.cpp \
   tracker/trackerNodesManager.cpp \
+  tracker/trackerRequests.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/trackOriginAddressAction.cpp \
   tracker/validateTransactionsAction.cpp \
-  tracker/validateTransactionsRequest.cpp \
   leveldbwrapper.cpp \
   txdb.cpp
   

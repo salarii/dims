@@ -1,8 +1,6 @@
 #ifndef TRACKER_REQUESTS_LIST_H
 #define TRACKER_REQUESTS_LIST_H
 
-#include "getBalanceRequest.h"
-
 namespace common
 {
 template < class RequestType >
@@ -43,6 +41,8 @@ class CGetNextBlockRequest;
 class CTransactionsStatusRequest;
 class CTransactionsPropagationRequest;
 class CPassMessageRequest;
+class CDeliverInfoRequest;
+class CGetBalanceRequest;
 
 template < class Block >
 class CSetNextBlockRequest;

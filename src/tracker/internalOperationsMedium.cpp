@@ -5,10 +5,9 @@
 #include "internalOperationsMedium.h"
 #include "addressToCoins.h"
 #include "transactionRecordManager.h"
-#include "validateTransactionsRequest.h"
-#include "connectToTrackerRequest.h"
 #include "common/manageNetwork.h"
 
+#include "tracker/trackerRequests.h"
 
 #include <algorithm>
 

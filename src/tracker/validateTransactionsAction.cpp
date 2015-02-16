@@ -10,14 +10,13 @@
 #include "common/commonResponses.h"
 #include "common/analyseTransaction.h"
 
-#include "validateTransactionsRequest.h"
-
-#include "trackerEvents.h"
-#include "transactionRecordManager.h"
-#include "clientRequestsManager.h"
-#include "trackerController.h"
-#include "trackerFilters.h"
-#include "trackerNodesManager.h"
+#include "tracker/trackerEvents.h"
+#include "tracker/transactionRecordManager.h"
+#include "tracker/clientRequestsManager.h"
+#include "tracker/trackerController.h"
+#include "tracker/trackerFilters.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/trackerRequests.h"
 
 namespace tracker
 {

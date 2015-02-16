@@ -60,6 +60,18 @@ private:
 	uint256 const m_actionKey;
 };
 
+class CInfoRequest : public common::CRequest< MonitorResponses >
+{
+public:
+	CInfoRequest( common::CMediumFilter< MonitorResponses > * _mediumFilter );
+
+	virtual void accept( common::CMedium< MonitorResponses > * _medium ) const;
+
+	virtual common::CMediumFilter< MonitorResponses > * getMediumFilter() const;
+private:
+};
+
+
 }
 
 

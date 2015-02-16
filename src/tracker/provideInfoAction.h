@@ -29,7 +29,7 @@ struct CProvideInfo;
 class CProvideInfoAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >, public common::CCommunicationAction
 {
 public:
-	CProvideInfoAction( uint256 const & _actionKey );
+	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	virtual common::CRequest< TrackerResponses >* execute();
 
@@ -39,9 +39,13 @@ public:
 
 	common::CRequest< TrackerResponses > const * getRequest() const;
 
+	uintptr_t getNodeIndicator()const;
+
 	~CProvideInfoAction(){};
 private:
 	common::CRequest< TrackerResponses >* m_request;
+
+	uintptr_t m_nodeIndicator;
 };
 
 }

@@ -17,11 +17,13 @@
 
 #include "main.h"
 #include "chainparams.h"
-#include "scanBitcoinNetworkRequest.h"
-#include "trackerEvents.h"
-#include "trackerController.h"
-#include "trackerControllerEvents.h"
-#include "trackerFilters.h"
+
+#include "tracker/trackerEvents.h"
+#include "tracker/trackerController.h"
+#include "tracker/trackerControllerEvents.h"
+#include "tracker/trackerFilters.h"
+#include "tracker/trackerNodeMedium.h"
+#include "tracker/trackerRequests.h"
 
 namespace tracker
 {

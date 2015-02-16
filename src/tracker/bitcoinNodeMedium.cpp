@@ -3,9 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "bitcoinNodeMedium.h"
-#include "scanBitcoinNetworkRequest.h"
-
 #include "chainparams.h"
+
+#include "tracker/trackerRequests.h"
 
 namespace tracker
 {

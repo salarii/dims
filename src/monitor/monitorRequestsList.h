@@ -32,8 +32,7 @@ class CConnectToNodeRequest;
 
 class CConnectCondition;
 
-typedef boost::mpl::list< common::CIdentifyRequest< MonitorResponses >, common::CContinueReqest< MonitorResponses >, common::CIdentifyResponse< MonitorResponses >, common::CKnownNetworkInfoRequest< MonitorResponses >, common::CAckRequest< MonitorResponses >, common::CNetworkRoleRequest< MonitorResponses >, CConnectToNodeRequest, CConnectCondition > MonitorRequestsList;
-
+class CInfoRequest;
 }
 
 #endif // MONITOR_REQUESTS_LIST_H

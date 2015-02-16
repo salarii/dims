@@ -3,9 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "getBalanceAction.h"
-#include "getBalanceRequest.h"
 #include "common/setResponseVisitor.h"
 #include "clientRequestsManager.h"
+
+#include "tracker/trackerRequests.h"
 
 namespace tracker
 {

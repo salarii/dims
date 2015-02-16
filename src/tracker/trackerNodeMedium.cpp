@@ -3,12 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/medium.h"
-#include "trackerNodeMedium.h"
 #include "common/actionHandler.h"
-#include "trackerNodesManager.h"
-#include "connectNodeAction.h"
-#include "synchronizationRequests.h"
-#include "validateTransactionsRequest.h"
+
+#include "tracker/trackerNodeMedium.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/connectNodeAction.h"
+#include "tracker/trackerRequests.h"
 
 namespace tracker
 {

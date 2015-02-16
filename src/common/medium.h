@@ -10,6 +10,7 @@
 #include "visitorConfigurationUtilities.h"
 
 #include "tracker/trackerRequestsList.h"
+#include "tracker/configureTrackerActionHandler.h"
 #include "node/nodeRequestList.h"
 #include "node/configureNodeActionHadler.h"
 #include "monitor/monitorRequestsList.h"
@@ -65,6 +66,7 @@ public:
 	virtual void add( common::CResultRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( tracker::CTransactionsPropagationRequest const * _request ){};
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
+	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual ~CMedium(){};
 };
 
@@ -109,6 +111,7 @@ public:
 	virtual void add( common::CNetworkRoleRequest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
 	virtual void add( monitor::CConnectCondition const * _request ){};
+	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual ~CMedium(){};
 };
 
