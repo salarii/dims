@@ -41,6 +41,8 @@ class CPayLocalApplicationAction;
 namespace monitor
 {
 class CConnectNodeAction;
+
+class CUpdateDataAction;
 }
 
 namespace seed
@@ -111,6 +113,8 @@ public:
 	CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse );
 
 	void visit( monitor::CConnectNodeAction & _action );
+
+	virtual void visit( monitor::CUpdateDataAction & _action );
 private:
 
 	monitor::MonitorResponses m_requestResponse;

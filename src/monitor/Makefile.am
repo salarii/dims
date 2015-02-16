@@ -22,8 +22,9 @@ MONITOR_H = \
 	processNetwork.h \
 	rankingDatabase.h \
 	reputationTracer.h \
-	server.h
-	
+	server.h \
+	updateDataAction.h
+
 MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
 	clientRequestsManager.cpp \
@@ -40,7 +41,8 @@ MONITOR_CPP = \
 	rankingDatabase.cpp \
 	reputationTracer.cpp \
 	server.cpp \
-	setResponseVisitor.cpp
+	setResponseVisitor.cpp \
+	updateDataAction.cpp
 
 libmonitor_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) 
 libmonitor_a_SOURCES = $(MONITOR_H) $(MONITOR_CPP)

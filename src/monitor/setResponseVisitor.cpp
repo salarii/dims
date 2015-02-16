@@ -5,7 +5,8 @@
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
 #include "common/commonEvents.h"
-#include "connectNodeAction.h"
+#include "monitor/connectNodeAction.h"
+#include "monitor/updateDataAction.h"
 
 namespace common
 {
@@ -60,6 +61,19 @@ public:
 	}
 };
 
+template < class _Action >
+class CSetUpdateDataResult : public CResponseVisitorBase< _Action, monitor::MonitorResponseList >
+{
+public:
+	CSetUpdateDataResult( _Action * const _action ):CResponseVisitorBase< _Action, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+};
+
 
 CSetResponseVisitor< monitor::MonitorResponses >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
@@ -72,6 +86,12 @@ CSetResponseVisitor< monitor::MonitorResponses >::visit( monitor::CConnectNodeAc
 	boost::apply_visitor( (CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult< monitor::CConnectNodeAction >( &_action ), m_requestResponse );
 }
 
+
+void
+CSetResponseVisitor< monitor::MonitorResponses >::visit( monitor::CUpdateDataAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CUpdateDataAction >( &_action ), m_requestResponse );
+}
 
 }
 

@@ -14,11 +14,6 @@
 
 #include "protocol.h"
 
-/*
-current communication protocol is ineffective
-consider using ack  request after  every successful message  reception
-*/
-
 namespace monitor
 {
 
@@ -26,7 +21,7 @@ struct CAskForUpdate;
 
 // rework  this  sooner  or later
 
-class CUpdateDataAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >, public common::CCommunicationAction
+class CUpdateDataAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >, public common::CCommunicationAction
 {
 public:
 	CUpdateDataAction();

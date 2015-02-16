@@ -2,7 +2,6 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "connectNodeAction.h"
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"
 #include "common/authenticationProvider.h"
@@ -19,6 +18,7 @@
 #include "monitor/reputationTracer.h"
 #include "monitor/monitorController.h"
 #include "monitor/monitorNodeMedium.h"
+#include "monitor/updateDataAction.h"
 
 namespace monitor
 {
@@ -30,19 +30,20 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	CAskForUpdate( my_context ctx ) : my_base( ctx )
 	{
 		m_enterStateTime = GetTime();
-		context< CAskForUpdate >().setRequest( new CInfoRequest( new CMediumClassFilter( common::RequestKind::Trackers ) ) );
+		context< CUpdateDataAction >().setRequest( new CInfoRequest( new CMediumClassFilter( common::RequestKind::Trackers ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
 		int64_t time = GetTime();
-		if ( time - m_enterStateTime < SeedLoopTime )
+		if ( time - m_enterStateTime < LoopTime )
 		{
-			context< CAskForUpdate >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CUpdateDataAction >().getMediumPtr() ) ) );
+			context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::RequestKind::Trackers ) ) );
 		}
 		else
 		{
-			context< CAskForUpdate >().setRequest( 0 );
+			//here  make  some  data manipulation
+			context< CUpdateDataAction >().setRequest( 0 );
 		}
 		return discard_event();
 	}
@@ -50,25 +51,23 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	boost::statechart::result react( common::CMessageResult const & _result )
 	{
 		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), _result.m_message ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), _result.m_pubKey ) )
 			assert( !"service it somehow" );
 
 		common::CKnownNetworkInfo knownNetworkInfo;
 
 		// save  this  stuff
-
 		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
-
-		context< CUpdateDataAction >().setRequest( new common::CKnownNetworkInfoRequest< MonitorResponses >( context< CUpdateDataAction >().getActionKey(), validNodesInfo, new CSpecificMediumFilter( context< CUpdateDataAction >().getMediumPtr() ) ) );
+		context< CUpdateDataAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
-		return transit< CMonitorStop >();
+		context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::RequestKind::Trackers ) ) );
 	}
 
 	int64_t m_enterStateTime;
@@ -76,24 +75,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
 		boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
-	> reactions;
-};
-
-struct CMonitorStop : boost::statechart::state< CMonitorStop, CUpdateDataAction >
-{
-	CMonitorStop( my_context ctx ) : my_base( ctx )
-	{
-	}
-
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		context< CUpdateDataAction >().setRequest( 0 );
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CAckPromptResult >
 	> reactions;
 };
 
