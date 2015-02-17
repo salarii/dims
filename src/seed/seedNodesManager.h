@@ -28,15 +28,13 @@ public:
 	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 
 	std::list< common::CMedium< SeedResponses > *> getInternalMedium();
+
+	std::list< common::CMedium< SeedResponses > *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const{ return std::list< common::CMedium< SeedResponses > *>(); }// not used  right now
 private:
 	CSeedNodesManager();
 private:
 	std::map< CAddress, CPubKey > m_keyStore;
 };
-
-
-
-
 
 }
 

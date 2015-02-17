@@ -130,6 +130,11 @@ CReputationTracker::getAllyMonitors() const
 	return std::vector< CAllyMonitorData >();
 }
 
+std::list< common::CMedium< MonitorResponses > *>
+CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
+{
+
+}
 
 void
 CReputationTracker::addTracker( CTrackerData const & _trackerData )

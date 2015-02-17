@@ -16,7 +16,6 @@ MONITOR_H = \
 	internalOperationsMedium.h \
 	monitorController.h \
 	monitorNodeMedium.h \
-	monitorNodesManager.h \
 	monitorRequests.h \
 	monitorRequestsList.h \
 	processNetwork.h \
@@ -35,7 +34,6 @@ MONITOR_CPP = \
 	monitor.cpp \
 	monitorController.cpp \
 	monitorNodeMedium.cpp \
-	monitorNodesManager.cpp \
 	monitorRequests.cpp \
 	processNetwork.cpp \
 	rankingDatabase.cpp \

@@ -22,5 +22,14 @@ CMonitorNodeMedium::add( CConnectCondition const * _request )
 	m_indexes.push_back( _request->getActionKey() );
 }
 
+void
+CMonitorNodeMedium::add( CInfoRequest const * _request )
+{
+	common::CMessage message( common::CInfoRequestData(), _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
+}
 
 }

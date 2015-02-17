@@ -14,6 +14,7 @@
 #include "configureMonitorActionHandler.h"
 #include "monitorNodeMedium.h"
 #include "monitor/connectNodeAction.h"
+#include "monitor/reputationTracer.h"
 
 namespace monitor
 {
@@ -37,9 +38,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	vRecv >> messages;
 
 // it is  stupid  to call this over and over again
-	if ( !common::CNodesManager<MonitorResponses>::getInstance()->getMediumForNode( pfrom ) )
+	if ( !CReputationTracker::getInstance()->getMediumForNode( pfrom ) )
 	{
-		common::CNodesManager<MonitorResponses>::getInstance()->addNode( new CMonitorNodeMedium( pfrom ) );
+		CReputationTracker::getInstance()->addNode( new CMonitorNodeMedium( pfrom ) );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
@@ -50,9 +51,10 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				   message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
-			)
+				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
+				)
 		{
-			common::CNodeMedium< MonitorResponses > * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< MonitorResponses > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -62,6 +64,14 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 			}
 		}
+		/*	{
+		CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{
+				assert( !"for now assert this" );
+				return true;
+			}
+		}*/
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
 		{
 			//
@@ -71,7 +81,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			common::CNodeMedium< MonitorResponses > * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< MonitorResponses > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -95,7 +105,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( message, ack );
 
-			common::CNodeMedium< MonitorResponses > * nodeMedium = CMonitorNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< MonitorResponses > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{

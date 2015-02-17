@@ -13,7 +13,7 @@ namespace monitor
 
 struct CMediumClassFilter : public common::CMediumFilter< MonitorResponses >
 {
-	CMediumClassFilter( int _mediumClass, int _mediumNumber = -1 ):
+	CMediumClassFilter( common::CMediumKinds::Enum _mediumClass, int _mediumNumber = -1 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber )
 	{}
@@ -21,7 +21,7 @@ struct CMediumClassFilter : public common::CMediumFilter< MonitorResponses >
 	std::list< common::CMedium< MonitorResponses > *> getMediums( common::CNodesManager< MonitorResponses > * _nodesManager )const
 	{
 		std::list< common::CMedium< MonitorResponses > *> mediums;
-		mediums = _nodesManager->getNodesByClass( ( common::CMediumKinds::Enum )m_mediumClass );
+		mediums = _nodesManager->getNodesByClass( m_mediumClass );
 
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
 		{
@@ -32,10 +32,10 @@ struct CMediumClassFilter : public common::CMediumFilter< MonitorResponses >
 
 	std::list< common::CMedium< MonitorResponses > *> getMediums( CInternalMediumProvider * _internalMediumProvider )const
 	{
-		return _internalMediumProvider->getMediumByClass( ( common::CMediumKinds::Enum )m_mediumClass, m_mediumNumber );
+		return _internalMediumProvider->getMediumByClass( m_mediumClass, m_mediumNumber );
 	}
 
-	int m_mediumClass;
+	common::CMediumKinds::Enum m_mediumClass;
 	int m_mediumNumber;
 };
 

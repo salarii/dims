@@ -5,12 +5,14 @@
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
 #include "common/commonEvents.h"
-#include "getBalanceAction.h"
-#include "validateTransactionsAction.h"
-#include "trackerEvents.h"
-#include "connectNodeAction.h"
-#include "trackOriginAddressAction.h"
-#include "synchronizationAction.h"
+
+#include "tracker/getBalanceAction.h"
+#include "tracker/validateTransactionsAction.h"
+#include "tracker/trackerEvents.h"
+#include "tracker/connectNodeAction.h"
+#include "tracker/trackOriginAddressAction.h"
+#include "tracker/synchronizationAction.h"
+#include "tracker/provideInfoAction.h"
 
 namespace common
 {
@@ -187,6 +189,17 @@ public:
 	}
 };
 
+class CSetProvideInfoResult : public CResponseVisitorBase< tracker::CProvideInfoAction, tracker::TrackerResponseList >
+{
+public:
+	CSetProvideInfoResult( tracker::CProvideInfoAction * const _action ):CResponseVisitorBase< tracker::CProvideInfoAction, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+};
+
 CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
 	: m_trackerResponses( _trackerResponse )
 {
@@ -229,6 +242,10 @@ CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CSynchronizati
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList > const &)CSetSynchronizationResult( &_action ), m_trackerResponses );
 }
 
-
+void
+CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CProvideInfoAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CProvideInfoAction, tracker::TrackerResponseList > const &)CSetProvideInfoResult( &_action ), m_trackerResponses );
+}
 
 }

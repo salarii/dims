@@ -15,12 +15,16 @@ namespace monitor
 
 class CConnectCondition;
 
+class CInfoRequest;
+
 class CMonitorNodeMedium : public common::CNodeMedium< MonitorResponses >
 {
 public:
 	CMonitorNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< MonitorResponses >( _selfNode ){};
 
 	void add( CConnectCondition const * _request );
+
+	void add( CInfoRequest const * _request );
 private:
 };
 

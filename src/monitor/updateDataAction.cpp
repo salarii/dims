@@ -30,7 +30,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	CAskForUpdate( my_context ctx ) : my_base( ctx )
 	{
 		m_enterStateTime = GetTime();
-		context< CUpdateDataAction >().setRequest( new CInfoRequest( new CMediumClassFilter( common::RequestKind::Trackers ) ) );
+		context< CUpdateDataAction >().setRequest( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -38,7 +38,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		int64_t time = GetTime();
 		if ( time - m_enterStateTime < LoopTime )
 		{
-			context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::RequestKind::Trackers ) ) );
+			context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		}
 		else
 		{
@@ -67,7 +67,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
-		context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::RequestKind::Trackers ) ) );
+		context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 	}
 
 	int64_t m_enterStateTime;

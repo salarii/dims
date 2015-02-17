@@ -5,7 +5,7 @@
 #ifndef MONITOR_NODES_MANAGER_H
 #define MONITOR_NODES_MANAGER_H
 
-#include "common/nodesManager.h"
+
 #include "common/communicationProtocol.h"
 #include "common/connectionProvider.h"
 #include "configureMonitorActionHandler.h"
@@ -18,7 +18,7 @@ namespace monitor
 
 class CMonitorNodeMedium;
 
-class CMonitorNodesManager : public common::CNodesManager< MonitorResponses >
+class CMonitorNodesManager
 {
 public:
 	static CMonitorNodesManager * getInstance();
@@ -29,7 +29,7 @@ private:
 
 
 	//valid network store it  is temporary  solution, move it  to  common???
-	std::set< common::CValidNodeInfo > m_validNodes;
+
 };
 
 }

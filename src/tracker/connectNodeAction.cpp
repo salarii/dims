@@ -333,9 +333,6 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 	{
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 
-		((common::CNodesManager< TrackerResponses >*)CTrackerNodesManager::getInstance())
-				->setValidNode( context< CConnectNodeAction >().getMediumPtr() );
-
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
 
 		m_enterStateTime = GetTime();

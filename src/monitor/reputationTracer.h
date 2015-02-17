@@ -10,6 +10,7 @@
 #include "protocol.h"
 
 #include <boost/thread/mutex.hpp>
+#include "common/nodesManager.h"
 
 namespace monitor
 {
@@ -61,7 +62,7 @@ struct CAllyTrackerData
 	unsigned int m_countedTime;
 };
 // for now  don't track other trackers registered in other monitors
-class CReputationTracker
+class CReputationTracker : public common::CNodesManager< MonitorResponses >
 {
 public:
 	static CReputationTracker * getInstance();
@@ -75,6 +76,7 @@ public:
 
 	std::vector< CAllyMonitorData > getAllyMonitors() const;
 
+	std::list< common::CMedium< MonitorResponses > *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 private:
 	CReputationTracker();
 
@@ -104,6 +106,8 @@ private:
 	static uint64_t const m_recalculateTime;
 
 	CRankingDatabase * m_rankingDatabase;
+
+		std::set< common::CValidNodeInfo > m_validNodes;
 };
 
 }

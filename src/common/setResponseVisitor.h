@@ -23,6 +23,9 @@ class CConnectNodeAction;
 class CTrackOriginAddressAction;
 
 class CSynchronizationAction;
+
+class CProvideInfoAction;
+
 }
 
 namespace client
@@ -81,6 +84,8 @@ public:
 	virtual void visit( tracker::CTrackOriginAddressAction & _action );
 
 	virtual void visit( tracker::CSynchronizationAction & _action );
+
+	virtual void visit( tracker::CProvideInfoAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };

@@ -35,7 +35,7 @@ public:
 
 	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 
-
+	std::list< common::CMedium< TrackerResponses > *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 private:
 	CTrackerNodesManager();
 private:
