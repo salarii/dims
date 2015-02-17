@@ -312,23 +312,23 @@ template < class ResponsesType >
 class CKnownNetworkInfoRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
 
 	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
 
-	std::vector< CValidNodeInfo > getNetworkInfo() const;
+	CKnownNetworkInfo getNetworkInfo() const;
 
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
 
-	std::vector< CValidNodeInfo > m_networkInfo;
+	CKnownNetworkInfo m_networkInfo;
 };
 
 template < class ResponsesType >
-CKnownNetworkInfoRequest< ResponsesType >::CKnownNetworkInfoRequest( uint256 const & _actionKey, std::vector< CValidNodeInfo > const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter )
+CKnownNetworkInfoRequest< ResponsesType >::CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter )
 	: common::CRequest< ResponsesType >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_networkInfo( _networkInfo )
@@ -350,7 +350,7 @@ CKnownNetworkInfoRequest< ResponsesType >::getMediumFilter() const
 }
 
 template < class ResponsesType >
-std::vector< CValidNodeInfo >
+CKnownNetworkInfo
 CKnownNetworkInfoRequest< ResponsesType >::getNetworkInfo() const
 {
 	return m_networkInfo;

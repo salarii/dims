@@ -429,9 +429,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 
 		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
 
-		std::vector< common::CValidNodeInfo > validNodesInfo;
-
-		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), validNodesInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 
 		return discard_event();
 	}

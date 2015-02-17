@@ -121,16 +121,18 @@ struct CRoleResult
 
 struct CNetworkInfoResult
 {
-	CNetworkInfoResult( std::vector< CValidNodeInfo > const & _networkInfo ):m_networkInfo( _networkInfo ){}
+	CNetworkInfoResult( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo(_trackersInfo),m_monitorsInfo(_monitorsInfo){}
 
 	CNetworkInfoResult(){}
 
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_networkInfo);
+		READWRITE(m_trackersInfo);
+		READWRITE(m_monitorsInfo);
 	)
 
-	std::vector< CValidNodeInfo > m_networkInfo;
+	std::set< CValidNodeInfo > m_trackersInfo;
+	std::set< CValidNodeInfo > m_monitorsInfo;
 };
 
 

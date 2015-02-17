@@ -37,7 +37,7 @@ public:
 
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
 	{
-		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_networkInfo ) );
+		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
 	}
 
 	virtual void operator()( common::CAckPromptResult & _param ) const

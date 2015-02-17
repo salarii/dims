@@ -220,10 +220,12 @@ struct CKnownNetworkInfo
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_networkInfo);
+		READWRITE(m_trackersInfo);
+		READWRITE(m_monitorsInfo);
 	)
 
-	std::vector< CValidNodeInfo > m_networkInfo;
+	std::set< CValidNodeInfo > m_trackersInfo;
+	std::set< CValidNodeInfo > m_monitorsInfo;
 };
 
 struct CSynchronizationInfo

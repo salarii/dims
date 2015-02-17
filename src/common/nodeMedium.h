@@ -212,11 +212,8 @@ template < class ResponseType >
 void
 CNodeMedium< ResponseType >::add( CKnownNetworkInfoRequest< ResponseType > const * _request )
 {
-	common::CKnownNetworkInfo knownNetwork;
 
-	knownNetwork.m_networkInfo = _request->getNetworkInfo();
-
-	common::CMessage message( knownNetwork, _request->getActionKey() );
+	common::CMessage message( _request->getNetworkInfo(), _request->getActionKey() );
 
 	m_messages.push_back( message );
 

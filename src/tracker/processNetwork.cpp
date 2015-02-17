@@ -260,7 +260,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( message.m_header.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_monitorsInfo, knownNetworkInfo.m_trackersInfo ) );
 			}
 			else
 			{

@@ -398,19 +398,21 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 		context< CAcceptNodeAction >().setValid( true );
 
 		context< CAcceptNodeAction >().setRequest(
-					new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), std::vector< common::CValidNodeInfo >(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
+					new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), common::CKnownNetworkInfo(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
 	{
 		context< CAcceptNodeAction >().setRequest( 0 );
 
-		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_networkInfo )
+		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_trackersInfo )
 		{
-			if ( validNodeInfo.m_role == common::CRole::Tracker || validNodeInfo.m_role == common::CRole::Monitor )
-			{
 				db.Add( validNodeInfo.m_address );
-			}
+		}
+
+		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_monitorsInfo )
+		{
+				db.Add( validNodeInfo.m_address );
 		}
 		return discard_event();
 	}
@@ -454,19 +456,21 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CAccep
 		context< CAcceptNodeAction >().setValid( true );
 
 		context< CAcceptNodeAction >().setRequest(
-					new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), std::vector< common::CValidNodeInfo >(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
+					new common::CKnownNetworkInfoRequest< SeedResponses >( context< CAcceptNodeAction >().getActionKey(), common::CKnownNetworkInfo(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
 	{
 		context< CAcceptNodeAction >().setRequest( 0 );
 
-		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_networkInfo )
+		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_trackersInfo )
 		{
-			if ( validNodeInfo.m_role == common::CRole::Tracker || validNodeInfo.m_role == common::CRole::Monitor )
-			{
 				db.Add( validNodeInfo.m_address );
-			}
+		}
+
+		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_monitorsInfo )
+		{
+				db.Add( validNodeInfo.m_address );
 		}
 		return discard_event();
 	}

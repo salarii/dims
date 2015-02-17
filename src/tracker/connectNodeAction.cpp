@@ -410,14 +410,11 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
 	{
-		std::vector< common::CValidNodeInfo > validNodesInfo;
+		common::CKnownNetworkInfo knownNetworkInfo;
+		knownNetworkInfo.m_trackersInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker );
+		knownNetworkInfo.m_monitorsInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker ) )
-		{
-			validNodesInfo.push_back( validNodeInfo );
-		}
-
-		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), validNodesInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
 
