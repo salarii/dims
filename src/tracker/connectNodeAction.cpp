@@ -23,6 +23,8 @@
 namespace tracker
 {
 
+// use  similar  algorithms like in client  to recognize network while connecting ???
+
 unsigned int const TrackerLoopTime = 20;
 unsigned int const SeedLoopTime = 25;
 unsigned int const MonitorLoopTime = 25;
@@ -249,6 +251,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		context< CConnectNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CTrackerNodesManager::getInstance()->addNode( new CTrackerNodeMedium( connectedEvent->m_node ) );
+		context< CConnectNodeAction >().setServiceAddress( connectedEvent->m_node->addr );
 
 		context< CConnectNodeAction >().setRequest( new common::CIdentifyRequest<TrackerResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
 	}
@@ -331,6 +334,14 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
+		CTrackerNodesManager::getInstance()->setNodeInfo(
+					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Seed );
+
+		CTrackerNodesManager::getInstance()->setKeyToNode(
+					  context< CConnectNodeAction >().getPublicKey()
+					, context< CConnectNodeAction >().getMediumPtr()
+					);
+
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
@@ -371,6 +382,14 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 {
 	ConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
+		CTrackerNodesManager::getInstance()->setNodeInfo(
+					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Seed );
+
+		CTrackerNodesManager::getInstance()->setKeyToNode(
+					  context< CConnectNodeAction >().getPublicKey()
+					, context< CConnectNodeAction >().getMediumPtr()
+					);
+
 		m_enterStateTime = GetTime();
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
@@ -393,10 +412,11 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 	{
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 
-		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getValidNodes() )
+		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker ) )
 		{
 			validNodesInfo.push_back( validNodeInfo );
 		}
+
 		context< CConnectNodeAction >().setRequest( new common::CKnownNetworkInfoRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), validNodesInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
@@ -419,6 +439,14 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 {
 	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
 	{
+		CTrackerNodesManager::getInstance()->setNodeInfo(
+					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Monitor );
+
+		CTrackerNodesManager::getInstance()->setKeyToNode(
+					  context< CConnectNodeAction >().getPublicKey()
+					, context< CConnectNodeAction >().getMediumPtr()
+					);
+
 		m_enterStateTime = GetTime();
 		context< CConnectNodeAction >().setRequest( new common::CContinueReqest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
@@ -575,6 +603,12 @@ CAddress
 CConnectNodeAction::getServiceAddress() const
 {
 	return m_addrConnect;
+}
+
+void
+CConnectNodeAction::setServiceAddress( CAddress const & _addrConnect )
+{
+	m_addrConnect = _addrConnect;
 }
 
 std::vector< unsigned char >  const &

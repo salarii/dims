@@ -63,7 +63,7 @@ public:
 		// handle  it through  action  handler??
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 
-		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getValidNodes() )
+		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker ) )
 		{
 			validNodesInfo.push_back( validNodeInfo );
 		}

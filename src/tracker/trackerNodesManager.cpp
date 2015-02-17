@@ -34,15 +34,41 @@ CTrackerNodesManager::CTrackerNodesManager()
 }
 
 std::set< common::CValidNodeInfo > const &
-CTrackerNodesManager::getValidNodes() const
+CTrackerNodesManager::getNodesInfo( common::CRole::Enum _role ) const
 {
-	return m_validNodes;
+	switch( _role )
+	{
+	case common::CRole::Seed:
+		return m_seeds;
+		break;
+	case common::CRole::Tracker:
+		return m_trackers;
+		break;
+	case common::CRole::Monitor:
+		return m_monitors;
+		break;
+	default:
+		return std::set< common::CValidNodeInfo >();
+	}
 }
 
 void
-CTrackerNodesManager::setValidNode( common::CValidNodeInfo const & _validNodeInfo )
+CTrackerNodesManager::setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role )
 {
-	m_validNodes.insert( _validNodeInfo );
+	switch( _role )
+	{
+	case common::CRole::Seed:
+		m_seeds.insert( _validNodeInfo );
+		break;
+	case common::CRole::Tracker:
+		m_trackers.insert( _validNodeInfo );
+		break;
+	case common::CRole::Monitor:
+		m_monitors.insert( _validNodeInfo );
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -68,7 +94,75 @@ CTrackerNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey
 std::list< common::CMedium< TrackerResponses > *>
 CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {
-//
+	//  code  repeated  3 times ,fix it??
+
+		uintptr_t nodeIndicator;
+		std::list< common::CMedium< TrackerResponses > *> mediums;
+
+	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
+	{
+		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_trackers )
+		{
+
+			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+				assert(!"something went wrong");
+
+			common::CMedium< TrackerResponses > * medium = findNodeMedium( nodeIndicator );
+			if (!medium)
+				assert(!"something went wrong");
+
+			mediums.push_back( medium );
+		}
+	}
+	else if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Monitors )
+	{
+		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_monitors )
+		{
+
+			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+				assert(!"something went wrong");
+
+			common::CMedium< TrackerResponses > * medium = findNodeMedium( nodeIndicator );
+			if (!medium)
+				assert(!"something went wrong");
+
+			mediums.push_back( medium );
+		}
+	}
+	else if ( common::CMediumKinds::Seeds )
+	{
+		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_seeds )
+		{
+
+			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+				assert(!"something went wrong");
+
+			common::CMedium< TrackerResponses > * medium = findNodeMedium( nodeIndicator );
+			if (!medium)
+				assert(!"something went wrong");
+
+			mediums.push_back( medium );
+		}
+	}
+
+	return mediums;
+}
+
+void
+CTrackerNodesManager::setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator)
+{
+	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey, _nodeIndicator ) );
+}
+
+bool
+CTrackerNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator) const
+{
+	std::map< CPubKey, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKey );
+
+	if ( iterator != m_pubKeyToNodeIndicator.end() )
+		_nodeIndicator = iterator->second;
+
+	return iterator != m_pubKeyToNodeIndicator.end();
 }
 
 }

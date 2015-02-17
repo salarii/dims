@@ -49,7 +49,6 @@
 #include "processNetwork.h"
 #include "monitorController.h"
 #include "internalMediumProvider.h"
-#include "monitorNodesManager.h"
 
 #include "monitor/server.h"
 #include "monitor/clientRequestsManager.h"

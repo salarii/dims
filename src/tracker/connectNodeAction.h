@@ -43,6 +43,8 @@ public:
 
 	std::string getAddress() const;
 
+	void setServiceAddress( CAddress const & _addrConnect );
+
 	CAddress getServiceAddress() const;
 
 	std::vector< unsigned char > const & getPayload() const;

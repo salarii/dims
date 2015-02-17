@@ -12,6 +12,8 @@ struct CMediumKinds
 		, BitcoinsNodes
 		, DimsNodes
 		, Trackers
+		, Monitors
+		, Seeds
 	};
 };
 

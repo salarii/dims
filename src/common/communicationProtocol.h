@@ -181,14 +181,13 @@ struct CValidNodeInfo
 	(
 		READWRITE(m_key);
 		READWRITE(m_address);
-		READWRITE(m_role);
 	)
 
 	CValidNodeInfo()
 	{
 	}
 
-	CValidNodeInfo(	CPubKey _key, CAddress _address, int _role ):m_key( _key ), m_address( _address ), m_role( _role )
+	CValidNodeInfo( CPubKey _key, CAddress _address ):m_key( _key ), m_address( _address )
 	{
 	}
 
@@ -199,7 +198,6 @@ struct CValidNodeInfo
 
 	CPubKey m_key;
 	CAddress m_address;
-	int m_role;
 };
 
 struct CConnectCondition

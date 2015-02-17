@@ -144,7 +144,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, _networkInfo.m_networkInfo )
 		{
-			m_uniqueNodes.insert( common::CNodeInfo( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort(), validNode.m_role ) );
+			m_uniqueNodes.insert( common::CNodeInfo( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort() ) );
 		}
 
 		if ( !m_pending.size() )

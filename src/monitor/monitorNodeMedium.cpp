@@ -4,8 +4,8 @@
 
 #include "common/communicationProtocol.h"
 
-#include "monitorNodeMedium.h"
-#include "monitorRequests.h"
+#include "monitor/monitorNodeMedium.h"
+#include "monitor/monitorRequests.h"
 
 namespace monitor
 {

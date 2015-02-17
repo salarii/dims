@@ -20,32 +20,38 @@ class CTrackerNodeMedium;
 class CTrackerNodesManager : public common::CNodesManager< TrackerResponses >
 {
 public:
-
 	bool isNodeHonest();
 
 	bool isBanned( CAddress const & _address ); // address may be banned  when , associated  node  make   trouble
 
 	static CTrackerNodesManager * getInstance();
 
-	std::set< common::CValidNodeInfo > const & getValidNodes() const;
+	std::set< common::CValidNodeInfo > const & getNodesInfo( common::CRole::Enum _role ) const;
 
-	void setValidNode( common::CValidNodeInfo const & _validNodeInfo );
+	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 
 	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
 
 	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 
 	std::list< common::CMedium< TrackerResponses > *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
+
+	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
+
+	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator)const;
 private:
 	CTrackerNodesManager();
 private:
-	// locks  	mutable boost::mutex m_nodesLock;
-
 	// is this ok??? seems like temporary solution, move it  to  common???
 	std::map< CAddress, CPubKey > m_keyStore;
 
-	//valid network store it  is temporary  solution, move it  to  common???
-	std::set< common::CValidNodeInfo > m_validNodes;
+	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
+
+	std::set< common::CValidNodeInfo > m_trackers;
+
+	std::set< common::CValidNodeInfo > m_monitors;
+
+	std::set< common::CValidNodeInfo > m_seeds;
 };
 
 }

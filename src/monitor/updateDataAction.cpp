@@ -14,10 +14,8 @@
 
 #include "monitor/filters.h"
 #include "monitor/monitorRequests.h"
-#include "monitor/monitorNodesManager.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/monitorController.h"
-#include "monitor/monitorNodeMedium.h"
 #include "monitor/updateDataAction.h"
 
 namespace monitor

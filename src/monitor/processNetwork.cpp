@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "processNetwork.h"
-#include "monitorNodesManager.h"
 
 #include "common/nodesManager.h"
 #include "common/communicationProtocol.h"
@@ -12,9 +11,9 @@
 #include "common/nodeMedium.h"
 
 #include "configureMonitorActionHandler.h"
-#include "monitorNodeMedium.h"
 #include "monitor/connectNodeAction.h"
 #include "monitor/reputationTracer.h"
+#include "monitor/monitorNodeMedium.h"
 
 namespace monitor
 {
