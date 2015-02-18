@@ -14,7 +14,7 @@ namespace common
 {
 template < class _RequestResponses >
 class CMedium;
-
+//?? one provider  for  every executable file??? right now  there is many of  them
 template < class _RequestResponses >
 class CConnectionProvider
 {

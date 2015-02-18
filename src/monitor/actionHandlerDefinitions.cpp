@@ -4,6 +4,8 @@
 
 #include "configureMonitorActionHandler.h"
 #include "common/actionHandler.h"
+#include "common/periodicActionExecutor.h"
+
 namespace monitor
 {
 template<>
@@ -11,4 +13,9 @@ unsigned int const common::CActionHandler< MonitorResponses >::m_sleepTime = 100
 template<>
 common::CActionHandler< MonitorResponses > * common::CActionHandler< MonitorResponses >::ms_instance = NULL;
 
+template<>
+common::CPeriodicActionExecutor< MonitorResponses > * common::CPeriodicActionExecutor< MonitorResponses >::ms_instance = NULL;
+
+template<>
+unsigned int const common::CPeriodicActionExecutor< MonitorResponses >::m_sleepTime = 100;
 }

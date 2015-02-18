@@ -15,8 +15,11 @@
 
 #include "common/actionHandler.h"
 #include "common/manageNetwork.h"
+#include "common/periodicActionExecutor.h"
 
 #include "connectNodeAction.h"
+
+#include "updateDataAction.h"
 
 namespace monitor
 {
@@ -90,8 +93,11 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 				common::CActionHandler< MonitorResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 			}
 		}
-	}
 
+		/// move it to different place
+
+		common::CPeriodicActionExecutor< MonitorResponses >::getInstance()->addAction( new CUpdateDataAction(), 10000 );
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::transition< CConnectedToTrackerEvent, CMonitorSynchronizing >,

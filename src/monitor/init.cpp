@@ -45,6 +45,7 @@
 #include "common/actionHandler.h"
 #include "common/manageNetwork.h"
 #include "common/nodesManager.h"
+#include "common/periodicActionExecutor.h"
 
 #include "processNetwork.h"
 #include "monitorController.h"
@@ -635,6 +636,12 @@ bool AppInit(boost::thread_group& threadGroup)
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
+
+	common::CPeriodicActionExecutor< monitor::MonitorResponses > * periodicActionExecutor
+			= common::CPeriodicActionExecutor< monitor::MonitorResponses >::getInstance();
+
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< monitor::MonitorResponses >::processingLoop, periodicActionExecutor ));
+
 	// ********************************************************* Step 10: load peers
 
 	CMonitorController::getInstance();
