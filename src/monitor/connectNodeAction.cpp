@@ -345,6 +345,10 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 {
 	CMonitorConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
+		CReputationTracker::getInstance()->setKeyToNode(
+				  context< CConnectNodeAction >().getPublicKey()
+				, context< CConnectNodeAction >().getMediumPtr() );
+
 		context< CConnectNodeAction >().setRequest( new CConnectCondition( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
@@ -470,6 +474,9 @@ struct CMonitorConnectedToMonitor : boost::statechart::state< CMonitorConnectedT
 {
 	CMonitorConnectedToMonitor( my_context ctx ) : my_base( ctx )
 	{
+		CReputationTracker::getInstance()->setKeyToNode(
+				  context< CConnectNodeAction >().getPublicKey()
+				, context< CConnectNodeAction >().getMediumPtr() );
 	}
 };
 

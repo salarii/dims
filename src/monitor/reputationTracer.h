@@ -77,6 +77,10 @@ public:
 	std::vector< CAllyMonitorData > getAllyMonitors() const;
 
 	std::list< common::CMedium< MonitorResponses > *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
+
+	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
+
+	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator)const;
 private:
 	CReputationTracker();
 
@@ -95,6 +99,8 @@ private:
 
 	typedef std::map< uint160, unsigned int > TransactionsAddmited;
 
+	std::map< uint160, CAllyMonitorData > m_monitors;
+
 	RegisteredTrackers m_registeredTrackers;
 
 	AllyMonitors m_allyMonitorsRankings;
@@ -107,7 +113,7 @@ private:
 
 	CRankingDatabase * m_rankingDatabase;
 
-		std::set< common::CValidNodeInfo > m_validNodes;
+	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
 };
 
 }

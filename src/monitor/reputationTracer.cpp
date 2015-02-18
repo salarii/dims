@@ -133,7 +133,57 @@ CReputationTracker::getAllyMonitors() const
 std::list< common::CMedium< MonitorResponses > *>
 CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {
+	std::list< common::CMedium< MonitorResponses > *> mediums;
 
+	uintptr_t nodeIndicator;
+	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
+	{
+
+		BOOST_FOREACH( PAIRTYPE( uint160, CTrackerData ) const & trackerData, m_registeredTrackers )
+		{
+				if ( !getKeyToNode( trackerData.second.m_publicKey, nodeIndicator) )
+					assert( !"something wrong" );
+
+				common::CMedium< MonitorResponses > * medium = findNodeMedium( nodeIndicator );
+
+				if ( !medium )
+					assert( !"something wrong" );
+				mediums.push_back( medium );
+		}
+	}
+	else if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Monitors )
+	{
+		BOOST_FOREACH( PAIRTYPE( uint160, CAllyMonitorData ) const & monitorData, m_monitors )
+		{
+				if ( !getKeyToNode( monitorData.second.m_publicKey, nodeIndicator) )
+					assert( !"something wrong" );
+
+				common::CMedium< MonitorResponses > * medium = findNodeMedium( nodeIndicator );
+
+				if ( !medium )
+					assert( !"something wrong" );
+				mediums.push_back( medium );
+		}
+	}
+
+	return mediums;
+}
+
+void
+CReputationTracker::setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator)
+{
+	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey, _nodeIndicator ) );
+}
+
+bool
+CReputationTracker::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator) const
+{
+	std::map< CPubKey, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKey );
+
+	if ( iterator != m_pubKeyToNodeIndicator.end() )
+		_nodeIndicator = iterator->second;
+
+	return iterator != m_pubKeyToNodeIndicator.end();
 }
 
 void
