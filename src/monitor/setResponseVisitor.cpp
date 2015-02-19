@@ -72,6 +72,11 @@ public:
 		this->m_action->process_event( _param );
 	}
 
+	virtual void operator()( common::CNoMedium & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
 };
 
 

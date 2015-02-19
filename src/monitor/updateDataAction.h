@@ -24,7 +24,7 @@ struct CAskForUpdate;
 class CUpdateDataAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >, public common::CCommunicationAction
 {
 public:
-	CUpdateDataAction();
+	CUpdateDataAction( bool _autoDelete );
 
 	virtual common::CRequest< MonitorResponses >* execute();
 
@@ -33,6 +33,8 @@ public:
 	void setRequest( common::CRequest< MonitorResponses >* _request );
 
 	common::CRequest< MonitorResponses > const * getRequest() const;
+
+	void reset();
 
 	~CUpdateDataAction(){};
 private:

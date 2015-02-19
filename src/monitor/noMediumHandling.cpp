@@ -90,10 +90,9 @@ CErrorMediumProvider::CErrorMediumProvider()
 }
 
 std::list< common::CMedium< MonitorResponses > *>
-CErrorMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )
+CErrorMediumProvider::provideConnection( common::CMediumFilter< MonitorResponses > const & _filter )
 {
-		std::list< common::CMedium< MonitorResponses > *> mediums;
-
+	return m_mediums;
 }
 
 }

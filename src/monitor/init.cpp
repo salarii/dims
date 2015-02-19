@@ -54,6 +54,7 @@
 #include "monitor/server.h"
 #include "monitor/clientRequestsManager.h"
 #include "monitor/reputationTracer.h"
+#include "monitor/noMediumHandling.h"
 
 using namespace std;
 using namespace boost;
@@ -632,6 +633,8 @@ bool AppInit(boost::thread_group& threadGroup)
 	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)monitor::CInternalMediumProvider::getInstance() );
 
 	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)monitor::CReputationTracker::getInstance() );
+
+		common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)CErrorMediumProvider::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 

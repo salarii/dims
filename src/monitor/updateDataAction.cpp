@@ -66,19 +66,28 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
 		context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CNoMedium const & _ackPrompt )
+	{
+		context< CUpdateDataAction >().setRequest( 0 );
+		return discard_event();
 	}
 
 	int64_t m_enterStateTime;
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
-		boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >
 	> reactions;
 };
 
-CUpdateDataAction::CUpdateDataAction()
-: m_request( 0 )
+CUpdateDataAction::CUpdateDataAction( bool _autoDelete )
+: common::CAction< MonitorResponses >( _autoDelete )
+, m_request( 0 )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
@@ -108,6 +117,13 @@ common::CRequest< MonitorResponses > const *
 CUpdateDataAction::getRequest() const
 {
 	return m_request;
+}
+
+void
+CUpdateDataAction::reset()
+{
+	common::CAction< MonitorResponses >::reset();
+	initiate();
 }
 
 }

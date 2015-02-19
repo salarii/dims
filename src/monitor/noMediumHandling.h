@@ -15,12 +15,10 @@ namespace monitor
 class CErrorMediumProvider : public  common::CConnectionProvider< MonitorResponses >
 {
 public:
-	virtual std::list< common::CMedium< MonitorResponses > *> provideConnection( common::CMediumFilter< MonitorResponses > const & _mediumFilter );
-
-	std::list< common::CMedium< MonitorResponses > *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
+	std::list< common::CMedium< MonitorResponses > *> provideConnection( common::CMediumFilter< MonitorResponses > const & _filter );
 
 	static CErrorMediumProvider* getInstance( );
-
+private:
 	CErrorMediumProvider();
 private:
 	mutable boost::mutex m_mutex;

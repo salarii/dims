@@ -96,7 +96,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 
 		/// move it to different place
 
-		common::CPeriodicActionExecutor< MonitorResponses >::getInstance()->addAction( new CUpdateDataAction(), 10000 );
+		common::CPeriodicActionExecutor< MonitorResponses >::getInstance()->addAction( new CUpdateDataAction( false ), 10000 );
 	}
 
 	typedef boost::mpl::list<
