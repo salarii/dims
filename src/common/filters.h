@@ -10,7 +10,7 @@
 
 #include "boost/foreach.hpp"
 #include "tracker/configureTrackerActionHandler.h"
-#include "node/configureNodeActionHadler.h"
+#include "client/configureNodeActionHadler.h"
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"
 

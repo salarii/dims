@@ -36,7 +36,7 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <openssl/crypto.h>
 
-#include "node/settingsConnectionProvider.h"
+#include "client/settingsConnectionProvider.h"
 
 #include "common/actionHandler.h"
 

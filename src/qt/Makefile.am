@@ -92,7 +92,7 @@ QT_FORMS_UI = \
   forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
-  ../node/moc_applicationServer.cpp \
+  ../client/moc_applicationServer.cpp \
   moc_addressbookpage.cpp \
   moc_addresstablemodel.cpp \
   moc_addAddressDialog.cpp \
@@ -138,42 +138,42 @@ QT_MOC_CPP = \
   moc_walletview.cpp
 
 CLIENT_H = \
-  ../node/applicationServer.h \
-  ../node/clientControl.h \
-  ../node/clientRequests.h \
-  ../node/connectAction.h \
-  ../node/controlRequests.h \
-  ../node/init.h \
-  ../node/networkClient.h \
-  ../node/payLocalApplicationAction.h \
-  ../node/requestRespond.h \
-  ../node/seedProvider.h \
-  ../node/sendInfoRequestAction.h \
-  ../node/settingsMedium.h \
-  ../node/sendTransactionAction.h \
-  ../node/support.h \
-  ../node/settingsConnectionProvider.h \
-  ../node/sendBalanceInfoAction.h \
-  ../node/trackerLocalRanking.h 
+  ../client/applicationServer.h \
+  ../client/clientControl.h \
+  ../client/clientRequests.h \
+  ../client/connectAction.h \
+  ../client/controlRequests.h \
+  ../client/init.h \
+  ../client/networkClient.h \
+  ../client/payLocalApplicationAction.h \
+  ../client/requestRespond.h \
+  ../client/seedProvider.h \
+  ../client/sendInfoRequestAction.h \
+  ../client/settingsMedium.h \
+  ../client/sendTransactionAction.h \
+  ../client/support.h \
+  ../client/settingsConnectionProvider.h \
+  ../client/sendBalanceInfoAction.h \
+  ../client/trackerLocalRanking.h 
   
 CLIENT_CPP = \
-  ../node/actionHandlerDefinitions.cpp \
-  ../node/applicationServer.cpp \
-  ../node/clientControl.cpp \
-  ../node/clientRequests.cpp \
-  ../node/connectAction.cpp \
-  ../node/controlRequests.cpp \
-  ../node/init.cpp \
-  ../node/networkClient.cpp \
-  ../node/payLocalApplicationAction.cpp \
-  ../node/sendTransactionAction.cpp \
-  ../node/seedProvider.cpp \
-  ../node/sendInfoRequestAction.cpp \
-  ../node/settingsMedium.cpp \
-  ../node/setResponseVisitor.cpp \
-  ../node/settingsConnectionProvider.cpp \
-  ../node/sendBalanceInfoAction.cpp \
-  ../node/trackerLocalRanking.cpp
+  ../client/actionHandlerDefinitions.cpp \
+  ../client/applicationServer.cpp \
+  ../client/clientControl.cpp \
+  ../client/clientRequests.cpp \
+  ../client/connectAction.cpp \
+  ../client/controlRequests.cpp \
+  ../client/init.cpp \
+  ../client/networkClient.cpp \
+  ../client/payLocalApplicationAction.cpp \
+  ../client/sendTransactionAction.cpp \
+  ../client/seedProvider.cpp \
+  ../client/sendInfoRequestAction.cpp \
+  ../client/settingsMedium.cpp \
+  ../client/setResponseVisitor.cpp \
+  ../client/settingsConnectionProvider.cpp \
+  ../client/sendBalanceInfoAction.cpp \
+  ../client/trackerLocalRanking.cpp
   
 BITCOIN_MM = \
   macdockiconhandler.mm \

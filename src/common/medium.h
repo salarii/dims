@@ -11,8 +11,8 @@
 
 #include "tracker/trackerRequestsList.h"
 #include "tracker/configureTrackerActionHandler.h"
-#include "node/nodeRequestList.h"
-#include "node/configureNodeActionHadler.h"
+#include "client/nodeRequestList.h"
+#include "client/configureNodeActionHadler.h"
 #include "monitor/monitorRequestsList.h"
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"

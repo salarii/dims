@@ -16,10 +16,10 @@
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "common/actionHandler.h"
-#include "node/configureNodeActionHadler.h"
-#include "node/trackerLocalRanking.h"
-#include "node/settingsConnectionProvider.h"
-#include "node/applicationServer.h"
+#include "client/configureNodeActionHadler.h"
+#include "client/trackerLocalRanking.h"
+#include "client/settingsConnectionProvider.h"
+#include "client/applicationServer.h"
 #include "common/periodicActionExecutor.h"
 
 #ifdef ENABLE_WALLET
@@ -27,13 +27,13 @@
 #include "walletmodel.h"
 #endif
 
-#include "node/init.h"
+#include "client/init.h"
 #include "main.h"
 #include "rpcserver.h"
 #include "ui_interface.h"
 #include "util.h"
 #include "wallet.h"
-#include "node/configureNodeActionHadler.h"
+#include "client/configureNodeActionHadler.h"
 
 #include <stdint.h>
 

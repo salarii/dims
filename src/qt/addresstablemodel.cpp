@@ -12,7 +12,7 @@
 #include "coincontrol.h"
 
 #include "common/periodicActionExecutor.h"
-#include "node/sendBalanceInfoAction.h"
+#include "client/sendBalanceInfoAction.h"
 
 #include <QFont>
 #include <QDebug>

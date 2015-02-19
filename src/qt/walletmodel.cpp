@@ -9,8 +9,8 @@
 #include "recentrequeststablemodel.h"
 #include "transactiontablemodel.h"
 #include "common/actionHandler.h"
-#include "node/sendTransactionAction.h"
-#include "node/configureNodeActionHadler.h"
+#include "client/sendTransactionAction.h"
+#include "client/configureNodeActionHadler.h"
 #include "base58.h"
 #include "db.h"
 #include "keystore.h"
@@ -20,10 +20,10 @@
 #include "wallet.h"
 #include "walletdb.h" // for BackupWallet
 
-#include "node/clientControl.h"
+#include "client/clientControl.h"
 //node
 #include "common/periodicActionExecutor.h"
-#include "node/sendBalanceInfoAction.h"
+#include "client/sendBalanceInfoAction.h"
 
 #include <stdint.h>
 

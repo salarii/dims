@@ -15,7 +15,7 @@
 #include "util.h"
 #include "base58.h"
 
-#include "node/clientRequests.h"
+#include "client/clientRequests.h"
 
 namespace dims
 {

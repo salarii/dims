@@ -46,7 +46,7 @@
 #include "tracker/processNetwork.h"
 #include "tracker/trackOriginAddressAction.h"
 
-#include "node/settingsConnectionProvider.h"
+#include "client/settingsConnectionProvider.h"
 
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
