@@ -81,6 +81,8 @@ public:
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
 
 	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator)const;
+
+	bool getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const;
 private:
 	CReputationTracker();
 

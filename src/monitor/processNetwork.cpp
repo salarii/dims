@@ -54,10 +54,13 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				)
 		{
 			common::CNodeMedium< MonitorResponses > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
+			// not necessarily have to pass this
+			CPubKey key;
+			CReputationTracker::getInstance()->getNodeToKey( convertToInt( nodeMedium->getNode() ), key );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ) ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 			}
 			else
 			{

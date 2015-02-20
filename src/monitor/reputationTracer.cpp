@@ -186,6 +186,21 @@ CReputationTracker::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndi
 	return iterator != m_pubKeyToNodeIndicator.end();
 }
 
+bool
+CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const
+{
+	BOOST_FOREACH( PAIRTYPE(CPubKey, uintptr_t) const & keyToIndicator, m_pubKeyToNodeIndicator )
+	{
+		if ( keyToIndicator.second == _nodeIndicator )
+		{
+			_pubKey = keyToIndicator.first;
+			return true;
+		}
+	}
+
+	return  false;
+}
+
 void
 CReputationTracker::addTracker( CTrackerData const & _trackerData )
 {
