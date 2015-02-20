@@ -90,7 +90,7 @@ private:
 
 	void checkValidity( CAllyTrackerData const & _allyTrackerData );
 	//	boost::lock_guard<boost::mutex> lock( m_lock );
-
+// counting reputation is crucial, it will be  done  differently in separate  action, something I consider  to call "super  action"
 	void loop();
 private:
 	mutable boost::mutex m_lock;

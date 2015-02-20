@@ -77,6 +77,15 @@ public:
 		this->m_action->process_event( _param );
 	}
 
+	virtual void operator()( common::CAckPromptResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CContinueResult & _param ) const
+	{
+		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
+	}
 };
 
 

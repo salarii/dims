@@ -54,7 +54,6 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 		common::CKnownNetworkInfo knownNetworkInfo;
 
-		// save  this  stuff
 		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
