@@ -26,7 +26,6 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	CProvideInfo( my_context ctx ) : my_base( ctx )
 	{
 		m_enterStateTime = GetTime();
-		context< CProvideInfoAction >().setRequest( new CDeliverInfoRequest( new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -49,10 +48,23 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CInfoRequestData requestedInfo;
+
+		common::convertPayload( orginalMessage, requestedInfo );
+
+		context< CProvideInfoAction >().setRequest( new CDeliverInfoRequest( new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+	}
 	int64_t m_enterStateTime;
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CContinueEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };

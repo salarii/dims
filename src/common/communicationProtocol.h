@@ -156,7 +156,7 @@ struct CEnd
 	int m_dummy;
 };
 
-
+// those  two below will change, for  now  dummy  data
 struct CInfoRequestData
 {
 	IMPLEMENT_SERIALIZE
