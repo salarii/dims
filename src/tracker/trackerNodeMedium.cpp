@@ -113,4 +113,14 @@ CTrackerNodeMedium::add( CPassMessageRequest const * _request )
 	m_indexes.push_back( _request->getActionKey() );
 }
 
+void
+CTrackerNodeMedium::add( CDeliverInfoRequest const * _request )
+{
+	common::CMessage message( common::CInfoResponseData(), _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+	m_indexes.push_back( _request->getActionKey() );
+}
+
 }

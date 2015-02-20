@@ -9,8 +9,9 @@
 namespace tracker
 {
 
-CDeliverInfoRequest::CDeliverInfoRequest( common::CMediumFilter< TrackerResponses > * _mediumFilter )
-	: common::CRequest< TrackerResponses >( _mediumFilter  )
+CDeliverInfoRequest::CDeliverInfoRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter )
+	: m_actionKey( _actionKey )
+	, common::CRequest< TrackerResponses >( _mediumFilter )
 {
 }
 

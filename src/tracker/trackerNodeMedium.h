@@ -73,6 +73,8 @@ public:
 	void add( CTransactionsStatusRequest const * _request );
 
 	void add( CPassMessageRequest const * _request );
+
+	void add( CDeliverInfoRequest const * _request );
 private:
 };
 

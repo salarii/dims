@@ -16,12 +16,17 @@ namespace tracker
 class CDeliverInfoRequest : public common::CRequest< TrackerResponses >
 {
 public:
-		CDeliverInfoRequest( common::CMediumFilter< TrackerResponses > * _mediumFilter );
+		CDeliverInfoRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
 
 		virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
 
 		virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+		uint256 const & getActionKey() const
+		{
+			return m_actionKey;
+		}
 	private:
+		uint256 const m_actionKey;
 };
 
 
