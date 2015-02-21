@@ -83,6 +83,12 @@ public:
 	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator)const;
 
 	bool getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const;
+
+	void setPresentTrackers( std::set< uint160 > const & _presentTrackers )
+	{
+			boost::lock_guard<boost::mutex> lock( m_lock );
+			m_presentTrackers = _presentTrackers;
+	}
 private:
 	CReputationTracker();
 
@@ -108,6 +114,8 @@ private:
 	AllyMonitors m_allyMonitorsRankings;
 
 	TransactionsAddmited m_transactionsAddmited;
+
+	std::set< uint160 > m_presentTrackers;
 
 	static CReputationTracker * ms_instance;
 

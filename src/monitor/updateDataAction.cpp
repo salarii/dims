@@ -40,7 +40,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		}
 		else
 		{
-			//here  make  some  data manipulation
+			CReputationTracker::getInstance()->setPresentTrackers( m_presentTrackers );
 			context< CUpdateDataAction >().setRequest( 0 );
 		}
 		return discard_event();
@@ -58,6 +58,8 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 		context< CUpdateDataAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+
+		m_presentTrackers.insert( _result.m_pubKey.GetID() );
 
 		return discard_event();
 	}
@@ -82,6 +84,8 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >
 	> reactions;
+
+	std::set< uint160 > m_presentTrackers;
 };
 
 CUpdateDataAction::CUpdateDataAction( bool _autoDelete )

@@ -56,8 +56,11 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 
 	BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
 	{
-		tracker.second.m_reputation *= PreviousReptationRatio;
-		tracker.second.m_reputation += boostForAll;
+		if ( m_presentTrackers.find( tracker.first ) != m_presentTrackers.end() )
+		{
+			tracker.second.m_reputation *= PreviousReptationRatio;
+			tracker.second.m_reputation += boostForAll;
+		}
 	}
 
 	BOOST_FOREACH( TransactionsAddmited::value_type & transactionIndicator, m_transactionsAddmited )
