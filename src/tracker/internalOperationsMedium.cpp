@@ -86,9 +86,11 @@ CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 
 
 bool
-CInternalOperationsMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
+CInternalOperationsMedium::getResponseAndClear( std::vector< TrackerResponses > & _requestResponse )
 {
 	_requestResponse = m_trackerResponses;
+
+	clearResponses();
 	return true;
 }
 

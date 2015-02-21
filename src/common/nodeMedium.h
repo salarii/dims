@@ -32,9 +32,7 @@ public:
 
 	bool flush();
 
-	bool getResponse( std::vector< ResponseType > & _requestResponse ) const;
-
-	void clearResponses();
+	bool getResponseAndClear( std::vector< ResponseType > & _requestResponse );
 
 	void add( common::CRequest< ResponseType > const * _request );
 
@@ -59,6 +57,8 @@ public:
 	common::CSelfNode * getNode() const;
 
 protected:
+	void clearResponses();
+
 	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
@@ -96,7 +96,7 @@ extern std::vector< uint256 > deleteList;
 
 template < class ResponseType >
 bool
-CNodeMedium< ResponseType >::getResponse( std::vector< ResponseType > & _requestResponse ) const
+CNodeMedium< ResponseType >::getResponseAndClear( std::vector< ResponseType > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
@@ -113,7 +113,7 @@ CNodeMedium< ResponseType >::getResponse( std::vector< ResponseType > & _request
 			_requestResponse.push_back( CContinueResult( id ) );
 		}
 	}
-
+	clearResponses();
 	return true;
 }
 
@@ -121,8 +121,6 @@ template < class ResponseType >
 void
 CNodeMedium< ResponseType >::clearResponses()
 {
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
 		m_responses.erase( m_responses.lower_bound( id ) );

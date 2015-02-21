@@ -61,10 +61,9 @@ public:
 
 	bool flush();
 
-	void clearResponses();
-
-	virtual bool getResponse( std::vector< NodeResponses > & _requestResponse ) const;
+	virtual bool getResponseAndClear( std::vector< NodeResponses > & _requestResponse );
 private:
+	void clearResponses();
 	void run();
 	unsigned int read();
 	int waitForInput();

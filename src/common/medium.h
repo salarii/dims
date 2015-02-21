@@ -30,7 +30,7 @@ class CMedium
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
-	virtual void clearResponses() = 0;
+	virtual void getResponseAndClear() = 0;
 	virtual bool getResponse( std::vector< _RequestResponses > & _requestResponse ) const = 0;
 	virtual void add( CRequest< _RequestResponses > const * _request ) = 0;
 	virtual ~CMedium(){};
@@ -43,9 +43,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponse( std::vector< tracker::TrackerResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
-
+	virtual bool getResponseAndClear( std::vector< tracker::TrackerResponses > & _requestResponse ) = 0;
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
@@ -77,8 +75,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponse( std::vector< client::NodeResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
+	virtual bool getResponseAndClear( std::vector< client::NodeResponses > & _requestResponse ) = 0;
 	virtual void add(client::CBalanceRequest const * _request ){};
 	virtual void add(client:: CInfoRequestContinueComplex const * _request ){};
 	virtual void add( client::CInfoRequestContinue const * _request ){};
@@ -101,8 +98,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponse( std::vector< monitor::MonitorResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
+	virtual bool getResponseAndClear( std::vector< monitor::MonitorResponses > & _requestResponse ) = 0;
 	virtual void add( common::CIdentifyRequest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CContinueReqest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< monitor::MonitorResponses > const * _request ){};
@@ -122,8 +118,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponse( std::vector< seed::SeedResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
+	virtual bool getResponseAndClear( std::vector< seed::SeedResponses > & _requestResponse ) = 0;//stupid  signature, but I don't see other  ways to handle race conditions
 	virtual void add( common::CIdentifyRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CContinueReqest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< seed::SeedResponses > const * _request ){};

@@ -19,9 +19,7 @@ public:
 
 	bool flush();
 
-	bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
-
-	void clearResponses();
+	bool getResponseAndClear( std::vector< TrackerResponses > & _requestResponse );
 
 	virtual void add( CAskForTransactionsRequest const * _request );
 
@@ -31,6 +29,8 @@ public:
 
 	void setResponse( CMerkleBlock const & _merkle );
 private:
+	void clearResponses();
+
 	void reloadResponses();
 private:
 	mutable boost::mutex m_mutex;

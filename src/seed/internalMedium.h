@@ -20,14 +20,14 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponse( std::vector< SeedResponses > & _requestResponse ) const;
-
-	virtual void clearResponses();
+	virtual bool getResponseAndClear( std::vector< SeedResponses > & _requestResponse );
 
 	virtual void add( common::CConnectToNodeRequest< SeedResponses > const *_request );
 
 	static CInternalMedium* getInstance();
 private:
+	void clearResponses();
+
 	CInternalMedium();
 private:
 	std::vector< SeedResponses > m_responses;

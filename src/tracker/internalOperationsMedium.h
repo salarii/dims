@@ -18,9 +18,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponse( std::vector< TrackerResponses > & _requestResponse ) const;
-
-	virtual void clearResponses();
+	virtual bool getResponseAndClear( std::vector< TrackerResponses > & _requestResponse );
 
 	virtual void add(CGetBalanceRequest const * _request );
 
@@ -33,6 +31,10 @@ public:
 	static CInternalOperationsMedium* getInstance();
 		CInternalOperationsMedium();
 private:
+	// add lock
+
+	void clearResponses();
+
 	std::vector< TrackerResponses > m_trackerResponses;
 
 	static CInternalOperationsMedium * ms_instance;

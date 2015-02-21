@@ -14,15 +14,16 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponse( std::vector< MonitorResponses > & _requestResponse ) const;
-
-	virtual void clearResponses();
+	virtual bool getResponseAndClear( std::vector< MonitorResponses > & _requestResponse );
 
 	virtual void add( CInfoRequest const * _request );
 
 	static CErrorMedium* getInstance();
 		CErrorMedium();
 private:
+	void clearResponses();
+private:
+
 	std::vector< MonitorResponses > m_responses;
 
 	static CErrorMedium * ms_instance;
@@ -60,9 +61,10 @@ CErrorMedium::serviced() const
 
 
 bool
-CErrorMedium::getResponse( std::vector< MonitorResponses > & _requestResponse ) const
+CErrorMedium::getResponseAndClear( std::vector< MonitorResponses > & _requestResponse )
 {
 	_requestResponse = m_responses;
+	clearResponses();
 	return true;
 }
 

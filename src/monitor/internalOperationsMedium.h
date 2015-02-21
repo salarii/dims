@@ -18,9 +18,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponse( std::vector< MonitorResponses > & _requestResponse ) const;
-
-	virtual void clearResponses();
+	virtual bool getResponseAndClear( std::vector< MonitorResponses > & _requestResponse );
 
 	virtual void add( CConnectToNodeRequest const * _request );
 
@@ -28,6 +26,8 @@ public:
 
 	static CInternalOperationsMedium* getInstance();
 		CInternalOperationsMedium();
+private:
+	void clearResponses();
 private:
 	std::vector< MonitorResponses > m_responses;
 

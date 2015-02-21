@@ -33,12 +33,13 @@ public:
 
 	void handleInput();
 
-	void clearResponses();
-
-	bool getResponse( std::vector< NodeResponses > & _requestResponse ) const;
+	bool getResponseAndClear( std::vector< NodeResponses > & _requestResponse );
 
 	QLocalSocket * getSocket() const;
 protected:
+	// add locking
+	void clearResponses();
+
 	QLocalSocket * m_localSocket;
 
 	std::vector< NodeResponses > m_nodeResponses;

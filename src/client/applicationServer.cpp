@@ -93,9 +93,11 @@ CLocalSocket::clearResponses()
 }
 
 bool
-CLocalSocket::getResponse( std::vector< NodeResponses > & _requestResponse ) const
+CLocalSocket::getResponseAndClear( std::vector< NodeResponses > & _requestResponse )
 {
 	_requestResponse = m_nodeResponses;
+
+	clearResponses();
 }
 
 void

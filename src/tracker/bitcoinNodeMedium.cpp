@@ -30,7 +30,7 @@ CBitcoinNodeMedium::flush()
 }
 
 bool
-CBitcoinNodeMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
+CBitcoinNodeMedium::getResponseAndClear( std::vector< TrackerResponses > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	if ( m_merkles.empty() )
@@ -39,14 +39,13 @@ CBitcoinNodeMedium::getResponse( std::vector< TrackerResponses > & _requestRespo
 	{
 		_requestResponse = m_responses;
 	}
-
+	clearResponses();
 	return true;
 }
 
 void
 CBitcoinNodeMedium::clearResponses()
 {
-	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_responses.clear();
 	m_merkles.clear();
 	m_transactions.clear();

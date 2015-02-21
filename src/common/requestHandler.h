@@ -144,8 +144,7 @@ void
 
 		most probably I need to merge those  two  functions into one (non const)
 		*/
-		m_usedMedium->getResponse(requestResponses);
-		m_usedMedium->clearResponses();
+		m_usedMedium->getResponseAndClear(requestResponses);
 		// this "i" looks  ugly
 		int i = 0;
 		assert( m_newRequest.size() == requestResponses.size() );
@@ -165,6 +164,7 @@ void
 		{
 			m_processedRequests.insert( std::make_pair( request, _mediumException ) );
 		}
+		// problem with synchronization here??
 		m_newRequest.clear();
 	}
 

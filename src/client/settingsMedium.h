@@ -50,11 +50,10 @@ public:
 
 	bool flush();
 
-	bool getResponse( std::vector< client::NodeResponses > & _requestResponse ) const;
-
+	bool getResponseAndClear( std::vector< client::NodeResponses > & _requestResponse );
+private:
 	void clearResponses();
 
-private:
 	CDefaultMedium();
 
 	void getSeedIps( vector<CAddress> & _vAdd );

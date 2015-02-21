@@ -118,9 +118,11 @@ CDefaultMedium::flush()
 }
 
 bool
-CDefaultMedium::getResponse( std::vector< client::NodeResponses > & _requestResponse ) const
+CDefaultMedium::getResponseAndClear( std::vector< client::NodeResponses > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
+
+	clearResponses();
 }
 
 void
