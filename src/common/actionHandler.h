@@ -31,7 +31,18 @@ I didn't expected that my initial choice will have such devastating  result to t
 I am on the brink of removing separate response lists completely, this will result in removing template  parameter from most places
 
 */
-
+/*
+I will try to  redesign  this  mechanics
+what I want  to  achieve is among  others
+bond responses  to  request  not  action  it  means  that no metter  how many responses  are  there for  single  request
+they will be  processed  anyway.
+No more  effort to retrive them  no  more  pending or  continue request
+so ask medium in some  smart  way and if  they  have  something process it
+match every response  against currently existing request if it exists process it if  not  drop
+this  should remove  a lot of  complexity
+allow  action  to produce many  requests  at the same  time
+for exaple  iming  request  and  some  operation  request
+*/
 namespace common
 {
 
