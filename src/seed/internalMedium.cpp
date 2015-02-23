@@ -44,7 +44,7 @@ CInternalMedium::add( common::CConnectToNodeRequest< SeedResponses > const *_req
 
 
 bool
-CInternalMedium::getResponseAndClear( std::vector< SeedResponses > & _requestResponse )
+CInternalMedium::getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< SeedResponses >*, std::vector< SeedResponses > ) > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();

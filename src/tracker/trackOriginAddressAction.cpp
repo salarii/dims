@@ -136,7 +136,7 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 
 
 common::CRequest< TrackerResponses >*
-CTrackOriginAddressAction::execute()
+CTrackOriginAddressAction::getRequest() const
 {
 	return m_request;
 }

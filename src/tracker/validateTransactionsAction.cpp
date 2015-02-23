@@ -408,7 +408,7 @@ CValidateTransactionsAction::CValidateTransactionsAction( uint256 const & _actio
 }
 
 common::CRequest< TrackerResponses >*
-CValidateTransactionsAction::execute()
+CValidateTransactionsAction::getRequest() const
 {
 	return m_request;
 }

@@ -74,7 +74,7 @@ CCheckNetworkAction::accept( common::CSetResponseVisitor< NodeResponses > & _vis
 }
 
 common::CRequest< NodeResponses >*
-CCheckNetworkAction::execute()
+CCheckNetworkAction::getRequest() const
 {
 	return m_request;
 }

@@ -436,7 +436,7 @@ CPayLocalApplicationAction::accept( common::CSetResponseVisitor< NodeResponses >
 
 
 common::CRequest< NodeResponses > *
-CPayLocalApplicationAction::execute()
+CPayLocalApplicationAction::getRequest() const
 {
 	return m_request;
 }

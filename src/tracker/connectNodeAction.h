@@ -33,13 +33,11 @@ public:
 
 	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr );
 
-	virtual common::CRequest< TrackerResponses >* execute();
+	virtual common::CRequest< TrackerResponses >* getRequest() const;
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 
 	void setRequest( common::CRequest< TrackerResponses >* _request );
-
-	common::CRequest< TrackerResponses > const * getRequest() const;
 
 	std::string getAddress() const;
 

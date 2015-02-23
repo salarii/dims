@@ -18,7 +18,7 @@ public:
 
 	void reset();
 
-	void execute();
+	void getRequest() const;
 private:
 	int64_t const m_deffer;
 	int64_t m_time;
@@ -58,7 +58,7 @@ CDefferedAction< _RequestResponses >::reset()
 
 template < class _RequestResponses >
 void
-CDefferedAction< _RequestResponses >::execute()
+CDefferedAction< _RequestResponses >::getRequest() const
 {
 	CActionHandler< _RequestResponses >::getInstance()->executeAction( m_action );
 }
@@ -124,7 +124,7 @@ CPeriodicActionExecutor< _RequestResponses >::processingLoop()
 			{
 				if ( action.isReady() )
 				{
-					action.execute();
+					action.getRequest();
 				}
 			}
 		}

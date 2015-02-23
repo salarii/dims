@@ -27,7 +27,7 @@ CSendInfoRequestAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 }
 
 common::CRequest< NodeResponses >*
-CSendInfoRequestAction::execute()
+CSendInfoRequestAction::getRequest() const
 {
 	return 0;
 }

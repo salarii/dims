@@ -20,7 +20,7 @@ class CTrackOriginAddressAction : public common::CAction< TrackerResponses >, pu
 public:
 	CTrackOriginAddressAction();
 
-	virtual common::CRequest< TrackerResponses >* execute();
+	virtual common::CRequest< TrackerResponses >* getRequest() const;
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 

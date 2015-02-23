@@ -133,7 +133,7 @@ CSendBalanceInfoAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 }
 
 common::CRequest< NodeResponses >*
-CSendBalanceInfoAction::execute()
+CSendBalanceInfoAction::getRequest() const
 {
 	return m_request;
 }

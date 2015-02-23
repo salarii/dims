@@ -226,7 +226,7 @@ CNetworkClient::clearResponses()
 }
 
 bool
-CNetworkClient::getResponseAndClear( std::vector< NodeResponses > & _requestResponse )
+CNetworkClient::getResponseAndClear(  std::vector< PAIRTYPE( common::CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse )
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(

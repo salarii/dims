@@ -21,7 +21,7 @@ public:
 
 	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
 
-	virtual common::CRequest< TrackerResponses >* execute();
+	virtual common::CRequest< TrackerResponses >* getRequest() const;
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 

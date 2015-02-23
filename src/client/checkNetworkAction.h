@@ -29,7 +29,7 @@ public:
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses >* execute();
+	common::CRequest< NodeResponses >* getRequest() const;
 
 	void reset();
 

@@ -32,7 +32,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::vector< ResponseType > & _requestResponse );
+	bool getResponseAndClear( std::vector< PAIRTYPE( CRequest< ResponseType >*, std::vector< ResponseType > ) > & _requestResponse );
 
 	void add( common::CRequest< ResponseType > const * _request );
 
@@ -96,7 +96,7 @@ extern std::vector< uint256 > deleteList;
 
 template < class ResponseType >
 bool
-CNodeMedium< ResponseType >::getResponseAndClear( std::vector< ResponseType > & _requestResponse )
+CNodeMedium< ResponseType >::getResponseAndClear( std::vector< PAIRTYPE( CRequest< ResponseType >*, std::vector< ResponseType > ) > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 

@@ -33,7 +33,7 @@ public:
 
 	void handleInput();
 
-	bool getResponseAndClear( std::vector< NodeResponses > & _requestResponse );
+	bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse );
 
 	QLocalSocket * getSocket() const;
 protected:

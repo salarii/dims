@@ -28,7 +28,7 @@ public:
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses >* execute();
+	common::CRequest< NodeResponses >* getRequest() const;
 
 	void reset();
 
@@ -39,8 +39,6 @@ public:
 	void setRequest( common::CRequest< NodeResponses > * _request );
 private:
 	common::CRequest< NodeResponses >* m_request;
-
-	common::ActionStatus::Enum m_actionStatus;
 
 	std::vector< std::string > m_addresses;
 };

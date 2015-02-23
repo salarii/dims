@@ -18,7 +18,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::vector< MonitorResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< MonitorResponses >*, std::vector< MonitorResponses > ) > & _requestResponse );
 
 	virtual void add( CConnectToNodeRequest const * _request );
 

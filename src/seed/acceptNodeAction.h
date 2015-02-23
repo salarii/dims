@@ -23,13 +23,11 @@ public:
 
 	CAcceptNodeAction( CAddress const & _nodeAddress );
 
-	virtual common::CRequest< SeedResponses >* execute();
+	virtual common::CRequest< SeedResponses >* getRequest() const;
 
 	virtual void accept( common::CSetResponseVisitor< SeedResponses > & _visitor );
 
 	void setRequest( common::CRequest< SeedResponses >* _request );
-
-	common::CRequest< SeedResponses > const * getRequest() const;
 
 	void setAddress( CAddress const & _address );
 

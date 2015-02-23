@@ -506,11 +506,9 @@ CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
 }
 
 common::CRequest< MonitorResponses >*
-CConnectNodeAction::execute()
+CConnectNodeAction::getRequest() const
 {
-	common::CRequest< MonitorResponses >* request = m_request;
-	m_request = 0;
-	return request;
+	return m_request;
 }
 
 void
@@ -525,11 +523,6 @@ CConnectNodeAction::setRequest( common::CRequest< MonitorResponses >* _request )
 	m_request = _request;
 }
 
-common::CRequest< MonitorResponses > const *
-CConnectNodeAction::getRequest() const
-{
-	return m_request;
-}
 CAddress
 CConnectNodeAction::getServiceAddress() const
 {

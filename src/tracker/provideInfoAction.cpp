@@ -96,11 +96,9 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _n
 }
 
 common::CRequest< TrackerResponses >*
-CProvideInfoAction::execute()
+CProvideInfoAction::getRequest() const
 {
-	common::CRequest< TrackerResponses >* request = m_request;
-	m_request = 0;
-	return request;
+	return m_request;
 }
 
 void
@@ -113,12 +111,6 @@ void
 CProvideInfoAction::setRequest( common::CRequest< TrackerResponses >* _request )
 {
 	m_request = _request;
-}
-
-common::CRequest< TrackerResponses > const *
-CProvideInfoAction::getRequest() const
-{
-	return m_request;
 }
 
 uintptr_t

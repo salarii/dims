@@ -364,11 +364,9 @@ CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uint
 }
 
 common::CRequest< TrackerResponses >*
-CSynchronizationAction::execute()
+CSynchronizationAction::getRequest() const
 {
-	common::CRequest< TrackerResponses > * request = m_request;
-	m_request = 0;
-	return request;
+	return m_request;
 }
 
 void

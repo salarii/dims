@@ -18,7 +18,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::vector< TrackerResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > ) > & _requestResponse );
 
 	virtual void add(CGetBalanceRequest const * _request );
 

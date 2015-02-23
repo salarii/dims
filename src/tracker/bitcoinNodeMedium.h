@@ -19,7 +19,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::vector< TrackerResponses > & _requestResponse );
+	bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > ) > & _requestResponse );
 
 	virtual void add( CAskForTransactionsRequest const * _request );
 

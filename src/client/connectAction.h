@@ -30,9 +30,7 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses >* execute();
-
-	common::ActionStatus::Enum state();
+	common::CRequest< NodeResponses >* getRequest() const;
 
 	void setRequest( common::CRequest< NodeResponses >* _request );
 

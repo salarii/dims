@@ -14,17 +14,7 @@ template < class _RequestResponses >
 class CSetResponseVisitor;
 
 template < class _RequestResponses > struct CRequest;
-// this  is  obsolete
-// but I need  some  wa to mark  that action  is  finished
-struct ActionStatus
-{
-	enum Enum
-	{
-         Unprepared
-        , InProgress
-        , Done
-	};
-};
+
 
 template < class _RequestResponses >
 class CAction
@@ -34,7 +24,7 @@ public:
 
 	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor ) = 0;
 
-	virtual CRequest< _RequestResponses >* execute() = 0;
+	virtual CRequest< _RequestResponses >* getRequest() const = 0;
 
 	void setInProgress(){ m_inProgress = true; }
 

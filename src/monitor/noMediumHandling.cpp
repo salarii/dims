@@ -14,7 +14,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::vector< MonitorResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< MonitorResponses >*, std::vector< MonitorResponses > ) > & _requestResponse );
 
 	virtual void add( CInfoRequest const * _request );
 
@@ -61,7 +61,7 @@ CErrorMedium::serviced() const
 
 
 bool
-CErrorMedium::getResponseAndClear( std::vector< MonitorResponses > & _requestResponse )
+CErrorMedium::getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< MonitorResponses >*, std::vector< MonitorResponses > ) > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();

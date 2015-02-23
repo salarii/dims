@@ -218,7 +218,7 @@ CActionHandler< _RequestResponses >::loop()
 			BOOST_FOREACH(CAction< _RequestResponses >* action, m_actions)
 			{
 
-				CRequest< _RequestResponses >* request = action->execute();
+				CRequest< _RequestResponses >* request = action->getRequest();
 
 				if ( request )
 					m_reqToAction.insert( std::make_pair( request, action ) );
@@ -268,11 +268,13 @@ CActionHandler< _RequestResponses >::loop()
 				{
 					if ( it->second->isProcessed( reqAction.first ) )
 					{
-						_RequestResponses response = it->second->getResponse( reqAction.first );
+						std::vector< _RequestResponses > responses = it->second->getResponses( reqAction.first );
 
-						CSetResponseVisitor< _RequestResponses > visitor( response );
-						reqAction.second->accept( visitor );
-
+						BOOST_FOREACH( _RequestResponses const & response, responses )
+						{
+							CSetResponseVisitor< _RequestResponses > visitor( response );
+							reqAction.second->accept( visitor );
+						}
 						m_actions.insert( reqAction.second );
 
 						it->second->deleteRequest( reqAction.first );

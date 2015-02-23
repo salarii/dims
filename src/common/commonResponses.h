@@ -107,6 +107,7 @@ struct CNodeExceptionInfo : public CExceptionInfo
 struct CMediumException : public std::exception
 {
 public:
+	CMediumException(){};
 	CMediumException(ErrorType::Enum _error):m_error(_error){};
 	ErrorType::Enum m_error;
 

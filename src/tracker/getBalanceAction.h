@@ -18,17 +18,17 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
 
-	virtual common::CRequest< TrackerResponses >* execute();
+	virtual common::CRequest< TrackerResponses >* getRequest() const;
 
 	virtual void reset(){}
 
 	void passBalance( common::CAvailableCoins const & _availableCoins );
+private:
+	common::CRequest< TrackerResponses >* m_request;
 
 	uint160 const m_keyId;
 
 	uint256 const m_hash;
-
-	common::ActionStatus::Enum m_actionStatus;
 };
 
 }

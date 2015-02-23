@@ -45,12 +45,10 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses >* execute();
+	common::CRequest< NodeResponses >* getRequest() const;
 
 private:
 	common::CRequest< NodeResponses >* m_request;
-
-	common::ActionStatus::Enum m_status;
 };
 
 struct CTrackersInfoRequest : public common::CRequest< NodeResponses >

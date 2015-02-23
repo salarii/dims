@@ -606,11 +606,9 @@ CConnectAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor 
 }
 
 common::CRequest< NodeResponses >*
-CConnectAction::execute()
+CConnectAction::getRequest() const
 {
-	common::CRequest< NodeResponses >* request = m_request;
-	m_request = 0;
-	return request;
+	return m_request;
 }
 
 bool

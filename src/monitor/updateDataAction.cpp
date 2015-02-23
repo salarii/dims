@@ -97,11 +97,9 @@ CUpdateDataAction::CUpdateDataAction( bool _autoDelete )
 }
 
 common::CRequest< MonitorResponses >*
-CUpdateDataAction::execute()
+CUpdateDataAction::getRequest() const
 {
-	common::CRequest< MonitorResponses >* request = m_request;
-	m_request = 0;
-	return request;
+	return m_request;
 }
 
 void
@@ -114,12 +112,6 @@ void
 CUpdateDataAction::setRequest( common::CRequest< MonitorResponses >* _request )
 {
 	m_request = _request;
-}
-
-common::CRequest< MonitorResponses > const *
-CUpdateDataAction::getRequest() const
-{
-	return m_request;
 }
 
 void

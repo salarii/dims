@@ -20,7 +20,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::vector< SeedResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< SeedResponses >*, std::vector< SeedResponses > ) > & _requestResponse );
 
 	virtual void add( common::CConnectToNodeRequest< SeedResponses > const *_request );
 

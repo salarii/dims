@@ -50,7 +50,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::vector< client::NodeResponses > & _requestResponse );
+	bool getResponseAndClear( std::vector< PAIRTYPE( CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse );
 private:
 	void clearResponses();
 

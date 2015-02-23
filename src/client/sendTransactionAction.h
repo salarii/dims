@@ -35,7 +35,7 @@ public:
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses > * execute();
+	common::CRequest< NodeResponses > * getRequest() const;
 
 	void setRequest( common::CRequest< NodeResponses > * _request );
 
@@ -50,8 +50,6 @@ public:
 	uint256 getValidatedTransactionHash() const;
 private:
 	CTransaction m_transaction;
-
-	common::ActionStatus::Enum m_actionStatus;
 	
 	common::CRequest< NodeResponses > * m_request;
 

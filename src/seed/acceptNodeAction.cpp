@@ -531,11 +531,9 @@ CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
 }
 
 common::CRequest< SeedResponses >*
-CAcceptNodeAction::execute()
+CAcceptNodeAction::getRequest() const
 {
-	common::CRequest< SeedResponses >* request = m_request;
-	m_request = 0;
-	return request;
+	return m_request;
 }
 
 void
@@ -548,12 +546,6 @@ void
 CAcceptNodeAction::setRequest( common::CRequest< SeedResponses >* _request )
 {
 	m_request = _request;
-}
-
-common::CRequest< SeedResponses > const *
-CAcceptNodeAction::getRequest() const
-{
-	return m_request;
 }
 
 CAddress

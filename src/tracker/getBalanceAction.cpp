@@ -14,23 +14,14 @@ namespace tracker
 CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash )
 	: m_keyId( _keyId )
 	, m_hash( _hash )
-	, m_actionStatus( common::ActionStatus::Unprepared )
 {
+	m_request = new CGetBalanceRequest( m_keyId );
 }
 
 common::CRequest< TrackerResponses >*
-CGetBalanceAction::execute()
+CGetBalanceAction::getRequest() const
 {
-	if ( common::ActionStatus::Unprepared == m_actionStatus )
-	{
-		m_actionStatus = common::ActionStatus::InProgress;
-		return new CGetBalanceRequest( m_keyId );
-	}
-	else
-	{
-		return 0;
-	}
-
+		return m_request;
 }
 
 

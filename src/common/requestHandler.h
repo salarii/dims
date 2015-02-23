@@ -22,9 +22,9 @@ namespace common
 template < class _RequestResponses >
 class CMedium;
 
-// for now  this will work in one thread in  blocking mode
-// I want to avoid creating to much thread when  existing amount seems  to be sufficient
-// this  class has to handle deny of  service somehow, most likely throwing  exception or  reloading  medium directly
+/*
+memory leak but  right  now  I can  live  with  that
+*/
 
 template < class _RequestResponses >
 class CRequestHandler
@@ -32,7 +32,7 @@ class CRequestHandler
 public:
 	CRequestHandler( CMedium< _RequestResponses > * _medium );
 
-	_RequestResponses getResponse( CRequest< _RequestResponses >* _request ) const;
+	std::vector< _RequestResponses > getResponses( CRequest< _RequestResponses >* _request ) const;
 
 	bool isProcessed( CRequest< _RequestResponses >* _request ) const;
 
@@ -52,7 +52,7 @@ public:
 private:
 	std::vector<CRequest< _RequestResponses >*> m_newRequest;
 	std::map<CRequest< _RequestResponses >*,uint256> m_pendingRequest;
-	std::map<CRequest< _RequestResponses >*,_RequestResponses> m_processedRequests;
+	std::map<CRequest< _RequestResponses >*,std::vector< _RequestResponses > > m_processedRequests;
 
 	CMedium< _RequestResponses > * m_usedMedium;
 };
@@ -64,8 +64,8 @@ CRequestHandler< _RequestResponses >::CRequestHandler( CMedium< _RequestResponse
 }
 
 template < class _RequestResponses >
-_RequestResponses
- CRequestHandler< _RequestResponses >::getResponse( CRequest< _RequestResponses >* _request ) const
+std::vector< _RequestResponses >
+CRequestHandler< _RequestResponses >::getResponses( CRequest< _RequestResponses >* _request ) const
 {
 	if( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return m_processedRequests.find( _request )->second;
@@ -136,7 +136,7 @@ void
 	{
 		while(!m_usedMedium->serviced());
 
-		std::vector< _RequestResponses > requestResponses;
+		std::vector< PAIRTYPE( CRequest< _RequestResponses >*, std::vector< _RequestResponses > ) > requestResponses;
 		/*
 		there is  time gap  between getResponse and clearResponses
 
@@ -144,13 +144,11 @@ void
 
 		most probably I need to merge those  two  functions into one (non const)
 		*/
-		m_usedMedium->getResponseAndClear(requestResponses);
-		// this "i" looks  ugly
-		int i = 0;
-		assert( m_newRequest.size() == requestResponses.size() );
-		BOOST_FOREACH( _RequestResponses const & response, requestResponses )
+		m_usedMedium->getResponseAndClear( requestResponses );
+		assert( m_newRequest.size() == requestResponses.size() );// this  asser in general  is wrong but  it may be  useful for time being
+		BOOST_FOREACH( PAIRTYPE( CRequest< _RequestResponses >*, std::vector< _RequestResponses > ) const & response, requestResponses )
 		{
-			m_processedRequests.insert( std::make_pair( m_newRequest[i++], response ) );
+				m_processedRequests.insert( std::make_pair( response.first, response.second ) );
 		}
 		m_newRequest.clear();
 	}
@@ -162,7 +160,7 @@ void
 
 		BOOST_FOREACH( CRequest< _RequestResponses >* request, m_newRequest )
 		{
-			m_processedRequests.insert( std::make_pair( request, _mediumException ) );
+		//	m_processedRequests.insert( std::make_pair( request, _mediumException ) );
 		}
 		// problem with synchronization here??
 		m_newRequest.clear();

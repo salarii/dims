@@ -110,7 +110,6 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 CSendTransactionAction::CSendTransactionAction( const CTransaction & _transaction )
 	: CAction()
 	, m_transaction( _transaction )
-	, m_actionStatus( common::ActionStatus::Unprepared )
 {
 	initiate();
 }
@@ -123,7 +122,7 @@ CSendTransactionAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 
 
 common::CRequest< NodeResponses > *
-CSendTransactionAction::execute()
+CSendTransactionAction::getRequest() const
 {
 	return m_request;
 }

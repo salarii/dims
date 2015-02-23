@@ -565,11 +565,9 @@ CConnectNodeAction::CConnectNodeAction( std::string const & _nodeAddress )
 }
 
 common::CRequest< TrackerResponses >*
-CConnectNodeAction::execute()
+CConnectNodeAction::getRequest() const
 {
-	common::CRequest< TrackerResponses >* request = m_request;
-	m_request = 0;
-	return request;
+	return m_request;
 }
 
 void
@@ -582,12 +580,6 @@ void
 CConnectNodeAction::setRequest( common::CRequest< TrackerResponses >* _request )
 {
 	m_request = _request;
-}
-
-common::CRequest< TrackerResponses > const *
-CConnectNodeAction::getRequest() const
-{
-	return m_request;
 }
 
 std::string
