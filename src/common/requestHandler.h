@@ -40,7 +40,7 @@ public:
 
 	void runRequests();
 
-	void readLoop();
+	void processMediumResponses();
 
 	void deleteRequest( CRequest< _RequestResponses >* );
 
@@ -130,22 +130,19 @@ void
 
 template < class _RequestResponses >
 void
- CRequestHandler< _RequestResponses >::readLoop()
+ CRequestHandler< _RequestResponses >::processMediumResponses()
 {
 	try
 	{
-		while(!m_usedMedium->serviced());
+		if( !m_usedMedium->serviced() )
+			return;
 
-		std::vector< PAIRTYPE( CRequest< _RequestResponses >*, std::vector< _RequestResponses > ) > requestResponses;
-		/*
-		there is  time gap  between getResponse and clearResponses
+		std::map< CRequest< _RequestResponses >*, std::vector< _RequestResponses > > requestResponses;
 
-		it may cause deletion of valid response, if something  will arrive when getResponse releases a lock
-
-		most probably I need to merge those  two  functions into one (non const)
-		*/
 		m_usedMedium->getResponseAndClear( requestResponses );
-		assert( m_newRequest.size() == requestResponses.size() );// this  asser in general  is wrong but  it may be  useful for time being
+
+		assert( m_newRequest.size() == requestResponses.size() );// this  assert in general  is wrong but  it may be  useful for time being
+
 		BOOST_FOREACH( PAIRTYPE( CRequest< _RequestResponses >*, std::vector< _RequestResponses > ) const & response, requestResponses )
 		{
 				m_processedRequests.insert( std::make_pair( response.first, response.second ) );
@@ -155,7 +152,7 @@ void
 	 catch (CMediumException & _mediumException)
 	{
 //CSystemError is now  common for  every  action handler, it is neither  flexible  nor  good
-// in order to change    this  I have  to redesign global error passing  functionality
+// it heve to be redesigned  somehow
 //right now, keep in mind that every single  action is responsible  for handling errors
 
 		BOOST_FOREACH( CRequest< _RequestResponses >* request, m_newRequest )

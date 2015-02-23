@@ -236,7 +236,7 @@ CActionHandler< _RequestResponses >::loop()
 
 		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToExecute )
 		{
-			reqHandler->readLoop();
+			reqHandler->processMediumResponses();
 		}
 		requestHandlersToExecute.clear();
 

@@ -25,7 +25,6 @@ namespace client
 {
 
 class CTrackersInfoRequest;
-struct CRequest;
 struct CMonitorInfoRequest;
 
 class CDefaultMedium : public common::CMedium< NodeResponses >
@@ -36,7 +35,7 @@ public:
 
 	bool serviced() const;
 
-	void add( CRequest const * _request );
+	void add( common::CRequest< NodeResponses > const * _request );
 
 	void add( CDnsInfoRequest const * _request );
 
@@ -50,7 +49,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::vector< PAIRTYPE( CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse );
+	bool getResponseAndClear( std::map< common::CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse );
 private:
 	void clearResponses();
 

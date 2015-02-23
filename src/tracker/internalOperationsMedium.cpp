@@ -50,7 +50,7 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 		|| !CTransactionRecordManager::getInstance()->getCoins( coinsHashes, coins )
 		)
 	{
-		m_trackerResponses.push_back( availableCoins );
+		m_trackerResponses.insert( std::make_pair( (common::CRequest< TrackerResponses >*)_request, ( std::vector<TrackerResponses> const & )boost::assign::list_of< TrackerResponses >( availableCoins ) ) );
 		return;
 	}
 
@@ -58,7 +58,7 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 	std::transform( coinsHashes.begin(), coinsHashes.end(), coins.begin(),
 		   std::inserter(availableCoins.m_availableCoins, availableCoins.m_availableCoins.end() ), std::make_pair<uint256,CCoins> );
 
-	m_trackerResponses.push_back( availableCoins );
+			m_trackerResponses.insert( std::make_pair( (common::CRequest< TrackerResponses >*)_request, ( std::vector<TrackerResponses> const & )boost::assign::list_of< TrackerResponses >( availableCoins ) ) );
 }
 
 void
@@ -67,13 +67,7 @@ CInternalOperationsMedium::add( CConnectToTrackerRequest const *_request )
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
 	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode( _request->getServiceAddress(), _request->getAddress().empty()? 0 : _request->getAddress().c_str() );
 
-	m_trackerResponses.push_back( common::CConnectedNode( node ) );
-}
-
-void
-CInternalOperationsMedium::add( common::CContinueReqest<TrackerResponses> const * _request )
-{
-	m_trackerResponses.push_back( common::CContinueResult( 0 ) );
+	m_trackerResponses.insert( std::make_pair( (common::CRequest< TrackerResponses >*)_request, ( std::vector<TrackerResponses> const & )boost::assign::list_of< TrackerResponses >( common::CConnectedNode( node ) ) ) );
 }
 
 void
@@ -81,12 +75,13 @@ CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 {
 	std::vector< unsigned int > invalidTransactions;
 	CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions(), invalidTransactions );
-	m_trackerResponses.push_back( CValidationResult( invalidTransactions ) );
+
+	m_trackerResponses.insert( std::make_pair( (common::CRequest< TrackerResponses >*)_request, ( std::vector<TrackerResponses> const & )boost::assign::list_of< TrackerResponses >( CValidationResult( invalidTransactions ) ) ) );
 }
 
 
 bool
-CInternalOperationsMedium::getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > ) > & _requestResponse )
+CInternalOperationsMedium::getResponseAndClear( std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > & _requestResponse )
 {
 	_requestResponse = m_trackerResponses;
 

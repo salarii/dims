@@ -20,6 +20,7 @@
 
 namespace common
 {
+// in general medium have to  keep track  what responses where gained by which request
 
 template < class _RequestResponses >
 struct CRequest;
@@ -43,7 +44,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponseAndClear( std::vector< PAIRTYPE( CRequest< tracker::TrackerResponses >*, std::vector< tracker::TrackerResponses > ) > & _requestResponse ) = 0;
+	virtual bool getResponseAndClear( std::map< CRequest< tracker::TrackerResponses >*, std::vector< tracker::TrackerResponses > > & _requestResponse ) = 0;
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
@@ -75,7 +76,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponseAndClear( std::vector< PAIRTYPE( CRequest< client::NodeResponses >*, std::vector< client::NodeResponses > ) > & _requestResponse ) = 0;
+	virtual bool getResponseAndClear( std::map< CRequest< client::NodeResponses >*, std::vector< client::NodeResponses > > & _requestResponse ) = 0;
 	virtual void add(client::CBalanceRequest const * _request ){};
 	virtual void add(client:: CInfoRequestContinueComplex const * _request ){};
 	virtual void add( client::CInfoRequestContinue const * _request ){};
@@ -98,7 +99,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponseAndClear( std::vector< PAIRTYPE( CRequest< monitor::MonitorResponses >*, std::vector< monitor::MonitorResponses > ) > & _requestResponse ) = 0;
+	virtual bool getResponseAndClear( std::map< CRequest< monitor::MonitorResponses >*, std::vector< monitor::MonitorResponses > > & _requestResponse ) = 0;
 	virtual void add( common::CIdentifyRequest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CContinueReqest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< monitor::MonitorResponses > const * _request ){};
@@ -118,7 +119,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponseAndClear( std::vector< PAIRTYPE( CRequest< seed::SeedResponses >*, std::vector< seed::SeedResponses > ) > & _requestResponse ) = 0;//stupid  signature, but I don't see other  ways to handle race conditions
+	virtual bool getResponseAndClear( std::map< CRequest< seed::SeedResponses >*, std::vector< seed::SeedResponses > > & _requestResponse ) = 0;//stupid  signature, but I don't see other  ways to handle race conditions
 	virtual void add( common::CIdentifyRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CContinueReqest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< seed::SeedResponses > const * _request ){};

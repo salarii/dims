@@ -10,6 +10,8 @@
 namespace tracker
 {
 
+common::CRequest< TrackerResponses > * LastRequest;//ugly way  to do responses <-> request  matching
+
 CBitcoinNodeMedium::CBitcoinNodeMedium( CNode * _node )
 	: m_node( _node )
 {
@@ -18,7 +20,7 @@ CBitcoinNodeMedium::CBitcoinNodeMedium( CNode * _node )
 bool
 CBitcoinNodeMedium::serviced() const
 {
-	return true;
+	return true;// use  this  here ??
 }
 
 bool
@@ -30,15 +32,12 @@ CBitcoinNodeMedium::flush()
 }
 
 bool
-CBitcoinNodeMedium::getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > ) > & _requestResponse )
+CBitcoinNodeMedium::getResponseAndClear( std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	if ( m_merkles.empty() )
-		_requestResponse.push_back( common::CContinueResult( 0 ) );
-	else
-	{
-		_requestResponse = m_responses;
-	}
+
+	_requestResponse = m_responses;
+
 	clearResponses();
 	return true;
 }
@@ -49,6 +48,7 @@ CBitcoinNodeMedium::clearResponses()
 	m_responses.clear();
 	m_merkles.clear();
 	m_transactions.clear();
+	LastRequest = 0;
 }
 
 
@@ -56,6 +56,7 @@ void
 CBitcoinNodeMedium::add( CAskForTransactionsRequest const * _request )
 {
 	LOCK( m_node->m_mediumLock );
+	LastRequest = (common::CRequest< TrackerResponses >*)_request;
 
 	CBloomFilter bloomFilter =  CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_P2PUBKEY_ONLY);
 
@@ -69,6 +70,7 @@ void
 CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
 {
 	LOCK( m_node->m_mediumLock );
+	LastRequest = (common::CRequest< TrackerResponses >*)_request;
 	m_node->m_filterSendQueue.push_back( _request->getBloomFilter() );
 
 }
@@ -77,7 +79,10 @@ void
 CBitcoinNodeMedium::reloadResponses()
 {
 	m_responses.clear();
-	m_responses.push_back( CRequestedMerkles( m_merkles, m_transactions,reinterpret_cast< long long >( m_node ) ) );
+	std::vector< TrackerResponses > responses;
+	responses.push_back( CRequestedMerkles( m_merkles, m_transactions,reinterpret_cast< long long >( m_node ) ) );
+
+	m_responses.insert( std::make_pair( LastRequest, responses ) );
 }
 void
 CBitcoinNodeMedium::setResponse( CMerkleBlock const & _merkle )

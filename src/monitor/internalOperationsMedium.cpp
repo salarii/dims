@@ -50,7 +50,7 @@ CInternalOperationsMedium::add( common::CContinueReqest< MonitorResponses > cons
 
 
 bool
-CInternalOperationsMedium::getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< MonitorResponses >*, std::vector< MonitorResponses > ) > & _requestResponse )
+CInternalOperationsMedium::getResponseAndClear( std::map< common::CRequest< MonitorResponses >*, std::vector< MonitorResponses > > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();

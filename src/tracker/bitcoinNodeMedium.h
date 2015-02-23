@@ -9,7 +9,8 @@ class CNode;
 
 namespace tracker
 {
-
+// current  implementation does not  pay  attention  to checking  if  responses are correctly assigned   to correspondent  request( I don't know if this may cause problems )
+// besides this, it is primitie and ugly but  still may  serve
 class CBitcoinNodeMedium : public common::CMedium< TrackerResponses >
 {
 public:
@@ -19,7 +20,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > ) > & _requestResponse );
+	bool getResponseAndClear( std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > & _requestResponse );
 
 	virtual void add( CAskForTransactionsRequest const * _request );
 
@@ -35,7 +36,7 @@ private:
 private:
 	mutable boost::mutex m_mutex;
 
-	std::vector< TrackerResponses > m_responses;
+	std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > m_responses;
 
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
 

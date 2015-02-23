@@ -61,7 +61,7 @@ public:
 
 	bool flush();
 
-	virtual bool getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse );
+	virtual bool getResponseAndClear( std::map< common::CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse );
 private:
 	void clearResponses();
 	void run();

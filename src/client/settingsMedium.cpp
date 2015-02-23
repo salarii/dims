@@ -45,7 +45,7 @@ CDefaultMedium::serviced() const
 }
 
 void
-CDefaultMedium::add( CRequest const * _request )
+CDefaultMedium::add( common::CRequest< NodeResponses > const * _request )
 {
 }
 
@@ -118,7 +118,7 @@ CDefaultMedium::flush()
 }
 
 bool
-CDefaultMedium::getResponseAndClear( std::vector< PAIRTYPE( CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse )
+CDefaultMedium::getResponseAndClear( std::map<  CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
 

@@ -93,7 +93,7 @@ CLocalSocket::clearResponses()
 }
 
 bool
-CLocalSocket::getResponseAndClear( std::vector< PAIRTYPE( common::CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse )
+CLocalSocket::getResponseAndClear( std::map< common::CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse )
 {
 	_requestResponse = m_nodeResponses;
 
@@ -120,7 +120,6 @@ CLocalSocket::add( CErrorForAppPaymentProcessing const * _request )
 
 	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
 	m_localSocket->waitForBytesWritten ( -1 );
-	m_nodeResponses.push_back( common::CPending( 0, common::convertToInt( m_localSocket ) ) );
 }
 
 void
@@ -145,7 +144,6 @@ CLocalSocket::add( CProofTransactionAndStatusRequest const * _request )
 
 	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
 	m_localSocket->waitForBytesWritten ( -1 );
-	m_nodeResponses.push_back( common::CPending( 0, common::convertToInt( m_localSocket ) ) );
 }
 
 QLocalSocket *

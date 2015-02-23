@@ -226,7 +226,7 @@ CNetworkClient::clearResponses()
 }
 
 bool
-CNetworkClient::getResponseAndClear(  std::vector< PAIRTYPE( common::CRequest< NodeResponses >*, std::vector< NodeResponses > ) > & _requestResponse )
+CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse )
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(
@@ -241,14 +241,7 @@ CNetworkClient::getResponseAndClear(  std::vector< PAIRTYPE( common::CRequest< N
 
 		stream >> messageType;
 
-		if ( messageType == common::CMainRequestType::ContinueReq )
-		{
-			uint256 token;
-			stream >> token;
-			_requestResponse.push_back( common::CPending( token, common::convertToInt(this) ) );
-
-		}
-		else if ( messageType == common::CMainRequestType::TransactionStatusReq )
+		if ( messageType == common::CMainRequestType::TransactionStatusReq )
 		{
 			common::CTransactionStatusResponse transactionStatus;
 			stream >> transactionStatus;
@@ -300,6 +293,8 @@ CNetworkClient::getResponseAndClear(  std::vector< PAIRTYPE( common::CRequest< N
 		{
 			throw;
 		}
+
+		clearResponses();
 	}
 
 
