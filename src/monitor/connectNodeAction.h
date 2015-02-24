@@ -31,11 +31,7 @@ public:
 
 	CConnectNodeAction( CAddress const & _addrConnect, uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr );
 
-	virtual common::CRequest< MonitorResponses >* getRequest() const;
-
 	virtual void accept( common::CSetResponseVisitor< MonitorResponses > & _visitor );
-
-	void setRequest( common::CRequest< MonitorResponses >* _request );
 
 	CAddress getServiceAddress() const;
 
@@ -51,8 +47,6 @@ public:
 
 	~CConnectNodeAction(){};
 private:
-	common::CRequest< MonitorResponses >* m_request;
-
 	static int const ms_randomPayloadLenght = 32;
 
 	std::vector< unsigned char > m_payload;

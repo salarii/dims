@@ -72,24 +72,11 @@ CCheckNetworkAction::accept( common::CSetResponseVisitor< NodeResponses > & _vis
 {
 	_visitor.visit( *this );
 }
-
-common::CRequest< NodeResponses >*
-CCheckNetworkAction::getRequest() const
-{
-	return m_request;
-}
-
 void
 CCheckNetworkAction::reset()
 {
 	common::CAction< NodeResponses >::reset();
 	initiate();
-}
-
-void
-CCheckNetworkAction::setRequest( common::CRequest< NodeResponses > * _request )
-{
-	m_request = _request;
 }
 
 }

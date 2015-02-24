@@ -42,10 +42,11 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		if ( m_addressIndex < addresses.size() )
 		{
 			m_pubKey = addresses.at( m_addressIndex );
-			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
+			context< CSendBalanceInfoAction >().clearRequests();
+			context< CSendBalanceInfoAction >().addRequests( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
 		}
 		else
-			context< CSendBalanceInfoAction >().setRequest( 0 );
+			context< CSendBalanceInfoAction >().clearRequests();
 	}
 	// imporant  how  many trackers  service  this
 	// here I assume  that  one. ??? is this correct ???
@@ -73,25 +74,27 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		if ( m_addressIndex < m_addresses.size() )
 		{
 			m_pubKey = m_addresses.at( m_addressIndex );
-			context< CSendBalanceInfoAction >().setRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
+			context< CSendBalanceInfoAction >().clearRequests();
+			context< CSendBalanceInfoAction >().addRequests( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
 		}
 		else
 		{
 			CClientControl::getInstance()->updateTotalBalance( m_total );
-			context< CSendBalanceInfoAction >().setRequest( 0 );
+			context< CSendBalanceInfoAction >().clearRequests();
 		}
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CSendBalanceInfoAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		context< CSendBalanceInfoAction >().clearRequests();
+		context< CSendBalanceInfoAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
 	{
-		context< CSendBalanceInfoAction >().setRequest( 0 );
+		context< CSendBalanceInfoAction >().clearRequests();
 		return discard_event();
 	}
 
@@ -132,12 +135,6 @@ CSendBalanceInfoAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 	_visitor.visit( *this );
 }
 
-common::CRequest< NodeResponses >*
-CSendBalanceInfoAction::getRequest() const
-{
-	return m_request;
-}
-
 void
 CSendBalanceInfoAction::reset()
 {
@@ -155,14 +152,6 @@ std::vector< std::string > const &
 CSendBalanceInfoAction::getAddresses() const
 {
 	return m_addresses;
-}
-
-
-
-void
-CSendBalanceInfoAction::setRequest( common::CRequest< NodeResponses > * _request )
-{
-	m_request = _request;
 }
 
 CBalanceRequest::CBalanceRequest( std::string _address )

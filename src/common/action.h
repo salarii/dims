@@ -5,7 +5,7 @@
 #ifndef ACTION_H
 #define ACTION_H
 
-//#include "setResponseVisitor.h"
+#include <vector>
 
 namespace common
 {
@@ -24,7 +24,11 @@ public:
 
 	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor ) = 0;
 
-	virtual CRequest< _RequestResponses >* getRequest() const = 0;
+	virtual std::vector< CRequest< _RequestResponses >* > getRequests() const{ return m_requests; }
+
+	virtual void addRequests( CRequest< _RequestResponses >* _request ){ m_requests.push_back( _request ); }
+
+	virtual void clearRequests(){ m_requests.clear(); }
 
 	void setInProgress(){ m_inProgress = true; }
 
@@ -45,6 +49,8 @@ protected:
 	bool m_executed;
 
 	bool const m_autoDelete;
+
+	std::vector< CRequest< _RequestResponses >* > m_requests;
 };
 
 

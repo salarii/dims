@@ -26,12 +26,6 @@ CSendInfoRequestAction::accept( common::CSetResponseVisitor< NodeResponses > & _
 	_visitor.visit( *this );
 }
 
-common::CRequest< NodeResponses >*
-CSendInfoRequestAction::getRequest() const
-{
-	return 0;
-}
-
 CTrackersInfoRequest::CTrackersInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter )
 	: common::CRequest< NodeResponses >( _mediumFilter )
 {

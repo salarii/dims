@@ -35,10 +35,6 @@ public:
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses > * getRequest() const;
-
-	void setRequest( common::CRequest< NodeResponses > * _request );
-
 	CTransaction const & getTransaction() const;
 
 	void setProcessingTrackerPtr( 	uintptr_t _ptr );
@@ -50,8 +46,6 @@ public:
 	uint256 getValidatedTransactionHash() const;
 private:
 	CTransaction m_transaction;
-	
-	common::CRequest< NodeResponses > * m_request;
 
 	uintptr_t m_processingTrackerPtr;
 

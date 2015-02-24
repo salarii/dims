@@ -28,18 +28,12 @@ public:
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses >* getRequest() const;
-
 	void reset();
 
 	void setAddresses( std::vector< std::string > const & _addresses );
 
 	std::vector< std::string > const & getAddresses() const;
-
-	void setRequest( common::CRequest< NodeResponses > * _request );
 private:
-	common::CRequest< NodeResponses >* m_request;
-
 	std::vector< std::string > m_addresses;
 };
 
@@ -47,8 +41,11 @@ struct CBalanceRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CBalanceRequest( std::string _address );
+
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
+
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
+
     std::string const m_address;
 
 };

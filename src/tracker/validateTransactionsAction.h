@@ -22,11 +22,7 @@ public:
 
 	CValidateTransactionsAction( uint256 const & _actionKey );
 
-	virtual common::CRequest< TrackerResponses >* getRequest() const;
-
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
-
-	void setRequest( common::CRequest< TrackerResponses > * _request );
 
 	std::vector< CTransaction > const & getTransactions() const;
 
@@ -42,8 +38,6 @@ public:
 
 	common::CMessage getMessage() const;
 private:
-	common::CRequest< TrackerResponses >* m_request;
-
 	std::vector< CTransaction > m_transactions;// deque ??? because  removal  from this contaier may  happen
 
 	uintptr_t m_initiatingNode;

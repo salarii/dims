@@ -31,18 +31,12 @@ class CProvideInfoAction : public common::CAction< TrackerResponses >, public  b
 public:
 	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
-	virtual common::CRequest< TrackerResponses >* getRequest() const;
-
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
-
-	void setRequest( common::CRequest< TrackerResponses >* _request );
 
 	uintptr_t getNodeIndicator()const;
 
 	~CProvideInfoAction(){};
 private:
-	common::CRequest< TrackerResponses >* m_request;
-
 	uintptr_t m_nodeIndicator;
 };
 

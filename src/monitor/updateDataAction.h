@@ -26,17 +26,11 @@ class CUpdateDataAction : public common::CAction< MonitorResponses >, public  bo
 public:
 	CUpdateDataAction( bool _autoDelete );
 
-	virtual common::CRequest< MonitorResponses >* getRequest() const;
-
 	virtual void accept( common::CSetResponseVisitor< MonitorResponses > & _visitor );
-
-	void setRequest( common::CRequest< MonitorResponses >* _request );
 
 	void reset();
 
 	~CUpdateDataAction(){};
-private:
-	common::CRequest< MonitorResponses >* m_request;
 };
 
 

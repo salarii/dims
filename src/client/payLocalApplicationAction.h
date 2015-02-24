@@ -36,10 +36,6 @@ public:
 
 	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses > * getRequest() const;
-
-	void setRequest( common::CRequest< NodeResponses > * _request );
-
 	void setProcessingTrackerPtr( 	uintptr_t _ptr );
 
 	uintptr_t getProcessingTrackerPtr() const;
@@ -120,8 +116,6 @@ private:
 	std::vector<CKeyID> m_trackers;
 
 	std::vector<CKeyID> m_monitors;
-
-	common::CRequest< NodeResponses > * m_request;
 
 	uintptr_t m_processingTrackerPtr;
 

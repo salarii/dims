@@ -44,19 +44,17 @@ public:
 	CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo );
 
 	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
-
-	common::CRequest< NodeResponses >* getRequest() const;
-
-private:
-	common::CRequest< NodeResponses >* m_request;
 };
 
 struct CTrackersInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CTrackersInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter );
+
 	~CTrackersInfoRequest(){};
+
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
+
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 
 	int m_mediumKind;
@@ -66,7 +64,9 @@ struct CMonitorInfoRequest : public common::CRequest< NodeResponses >
 {
 public:
 	CMonitorInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter );
+
 	void serialize( CBufferAsStream & _bufferStream ) const;
+
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
 };
 
@@ -74,7 +74,9 @@ struct CInfoRequestContinueComplex : public common::CRequest< NodeResponses >
 {
 public:
 	CInfoRequestContinueComplex( std::map< uintptr_t, uint256 > const & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter );
+
 	void accept( common::CMedium< NodeResponses > * _medium ) const;
+
 	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
 
 	std::map< uintptr_t, uint256 > const & m_nodeToToken;

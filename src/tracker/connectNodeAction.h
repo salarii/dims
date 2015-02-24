@@ -33,11 +33,7 @@ public:
 
 	CConnectNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr );
 
-	virtual common::CRequest< TrackerResponses >* getRequest() const;
-
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
-
-	void setRequest( common::CRequest< TrackerResponses >* _request );
 
 	std::string getAddress() const;
 
@@ -57,8 +53,6 @@ public:
 
 	~CConnectNodeAction(){};
 private:
-	common::CRequest< TrackerResponses >* m_request;
-
 	std::string const m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;

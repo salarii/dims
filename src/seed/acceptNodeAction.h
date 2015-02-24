@@ -23,11 +23,7 @@ public:
 
 	CAcceptNodeAction( CAddress const & _nodeAddress );
 
-	virtual common::CRequest< SeedResponses >* getRequest() const;
-
 	virtual void accept( common::CSetResponseVisitor< SeedResponses > & _visitor );
-
-	void setRequest( common::CRequest< SeedResponses >* _request );
 
 	void setAddress( CAddress const & _address );
 
@@ -45,9 +41,7 @@ public:
 
 	~CAcceptNodeAction(){};
 private:
-	common::CRequest< SeedResponses >* m_request;
 	CAddress m_nodeAddress;
-
 
 	static int const ms_randomPayloadLenght = 32;
 

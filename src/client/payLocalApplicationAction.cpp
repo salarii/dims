@@ -52,12 +52,13 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 	{
 		CIndicateErrorEvent const* indicateErrorEvent = dynamic_cast< CIndicateErrorEvent const* >( simple_state::triggering_event() );
 
-		context< CPayLocalApplicationAction >().setRequest( new CErrorForAppPaymentProcessing( (dims::CAppError::Enum)indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CErrorForAppPaymentProcessing( (dims::CAppError::Enum)indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CPayLocalApplicationAction >().setRequest( 0 );
+		context< CPayLocalApplicationAction >().clearRequests();
 		return discard_event();
 	}
 
@@ -74,7 +75,8 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 	{
 		CResolveByMonitorEvent const* serviceByMonitorEvent = dynamic_cast< CResolveByMonitorEvent const* >( simple_state::triggering_event() );
 
-		context< CPayLocalApplicationAction >().setRequest( new CMonitorInfoRequest( new CMediumByKeyFilter( serviceByMonitorEvent->m_keyId ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CMonitorInfoRequest( new CMediumByKeyFilter( serviceByMonitorEvent->m_keyId ) ) );
 		m_lastAskTime = GetTime();
 	}
 	//
@@ -89,7 +91,8 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 		}
 		else
 		{
-			context< CPayLocalApplicationAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+			context< CPayLocalApplicationAction >().clearRequests();
+			context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 			return discard_event();
 		}
 	}
@@ -165,13 +168,15 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 
 		context< CPayLocalApplicationAction >().setFirstInitialHash( tx.GetHash() );
 
-		context< CPayLocalApplicationAction >().setRequest( new CTransactionSendRequest( tx, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CTransactionSendRequest( tx, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CPayLocalApplicationAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
-		context< CPayLocalApplicationAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -186,7 +191,7 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 		}
 		else
 		{
-			context< CPayLocalApplicationAction >().setRequest( 0 );
+			context< CPayLocalApplicationAction >().clearRequests();
 		}
 
 		return discard_event();
@@ -218,7 +223,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 {
 	CCheckTransactionStatus( my_context ctx ) : my_base( ctx )
 	{
-		context< CPayLocalApplicationAction >().setRequest(
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests(
 					new CTransactionStatusRequest(
 						  context< CPayLocalApplicationAction >().getFirstTransaction().GetHash()
 						, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
@@ -226,7 +232,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CPayLocalApplicationAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -242,7 +249,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
 		{
-			context< CPayLocalApplicationAction >().setRequest(
+			context< CPayLocalApplicationAction >().clearRequests();
+			context< CPayLocalApplicationAction >().addRequests(
 						new CTransactionStatusRequest(
 							  context< CPayLocalApplicationAction >().getFirstTransaction().GetHash()
 							, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
@@ -282,13 +290,15 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 
 		CClientControl::getInstance()->createTransaction( outputs, coinsToUse, context< CPayLocalApplicationAction >().getTrackerStats(), tx, failReason );
 
-		context< CPayLocalApplicationAction >().setRequest( new CTransactionSendRequest( tx, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CTransactionSendRequest( tx, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CPayLocalApplicationAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
-		context< CPayLocalApplicationAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -303,7 +313,7 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 		}
 		else
 		{
-			context< CPayLocalApplicationAction >().setRequest( 0 );
+			context< CPayLocalApplicationAction >().clearRequests();
 		}
 
 		return discard_event();
@@ -322,7 +332,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 {
 	CSecondCheck( my_context ctx ) : my_base( ctx )
 	{
-		context< CPayLocalApplicationAction >().setRequest(
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests(
 					new CTransactionStatusRequest(
 						  context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()
 						, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr() ) ) );
@@ -330,7 +341,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CPayLocalApplicationAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -342,7 +354,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
 		{
-			context< CPayLocalApplicationAction >().setRequest(
+			context< CPayLocalApplicationAction >().clearRequests();
+			context< CPayLocalApplicationAction >().addRequests(
 						new CTransactionStatusRequest(
 							  context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()
 							, new CMediumClassWithExceptionFilter( context< CPayLocalApplicationAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
@@ -362,7 +375,8 @@ struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CP
 	{
 		common::CTransactionStatus const* transactionStatus = dynamic_cast< CTransactionStatus const* >( simple_state::triggering_event() );
 
-		context< CPayLocalApplicationAction >().setRequest(
+		context< CPayLocalApplicationAction >().clearRequests();
+		context< CPayLocalApplicationAction >().addRequests(
 					new CProofTransactionAndStatusRequest(
 						  context< CPayLocalApplicationAction >().getSecondTransaction()
 						, transactionStatus->m_signature
@@ -374,7 +388,7 @@ struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CP
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CPayLocalApplicationAction >().setRequest( 0 );
+		context< CPayLocalApplicationAction >().clearRequests();
 		return discard_event();
 	}
 
@@ -432,19 +446,6 @@ void
 CPayLocalApplicationAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
 {
 	_visitor.visit( *this );
-}
-
-
-common::CRequest< NodeResponses > *
-CPayLocalApplicationAction::getRequest() const
-{
-	return m_request;
-}
-
-void
-CPayLocalApplicationAction::setRequest( common::CRequest< NodeResponses > * _request )
-{
-	m_request = _request;
 }
 
 void

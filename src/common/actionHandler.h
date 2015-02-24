@@ -110,6 +110,8 @@ private:
 
 	RequestToAction m_reqToAction;
 
+	std::map< CAction< _RequestResponses >*, std::set< CRequest< _RequestResponses >* > > m_actionToExecutedRequests;
+
 	std::list<CConnectionProvider< _RequestResponses >*> m_connectionProviders;
 
 	AvailableHandlers m_requestHandlers;
@@ -217,10 +219,15 @@ CActionHandler< _RequestResponses >::loop()
 			BOOST_FOREACH(CAction< _RequestResponses >* action, m_actions)
 			{
 
-				CRequest< _RequestResponses >* request = action->getRequest();
+				std::vector< CRequest< _RequestResponses >* > requests = action->getRequests();
 
-				if ( request )
-					m_reqToAction.insert( std::make_pair( request, action ) );
+				if ( !requests.empty() )
+				{
+					BOOST_FOREACH( CRequest< _RequestResponses >* request, requests )
+					{
+						m_reqToAction.insert( std::make_pair( request, action ) );
+					}
+				}
 				else
 				{
 					if ( action->autoDelete() )

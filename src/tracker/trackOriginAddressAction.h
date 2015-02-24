@@ -20,11 +20,7 @@ class CTrackOriginAddressAction : public common::CAction< TrackerResponses >, pu
 public:
 	CTrackOriginAddressAction();
 
-	virtual common::CRequest< TrackerResponses >* getRequest() const;
-
 	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
-
-	void setRequest( common::CRequest< TrackerResponses >* _request );
 
 	void requestFiltered();
 
@@ -42,8 +38,6 @@ private:
 	std::map< long long, std::vector< CMerkleBlock > > m_acceptedBlocks;
 
 	std::map< long long, std::map< uint256 , std::vector< CTransaction > > > m_transactions;
-
-	common::CRequest< TrackerResponses >* m_request;
 
 	uint256 m_currentHash;
 };

@@ -15,15 +15,8 @@ CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _h
 	: m_keyId( _keyId )
 	, m_hash( _hash )
 {
-	m_request = new CGetBalanceRequest( m_keyId );
+	addRequests( new CGetBalanceRequest( m_keyId ) );
 }
-
-common::CRequest< TrackerResponses >*
-CGetBalanceAction::getRequest() const
-{
-		return m_request;
-}
-
 
 void
 CGetBalanceAction::passBalance( common::CAvailableCoins const & _availableCoins )

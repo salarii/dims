@@ -33,18 +33,19 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		int64_t time = GetTime();
 		if ( time - m_enterStateTime < LoopTime )
 		{
-			context< CProvideInfoAction >().setRequest( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+			context< CProvideInfoAction >().clearRequests();
+			context< CProvideInfoAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 		}
 		else
 		{
-			context< CProvideInfoAction >().setRequest( 0 );
+			context< CProvideInfoAction >().clearRequests();
 		}
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		context< CProvideInfoAction >().setRequest( 0 );
+		context< CProvideInfoAction >().clearRequests();
 		return discard_event();
 	}
 
@@ -58,7 +59,8 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		common::convertPayload( orginalMessage, requestedInfo );
 
-		context< CProvideInfoAction >().setRequest( new CDeliverInfoRequest( context< CProvideInfoAction >().getActionKey(), new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+		context< CProvideInfoAction >().clearRequests();
+		context< CProvideInfoAction >().addRequests( new CDeliverInfoRequest( context< CProvideInfoAction >().getActionKey(), new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 	}
 	int64_t m_enterStateTime;
 
@@ -77,7 +79,7 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
 	{
-		context< CProvideInfoAction >().setRequest( 0 );
+		context< CProvideInfoAction >().clearRequests();
 		return discard_event();
 	}
 
@@ -88,29 +90,16 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 
 CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: CCommunicationAction( _actionKey )
-	, m_request( 0 )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
 }
 
-common::CRequest< TrackerResponses >*
-CProvideInfoAction::getRequest() const
-{
-	return m_request;
-}
-
 void
 CProvideInfoAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
 {
 	_visitor.visit( *this );
-}
-
-void
-CProvideInfoAction::setRequest( common::CRequest< TrackerResponses >* _request )
-{
-	m_request = _request;
 }
 
 uintptr_t

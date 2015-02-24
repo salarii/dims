@@ -28,7 +28,8 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	CAskForUpdate( my_context ctx ) : my_base( ctx )
 	{
 		m_enterStateTime = GetTime();
-		context< CUpdateDataAction >().setRequest( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		context< CUpdateDataAction >().clearRequests();
+		context< CUpdateDataAction >().addRequests( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 	}
 
 	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
@@ -36,12 +37,13 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		int64_t time = GetTime();
 		if ( time - m_enterStateTime < LoopTime )
 		{
-			context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+			context< CUpdateDataAction >().clearRequests();
+			context< CUpdateDataAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		}
 		else
 		{
 			CReputationTracker::getInstance()->setPresentTrackers( m_presentTrackers );
-			context< CUpdateDataAction >().setRequest( 0 );
+			context< CUpdateDataAction >().clearRequests();
 		}
 		return discard_event();
 	}
@@ -57,7 +59,8 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
-		context< CUpdateDataAction >().setRequest( new common::CAckRequest< MonitorResponses >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+		context< CUpdateDataAction >().clearRequests();
+		context< CUpdateDataAction >().addRequests( new common::CAckRequest< MonitorResponses >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
 		m_presentTrackers.insert( _result.m_pubKey.GetID() );
 
@@ -66,13 +69,14 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
-		context< CUpdateDataAction >().setRequest( new common::CContinueReqest<MonitorResponses>( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		context< CUpdateDataAction >().clearRequests();
+		context< CUpdateDataAction >().addRequests( new common::CContinueReqest<MonitorResponses>( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _ackPrompt )
 	{
-		context< CUpdateDataAction >().setRequest( 0 );
+		context< CUpdateDataAction >().clearRequests();
 		return discard_event();
 	}
 
@@ -90,28 +94,15 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 CUpdateDataAction::CUpdateDataAction( bool _autoDelete )
 : common::CAction< MonitorResponses >( _autoDelete )
-, m_request( 0 )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
-}
-
-common::CRequest< MonitorResponses >*
-CUpdateDataAction::getRequest() const
-{
-	return m_request;
 }
 
 void
 CUpdateDataAction::accept( common::CSetResponseVisitor< MonitorResponses > & _visitor )
 {
 	_visitor.visit( *this );
-}
-
-void
-CUpdateDataAction::setRequest( common::CRequest< MonitorResponses >* _request )
-{
-	m_request = _request;
 }
 
 void

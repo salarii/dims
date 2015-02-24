@@ -29,13 +29,15 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 {
 	CPrepareAndSendTransaction( my_context ctx ) : my_base( ctx )
 	{
-		context< CSendTransactionAction >().setRequest( new CTransactionSendRequest( context< CSendTransactionAction >().getTransaction(), new CMediumClassFilter( RequestKind::Transaction, 1 ) ) );
+		context< CSendTransactionAction >().clearRequests();
+		context< CSendTransactionAction >().addRequests( new CTransactionSendRequest( context< CSendTransactionAction >().getTransaction(), new CMediumClassFilter( RequestKind::Transaction, 1 ) ) );
 	}
 //  ack here
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CSendTransactionAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
-		context< CSendTransactionAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		context< CSendTransactionAction >().clearRequests();
+		context< CSendTransactionAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -50,7 +52,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 		}
 		else
 		{
-			context< CSendTransactionAction >().setRequest( 0 );
+			context< CSendTransactionAction >().clearRequests();
 		}
 
 		return discard_event();
@@ -71,7 +73,8 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 											(common::CMediumFilter< NodeResponses > *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 )
 										  : (common::CMediumFilter< NodeResponses > *)new CMediumClassFilter( RequestKind::Transaction, 1 );
 
-		context< CSendTransactionAction >().setRequest(
+		context< CSendTransactionAction >().clearRequests();
+		context< CSendTransactionAction >().addRequests(
 					new CTransactionStatusRequest(
 						  context< CSendTransactionAction >().getValidatedTransactionHash()
 						, filter
@@ -81,7 +84,8 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CSendTransactionAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+		context< CSendTransactionAction >().clearRequests();
+		context< CSendTransactionAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -89,11 +93,12 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 	{
 		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
 		{
-			context< CSendTransactionAction >().setRequest( 0 );
+			context< CSendTransactionAction >().clearRequests();
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
 		{
-			context< CSendTransactionAction >().setRequest(
+			context< CSendTransactionAction >().clearRequests();
+			context< CSendTransactionAction >().addRequests(
 						new CTransactionStatusRequest(
 							  context< CSendTransactionAction >().getValidatedTransactionHash()
 							, new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
@@ -118,19 +123,6 @@ void
 CSendTransactionAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
 {
 	_visitor.visit( *this );
-}
-
-
-common::CRequest< NodeResponses > *
-CSendTransactionAction::getRequest() const
-{
-	return m_request;
-}
-
-void
-CSendTransactionAction::setRequest( common::CRequest< NodeResponses > * _request )
-{
-	m_request = _request;
 }
 
 CTransaction const &

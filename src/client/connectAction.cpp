@@ -38,7 +38,8 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	{
 		CTrackerLocalRanking::getInstance()->resetMonitors();
 		CTrackerLocalRanking::getInstance()->resetTrackers();
-		context< CConnectAction >().setRequest( new CDnsInfoRequest() );
+		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
 		m_lastAskTime = GetTime();
 	}
 	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
@@ -46,12 +47,14 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		int64_t time = GetTime();
 		if ( time - m_lastAskTime < DnsAskLoopTime )
 		{
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
+			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().addRequests( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
 		}
 		else
 		{
 			m_lastAskTime = time;
-			context< CConnectAction >().setRequest( new CDnsInfoRequest() );
+			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().addRequests( new CDnsInfoRequest() );
 		}
 		return discard_event();
 	}
@@ -60,7 +63,8 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	{
 		if ( _dnsInfo.m_addresses.empty() )
 		{
-			context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
+			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().addRequests( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
 			return discard_event();
 		}
 		else
@@ -92,7 +96,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 {
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().setRequest( new CRecognizeNetworkRequest() );
+		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().addRequests( new CRecognizeNetworkRequest() );
 
 		m_lastAskTime = GetTime();
 	}
@@ -107,7 +112,10 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
-					context< CConnectAction >().setRequest( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			{
+				context< CConnectAction >().clearRequests();
+				context< CConnectAction >().addRequests( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			}
 			return discard_event();
 		}
 		else
@@ -171,7 +179,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 			context< CConnectAction >().process_event( common::CContinueEvent(uint256() ) );
 		}
 
-		context< CConnectAction >().setRequest( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Unknown ) ) );
+		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().addRequests( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Unknown ) ) );
 	}
 
 	void analyseData( bool & _isMonitorPresent )
@@ -214,7 +223,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 {
 	CMonitorPresent( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
+		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
 		m_lastAskTime = GetTime();
 	}
 	// try  to  recognize  what  monitors  are  accepted by  which  node
@@ -234,13 +244,17 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		if ( time - m_lastAskTime < MonitorAskLoopTime )
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
-					context< CConnectAction >().setRequest( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			{
+				context< CConnectAction >().clearRequests();
+				context< CConnectAction >().addRequests( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			}
 			return discard_event();
 		}
 		else
 		{
 			m_checked.insert( m_pending.begin(), m_pending.end() );
-			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
+			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 
 			return discard_event();
 		}
@@ -321,7 +335,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 		if ( m_pending.empty() )
 		{
-			context< CConnectAction >().setRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
+			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 		}
 
 		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
@@ -500,7 +515,8 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 {
 	CDetermineTrackers( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().setRequest( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
+		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().addRequests( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 
 		m_lastAskTime = GetTime();
 	}
@@ -515,7 +531,10 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 		if ( time - m_lastAskTime < NetworkAskLoopTime )
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
-					context< CConnectAction >().setRequest( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			{
+				context< CConnectAction >().clearRequests();
+				context< CConnectAction >().addRequests( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
+			}
 			return discard_event();
 		}
 		else
@@ -525,8 +544,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-			context< CConnectAction >().setRequest( 0 );
-
+			context< CConnectAction >().clearRequests();
 			return discard_event();
 		}
 	}
@@ -557,7 +575,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-			context< CConnectAction >().setRequest( 0 );
+			context< CConnectAction >().clearRequests();
 		}
 
 		return discard_event();
@@ -570,7 +588,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-			context< CConnectAction >().setRequest( 0 );
+			context< CConnectAction >().clearRequests();
 			return discard_event();
 	}
 
@@ -594,7 +612,6 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 CConnectAction::CConnectAction( bool _autoDelete )
 	: common::CAction< NodeResponses >( _autoDelete )
-	, m_request( 0 )
 {
 	initiate();
 }
@@ -605,16 +622,10 @@ CConnectAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor 
 	_visitor.visit( *this );
 }
 
-common::CRequest< NodeResponses >*
-CConnectAction::getRequest() const
-{
-	return m_request;
-}
-
 bool
 CConnectAction::isRequestReady() const
 {
-	return m_request;
+	return true;
 }
 
 void
@@ -623,11 +634,4 @@ CConnectAction::reset()
 	common::CAction< NodeResponses >::reset();
 	initiate();
 }
-
-void
-CConnectAction::setRequest( common::CRequest< NodeResponses >* _request )
-{
-	m_request = _request;
-}
-
 }

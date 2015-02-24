@@ -36,8 +36,6 @@ public:
 
 	bool isProcessed( CRequest< _RequestResponses >* _request ) const;
 
-	void setRequest( CRequest< _RequestResponses >* _request );
-
 	void runRequests();
 
 	void processMediumResponses();
@@ -47,6 +45,8 @@ public:
 	bool operator==( CMedium< _RequestResponses > const * _medium ) const;
 
 	bool operator<( CMedium< _RequestResponses > const * _medium ) const;
+
+	void setRequest( CRequest< _RequestResponses >* _request );
 
 	bool operator<( CRequestHandler< _RequestResponses > const & _handler ) const;
 private:

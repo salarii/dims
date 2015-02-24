@@ -30,15 +30,9 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
 
-	common::CRequest< NodeResponses >* getRequest() const;
-
-	void setRequest( common::CRequest< NodeResponses >* _request );
-
 	void reset();
 
 	bool isRequestReady() const;
-private:
-	common::CRequest< NodeResponses >* m_request;
 };
 
 }
