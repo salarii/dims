@@ -112,7 +112,6 @@ private:
 
 	std::list<CConnectionProvider< _RequestResponses >*> m_connectionProviders;
 
-	//this  will be  multimap one  day, this  should  be  periodically  cleanuped ,  don't  know  how  yet
 	AvailableHandlers m_requestHandlers;
 
 	static unsigned int const m_sleepTime;

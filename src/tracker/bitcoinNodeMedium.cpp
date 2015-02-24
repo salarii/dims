@@ -20,7 +20,7 @@ CBitcoinNodeMedium::CBitcoinNodeMedium( CNode * _node )
 bool
 CBitcoinNodeMedium::serviced() const
 {
-	return true;// use  this  here ??
+	return !m_transactions.empty() || !m_merkles.empty();
 }
 
 bool
@@ -32,7 +32,7 @@ CBitcoinNodeMedium::flush()
 }
 
 bool
-CBitcoinNodeMedium::getResponseAndClear( std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > & _requestResponse )
+CBitcoinNodeMedium::getResponseAndClear( std::map< common::CRequest< TrackerResponses >const*, std::vector< TrackerResponses > > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 

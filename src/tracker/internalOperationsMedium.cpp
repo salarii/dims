@@ -58,7 +58,7 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 	std::transform( coinsHashes.begin(), coinsHashes.end(), coins.begin(),
 		   std::inserter(availableCoins.m_availableCoins, availableCoins.m_availableCoins.end() ), std::make_pair<uint256,CCoins> );
 
-			m_trackerResponses.insert( std::make_pair( (common::CRequest< TrackerResponses >*)_request, ( std::vector<TrackerResponses> const & )boost::assign::list_of< TrackerResponses >( availableCoins ) ) );
+	m_trackerResponses.insert( std::make_pair( (common::CRequest< TrackerResponses >*)_request, ( std::vector<TrackerResponses> const & )boost::assign::list_of< TrackerResponses >( availableCoins ) ) );
 }
 
 void
@@ -81,7 +81,7 @@ CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 
 
 bool
-CInternalOperationsMedium::getResponseAndClear( std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > & _requestResponse )
+CInternalOperationsMedium::getResponseAndClear( std::map< common::CRequest< TrackerResponses >const*, std::vector< TrackerResponses > > & _requestResponse )
 {
 	_requestResponse = m_trackerResponses;
 

@@ -18,18 +18,16 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::map< common::CRequest< MonitorResponses >*, std::vector< MonitorResponses > > & _requestResponse );
+	virtual bool getResponseAndClear( std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > & _requestResponse );
 
 	virtual void add( CConnectToNodeRequest const * _request );
-
-	virtual void add( common::CContinueReqest<MonitorResponses> const * _request );
 
 	static CInternalOperationsMedium* getInstance();
 		CInternalOperationsMedium();
 private:
 	void clearResponses();
 private:
-	std::vector< MonitorResponses > m_responses;
+	std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > m_responses;
 
 	static CInternalOperationsMedium * ms_instance;
 };

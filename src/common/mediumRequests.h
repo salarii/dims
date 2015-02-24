@@ -12,6 +12,8 @@
 #include "net.h"
 #include "util.h"
 
+
+// rename to  common requests??
 namespace common
 {
 
@@ -495,6 +497,43 @@ CResultRequest< ResponsesType >::getActionKey() const
 	return m_actionKey;
 }
 
+template < class ResponsesType >
+class CTimeEventRequest : public common::CRequest< ResponsesType >
+{
+public:
+	CTimeEventRequest( int64_t _requestedDelay, common::CMediumFilter< ResponsesType > * _mediumFilter );
+
+	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
+
+	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+
+	uint256 getActionKey() const;
+private:
+	unsigned int m_result;
+
+	int64_t m_requestedDelay;
+};
+
+template < class ResponsesType >
+CTimeEventRequest< ResponsesType >::CTimeEventRequest( int64_t _requestedDelay, common::CMediumFilter< ResponsesType > * _mediumFilter )
+	: common::CRequest< ResponsesType >( _mediumFilter )
+	, m_requestedDelay( _requestedDelay )
+{
+}
+
+template < class ResponsesType >
+void
+CTimeEventRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class ResponsesType >
+common::CMediumFilter< ResponsesType > *
+CTimeEventRequest< ResponsesType >::getMediumFilter() const
+{
+	return common::CRequest< ResponsesType >::m_mediumFilter;
+}
 
 }
 

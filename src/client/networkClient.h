@@ -61,7 +61,7 @@ public:
 
 	bool flush();
 
-	virtual bool getResponseAndClear( std::map< common::CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse );
+	virtual bool getResponseAndClear( std::map< common::CRequest< NodeResponses >const*, std::vector< NodeResponses > > & _requestResponse );
 private:
 	void clearResponses();
 	void run();
@@ -82,7 +82,9 @@ private:
 
 	QTcpSocket * m_socket;
 
-    ConnectionInfo m_connectionInfo;
+	ConnectionInfo m_connectionInfo;
+
+	std::list< common::CRequest< NodeResponses >* > m_workingRequest;
 };
 
 

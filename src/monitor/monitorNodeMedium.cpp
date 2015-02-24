@@ -30,6 +30,8 @@ CMonitorNodeMedium::add( CInfoRequest const * _request )
 	m_messages.push_back( message );
 
 	m_indexes.push_back( _request->getActionKey() );
+
+	updateLastRequest( _request->getActionKey(), (common::CRequest< MonitorResponses >*)_request );
 }
 
 }

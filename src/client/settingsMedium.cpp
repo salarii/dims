@@ -57,25 +57,25 @@ CDefaultMedium::add( CDnsInfoRequest const * _request )
 
 	CDnsInfo dnsInfo( addresses );
 
-	m_requestResponse.push_back( dnsInfo );
+	m_requestResponse.insert( std::make_pair( ( common::CRequest< NodeResponses > * )_request, ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( dnsInfo ) ) );
 }
 
 void
 CDefaultMedium::add( CMonitorInfoRequest const * _request )
 {
-	m_requestResponse.push_back( CNoMedium() );
+	m_requestResponse.insert( std::make_pair( ( common::CRequest< NodeResponses > * )_request, ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( CNoMedium() ) ) );
 }
 
 void
 CDefaultMedium::add( CTrackersInfoRequest const * _request )
 {
-	m_requestResponse.push_back( CNoMedium() );
+	m_requestResponse.insert( std::make_pair( ( common::CRequest< NodeResponses > * )_request, ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( CNoMedium() ) ) );
 }
 
 void
 CDefaultMedium::add( CBalanceRequest const * _request )
 {
-	m_requestResponse.push_back( CNoMedium() );
+	m_requestResponse.insert( std::make_pair( ( common::CRequest< NodeResponses > * )_request, ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( CNoMedium() ) ) );
 }
 
 void
@@ -104,13 +104,6 @@ CDefaultMedium::getSeedIps( vector<CAddress> & _vAdd )
 	}
 }
 
-void
-CDefaultMedium::add( common::CContinueReqest< NodeResponses > const * _request )
-{
-	m_requestResponse.push_back( common::CContinueResult( _request->getRequestId() ) );
-}
-
-
 bool
 CDefaultMedium::flush()
 {
@@ -118,7 +111,7 @@ CDefaultMedium::flush()
 }
 
 bool
-CDefaultMedium::getResponseAndClear( std::map<  CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse )
+CDefaultMedium::getResponseAndClear( std::map<  CRequest< NodeResponses >const*, std::vector< NodeResponses > > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
 

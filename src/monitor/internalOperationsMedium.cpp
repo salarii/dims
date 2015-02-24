@@ -39,18 +39,11 @@ CInternalOperationsMedium::add( CConnectToNodeRequest const *_request )
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
 	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode( _request->getServiceAddress(), _request->getAddress().empty()? 0 : _request->getAddress().c_str() );
 
-	m_responses.push_back( common::CConnectedNode( node ) );
+	m_responses.insert( std::make_pair( (common::CRequest< MonitorResponses >*)_request, ( std::vector< MonitorResponses > const & )boost::assign::list_of< MonitorResponses >( common::CConnectedNode( node )  ) ) );
 }
-
-void
-CInternalOperationsMedium::add( common::CContinueReqest< MonitorResponses > const * _request )
-{
-	m_responses.push_back( common::CContinueResult( 0 ) );
-}
-
 
 bool
-CInternalOperationsMedium::getResponseAndClear( std::map< common::CRequest< MonitorResponses >*, std::vector< MonitorResponses > > & _requestResponse )
+CInternalOperationsMedium::getResponseAndClear( std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();

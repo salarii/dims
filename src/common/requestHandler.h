@@ -52,7 +52,7 @@ public:
 private:
 	std::vector<CRequest< _RequestResponses >*> m_newRequest;
 	std::map<CRequest< _RequestResponses >*,uint256> m_pendingRequest;
-	std::map<CRequest< _RequestResponses >*,std::vector< _RequestResponses > > m_processedRequests;
+	std::map<CRequest< _RequestResponses >const*,std::vector< _RequestResponses > > m_processedRequests;
 
 	CMedium< _RequestResponses > * m_usedMedium;
 };
@@ -137,13 +137,13 @@ void
 		if( !m_usedMedium->serviced() )
 			return;
 
-		std::map< CRequest< _RequestResponses >*, std::vector< _RequestResponses > > requestResponses;
+		std::map< CRequest< _RequestResponses >const*, std::vector< _RequestResponses > > requestResponses;
 
 		m_usedMedium->getResponseAndClear( requestResponses );
 
 		assert( m_newRequest.size() == requestResponses.size() );// this  assert in general  is wrong but  it may be  useful for time being
 
-		BOOST_FOREACH( PAIRTYPE( CRequest< _RequestResponses >*, std::vector< _RequestResponses > ) const & response, requestResponses )
+		BOOST_FOREACH( PAIRTYPE( CRequest< _RequestResponses >const*, std::vector< _RequestResponses > ) const & response, requestResponses )
 		{
 				m_processedRequests.insert( std::make_pair( response.first, response.second ) );
 		}
@@ -155,7 +155,7 @@ void
 // it heve to be redesigned  somehow
 //right now, keep in mind that every single  action is responsible  for handling errors
 
-		BOOST_FOREACH( CRequest< _RequestResponses >* request, m_newRequest )
+		BOOST_FOREACH( CRequest< _RequestResponses >const* request, m_newRequest )
 		{
 		//	m_processedRequests.insert( std::make_pair( request, _mediumException ) );
 		}

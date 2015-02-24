@@ -44,6 +44,7 @@ COMMON_H = \
   common/requestResponse.h \
   common/request.h \
   common/selfNode.h \
+  common/timeMedium.h \
   common/transactionStatus.h \
   common/visitorConfigurationUtilities.h 
 

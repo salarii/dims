@@ -45,11 +45,9 @@ public:
 
 	void add( CBalanceRequest const * _request );
 
-	void add( common::CContinueReqest< NodeResponses > const * _request );
-
 	bool flush();
 
-	bool getResponseAndClear( std::map< common::CRequest< NodeResponses >*, std::vector< NodeResponses > > & _requestResponse );
+	bool getResponseAndClear( std::map< common::CRequest< NodeResponses >const*, std::vector< NodeResponses > > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -60,7 +58,7 @@ private:
 	static CDefaultMedium * ms_instance;
 
 	bool m_serviced;
-	std::vector< client::NodeResponses > m_requestResponse;
+	std::map< common::CRequest< NodeResponses >const*, std::vector< NodeResponses > > m_requestResponse;
 };
 
 

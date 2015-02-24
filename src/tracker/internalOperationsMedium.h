@@ -18,7 +18,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > & _requestResponse );
+	virtual bool getResponseAndClear( std::map< common::CRequest< TrackerResponses >const*, std::vector< TrackerResponses > > & _requestResponse );
 
 	virtual void add(CGetBalanceRequest const * _request );
 
@@ -33,7 +33,7 @@ private:
 
 	void clearResponses();
 
-	std::map< common::CRequest< TrackerResponses >*, std::vector< TrackerResponses > > m_trackerResponses;
+	std::map< common::CRequest< TrackerResponses >const*, std::vector< TrackerResponses > > m_trackerResponses;
 
 	static CInternalOperationsMedium * ms_instance;
 };

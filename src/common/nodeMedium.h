@@ -32,9 +32,9 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::map< CRequest< ResponseType >*, std::vector< ResponseType > > & _requestResponse );
+	bool getResponseAndClear( std::map< CRequest< ResponseType >const*, std::vector< ResponseType > > & _requestResponse );
 
-	void add( common::CRequest< ResponseType > const * _request );
+	void add( common::CRequest< ResponseType >const * _request );
 
 	void add( CIdentifyRequest< ResponseType > const * _request );
 
@@ -57,7 +57,7 @@ public:
 protected:
 	void clearResponses();
 
-	void updateLastRequest( uint256 const & _id, common::CRequest< ResponseType >* _request );
+	void updateLastRequest( uint256 const & _id, common::CRequest< ResponseType >const* _request );
 protected:
 	common::CSelfNode * m_usedNode;
 
@@ -70,7 +70,7 @@ protected:
 
 	std::vector< uint256 > m_indexes;
 
-	std::map< uint256, common::CRequest< ResponseType >* > m_lastRequestForAction;
+	std::map< uint256, common::CRequest< ResponseType >const* > m_lastRequestForAction;
 };
 
 template < class ResponseType >
@@ -82,7 +82,7 @@ CNodeMedium< ResponseType >::serviced() const
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::updateLastRequest( uint256 const & _id, common::CRequest< ResponseType >* _request )
+CNodeMedium< ResponseType >::updateLastRequest( uint256 const & _id, common::CRequest< ResponseType >const* _request )
 {
 	if ( m_lastRequestForAction.find( _id ) != m_lastRequestForAction.end() )
 		m_lastRequestForAction.erase( _id );
@@ -107,7 +107,7 @@ extern std::vector< uint256 > deleteList;
 
 template < class ResponseType >
 bool
-CNodeMedium< ResponseType >::getResponseAndClear( std::map< CRequest< ResponseType >*, std::vector< ResponseType > > & _requestResponse )
+CNodeMedium< ResponseType >::getResponseAndClear( std::map< CRequest< ResponseType >const*, std::vector< ResponseType > > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
@@ -174,7 +174,7 @@ CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _requ
 
 	m_indexes.push_back( _request->getActionKey() );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
 template < class ResponseType >
@@ -195,7 +195,7 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _req
 
 	m_indexes.push_back( _request->getActionKey() );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
 template < class ResponseType >
@@ -212,7 +212,7 @@ CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _r
 
 	m_indexes.push_back( _request->getActionKey() );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
 template < class ResponseType >
@@ -226,7 +226,7 @@ CNodeMedium< ResponseType >::add( CKnownNetworkInfoRequest< ResponseType > const
 
 	m_indexes.push_back( _request->getActionKey() );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >*)_request );
+		updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
 template < class ResponseType >
@@ -243,7 +243,7 @@ CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
 
 	m_responses.insert( std::make_pair( _request->getActionKey(), common::CAckPromptResult() ) );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >*)_request );
+		updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
 
@@ -259,7 +259,7 @@ CNodeMedium< ResponseType >::add( CEndRequest< ResponseType > const * _request )
 
 	m_indexes.push_back( _request->getActionKey() );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );//most likely wrong, but handy for time being
 }
 
 template < class ResponseType >
@@ -274,7 +274,7 @@ CNodeMedium< ResponseType >::add( CResultRequest< ResponseType > const * _reques
 
 	m_indexes.push_back( _request->getActionKey() );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
 }
