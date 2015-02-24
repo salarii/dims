@@ -50,29 +50,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
 		context< CTrackOriginAddressAction >().clearRequests();
-		context< CTrackOriginAddressAction >().addRequests( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
-
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-
-		if ( vNodes.size() >= UsedMediumNumber &&  GetTime() - m_time > CleanTime )//waiting  time  is needed because of  valid  design of  action  handler, there are  other ways  to  fight it but  this is simple
-		{
-			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
-			return transit< CReadingData >();
-		}
-		else
-		{
-			context< CTrackOriginAddressAction >().clearRequests();
-			context< CTrackOriginAddressAction >().addRequests( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
-
-			return discard_event();
-		}
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
 
 	uint m_time;
 };
@@ -83,25 +61,10 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	{
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		if ( GetTime() - m_time < WaitResultTime )
-		{
-			context< CTrackOriginAddressAction >().clearRequests();
-			context< CTrackOriginAddressAction >().addRequests( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) ) );
-		}
-		else
-		{
-			context< CTrackOriginAddressAction >().clearRequests();
-			return transit< CUninitiatedTrackAction >();
-		}
-	}
-
 	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
 	{
 		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
 		context< CTrackOriginAddressAction >().clearRequests();
-		context< CTrackOriginAddressAction >().addRequests( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) ) );
 	}
 
 	~CReadingData()
@@ -109,7 +72,6 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< CMerkleBlocksEvent >
 	> reactions;
 
@@ -160,7 +122,6 @@ CTrackOriginAddressAction::requestFiltered()
 			CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
 
 			clearRequests();
-			addRequests( new common::CContinueReqest<TrackerResponses>( 0, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 			return;
 		}
 		index = index->pprev;

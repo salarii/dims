@@ -30,12 +30,6 @@ struct CIntroduceEvent : boost::statechart::event< CIntroduceEvent >
 	CAddress m_address;
 };
 
-struct CContinueEvent : boost::statechart::event< CContinueEvent >
-{
-	CContinueEvent( uint256 const & _keyId ):m_keyId( _keyId ){};
-	uint256 m_keyId;
-};
-
 struct CRoleEvent : boost::statechart::event< CRoleEvent >
 {
 	CRoleEvent( int _role ):m_role( _role ){};

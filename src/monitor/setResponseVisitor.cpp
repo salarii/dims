@@ -30,11 +30,6 @@ public:
 		this->m_action->process_event( common::CIntroduceEvent( _param.m_payload, _param.m_signed, _param.m_key, _param.m_address) );
 	}
 
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
-	}
-
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
 	{
 		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
@@ -80,11 +75,6 @@ public:
 	virtual void operator()( common::CAckPromptResult & _param ) const
 	{
 		this->m_action->process_event( _param );
-	}
-
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
 	}
 };
 

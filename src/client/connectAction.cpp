@@ -40,31 +40,17 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		CTrackerLocalRanking::getInstance()->resetTrackers();
 		context< CConnectAction >().clearRequests();
 		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
+		//context< CConnectAction >().addRequests( new common::CTimeEventRequest( DnsAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 		m_lastAskTime = GetTime();
 	}
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		int64_t time = GetTime();
-		if ( time - m_lastAskTime < DnsAskLoopTime )
-		{
-			context< CConnectAction >().clearRequests();
-			context< CConnectAction >().addRequests( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
-		}
-		else
-		{
-			m_lastAskTime = time;
-			context< CConnectAction >().clearRequests();
-			context< CConnectAction >().addRequests( new CDnsInfoRequest() );
-		}
-		return discard_event();
-	}
+
+	//		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
 		if ( _dnsInfo.m_addresses.empty() )
 		{
 			context< CConnectAction >().clearRequests();
-			context< CConnectAction >().addRequests( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Seed ) ) );
 			return discard_event();
 		}
 		else
@@ -78,7 +64,6 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< CDnsInfo >
 	> reactions;
 
@@ -176,11 +161,9 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		int64_t time = GetTime();
 		if ( time - m_lastAskTime >= NetworkAskLoopTime )
 		{
-			context< CConnectAction >().process_event( common::CContinueEvent(uint256() ) );
 		}
 
 		context< CConnectAction >().clearRequests();
-		context< CConnectAction >().addRequests( new common::CContinueReqest<NodeResponses>(uint256(), new CMediumClassFilter( common::RequestKind::Unknown ) ) );
 	}
 
 	void analyseData( bool & _isMonitorPresent )

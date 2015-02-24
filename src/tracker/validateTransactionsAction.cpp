@@ -51,15 +51,6 @@ struct CSendAcceptBudle : boost::statechart::state< CSendAcceptBudle, CValidateT
 		context< CValidateTransactionsAction >().addRequests( new CTransactionsStatusRequest( CBundleStatus::Ack, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		return transit< CApproved >();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
 };
 
 
@@ -75,13 +66,6 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CValidateTransactionsAction >().clearRequests();
-		context< CValidateTransactionsAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CComplexMediumFilter( m_participating ) ) );
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CMessageResult const & _message )
 	{
 		m_participating.erase( _message.m_nodeIndicator );
@@ -90,7 +74,6 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 
@@ -104,16 +87,6 @@ struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, 
 		context< CValidateTransactionsAction >().clearRequests();
 		context< CValidateTransactionsAction >().addRequests( new CTransactionsStatusRequest( CBundleStatus::NotValid, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
 	}
-
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CValidateTransactionsAction >().clearRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
 };
 
 struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransactionsAction >
@@ -165,13 +138,6 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CValidateTransactionsAction >().clearRequests();
-		context< CValidateTransactionsAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckPromptResult const & _ackPromptResult )
 	{
 		context< CValidateTransactionsAction >().clearRequests();
@@ -181,7 +147,6 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< CValidationEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >
 	> reactions;
@@ -206,21 +171,11 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 		m_time = GetTime();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		if ( GetTime() - m_time > m_totalWaitTime )
-			return transit< CApproved >();
-		context< CValidateTransactionsAction >().clearRequests();
-		context< CValidateTransactionsAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckEvent const & _event )
 	{
 		//not needed for the time being
 		m_participating.insert( _event.m_nodePtr );
 		context< CValidateTransactionsAction >().clearRequests();
-		context< CValidateTransactionsAction >().addRequests( new common::CContinueReqest<TrackerResponses>( context< CValidateTransactionsAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		return discard_event();
 	}
 
@@ -246,13 +201,11 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 		}
 
 		context< CValidateTransactionsAction >().clearRequests();
-		context< CValidateTransactionsAction >().addRequests( new common::CContinueReqest<TrackerResponses>( context< CValidateTransactionsAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 
@@ -462,6 +415,5 @@ CValidateTransactionsAction::getMessage() const
 {
 	return m_message;
 }
-
 
 }

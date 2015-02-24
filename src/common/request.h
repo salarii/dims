@@ -24,6 +24,7 @@ struct RequestKind
 		UndeterminedTrackers,
 		Trackers,
 		Monitors,
+		Time,
 		Unknown
 	};
 };

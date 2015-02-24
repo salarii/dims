@@ -55,11 +55,6 @@ public:
 		this->m_action->process_event( _param );
 	}
 
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
-	}
-
 	virtual void operator()( common::CErrorEvent & _param ) const
 	{
 		//handle it somehow
@@ -83,11 +78,6 @@ public:
 	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
 		this->m_action->process_event( common::CIntroduceEvent( _param.m_payload, _param.m_signed, _param.m_key, _param.m_address) );
-	}
-
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
 	}
 
 	virtual void operator()( common::CRoleResult & _param ) const
@@ -126,11 +116,6 @@ class CSetTrackOriginAddressResult : public CResponseVisitorBase< tracker::CTrac
 public:
 	CSetTrackOriginAddressResult( tracker::CTrackOriginAddressAction * const _action ):CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList >( _action ){};
 
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
-	}
-
 	virtual void operator()( tracker::CRequestedMerkles & _param ) const
 	{
 		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_id ) );
@@ -142,11 +127,6 @@ class CSetSynchronizationResult : public CResponseVisitorBase< tracker::CSynchro
 {
 public:
 	CSetSynchronizationResult( tracker::CSynchronizationAction * const _action ):CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList >( _action ){};
-
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
-	}
 
 	virtual void operator()( tracker::CRequestedMerkles & _param ) const
 	{
@@ -197,11 +177,6 @@ public:
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
 		this->m_action->process_event( _param );
-	}
-
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
 	}
 
 	virtual void operator()( common::CAckResult & _param ) const

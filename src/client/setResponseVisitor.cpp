@@ -104,11 +104,6 @@ public:
 		this->m_action->process_event( common::CMonitorStatsEvent( _monitorData, _monitorData.m_ip, _monitorData.m_nodeIndicator ) );
 	}
 
-	void operator()( common::CContinueResult & _continue ) const
-	{
-		this->m_action->process_event( common::CContinueEvent(_continue.m_id) );
-	}
-
 	void operator()(common::CMediumException & _systemError ) const
 	{
 		this->m_action->process_event( common::CErrorEvent() );

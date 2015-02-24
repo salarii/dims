@@ -7,9 +7,6 @@ template < class RequestType >
 class CIdentifyRequest;
 
 template < class RequestType >
-class CContinueReqest;
-
-template < class RequestType >
 class CIdentifyResponse;
 
 template < class RequestType >

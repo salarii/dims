@@ -66,23 +66,6 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 		m_bestTimeStamp = 0;
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		long long unsigned time = GetTime();
-		if ( time - m_waitTime < SynchronisingGetInfoTime )
-		{
-			context< CSynchronizationAction >().clearRequests();
-			context< CSynchronizationAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
-		}
-		else if ( m_bestTimeStamp > 0 )
-		{
-			context< CSynchronizationAction >().clearRequests();
-			return transit< CSynchronizingHeaders >();
-		}
-		else
-			return discard_event();
-	}
-
 	boost::statechart::result react( CSynchronizationInfoEvent const & _synchronizationInfoEvent )
 	{
 		if ( m_bestTimeStamp < _synchronizationInfoEvent.m_timeStamp )
@@ -91,13 +74,11 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 			context< CSynchronizationAction >().setNodeIdentifier( _synchronizationInfoEvent.m_nodeIdentifier );
 		}
 		context< CSynchronizationAction >().clearRequests();
-		context< CSynchronizationAction >().addRequests( new common::CContinueReqest<TrackerResponses>( context< CSynchronizationAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 	}
 
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CSynchronizationInfoEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< CSynchronizationInfoEvent >
 	> reactions;
 
 	long long unsigned m_waitTime;
@@ -122,28 +103,13 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 		m_waitTime = GetTime();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-
-		if ( GetTime() - m_waitTime < SynchronisingWaitTime * 2 )
-		{
-			context< CSynchronizationAction >().clearRequests();
-			context< CSynchronizationAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-		}
-		else
-			context< CSynchronizationAction >().clearRequests();
-
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CGetEvent const & _getEvent )
 	{
 		return transit< CSynchronized >();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CGetEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CGetEvent >
 	> reactions;
 
 	unsigned int m_waitTime;
@@ -187,14 +153,6 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CSynchronizationAction >().clearRequests();
-		context< CSynchronizationAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CEndEvent const & )
 	{
 		context< CSynchronizationAction >().clearRequests();
@@ -222,7 +180,6 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< CTransactionBlockEvent< CDiskBlock > >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CEndEvent >
 	> reactions;
@@ -251,15 +208,8 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CSynchronizationAction >().clearRequests();
-		context< CSynchronizationAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-	}
-
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< CTransactionBlockEvent< CSegmentHeader > >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::transition< common::CEndEvent, CSynchronizingBlocks >
 	> reactions;
 };
@@ -327,14 +277,6 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CSynchronizationAction >().clearRequests();
-		context< CSynchronizationAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckEvent const & )
 	{
 		context< CSynchronizationAction >().clearRequests();
@@ -352,7 +294,6 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CGetEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 

@@ -50,7 +50,6 @@ public:
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
 	virtual void add( common::CIdentifyRequest<tracker::TrackerResponses> const * _request ){};
 	virtual void add( common::CIdentifyResponse<tracker::TrackerResponses> const * _request ){};
-	virtual void add( common::CContinueReqest<tracker::TrackerResponses> const * _request ){};
 	virtual void add( tracker::CAskForTransactionsRequest const * _request ){};
 	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
 	virtual void add( tracker::CGetSynchronizationInfoRequest const * _request ){};
@@ -85,7 +84,6 @@ public:
 	virtual void add(client:: CTrackersInfoRequest const * _request ){};
 	virtual void add( client::CMonitorInfoRequest const * _request ){};
 	virtual void add( client::CDnsInfoRequest const * _request ){};
-	virtual void add( common::CContinueReqest< client::NodeResponses > const * _request ){};
 	virtual void add( client::CRecognizeNetworkRequest const * _request ){};
 	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
 	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
@@ -101,7 +99,6 @@ public:
 
 	virtual bool getResponseAndClear( std::map< CRequest< monitor::MonitorResponses >const*, std::vector< monitor::MonitorResponses > > & _requestResponse ) = 0;
 	virtual void add( common::CIdentifyRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( common::CContinueReqest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CAckRequest< monitor::MonitorResponses > const * _request ){};
@@ -121,7 +118,6 @@ public:
 
 	virtual bool getResponseAndClear( std::map< CRequest< seed::SeedResponses >const*, std::vector< seed::SeedResponses > > & _requestResponse ) = 0;//stupid  signature, but I don't see other  ways to handle race conditions
 	virtual void add( common::CIdentifyRequest< seed::SeedResponses > const * _request ){};
-	virtual void add( common::CContinueReqest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CConnectToNodeRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CNetworkRoleRequest< seed::SeedResponses > const * _request ){};

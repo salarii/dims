@@ -28,21 +28,6 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		m_enterStateTime = GetTime();
 	}
 
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		int64_t time = GetTime();
-		if ( time - m_enterStateTime < LoopTime )
-		{
-			context< CProvideInfoAction >().clearRequests();
-			context< CProvideInfoAction >().addRequests( new common::CContinueReqest<TrackerResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
-		}
-		else
-		{
-			context< CProvideInfoAction >().clearRequests();
-		}
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
 		context< CProvideInfoAction >().clearRequests();
@@ -65,7 +50,6 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	int64_t m_enterStateTime;
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
@@ -76,16 +60,6 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 	CMonitorStop( my_context ctx ) : my_base( ctx )
 	{
 	}
-
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		context< CProvideInfoAction >().clearRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
 };
 
 CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )

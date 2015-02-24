@@ -30,7 +30,7 @@ class CKnownNetworkInfoRequest;
 namespace seed
 {
 
-typedef boost::mpl::list< common::CIdentifyRequest< SeedResponses >, common::CContinueReqest< SeedResponses >, common::CIdentifyResponse< SeedResponses >, common::CConnectToNodeRequest< SeedResponses >, common::CNetworkRoleRequest< SeedResponses >, common::CAckRequest< SeedResponses >, common::CKnownNetworkInfoRequest< SeedResponses > > SeedRequestsList;
+typedef boost::mpl::list< common::CIdentifyRequest< SeedResponses >, common::CIdentifyResponse< SeedResponses >, common::CConnectToNodeRequest< SeedResponses >, common::CNetworkRoleRequest< SeedResponses >, common::CAckRequest< SeedResponses >, common::CKnownNetworkInfoRequest< SeedResponses > > SeedRequestsList;
 
 }
 

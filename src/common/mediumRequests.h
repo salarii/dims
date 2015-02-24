@@ -153,51 +153,6 @@ CIdentifyResponse< ResponsesType >::getActionKey() const
 	return m_actionKey;
 }
 
-
-template < class ResponsesType >
-class CContinueReqest : public common::CRequest< ResponsesType >
-{
-public:
-	CContinueReqest( uint256 const & _id, common::CMediumFilter< ResponsesType > * _mediumFilter );
-
-	void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	common::CMediumFilter< ResponsesType > * getMediumFilter() const;
-
-	uint256 getRequestId()const;
-private:
-
-	uint256 const m_id;
-};
-
-template < class ResponsesType >
-CContinueReqest< ResponsesType >::CContinueReqest( uint256 const & _id, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )
-	, m_id( _id )
-{
-}
-
-template < class ResponsesType >
-void
-CContinueReqest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CContinueReqest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
-uint256
-CContinueReqest< ResponsesType >::getRequestId() const
-{
-	return m_id;
-}
-
 template < class ResponsesType >
 class CConnectToNodeRequest : public common::CRequest< ResponsesType >
 {

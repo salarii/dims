@@ -7,13 +7,6 @@
 
 #include "configureNodeActionHadler.h"
 
-namespace common
-{
-template < class RequestType >
-class CContinueReqest;
-
-}
-
 namespace client
 {
 struct CBalanceRequest;
@@ -28,7 +21,7 @@ struct CRecognizeNetworkRequest;
 struct CErrorForAppPaymentProcessing;
 struct CProofTransactionAndStatusRequest;
 
-typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinueComplex, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, common::CContinueReqest< NodeResponses >, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing, CProofTransactionAndStatusRequest > NodeRequestsList;
+typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinueComplex, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing, CProofTransactionAndStatusRequest > NodeRequestsList;
 
 }
 

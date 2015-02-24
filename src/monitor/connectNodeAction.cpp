@@ -80,13 +80,6 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
 	{
 		switch ( m_role )
@@ -106,13 +99,11 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
@@ -142,13 +133,6 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 		}
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
 	{
 		createIdentifyResponse( context< CConnectNodeAction >() );
@@ -156,7 +140,6 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::transition< common::CAckEvent, CMonitorDetermineRoleConnecting >
 	> reactions;
@@ -168,7 +151,6 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 	CMonitorDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _roleEvent )
@@ -185,13 +167,6 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 		context< CConnectNodeAction >().clearRequests();
 		context< CConnectNodeAction >().addRequests( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 
-		return discard_event();
-	}
-
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
 
@@ -220,7 +195,6 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
@@ -233,14 +207,6 @@ struct CMonitorPairIdentifiedConnected : boost::statechart::state< CMonitorPairI
 	CMonitorPairIdentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-	}
-
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
 	}
 
 	boost::statechart::result react( common::CIntroduceEvent const & _introduceEvent )
@@ -263,7 +229,6 @@ struct CMonitorPairIdentifiedConnected : boost::statechart::state< CMonitorPairI
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CIntroduceEvent >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::transition< common::CAckPromptResult, CMonitorDetermineRoleConnected >
 	> reactions;
 };
@@ -280,25 +245,16 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 		CReputationTracker::getInstance()->addNode( new common::CNodeMedium<MonitorResponses>( connectedEvent->m_node ) );
 		context< CConnectNodeAction >().clearRequests();
 		context< CConnectNodeAction >().addRequests( new common::CIdentifyRequest<MonitorResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CConnectNodeAction >().getPayload(), context< CConnectNodeAction >().getActionKey() ) );
-	}
-
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		//context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest( SeedLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::transition< common::CIntroduceEvent, CMonitorPairIdentifiedConnecting >,
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
@@ -309,13 +265,7 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 	{
 		context< CConnectNodeAction >().clearRequests();
 		context< CConnectNodeAction >().addRequests( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-	}
-
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		return discard_event();
+		//context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest( SeedLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
@@ -324,7 +274,6 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::transition< common::CAckEvent, CMonitorPairIdentifiedConnected >
 	> reactions;
@@ -371,15 +320,9 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 
 		context< CConnectNodeAction >().clearRequests();
 		context< CConnectNodeAction >().addRequests( new CConnectCondition( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+//		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest( SeedLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-
-		return discard_event();
-	}
 
 	boost::statechart::result react( common::CMessageResult const & _result )
 	{
@@ -415,8 +358,7 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 };
 
@@ -428,22 +370,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 	{
 		m_enterStateTime = GetTime();
 		context< CConnectNodeAction >().clearRequests();
-		context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-	}
-
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		int64_t time = GetTime();
-		if ( time - m_enterStateTime < SeedLoopTime )
-		{
-			context< CConnectNodeAction >().clearRequests();
-			context< CConnectNodeAction >().addRequests( new common::CContinueReqest<MonitorResponses>( _continueEvent.m_keyId, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		}
-		else
-		{
-			context< CConnectNodeAction >().clearRequests();
-		}
-		return discard_event();
+	//	context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest( SeedLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _result )
@@ -472,7 +399,6 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 	int64_t m_enterStateTime;
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
 		boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
@@ -483,16 +409,6 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CConnectNodeAction
 	CMonitorStop( my_context ctx ) : my_base( ctx )
 	{
 	}
-
-	boost::statechart::result react( const common::CContinueEvent & _continueEvent )
-	{
-		context< CConnectNodeAction >().clearRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
 };
 
 
