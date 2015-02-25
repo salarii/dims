@@ -50,7 +50,27 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
 		context< CTrackOriginAddressAction >().clearRequests();
+		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
+
+	boost::statechart::result react( common::CTimeEvent const & _continueEvent )
+	{
+		if ( vNodes.size() >= UsedMediumNumber )
+		{
+			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
+			return transit< CReadingData >();
+		}
+		else
+		{
+			context< CTrackOriginAddressAction >().clearRequests();
+			context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		}
+
+		return discard_event();
+	}
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >
+	> reactions;
 
 	uint m_time;
 };

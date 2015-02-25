@@ -4,11 +4,16 @@
 
 #include "configureTrackerActionHandler.h"
 #include "common/actionHandler.h"
+#include "common/timeMedium.h"
+
 namespace tracker
 {
 template<>
 unsigned int const common::CActionHandler< TrackerResponses >::m_sleepTime = 100;
+
 template<>
 common::CActionHandler< TrackerResponses > * common::CActionHandler< TrackerResponses >::ms_instance = NULL;
 
+template<>
+common::CTimeMedium< TrackerResponses > * common::CTimeMedium< TrackerResponses >::ms_instance = NULL;
 }

@@ -14,7 +14,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< MonitorResponses >const*, MonitorResponses > & _requestResponse );
 
 	virtual void add( CInfoRequest const * _request );
 
@@ -24,7 +24,7 @@ private:
 	void clearResponses();
 private:
 
-	std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > m_responses;
+	std::multimap< common::CRequest< MonitorResponses >const*, MonitorResponses > m_responses;
 
 	static CErrorMedium * ms_instance;
 };
@@ -50,7 +50,7 @@ CErrorMedium::CErrorMedium()
 void
 CErrorMedium::add( CInfoRequest const *_request )
 {
-	m_responses.insert( std::make_pair( (common::CRequest< MonitorResponses >*)_request, ( std::vector< MonitorResponses > const & )boost::assign::list_of< MonitorResponses >( common::CNoMedium() ) ) );
+	m_responses.insert( std::make_pair( (common::CRequest< MonitorResponses >*)_request, common::CNoMedium() ) );
 }
 
 bool
@@ -61,7 +61,7 @@ CErrorMedium::serviced() const
 
 
 bool
-CErrorMedium::getResponseAndClear( std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > & _requestResponse )
+CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< MonitorResponses >const*,  MonitorResponses > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();

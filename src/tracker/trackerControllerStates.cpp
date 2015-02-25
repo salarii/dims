@@ -12,10 +12,15 @@
 #include "synchronizationAction.h"
 #include "trackerEvents.h"
 #include "trackerController.h"
+#include "trackOriginAddressAction.h"
 
 namespace tracker
 {
 
+CInitialSynchronization::CInitialSynchronization()
+{
+	common::CActionHandler< tracker::TrackerResponses >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
+}
 
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 {

@@ -52,7 +52,7 @@ public:
 private:
 	std::vector<CRequest< _RequestResponses >*> m_newRequest;
 	std::map<CRequest< _RequestResponses >*,uint256> m_pendingRequest;
-	std::map<CRequest< _RequestResponses >const*,std::vector< _RequestResponses > > m_processedRequests;
+	std::multimap<CRequest< _RequestResponses >const*,_RequestResponses > m_processedRequests;
 
 	CMedium< _RequestResponses > * m_usedMedium;
 };
@@ -67,8 +67,16 @@ template < class _RequestResponses >
 std::vector< _RequestResponses >
 CRequestHandler< _RequestResponses >::getResponses( CRequest< _RequestResponses >* _request ) const
 {
-	if( m_processedRequests.find( _request ) != m_processedRequests.end() )
-		return m_processedRequests.find( _request )->second;
+	typename std::multimap<CRequest< _RequestResponses >const*,_RequestResponses >::const_iterator iterator;
+
+	std::vector< _RequestResponses > responses;
+
+	for ( iterator = m_processedRequests.lower_bound( _request ); iterator != m_processedRequests.upper_bound( _request ); ++iterator )
+	{
+		responses.push_back( iterator->second );
+	}
+
+	return responses;
 }
 
 template < class _RequestResponses >
@@ -137,13 +145,13 @@ void
 		if( !m_usedMedium->serviced() )
 			return;
 
-		std::map< CRequest< _RequestResponses >const*, std::vector< _RequestResponses > > requestResponses;
+		std::multimap< CRequest< _RequestResponses >const*, _RequestResponses > requestResponses;
 
 		m_usedMedium->getResponseAndClear( requestResponses );
 
 		assert( m_newRequest.size() == requestResponses.size() );// this  assert in general  is wrong but  it may be  useful for time being
 
-		BOOST_FOREACH( PAIRTYPE( CRequest< _RequestResponses >const*, std::vector< _RequestResponses > ) const & response, requestResponses )
+		BOOST_FOREACH( PAIRTYPE( CRequest< _RequestResponses >const*, _RequestResponses ) const & response, requestResponses )
 		{
 				m_processedRequests.insert( std::make_pair( response.first, response.second ) );
 		}

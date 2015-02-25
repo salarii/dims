@@ -20,7 +20,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::map< common::CRequest< TrackerResponses >const*, std::vector< TrackerResponses > > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< TrackerResponses >const*, TrackerResponses > & _requestResponse );
 
 	virtual void add( CAskForTransactionsRequest const * _request );
 
@@ -36,7 +36,7 @@ private:
 private:
 	mutable boost::mutex m_mutex;
 
-	std::map< common::CRequest< TrackerResponses >const*, std::vector< TrackerResponses > > m_responses;
+	std::multimap< common::CRequest< TrackerResponses >const*, TrackerResponses > m_responses;
 
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
 

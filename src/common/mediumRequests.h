@@ -462,7 +462,7 @@ public:
 
 	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
 
-	uint256 getActionKey() const;
+	int64_t getEventTime() const;
 private:
 	unsigned int m_result;
 
@@ -481,6 +481,13 @@ void
 CTimeEventRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
 {
 	_medium->add( this );
+}
+
+template < class ResponsesType >
+int64_t
+CTimeEventRequest< ResponsesType >::getEventTime() const
+{
+	return m_requestedDelay;
 }
 
 template < class ResponsesType >

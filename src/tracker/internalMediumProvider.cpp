@@ -6,6 +6,8 @@
 #include "internalOperationsMedium.h"
 #include "bitcoinNodeMedium.h"
 
+#include "common/timeMedium.h"
+
 namespace tracker
 {
 
@@ -23,7 +25,6 @@ CInternalMediumProvider::getInstance( )
 
 CInternalMediumProvider::CInternalMediumProvider()
 {
-	m_mediums.push_back( CInternalOperationsMedium::getInstance() );
 }
 
 std::list< common::CMedium< TrackerResponses > *>
@@ -52,12 +53,18 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
+	std::list< common::CMedium< TrackerResponses > *> mediums;
+
 	if ( common::CMediumKinds::Internal == _mediumKind )
-		return m_mediums;
+	{
+		mediums.push_back( CInternalOperationsMedium::getInstance() );
+	}
+	else if ( common::CMediumKinds::Time == _mediumKind )
+	{
+		mediums.push_back( common::CTimeMedium< TrackerResponses >::getInstance() );
+	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
-		std::list< common::CMedium< TrackerResponses > *> mediums;
-
 		std::map< CNode *, CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
 		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumNumber ); )

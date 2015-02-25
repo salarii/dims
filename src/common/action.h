@@ -6,6 +6,7 @@
 #define ACTION_H
 
 #include <vector>
+#include <boost/foreach.hpp>
 
 namespace common
 {
@@ -28,7 +29,14 @@ public:
 
 	virtual void addRequests( CRequest< _RequestResponses >* _request ){ m_requests.push_back( _request ); }
 
-	virtual void clearRequests(){ m_requests.clear(); }
+	virtual void clearRequests()
+	{
+		BOOST_FOREACH( CRequest< _RequestResponses >*request, m_requests )
+		{
+			delete request;
+		}
+		m_requests.clear();
+	}
 
 	void setInProgress(){ m_inProgress = true; }
 

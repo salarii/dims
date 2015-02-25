@@ -19,7 +19,7 @@ struct CStandAlone;
 
 struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchronization, CTrackerController >
 {
-	CInitialSynchronization(){};
+	CInitialSynchronization();
 
 	typedef boost::statechart::transition< CInitialSynchronizationDoneEvent, CStandAlone > reactions;
 };

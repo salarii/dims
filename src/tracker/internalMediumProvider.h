@@ -37,8 +37,6 @@ private:
 	mutable boost::mutex m_mutex;
 
 	static CInternalMediumProvider * ms_instance;
-
-	std::list< common::CMedium< TrackerResponses > *> m_mediums;
 	// this is simplified approach
 	std::map< CNode *, CBitcoinNodeMedium * > m_nodeToMedium;
 };

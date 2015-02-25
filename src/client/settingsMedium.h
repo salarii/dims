@@ -47,7 +47,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::map< common::CRequest< NodeResponses >const*, std::vector< NodeResponses > > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -58,7 +58,7 @@ private:
 	static CDefaultMedium * ms_instance;
 
 	bool m_serviced;
-	std::map< common::CRequest< NodeResponses >const*, std::vector< NodeResponses > > m_requestResponse;
+	std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > m_requestResponse;
 };
 
 

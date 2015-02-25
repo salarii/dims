@@ -120,6 +120,11 @@ public:
 	{
 		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_id ) );
 	}
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
 };
 
 

@@ -237,7 +237,7 @@ CNetworkClient::clearResponses()
 }
 
 bool
-CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses >const*, std::vector< NodeResponses > > & _requestResponse )
+CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse )
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(
@@ -257,8 +257,10 @@ CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses 
 			common::CTransactionStatusResponse transactionStatus;
 			stream >> transactionStatus;
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >(
-										common::CTransactionStatus( ( common::TransactionsStatus::Enum )transactionStatus.m_status, transactionStatus.m_transactionHash, transactionStatus.m_signedHash ) ) ) );
+			_requestResponse.insert(
+						std::make_pair(
+							m_workingRequest.front(),
+							common::CTransactionStatus( ( common::TransactionsStatus::Enum )transactionStatus.m_status, transactionStatus.m_transactionHash, transactionStatus.m_signedHash ) ) );
 
 			m_workingRequest.erase( m_workingRequest.begin() );
 		}
@@ -267,7 +269,7 @@ CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses 
 			common::CTransactionAck transactionAck;
 			stream >> transactionAck;
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( transactionAck ) ) );
+			_requestResponse.insert( std::make_pair( m_workingRequest.front(), transactionAck ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
@@ -279,7 +281,7 @@ CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses 
 
 			common::CNodeSpecific< common::CMonitorData > stats( monitorData, m_ip.toStdString(), common::convertToInt(this));
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( stats ) ) );
+			_requestResponse.insert( std::make_pair( m_workingRequest.front(), stats ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
@@ -291,7 +293,7 @@ CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses 
 
 			common::CNodeSpecific< common::CTrackerSpecificStats > stats( trackerSpecificStats, m_ip.toStdString(), common::convertToInt(this));
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( stats ) ) );
+			_requestResponse.insert( std::make_pair( m_workingRequest.front(), stats ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
@@ -302,7 +304,7 @@ CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses 
 		{
 			common::CAvailableCoins availableCoins;
 			stream >> availableCoins;
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( availableCoins ) ) );
+			_requestResponse.insert( std::make_pair( m_workingRequest.front(), availableCoins ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
@@ -313,7 +315,7 @@ CNetworkClient::getResponseAndClear(  std::map< common::CRequest< NodeResponses 
 
 			common::CNodeSpecific< common::CClientNetworkInfoResult > stats( networkResult, m_ip.toStdString(), common::convertToInt(this));
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), ( std::vector<NodeResponses> const & )boost::assign::list_of< NodeResponses >( stats ) ) );
+			_requestResponse.insert( std::make_pair( m_workingRequest.front(), stats ) );
 
 			m_workingRequest.erase( m_workingRequest.begin() );
 		}

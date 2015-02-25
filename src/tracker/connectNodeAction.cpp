@@ -73,6 +73,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		m_role = _roleEvent.m_role;
 		context< CConnectNodeAction >().clearRequests();
 		context< CConnectNodeAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckPromptResult const & _promptAck )
@@ -94,6 +95,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -160,6 +162,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	{
 		context< CConnectNodeAction >().clearRequests();
 		context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest<TrackerResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -258,6 +261,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
 		createIdentifyResponse( context< CConnectNodeAction >() );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -417,6 +421,8 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 
 		if ( !result )
 			 transit< CStop >();
+
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )

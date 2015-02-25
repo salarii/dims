@@ -61,7 +61,7 @@ public:
 
 	bool flush();
 
-	virtual bool getResponseAndClear( std::map< common::CRequest< NodeResponses >const*, std::vector< NodeResponses > > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse );
 private:
 	void clearResponses();
 	void run();

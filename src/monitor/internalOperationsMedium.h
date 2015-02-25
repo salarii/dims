@@ -18,7 +18,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< MonitorResponses >const*, MonitorResponses > & _requestResponse );
 
 	virtual void add( CConnectToNodeRequest const * _request );
 
@@ -27,7 +27,7 @@ public:
 private:
 	void clearResponses();
 private:
-	std::map< common::CRequest< MonitorResponses >const*, std::vector< MonitorResponses > > m_responses;
+	std::multimap< common::CRequest< MonitorResponses >const*, MonitorResponses > m_responses;
 
 	static CInternalOperationsMedium * ms_instance;
 };

@@ -3,27 +3,29 @@
 
 namespace common
 {
-template < class RequestType >
+template < class ResponsesType >
 class CIdentifyRequest;
 
-template < class RequestType >
+template < class ResponsesType >
 class CIdentifyResponse;
 
-template < class RequestType >
+template < class ResponsesType >
 class CNetworkRoleRequest;
 
-template < class RequestType >
+template < class ResponsesType >
 class CKnownNetworkInfoRequest;
 
-template < class RequestType >
+template < class ResponsesType >
 class CAckRequest;
 
-template < class RequestType >
+template < class ResponsesType >
 class CEndRequest;
 
-template < class RequestType >
+template < class ResponsesType >
 class CResultRequest;
 
+template < class ResponsesType >
+class CTimeEventRequest;
 }
 
 namespace tracker

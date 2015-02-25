@@ -32,7 +32,7 @@ CBitcoinNodeMedium::flush()
 }
 
 bool
-CBitcoinNodeMedium::getResponseAndClear( std::map< common::CRequest< TrackerResponses >const*, std::vector< TrackerResponses > > & _requestResponse )
+CBitcoinNodeMedium::getResponseAndClear( std::multimap< common::CRequest< TrackerResponses >const*, TrackerResponses > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
@@ -79,11 +79,10 @@ void
 CBitcoinNodeMedium::reloadResponses()
 {
 	m_responses.clear();
-	std::vector< TrackerResponses > responses;
-	responses.push_back( CRequestedMerkles( m_merkles, m_transactions,reinterpret_cast< long long >( m_node ) ) );
 
-	m_responses.insert( std::make_pair( LastRequest, responses ) );
+	m_responses.insert( std::make_pair( LastRequest, CRequestedMerkles( m_merkles, m_transactions,reinterpret_cast< long long >( m_node ) ) ) );
 }
+
 void
 CBitcoinNodeMedium::setResponse( CMerkleBlock const & _merkle )
 {

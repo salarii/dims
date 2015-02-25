@@ -966,8 +966,6 @@ seed_insecure_rand();
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CActionHandler< tracker::TrackerResponses >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
-
 	tracker::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
 
 	// ********************************************************* Step 10: load peers

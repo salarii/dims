@@ -14,6 +14,7 @@ struct CMediumKinds
 		, Trackers
 		, Monitors
 		, Seeds
+		, Time
 	};
 };
 

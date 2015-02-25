@@ -3,40 +3,57 @@
 
 #include "common/medium.h"
 #include "common/mediumRequests.h"
-#include "common/nodeMedium.h"
 #include "common/actionHandler.h"
 
 namespace common
 {
 
+// this  may be  not  so precise in terms of  time measure
+// more or less result is good enough
 template < class ResponseType >
 class CTimeMedium : public common::CMedium< ResponseType >
 {
 public:
-	CTimeMedium(){};
-
 	bool serviced() const;
 
 	bool flush();
 
-	bool getResponseAndClear( std::map< CRequest< ResponseType >const*, std::vector< ResponseType > > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest< ResponseType >const*, ResponseType > & _requestResponse );
 
 	void add( CTimeEventRequest< ResponseType > const * _request );
 
 	void setResponse( ResponseType const & _responses );
 
-	common::CSelfNode * getNode() const;
-
 	void workLoop();
+
+	static CTimeMedium* getInstance();
 protected:
+	//for now  hardcode
+	CTimeMedium():m_sleepTime( 100 ){};
+
 	void clearResponses();
 protected:
 	mutable boost::mutex m_mutex;
 
-	std::map< common::CRequest< ResponseType >const*,  std::vector< ResponseType > > m_responses;
+	std::multimap< common::CRequest< ResponseType >const*, ResponseType > m_responses;
 
 	std::map< CTimeEventRequest< ResponseType > const *, int64_t > m_timeLeftToTrigger;
+
+	static CTimeMedium* ms_instance;
+
+	int64_t const m_sleepTime;
 };
+
+template < class ResponseType >
+CTimeMedium< ResponseType >*
+CTimeMedium< ResponseType >::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CTimeMedium< ResponseType >();
+	};
+	return ms_instance;
+}
 
 template < class ResponseType >
 bool
@@ -55,10 +72,9 @@ CTimeMedium< ResponseType >::flush()
 
 template < class ResponseType >
 bool
-CTimeMedium< ResponseType >::getResponseAndClear( std::map< CRequest< ResponseType >*, std::vector< ResponseType > > & _requestResponse )
+CTimeMedium< ResponseType >::getResponseAndClear( std::multimap< CRequest< ResponseType >const*, ResponseType > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-
 	_requestResponse = m_responses;
 
 	clearResponses();
@@ -76,6 +92,39 @@ template < class ResponseType >
 void
 CTimeMedium< ResponseType >::add( CTimeEventRequest< ResponseType > const * _request )
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_timeLeftToTrigger.insert( std::make_pair( _request, _request->getEventTime() ) );
+}
+
+template < class ResponseType >
+void
+CTimeMedium< ResponseType >::workLoop()
+{
+	while(1)
+	{
+		MilliSleep( m_sleepTime );
+		boost::lock_guard<boost::mutex> lock( m_mutex );
+
+		std::vector< CTimeEventRequest< ResponseType > const * > toTrigger;
+		BOOST_FOREACH( PAIRTYPE( CTimeEventRequest< ResponseType > const *, int64_t ) & trigerEvent, m_timeLeftToTrigger )
+		{
+			if ( trigerEvent.second - m_sleepTime <= 0 )
+			{
+				toTrigger.push_back( trigerEvent.first );
+			}
+			else
+			{
+				trigerEvent.second -= m_sleepTime;
+			}
+		}
+
+		BOOST_FOREACH( CTimeEventRequest< ResponseType > const * timeEventReq, toTrigger )
+		{
+			m_timeLeftToTrigger.erase( timeEventReq );
+			m_responses.insert( std::make_pair( timeEventReq, CTimeEvent() ) );
+		}
+	}
+
 }
 
 }

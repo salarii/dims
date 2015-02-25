@@ -32,7 +32,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::map< CRequest< ResponseType >const*, std::vector< ResponseType > > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest< ResponseType >const*, ResponseType > & _requestResponse );
 
 	void add( common::CRequest< ResponseType >const * _request );
 
@@ -107,21 +107,18 @@ extern std::vector< uint256 > deleteList;
 
 template < class ResponseType >
 bool
-CNodeMedium< ResponseType >::getResponseAndClear( std::map< CRequest< ResponseType >const*, std::vector< ResponseType > > & _requestResponse )
+CNodeMedium< ResponseType >::getResponseAndClear( std::multimap< CRequest< ResponseType >const*, ResponseType > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
 	BOOST_FOREACH( uint256 const & id, m_indexes )
 	{
-		std::vector< ResponseType > responses;
 		typename std::multimap< uint256, ResponseType >::const_iterator iterator = m_responses.lower_bound( id );
 		if ( iterator != m_responses.upper_bound( id ) )
 		{
-			responses.push_back( iterator->second );
+			_requestResponse.insert( std::make_pair( m_lastRequestForAction.find( id )->second, iterator->second ) );
 			deleteList.push_back( id );
 		}
-
-		_requestResponse.insert( std::make_pair( m_lastRequestForAction.find( id )->second, responses ) );
 	}
 	clearResponses();
 	return true;
