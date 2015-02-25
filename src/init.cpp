@@ -45,11 +45,14 @@
 #include "tracker/trackerNodesManager.h"
 #include "tracker/processNetwork.h"
 #include "tracker/trackOriginAddressAction.h"
+#include "tracker/trackerController.h"
 
 #include "client/settingsConnectionProvider.h"
 
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
+#include "common/timeMedium.h"
+
 using namespace std;
 using namespace boost;
 
@@ -956,6 +959,7 @@ seed_insecure_rand();
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &tracker::COriginAddressScanner::loop, tracker::COriginAddressScanner::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< tracker::TrackerResponses >::loop, common::CActionHandler< tracker::TrackerResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium< tracker::TrackerResponses >::workLoop, common::CTimeMedium< tracker::TrackerResponses >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
@@ -968,6 +972,7 @@ seed_insecure_rand();
 
 	tracker::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
 
+	tracker::CTrackerController::getInstance();
 	// ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));

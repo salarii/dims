@@ -106,16 +106,19 @@ CTimeMedium< ResponseType >::workLoop()
 		boost::lock_guard<boost::mutex> lock( m_mutex );
 
 		std::vector< CTimeEventRequest< ResponseType > const * > toTrigger;
-		BOOST_FOREACH( PAIRTYPE( CTimeEventRequest< ResponseType > const *, int64_t ) & trigerEvent, m_timeLeftToTrigger )
+
+		typename std::map< CTimeEventRequest< ResponseType > const *, int64_t >::iterator iterator = m_timeLeftToTrigger.begin();
+		while( iterator != m_timeLeftToTrigger.end() )
 		{
-			if ( trigerEvent.second - m_sleepTime <= 0 )
+			if ( iterator->second - m_sleepTime <= 0 )
 			{
-				toTrigger.push_back( trigerEvent.first );
+				toTrigger.push_back( iterator->first );
 			}
 			else
 			{
-				trigerEvent.second -= m_sleepTime;
+				iterator->second -= m_sleepTime;
 			}
+			iterator++;
 		}
 
 		BOOST_FOREACH( CTimeEventRequest< ResponseType > const * timeEventReq, toTrigger )

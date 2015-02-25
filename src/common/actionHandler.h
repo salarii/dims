@@ -244,7 +244,6 @@ CActionHandler< _RequestResponses >::loop()
 		{
 			reqHandler->processMediumResponses();
 		}
-		requestHandlersToExecute.clear();
 
 		std::list< CRequest< _RequestResponses >* > requestsToErase;
 
@@ -253,7 +252,6 @@ CActionHandler< _RequestResponses >::loop()
 
 			typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound (reqAction.first);
 			typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound (reqAction.first);
-			bool deleteRequest = false;
 
 			if ( lower == upper )
 			{
@@ -282,25 +280,17 @@ CActionHandler< _RequestResponses >::loop()
 							reqAction.second->accept( visitor );
 						}
 						m_actions.insert( reqAction.second );
-
 						it->second->deleteRequest( reqAction.first );
-
 						requestsToErase.push_back( reqAction.first );
 
-						deleteRequest = true;
+						m_currentlyUsedHandlers.erase( it );
 					}
 					else
 					{
 						// problem ??? assert this??
 					}
 				}
-
-				m_currentlyUsedHandlers.erase( reqAction.first );
-
 			}
-
-			if ( deleteRequest )
-				delete reqAction.first;
 		}
 
 		BOOST_FOREACH( CRequest< _RequestResponses >* & request, requestsToErase)

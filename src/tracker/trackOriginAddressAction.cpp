@@ -50,7 +50,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
 		context< CTrackOriginAddressAction >().clearRequests();
-		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( 10000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _continueEvent )

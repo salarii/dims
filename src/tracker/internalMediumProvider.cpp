@@ -87,11 +87,9 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 			}
 
 		}
-
-		return mediums;
 	}
-	else
-		return std::list< common::CMedium< TrackerResponses > *>();
+	return mediums;
+
 }
 
 
