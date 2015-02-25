@@ -27,22 +27,20 @@ public:
 
 	virtual std::vector< CRequest< _RequestResponses >* > getRequests() const{ return m_requests; }
 
+	// following two are  ugly
 	virtual void addRequests( CRequest< _RequestResponses >* _request ){ m_requests.push_back( _request ); }
 
-	virtual void clearRequests()
+	virtual void dropRequests()
 	{
-		BOOST_FOREACH( CRequest< _RequestResponses >*request, m_requests )
-		{
-			delete request;
-		}
+		m_droppedRequests.insert( m_droppedRequests.end(), m_requests.begin(), m_requests.end() );
 		m_requests.clear();
 	}
 
 	void setInProgress(){ m_inProgress = true; }
 
-	bool isInProgress()const{ return m_inProgress; };
+	bool isInProgress()const{ return m_inProgress; }
 
-	bool isExecuted()const{ return m_executed; };
+	bool isExecuted()const{ return m_executed; }
 
 	void setExecuted(){ m_executed = true; }
 
@@ -50,7 +48,13 @@ public:
 
 	virtual void reset(){ m_executed = false; m_inProgress = false; }
 
-	virtual ~CAction(){};
+	virtual ~CAction()
+	{
+		BOOST_FOREACH( CRequest< _RequestResponses >*request, m_droppedRequests )
+		{
+			delete request;
+		}
+	};
 protected:
 	bool m_inProgress;
 
@@ -59,6 +63,8 @@ protected:
 	bool const m_autoDelete;
 
 	std::vector< CRequest< _RequestResponses >* > m_requests;
+
+	std::vector< CRequest< _RequestResponses >* > m_droppedRequests;
 };
 
 

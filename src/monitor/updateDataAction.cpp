@@ -28,7 +28,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	CAskForUpdate( my_context ctx ) : my_base( ctx )
 	{
 		m_enterStateTime = GetTime();
-		context< CUpdateDataAction >().clearRequests();
+		context< CUpdateDataAction >().dropRequests();
 		context< CUpdateDataAction >().addRequests( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 	}
 
@@ -43,7 +43,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
-		context< CUpdateDataAction >().clearRequests();
+		context< CUpdateDataAction >().dropRequests();
 		context< CUpdateDataAction >().addRequests( new common::CAckRequest< MonitorResponses >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
 		m_presentTrackers.insert( _result.m_pubKey.GetID() );
@@ -53,13 +53,13 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
 	{
-		context< CUpdateDataAction >().clearRequests();
+		context< CUpdateDataAction >().dropRequests();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _ackPrompt )
 	{
-		context< CUpdateDataAction >().clearRequests();
+		context< CUpdateDataAction >().dropRequests();
 		return discard_event();
 	}
 

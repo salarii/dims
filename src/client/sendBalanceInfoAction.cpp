@@ -42,11 +42,11 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		if ( m_addressIndex < addresses.size() )
 		{
 			m_pubKey = addresses.at( m_addressIndex );
-			context< CSendBalanceInfoAction >().clearRequests();
+			context< CSendBalanceInfoAction >().dropRequests();
 			context< CSendBalanceInfoAction >().addRequests( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
 		}
 		else
-			context< CSendBalanceInfoAction >().clearRequests();
+			context< CSendBalanceInfoAction >().dropRequests();
 	}
 	// imporant  how  many trackers  service  this
 	// here I assume  that  one. ??? is this correct ???
@@ -74,27 +74,27 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		if ( m_addressIndex < m_addresses.size() )
 		{
 			m_pubKey = m_addresses.at( m_addressIndex );
-			context< CSendBalanceInfoAction >().clearRequests();
+			context< CSendBalanceInfoAction >().dropRequests();
 			context< CSendBalanceInfoAction >().addRequests( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
 		}
 		else
 		{
 			CClientControl::getInstance()->updateTotalBalance( m_total );
-			context< CSendBalanceInfoAction >().clearRequests();
+			context< CSendBalanceInfoAction >().dropRequests();
 		}
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CSendBalanceInfoAction >().clearRequests();
+		context< CSendBalanceInfoAction >().dropRequests();
 		context< CSendBalanceInfoAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
 	{
-		context< CSendBalanceInfoAction >().clearRequests();
+		context< CSendBalanceInfoAction >().dropRequests();
 		return discard_event();
 	}
 

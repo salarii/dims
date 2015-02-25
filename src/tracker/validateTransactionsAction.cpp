@@ -47,7 +47,7 @@ struct CSendAcceptBudle : boost::statechart::state< CSendAcceptBudle, CValidateT
 {
 	CSendAcceptBudle( my_context ctx ) : my_base( ctx )
 	{
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		context< CValidateTransactionsAction >().addRequests( new CTransactionsStatusRequest( CBundleStatus::Ack, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
 	}
 
@@ -84,7 +84,7 @@ struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, 
 {
 	CPassBundleInvalidate( my_context ctx ) : my_base( ctx )
 	{
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		context< CValidateTransactionsAction >().addRequests( new CTransactionsStatusRequest( CBundleStatus::NotValid, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
 	}
 };
@@ -107,7 +107,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
 
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		context< CValidateTransactionsAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
 
 		m_pubKey = messageResult->m_pubKey;
@@ -140,7 +140,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 	boost::statechart::result react( common::CAckPromptResult const & _ackPromptResult )
 	{
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		context< CValidateTransactionsAction >().addRequests(
 					new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 		return discard_event();
@@ -159,7 +159,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 {
 	CPropagateBundle( my_context ctx ) : my_base( ctx ), m_totalWaitTime( 30 )
 	{
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		context< CValidateTransactionsAction >().addRequests(
 					new CTransactionsPropagationRequest(
 								context< CValidateTransactionsAction >().getTransactions(),
@@ -175,7 +175,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 	{
 		//not needed for the time being
 		m_participating.insert( _event.m_nodePtr );
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		return discard_event();
 	}
 
@@ -200,7 +200,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 			return transit< CApproved >();
 		}
 
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		return discard_event();
 	}
 
@@ -226,7 +226,7 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 		CTransactionRecordManager::getInstance()->addTransactionsToStorage(
 					context< CValidateTransactionsAction >().getTransactions() );
 
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 	}
 
 };
@@ -235,7 +235,7 @@ struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAct
 {
 	CRejected( my_context ctx ) : my_base( ctx )
 	{
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 	}
 };
 
@@ -277,7 +277,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 
 		context< CValidateTransactionsAction >().setTransactions( validTransactions );
 
-		context< CValidateTransactionsAction >().clearRequests();
+		context< CValidateTransactionsAction >().dropRequests();
 		context< CValidateTransactionsAction >().addRequests(
 				new CValidateTransactionsRequest( validTransactions, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}

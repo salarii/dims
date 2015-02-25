@@ -38,7 +38,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	{
 		CTrackerLocalRanking::getInstance()->resetMonitors();
 		CTrackerLocalRanking::getInstance()->resetTrackers();
-		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
 		//context< CConnectAction >().addRequests( new common::CTimeEventRequest( DnsAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 		m_lastAskTime = GetTime();
@@ -50,7 +50,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	{
 		if ( _dnsInfo.m_addresses.empty() )
 		{
-			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().dropRequests();
 			return discard_event();
 		}
 		else
@@ -81,7 +81,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 {
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CRecognizeNetworkRequest() );
 
 		m_lastAskTime = GetTime();
@@ -98,7 +98,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
 			{
-				context< CConnectAction >().clearRequests();
+				context< CConnectAction >().dropRequests();
 				context< CConnectAction >().addRequests( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
 			}
 			return discard_event();
@@ -163,7 +163,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		{
 		}
 
-		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().dropRequests();
 	}
 
 	void analyseData( bool & _isMonitorPresent )
@@ -206,7 +206,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 {
 	CMonitorPresent( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
 		m_lastAskTime = GetTime();
 	}
@@ -228,7 +228,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
 			{
-				context< CConnectAction >().clearRequests();
+				context< CConnectAction >().dropRequests();
 				context< CConnectAction >().addRequests( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
 			}
 			return discard_event();
@@ -236,7 +236,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		else
 		{
 			m_checked.insert( m_pending.begin(), m_pending.end() );
-			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().dropRequests();
 			context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 
 			return discard_event();
@@ -318,7 +318,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 		if ( m_pending.empty() )
 		{
-			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().dropRequests();
 			context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 		}
 
@@ -498,7 +498,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 {
 	CDetermineTrackers( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().clearRequests();
+		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 
 		m_lastAskTime = GetTime();
@@ -515,7 +515,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 		{
 			if ( !context< CConnectAction >().isRequestReady() )
 			{
-				context< CConnectAction >().clearRequests();
+				context< CConnectAction >().dropRequests();
 				context< CConnectAction >().addRequests( new CInfoRequestContinueComplex( m_nodeToToken, new CSpecificMediumFilter( m_pending ) ) );
 			}
 			return discard_event();
@@ -527,7 +527,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().dropRequests();
 			return discard_event();
 		}
 	}
@@ -558,7 +558,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().dropRequests();
 		}
 
 		return discard_event();
@@ -571,7 +571,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-			context< CConnectAction >().clearRequests();
+			context< CConnectAction >().dropRequests();
 			return discard_event();
 	}
 

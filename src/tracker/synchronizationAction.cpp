@@ -60,7 +60,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 {
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx ), m_waitTime( SynchronisingWaitTime )
 	{
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), 0 ) );
 		m_waitTime = GetTime();
 		m_bestTimeStamp = 0;
@@ -73,7 +73,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 			m_bestTimeStamp = _synchronizationInfoEvent.m_timeStamp;
 			context< CSynchronizationAction >().setNodeIdentifier( _synchronizationInfoEvent.m_nodeIdentifier );
 		}
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 	}
 
 
@@ -93,7 +93,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 {
 	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
 	{
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests( new CGetSynchronizationInfoRequest(
 															context< CSynchronizationAction >().getActionKey()
 															, CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
@@ -126,7 +126,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 		CTransactionRecordManager::getInstance()->clearAddressToCoinsDatabase();
 		CTransactionRecordManager::getInstance()->clearSupportTransactionsDatabase();
 
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
 	}
@@ -137,7 +137,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 		CSegmentFileStorage::getInstance()->setDiscBlock( *_transactionBlockEvent.m_discBlock, _transactionBlockEvent.m_blockIndex, transactions );
 
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
 
@@ -155,7 +155,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 	boost::statechart::result react( common::CEndEvent const & )
 	{
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
 		return discard_event();
@@ -168,7 +168,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 		CSegmentFileStorage::getInstance()->resetState();
 		CSegmentFileStorage::getInstance()->retriveState();
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 
 		return discard_event();
 	}
@@ -192,7 +192,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
 
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Header ) );
 	}
@@ -201,7 +201,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		CSegmentFileStorage::getInstance()->setDiscBlock( *_transactionBlockEvent.m_discBlock, _transactionBlockEvent.m_blockIndex );
 
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests(
 					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Header ) );
 
@@ -236,7 +236,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	{
 		CSegmentFileStorage::getInstance()->getBlock( m_currentBlock, *m_diskBlock );
 
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests( new CSetNextBlockRequest< CDiskBlock >(
 															context< CSynchronizationAction >().getActionKey()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
@@ -249,7 +249,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	{
 		CSegmentFileStorage::getInstance()->getSegmentHeader( m_currentHeader, *m_segmentHeader );
 
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests( new CSetNextBlockRequest< CSegmentHeader >(
 															context< CSynchronizationAction >().getActionKey()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
@@ -269,7 +269,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		}
 		else
 		{
-			context< CSynchronizationAction >().clearRequests();
+			context< CSynchronizationAction >().dropRequests();
 			context< CSynchronizationAction >().addRequests(
 						new common::CEndRequest<TrackerResponses>( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 		}
@@ -279,7 +279,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	boost::statechart::result react( common::CAckEvent const & )
 	{
-		context< CSynchronizationAction >().clearRequests();
+		context< CSynchronizationAction >().dropRequests();
 
 		return discard_event();
 	}

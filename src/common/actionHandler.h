@@ -211,6 +211,7 @@ void
 CActionHandler< _RequestResponses >::loop()
 {
 	std::set< CRequestHandler< _RequestResponses > * > requestHandlersToExecute;
+	std::set< CRequestHandler< _RequestResponses > * > requestHandlersToRead;
 	while(1)
 	{
 
@@ -240,7 +241,7 @@ CActionHandler< _RequestResponses >::loop()
 			m_actions.clear();
 		}
 
-		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToExecute )
+		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToRead )
 		{
 			reqHandler->processMediumResponses();
 		}
@@ -304,8 +305,10 @@ CActionHandler< _RequestResponses >::loop()
 		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToExecute )
 		{
 			reqHandler->runRequests();
+			requestHandlersToRead.insert( reqHandler );
 		}
 
+		requestHandlersToExecute.clear();
 		MilliSleep( m_sleepTime );
 	}
 }

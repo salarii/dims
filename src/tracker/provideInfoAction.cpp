@@ -30,7 +30,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		context< CProvideInfoAction >().clearRequests();
+		context< CProvideInfoAction >().dropRequests();
 		return discard_event();
 	}
 
@@ -44,7 +44,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		common::convertPayload( orginalMessage, requestedInfo );
 
-		context< CProvideInfoAction >().clearRequests();
+		context< CProvideInfoAction >().dropRequests();
 		context< CProvideInfoAction >().addRequests( new CDeliverInfoRequest( context< CProvideInfoAction >().getActionKey(), new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 	}
 	int64_t m_enterStateTime;
