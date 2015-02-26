@@ -132,7 +132,7 @@ void
 	{
 		request->accept( m_usedMedium );
 	}
-
+	m_newRequest.clear();
 	m_usedMedium->flush();
 }
 
@@ -149,26 +149,20 @@ void
 
 		m_usedMedium->getResponseAndClear( requestResponses );
 
-		assert( m_newRequest.size() == requestResponses.size() );// this  assert in general  is wrong but  it may be  useful for time being
-
 		BOOST_FOREACH( PAIRTYPE( CRequest< _RequestResponses >const*, _RequestResponses ) const & response, requestResponses )
 		{
 				m_processedRequests.insert( std::make_pair( response.first, response.second ) );
 		}
-		m_newRequest.clear();
+
 	}
 	 catch (CMediumException & _mediumException)
 	{
-//CSystemError is now  common for  every  action handler, it is neither  flexible  nor  good
-// it heve to be redesigned  somehow
-//right now, keep in mind that every single  action is responsible  for handling errors
-
+// do  something  here
 		BOOST_FOREACH( CRequest< _RequestResponses >const* request, m_newRequest )
 		{
 		//	m_processedRequests.insert( std::make_pair( request, _mediumException ) );
 		}
 		// problem with synchronization here??
-		m_newRequest.clear();
 	}
 
 }

@@ -31,7 +31,7 @@ class CMedium
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
-	virtual void getResponseAndClear() = 0;
+	virtual void getResponseAndClear( std::multimap< CRequest< _RequestResponses >const*, _RequestResponses > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
 	virtual bool getResponse( std::vector< _RequestResponses > & _requestResponse ) const = 0;
 	virtual void add( CRequest< _RequestResponses > const * _request ) = 0;
 	virtual ~CMedium(){};

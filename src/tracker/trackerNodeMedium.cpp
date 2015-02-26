@@ -42,8 +42,6 @@ CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }
 
@@ -58,8 +56,6 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }
 
@@ -69,8 +65,6 @@ CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 	common::CMessage message( _request->getTransactions(), _request->getActionKey() );
 
 	m_messages.push_back( message );
-
-	m_indexes.push_back( _request->getActionKey() );
 
 	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }
@@ -84,8 +78,6 @@ CTrackerNodeMedium::add( CSetNextBlockRequest< CSegmentHeader > const * _request
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 		updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }
 
@@ -98,8 +90,6 @@ CTrackerNodeMedium::add( CSetNextBlockRequest< CDiskBlock > const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }
 
@@ -109,8 +99,6 @@ CTrackerNodeMedium::add( CTransactionsStatusRequest const * _request )
 	common::CMessage message( common::CTransactionsBundleStatus( _request->getBundleStatus() ), _request->getActionKey() );
 
 	m_messages.push_back( message );
-
-	m_indexes.push_back( _request->getActionKey() );
 
 	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }
@@ -122,8 +110,6 @@ CTrackerNodeMedium::add( CPassMessageRequest const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }
 
@@ -133,8 +119,6 @@ CTrackerNodeMedium::add( CDeliverInfoRequest const * _request )
 	common::CMessage message( common::CInfoResponseData(), _request->getActionKey() );
 
 	m_messages.push_back( message );
-
-	m_indexes.push_back( _request->getActionKey() );
 
 	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
 }

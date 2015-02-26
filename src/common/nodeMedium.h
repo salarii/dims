@@ -56,7 +56,7 @@ public:
 
 protected:
 	void clearResponses();
-
+// this  is wrong, but for now let it be
 	void updateLastRequest( uint256 const & _id, common::CRequest< ResponseType >const* _request );
 protected:
 	common::CSelfNode * m_usedNode;
@@ -68,7 +68,7 @@ protected:
 
 	std::vector< common::CMessage > m_messages;
 
-	std::vector< uint256 > m_indexes;
+	std::set< uint256 > m_indexes;
 
 	std::map< uint256, common::CRequest< ResponseType >const* > m_lastRequestForAction;
 };
@@ -77,7 +77,7 @@ template < class ResponseType >
 bool
 CNodeMedium< ResponseType >::serviced() const
 {
-	return true;
+	return !m_responses.empty();
 }
 
 template < class ResponseType >
@@ -114,10 +114,11 @@ CNodeMedium< ResponseType >::getResponseAndClear( std::multimap< CRequest< Respo
 	BOOST_FOREACH( uint256 const & id, m_indexes )
 	{
 		typename std::multimap< uint256, ResponseType >::const_iterator iterator = m_responses.lower_bound( id );
-		if ( iterator != m_responses.upper_bound( id ) )
+		while ( iterator != m_responses.upper_bound( id ) )
 		{
 			_requestResponse.insert( std::make_pair( m_lastRequestForAction.find( id )->second, iterator->second ) );
 			deleteList.push_back( id );
+			++iterator;
 		}
 	}
 	clearResponses();
@@ -142,6 +143,7 @@ CNodeMedium< ResponseType >::setResponse( uint256 const & _id, ResponseType cons
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_responses.insert( std::make_pair( _id, _response ) );
+	m_indexes.insert( _id );
 }
 
 template < class ResponseType >
@@ -169,8 +171,6 @@ CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _requ
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
@@ -190,8 +190,6 @@ CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _req
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
@@ -207,8 +205,6 @@ CNodeMedium< ResponseType >::add( CNetworkRoleRequest< ResponseType > const * _r
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
 
@@ -220,8 +216,6 @@ CNodeMedium< ResponseType >::add( CKnownNetworkInfoRequest< ResponseType > const
 	common::CMessage message( _request->getNetworkInfo(), _request->getActionKey() );
 
 	m_messages.push_back( message );
-
-	m_indexes.push_back( _request->getActionKey() );
 
 		updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }
@@ -235,8 +229,6 @@ CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
 	common::CMessage message( ack, _request->getActionKey() );
 
 	m_messages.push_back( message );
-
-	m_indexes.push_back( _request->getActionKey() );
 
 	m_responses.insert( std::make_pair( _request->getActionKey(), common::CAckPromptResult() ) );
 
@@ -254,8 +246,6 @@ CNodeMedium< ResponseType >::add( CEndRequest< ResponseType > const * _request )
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( _request->getActionKey() );
-
 	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );//most likely wrong, but handy for time being
 }
 
@@ -268,8 +258,6 @@ CNodeMedium< ResponseType >::add( CResultRequest< ResponseType > const * _reques
 	common::CMessage message( result, _request->getActionKey() );
 
 	m_messages.push_back( message );
-
-	m_indexes.push_back( _request->getActionKey() );
 
 	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }

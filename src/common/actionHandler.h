@@ -283,8 +283,6 @@ CActionHandler< _RequestResponses >::loop()
 						m_actions.insert( reqAction.second );
 						it->second->deleteRequest( reqAction.first );
 						requestsToErase.push_back( reqAction.first );
-
-						m_currentlyUsedHandlers.erase( it );
 					}
 					else
 					{
