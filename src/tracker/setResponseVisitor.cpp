@@ -77,7 +77,7 @@ public:
 
 	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
-		this->m_action->process_event( common::CIntroduceEvent( _param.m_payload, _param.m_signed, _param.m_key, _param.m_address) );
+		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CRoleResult & _param ) const

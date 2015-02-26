@@ -88,6 +88,7 @@ public:
 	virtual void add( client::CRecognizeNetworkRequest const * _request ){};
 	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
 	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
+	virtual void add( common::CTimeEventRequest< client::NodeResponses > const * _request ){};
 	virtual ~CMedium(){};
 };
 
@@ -107,6 +108,7 @@ public:
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
 	virtual void add( monitor::CConnectCondition const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
+	virtual void add( common::CTimeEventRequest< monitor::MonitorResponses > const * _request ){};
 	virtual ~CMedium(){};
 };
 
@@ -124,6 +126,7 @@ public:
 	virtual void add( common::CNetworkRoleRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CAckRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CTimeEventRequest< seed::SeedResponses > const * _request ){};
 	virtual ~CMedium(){};
 };
 

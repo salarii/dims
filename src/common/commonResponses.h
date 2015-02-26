@@ -48,7 +48,7 @@ struct CAvailableCoins
 	std::map< uint256, CCoins > m_availableCoins;
 };
 
-struct CIdentificationResult
+struct CIdentificationResult : boost::statechart::event< CIdentificationResult >
 {
 	CIdentificationResult( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, CPubKey const & _key, CAddress const & _address = CAddress() ):m_payload( _payload ),m_signed( _signed ),m_key( _key ),m_address(_address){};
 	std::vector<unsigned char> m_payload;

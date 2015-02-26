@@ -27,7 +27,7 @@ public:
 
 	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
-		this->m_action->process_event( common::CIntroduceEvent( _param.m_payload, _param.m_signed, _param.m_key, _param.m_address) );
+		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
@@ -35,7 +35,7 @@ public:
 		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
 	}
 
-	virtual void operator()( common::CAckPromptResult & _param ) const
+	virtual void operator()( common::CTimeEvent & _param ) const
 	{
 		this->m_action->process_event( _param );
 	}
