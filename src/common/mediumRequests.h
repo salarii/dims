@@ -18,10 +18,10 @@ namespace common
 {
 
 template < class ResponsesType >
-class CIdentifyResponse : public common::CRequest< ResponsesType >
+class CSendIdentifyDataRequest : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyResponse( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	CSendIdentifyDataRequest( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -45,7 +45,7 @@ private:
 };
 
 template < class ResponsesType >
-CIdentifyResponse< ResponsesType >::CIdentifyResponse( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
+CSendIdentifyDataRequest< ResponsesType >::CSendIdentifyDataRequest( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
 	: common::CRequest< ResponsesType >( _mediumFilter )// new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByPtr< ResponsesType >( _ptr ) )
 	, m_signed( _signed )
 	, m_key( _key )
@@ -56,42 +56,42 @@ CIdentifyResponse< ResponsesType >::CIdentifyResponse( std::vector< unsigned cha
 
 template < class ResponsesType >
 void
-CIdentifyResponse< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CSendIdentifyDataRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
 {
 	_medium->add( this );
 }
 
 template < class ResponsesType >
 common::CMediumFilter< ResponsesType > *
-CIdentifyResponse< ResponsesType >::getMediumFilter() const
+CSendIdentifyDataRequest< ResponsesType >::getMediumFilter() const
 {
 	return common::CRequest< ResponsesType >::m_mediumFilter;
 }
 
 template < class ResponsesType >
 std::vector< unsigned char >
-CIdentifyResponse< ResponsesType >::getSigned() const
+CSendIdentifyDataRequest< ResponsesType >::getSigned() const
 {
 	return m_signed;
 }
 
 template < class ResponsesType >
 CPubKey
-CIdentifyResponse< ResponsesType >::getKey() const
+CSendIdentifyDataRequest< ResponsesType >::getKey() const
 {
 	return m_key;
 }
 
 template < class ResponsesType >
 std::vector< unsigned char >
-CIdentifyResponse< ResponsesType >::getPayload()const
+CSendIdentifyDataRequest< ResponsesType >::getPayload()const
 {
 	return m_payload;
 }
 
 template < class ResponsesType >
 uint256
-CIdentifyResponse< ResponsesType >::getActionKey() const
+CSendIdentifyDataRequest< ResponsesType >::getActionKey() const
 {
 	return m_actionKey;
 }

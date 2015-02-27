@@ -47,7 +47,7 @@ createIdentifyResponse( 	std::vector<unsigned char> const &_payload, uint256 con
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	return new common::CIdentifyResponse<TrackerResponses>( signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), _payload, _actionKey, _medium );
+	return new common::CSendIdentifyDataRequest<TrackerResponses>( signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), _payload, _actionKey, _medium );
 }
 
 struct CConnectNodeActionUninitiated : boost::statechart::simple_state< CConnectNodeActionUninitiated, CConnectNodeAction >

@@ -10,7 +10,7 @@ template < class RequestType >
 class CContinueReqest;
 
 template < class RequestType >
-class CIdentifyResponse;
+class CSendIdentifyDataRequest;
 
 template < class RequestType >
 class CKnownNetworkInfoRequest;

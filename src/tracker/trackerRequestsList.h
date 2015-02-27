@@ -4,7 +4,7 @@
 namespace common
 {
 template < class ResponsesType >
-class CIdentifyResponse;
+class CSendIdentifyDataRequest;
 
 template < class ResponsesType >
 class CNetworkRoleRequest;

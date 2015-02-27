@@ -34,7 +34,7 @@ public:
 
 	void add( common::CRequest< ResponseType >const * _request );
 
-	void add( CIdentifyResponse< ResponseType > const * _request );
+	void add( CSendIdentifyDataRequest< ResponseType > const * _request );
 
 	void add( CNetworkRoleRequest< ResponseType > const * _request );
 
@@ -157,7 +157,7 @@ CNodeMedium< ResponseType >::add( common::CRequest< ResponseType > const * _requ
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _request )
+CNodeMedium< ResponseType >::add( CSendIdentifyDataRequest< ResponseType > const * _request )
 {
 	common::CIdentifyMessage identifyMessage;
 

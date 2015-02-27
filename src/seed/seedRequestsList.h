@@ -10,7 +10,7 @@ template < class RequestType >
 class CContinueReqest;
 
 template < class RequestType >
-class CIdentifyResponse;
+class CSendIdentifyDataRequest;
 
 template < class RequestType >
 class CConnectToNodeRequest;
@@ -28,7 +28,7 @@ class CKnownNetworkInfoRequest;
 namespace seed
 {
 
-typedef boost::mpl::list< common::CIdentifyResponse< SeedResponses >, common::CConnectToNodeRequest< SeedResponses >, common::CNetworkRoleRequest< SeedResponses >, common::CAckRequest< SeedResponses >, common::CKnownNetworkInfoRequest< SeedResponses > > SeedRequestsList;
+typedef boost::mpl::list< common::CSendIdentifyDataRequest< SeedResponses >, common::CConnectToNodeRequest< SeedResponses >, common::CNetworkRoleRequest< SeedResponses >, common::CAckRequest< SeedResponses >, common::CKnownNetworkInfoRequest< SeedResponses > > SeedRequestsList;
 
 }
 
