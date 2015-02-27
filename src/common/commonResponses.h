@@ -57,10 +57,6 @@ struct CIdentificationResult : boost::statechart::event< CIdentificationResult >
 	CAddress m_address;
 };
 
-struct CAckPromptResult : boost::statechart::event< CAckPromptResult >
-{
-};
-
 struct CGetPrompt
 {
 	CGetPrompt( int _type ):m_type( _type ){}

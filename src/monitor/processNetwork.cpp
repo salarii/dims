@@ -94,7 +94,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
 							  nodeMedium->getNode()->addr
 							, message.m_header.m_actionKey
-							, identifyMessage.m_payload
 							, convertToInt( nodeMedium->getNode() ) );
 
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );

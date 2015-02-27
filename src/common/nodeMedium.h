@@ -20,8 +20,6 @@ namespace common
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
-template < class RequestType > class CIdentifyRequest;
-
 template < class ResponseType >
 class CNodeMedium : public common::CMedium< ResponseType >
 {
@@ -35,8 +33,6 @@ public:
 	bool getResponseAndClear( std::multimap< CRequest< ResponseType >const*, ResponseType > & _requestResponse );
 
 	void add( common::CRequest< ResponseType >const * _request );
-
-	void add( CIdentifyRequest< ResponseType > const * _request );
 
 	void add( CIdentifyResponse< ResponseType > const * _request );
 
@@ -161,21 +157,6 @@ CNodeMedium< ResponseType >::add( common::CRequest< ResponseType > const * _requ
 
 template < class ResponseType >
 void
-CNodeMedium< ResponseType >::add( CIdentifyRequest< ResponseType > const * _request )
-{
-	common::CIdentifyMessage identifyMessage;
-
-	identifyMessage.m_payload = _request->getPayload();
-
-	common::CMessage message( identifyMessage, _request->getActionKey() );
-
-	m_messages.push_back( message );
-
-	updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
-}
-
-template < class ResponseType >
-void
 CNodeMedium< ResponseType >::add( CIdentifyResponse< ResponseType > const * _request )
 {
 	common::CIdentifyMessage identifyMessage;
@@ -229,8 +210,6 @@ CNodeMedium< ResponseType >::add( CAckRequest< ResponseType > const * _request )
 	common::CMessage message( ack, _request->getActionKey() );
 
 	m_messages.push_back( message );
-
-	m_responses.insert( std::make_pair( _request->getActionKey(), common::CAckPromptResult() ) );
 
 		updateLastRequest( _request->getActionKey(), (common::CRequest< ResponseType >const*)_request );
 }

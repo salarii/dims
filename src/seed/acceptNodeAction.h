@@ -19,7 +19,7 @@ struct CUninitiated;
 class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
-	CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr );
+	CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr );
 
 	CAcceptNodeAction( CAddress const & _nodeAddress );
 

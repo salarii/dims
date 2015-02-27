@@ -111,12 +111,13 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction(
+				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
 							  message.m_header.m_actionKey
-							, identifyMessage.m_payload
 							, convertToInt( nodeMedium->getNode() ) );
 
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
+				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
+
+				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}

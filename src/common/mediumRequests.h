@@ -18,67 +18,10 @@ namespace common
 {
 
 template < class ResponsesType >
-class CIdentifyRequest : public common::CRequest< ResponsesType >
-{
-public:
-	CIdentifyRequest( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
-
-	void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	common::CMediumFilter< ResponsesType > * getMediumFilter() const;
-
-	std::vector< unsigned char > getPayload() const;
-
-	uint256 getActionKey() const;
-private:
-
-	std::vector< unsigned char > m_payload;
-
-	uint256 const m_actionKey;
-};
-
-template < class ResponsesType >
-CIdentifyRequest< ResponsesType >::CIdentifyRequest( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
-	: common::CRequest< ResponsesType >( _mediumFilter )
-	, m_payload( _payload )
-	, m_actionKey( _actionKey )
-{
-}
-
-template < class ResponsesType >
-uint256
-CIdentifyRequest< ResponsesType >::getActionKey() const
-{
-	return m_actionKey;
-}
-
-template < class ResponsesType >
-void
-CIdentifyRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CIdentifyRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
-std::vector< unsigned char >
-CIdentifyRequest< ResponsesType >::getPayload() const
-{
-	return m_payload;
-}
-
-
-template < class ResponsesType >
 class CIdentifyResponse : public common::CRequest< ResponsesType >
 {
 public:
-	CIdentifyResponse( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey );
+	CIdentifyResponse( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
 
 	void accept( common::CMedium< ResponsesType > * _medium ) const;
 
@@ -102,7 +45,7 @@ private:
 };
 
 template < class ResponsesType >
-CIdentifyResponse< ResponsesType >::CIdentifyResponse( common::CMediumFilter< ResponsesType > * _mediumFilter, std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey )
+CIdentifyResponse< ResponsesType >::CIdentifyResponse( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
 	: common::CRequest< ResponsesType >( _mediumFilter )// new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByPtr< ResponsesType >( _ptr ) )
 	, m_signed( _signed )
 	, m_key( _key )

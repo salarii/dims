@@ -156,19 +156,11 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	boost::statechart::result react( common::CEndEvent const & )
 	{
 		context< CSynchronizationAction >().dropRequests();
-		context< CSynchronizationAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-
-		return discard_event();
-	}
-
-
-	boost::statechart::result react( common::CAckPromptResult const & )
-	{
+		//context< CSynchronizationAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		//generate  time  and  quit??
 		CTrackerController::getInstance()->process_event( CSynchronizedWithNetworkEvent() );
-
 		CSegmentFileStorage::getInstance()->resetState();
 		CSegmentFileStorage::getInstance()->retriveState();
-		context< CSynchronizationAction >().dropRequests();
 
 		return discard_event();
 	}
@@ -180,7 +172,6 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< CTransactionBlockEvent< CDiskBlock > >,
-	boost::statechart::custom_reaction< common::CAckPromptResult >,
 	boost::statechart::custom_reaction< common::CEndEvent >
 	> reactions;
 };

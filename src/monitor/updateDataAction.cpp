@@ -51,12 +51,6 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckPromptResult const & _ackPrompt )
-	{
-		context< CUpdateDataAction >().dropRequests();
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CNoMedium const & _ackPrompt )
 	{
 		context< CUpdateDataAction >().dropRequests();
@@ -67,8 +61,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CNoMedium >,
-	boost::statechart::custom_reaction< common::CAckPromptResult >
+	boost::statechart::custom_reaction< common::CNoMedium >
 	> reactions;
 
 	std::set< uint160 > m_presentTrackers;

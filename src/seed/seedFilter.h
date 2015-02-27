@@ -4,6 +4,9 @@
 #define SEED_FILTER_H
 
 #include "common/filters.h"
+#include "common/mediumKinds.h"
+#include "common/timeMedium.h"
+
 #include "configureSeedActionHandler.h"
 
 namespace seed
@@ -27,16 +30,28 @@ struct CSpecificMediumFilter : public common::CMediumFilter< SeedResponses >
 };
 
 
-struct CInternalMediumFilter : public common::CMediumFilter< SeedResponses >
+struct CMediumClassFilter : public common::CMediumFilter< SeedResponses >
 {
-	CInternalMediumFilter()
+	CMediumClassFilter( common::CMediumKinds::Enum _mediumClass, int _mediumNumber = -1 ):
+		m_mediumClass( _mediumClass ),
+		m_mediumNumber( _mediumNumber )
 	{}
-
+//  fix  it
 	std::list< common::CMedium< SeedResponses > *> getMediums( CSeedNodesManager * _nodesManager )const
 	{
-		return _nodesManager->getInternalMedium();
+		if ( common::CMediumKinds::Internal == m_mediumClass )
+		{
+			return _nodesManager->getInternalMedium();// not nice
+		}
+		else if( common::CMediumKinds::Time == m_mediumClass )
+		{
+			std::list< common::CMedium< SeedResponses > *> mediums;
+			mediums.push_back( common::CTimeMedium< SeedResponses >::getInstance() );//not nice
+			return mediums;
+		}
 	}
-
+	common::CMediumKinds::Enum m_mediumClass;
+	int m_mediumNumber;
 };
 
 }

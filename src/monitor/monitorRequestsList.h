@@ -5,8 +5,6 @@
 
 namespace common
 {
-template < class RequestType >
-class CIdentifyRequest;
 
 template < class RequestType >
 class CContinueReqest;

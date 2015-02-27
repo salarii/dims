@@ -48,7 +48,6 @@ public:
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
-	virtual void add( common::CIdentifyRequest<tracker::TrackerResponses> const * _request ){};
 	virtual void add( common::CIdentifyResponse<tracker::TrackerResponses> const * _request ){};
 	virtual void add( tracker::CAskForTransactionsRequest const * _request ){};
 	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
@@ -100,7 +99,6 @@ public:
 	virtual bool flush() = 0;
 
 	virtual bool getResponseAndClear( std::multimap< CRequest< monitor::MonitorResponses >const*, monitor::MonitorResponses > & _requestResponse ) = 0;
-	virtual void add( common::CIdentifyRequest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CAckRequest< monitor::MonitorResponses > const * _request ){};
@@ -120,7 +118,6 @@ public:
 	virtual bool flush() = 0;
 
 	virtual bool getResponseAndClear( std::multimap< CRequest< seed::SeedResponses >const*, seed::SeedResponses > & _requestResponse ) = 0;//stupid  signature, but I don't see other  ways to handle race conditions
-	virtual void add( common::CIdentifyRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CIdentifyResponse< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CConnectToNodeRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CNetworkRoleRequest< seed::SeedResponses > const * _request ){};

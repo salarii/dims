@@ -12,9 +12,6 @@
 namespace seed
 {
 
-
-class CIdentifyRequest;
-
 class CSeedNodeMedium : public common::CNodeMedium< SeedResponses >
 {
 public:

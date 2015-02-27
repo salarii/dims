@@ -4,6 +4,7 @@
 
 #include "configureSeedActionHandler.h"
 #include "common/actionHandler.h"
+#include "common/timeMedium.h"
 
 namespace seed
 {
@@ -12,6 +13,7 @@ template<>
 unsigned int const common::CActionHandler< SeedResponses >::m_sleepTime = 100;
 template<>
 common::CActionHandler< SeedResponses > * common::CActionHandler< SeedResponses >::ms_instance = NULL;
+template<>
+common::CTimeMedium< SeedResponses > * common::CTimeMedium< SeedResponses >::ms_instance = NULL;
 
 }
-

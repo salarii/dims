@@ -29,7 +29,7 @@ class CConnectNodeAction : public common::CAction< MonitorResponses >, public  b
 public:
 	CConnectNodeAction( CAddress const & _addrConnect );
 
-	CConnectNodeAction( CAddress const & _addrConnect, uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr );
+	CConnectNodeAction( CAddress const & _addrConnect, uint256 const & _actionKey, uintptr_t _mediumPtr );
 
 	virtual void accept( common::CSetResponseVisitor< MonitorResponses > & _visitor );
 

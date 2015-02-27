@@ -50,11 +50,6 @@ public:
 		this->m_action->process_event( common::CAckEvent( _param.m_nodePtr ) );
 	}
 
-	virtual void operator()( common::CAckPromptResult & _param ) const
-	{
-		this->m_action->process_event( _param );
-	}
-
 	virtual void operator()( common::CErrorEvent & _param ) const
 	{
 		//handle it somehow
@@ -88,11 +83,6 @@ public:
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
 	{
 		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
-	}
-
-	virtual void operator()( common::CAckPromptResult & _param ) const
-	{
-		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CAckResult & _param ) const
@@ -159,11 +149,6 @@ public:
 	}
 
 	virtual void operator()( common::CEndEvent & _param ) const
-	{
-		this->m_action->process_event( _param );
-	}
-
-	virtual void operator()( common::CAckPromptResult & _param ) const
 	{
 		this->m_action->process_event( _param );
 	}

@@ -58,7 +58,7 @@ createIdentifyResponse( Parent & parent )
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	parent.addRequests( new common::CIdentifyResponse<SeedResponses>( new CSpecificMediumFilter( parent.getMediumPtr() ), signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), parent.getPayload(), parent.getActionKey() ) );
+//	parent.addRequests( new common::CIdentifyResponse<SeedResponses>( new CSpecificMediumFilter( parent.getMediumPtr() ), signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), parent.getPayload(), parent.getActionKey() ) );
 }
 
 struct ConnectedToTracker;
@@ -206,13 +206,11 @@ struct CPairIdentifiedConnected : boost::statechart::state< CPairIdentifiedConne
 			context< CAcceptNodeAction >().setValid( false );
 			context< CAcceptNodeAction >().dropRequests();
 		}
-
-		return discard_event();
+		return transit< CDetermineRoleConnected >();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CIdentificationResult >,
-	boost::statechart::transition< common::CAckPromptResult, CDetermineRoleConnected >
+	boost::statechart::custom_reaction< common::CIdentificationResult >
 	> reactions;
 
 	uint64_t m_time;
@@ -228,7 +226,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		context< CAcceptNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
 		context< CAcceptNodeAction >().dropRequests();
-		context< CAcceptNodeAction >().addRequests( new common::CIdentifyRequest<SeedResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CAcceptNodeAction >().getPayload(), context< CAcceptNodeAction >().getActionKey() ) );
+//		context< CAcceptNodeAction >().addRequests( new common::CIdentifyRequest<SeedResponses>( new CSpecificMediumFilter( convertToInt( connectedEvent->m_node ) ), context< CAcceptNodeAction >().getPayload(), context< CAcceptNodeAction >().getActionKey() ) );
 
 	}
 
@@ -278,7 +276,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 	{
 		context< CAcceptNodeAction >().dropRequests();
 		context< CAcceptNodeAction >().addRequests(
-					new common::CConnectToNodeRequest< SeedResponses >( std::string(""), context< CAcceptNodeAction >().getAddress(), new CInternalMediumFilter() ) );
+					new common::CConnectToNodeRequest< SeedResponses >( std::string(""), context< CAcceptNodeAction >().getAddress(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
 	typedef boost::mpl::list<
@@ -390,9 +388,8 @@ struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CAccept
 
 };
 
-CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, uintptr_t _mediumPtr )
+CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr )
 	: common::CCommunicationAction( _actionKey )
-	, m_payload( _payload )
 	, m_passive( true )
 	, m_mediumPtr( _mediumPtr )
 	, m_valid( false )

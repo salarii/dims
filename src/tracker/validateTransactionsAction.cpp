@@ -110,6 +110,9 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		context< CValidateTransactionsAction >().dropRequests();
 		context< CValidateTransactionsAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
 
+		context< CValidateTransactionsAction >().addRequests(
+					new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
+
 		m_pubKey = messageResult->m_pubKey;
 	}
 
@@ -138,17 +141,8 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckPromptResult const & _ackPromptResult )
-	{
-		context< CValidateTransactionsAction >().dropRequests();
-		context< CValidateTransactionsAction >().addRequests(
-					new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
-		return discard_event();
-	}
-
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CValidationEvent >,
-	boost::statechart::custom_reaction< common::CAckPromptResult >
+	boost::statechart::custom_reaction< CValidationEvent >
 	> reactions;
 
 	CPubKey m_pubKey;

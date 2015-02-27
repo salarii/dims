@@ -4,9 +4,6 @@
 namespace common
 {
 template < class ResponsesType >
-class CIdentifyRequest;
-
-template < class ResponsesType >
 class CIdentifyResponse;
 
 template < class ResponsesType >
