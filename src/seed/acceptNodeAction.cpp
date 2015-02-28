@@ -200,6 +200,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CIdentificationResult >,
 	boost::statechart::transition< common::CAckEvent, CDetermineRoleConnected >
 	> reactions;
 };
