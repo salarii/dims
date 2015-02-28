@@ -5,6 +5,7 @@
 #include "configureMonitorActionHandler.h"
 #include "common/actionHandler.h"
 #include "common/periodicActionExecutor.h"
+#include "common/timeMedium.h"
 
 namespace monitor
 {
@@ -18,4 +19,8 @@ common::CPeriodicActionExecutor< MonitorResponses > * common::CPeriodicActionExe
 
 template<>
 unsigned int const common::CPeriodicActionExecutor< MonitorResponses >::m_sleepTime = 100;
+
+template<>
+common::CTimeMedium< MonitorResponses > * common::CTimeMedium< MonitorResponses >::ms_instance = NULL;
+
 }

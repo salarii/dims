@@ -46,6 +46,7 @@
 #include "common/manageNetwork.h"
 #include "common/nodesManager.h"
 #include "common/periodicActionExecutor.h"
+#include "common/timeMedium.h"
 
 #include "processNetwork.h"
 #include "monitorController.h"
@@ -627,6 +628,8 @@ bool AppInit(boost::thread_group& threadGroup)
 	// ********************************************************* Step 9: import blocks
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< monitor::MonitorResponses >::loop, common::CActionHandler< monitor::MonitorResponses >::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium< monitor::MonitorResponses >::workLoop, common::CTimeMedium< monitor::MonitorResponses >::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
 

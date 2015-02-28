@@ -17,6 +17,7 @@
 #include "common/dimsParams.h"
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
+#include "common/timeMedium.h"
 
 #include "seedNodesManager.h"
 #include "util.h"
@@ -489,6 +490,8 @@ int main(int argc, char **argv) {
 	}
 
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< seed::SeedResponses >::loop, common::CActionHandler< seed::SeedResponses >::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium< seed::SeedResponses >::workLoop, common::CTimeMedium< seed::SeedResponses >::getInstance() ) );
 
 	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
 
