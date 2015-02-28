@@ -21,7 +21,7 @@
 namespace monitor
 {
 
-unsigned int const LoopTime = 20;
+unsigned int const LoopTime = 20000;//milices
 
 struct CMonitorUnconnected;
 struct CMonitorBothUnidentifiedConnected;
@@ -109,7 +109,7 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 
 			context< CConnectNodeAction >().dropRequests();
 			context< CConnectNodeAction >().addRequests( new common::CAckRequest< MonitorResponses >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-			context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+			context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest<MonitorResponses>( context< CConnectNodeAction >().getActionKey(), common::CRole::Monitor, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		}
 		else
 		{

@@ -21,15 +21,15 @@
 namespace monitor
 {
 
-unsigned int const LoopTime = 20;
+unsigned int const LoopTime = 20000;//milisec
 
 struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataAction >
 {
 	CAskForUpdate( my_context ctx ) : my_base( ctx )
 	{
-		m_enterStateTime = GetTime();
 		context< CUpdateDataAction >().dropRequests();
 		context< CUpdateDataAction >().addRequests( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		context< CUpdateDataAction >().addRequests( new common::CTimeEventRequest<MonitorResponses>( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _result )
@@ -51,16 +51,23 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CNoMedium const & _ackPrompt )
+	boost::statechart::result react( common::CNoMedium const & _noMedium )
 	{
 		context< CUpdateDataAction >().dropRequests();
 		return discard_event();
 	}
 
-	int64_t m_enterStateTime;
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		CReputationTracker::getInstance()->setPresentTrackers( m_presentTrackers );
+		context< CUpdateDataAction >().dropRequests();
+
+		return discard_event();
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CNoMedium >
 	> reactions;
 

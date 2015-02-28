@@ -15,6 +15,8 @@ namespace tracker
 
 struct CInitial;
 // extremely simplified,  no  confirmation message
+// it was  working  once, but  right now  not  very likely  ! test it !
+// add ack  event where necessary
 class CValidateTransactionsAction : public common::CAction< TrackerResponses >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >, public common::CCommunicationAction
 {
 public:

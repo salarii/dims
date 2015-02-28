@@ -19,7 +19,7 @@
 namespace tracker
 {
 
-unsigned int const LoopTime = 20;
+unsigned int const LoopTime = 20000;//milisec
 
 struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction >
 {

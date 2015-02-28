@@ -118,7 +118,7 @@ private:
 
 	static unsigned int const m_sleepTime;
 
-	RequestToHandlers m_currentlyUsedHandlers;
+	RequestToHandlers m_currentlyUsedHandlers;// clean this  up when an action dies
 };
 
 template < class _RequestResponses >
@@ -179,7 +179,6 @@ CActionHandler< _RequestResponses >::provideHandler( CMediumFilter<_RequestRespo
 		{
 			BOOST_FOREACH( CMedium< _RequestResponses > * medium, mediums )
 			{
-				// here we are counting on medium provider to select properly
 				typename AvailableHandlers::iterator iterator = std::lower_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _RequestResponses >() );
 				if ( iterator != std::upper_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _RequestResponses >() ) )
 				{
@@ -227,16 +226,37 @@ CActionHandler< _RequestResponses >::loop()
 					BOOST_FOREACH( CRequest< _RequestResponses >* request, requests )
 					{
 						m_reqToAction.insert( std::make_pair( request, action ) );
+
+						typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound (request);
+						typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound (request);
+
+						if ( lower == upper )
+						{
+							std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( *request->getMediumFilter() );
+
+							BOOST_FOREACH( CRequestHandler< _RequestResponses > * requestHandler, requestHandlers )
+							{
+								requestHandlersToExecute.insert( requestHandler );
+								requestHandler->setRequest( request );
+
+								m_currentlyUsedHandlers.insert( std::make_pair( request, requestHandler ) );
+							}
+
+						}
+
 					}
 				}
 				else
 				{
 					if ( action->autoDelete() )
+					{
+						// clean m_currentlyUsedHandlers here
 						delete action;
+					}
 					else
 						action->setExecuted();
 				}
-				// for safety  reason one should  consider reseting  current request to  0
+
 			}
 			m_actions.clear();
 		}
@@ -250,44 +270,26 @@ CActionHandler< _RequestResponses >::loop()
 
 		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
-
 			typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound (reqAction.first);
 			typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound (reqAction.first);
-
-			if ( lower == upper )
+			for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
 			{
-				std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( *reqAction.first->getMediumFilter() );
-
-				BOOST_FOREACH( CRequestHandler< _RequestResponses > * requestHandler, requestHandlers )
+				if ( it->second->isProcessed( reqAction.first ) )
 				{
-					requestHandlersToExecute.insert( requestHandler );
-					requestHandler->setRequest( reqAction.first );
+					std::vector< _RequestResponses > responses = it->second->getResponses( reqAction.first );
 
-					m_currentlyUsedHandlers.insert( std::make_pair( reqAction.first, requestHandler ) );
+					BOOST_FOREACH( _RequestResponses const & response, responses )
+					{
+						CSetResponseVisitor< _RequestResponses > visitor( response );
+						reqAction.second->accept( visitor );
+					}
+					m_actions.insert( reqAction.second );
+					it->second->deleteRequest( reqAction.first );
+					requestsToErase.push_back( reqAction.first );
 				}
-
-			}
-			else
-			{
-				for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
+				else
 				{
-					if ( it->second->isProcessed( reqAction.first ) )
-					{
-						std::vector< _RequestResponses > responses = it->second->getResponses( reqAction.first );
-
-						BOOST_FOREACH( _RequestResponses const & response, responses )
-						{
-							CSetResponseVisitor< _RequestResponses > visitor( response );
-							reqAction.second->accept( visitor );
-						}
-						m_actions.insert( reqAction.second );
-						it->second->deleteRequest( reqAction.first );
-						requestsToErase.push_back( reqAction.first );
-					}
-					else
-					{
-						// problem ??? assert this??
-					}
+					// problem ??? assert this??
 				}
 			}
 		}

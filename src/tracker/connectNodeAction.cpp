@@ -24,10 +24,10 @@ namespace tracker
 {
 
 // use  similar  algorithms like in client  to recognize network while connecting ???
-
-unsigned int const TrackerLoopTime = 20;
-unsigned int const SeedLoopTime = 25;
-unsigned int const MonitorLoopTime = 25;
+//milisec
+unsigned int const TrackerLoopTime = 20000;
+unsigned int const SeedLoopTime = 25000;
+unsigned int const MonitorLoopTime = 25000;
 
 struct CBothUnidentifiedConnected;
 struct CBothUnidentifiedConnecting;

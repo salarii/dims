@@ -5,6 +5,7 @@
 #include "internalMediumProvider.h"
 #include "internalOperationsMedium.h"
 
+#include "common/timeMedium.h"
 namespace monitor
 {
 
@@ -22,7 +23,6 @@ CInternalMediumProvider::getInstance( )
 
 CInternalMediumProvider::CInternalMediumProvider()
 {
-	m_mediums.push_back( CInternalOperationsMedium::getInstance() );
 }
 
 std::list< common::CMedium< MonitorResponses > *>
@@ -50,12 +50,18 @@ std::list< common::CMedium< MonitorResponses > *>
 CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
+	std::list< common::CMedium< MonitorResponses > *> mediums;
 
 	if ( common::CMediumKinds::Internal == _mediumKind )
-		return m_mediums;
+	{
+		mediums.push_back( CInternalOperationsMedium::getInstance() );
+	}
+	else if ( common::CMediumKinds::Time == _mediumKind )
+	{
+		mediums.push_back( common::CTimeMedium< MonitorResponses >::getInstance() );
+	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
-		std::list< common::CMedium< MonitorResponses > *> mediums;
 
 		std::map< CNode *, CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
@@ -65,7 +71,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 			if ( iterator != m_nodeToMedium.end() )
 			{
 				// validate that node  is  still working??
-		/*		mediums.push_back( static_cast< common::CMedium< MonitorResponses > * >( iterator->second ) );
+				/*		mediums.push_back( static_cast< common::CMedium< MonitorResponses > * >( iterator->second ) );
 				iterator++;
 				++i;*/
 			}
@@ -80,11 +86,8 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 			}
 
 		}
-
-		return mediums;
 	}
-	else
-		return std::list< common::CMedium< MonitorResponses > *>();
+	return mediums;
 }
 
 

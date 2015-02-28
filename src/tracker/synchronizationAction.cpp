@@ -36,9 +36,9 @@ struct CBlockKind
 	};
 };
 
-unsigned const SynchronisingGetInfoTime = 10;
+unsigned const SynchronisingGetInfoTime = 10000;//milisec
 
-unsigned const SynchronisingWaitTime = 15;
+unsigned const SynchronisingWaitTime = 15000;
 
 struct CSynchronizingGetInfo;
 struct CSynchronizedGetInfo;
@@ -58,11 +58,11 @@ struct CSynchronizingHeaders;
 
 struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, CSynchronizationAction >
 {
-	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx ), m_waitTime( SynchronisingWaitTime )
+	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), 0 ) );
-		m_waitTime = GetTime();
+		context< CSynchronizationAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( SynchronisingGetInfoTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		m_bestTimeStamp = 0;
 	}
 
@@ -77,11 +77,25 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	}
 
 
+
+boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+{
+	if ( m_bestTimeStamp > 0 )
+	{
+		context< CSynchronizationAction >().dropRequests();
+		return transit< CSynchronizingHeaders >();
+	}
+	else
+	{
+		context< CSynchronizationAction >().dropRequests();
+		return discard_event();
+	}
+}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< CSynchronizationInfoEvent >
 	> reactions;
-
-	long long unsigned m_waitTime;
 
 	// best synchronising option
 	uint64_t m_bestTimeStamp;
@@ -99,8 +113,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 															, CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) )
 														);
-
-		m_waitTime = GetTime();
+		context< CSynchronizationAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( SynchronisingWaitTime * 2, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CGetEvent const & _getEvent )
@@ -108,11 +121,16 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 		return transit< CSynchronized >();
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().dropRequests();
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CGetEvent >
 	> reactions;
-
-	unsigned int m_waitTime;
 
 	// best synchronising option
 	uint64_t m_bestTimeStamp;

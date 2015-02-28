@@ -33,7 +33,6 @@ private:
 
 	static CInternalMediumProvider * ms_instance;
 
-	std::list< common::CMedium< MonitorResponses > *> m_mediums;
 	// this is simplified approach
 	std::map< CNode *, CBitcoinNodeMedium * > m_nodeToMedium;
 };
