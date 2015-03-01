@@ -10,7 +10,7 @@
 #include "QTcpSocket"
 #include "common/communicationBuffer.h"
 #include "common/medium.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 
 #include <exception>
 
@@ -21,7 +21,7 @@ class CBufferAsStream;
 namespace client
 {
 
-class CNetworkClient : public common::CMedium< NodeResponses >, public QThread
+class CNetworkClient : public common::CMedium< ClientResponses >, public QThread
 {
 public:
     enum ConnectionInfo
@@ -41,15 +41,13 @@ public:
 
 	bool serviced() const throw(common::CMediumException);
 
-	void add( common::CRequest< NodeResponses > const * _request );
+	void add( common::CRequest< ClientResponses > const * _request );
 
 	void add( CBalanceRequest const * _request );
 
 	void add( CTransactionSendRequest const * _request );
 
 	void add( CTransactionStatusRequest const * _request );
-
-	void add( CInfoRequestContinueComplex const * _request );
 
 	void add( CInfoRequestContinue const * _request );
 
@@ -61,7 +59,7 @@ public:
 
 	bool flush();
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );
 private:
 	void clearResponses();
 	void run();
@@ -84,7 +82,7 @@ private:
 
 	ConnectionInfo m_connectionInfo;
 
-	std::list< common::CRequest< NodeResponses >* > m_workingRequest;
+	std::list< common::CRequest< ClientResponses >* > m_workingRequest;
 };
 
 

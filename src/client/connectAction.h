@@ -12,9 +12,9 @@
 
 #include "trackerLocalRanking.h"
 #include "sendInfoRequestAction.h"
-#include "common/requestResponse.h"
+#include "common/commonResponses.h"
 #include "errorRespond.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 
 #include <boost/statechart/state_machine.hpp>
 
@@ -23,12 +23,12 @@ namespace client
 
 struct CClientUnconnected;
 
-class CConnectAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
+class CConnectAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
 {
 public:
 	CConnectAction( bool _autoDelete = true );
 
-	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
 
 	void reset();
 

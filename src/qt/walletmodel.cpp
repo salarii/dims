@@ -10,7 +10,7 @@
 #include "transactiontablemodel.h"
 #include "common/actionHandler.h"
 #include "client/sendTransactionAction.h"
-#include "client/configureNodeActionHadler.h"
+#include "client/configureClientActionHadler.h"
 #include "base58.h"
 #include "db.h"
 #include "keystore.h"
@@ -142,7 +142,7 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
     if(addressTableModel)
         addressTableModel->updateEntry(address, label, isMine, purpose, status);
 	if ( status == CT_NEW );
-		//common::CPeriodicActionExecutor< client::NodeResponses >::getInstance()->addAction( new client::CSendBalanceInfoAction( address.toStdString() ), 6000 );
+		//common::CPeriodicActionExecutor< client::ClientResponses >::getInstance()->addAction( new client::CSendBalanceInfoAction( address.toStdString() ), 6000 );
 }
 
 bool WalletModel::validateAddress(const QString &address)
@@ -324,7 +324,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 	  //  emit coinsSent(wallet, rcp, transaction_array);
     }
 /* create send  transaction  action */
-	common::CActionHandler< client::NodeResponses >::getInstance()->executeAction( new client::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
+	common::CActionHandler< client::ClientResponses >::getInstance()->executeAction( new client::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
     return SendCoinsReturn(OK);
 }
 

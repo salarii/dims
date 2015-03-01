@@ -9,7 +9,7 @@
 
 #include "common/action.h"
 #include "common/request.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "common/setResponseVisitor.h"
 
 #include  <boost/optional.hpp>
@@ -21,12 +21,12 @@ namespace client
 
 struct CGetBalanceInfo;
 
-class CSendBalanceInfoAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetBalanceInfo >
+class CSendBalanceInfoAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetBalanceInfo >
 {
 public:
 	CSendBalanceInfoAction( bool _autoDelete );
 
-	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
+	void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
 
 	void reset();
 
@@ -37,14 +37,14 @@ private:
 	std::vector< std::string > m_addresses;
 };
 
-struct CBalanceRequest : public common::CRequest< NodeResponses >
+struct CBalanceRequest : public common::CRequest< ClientResponses >
 {
 public:
 	CBalanceRequest( std::string _address );
 
-	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
+	common::CMediumFilter< ClientResponses > * getMediumFilter() const;
 
-	void accept( common::CMedium< NodeResponses > * _medium ) const;
+	void accept( common::CMedium< ClientResponses > * _medium ) const;
 
     std::string const m_address;
 

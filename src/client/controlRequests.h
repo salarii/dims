@@ -5,30 +5,30 @@
 #ifndef CONTROL_REQUESTS_H
 #define CONTROL_REQUESTS_H
 
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "common/request.h"
 
 namespace client
 {
 
-class CDnsInfoRequest : public common::CRequest< NodeResponses >
+class CDnsInfoRequest : public common::CRequest< ClientResponses >
 {
 public:
    CDnsInfoRequest();
 
-   virtual void accept( common::CMedium< NodeResponses > * _medium ) const;
+   virtual void accept( common::CMedium< ClientResponses > * _medium ) const;
 
-   virtual common::CMediumFilter< NodeResponses > * getMediumFilter() const;
+   virtual common::CMediumFilter< ClientResponses > * getMediumFilter() const;
 };
 
-class CRecognizeNetworkRequest : public common::CRequest< NodeResponses >
+class CRecognizeNetworkRequest : public common::CRequest< ClientResponses >
 {
 public:
    CRecognizeNetworkRequest();
 
-   virtual void accept( common::CMedium< NodeResponses > * _medium ) const;
+   virtual void accept( common::CMedium< ClientResponses > * _medium ) const;
 
-   virtual common::CMediumFilter< NodeResponses > * getMediumFilter() const;
+   virtual common::CMediumFilter< ClientResponses > * getMediumFilter() const;
 };
 
 }

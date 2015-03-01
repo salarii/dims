@@ -11,38 +11,38 @@ namespace client
 {
 
 CDnsInfoRequest::CDnsInfoRequest()
-	:common::CRequest< NodeResponses >( new CMediumClassFilter( common::RequestKind::Seed ) )
+	:common::CRequest< ClientResponses >( new CMediumClassFilter( common::RequestKind::Seed ) )
 {
 }
 
 void
-CDnsInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+CDnsInfoRequest::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
 
-common::CMediumFilter< NodeResponses > *
+common::CMediumFilter< ClientResponses > *
 CDnsInfoRequest::getMediumFilter() const
 {
-	return common::CRequest< NodeResponses >::m_mediumFilter;
+	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
 CRecognizeNetworkRequest::CRecognizeNetworkRequest()
-	:common::CRequest< NodeResponses >( new CMediumClassFilter( common::RequestKind::Unknown ) )
+	:common::CRequest< ClientResponses >( new CMediumClassFilter( common::RequestKind::Unknown ) )
 {
 
 }
 
 void
-CRecognizeNetworkRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+CRecognizeNetworkRequest::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
 
-common::CMediumFilter< NodeResponses > *
+common::CMediumFilter< ClientResponses > *
 CRecognizeNetworkRequest::getMediumFilter() const
 {
-	return common::CRequest< NodeResponses >::m_mediumFilter;
+	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
 

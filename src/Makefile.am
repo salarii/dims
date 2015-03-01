@@ -41,7 +41,6 @@ COMMON_H = \
   common/dimsParams.h \
   common/responseVisitorInternal.h \
   common/requestHandler.h \
-  common/requestResponse.h \
   common/request.h \
   common/selfNode.h \
   common/timeMedium.h \

@@ -7,7 +7,7 @@
 
 #include <boost/variant.hpp> 
 #include "tracker/configureTrackerActionHandler.h"
-#include "client/configureNodeActionHadler.h"
+#include "client/configureClientActionHadler.h"
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"
 
@@ -91,23 +91,23 @@ private:
 };
 
 template<>
-class CSetResponseVisitor< client::NodeResponses >
+class CSetResponseVisitor< client::ClientResponses >
 {
 public:
-	CSetResponseVisitor( client::NodeResponses const & _requestRespond );
+	CSetResponseVisitor( client::ClientResponses const & _requestRespond );
 
 	void visit( client::CSendTransactionAction & _action );
 
 	void visit( client::CConnectAction & _action );
 
-	void visit( CAction< client::NodeResponses > & _action );
+	void visit( CAction< client::ClientResponses > & _action );
 
 	void visit( client::CSendBalanceInfoAction & _action );
 
 	void visit( client::CPayLocalApplicationAction & _action );
 private:
 
-	client::NodeResponses m_requestResponse;
+	client::ClientResponses m_requestResponse;
 };
 
 

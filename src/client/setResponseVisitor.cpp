@@ -3,14 +3,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/setResponseVisitor.h"
-#include "common/requestResponse.h"
+#include "common/commonResponses.h"
 #include "common/commonEvents.h"
 #include "common/responseVisitorInternal.h"
 
 #include "sendTransactionAction.h"
 #include "connectAction.h"
 #include "sendBalanceInfoAction.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "payLocalApplicationAction.h"
 
 #include "clientResponses.h"
@@ -21,21 +21,26 @@
 
 namespace common
 {
-
+/*
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+*/
 template < class _Action >
-class CGetMediumError : public CResponseVisitorBase< _Action, client::NodeResponseList >
+class CGetMediumError : public CResponseVisitorBase< _Action, client::ClientResponseList >
 {
 public:
-	CGetMediumError( _Action * const _action ):CResponseVisitorBase< _Action, client::NodeResponseList >( _action ){};
+	CGetMediumError( _Action * const _action ):CResponseVisitorBase< _Action, client::ClientResponseList >( _action ){};
 
 	void operator()(CMediumException & _systemError ) const
     {
     }
 };
-class CSetTransactionAction : public CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList >
+class CSetTransactionAction : public CResponseVisitorBase< client::CSendTransactionAction, client::ClientResponseList >
 {
 public:
-	CSetTransactionAction( client::CSendTransactionAction * const _action ):CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList >( _action ){};
+	CSetTransactionAction( client::CSendTransactionAction * const _action ):CResponseVisitorBase< client::CSendTransactionAction, client::ClientResponseList >( _action ){};
 
 	void operator()( CPending & _peding ) const
 	{
@@ -53,10 +58,10 @@ public:
 	}
 };
 
-class CSetBalanceInfoAction : public CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList >
+class CSetBalanceInfoAction : public CResponseVisitorBase< client::CSendBalanceInfoAction, client::ClientResponseList >
 {
 public:
-	CSetBalanceInfoAction( client::CSendBalanceInfoAction * const _action ):CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList >( _action ){};
+	CSetBalanceInfoAction( client::CSendBalanceInfoAction * const _action ):CResponseVisitorBase< client::CSendBalanceInfoAction, client::ClientResponseList >( _action ){};
 
 	void operator()( CPending & _peding ) const
 	{
@@ -74,10 +79,10 @@ public:
 	}
 };
 
-class CSetConnectAction : public CResponseVisitorBase< client::CConnectAction, client::NodeResponseList >
+class CSetConnectAction : public CResponseVisitorBase< client::CConnectAction, client::ClientResponseList >
 {
 public:
-	CSetConnectAction( client::CConnectAction * const _action ):CResponseVisitorBase< client::CConnectAction, client::NodeResponseList >( _action ){};
+	CSetConnectAction( client::CConnectAction * const _action ):CResponseVisitorBase< client::CConnectAction, client::ClientResponseList >( _action ){};
 
 	void operator()(client::CDnsInfo & _dnsInfo ) const
 	{
@@ -115,10 +120,10 @@ public:
 	}
 };
 
-class CSetPayLocalApplicationAction : public CResponseVisitorBase< client::CPayLocalApplicationAction, client::NodeResponseList >
+class CSetPayLocalApplicationAction : public CResponseVisitorBase< client::CPayLocalApplicationAction, client::ClientResponseList >
 {
 public:
-	CSetPayLocalApplicationAction( client::CPayLocalApplicationAction * const _action ):CResponseVisitorBase< client::CPayLocalApplicationAction, client::NodeResponseList >( _action ){};
+	CSetPayLocalApplicationAction( client::CPayLocalApplicationAction * const _action ):CResponseVisitorBase< client::CPayLocalApplicationAction, client::ClientResponseList >( _action ){};
 
 	void operator()(CPending & _peding ) const
 	{
@@ -147,37 +152,37 @@ public:
 
 };
 
-CSetResponseVisitor< client::NodeResponses >::CSetResponseVisitor( client::NodeResponses const & _requestRespond )
+CSetResponseVisitor< client::ClientResponses >::CSetResponseVisitor( client::ClientResponses const & _requestRespond )
 	:m_requestResponse( _requestRespond )
 {
 }
 
 void 
-CSetResponseVisitor< client::NodeResponses >::visit( client::CSendTransactionAction & _action )
+CSetResponseVisitor< client::ClientResponses >::visit( client::CSendTransactionAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::NodeResponseList > const &)CSetTransactionAction( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::ClientResponseList > const &)CSetTransactionAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::NodeResponses >::visit( client::CConnectAction & _action )
+CSetResponseVisitor< client::ClientResponses >::visit( client::CConnectAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::NodeResponseList > const &)CSetConnectAction( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::ClientResponseList > const &)CSetConnectAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::NodeResponses >::visit( client::CSendBalanceInfoAction & _action )
+CSetResponseVisitor< client::ClientResponses >::visit( client::CSendBalanceInfoAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::NodeResponseList > const &)CSetBalanceInfoAction( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::ClientResponseList > const &)CSetBalanceInfoAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::NodeResponses >::visit( client::CPayLocalApplicationAction & _action )
+CSetResponseVisitor< client::ClientResponses >::visit( client::CPayLocalApplicationAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< client::CPayLocalApplicationAction, client::NodeResponseList > const &)CSetPayLocalApplicationAction( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< client::CPayLocalApplicationAction, client::ClientResponseList > const &)CSetPayLocalApplicationAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::NodeResponses >::visit( CAction< client::NodeResponses > & _action )
+CSetResponseVisitor< client::ClientResponses >::visit( CAction< client::ClientResponses > & _action )
 {
 }
 

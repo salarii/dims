@@ -9,7 +9,7 @@
 
 #include "connectionProvider.h"
 
-#include "requestResponse.h"
+#include "commonResponses.h"
 
 #include "common/nodeMessages.h"
 #include "medium.h"
@@ -24,6 +24,7 @@ class CMedium;
 
 /*
 memory leak but  right  now  I can  live  with  that
+ dont remember it is this remark still valid
 */
 
 template < class _RequestResponses >

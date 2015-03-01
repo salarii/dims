@@ -11,7 +11,7 @@
 
 #include "common/action.h"
 #include "common/request.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "core.h"
 #include "common/transactionStatus.h"
 #include "common/commonResponses.h"
@@ -29,12 +29,12 @@ namespace client
 
 struct CCheckAppData;
 
-class CPayLocalApplicationAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CPayLocalApplicationAction, CCheckAppData >
+class CPayLocalApplicationAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CPayLocalApplicationAction, CCheckAppData >
 {
 public:
 	CPayLocalApplicationAction( uintptr_t _socket, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors );
 
-	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
+	void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
 
 	void setProcessingTrackerPtr( 	uintptr_t _ptr );
 

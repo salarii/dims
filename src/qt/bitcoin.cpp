@@ -16,7 +16,7 @@
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "common/actionHandler.h"
-#include "client/configureNodeActionHadler.h"
+#include "client/configureClientActionHadler.h"
 #include "client/trackerLocalRanking.h"
 #include "client/settingsConnectionProvider.h"
 #include "client/applicationServer.h"
@@ -33,7 +33,7 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "wallet.h"
-#include "client/configureNodeActionHadler.h"
+#include "client/configureClientActionHadler.h"
 
 #include <stdint.h>
 
@@ -242,19 +242,19 @@ void BitcoinCore::initialize()
 		LogPrintf("Running AppInit1 in thread\n");
 	  int rv = client::AppInit1(threadGroup);
 
-	common::CActionHandler< client::NodeResponses > * actionHandler = common::CActionHandler< client::NodeResponses >::getInstance();
+	common::CActionHandler< client::ClientResponses > * actionHandler = common::CActionHandler< client::ClientResponses >::getInstance();
 
-	threadGroup.create_thread(boost::bind(&common::CActionHandler< client::NodeResponses >::loop, actionHandler));
+	threadGroup.create_thread(boost::bind(&common::CActionHandler< client::ClientResponses >::loop, actionHandler));
 
-	common::CPeriodicActionExecutor< client::NodeResponses > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< client::NodeResponses >::getInstance();
-	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< client::NodeResponses >::processingLoop, periodicActionExecutor ));
+	common::CPeriodicActionExecutor< client::ClientResponses > * periodicActionExecutor
+			= common::CPeriodicActionExecutor< client::ClientResponses >::getInstance();
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< client::ClientResponses >::processingLoop, periodicActionExecutor ));
 
-	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
+	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
-	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
+	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
 
-	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
+	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
 
         if(rv)
         {

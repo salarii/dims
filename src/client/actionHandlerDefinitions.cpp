@@ -2,20 +2,25 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "common/actionHandler.h"
 #include "common/periodicActionExecutor.h"
+#include "common/timeMedium.h"
 
 namespace client
 {
 template<>
-unsigned int const common::CActionHandler< NodeResponses >::m_sleepTime = 100;
+unsigned int const common::CActionHandler< ClientResponses >::m_sleepTime = 100;
 template<>
-common::CActionHandler< NodeResponses > * common::CActionHandler< NodeResponses >::ms_instance = NULL;
+common::CActionHandler< ClientResponses > * common::CActionHandler< ClientResponses >::ms_instance = NULL;
 
 template<>
-common::CPeriodicActionExecutor< NodeResponses > * common::CPeriodicActionExecutor< NodeResponses >::ms_instance = NULL;
+common::CPeriodicActionExecutor< ClientResponses > * common::CPeriodicActionExecutor< ClientResponses >::ms_instance = NULL;
 
 template<>
-unsigned int const common::CPeriodicActionExecutor< NodeResponses >::m_sleepTime = 100;
+unsigned int const common::CPeriodicActionExecutor< ClientResponses >::m_sleepTime = 100;
+
+template<>
+common::CTimeMedium< ClientResponses > * common::CTimeMedium< ClientResponses >::ms_instance = NULL;
+
 }

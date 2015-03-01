@@ -11,12 +11,12 @@
 #include "common/medium.h"
 #include "common/connectionProvider.h"
 
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 
 namespace client
 {
 
-class CLocalSocket : public common::CMedium< NodeResponses >
+class CLocalSocket : public common::CMedium< ClientResponses >
 {
 public:
 	CLocalSocket( QLocalSocket * _localSocket );
@@ -33,7 +33,7 @@ public:
 
 	void handleInput();
 
-	bool getResponseAndClear( std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );
 
 	QLocalSocket * getSocket() const;
 protected:
@@ -42,17 +42,17 @@ protected:
 
 	QLocalSocket * m_localSocket;
 
-	std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > m_nodeResponses;
+	std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > m_nodeResponses;
 };
 
 
-class CLocalServer :  public QObject, public common::CConnectionProvider< NodeResponses >
+class CLocalServer :  public QObject, public common::CConnectionProvider< ClientResponses >
 {
 	Q_OBJECT
 public:
 	~CLocalServer();
 
-	std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
+	std::list< common::CMedium< ClientResponses > *> provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter );
 
 	static CLocalServer* getInstance();
 

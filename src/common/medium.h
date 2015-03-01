@@ -5,14 +5,14 @@
 #ifndef	MEDIUM_H
 #define MEDIUM_H
 
-#include "requestResponse.h"
+#include "commonResponses.h"
 
 #include "visitorConfigurationUtilities.h"
 
 #include "tracker/trackerRequestsList.h"
 #include "tracker/configureTrackerActionHandler.h"
 #include "client/nodeRequestList.h"
-#include "client/configureNodeActionHadler.h"
+#include "client/configureClientActionHadler.h"
 #include "monitor/monitorRequestsList.h"
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"
@@ -69,15 +69,14 @@ public:
 };
 
 template <>
-class CMedium< client::NodeResponses >
+class CMedium< client::ClientResponses >
 {
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
-	virtual bool getResponseAndClear( std::multimap< CRequest< client::NodeResponses >const*, client::NodeResponses > & _requestResponse ) = 0;
+	virtual bool getResponseAndClear( std::multimap< CRequest< client::ClientResponses >const*, client::ClientResponses > & _requestResponse ) = 0;
 	virtual void add(client::CBalanceRequest const * _request ){};
-	virtual void add(client:: CInfoRequestContinueComplex const * _request ){};
 	virtual void add( client::CInfoRequestContinue const * _request ){};
 	virtual void add( client::CTransactionStatusRequest const * _request ){};
 	virtual void add( client::CTransactionSendRequest const * _request ){};
@@ -87,7 +86,7 @@ public:
 	virtual void add( client::CRecognizeNetworkRequest const * _request ){};
 	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
 	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
-	virtual void add( common::CTimeEventRequest< client::NodeResponses > const * _request ){};
+	virtual void add( common::CTimeEventRequest< client::ClientResponses > const * _request ){};
 	virtual ~CMedium(){};
 };
 

@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 
-#include "common/requestResponse.h"
+#include "common/commonResponses.h"
 
 // Settings
 extern int64_t nTransactionFee;

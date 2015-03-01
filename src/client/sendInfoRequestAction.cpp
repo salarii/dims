@@ -21,18 +21,18 @@ CSendInfoRequestAction::CSendInfoRequestAction( NetworkInfo::Enum const _network
 }
 
 void
-CSendInfoRequestAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
+CSendInfoRequestAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }
 
-CTrackersInfoRequest::CTrackersInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter )
-	: common::CRequest< NodeResponses >( _mediumFilter )
+CTrackersInfoRequest::CTrackersInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter )
+	: common::CRequest< ClientResponses >( _mediumFilter )
 {
 }
 
 void
-CTrackersInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+CTrackersInfoRequest::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
@@ -49,39 +49,22 @@ CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 	
 }
 */
-common::CMediumFilter< NodeResponses > *
+common::CMediumFilter< ClientResponses > *
 CTrackersInfoRequest::getMediumFilter() const
 {
-	return common::CRequest< NodeResponses >::m_mediumFilter;
+	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
 
-CMonitorInfoRequest::CMonitorInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter )
-	: common::CRequest< NodeResponses >( _mediumFilter )
+CMonitorInfoRequest::CMonitorInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter )
+	: common::CRequest< ClientResponses >( _mediumFilter )
 {
 }
 
 void
-CMonitorInfoRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+CMonitorInfoRequest::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
 
-CInfoRequestContinueComplex::CInfoRequestContinueComplex( std::map< uintptr_t, uint256 > const & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter )
-	: common::CRequest< NodeResponses >( _mediumFilter )
-	, m_nodeToToken( _nodeToToken )
-{
-}
-
-void
-CInfoRequestContinueComplex::accept( common::CMedium< NodeResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-common::CMediumFilter< NodeResponses > *
-CInfoRequestContinueComplex::getMediumFilter() const
-{
-	return common::CRequest< NodeResponses >::m_mediumFilter;
-}
 }

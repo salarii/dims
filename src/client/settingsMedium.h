@@ -9,9 +9,9 @@
 #include <string>
 
 #include "common/medium.h"
-#include "common/requestResponse.h"
+#include "common/commonResponses.h"
 #include "common/communicationBuffer.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 
 namespace common
 {
@@ -27,7 +27,7 @@ namespace client
 class CTrackersInfoRequest;
 struct CMonitorInfoRequest;
 
-class CDefaultMedium : public common::CMedium< NodeResponses >
+class CDefaultMedium : public common::CMedium< ClientResponses >
 {
 public:
 
@@ -35,7 +35,7 @@ public:
 
 	bool serviced() const;
 
-	void add( common::CRequest< NodeResponses > const * _request );
+	void add( common::CRequest< ClientResponses > const * _request );
 
 	void add( CDnsInfoRequest const * _request );
 
@@ -47,7 +47,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -58,7 +58,7 @@ private:
 	static CDefaultMedium * ms_instance;
 
 	bool m_serviced;
-	std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > m_requestResponse;
+	std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > m_requestResponse;
 };
 
 

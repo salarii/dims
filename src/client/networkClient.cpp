@@ -139,7 +139,7 @@ CNetworkClient::serviced() const throw(common::CMediumException)
 
 
 void 
-CNetworkClient::add( common::CRequest< NodeResponses > const * _request )
+CNetworkClient::add( common::CRequest< ClientResponses > const * _request )
 {
 }
 
@@ -150,7 +150,7 @@ CNetworkClient::add( CBalanceRequest const * _request )
 	serializeEnum(*m_pushStream, common::CMainRequestType::BalanceInfoReq );
 	*m_pushStream << _request->m_address;
 
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
+	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
 
 void
@@ -160,7 +160,7 @@ CNetworkClient::add( CTransactionSendRequest const * _request )
 	serializeEnum(*m_pushStream, common::CMainRequestType::Transaction );
 	*m_pushStream  << _request->m_transaction;
 
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
+	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
 
 void
@@ -169,18 +169,7 @@ CNetworkClient::add( CTransactionStatusRequest const * _request )
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::TransactionStatusReq );
 
 	*m_pushStream << _request->m_transactionHash;
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
-}
-
-void
-CNetworkClient::add( CInfoRequestContinueComplex const * _request )
-{
-	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
-
-	assert( _request->m_nodeToToken.find( common::convertToInt(this) ) != _request->m_nodeToToken.end() );
-
-	*m_pushStream << _request->m_nodeToToken.find( common::convertToInt(this) )->second;
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
+	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
 
 void
@@ -189,28 +178,28 @@ CNetworkClient::add( CInfoRequestContinue const * _request )
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
 
 	*m_pushStream << _request->m_token;
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
+	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
 
 void
 CNetworkClient::add( CRecognizeNetworkRequest const * _request )
 {
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::NetworkInfoReq );
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
+	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
 
 void
 CNetworkClient::add( CTrackersInfoRequest const * _request )
 {
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::TrackerInfoReq );
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
+	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
 
 void
 CNetworkClient::add( CMonitorInfoRequest const * _request )
 {
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::MonitorInfoReq );
-	m_workingRequest.push_back( ( common::CRequest< NodeResponses >* )_request );
+	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
 
 bool
@@ -237,7 +226,7 @@ CNetworkClient::clearResponses()
 }
 
 bool
-CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse )
+CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse )
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(

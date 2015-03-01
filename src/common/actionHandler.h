@@ -26,23 +26,12 @@ I feared that if  I put everything in the same mpl::list it will be bloated to i
 additionally I thought that it is  obvious that every action  handler  should have distinctive features.
 
 now I doubt
-this approach lead me to  situation where I have to drag template parameters like ( NodeResponses, TrackerResponses etc. )everywhere
+this approach lead me to  situation where I have to drag template parameters like ( ClientResponses, TrackerResponses etc. )everywhere
 I didn't expected that my initial choice will have such devastating  result to the code  apperance
-I am on the brink of removing separate response lists completely, this will result in removing template  parameter from most places
 
+don't  really know how to handle  this
 */
-/*
-I will try to  redesign  this  mechanics
-what I want  to  achieve is among  others
-bond responses  to  request  not  action  it  means  that no metter  how many responses  are  there for  single  request
-they will be  processed  anyway.
-No more  effort to retrive them  no  more  pending or  continue request
-so ask medium in some  smart  way and if  they  have  something process it
-match every response  against currently existing request if it exists process it if  not  drop
-this  should remove  a lot of  complexity
-allow  action  to produce many  requests  at the same  time
-for exaple  iming  request  and  some  operation  request
-*/
+
 namespace common
 {
 

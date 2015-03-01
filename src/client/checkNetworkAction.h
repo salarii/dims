@@ -10,7 +10,7 @@
 
 #include "common/action.h"
 #include "common/request.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "common/setResponseVisitor.h"
 
 #include  <boost/optional.hpp>
@@ -22,12 +22,12 @@ namespace client
 
 struct CInitiateNetworkCheck;
 
-class CCheckNetworkAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CCheckNetworkAction, CInitiateNetworkCheck >
+class CCheckNetworkAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CCheckNetworkAction, CInitiateNetworkCheck >
 {
 public:
 	CCheckNetworkAction( bool _autoDelete );
 
-	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
+	void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
 
 	void reset();
 };

@@ -15,7 +15,7 @@
 #include "clientEvents.h"
 #include "clientControl.h"
 
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "serialize.h"
 
 using namespace common;
@@ -68,10 +68,10 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 {
 	CTransactionStatus( my_context ctx ) : my_base( ctx )
 	{
-		common::CMediumFilter< NodeResponses > * filter =
+		common::CMediumFilter< ClientResponses > * filter =
 				CTrackerLocalRanking::getInstance()->determinedTrackersCount() > 1 ?
-											(common::CMediumFilter< NodeResponses > *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 )
-										  : (common::CMediumFilter< NodeResponses > *)new CMediumClassFilter( RequestKind::Transaction, 1 );
+											(common::CMediumFilter< ClientResponses > *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 )
+										  : (common::CMediumFilter< ClientResponses > *)new CMediumClassFilter( RequestKind::Transaction, 1 );
 
 		context< CSendTransactionAction >().dropRequests();
 		context< CSendTransactionAction >().addRequests(
@@ -120,7 +120,7 @@ CSendTransactionAction::CSendTransactionAction( const CTransaction & _transactio
 }
 
 void
-CSendTransactionAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
+CSendTransactionAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }

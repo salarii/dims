@@ -8,7 +8,7 @@
 #include "common/action.h"
 #include "tracker/validationManager.h"
 #include "common/requestHandler.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 
 namespace client
 {
@@ -38,48 +38,36 @@ struct TrackerInfo
 
 extern std::vector< TrackerInfo::Enum > const TrackerDescription;
 
-class CSendInfoRequestAction : public common::CAction< NodeResponses >
+class CSendInfoRequestAction : public common::CAction< ClientResponses >
 {
 public:
 	CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo );
 
-	virtual void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
 };
 
-struct CTrackersInfoRequest : public common::CRequest< NodeResponses >
+struct CTrackersInfoRequest : public common::CRequest< ClientResponses >
 {
 public:
-	CTrackersInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter );
+	CTrackersInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter );
 
 	~CTrackersInfoRequest(){};
 
-	void accept( common::CMedium< NodeResponses > * _medium ) const;
+	void accept( common::CMedium< ClientResponses > * _medium ) const;
 
-	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
+	common::CMediumFilter< ClientResponses > * getMediumFilter() const;
 
 	int m_mediumKind;
 };
 
-struct CMonitorInfoRequest : public common::CRequest< NodeResponses >
+struct CMonitorInfoRequest : public common::CRequest< ClientResponses >
 {
 public:
-	CMonitorInfoRequest( common::CMediumFilter< NodeResponses > * _mediumFilter );
+	CMonitorInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter );
 
 	void serialize( CBufferAsStream & _bufferStream ) const;
 
-	void accept( common::CMedium< NodeResponses > * _medium ) const;
-};
-
-struct CInfoRequestContinueComplex : public common::CRequest< NodeResponses >
-{
-public:
-	CInfoRequestContinueComplex( std::map< uintptr_t, uint256 > const & _nodeToToken, common::CMediumFilter< NodeResponses > * _mediumFilter );
-
-	void accept( common::CMedium< NodeResponses > * _medium ) const;
-
-	common::CMediumFilter< NodeResponses > * getMediumFilter() const;
-
-	std::map< uintptr_t, uint256 > const & m_nodeToToken;
+	void accept( common::CMedium< ClientResponses > * _medium ) const;
 };
 
 }

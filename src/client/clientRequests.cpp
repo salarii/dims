@@ -9,83 +9,83 @@
 namespace client
 {
 
-CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< NodeResponses > * _mediumFilter )
-	: common::CRequest< NodeResponses >( _mediumFilter )
+CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< ClientResponses > * _mediumFilter )
+	: common::CRequest< ClientResponses >( _mediumFilter )
 	, m_token( _token )
 {
 }
 
 void
-CInfoRequestContinue::accept( common::CMedium< NodeResponses > * _medium ) const
+CInfoRequestContinue::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
 
-common::CMediumFilter< NodeResponses > *
+common::CMediumFilter< ClientResponses > *
 CInfoRequestContinue::getMediumFilter() const
 {
-	return common::CRequest< NodeResponses >::m_mediumFilter;
+	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
 
-CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< NodeResponses > * _medium )
-	: common::CRequest< NodeResponses >( _medium )
+CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< ClientResponses > * _medium )
+	: common::CRequest< ClientResponses >( _medium )
 	, m_transactionHash( _transactionHash )
 {
 }
 
 void
-CTransactionStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+CTransactionStatusRequest::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
 
-common::CMediumFilter< NodeResponses > *
+common::CMediumFilter< ClientResponses > *
 CTransactionStatusRequest::getMediumFilter() const
 {
-	return common::CRequest< NodeResponses >::m_mediumFilter;
+	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
 void
-CTransactionSendRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+CTransactionSendRequest::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
 
-CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< NodeResponses > * _medium )
-	: common::CRequest< NodeResponses >( _medium )
+CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< ClientResponses > * _medium )
+	: common::CRequest< ClientResponses >( _medium )
 	, m_transaction( _transaction )
 {
 }
 
-common::CMediumFilter< NodeResponses > *
+common::CMediumFilter< ClientResponses > *
 CTransactionSendRequest::getMediumFilter() const
 {
-	return common::CRequest< NodeResponses >::m_mediumFilter;
+	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
-CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< NodeResponses > * _mediumFilter )
-	: common::CRequest< NodeResponses >( _mediumFilter )
+CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< ClientResponses > * _mediumFilter )
+	: common::CRequest< ClientResponses >( _mediumFilter )
 	, m_error( _error )
 {
 
 }
 
 void
-CErrorForAppPaymentProcessing::accept( common::CMedium< NodeResponses > * _medium ) const
+CErrorForAppPaymentProcessing::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }
 
 
-CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CMediumFilter< NodeResponses > * _mediumFilter )
-	: common::CRequest< NodeResponses >( _mediumFilter )
+CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CMediumFilter< ClientResponses > * _mediumFilter )
+	: common::CRequest< ClientResponses >( _mediumFilter )
 	, m_payApplicationData( _trasaction, _transactionStatusSignature, _servicingTracker, _monitorData, _servicingMonitor )
 {
 }
 
 void
-CProofTransactionAndStatusRequest::accept( common::CMedium< NodeResponses > * _medium ) const
+CProofTransactionAndStatusRequest::accept( common::CMedium< ClientResponses > * _medium ) const
 {
 	_medium->add( this );
 }

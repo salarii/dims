@@ -51,7 +51,7 @@ CLocalSocket::handleInput()
 		dims::CExpectationMessage expectationMessage;
 		stream >> expectationMessage;
 
-		common::CActionHandler< NodeResponses >::getInstance()->executeAction(
+		common::CActionHandler< ClientResponses >::getInstance()->executeAction(
 					new CPayLocalApplicationAction( common::convertToInt( m_localSocket ), expectationMessage.m_privateKey, expectationMessage.m_targetId, expectationMessage.m_value, expectationMessage.m_trackers, expectationMessage.m_monitors ) );
 
 	}
@@ -93,7 +93,7 @@ CLocalSocket::clearResponses()
 }
 
 bool
-CLocalSocket::getResponseAndClear( std::multimap< common::CRequest< NodeResponses >const*, NodeResponses > & _requestResponse )
+CLocalSocket::getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse )
 {
 	_requestResponse = m_nodeResponses;
 
@@ -237,8 +237,8 @@ void CLocalServer::discardSocket()
 	m_usedSockts.erase( common::convertToInt( socket ) );
 }
 
-std::list< common::CMedium< NodeResponses > *>
-CLocalServer::provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter )
+std::list< common::CMedium< ClientResponses > *>
+CLocalServer::provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }

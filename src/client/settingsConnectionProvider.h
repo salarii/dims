@@ -6,18 +6,18 @@
 #define SETTINGS_CONNECTION_PROVIDER_H
 
 #include "common/connectionProvider.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 
 namespace client
 {
 class CDefaultMedium;
 
-class CSettingsConnectionProvider : public common::CConnectionProvider< NodeResponses >
+class CSettingsConnectionProvider : public common::CConnectionProvider< ClientResponses >
 {
 public:
-	virtual std::list< common::CMedium< NodeResponses > *> provideConnection( common::CMediumFilter< NodeResponses > const & _mediumFilter );
+	virtual std::list< common::CMedium< ClientResponses > *> provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter );
 
-	std::list< common::CMedium< NodeResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind );
+	std::list< common::CMedium< ClientResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind );
 
 	static CSettingsConnectionProvider* getInstance();
 

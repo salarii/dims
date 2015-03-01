@@ -17,7 +17,7 @@
 #include "clientEvents.h"
 #include "clientControl.h"
 #include "sendInfoRequestAction.h""
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "serialize.h"
 #include "base58.h"
 
@@ -443,7 +443,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 }
 
 void
-CPayLocalApplicationAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
+CPayLocalApplicationAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }

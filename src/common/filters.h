@@ -10,7 +10,7 @@
 
 #include "boost/foreach.hpp"
 #include "tracker/configureTrackerActionHandler.h"
-#include "client/configureNodeActionHadler.h"
+#include "client/configureClientActionHadler.h"
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"
 
@@ -73,7 +73,7 @@ struct CMediumFilter< tracker::TrackerResponses > : public CMediumFilterBase< tr
 };
 
 template <>
-struct CMediumFilter< client::NodeResponses > : public CMediumFilterBase< client::NodeResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking, client::CLocalServer >
+struct CMediumFilter< client::ClientResponses > : public CMediumFilterBase< client::ClientResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking, client::CLocalServer >
 {
 };
 

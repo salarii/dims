@@ -5,12 +5,11 @@
 #ifndef NODE_REQUEST_LIST_H
 #define NODE_REQUEST_LIST_H
 
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 
 namespace client
 {
 struct CBalanceRequest;
-struct CInfoRequestContinueComplex;
 struct CInfoRequestContinue;
 struct CTransactionStatusRequest;
 struct CTransactionSendRequest;
@@ -21,7 +20,7 @@ struct CRecognizeNetworkRequest;
 struct CErrorForAppPaymentProcessing;
 struct CProofTransactionAndStatusRequest;
 
-typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinueComplex, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing, CProofTransactionAndStatusRequest > NodeRequestsList;
+typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing, CProofTransactionAndStatusRequest > NodeRequestsList;
 
 }
 

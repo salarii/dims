@@ -11,7 +11,7 @@
 
 #include "common/action.h"
 #include "common/request.h"
-#include "configureNodeActionHadler.h"
+#include "configureClientActionHadler.h"
 #include "core.h"
 #include "common/transactionStatus.h"
 
@@ -28,12 +28,12 @@ namespace client
 
 struct CPrepareAndSendTransaction;
 
-class CSendTransactionAction : public common::CAction< NodeResponses >, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
+class CSendTransactionAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
 {
 public:
 	CSendTransactionAction( const CTransaction & _Transaction );
 
-	void accept( common::CSetResponseVisitor< NodeResponses > & _visitor );
+	void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
 
 	CTransaction const & getTransaction() const;
 

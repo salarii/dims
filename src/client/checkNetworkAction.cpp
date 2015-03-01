@@ -62,20 +62,20 @@ struct CCheckMonitors : boost::statechart::state< CCheckMonitors, CSendTransacti
 };
 
 CCheckNetworkAction::CCheckNetworkAction( bool _autoDelete )
-	: common::CAction< NodeResponses >( _autoDelete )
+	: common::CAction< ClientResponses >( _autoDelete )
 {
 	initiate();
 }
 
 void
-CCheckNetworkAction::accept( common::CSetResponseVisitor< NodeResponses > & _visitor )
+CCheckNetworkAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
 {
 	_visitor.visit( *this );
 }
 void
 CCheckNetworkAction::reset()
 {
-	common::CAction< NodeResponses >::reset();
+	common::CAction< ClientResponses >::reset();
 	initiate();
 }
 

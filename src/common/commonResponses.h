@@ -1,21 +1,22 @@
 #ifndef TRACKER_RESPONSES_H
 #define TRACKER_RESPONSES_H
 
-
 #include "coins.h"
-#include "nodeMessages.h"
+#include "key.h"
+#include "core.h"
+#include "net.h"
+
+#include "common/nodeMessages.h"
+#include "common/transactionStatus.h"
+#include "common/commonResponses.h"
+#include "common/errorResponse.h"
+#include "common/communicationProtocol.h"
 
 #include <boost/variant.hpp>
 #include <boost/statechart/event.hpp>
+#include <boost/variant.hpp>
 
 #include <exception>
-#include "errorResponse.h"
-#include "net.h"
-#include "communicationProtocol.h"
-
-#include <boost/statechart/event.hpp>
-
-#include "common/requestResponse.h"
 
 namespace common
 {
@@ -188,6 +189,128 @@ struct CTrackerSpecificStats
 	unsigned int m_price;
 };
 
+
+template < class _Stats >
+struct CNodeSpecific : public _Stats
+{
+	CNodeSpecific( _Stats const & _stats, std::string const & _ip, uintptr_t _nodeIndicator ):_Stats( _stats ), m_ip( _ip ), m_nodeIndicator( _nodeIndicator ){}
+	std::string m_ip;
+	uintptr_t m_nodeIndicator;
+};
+
+class CSelfNode;
+
+struct CConnectedNode
+{
+	CConnectedNode( common::CSelfNode * _node ):m_node( _node ){};
+	common::CSelfNode * m_node;
+};
+
+struct CAckResult
+{
+	CAckResult(){};
+	CAckResult( uintptr_t _nodePtr ):m_nodePtr( _nodePtr )
+	{}
+
+	uintptr_t m_nodePtr;
+};
+
+struct CMessageResult : boost::statechart::event< CMessageResult >
+{
+	CMessageResult( CMessage const & _message, uintptr_t _nodeIndicator, CPubKey const & _pubKey = CPubKey() ): m_message( _message ),m_nodeIndicator( _nodeIndicator ), m_pubKey( _pubKey ){}
+
+	CMessage m_message;
+	uintptr_t m_nodeIndicator;
+	CPubKey m_pubKey;
+};
+
+struct CTimeEvent : boost::statechart::event< CTimeEvent >
+{
+};
+
+struct CTransactionStatus : boost::statechart::event< CTransactionStatus >
+{
+	CTransactionStatus(	common::TransactionsStatus::Enum _status, uint256 const & _transactionHash, std::vector<unsigned char> const & _signature ):m_status( _status ), m_transactionHash( _transactionHash ), m_signature( _signature ){}
+	common::TransactionsStatus::Enum m_status;
+	uint256 m_transactionHash;
+	std::vector<unsigned char> m_signature;
+};
+
+struct CAccountBalance
+{
+
+};
+
+struct CUnidentifiedNodeInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_ip);
+	READWRITE(m_port);
+	)
+	CUnidentifiedNodeInfo(	std::string const & _ip, unsigned int _port ):m_ip( _ip ), m_port( _port ){}
+	std::string m_ip;
+	unsigned int m_port;
+
+	bool operator<( CUnidentifiedNodeInfo const & _unidentifiedStats ) const
+	{
+		return m_ip < _unidentifiedStats.m_ip;
+	}
+};
+
+struct CNodeInfo : public CUnidentifiedNodeInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(*(CUnidentifiedNodeInfo*)this);
+	READWRITE(m_key);
+	READWRITE(m_role);
+	)
+
+	CNodeInfo( CPubKey const & _key = CPubKey(), std::string _ip = std::string(), unsigned int _port = 0, unsigned int _role = -1 ): CUnidentifiedNodeInfo( _ip, _port ), m_key( _key ), m_role( _role ){}
+	CPubKey m_key;
+	unsigned int m_role;
+};
+
+struct CMonitorInfo : public CNodeInfo
+{
+	CMonitorInfo( CPubKey const & _key = CPubKey(), std::string _ip = std::string(), unsigned int _port = 0, unsigned int _role = -1, std::set< CPubKey > const & _trackersKeys = std::set< CPubKey >() )
+		: CNodeInfo( _key, _ip, _port, _role )
+		, m_trackersKeys( _trackersKeys )
+	{
+	}
+
+	CMonitorInfo( CNodeInfo const & _nodeInfo, std::set< CPubKey > const & _trackersKeys )
+		: CNodeInfo( _nodeInfo )
+		, m_trackersKeys( _trackersKeys )
+	{
+	}
+
+	std::set< CPubKey > m_trackersKeys;
+};
+
+// add max/min price
+struct CTrackerStats : public CNodeInfo
+{
+	CTrackerStats( CPubKey const & _publicKey = CPubKey(), unsigned int  _reputation = 0, float _price = 0.0, std::string _ip = "", unsigned int _port = -1, unsigned int _role = -1 )
+		: CNodeInfo( _publicKey, _ip, _port, _role ), m_reputation( _reputation ), m_price( _price ){}
+	unsigned int  m_reputation;
+	unsigned int m_price;
+};
+
+struct CPending : boost::statechart::event< CPending >
+{
+	CPending( uint256 const & _token, uintptr_t _networkPtr ):m_token( _token ),m_networkPtr( _networkPtr ){};
+	uint256 m_token;
+	uintptr_t m_networkPtr;
+};
+
+struct CSystemError
+{
+	CSystemError( ErrorType::Enum _errorType ):m_errorType(_errorType){};
+	ErrorType::Enum m_errorType;
+};
+
 struct CMonitorData
 {
 	// most likely self public key, should goes here
@@ -247,45 +370,6 @@ hashMonitorData( CMonitorData const & _monitorData )
 
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
-
-
-template < class _Stats >
-struct CNodeSpecific : public _Stats
-{
-	CNodeSpecific( _Stats const & _stats, std::string const & _ip, uintptr_t _nodeIndicator ):_Stats( _stats ), m_ip( _ip ), m_nodeIndicator( _nodeIndicator ){}
-	std::string m_ip;
-	uintptr_t m_nodeIndicator;
-};
-
-class CSelfNode;
-
-struct CConnectedNode
-{
-	CConnectedNode( common::CSelfNode * _node ):m_node( _node ){};
-	common::CSelfNode * m_node;
-};
-
-struct CAckResult
-{
-	CAckResult(){};
-	CAckResult( uintptr_t _nodePtr ):m_nodePtr( _nodePtr )
-	{}
-
-	uintptr_t m_nodePtr;
-};
-
-struct CMessageResult : boost::statechart::event< CMessageResult >
-{
-	CMessageResult( CMessage const & _message, uintptr_t _nodeIndicator, CPubKey const & _pubKey = CPubKey() ): m_message( _message ),m_nodeIndicator( _nodeIndicator ), m_pubKey( _pubKey ){}
-
-	CMessage m_message;
-	uintptr_t m_nodeIndicator;
-	CPubKey m_pubKey;
-};
-
-struct CTimeEvent : boost::statechart::event< CTimeEvent >
-{
-};
 
 }
 

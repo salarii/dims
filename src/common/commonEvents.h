@@ -4,7 +4,7 @@
 #include <boost/statechart/event.hpp>
 #include "net.h"
 
-#include "common/requestResponse.h"
+#include "common/commonResponses.h"
 
 namespace common
 {

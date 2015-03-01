@@ -142,6 +142,7 @@ CLIENT_H = \
   ../client/clientControl.h \
   ../client/clientRequests.h \
   ../client/connectAction.h \
+  ../client/configureClientActionHadler.h \
   ../client/controlRequests.h \
   ../client/init.h \
   ../client/networkClient.h \
