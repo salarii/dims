@@ -308,6 +308,12 @@ CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< ClientRes
 
 			m_workingRequest.erase( m_workingRequest.begin() );
 		}
+		else if ( messageType == common::CMainRequestType::ContinueReq )
+		{
+			uint256 token;
+			stream >> token;
+			_requestResponse.insert( std::make_pair( m_workingRequest.front(), common::CPending( token, common::convertToInt(this) ) ) );
+		}
 		else
 		{
 			throw;

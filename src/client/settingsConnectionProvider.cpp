@@ -5,6 +5,7 @@
 #include "settingsConnectionProvider.h"
 #include "settingsMedium.h"
 
+#include "common/timeMedium.h"
 
 namespace client
 {
@@ -44,6 +45,10 @@ CSettingsConnectionProvider::getMediumByClass( common::RequestKind::Enum _reques
 	if( common::RequestKind::NetworkInfo == _requestKind || common::RequestKind::Seed == _requestKind )// temporary???
 	{
 		mediums.push_back( m_settingsMedium );
+	}
+	else if ( common::RequestKind::Time == _requestKind )
+	{
+		mediums.push_back( common::CTimeMedium< ClientResponses >::getInstance() );
 	}
 
 	return mediums;

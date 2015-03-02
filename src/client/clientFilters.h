@@ -27,7 +27,7 @@ struct CMediumClassFilter : public common::CMediumFilter< ClientResponses >
 	{
 
 		std::list< common::CMedium< ClientResponses > *> mediums;
-		mediums = _settingsMedium->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass );
+		mediums = _settingsMedium->getMediumByClass(m_mediumClass );
 
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
 		{
@@ -38,7 +38,7 @@ struct CMediumClassFilter : public common::CMediumFilter< ClientResponses >
 
 	std::list< common::CMedium< ClientResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
-		std::list< common::CMedium< ClientResponses > *> mediums = _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, m_mediumNumber );
+		std::list< common::CMedium< ClientResponses > *> mediums = _trackerLocalRanking->getMediumByClass( m_mediumClass, m_mediumNumber );
 
 		if ( mediums.empty() )
 		{

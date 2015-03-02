@@ -40,7 +40,6 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		CTrackerLocalRanking::getInstance()->resetTrackers();
 		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
-		m_lastAskTime = GetTime();
 	}
 
 	//		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
@@ -50,7 +49,8 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		CAddress address( CService("127.0.0.1", 0x1400) );
 
 		CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
-/*		if ( _dnsInfo.m_addresses.empty() )
+		return transit< CRecognizeNetwork >();
+		/*		if ( _dnsInfo.m_addresses.empty() )
 		{
 			context< CConnectAction >().dropRequests();
 			return discard_event();
@@ -68,17 +68,8 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< CDnsInfo >
 	> reactions;
-
-	int64_t m_lastAskTime;
 };
 
-/*
-nodes should be  asked about ip-s first???
-all the rest info about  node  should  be gotten  from given node
-create error  handlig  functionality
-in cases where some of  nodes  are  out of reach
-??
-*/
 struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnectAction >
 {
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )

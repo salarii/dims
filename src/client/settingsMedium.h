@@ -57,7 +57,6 @@ private:
 private:
 	static CDefaultMedium * ms_instance;
 
-	bool m_serviced;
 	std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > m_requestResponse;
 };
 

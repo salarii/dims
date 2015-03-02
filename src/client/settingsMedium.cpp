@@ -34,14 +34,13 @@ CDefaultMedium::getInstance( )
 }
 
 CDefaultMedium::CDefaultMedium()
-	: m_serviced( true )
 {
 }
 
 bool
 CDefaultMedium::serviced() const
 {
-	return m_serviced;
+	return !m_requestResponse.empty();
 }
 
 void
@@ -107,7 +106,6 @@ CDefaultMedium::getSeedIps( vector<CAddress> & _vAdd )
 bool
 CDefaultMedium::flush()
 {
-	m_serviced = true;
 }
 
 bool

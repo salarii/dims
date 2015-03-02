@@ -11,7 +11,7 @@
 namespace client
 {
 class CDefaultMedium;
-
+// stupid  name
 class CSettingsConnectionProvider : public common::CConnectionProvider< ClientResponses >
 {
 public:

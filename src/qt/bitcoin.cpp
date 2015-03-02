@@ -15,7 +15,10 @@
 #include "optionsmodel.h"
 #include "splashscreen.h"
 #include "utilitydialog.h"
+
 #include "common/actionHandler.h"
+#include "common/timeMedium.h"
+
 #include "client/configureClientActionHadler.h"
 #include "client/trackerLocalRanking.h"
 #include "client/settingsConnectionProvider.h"
@@ -244,17 +247,19 @@ void BitcoinCore::initialize()
 
 	common::CActionHandler< client::ClientResponses > * actionHandler = common::CActionHandler< client::ClientResponses >::getInstance();
 
+	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
+
+	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
+
+	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
+
 	threadGroup.create_thread(boost::bind(&common::CActionHandler< client::ClientResponses >::loop, actionHandler));
 
 	common::CPeriodicActionExecutor< client::ClientResponses > * periodicActionExecutor
 			= common::CPeriodicActionExecutor< client::ClientResponses >::getInstance();
 	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< client::ClientResponses >::processingLoop, periodicActionExecutor ));
 
-	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
-
-	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
-
-	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium< client::ClientResponses >::workLoop, common::CTimeMedium< client::ClientResponses >::getInstance() ) );
 
         if(rv)
         {
