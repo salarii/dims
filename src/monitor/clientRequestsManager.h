@@ -11,7 +11,7 @@
 namespace monitor
 {
 
-typedef boost::variant< common::CDummy, common::CAvailableCoins, common::CClientNetworkInfoResult, common::CTransactionAck, common::CTransactionStatusResponse, common::CTrackerSpecificStats, common::CMonitorData > ClientResponse;
+typedef boost::variant< common::CAvailableCoins, common::CClientNetworkInfoResult, common::CTransactionAck, common::CTransactionStatusResponse, common::CTrackerSpecificStats, common::CMonitorData > ClientResponse;
 
 class CClientRequestsManager
 {
@@ -20,7 +20,7 @@ public:
 
 	void addRequest( common::NodeRequests const & _nodeRequest, uint256 const & _hash );
 
-	ClientResponse getResponse( uint256 const & _token );
+	bool getResponse( uint256 const & _token, ClientResponse & _clientResponse );
 
 	void processRequestLoop();
 

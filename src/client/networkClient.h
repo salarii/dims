@@ -62,10 +62,16 @@ public:
 	virtual bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );
 private:
 	void clearResponses();
+
 	void run();
+
 	unsigned int read();
+
 	int waitForInput();
+
 	void write();
+
+	common::CRequest< ClientResponses >* takeMatching( uint256 const & _token );
 private:
 	static unsigned const m_timeout;
 
@@ -81,6 +87,8 @@ private:
 	QTcpSocket * m_socket;
 
 	ConnectionInfo m_connectionInfo;
+
+	std::map< uint256, common::CRequest< ClientResponses >* > m_matching;
 
 	std::list< common::CRequest< ClientResponses >* > m_workingRequest;
 };

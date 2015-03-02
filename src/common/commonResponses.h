@@ -21,15 +21,6 @@
 namespace common
 {
 
-struct CDummy
-{
-	uint256 m_token;
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE( m_token );
-	)
-};
-
 struct CNoMedium : boost::statechart::event< CNoMedium >
 {};
 

@@ -6,6 +6,9 @@
 #define SERVER_H
 
 #include <iostream>
+#include <set>
+
+#include "uint256.h"
 
 #include "Poco/Net/TCPServerParams.h"
 #include "Poco/Net/TCPServerConnection.h"
@@ -39,6 +42,8 @@ private:
 	handleMessage( std::vector< T > const & _messages, RespondBuffor & _respondBuffor );
 */
 private:
+	std::set< uint256 > m_tokens;
+
 	common::CCommunicationBuffer m_pullBuffer;
 
 	common::CCommunicationBuffer m_pushBuffer;

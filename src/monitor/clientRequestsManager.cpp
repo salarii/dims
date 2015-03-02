@@ -111,28 +111,22 @@ CClientRequestsManager::addRequest( NodeRequests const & _nodeRequest, uint256 c
 	m_getInfoRequest.insert( std::make_pair( _hash, _nodeRequest ) );
 }
 
-ClientResponse
-CClientRequestsManager::getResponse( uint256 const & _token )
+bool
+CClientRequestsManager::getResponse( uint256 const & _token, ClientResponse & _clientResponse )
 {
-	// for transaction may use getHash in  the future??
 	boost::lock_guard<boost::mutex> lock( m_lock );
 
 	InfoResponseRecord::iterator iterator = m_infoResponseRecord.find( _token );
 
-	ClientResponse response;
 	if ( iterator != m_infoResponseRecord.end() )
 	{
-		response = iterator->second;
+		_clientResponse = iterator->second;
 		m_infoResponseRecord.erase( iterator );
-	}
-	else
-	{
-		CDummy dummy;
-		dummy.m_token = _token;
-		response = dummy;
+
+		return true;
 	}
 
-	return response;
+	return false;
 }
 
 void

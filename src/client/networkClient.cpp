@@ -80,7 +80,8 @@ CNetworkClient::read()
 }
  
  
-void CNetworkClient::write()
+void
+CNetworkClient::write()
 {
 	if (m_pushBuffer.m_usedSize > 0)
 	{
@@ -91,6 +92,27 @@ void CNetworkClient::write()
 			// error handle it somehow
 		}
 	}
+}
+
+common::CRequest< ClientResponses >*
+CNetworkClient::takeMatching( uint256 const & _token )
+{
+	std::map< uint256, common::CRequest< ClientResponses >* >::iterator iterator
+			= m_matching.find( _token );
+
+	common::CRequest< ClientResponses >* request;
+
+	if( iterator != m_matching.end() )
+	{
+		request = iterator->second;
+		m_matching.erase( iterator );
+	}
+	else
+	{
+		assert( !"can't be here" );
+		return 0;
+	}
+	return request;
 }
  
 void CNetworkClient::startThread()
@@ -226,7 +248,7 @@ CNetworkClient::clearResponses()
 }
 
 bool
-CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse )
+CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse )
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(
@@ -234,6 +256,8 @@ CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< ClientRes
 		, m_pullBuffer.m_usedSize
 		, SER_NETWORK
 		, CLIENT_VERSION);
+
+	uint256 token;
 
 	while( !stream.eof() )
 	{
@@ -244,45 +268,46 @@ CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< ClientRes
 		if ( messageType == common::CMainRequestType::TransactionStatusReq )
 		{
 			common::CTransactionStatusResponse transactionStatus;
+			stream >> token;
 			stream >> transactionStatus;
 
 			_requestResponse.insert(
 						std::make_pair(
-							m_workingRequest.front(),
+							takeMatching( token ),
 							common::CTransactionStatus( ( common::TransactionsStatus::Enum )transactionStatus.m_status, transactionStatus.m_transactionHash, transactionStatus.m_signedHash ) ) );
 
-			m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::Transaction )
 		{
 			common::CTransactionAck transactionAck;
+			stream >> token;
 			stream >> transactionAck;
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), transactionAck ) );
+			_requestResponse.insert( std::make_pair( takeMatching( token ), transactionAck ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::MonitorInfoReq )
 		{
 			common::CMonitorData monitorData;
-
+			stream >> token;
 			stream >> monitorData;
 
 			common::CNodeSpecific< common::CMonitorData > stats( monitorData, m_ip.toStdString(), common::convertToInt(this));
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), stats ) );
+			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::TrackerInfoReq )
 		{
 			common::CTrackerSpecificStats trackerSpecificStats;
-
+			stream >> token;
 			stream >> trackerSpecificStats;
 
 			common::CNodeSpecific< common::CTrackerSpecificStats > stats( trackerSpecificStats, m_ip.toStdString(), common::convertToInt(this));
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), stats ) );
+			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
@@ -292,27 +317,30 @@ CNetworkClient::getResponseAndClear(  std::multimap< common::CRequest< ClientRes
 		else if ( messageType == common::CMainRequestType::BalanceInfoReq )
 		{
 			common::CAvailableCoins availableCoins;
+			stream >> token;
 			stream >> availableCoins;
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), availableCoins ) );
+			_requestResponse.insert( std::make_pair( takeMatching( token ), availableCoins ) );
 
 			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::NetworkInfoReq )
 		{
 			common::CClientNetworkInfoResult networkResult;
+			stream >> token;
 			stream >> networkResult;
 
 			common::CNodeSpecific< common::CClientNetworkInfoResult > stats( networkResult, m_ip.toStdString(), common::convertToInt(this));
 
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), stats ) );
+			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
 
 			m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::ContinueReq )
 		{
-			uint256 token;
 			stream >> token;
 			_requestResponse.insert( std::make_pair( m_workingRequest.front(), common::CPending( token, common::convertToInt(this) ) ) );
+			m_matching.insert( std::make_pair( token, m_workingRequest.front() ) );
+			m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else
 		{
