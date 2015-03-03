@@ -92,7 +92,6 @@ CTcpServerConnection::CTcpServerConnection(Poco::Net::StreamSocket const & _serv
 		, SER_NETWORK
 		, CLIENT_VERSION)*/
 {
-	m_clientRequestManager = CClientRequestsManager::getInstance();
 }
 
 void
@@ -203,7 +202,7 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
-			uint256 token = m_clientRequestManager->addRequest( CMonitorInfoReq() );
+			uint256 token = CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq() );
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 			m_tokens.insert( token );
@@ -211,7 +210,7 @@ CTcpServerConnection::handleIncommingBuffor()
 		else if ( messageType == CMainRequestType::NetworkInfoReq )
 		{
 
-			uint256 token = m_clientRequestManager->addRequest( CNetworkInfoReq() );
+			uint256 token = CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq() );
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 			m_tokens.insert( token );
@@ -226,7 +225,7 @@ CTcpServerConnection::handleIncommingBuffor()
 	ClientResponse clientResponse;
 	BOOST_FOREACH( uint256 const & token,m_tokens )
 	{
-		if ( m_clientRequestManager->getResponse( token, clientResponse ) )
+		if ( CClientRequestsManager::getInstance()->getResponse( token, clientResponse ) )
 		{
 			boost::apply_visitor( CHandleResponseVisitor( &pushStream, token ), clientResponse );
 			toRemove.push_back( token );

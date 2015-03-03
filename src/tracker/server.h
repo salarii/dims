@@ -32,6 +32,9 @@ public:
 	bool handleIncommingBuffor();
 
 	void run();
+
+	~CTcpServerConnection()
+	{}
 private:
 	void writeSignature( CBufferAsStream & _stream );	// do we need  this??
 
@@ -47,8 +50,6 @@ private:
 	common::CCommunicationBuffer m_pullBuffer;
 
 	common::CCommunicationBuffer m_pushBuffer;
-
-	CClientRequestsManager * m_clientRequestManager;
 };
 
 

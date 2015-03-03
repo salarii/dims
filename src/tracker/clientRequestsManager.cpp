@@ -93,6 +93,9 @@ CClientRequestsManager::getInstance( )
 	return ms_instance;
 }
 
+CClientRequestsManager::~CClientRequestsManager()
+{}
+
 uint256
 CClientRequestsManager::addRequest( NodeRequests const & _nodeRequest )
 {

@@ -16,6 +16,8 @@ struct CCommunicationBuffer
 	CCommunicationBuffer():m_usedSize(0){}
 	char m_buffer[ MaxBufferSize ];
 	unsigned int m_usedSize;
+
+	void clear(){ m_usedSize = 0; }
 };
 
 }

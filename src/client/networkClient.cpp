@@ -24,35 +24,26 @@ CNetworkClient::m_timeout = 5000;
 
 CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
 	: m_ip( _ipAddr )
-    , m_port( _port )
-    , m_connectionInfo( NoActivity )
+	, m_port( _port )
+	, m_sleepTime(100)
 {
 	m_socket = new QTcpSocket(this);
 
 	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_NETWORK, CLIENT_VERSION);
 	m_pushStream->SetPos(0);
-    startThread();
+	startThread();
 }
- 
+
 int CNetworkClient::waitForInput()
 {
-	int bytesAvail = -1;
+	int bytesAvail = 0;
 
-	while ( m_socket->state() == QAbstractSocket::ConnectedState && m_connectionInfo == Processing && bytesAvail < 0 )
-	{
-		if (m_socket->waitForReadyRead( m_timeout ))
-		{
-			bytesAvail = m_socket->bytesAvailable();
-		}
-		else
-		{
-			QThread::msleep( 50 );
-		}
-	}
+	if( m_socket->state() == QAbstractSocket::ConnectedState && m_socket->bytesAvailable () )
+		bytesAvail = m_socket->bytesAvailable();
 
 	return bytesAvail;
 }
- 
+
 unsigned int
 CNetworkClient::read()
 {
@@ -60,7 +51,7 @@ CNetworkClient::read()
 	m_pullBuffer.m_usedSize = 0;
 
 	if (bytesAvail > 0)
-    {
+	{
 		bool endOfLine = false;
 		bool endOfStream = false;
 
@@ -78,8 +69,8 @@ CNetworkClient::read()
 	}
 	return m_pullBuffer.m_usedSize;
 }
- 
- 
+
+
 void
 CNetworkClient::write()
 {
@@ -91,6 +82,8 @@ CNetworkClient::write()
 		{
 			// error handle it somehow
 		}
+
+		m_pushBuffer.m_usedSize = 0;
 	}
 }
 
@@ -114,7 +107,13 @@ CNetworkClient::takeMatching( uint256 const & _token )
 	}
 	return request;
 }
- 
+
+bool
+CNetworkClient::processSomething() const
+{
+	return !m_matching.empty() || !m_workingRequest.empty();
+}
+
 void CNetworkClient::startThread()
 {
 	start();
@@ -123,40 +122,38 @@ void CNetworkClient::startThread()
 
 void CNetworkClient::run()
 {
-    while(1)
-    {
-
-		if ( m_connectionInfo == Processing )
-        {
+	while(1)
+	{
+		{
 			QMutexLocker lock( &m_mutex );
 			QHostAddress hostAddr( m_ip );
-            m_socket->connectToHost( hostAddr, m_port );
-            if ( m_socket->waitForConnected( m_timeout ) )
-            {
-                write();
-                read();
-                m_connectionInfo = Processed;
-            }
-            else
-            {
-                m_connectionInfo = ServiceDenial;
-            }
-            m_socket->disconnectFromHost();
-        }
-    }
+
+			if ( !processSomething() )
+			{
+				m_socket->disconnectFromHost();
+				continue;
+			}
+			if ( !m_socket->isOpen () )
+				m_socket->connectToHost( hostAddr, m_port );
+
+			if ( m_socket->waitForConnected( m_timeout ) )
+			{
+				write();
+				read();
+			}
+			else
+			{
+				assert( !"hadle this" );
+			}
+		}
+		MilliSleep( m_sleepTime );
+	}
 }
 
 bool
 CNetworkClient::serviced() const throw(common::CMediumException)
 {
-    if (m_connectionInfo == Processing )
-        return false;
-    else if ( m_connectionInfo == Processed )
-        return true;
-    else if ( m_connectionInfo == ServiceDenial )
-		throw common::CMediumException(common::ErrorType::ServiceDenial );
-
-    return false;
+	return m_pullBuffer.m_usedSize > 0;
 }
 
 
@@ -234,16 +231,12 @@ CNetworkClient::flush()
 		return true;
 	m_pushStream->SetPos( 0 );
 
-    if ( m_connectionInfo != NoActivity && m_connectionInfo != Processed )
-        return false;
-
-     m_connectionInfo = Processing;
+	return true;
 }
 
 void
 CNetworkClient::clearResponses()
 {
-	m_workingRequest.clear();
 	m_pullBuffer.m_usedSize = 0;
 }
 
@@ -252,10 +245,10 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(
-		  (char*)m_pullBuffer.m_buffer
-		, m_pullBuffer.m_usedSize
-		, SER_NETWORK
-		, CLIENT_VERSION);
+				(char*)m_pullBuffer.m_buffer
+				, m_pullBuffer.m_usedSize
+				, SER_NETWORK
+				, CLIENT_VERSION);
 
 	uint256 token;
 
@@ -284,8 +277,6 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 			stream >> transactionAck;
 
 			_requestResponse.insert( std::make_pair( takeMatching( token ), transactionAck ) );
-
-			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::MonitorInfoReq )
 		{
@@ -296,8 +287,6 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 			common::CNodeSpecific< common::CMonitorData > stats( monitorData, m_ip.toStdString(), common::convertToInt(this));
 
 			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
-
-			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::TrackerInfoReq )
 		{
@@ -308,8 +297,6 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 			common::CNodeSpecific< common::CTrackerSpecificStats > stats( trackerSpecificStats, m_ip.toStdString(), common::convertToInt(this));
 
 			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
-
-			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::RequestSatatusReq )
 		{
@@ -320,8 +307,6 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 			stream >> token;
 			stream >> availableCoins;
 			_requestResponse.insert( std::make_pair( takeMatching( token ), availableCoins ) );
-
-			 m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::NetworkInfoReq )
 		{
@@ -332,14 +317,13 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 			common::CNodeSpecific< common::CClientNetworkInfoResult > stats( networkResult, m_ip.toStdString(), common::convertToInt(this));
 
 			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
-
-			m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else if ( messageType == common::CMainRequestType::ContinueReq )
 		{
 			stream >> token;
 			_requestResponse.insert( std::make_pair( m_workingRequest.front(), common::CPending( token, common::convertToInt(this) ) ) );
 			m_matching.insert( std::make_pair( token, m_workingRequest.front() ) );
+			//ok only one  response  for one  request, right now
 			m_workingRequest.erase( m_workingRequest.begin() );
 		}
 		else
@@ -354,8 +338,8 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 CNetworkClient::~CNetworkClient()
 {
 	//  is this right??, maybe invent some other  way  to  terminate?
-    terminate();
-    delete m_pushStream;
+	terminate();
+	delete m_pushStream;
 }
 
 }

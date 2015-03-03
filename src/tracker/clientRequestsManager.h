@@ -27,6 +27,8 @@ public:
 	void setClientResponse( uint256 const & _hash, ClientResponse const & _clientResponse );
 
 	static CClientRequestsManager* getInstance();
+
+	~CClientRequestsManager();
 private:
 	typedef std::map< uint256, common::NodeRequests > InfoRequestRecord;
 	typedef std::map< uint256, ClientResponse > InfoResponseRecord;

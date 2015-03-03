@@ -24,19 +24,9 @@ namespace client
 class CNetworkClient : public common::CMedium< ClientResponses >, public QThread
 {
 public:
-    enum ConnectionInfo
-    {
-          ServiceDenial
-        , NoResponse
-        , NoActivity
-        , Processing
-        , Processed
-    };
-
-public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
 
-    ~CNetworkClient();
+	~CNetworkClient();
 	virtual void startThread();
 
 	bool serviced() const throw(common::CMediumException);
@@ -72,6 +62,8 @@ private:
 	void write();
 
 	common::CRequest< ClientResponses >* takeMatching( uint256 const & _token );
+
+	bool processSomething() const;
 private:
 	static unsigned const m_timeout;
 
@@ -86,11 +78,11 @@ private:
 
 	QTcpSocket * m_socket;
 
-	ConnectionInfo m_connectionInfo;
-
 	std::map< uint256, common::CRequest< ClientResponses >* > m_matching;
 
 	std::list< common::CRequest< ClientResponses >* > m_workingRequest;
+
+	int64_t const m_sleepTime;
 };
 
 

@@ -85,23 +85,17 @@ CTcpServerConnection::CTcpServerConnection(Poco::Net::StreamSocket const & _serv
 		, SER_NETWORK
 		, CLIENT_VERSION)*/
 {
-	m_clientRequestManager = CClientRequestsManager::getInstance();
 }
 
 void
 CTcpServerConnection::run()
 {
-	Poco::Timespan timeOut(10,0);
+	Poco::Timespan timeOut(1,0);
 
 	while( 1 )
 	{
-		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ) == false)
+		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ ) )
 		{
-			throw server_error(std::string( "TIMEOUT!" ));
-		}
-		else
-		{
-
 			try
 			{
 				m_pullBuffer.m_usedSize = socket().receiveBytes( m_pullBuffer.m_buffer, MaxBufferSize );
@@ -111,12 +105,14 @@ CTcpServerConnection::run()
 				throw server_error(std::string( "Network error:" ) + exc.displayText() );
 			}
 
-			handleIncommingBuffor();
+		}
+		handleIncommingBuffor();
 
-			int bytes;
+		if (socket().poll(timeOut, Poco::Net::Socket::SELECT_WRITE) == false)
+		{
 			try
 			{
-				bytes = socket().sendBytes( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
+				socket().sendBytes( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
 			}
 			catch (Poco::Exception& exc)
 			{
@@ -196,21 +192,21 @@ CTcpServerConnection::handleIncommingBuffor()
 			pullStream >> transaction;
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token = transaction.GetHash();
-			m_clientRequestManager->addRequest( CTransactionMessage( transaction ), token );
+			CClientRequestsManager::getInstance()->addRequest( CTransactionMessage( transaction ), token );
 			pushStream << token;
 			m_tokens.insert( token );
 		}
 		else if ( messageType == CMainRequestType::TrackerInfoReq )
 		{
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
-			uint256 token = m_clientRequestManager->addRequest( CTrackerStatsReq() );
+			uint256 token =CClientRequestsManager::getInstance()->addRequest( CTrackerStatsReq() );
 			pushStream << token;
 			m_tokens.insert( token );
 		}
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
-			uint256 token = m_clientRequestManager->addRequest( CMonitorInfoReq() );
+			uint256 token = CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq() );
 			pushStream << token;
 			m_tokens.insert( token );
 		}
@@ -219,7 +215,7 @@ CTcpServerConnection::handleIncommingBuffor()
 			uint256 hash;
 			pullStream >> hash;
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
-			m_clientRequestManager->addRequest( CTransactionStatusReq( hash ), hash );
+			CClientRequestsManager::getInstance()->addRequest( CTransactionStatusReq( hash ), hash );
 			pushStream << hash;
 			m_tokens.insert( hash );
 		}
@@ -228,14 +224,14 @@ CTcpServerConnection::handleIncommingBuffor()
 			std::string address;
 			pullStream >> address;
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
-			uint256 token = m_clientRequestManager->addRequest( address );
+			uint256 token = CClientRequestsManager::getInstance()->addRequest( address );
 			pushStream << token;
 			m_tokens.insert( token );
 		}
 		else if ( messageType == CMainRequestType::NetworkInfoReq )
 		{
 
-			uint256 token = m_clientRequestManager->addRequest( CNetworkInfoReq() );
+			uint256 token = CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq() );
 			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 			m_tokens.insert( token );
@@ -250,7 +246,7 @@ CTcpServerConnection::handleIncommingBuffor()
 	ClientResponse clientResponse;
 	BOOST_FOREACH( uint256 const & token,m_tokens )
 	{
-		if ( m_clientRequestManager->getResponse( token, clientResponse ) )
+		if ( CClientRequestsManager::getInstance()->getResponse( token, clientResponse ) )
 		{
 			boost::apply_visitor( CHandleResponseVisitor( &pushStream, token ), clientResponse );
 			toRemove.push_back( token );
@@ -262,6 +258,7 @@ CTcpServerConnection::handleIncommingBuffor()
 		m_tokens.erase( token );
 	}
 
+	m_pullBuffer.clear();
 }
 
 

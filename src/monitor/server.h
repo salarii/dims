@@ -47,8 +47,6 @@ private:
 	common::CCommunicationBuffer m_pullBuffer;
 
 	common::CCommunicationBuffer m_pushBuffer;
-
-	CClientRequestsManager * m_clientRequestManager;
 };
 
 
