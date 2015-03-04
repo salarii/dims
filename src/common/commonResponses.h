@@ -24,7 +24,7 @@ namespace common
 struct CNoMedium : boost::statechart::event< CNoMedium >
 {};
 
-struct CAvailableCoins
+struct CAvailableCoins : boost::statechart::event< CAvailableCoins >
 {
 	CAvailableCoins( std::map< uint256, CCoins > const & _availableCoins, uint256 const & _hash );
 	CAvailableCoins();

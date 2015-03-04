@@ -87,8 +87,6 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CSendBalanceInfoAction >().dropRequests();
-		context< CSendBalanceInfoAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 

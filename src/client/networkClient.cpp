@@ -204,16 +204,6 @@ CNetworkClient::add( CTransactionStatusRequest const * _request )
 }
 
 void
-CNetworkClient::add( CInfoRequestContinue const * _request )
-{
-	QMutexLocker lock( &m_mutex );
-	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
-
-	*m_pushStream << _request->m_token;
-	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
-}
-
-void
 CNetworkClient::add( CRecognizeNetworkRequest const * _request )
 {
 	QMutexLocker lock( &m_mutex );

@@ -10,7 +10,6 @@
 namespace client
 {
 struct CBalanceRequest;
-struct CInfoRequestContinue;
 struct CTransactionStatusRequest;
 struct CTransactionSendRequest;
 struct CTrackersInfoRequest;
@@ -20,7 +19,7 @@ struct CRecognizeNetworkRequest;
 struct CErrorForAppPaymentProcessing;
 struct CProofTransactionAndStatusRequest;
 
-typedef boost::mpl::list< CBalanceRequest, CInfoRequestContinue, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing, CProofTransactionAndStatusRequest > NodeRequestsList;
+typedef boost::mpl::list< CBalanceRequest, CTransactionStatusRequest, CTransactionSendRequest, CTrackersInfoRequest, CMonitorInfoRequest, CDnsInfoRequest, CRecognizeNetworkRequest, CErrorForAppPaymentProcessing, CProofTransactionAndStatusRequest > NodeRequestsList;
 
 }
 

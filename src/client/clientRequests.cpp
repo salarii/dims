@@ -9,25 +9,6 @@
 namespace client
 {
 
-CInfoRequestContinue::CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< ClientResponses > * _mediumFilter )
-	: common::CRequest< ClientResponses >( _mediumFilter )
-	, m_token( _token )
-{
-}
-
-void
-CInfoRequestContinue::accept( common::CMedium< ClientResponses > * _medium ) const
-{
-	_medium->add( this );
-}
-
-common::CMediumFilter< ClientResponses > *
-CInfoRequestContinue::getMediumFilter() const
-{
-	return common::CRequest< ClientResponses >::m_mediumFilter;
-}
-
-
 CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< ClientResponses > * _medium )
 	: common::CRequest< ClientResponses >( _medium )
 	, m_transactionHash( _transactionHash )

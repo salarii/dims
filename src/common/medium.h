@@ -78,7 +78,6 @@ public:
 	virtual void prepareMedium(){};
 	virtual bool getResponseAndClear( std::multimap< CRequest< client::ClientResponses >const*, client::ClientResponses > & _requestResponse ) = 0;
 	virtual void add(client::CBalanceRequest const * _request ){};
-	virtual void add( client::CInfoRequestContinue const * _request ){};
 	virtual void add( client::CTransactionStatusRequest const * _request ){};
 	virtual void add( client::CTransactionSendRequest const * _request ){};
 	virtual void add(client:: CTrackersInfoRequest const * _request ){};

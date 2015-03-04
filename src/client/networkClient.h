@@ -40,8 +40,6 @@ public:
 
 	void add( CTransactionStatusRequest const * _request );
 
-	void add( CInfoRequestContinue const * _request );
-
 	void add( CRecognizeNetworkRequest const * _request );
 
 	void add( CTrackersInfoRequest const * _request );

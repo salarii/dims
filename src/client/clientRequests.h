@@ -13,16 +13,6 @@
 namespace client
 {
 
-struct CInfoRequestContinue : public common::CRequest< ClientResponses >
-{
-public:
-	CInfoRequestContinue( uint256 const & _token, common::CMediumFilter< ClientResponses > * _mediumFilter );
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
-	common::CMediumFilter< ClientResponses > * getMediumFilter() const;
-
-	uint256 const m_token;
-};
-
 struct CTransactionStatusRequest : public common::CRequest< ClientResponses >
 {
 public:

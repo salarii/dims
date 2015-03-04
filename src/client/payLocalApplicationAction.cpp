@@ -92,7 +92,7 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 		else
 		{
 			context< CPayLocalApplicationAction >().dropRequests();
-			context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+	//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 			return discard_event();
 		}
 	}
@@ -176,7 +176,7 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 	{
 		context< CPayLocalApplicationAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
 		context< CPayLocalApplicationAction >().dropRequests();
-		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -233,7 +233,7 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CPayLocalApplicationAction >().dropRequests();
-		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -298,7 +298,7 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 	{
 		context< CPayLocalApplicationAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
 		context< CPayLocalApplicationAction >().dropRequests();
-		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -342,7 +342,7 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CPayLocalApplicationAction >().dropRequests();
-		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
+//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 

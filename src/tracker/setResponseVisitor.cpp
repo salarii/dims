@@ -25,7 +25,7 @@ public:
 
 	virtual void operator()( common::CAvailableCoins & _param ) const
 	{
-		this->m_action->passBalance( _param );
+		this->m_action->process_event( _param );
 	}
 };
 

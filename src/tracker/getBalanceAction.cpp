@@ -8,20 +8,42 @@
 
 #include "tracker/trackerRequests.h"
 
+#include <boost/statechart/state.hpp>
+#include <boost/statechart/custom_reaction.hpp>
+
 namespace tracker
 {
+
+struct CFindBalance : boost::statechart::state< CFindBalance, CGetBalanceAction >
+{
+	CFindBalance( my_context ctx ) : my_base( ctx )
+	{
+		context< CGetBalanceAction >().dropRequests();
+
+		context< CGetBalanceAction >().addRequests(
+					new CGetBalanceRequest( context< CGetBalanceAction >().getKeyId() ) );
+	}
+
+	boost::statechart::result react( common::CAvailableCoins const & _availableCoins )
+	{
+		CClientRequestsManager::getInstance()->setClientResponse(
+					  context< CGetBalanceAction >().getHash()
+					, _availableCoins );
+
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAvailableCoins >
+	> reactions;
+
+};
 
 CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash )
 	: m_keyId( _keyId )
 	, m_hash( _hash )
 {
-	addRequests( new CGetBalanceRequest( m_keyId ) );
-}
-
-void
-CGetBalanceAction::passBalance( common::CAvailableCoins const & _availableCoins )
-{
-	CClientRequestsManager::getInstance()->setClientResponse( m_hash, _availableCoins );
+	initiate();
 }
 
 void

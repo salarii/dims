@@ -8,10 +8,14 @@
 #include "configureTrackerActionHandler.h"
 #include "common/action.h"
 
+#include <boost/statechart/state_machine.hpp>
+
 namespace tracker
 {
 
-class CGetBalanceAction : public common::CAction< TrackerResponses >
+struct CFindBalance;
+
+class CGetBalanceAction : public common::CAction< TrackerResponses >, public boost::statechart::state_machine< CGetBalanceAction, CFindBalance >
 {
 public:
 	CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash );
@@ -20,7 +24,9 @@ public:
 
 	virtual void reset(){}
 
-	void passBalance( common::CAvailableCoins const & _availableCoins );
+	uint256 getHash() const { return m_hash; }
+
+	uint160 getKeyId() const { return m_keyId; }
 private:
 	uint160 const m_keyId;
 
