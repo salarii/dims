@@ -27,9 +27,10 @@ public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
 
 	~CNetworkClient();
-	virtual void startThread();
 
 	bool serviced() const throw(common::CMediumException);
+
+	void prepareMedium();
 
 	void add( common::CRequest< ClientResponses > const * _request );
 
@@ -63,7 +64,7 @@ private:
 
 	common::CRequest< ClientResponses >* takeMatching( uint256 const & _token );
 
-	bool processSomething() const;
+	bool dropConnection() const;
 private:
 	static unsigned const m_timeout;
 

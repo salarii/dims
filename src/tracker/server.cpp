@@ -94,7 +94,7 @@ CTcpServerConnection::run()
 
 	while( 1 )
 	{
-		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ ) )
+		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ ))
 		{
 			try
 			{
@@ -108,7 +108,7 @@ CTcpServerConnection::run()
 		}
 		handleIncommingBuffor();
 
-		if (socket().poll(timeOut, Poco::Net::Socket::SELECT_WRITE) == false)
+		if (socket().poll(timeOut, Poco::Net::Socket::SELECT_WRITE))
 		{
 			try
 			{
@@ -120,9 +120,11 @@ CTcpServerConnection::run()
 				throw server_error(std::string( "Network error:" ) + exc.displayText() );
 			}
 		}
-
 		if ( m_tokens.empty() )
+		{
+			socket().close();
 			break;
+		}
 	}
 }
 

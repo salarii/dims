@@ -31,16 +31,24 @@ CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
 
 	m_pushStream = new CBufferAsStream( (char*)m_pushBuffer.m_buffer, MaxBufferSize, SER_NETWORK, CLIENT_VERSION);
 	m_pushStream->SetPos(0);
-	startThread();
+	start();
 }
 
 int CNetworkClient::waitForInput()
 {
 	int bytesAvail = 0;
 
-	if( m_socket->state() == QAbstractSocket::ConnectedState && m_socket->bytesAvailable () )
-		bytesAvail = m_socket->bytesAvailable();
-
+	while( m_socket->state() == QAbstractSocket::ConnectedState && bytesAvail == 0 )
+	{
+		if (m_socket->waitForReadyRead( m_timeout ))
+		{
+			bytesAvail = m_socket->bytesAvailable();
+		}
+		else
+		{
+			QThread::msleep( 50 );
+		}
+	}
 	return bytesAvail;
 }
 
@@ -48,7 +56,6 @@ unsigned int
 CNetworkClient::read()
 {
 	int bytesAvail = waitForInput();
-	m_pullBuffer.m_usedSize = 0;
 
 	if (bytesAvail > 0)
 	{
@@ -109,16 +116,10 @@ CNetworkClient::takeMatching( uint256 const & _token )
 }
 
 bool
-CNetworkClient::processSomething() const
+CNetworkClient::dropConnection() const
 {
-	return !m_matching.empty() || !m_workingRequest.empty();
+	return m_matching.empty() && m_workingRequest.empty();
 }
-
-void CNetworkClient::startThread()
-{
-	start();
-}
-
 
 void CNetworkClient::run()
 {
@@ -128,25 +129,29 @@ void CNetworkClient::run()
 			QMutexLocker lock( &m_mutex );
 			QHostAddress hostAddr( m_ip );
 
-			if ( !processSomething() )
+			if ( !m_socket->isOpen () || !(m_socket->state() == QAbstractSocket::ConnectedState) )
 			{
-				m_socket->disconnectFromHost();
-				continue;
-			}
-			if ( !m_socket->isOpen () )
 				m_socket->connectToHost( hostAddr, m_port );
+				if ( !m_socket->waitForConnected( m_timeout ) )
+				{
+					assert( !"hadle this" );
+				}
+			}
 
-			if ( m_socket->waitForConnected( m_timeout ) )
-			{
-				write();
-				read();
-			}
-			else
-			{
-				assert( !"hadle this" );
-			}
+			write();
+			read();
 		}
 		MilliSleep( m_sleepTime );
+
+		{
+			// how to exit 100% safe, this  is not  the way to go for sure
+			QMutexLocker lock( &m_mutex );
+			if ( dropConnection() )
+			{
+				m_socket->disconnectFromHost();
+				break;
+			}
+		}
 	}
 }
 
@@ -156,6 +161,12 @@ CNetworkClient::serviced() const throw(common::CMediumException)
 	return m_pullBuffer.m_usedSize > 0;
 }
 
+void
+CNetworkClient::prepareMedium()
+{
+	if ( !isRunning() )
+		start();
+}
 
 void 
 CNetworkClient::add( common::CRequest< ClientResponses > const * _request )
@@ -185,6 +196,7 @@ CNetworkClient::add( CTransactionSendRequest const * _request )
 void
 CNetworkClient::add( CTransactionStatusRequest const * _request )
 {
+	QMutexLocker lock( &m_mutex );
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::TransactionStatusReq );
 
 	*m_pushStream << _request->m_transactionHash;
@@ -194,6 +206,7 @@ CNetworkClient::add( CTransactionStatusRequest const * _request )
 void
 CNetworkClient::add( CInfoRequestContinue const * _request )
 {
+	QMutexLocker lock( &m_mutex );
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::ContinueReq );
 
 	*m_pushStream << _request->m_token;
@@ -203,6 +216,7 @@ CNetworkClient::add( CInfoRequestContinue const * _request )
 void
 CNetworkClient::add( CRecognizeNetworkRequest const * _request )
 {
+	QMutexLocker lock( &m_mutex );
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::NetworkInfoReq );
 	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
@@ -210,6 +224,7 @@ CNetworkClient::add( CRecognizeNetworkRequest const * _request )
 void
 CNetworkClient::add( CTrackersInfoRequest const * _request )
 {
+	QMutexLocker lock( &m_mutex );
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::TrackerInfoReq );
 	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
@@ -217,6 +232,7 @@ CNetworkClient::add( CTrackersInfoRequest const * _request )
 void
 CNetworkClient::add( CMonitorInfoRequest const * _request )
 {
+	QMutexLocker lock( &m_mutex );
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::MonitorInfoReq );
 	m_workingRequest.push_back( ( common::CRequest< ClientResponses >* )_request );
 }
@@ -330,9 +346,9 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< ClientResp
 		{
 			throw;
 		}
-
-		clearResponses();
 	}
+
+	clearResponses();
 }
 
 CNetworkClient::~CNetworkClient()

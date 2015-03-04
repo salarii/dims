@@ -129,6 +129,7 @@ template < class _RequestResponses >
 void
  CRequestHandler< _RequestResponses >::runRequests()
 {
+	m_usedMedium->prepareMedium();
 	BOOST_FOREACH( CRequest< _RequestResponses >* request, m_newRequest )
 	{
 		request->accept( m_usedMedium );

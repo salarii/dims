@@ -20,8 +20,7 @@
 
 namespace common
 {
-// in general medium have to  keep track  what responses where gained by which request
-
+//fix  stupid look  of  all those  mediums
 template < class _RequestResponses >
 struct CRequest;
 
@@ -44,6 +43,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
+	virtual void prepareMedium(){};
 	virtual bool getResponseAndClear( std::multimap< CRequest< tracker::TrackerResponses >const*, tracker::TrackerResponses > & _requestResponse ) = 0;
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
@@ -75,6 +75,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
+	virtual void prepareMedium(){};
 	virtual bool getResponseAndClear( std::multimap< CRequest< client::ClientResponses >const*, client::ClientResponses > & _requestResponse ) = 0;
 	virtual void add(client::CBalanceRequest const * _request ){};
 	virtual void add( client::CInfoRequestContinue const * _request ){};
@@ -97,6 +98,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
+	virtual void prepareMedium(){};
 	virtual bool getResponseAndClear( std::multimap< CRequest< monitor::MonitorResponses >const*, monitor::MonitorResponses > & _requestResponse ) = 0;
 	virtual void add( common::CSendIdentifyDataRequest< monitor::MonitorResponses > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< monitor::MonitorResponses > const * _request ){};
@@ -116,6 +118,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 
+	virtual void prepareMedium(){};
 	virtual bool getResponseAndClear( std::multimap< CRequest< seed::SeedResponses >const*, seed::SeedResponses > & _requestResponse ) = 0;//stupid  signature, but I don't see other  ways to handle race conditions
 	virtual void add( common::CSendIdentifyDataRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CConnectToNodeRequest< seed::SeedResponses > const * _request ){};
