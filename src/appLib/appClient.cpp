@@ -84,7 +84,3 @@ void CAppClient::send( QByteArray const & _message )
 
 }
 
-
-
-
-

@@ -378,7 +378,7 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 		stream >> m_error;
 
 		std::string reson;
-		switch( kind )
+		switch( (dims::CAppError::Enum)m_error )
 		{
 		case dims::CAppError::DifferentNetwork:
 			reson = "Specified by developer nodes not present in network\n \n";
@@ -395,9 +395,6 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 		reson += "Error on client side press Ok to exit \n";
 		QMessageBox::question( 0, "error", reson.c_str(), QMessageBox::Ok);
 		QApplication::quit();
-	}
-	else
-	{
 		return false;
 	}
 	return true;

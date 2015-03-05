@@ -46,11 +46,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
-		CAddress address( CService("127.0.0.1", 0x1400) );
-
-		CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
-		return transit< CRecognizeNetwork >();
-		/*		if ( _dnsInfo.m_addresses.empty() )
+		if ( _dnsInfo.m_addresses.empty() )
 		{
 			context< CConnectAction >().dropRequests();
 			return discard_event();
@@ -62,7 +58,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
 			}
 			return transit< CRecognizeNetwork >();
-		}*/
+		}
 	}
 
 	typedef boost::mpl::list<

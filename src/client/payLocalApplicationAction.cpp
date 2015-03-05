@@ -11,6 +11,7 @@
 #include "common/setResponseVisitor.h"
 #include "common/medium.h"
 #include "common/analyseTransaction.h"
+#include "common/mediumRequests.h"
 
 #include "clientFilters.h"
 #include "clientRequests.h"
@@ -54,16 +55,17 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 
 		context< CPayLocalApplicationAction >().dropRequests();
 		context< CPayLocalApplicationAction >().addRequests( new CErrorForAppPaymentProcessing( indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
+		context< CPayLocalApplicationAction >().addRequests( new common::CTimeEventRequest< ClientResponses >( 100, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
-	boost::statechart::result react( common::CPending const & _pending )
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CPayLocalApplicationAction >().dropRequests();
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CPending >
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 };
 

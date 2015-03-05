@@ -118,8 +118,7 @@ CLocalSocket::add( CErrorForAppPaymentProcessing const * _request )
 	stream << messageCode;
 	stream << _request->m_error;
 
-	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
-	m_localSocket->waitForBytesWritten ( -1 );
+	writeBuffer( buffer, size );
 }
 
 void
@@ -142,7 +141,16 @@ CLocalSocket::add( CProofTransactionAndStatusRequest const * _request )
 	stream << messageCode;
 	stream << _request->m_payApplicationData;
 
-	m_localSocket->write( QByteArray::fromRawData( buffer, size ) );
+	writeBuffer( buffer, size );
+}
+
+void
+CLocalSocket::writeBuffer( char * _buffer, int _size )
+{
+	if ( !m_localSocket->isValid() )
+		return;
+
+	m_localSocket->write( QByteArray::fromRawData( _buffer, _size ) );
 	m_localSocket->waitForBytesWritten ( -1 );
 }
 
@@ -225,6 +233,7 @@ void CLocalServer::readSocket()
 
 	m_usedSockts.find( common::convertToInt( sender() ) )->second->handleInput();
 }
+
 void CLocalServer::discardSocket()
 {
 	// how to handle this??
@@ -232,7 +241,8 @@ void CLocalServer::discardSocket()
 
 	assert( m_usedSockts.find( common::convertToInt( socket ) )!= m_usedSockts.end() );
 
-	delete m_usedSockts.find( common::convertToInt( socket ) )->second;
+// this  has to be  done  but not here in action handler most likely
+//	delete m_usedSockts.find( common::convertToInt( socket ) )->second;
 
 	m_usedSockts.erase( common::convertToInt( socket ) );
 }

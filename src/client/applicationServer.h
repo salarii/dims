@@ -36,6 +36,8 @@ public:
 	bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );
 
 	QLocalSocket * getSocket() const;
+
+	void writeBuffer( char * _buffer, int _size );
 protected:
 	// add locking
 	void clearResponses();

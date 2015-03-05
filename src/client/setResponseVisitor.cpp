@@ -130,6 +130,11 @@ public:
 		this->m_action->process_event( _peding );
 	}
 
+	void operator()(common::CTimeEvent & _timeEvent )
+	{
+		this->m_action->process_event( _timeEvent );
+	}
+
 	void operator()( common::CTransactionStatus & _transactionStats ) const
 	{
 		this->m_action->process_event( _transactionStats );

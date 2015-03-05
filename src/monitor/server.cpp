@@ -100,13 +100,8 @@ CTcpServerConnection::run()
 	Poco::Timespan timeOut(10,0);
 	while( 1 )
 	{
-		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ) == false)
+		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ ))
 		{
-			throw server_error(std::string( "TIMEOUT!" ));
-		}
-		else
-		{
-
 			try
 			{
 				m_pullBuffer.m_usedSize = socket().receiveBytes( m_pullBuffer.m_buffer, MaxBufferSize );
@@ -116,11 +111,14 @@ CTcpServerConnection::run()
 				throw server_error(std::string( "Network error:" ) + exc.displayText() );
 			}
 
-			handleIncommingBuffor();
-			int bytes;
+		}
+		handleIncommingBuffor();
+
+		if (socket().poll(timeOut, Poco::Net::Socket::SELECT_WRITE))
+		{
 			try
 			{
-				bytes = socket().sendBytes( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
+				socket().sendBytes( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
 			}
 			catch (Poco::Exception& exc)
 			{
@@ -128,9 +126,11 @@ CTcpServerConnection::run()
 				throw server_error(std::string( "Network error:" ) + exc.displayText() );
 			}
 		}
-
 		if ( m_tokens.empty() )
+		{
+			socket().close();
 			break;
+		}
 	}
 
 }
