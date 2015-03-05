@@ -144,6 +144,7 @@ CLIENT_H = \
   ../client/connectAction.h \
   ../client/configureClientActionHadler.h \
   ../client/controlRequests.h \
+  ../client/errorMediumProvider.h \
   ../client/init.h \
   ../client/networkClient.h \
   ../client/payLocalApplicationAction.h \
@@ -164,6 +165,7 @@ CLIENT_CPP = \
   ../client/clientRequests.cpp \
   ../client/connectAction.cpp \
   ../client/controlRequests.cpp \
+  ../client/errorMediumProvider.cpp \
   ../client/init.cpp \
   ../client/networkClient.cpp \
   ../client/payLocalApplicationAction.cpp \

@@ -6,12 +6,13 @@
 #define CLIENT_FILTERS_H
 
 #include "common/filters.h"
-#include "configureClientActionHadler.h"
-#include "settingsConnectionProvider.h"
-#include "trackerLocalRanking.h"
-#include "applicationServer.h"
 
-#include "settingsMedium.h"
+#include "client/configureClientActionHadler.h"
+#include "client/settingsConnectionProvider.h"
+#include "client/trackerLocalRanking.h"
+#include "client/applicationServer.h"
+#include "client/errorMediumProvider.h"
+#include "client/settingsMedium.h"
 
 namespace  client
 {
@@ -40,18 +41,17 @@ struct CMediumClassFilter : public common::CMediumFilter< ClientResponses >
 	{
 		std::list< common::CMedium< ClientResponses > *> mediums = _trackerLocalRanking->getMediumByClass( m_mediumClass, m_mediumNumber );
 
-		if ( mediums.empty() )
-		{
-			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
-			return mediums;
-		}
-
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
 		{
 			mediums.resize( m_mediumNumber );
 		}
 
 		return mediums;
+	}
+
+	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	{
+		_errorMediumProvider->getErrorMedium();
 	}
 
 	common::RequestKind::Enum m_mediumClass;
@@ -81,12 +81,6 @@ struct CSpecificMediumFilter : public common::CMediumFilter< ClientResponses >
 				mediums.push_back( medium );
 		}
 
-		if ( mediums.empty() )
-		{
-			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
-			return mediums;
-		}
-
 		return mediums;
 	}
 
@@ -105,6 +99,10 @@ struct CSpecificMediumFilter : public common::CMediumFilter< ClientResponses >
 		return mediums;
 	}
 
+	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	{
+		_errorMediumProvider->getErrorMedium();
+	}
 
 	 std::set< uintptr_t > m_nodes;
 };
@@ -125,14 +123,14 @@ struct CMediumByKeyFilter : public common::CMediumFilter< ClientResponses >
 		if ( _trackerLocalRanking->getSpecificMedium( m_keyId, medium ) )
 			mediums.push_back( medium );
 
-		if ( mediums.empty() )
-		{
-			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
-			return mediums;
-		}
-
 		return mediums;
 	}
+
+	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	{
+		_errorMediumProvider->getErrorMedium();
+	}
+
 
 	CKeyID const m_keyId;
 };
@@ -170,11 +168,6 @@ struct CMediumClassWithExceptionFilter : public common::CMediumFilter< ClientRes
 			}
 
 		}
-		if ( mediums.empty() )
-		{
-			mediums.push_back( CDefaultMedium::getInstance()->getInstance() );
-			return mediums;
-		}
 
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
 		{
@@ -183,6 +176,12 @@ struct CMediumClassWithExceptionFilter : public common::CMediumFilter< ClientRes
 
 		return mediums;
 	}
+
+	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	{
+		_errorMediumProvider->getErrorMedium();
+	}
+
 	int m_mediumClass;
 	std::set< uintptr_t > m_exceptionPtrs;
 	int m_mediumNumber;

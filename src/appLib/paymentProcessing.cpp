@@ -376,7 +376,24 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 	{
 		int m_error;
 		stream >> m_error;
-		QMessageBox::question( 0, "error", "Error on client side press Ok to exit", QMessageBox::Ok);
+
+		std::string reson;
+		switch( kind )
+		{
+		case dims::CAppError::DifferentNetwork:
+			reson = "Specified by developer nodes not present in network\n \n";
+			break;
+		case dims::CAppError::NotEnoughFunds:
+			reson = "not enough funds to pay for application\n \n";
+			break;
+		case dims::CAppError::RefusedByClient:
+			reson = "refused by client, reason not known\n \n";
+			break;
+		default:
+			break;
+		}
+		reson += "Error on client side press Ok to exit \n";
+		QMessageBox::question( 0, "error", reson.c_str(), QMessageBox::Ok);
 		QApplication::quit();
 	}
 	else

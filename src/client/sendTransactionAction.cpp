@@ -36,8 +36,6 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CSendTransactionAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
-		context< CSendTransactionAction >().dropRequests();
-//		context< CSendTransactionAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -84,8 +82,6 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CSendTransactionAction >().dropRequests();
-//		context< CSendTransactionAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 

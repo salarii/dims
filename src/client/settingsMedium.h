@@ -39,12 +39,6 @@ public:
 
 	void add( CDnsInfoRequest const * _request );
 
-	void add( CMonitorInfoRequest const * _request );
-
-	void add( CTrackersInfoRequest const * _request );
-
-	void add( CBalanceRequest const * _request );
-
 	bool flush();
 
 	bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );

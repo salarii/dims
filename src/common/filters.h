@@ -30,12 +30,13 @@ class CSeedNodesManager;
 
 namespace client
 {
-
 class CSettingsConnectionProvider;
 
 class CTrackerLocalRanking;
 
 class CLocalServer;
+
+class CErrorMediumProvider;
 }
 
 namespace monitor
@@ -49,9 +50,9 @@ namespace common
 template < class ResponseType >
 class CNodesManager;
 
-struct Dummy0; struct Dummy1; struct Dummy2; struct Dummy3; struct Dummy4; struct Dummy5;
+struct Dummy0; struct Dummy1; struct Dummy2; struct Dummy3; struct Dummy4; struct Dummy5;struct Dummy6; struct Dummy7;
 
-template < class _RequestResponses, class _V0 = Dummy0, class _V1 = Dummy1, class _V2 = Dummy2, class _V3 = Dummy3, class _V4 = Dummy4, class _V5 = Dummy5 >
+template < class _RequestResponses, class _V0 = Dummy0, class _V1 = Dummy1, class _V2 = Dummy2, class _V3 = Dummy3, class _V4 = Dummy4, class _V5 = Dummy5, class _V6 = Dummy6, class _V7 = Dummy7>
 struct CMediumFilterBase
 {
 	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V0 * _v0 )const{ return std::list< CMedium< _RequestResponses > *>(); }
@@ -60,6 +61,8 @@ struct CMediumFilterBase
 	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V3 * _v3 )const{ return std::list< CMedium< _RequestResponses > *>(); }
 	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V4 * _v4 )const{ return std::list< CMedium< _RequestResponses > *>(); }
 	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V5 * _v5 )const{ return std::list< CMedium< _RequestResponses > *>(); }
+	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V6 * _v6 )const{ return std::list< CMedium< _RequestResponses > *>(); }
+	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V7 * _v7 )const{ return std::list< CMedium< _RequestResponses > *>(); }
 };
 
 template < class _RequestResponses >
@@ -73,7 +76,7 @@ struct CMediumFilter< tracker::TrackerResponses > : public CMediumFilterBase< tr
 };
 
 template <>
-struct CMediumFilter< client::ClientResponses > : public CMediumFilterBase< client::ClientResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking, client::CLocalServer >
+struct CMediumFilter< client::ClientResponses > : public CMediumFilterBase< client::ClientResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking, client::CLocalServer, client::CErrorMediumProvider >
 {
 };
 

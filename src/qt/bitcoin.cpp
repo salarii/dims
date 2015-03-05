@@ -18,12 +18,13 @@
 
 #include "common/actionHandler.h"
 #include "common/timeMedium.h"
+#include "common/periodicActionExecutor.h"
 
 #include "client/configureClientActionHadler.h"
 #include "client/trackerLocalRanking.h"
 #include "client/settingsConnectionProvider.h"
 #include "client/applicationServer.h"
-#include "common/periodicActionExecutor.h"
+#include "client/errorMediumProvider.h"
 
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
@@ -252,6 +253,8 @@ void BitcoinCore::initialize()
 	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
 
 	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
+
+	common::CActionHandler< client::ClientResponses >::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
 
 	threadGroup.create_thread(boost::bind(&common::CActionHandler< client::ClientResponses >::loop, actionHandler));
 

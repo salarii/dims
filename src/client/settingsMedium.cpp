@@ -60,24 +60,6 @@ CDefaultMedium::add( CDnsInfoRequest const * _request )
 }
 
 void
-CDefaultMedium::add( CMonitorInfoRequest const * _request )
-{
-	m_requestResponse.insert( std::make_pair( ( common::CRequest< ClientResponses > * )_request, CNoMedium() ) );
-}
-
-void
-CDefaultMedium::add( CTrackersInfoRequest const * _request )
-{
-	m_requestResponse.insert( std::make_pair( ( common::CRequest< ClientResponses > * )_request, CNoMedium() ) );
-}
-
-void
-CDefaultMedium::add( CBalanceRequest const * _request )
-{
-	m_requestResponse.insert( std::make_pair( ( common::CRequest< ClientResponses > * )_request, CNoMedium() ) );
-}
-
-void
 CDefaultMedium::getSeedIps( vector<CAddress> & _vAdd )
 {
 	const vector<CDNSSeedData> &vSeeds = dimsParams().DNSSeeds();

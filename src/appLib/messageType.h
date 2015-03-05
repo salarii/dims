@@ -28,6 +28,7 @@ struct CAppError
 	{
 		  RefusedByClient
 		, NotEnoughFunds
+		, DifferentNetwork
 	};
 };
 

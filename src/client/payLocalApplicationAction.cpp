@@ -42,8 +42,8 @@ struct CResolveByMonitorEvent : boost::statechart::event< CResolveByMonitorEvent
 
 struct CIndicateErrorEvent : boost::statechart::event< CIndicateErrorEvent >
 {
-	CIndicateErrorEvent( int const _error ):m_error( _error ){}
-	int const m_error;
+	CIndicateErrorEvent( dims::CAppError::Enum const _error ):m_error( _error ){}
+	dims::CAppError::Enum const m_error;
 };
 
 struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorCondition, CPayLocalApplicationAction >
@@ -53,7 +53,7 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 		CIndicateErrorEvent const* indicateErrorEvent = dynamic_cast< CIndicateErrorEvent const* >( simple_state::triggering_event() );
 
 		context< CPayLocalApplicationAction >().dropRequests();
-		context< CPayLocalApplicationAction >().addRequests( new CErrorForAppPaymentProcessing( (dims::CAppError::Enum)indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
+		context< CPayLocalApplicationAction >().addRequests( new CErrorForAppPaymentProcessing( indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -92,7 +92,6 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 		else
 		{
 			context< CPayLocalApplicationAction >().dropRequests();
-	//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 			return discard_event();
 		}
 	}
@@ -175,8 +174,6 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CPayLocalApplicationAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
-		context< CPayLocalApplicationAction >().dropRequests();
-//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -232,8 +229,6 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CPayLocalApplicationAction >().dropRequests();
-//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -297,8 +292,6 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 	boost::statechart::result react( common::CPending const & _pending )
 	{
 		context< CPayLocalApplicationAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
-		context< CPayLocalApplicationAction >().dropRequests();
-//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -341,8 +334,6 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CPayLocalApplicationAction >().dropRequests();
-//		context< CPayLocalApplicationAction >().addRequests( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
 		return discard_event();
 	}
 
@@ -388,7 +379,6 @@ struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CP
 
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		context< CPayLocalApplicationAction >().dropRequests();
 		return discard_event();
 	}
 
@@ -434,12 +424,14 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 	{
 		if ( CTrackerLocalRanking::getInstance()->isValidMonitorKnown( *iterator ) )
 		{
-			process_event( CResolveByMonitorEvent( *iterator  ) );
+			process_event( CResolveByMonitorEvent( *iterator ) );
 			return;
 		}
 
 		iterator++;
 	}
+
+	process_event( CIndicateErrorEvent( dims::CAppError::DifferentNetwork ) );
 }
 
 void
