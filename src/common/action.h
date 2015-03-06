@@ -11,24 +11,24 @@
 namespace common
 {
 
-template < class _RequestResponses >
+template < class _Type >
 class CSetResponseVisitor;
 
-template < class _RequestResponses > struct CRequest;
+template < class _Type > struct CRequest;
 
 
-template < class _RequestResponses >
+template < class _Type >
 class CAction
 {
 public:
 	CAction( bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_autoDelete( _autoDelete ){};
 
-	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor ) = 0;
+	virtual void accept( CSetResponseVisitor< _Type > & _visitor ) = 0;
 
-	virtual std::vector< CRequest< _RequestResponses >* > getRequests() const{ return m_requests; }
+	virtual std::vector< CRequest< _Type >* > getRequests() const{ return m_requests; }
 
 	// following two are  ugly
-	virtual void addRequests( CRequest< _RequestResponses >* _request ){ m_requests.push_back( _request ); }
+	virtual void addRequests( CRequest< _Type >* _request ){ m_requests.push_back( _request ); }
 
 	virtual void dropRequests()
 	{
@@ -50,7 +50,7 @@ public:
 
 	virtual ~CAction()
 	{
-		BOOST_FOREACH( CRequest< _RequestResponses >*request, m_droppedRequests )
+		BOOST_FOREACH( CRequest< _Type >*request, m_droppedRequests )
 		{
 			delete request;
 		}
@@ -62,11 +62,10 @@ protected:
 
 	bool const m_autoDelete;
 
-	std::vector< CRequest< _RequestResponses >* > m_requests;
+	std::vector< CRequest< _Type >* > m_requests;
 
-	std::vector< CRequest< _RequestResponses >* > m_droppedRequests;
+	std::vector< CRequest< _Type >* > m_droppedRequests;
 };
-
 
 }
 

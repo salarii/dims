@@ -7,15 +7,13 @@
 
 #include "tracker/validationManager.h"
 
-#include "connectionProvider.h"
-
+#include "common/connectionProvider.h"
 #include "commonResponses.h"
-
-#include "common/nodeMessages.h"
-#include "medium.h"
-#include "support.h"
-
 #include "common/communicationBuffer.h"
+#include "common/nodeMessages.h"
+#include "common/medium.h"
+#include "common/support.h"
+#include "common/types.h"
 
 namespace common
 {
@@ -24,50 +22,51 @@ memory leak but  right  now  I can  live  with  that
 
 */
 
-template < class _Medium >
+template < class _Type >
 class CRequestHandler
 {
 public:
-	typedef RESPONSE_TYPE(_Medium) Response;
+	typedef RESPONSE_TYPE(_Type) Response;
+	typedef MEDIUM_TYPE(_Type) Medium;
 public:
-	CRequestHandler( _Medium * _medium );
+	CRequestHandler( Medium * _medium );
 
-	std::vector< Response > getResponses( CRequest< Response >* _request ) const;
+	std::vector< Response > getResponses( CRequest< _Type >* _request ) const;
 
-	bool isProcessed( CRequest< Response >* _request ) const;
+	bool isProcessed( CRequest< _Type >* _request ) const;
 
 	void runRequests();
 
 	void processMediumResponses();
 
-	void deleteRequest( CRequest< Response >* );
+	void deleteRequest( CRequest< _Type >* );
 
-	bool operator==( _Medium const * _medium ) const;
+	bool operator==( Medium const * _medium ) const;
 
-	bool operator<( _Medium const * _medium ) const;
+	bool operator<( Medium const * _medium ) const;
 
-	void setRequest( CRequest< Response >* _request );
+	void setRequest( CRequest< _Type >* _request );
 
-	bool operator<( CRequestHandler< _Medium > const & _handler ) const;
+	bool operator<( CRequestHandler< _Type > const & _handler ) const;
 private:
-	std::vector<CRequest< Response >*> m_newRequest;
-	std::map<CRequest< Response >*,uint256> m_pendingRequest;
-	std::multimap<CRequest< Response >const*,Response > m_processedRequests;
+	std::vector<CRequest< _Type >*> m_newRequest;
+	std::map<CRequest< _Type >*,uint256> m_pendingRequest;
+	std::multimap<CRequest< _Type >const*,Response > m_processedRequests;
 
-	_Medium * m_usedMedium;
+	Medium * m_usedMedium;
 };
 
-template < class _Medium >
-CRequestHandler< _Medium >::CRequestHandler( _Medium * _medium )
+template < class _Type >
+CRequestHandler< _Type >::CRequestHandler( Medium * _medium )
 	:m_usedMedium( _medium )
 {
 }
 
-template < class _Medium >
-std::vector< typename CRequestHandler< _Medium >::Response >
-CRequestHandler< _Medium >::getResponses( CRequest< Response >* _request ) const
+template < class _Type >
+std::vector< typename CRequestHandler< _Type >::Response >
+CRequestHandler< _Type >::getResponses( CRequest< _Type >* _request ) const
 {
-	typename std::multimap<CRequest< Response >const*,Response >::const_iterator iterator;
+	typename std::multimap<CRequest< _Type >const*,Response >::const_iterator iterator;
 
 	std::vector< Response > responses;
 
@@ -79,37 +78,37 @@ CRequestHandler< _Medium >::getResponses( CRequest< Response >* _request ) const
 	return responses;
 }
 
-template < class _Medium >
+template < class _Type >
 void
- CRequestHandler< _Medium >::deleteRequest( CRequest< Response >* _request )
+ CRequestHandler< _Type >::deleteRequest( CRequest< _Type >* _request )
 {
 	m_processedRequests.erase( _request );
 }
 
-template < class _Medium >
+template < class _Type >
 bool
-CRequestHandler< _Medium >::operator==( _Medium const * _medium ) const
+CRequestHandler< _Type >::operator==( Medium const * _medium ) const
 {
 	return m_usedMedium == _medium;
 }
 
-template < class _Medium >
+template < class _Type >
 bool
-CRequestHandler< _Medium >::operator<( _Medium const * _medium ) const
+CRequestHandler< _Type >::operator<( Medium const * _medium ) const
 {
 	return (long long)m_usedMedium < (long long)_medium;
 }
 
-template < class _Medium >
+template < class _Type >
 bool
-CRequestHandler< _Medium >::operator<( CRequestHandler< _Medium > const & _handler ) const
+CRequestHandler< _Type >::operator<( CRequestHandler< _Type > const & _handler ) const
 {
 	return this->m_usedMedium < _handler.m_usedMedium;
 }
 
-template < class _Medium >
+template < class _Type >
 bool
-CRequestHandler< _Medium >::isProcessed( CRequest< Response >* _request ) const
+CRequestHandler< _Type >::isProcessed( CRequest< _Type >* _request ) const
 {
 	if ( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return true;
@@ -117,19 +116,19 @@ CRequestHandler< _Medium >::isProcessed( CRequest< Response >* _request ) const
 	return false;
 }
 
-template < class _Medium >
+template < class _Type >
 void
- CRequestHandler< _Medium >::setRequest( CRequest< Response >* _request )
+ CRequestHandler< _Type >::setRequest( CRequest< _Type >* _request )
 {
 	m_newRequest.push_back( _request );
 }
 
-template < class _Medium >
+template < class _Type >
 void
- CRequestHandler< _Medium >::runRequests()
+ CRequestHandler< _Type >::runRequests()
 {
 	m_usedMedium->prepareMedium();
-	BOOST_FOREACH( CRequest< Response >* request, m_newRequest )
+	BOOST_FOREACH( CRequest< _Type >* request, m_newRequest )
 	{
 		request->accept( m_usedMedium );
 	}
@@ -137,16 +136,16 @@ void
 	m_usedMedium->flush();
 }
 
-template < class _Medium >
+template < class _Type >
 void
- CRequestHandler< _Medium >::processMediumResponses()
+ CRequestHandler< _Type >::processMediumResponses()
 {
 	try
 	{
 		if( !m_usedMedium->serviced() )
 			return;
 
-		std::multimap< CRequest< Response >const*, Response > requestResponses;
+		std::multimap< CRequest< _Type >const*, Response > requestResponses;
 
 		m_usedMedium->getResponseAndClear( requestResponses );
 
@@ -159,7 +158,7 @@ void
 	 catch (CMediumException & _mediumException)
 	{
 // do  something  here
-		BOOST_FOREACH( CRequest< Response >const* request, m_newRequest )
+		BOOST_FOREACH( CRequest< _Type >const* request, m_newRequest )
 		{
 		//	m_processedRequests.insert( std::make_pair( request, _mediumException ) );
 		}

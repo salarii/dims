@@ -6,10 +6,7 @@
 #define SET_RESPONSE_VISITOR_H
 
 #include <boost/variant.hpp> 
-#include "tracker/configureTrackerActionHandler.h"
-#include "client/configureClientActionHadler.h"
-#include "monitor/configureMonitorActionHandler.h"
-#include "seed/configureSeedActionHandler.h"
+#include "common/types.h"
 
 namespace tracker
 {
@@ -58,22 +55,22 @@ namespace common
 
 template < class _RequestResponses > class CAction;
 
-template < class _RequestResponses >
+template < class _Type >
 class CSetResponseVisitor
 {
 public:
-	CSetResponseVisitor( _RequestResponses const & _requestRespond );
-	virtual void visit( CAction< _RequestResponses > & _action );
+	CSetResponseVisitor( _Type const & _requestRespond );
+	virtual void visit( CAction< _Type > & _action );
 };
 
-// weak spot because one have to remembar to ad function for  every new action refactor it??
+// weak spot because one have to remembar to add function for  every new action refactor it??
 template<>
-class CSetResponseVisitor< tracker::TrackerResponses >
+class CSetResponseVisitor< CTrackerTypes >
 {
 public:
 	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses );
 
-	virtual void visit( common::CAction< tracker::TrackerResponses > & _action );
+	virtual void visit( common::CAction< CTrackerTypes > & _action );
 
 	virtual void visit( tracker::CGetBalanceAction & _action );
 
@@ -91,7 +88,7 @@ private:
 };
 
 template<>
-class CSetResponseVisitor< client::ClientResponses >
+class CSetResponseVisitor< CClientTypes >
 {
 public:
 	CSetResponseVisitor( client::ClientResponses const & _requestRespond );
@@ -112,7 +109,7 @@ private:
 
 
 template<>
-class CSetResponseVisitor< monitor::MonitorResponses >
+class CSetResponseVisitor< CMonitorTypes>
 {
 public:
 	CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse );
@@ -126,7 +123,7 @@ private:
 };
 
 template<>
-class CSetResponseVisitor< seed::SeedResponses >
+class CSetResponseVisitor< CSeedTypes >
 {
 public:
 	CSetResponseVisitor( seed::SeedResponses const & _requestResponse );

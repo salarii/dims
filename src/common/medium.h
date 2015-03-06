@@ -10,42 +10,47 @@
 #include "visitorConfigurationUtilities.h"
 
 #include "tracker/trackerRequestsList.h"
-#include "tracker/configureTrackerActionHandler.h"
 #include "client/nodeRequestList.h"
-#include "client/configureClientActionHadler.h"
 #include "monitor/monitorRequestsList.h"
-#include "monitor/configureMonitorActionHandler.h"
-#include "seed/configureSeedActionHandler.h"
 #include "seed/seedRequestsList.h"
+
+#include "common/types.h"
 
 namespace common
 {
+
 //fix  stupid look  of  all those  mediums
 template < class _RequestResponses >
 struct CRequest;
 
-template < class _RequestResponses >
+template < class _Type >
 class CMedium
 {
 public:
-	typedef _RequestResponses ResponsesType;
+	typedef _Type types;
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 	virtual void prepareMedium(){};
-	virtual bool getResponseAndClear( std::multimap< CRequest< ResponsesType >const*, ResponsesType > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
+	virtual bool getResponseAndClear( std::multimap< CRequest< _Type >const*, RESPONSE_TYPE(_Type) > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
 	virtual ~CMedium(){};
 };
 
-class CTrackerBaseMedium : public CMedium< tracker::TrackerResponses >
+class CTrackerBaseMedium : public CMedium< CTrackerTypes>
 {
 public:
-	using CMedium::ResponsesType;
+	using CMedium::types;
 public:
+	virtual void add( common::CAckRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CEndRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CResultRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CSendIdentifyDataRequest<CTrackerTypes> const * _request ){};
+	virtual void add( common::CNetworkRoleRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CKnownNetworkInfoRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CTimeEventRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
-	virtual void add( common::CSendIdentifyDataRequest<tracker::TrackerResponses> const * _request ){};
 	virtual void add( tracker::CAskForTransactionsRequest const * _request ){};
 	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
 	virtual void add( tracker::CGetSynchronizationInfoRequest const * _request ){};
@@ -53,39 +58,34 @@ public:
 	virtual void add( tracker::CSetNextBlockRequest< tracker::CDiskBlock > const * _request ){};
 	virtual void add( tracker::CSetNextBlockRequest< tracker::CSegmentHeader > const * _request ){};
 	virtual void add( tracker::CTransactionsStatusRequest const * _request ){};
-	virtual void add( common::CNetworkRoleRequest< tracker::TrackerResponses > const * _request ){};
-	virtual void add( common::CKnownNetworkInfoRequest< tracker::TrackerResponses > const * _request ){};
-	virtual void add( common::CAckRequest< tracker::TrackerResponses > const * _request ){};
-	virtual void add( common::CEndRequest< tracker::TrackerResponses > const * _request ){};
-	virtual void add( common::CResultRequest< tracker::TrackerResponses > const * _request ){};
 	virtual void add( tracker::CTransactionsPropagationRequest const * _request ){};
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
-	virtual void add( common::CTimeEventRequest< tracker::TrackerResponses > const * _request ){};
 
 	virtual ~CTrackerBaseMedium(){};
 };
 
-class CMonitorBaseMedium : public CMedium< monitor::MonitorResponses >
+class CMonitorBaseMedium : public CMedium< CMonitorTypes >
 {
 public:
-	using CMedium::ResponsesType;
+	using CMedium::types;
 public:
-	virtual void add( common::CSendIdentifyDataRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( common::CKnownNetworkInfoRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( common::CAckRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( common::CNetworkRoleRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CSendIdentifyDataRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CKnownNetworkInfoRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CAckRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CNetworkRoleRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CTimeEventRequest< CMonitorTypes > const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
 	virtual void add( monitor::CConnectCondition const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
-	virtual void add( common::CTimeEventRequest< monitor::MonitorResponses > const * _request ){};
 };
 
-class CClientBaseMedium : public CMedium< client::ClientResponses >
+class CClientBaseMedium : public CMedium< CClientTypes >
 {
 public:
-	using CMedium::ResponsesType;
+	using CMedium::types;
 public:
+	virtual void add( common::CTimeEventRequest< CClientTypes > const * _request ){};
 	virtual void add(client::CBalanceRequest const * _request ){};
 	virtual void add( client::CTransactionStatusRequest const * _request ){};
 	virtual void add( client::CTransactionSendRequest const * _request ){};
@@ -95,21 +95,51 @@ public:
 	virtual void add( client::CRecognizeNetworkRequest const * _request ){};
 	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
 	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
-	virtual void add( common::CTimeEventRequest< client::ClientResponses > const * _request ){};
 };
 
-class CSeedBaseMedium : public CMedium< seed::SeedResponses >
+class CSeedBaseMedium : public CMedium< CSeedTypes >
 {
 public:
-	using CMedium::ResponsesType;
+	using CMedium::types;
 public:
-	virtual void add( common::CSendIdentifyDataRequest< seed::SeedResponses > const * _request ){};
-	virtual void add( common::CConnectToNodeRequest< seed::SeedResponses > const * _request ){};
-	virtual void add( common::CNetworkRoleRequest< seed::SeedResponses > const * _request ){};
-	virtual void add( common::CAckRequest< seed::SeedResponses > const * _request ){};
-	virtual void add( common::CKnownNetworkInfoRequest< seed::SeedResponses > const * _request ){};
-	virtual void add( common::CTimeEventRequest< seed::SeedResponses > const * _request ){};
+	virtual void add( common::CSendIdentifyDataRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CConnectToNodeRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CNetworkRoleRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CAckRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CKnownNetworkInfoRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CTimeEventRequest< CSeedTypes > const * _request ){};
 };
 
+/*
+template < typename _Class >
+struct CGetType
+{
+	typedef int type;
+};
+ Medium;
+
+CMonitorBaseMedium Medium;
+
+CClientBaseMedium Medium;
+
+CSeedBaseMedium Medium;
+template <>
+struct CGetResponseType< CTrackerBaseMedium >
+{
+	typedef CTrackerBaseMedium::types type;
+};
+
+template <>
+struct CGetResponseType< CMonitorTypes >
+{
+	typedef CMonitorTypes::Response type;
+};
+
+template <>
+struct CGetResponseType< CClientTypes >
+{
+	typedef CClientTypes::Response type;
+};
+*/
 }
 #endif // MEDIUM_H

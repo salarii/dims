@@ -5,6 +5,8 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
+#include "types.h"
+
 struct CBufferAsStream;
 
 namespace common
@@ -37,14 +39,18 @@ class CMediumFilter;
 
 class CRequestVisitor;
 
-template < class _RequestResponses >
+template < class _Types >
 struct CRequest
 {
-	CRequest( common::CMediumFilter< _RequestResponses > * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter ){}
+	typedef MEDIUM_TYPE(_Types) MediumType;
+	typedef RESPONSE_TYPE(_Types) ResponseType;
+	typedef FILTER_TYPE(_Types) FilterType;
 
-	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
+	CRequest( FilterType * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter ){}
 
-	virtual CMediumFilter< _RequestResponses > * getMediumFilter() const{ return m_mediumFilter; }
+	virtual void accept( MediumType * _medium ) const = 0;
+
+	virtual FilterType * getMediumFilter() const{ return m_mediumFilter; }
 
 	virtual ~CRequest()
 	{
@@ -52,7 +58,7 @@ struct CRequest
 			delete m_mediumFilter;
 	};
 
-	common::CMediumFilter< _RequestResponses > * m_mediumFilter;
+	FilterType * m_mediumFilter;
 };
 
 

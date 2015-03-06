@@ -56,7 +56,6 @@ struct CSynchronizationBlockResult
 	unsigned int m_blockIndex;
 };
 
-// CMessageResult is  kind of hope here
 // list all desired types
 typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, CRequestedMerkles, CSynchronizationInfoResult, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult< CSegmentHeader >, CSynchronizationBlockResult< CDiskBlock >, common::CEndEvent, common::CMessageResult, common::CTimeEvent > TrackerResponseList;
 
