@@ -9,10 +9,10 @@
 namespace tracker
 {
 template<>
-unsigned int const common::CActionHandler< TrackerResponses >::m_sleepTime = 100;
+unsigned int const common::CActionHandler< CTrackerTypes >::m_sleepTime = 100;
 
 template<>
-common::CActionHandler< TrackerResponses > * common::CActionHandler< TrackerResponses >::ms_instance = NULL;
+common::CActionHandler< CTrackerTypes > * common::CActionHandler< CTrackerTypes >::ms_instance = NULL;
 
 template<>
 common::CTimeMedium< TrackerResponses > * common::CTimeMedium< TrackerResponses >::ms_instance = NULL;

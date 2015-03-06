@@ -28,23 +28,20 @@ template < class _RequestResponses >
 class CMedium
 {
 public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
-	virtual void getResponseAndClear( std::multimap< CRequest< _RequestResponses >const*, _RequestResponses > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
-	virtual bool getResponse( std::vector< _RequestResponses > & _requestResponse ) const = 0;
-	virtual void add( CRequest< _RequestResponses > const * _request ) = 0;
-	virtual ~CMedium(){};
-};
-
-template <>
-class CMedium< tracker::TrackerResponses >
-{
+	typedef _RequestResponses ResponsesType;
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
-
 	virtual void prepareMedium(){};
-	virtual bool getResponseAndClear( std::multimap< CRequest< tracker::TrackerResponses >const*, tracker::TrackerResponses > & _requestResponse ) = 0;
+	virtual bool getResponseAndClear( std::multimap< CRequest< ResponsesType >const*, ResponsesType > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
+	virtual ~CMedium(){};
+};
+
+class CTrackerBaseMedium : public CMedium< tracker::TrackerResponses >
+{
+public:
+	using CMedium::ResponsesType;
+public:
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
@@ -65,18 +62,30 @@ public:
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual void add( common::CTimeEventRequest< tracker::TrackerResponses > const * _request ){};
-	virtual ~CMedium(){};
+
+	virtual ~CTrackerBaseMedium(){};
 };
 
-template <>
-class CMedium< client::ClientResponses >
+class CMonitorBaseMedium : public CMedium< monitor::MonitorResponses >
 {
 public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
+	using CMedium::ResponsesType;
+public:
+	virtual void add( common::CSendIdentifyDataRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CKnownNetworkInfoRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CAckRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( common::CNetworkRoleRequest< monitor::MonitorResponses > const * _request ){};
+	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
+	virtual void add( monitor::CConnectCondition const * _request ){};
+	virtual void add( monitor::CInfoRequest const * _request ){};
+	virtual void add( common::CTimeEventRequest< monitor::MonitorResponses > const * _request ){};
+};
 
-	virtual void prepareMedium(){};
-	virtual bool getResponseAndClear( std::multimap< CRequest< client::ClientResponses >const*, client::ClientResponses > & _requestResponse ) = 0;
+class CClientBaseMedium : public CMedium< client::ClientResponses >
+{
+public:
+	using CMedium::ResponsesType;
+public:
 	virtual void add(client::CBalanceRequest const * _request ){};
 	virtual void add( client::CTransactionStatusRequest const * _request ){};
 	virtual void add( client::CTransactionSendRequest const * _request ){};
@@ -87,45 +96,19 @@ public:
 	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
 	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
 	virtual void add( common::CTimeEventRequest< client::ClientResponses > const * _request ){};
-	virtual ~CMedium(){};
 };
 
-template <>
-class CMedium< monitor::MonitorResponses >
+class CSeedBaseMedium : public CMedium< seed::SeedResponses >
 {
 public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
-
-	virtual void prepareMedium(){};
-	virtual bool getResponseAndClear( std::multimap< CRequest< monitor::MonitorResponses >const*, monitor::MonitorResponses > & _requestResponse ) = 0;
-	virtual void add( common::CSendIdentifyDataRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( common::CKnownNetworkInfoRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( common::CAckRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( common::CNetworkRoleRequest< monitor::MonitorResponses > const * _request ){};
-	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
-	virtual void add( monitor::CConnectCondition const * _request ){};
-	virtual void add( monitor::CInfoRequest const * _request ){};
-	virtual void add( common::CTimeEventRequest< monitor::MonitorResponses > const * _request ){};
-	virtual ~CMedium(){};
-};
-
-template <>
-class CMedium< seed::SeedResponses >
-{
+	using CMedium::ResponsesType;
 public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
-
-	virtual void prepareMedium(){};
-	virtual bool getResponseAndClear( std::multimap< CRequest< seed::SeedResponses >const*, seed::SeedResponses > & _requestResponse ) = 0;//stupid  signature, but I don't see other  ways to handle race conditions
 	virtual void add( common::CSendIdentifyDataRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CConnectToNodeRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CNetworkRoleRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CAckRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< seed::SeedResponses > const * _request ){};
 	virtual void add( common::CTimeEventRequest< seed::SeedResponses > const * _request ){};
-	virtual ~CMedium(){};
 };
 
 }

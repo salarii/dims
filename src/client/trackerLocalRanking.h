@@ -40,7 +40,7 @@ struct CompareReputationTracker : public std::binary_function< common::CTrackerS
 	}
 };
 
-class CTrackerLocalRanking : public common::CConnectionProvider< ClientResponses >
+class CTrackerLocalRanking : public common::CConnectionProvider< common::CClientMediumFilter >
 {
 public:
 	virtual std::list< common::CMedium< ClientResponses > *> provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter );

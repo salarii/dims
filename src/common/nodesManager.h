@@ -18,56 +18,53 @@ very probable that this  should be in common
 
 namespace common
 {
-
-template < class RequestType > class CNodeMedium;
-
 // class common::CConnectionProvider is problematic, may providers make  things confusing, sometimes it is not  clear which provider is responsible for  mediums of specific
-template < class RequestType >
-class CNodesManager : public common::CConnectionProvider< RequestType >
+template < class _MediumFilter >
+class CNodesManager : public common::CConnectionProvider< _MediumFilter >
 {
 public:
 	bool getMessagesForNode( common::CSelfNode * _node, std::vector< common::CMessage > & _messages );
 
 	bool processMessagesFromNode( common::CSelfNode * _node, std::vector< common::CMessage > const & _messages );
 
-	void addNode( CNodeMedium< RequestType > * _medium );
+	void addNode( CNodeMedium< MEDIUM_TYPE(_MediumFilter) > * _medium );
 
-	std::list< common::CMedium< RequestType > *> provideConnection( CMediumFilter< RequestType > const & _mediumFilter );
+	std::list< MEDIUM_TYPE(_MediumFilter) *> provideConnection( CMediumFilter< MEDIUM_TYPE(_MediumFilter) > const & _mediumFilter );
 
-	virtual CNodeMedium< RequestType >* getMediumForNode( common::CSelfNode * _node ) const;
+	virtual CNodeMedium< MEDIUM_TYPE(_MediumFilter) >* getMediumForNode( common::CSelfNode * _node ) const;
 
-	common::CMedium< RequestType > * findNodeMedium( uintptr_t _ptr ) const;
+	MEDIUM_TYPE(_MediumFilter) * findNodeMedium( uintptr_t _ptr ) const;
 
-	virtual std::list< common::CMedium< RequestType > *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
+	virtual std::list< MEDIUM_TYPE(_MediumFilter) *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
 protected:
 	CNodesManager();
 
 	mutable boost::mutex m_nodesLock;
 
-	std::map< unsigned int, CNodeMedium< RequestType >* > m_ptrToNodes;
+	std::map< unsigned int, CNodeMedium< MEDIUM_TYPE(_MediumFilter) >* > m_ptrToNodes;
 protected:
-	static CNodesManager< RequestType > * ms_instance;
+	static CNodesManager< _MediumFilter > * ms_instance;
 };
 
-template < class RequestType >
-CNodesManager< RequestType >::CNodesManager()
+template < class _MediumFilter >
+CNodesManager< _MediumFilter >::CNodesManager()
 {
 }
 
-template < class RequestType >
+template < class _MediumFilter >
 void
-CNodesManager< RequestType >::addNode( CNodeMedium< RequestType > * _medium )
+CNodesManager< _MediumFilter >::addNode( CNodeMedium< MEDIUM_TYPE(_MediumFilter) > * _medium )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
 
 	m_ptrToNodes.insert( std::make_pair( convertToInt( _medium->getNode() ), _medium ) );
 }
 
-template < class RequestType >
-CNodeMedium< RequestType >*
-CNodesManager< RequestType >::getMediumForNode( common::CSelfNode * _node ) const
+template < class _MediumFilter >
+CNodeMedium< MEDIUM_TYPE(_MediumFilter) >*
+CNodesManager< _MediumFilter >::getMediumForNode( common::CSelfNode * _node ) const
 {
-	typename std::map< unsigned int, CNodeMedium< RequestType >* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
+	typename std::map< unsigned int, CNodeMedium< MEDIUM_TYPE(_MediumFilter) >* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
 	if ( iterator != m_ptrToNodes.end() )
 	{
 		return iterator->second;
@@ -76,18 +73,18 @@ CNodesManager< RequestType >::getMediumForNode( common::CSelfNode * _node ) cons
 	return 0;
 }
 
-template < class ResponseType >
-std::list< common::CMedium< ResponseType > *>
-CNodesManager< ResponseType >::provideConnection( CMediumFilter< ResponseType > const & _mediumFilter )
+template < class _MediumFilter >
+std::list< MEDIUM_TYPE(_MediumFilter) *>
+CNodesManager< _MediumFilter >::provideConnection( CMediumFilter< MEDIUM_TYPE(_MediumFilter) > const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-template < class ResponseType >
-common::CMedium< ResponseType > *
-CNodesManager< ResponseType >::findNodeMedium( uintptr_t _ptr ) const
+template < class _MediumFilter >
+MEDIUM_TYPE(_MediumFilter) *
+CNodesManager< _MediumFilter >::findNodeMedium( uintptr_t _ptr ) const
 {
-	typename std::map< unsigned int, CNodeMedium< ResponseType >* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
+	typename std::map< unsigned int, CNodeMedium< MEDIUM_TYPE(_MediumFilter) >* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
 
 	return iterator != m_ptrToNodes.end() ? iterator->second : 0;
 }

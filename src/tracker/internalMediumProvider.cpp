@@ -27,8 +27,8 @@ CInternalMediumProvider::CInternalMediumProvider()
 {
 }
 
-std::list< common::CMedium< TrackerResponses > *>
-CInternalMediumProvider::provideConnection( common::CMediumFilter< TrackerResponses > const & _mediumFilter )
+std::list< common::CTrackerBaseMedium *>
+CInternalMediumProvider::provideConnection( common::CTrackerMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
@@ -48,12 +48,12 @@ CInternalMediumProvider::removeNodeCallback( CNode * node )
 }
 
 
-std::list< common::CMedium< TrackerResponses > *>
+std::list< common::CTrackerBaseMedium *>
 CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	std::list< common::CMedium< TrackerResponses > *> mediums;
+	std::list< common::CTrackerBaseMedium *> mediums;
 
 	if ( common::CMediumKinds::Internal == _mediumKind )
 	{
@@ -73,7 +73,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 			if ( iterator != m_nodeToMedium.end() )
 			{
 				// validate that node  is  still working??
-				mediums.push_back( static_cast< common::CMedium< TrackerResponses > * >( iterator->second ) );
+				mediums.push_back( static_cast< common::CTrackerBaseMedium * >( iterator->second ) );
 				iterator++;
 				++i;
 			}

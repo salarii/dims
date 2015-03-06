@@ -14,17 +14,17 @@ namespace tracker
 
 class CBitcoinNodeMedium;
 
-class CInternalMediumProvider : public  common::CConnectionProvider< TrackerResponses >
+class CInternalMediumProvider : public  common::CConnectionProvider< common::CTrackerMediumFilter >
 {
 public:
-	virtual std::list< common::CMedium< TrackerResponses > *> provideConnection( common::CMediumFilter< TrackerResponses > const & _mediumFilter );
+	virtual std::list< common::CTrackerBaseMedium *> provideConnection( common::CTrackerMediumFilter const & _mediumFilter );
 
 	// set response, merkle ?? transaction ??
 	void setResponse( CTransaction const & _response, CNode * _node );
 
 	void setResponse( CMerkleBlock const & _merkle, CNode * _node );
 
-	std::list< common::CMedium< TrackerResponses > *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
+	std::list< common::CTrackerBaseMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
 	static CInternalMediumProvider* getInstance( );
 

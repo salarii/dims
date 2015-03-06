@@ -958,14 +958,14 @@ seed_insecure_rand();
 
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &tracker::COriginAddressScanner::loop, tracker::COriginAddressScanner::getInstance() ) );
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< tracker::TrackerResponses >::loop, common::CActionHandler< tracker::TrackerResponses >::getInstance() ) );
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium< tracker::TrackerResponses >::workLoop, common::CTimeMedium< tracker::TrackerResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CTrackerTypes >::loop, common::CActionHandler< common::CTrackerTypes >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CTrackerBaseMedium >::workLoop, common::CTimeMedium< common::CTrackerBaseMedium >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
 
-	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CInternalMediumProvider::getInstance() );
-	common::CActionHandler< tracker::TrackerResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< tracker::TrackerResponses >*)tracker::CTrackerNodesManager::getInstance() );
+	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerMediumFilter >*)tracker::CInternalMediumProvider::getInstance() );
+	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerMediumFilter >*)tracker::CTrackerNodesManager::getInstance() );
 	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );

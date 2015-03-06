@@ -8,16 +8,16 @@
 namespace tracker
 {
 
-struct CMediumClassFilter : public common::CMediumFilter< TrackerResponses >
+struct CMediumClassFilter : public common::CTrackerMediumFilter
 {
 	CMediumClassFilter( common::CMediumKinds::Enum _mediumClass, int _mediumNumber = -1 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber )
 	{}
 
-	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
 	{
-		std::list< common::CMedium< TrackerResponses > *> mediums;
+		std::list< common::CTrackerBaseMedium *> mediums;
 		mediums = _trackerNodesManager->getNodesByClass( m_mediumClass );
 
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
@@ -27,7 +27,7 @@ struct CMediumClassFilter : public common::CMediumFilter< TrackerResponses >
 		return mediums;
 	}
 
-	std::list< common::CMedium< TrackerResponses > *> getMediums( CInternalMediumProvider * _internalMediumProvider )const
+	std::list< common::CTrackerBaseMedium *> getMediums( CInternalMediumProvider * _internalMediumProvider )const
 	{
 		return _internalMediumProvider->getMediumByClass( m_mediumClass, m_mediumNumber );
 	}
@@ -36,14 +36,14 @@ struct CMediumClassFilter : public common::CMediumFilter< TrackerResponses >
 	int m_mediumNumber;
 };
 
-struct CNodeExceptionFilter : public common::CMediumFilter< TrackerResponses >
+struct CNodeExceptionFilter : public common::CTrackerMediumFilter
 {
 	CNodeExceptionFilter( uintptr_t _exception ):m_exception( _exception )
 	{}
 
-	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
 	{
-		std::list< common::CMedium< TrackerResponses > *> mediums;
+		std::list< common::CTrackerBaseMedium *> mediums;
 
 		mediums = _trackerNodesManager->getNodesByClass( common::CMediumKinds::Trackers );
 		mediums.remove( _trackerNodesManager->findNodeMedium( m_exception ) );
@@ -54,15 +54,15 @@ struct CNodeExceptionFilter : public common::CMediumFilter< TrackerResponses >
 	uintptr_t m_exception;
 };
 
-struct CSpecificMediumFilter : public common::CMediumFilter< TrackerResponses >
+struct CSpecificMediumFilter : public common::CTrackerMediumFilter
 {
 	CSpecificMediumFilter( uintptr_t _ptr )
 	: m_ptr( _ptr )
 	{}
 
-	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
 	{
-		std::list< common::CMedium< TrackerResponses > *> mediums;
+		std::list< common::CTrackerBaseMedium *> mediums;
 
 		mediums.push_back( _nodesManager->findNodeMedium( m_ptr ) );
 
@@ -71,20 +71,20 @@ struct CSpecificMediumFilter : public common::CMediumFilter< TrackerResponses >
 	uintptr_t m_ptr;
 };
 
-struct CComplexMediumFilter : public common::CMediumFilter< TrackerResponses >
+struct CComplexMediumFilter : public common::CTrackerMediumFilter
 {
 	CComplexMediumFilter( std::set< uintptr_t > const & _nodes )
 		: m_nodes( _nodes )
 	{}
 
-	std::list< common::CMedium< TrackerResponses > *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
 	{
 
-		std::list< common::CMedium< TrackerResponses > *> mediums;
+		std::list< common::CTrackerBaseMedium *> mediums;
 
 		BOOST_FOREACH( uintptr_t nodePtr , m_nodes )
 		{
-			common::CMedium< TrackerResponses > * medium = _nodesManager->findNodeMedium( nodePtr );
+			common::CTrackerBaseMedium * medium = _nodesManager->findNodeMedium( nodePtr );
 			if ( medium )
 				mediums.push_back( medium );
 		}

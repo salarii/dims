@@ -91,13 +91,13 @@ CTrackerNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey
 	return true;
 }
 
-std::list< common::CMedium< TrackerResponses > *>
+std::list< common::CTrackerBaseMedium *>
 CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {
 	//  code  repeated  3 times ,fix it??
 
 		uintptr_t nodeIndicator;
-		std::list< common::CMedium< TrackerResponses > *> mediums;
+		std::list< common::CTrackerBaseMedium *> mediums;
 
 	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
 	{
@@ -107,7 +107,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
 				assert(!"something went wrong");
 
-			common::CMedium< TrackerResponses > * medium = findNodeMedium( nodeIndicator );
+			common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
 			if (!medium)
 				assert(!"something went wrong");
 
@@ -122,7 +122,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
 				assert(!"something went wrong");
 
-			common::CMedium< TrackerResponses > * medium = findNodeMedium( nodeIndicator );
+			common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
 			if (!medium)
 				assert(!"something went wrong");
 
@@ -137,7 +137,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
 				assert(!"something went wrong");
 
-			common::CMedium< TrackerResponses > * medium = findNodeMedium( nodeIndicator );
+			common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
 			if (!medium)
 				assert(!"something went wrong");
 

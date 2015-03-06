@@ -286,7 +286,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 		if ( _event.m_invalidTransactionIndexes.empty() )
 		{
-			common::CMediumFilter< TrackerResponses > * filter = new CNodeExceptionFilter( context< CValidateTransactionsAction >().getInitiatingNode() );
+			common::CTrackerMediumFilter * filter = new CNodeExceptionFilter( context< CValidateTransactionsAction >().getInitiatingNode() );
 			if ( CTrackerNodesManager::getInstance()->provideConnection( *filter ).empty() )
 			{
 				delete filter;

@@ -11,7 +11,7 @@ namespace tracker
 {
 // current  implementation does not  pay  attention  to checking  if  responses are correctly assigned   to correspondent  request( I don't know if this may cause problems )
 // besides this, it is primitie and ugly but  still may  serve
-class CBitcoinNodeMedium : public common::CMedium< TrackerResponses >
+class CBitcoinNodeMedium : public common::CTrackerBaseMedium
 {
 public:
 	CBitcoinNodeMedium( CNode * _node );

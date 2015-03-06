@@ -13,6 +13,7 @@
 #include "setResponseVisitor.h"
 #include "request.h"
 #include "requestHandler.h"
+#include "common/types.h"
 
 #include <exception>
 #include <boost/foreach.hpp>
@@ -20,17 +21,6 @@
 #include "util.h"
 #include "action.h"
 #include <algorithm>
-/*
-initially I wanted to make every actionHandler to operate on its own response list
-I feared that if  I put everything in the same mpl::list it will be bloated to impossibility,
-additionally I thought that it is  obvious that every action  handler  should have distinctive features.
-
-now I doubt
-this approach lead me to  situation where I have to drag template parameters like ( ClientResponses, TrackerResponses etc. )everywhere
-I didn't expected that my initial choice will have such devastating  result to the code  apperance
-
-don't  really know how to handle  this
-*/
 
 namespace common
 {
@@ -39,20 +29,20 @@ template < class _RequestResponses > class CSetResponseVisitor;
 template < class _RequestResponses > class CRequestHandler;
 template < class _RequestResponses > struct CRequest;
 
-template < class _RequestResponses >
-struct LessHandlers : public std::binary_function< CRequestHandler< _RequestResponses >* ,CRequestHandler< _RequestResponses >* ,bool>
+template < class _Medium >
+struct LessHandlers : public std::binary_function< CRequestHandler< _Medium >* ,CRequestHandler< _Medium >* ,bool>
 {
-	bool operator() ( CRequestHandler< _RequestResponses >* const & _handlerLhs, CRequestHandler< _RequestResponses >* const & _handlerRhs) const
+	bool operator() ( CRequestHandler< _Medium >* const & _handlerLhs, CRequestHandler< _Medium >* const & _handlerRhs) const
 	{
 		return *_handlerLhs < *_handlerRhs;
 	}
 
-	bool operator() ( CRequestHandler< _RequestResponses >* const & _handlerLhs, CMedium< _RequestResponses >* const & _medium) const
+	bool operator() ( CRequestHandler< _Medium >* const & _handlerLhs, _Medium* const & _medium) const
 	{
 		return *_handlerLhs < _medium;
 	}
 
-	bool operator() ( CMedium< _RequestResponses >* const & _medium, CRequestHandler< _RequestResponses >* const & _handlerLhs ) const
+	bool operator() ( _Medium* const & _medium, CRequestHandler< _Medium >* const & _handlerLhs ) const
 	{
 		if ( *_handlerLhs < _medium )
 			return false;
@@ -65,43 +55,47 @@ struct LessHandlers : public std::binary_function< CRequestHandler< _RequestResp
 };
 
 
-template < class _RequestResponses >
+template < class _Types >
 class CActionHandler
 {
 public:
-	typedef std::set< CRequestHandler< _RequestResponses > *, LessHandlers< _RequestResponses > > AvailableHandlers;
+	typedef MEDIUM_TYPE(_Types) MediumType;
+	typedef RESPONSE_TYPE(_Types) ResponseType;
+	typedef FILTER_TYPE(_Types) FilterType;
 
-	typedef std::map< CRequest< _RequestResponses >*, CAction< _RequestResponses >* > RequestToAction;
+	typedef std::set< CRequestHandler< MediumType > *, LessHandlers< MediumType > > AvailableHandlers;
 
-	typedef std::multimap< CRequest< _RequestResponses >*, CRequestHandler< _RequestResponses > * > RequestToHandlers;
+	typedef std::map< CRequest< ResponseType >*, CAction< ResponseType >* > RequestToAction;
+
+	typedef std::multimap< CRequest< ResponseType >*, CRequestHandler< MediumType > * > RequestToHandlers;
 public:
 	void loop();
 	void shutDown();
 	~CActionHandler();
 	static CActionHandler* getInstance( );
 
-	void executeAction( CAction< _RequestResponses >* _action );
+	void executeAction( CAction< ResponseType >* _action );
 
-	void addConnectionProvider( CConnectionProvider< _RequestResponses >* _connectionProvider );
+	void addConnectionProvider( CConnectionProvider< FilterType >* _connectionProvider );
 private:
 	CActionHandler();
 
-	std::list< CRequestHandler< _RequestResponses > * > provideHandler( CMediumFilter<_RequestResponses> const & _mediumFilter );
+	std::list< CRequestHandler< MediumType > * > provideHandler( FilterType const & _filter );
 
-	void findAction( CAction< _RequestResponses >* _action ) const;
+	void findAction( CAction< ResponseType >* _action ) const;
 
 private:
 	static CActionHandler * ms_instance;
 
 	mutable boost::mutex m_mutex;
 
-	std::set< CAction< _RequestResponses >* > m_actions;
+	std::set< CAction< ResponseType >* > m_actions;
 
 	RequestToAction m_reqToAction;
 
-	std::map< CAction< _RequestResponses >*, std::set< CRequest< _RequestResponses >* > > m_actionToExecutedRequests;
+	std::map< CAction< ResponseType >*, std::set< CRequest< ResponseType >* > > m_actionToExecutedRequests;
 
-	std::list<CConnectionProvider< _RequestResponses >*> m_connectionProviders;
+	std::list<CConnectionProvider< FilterType >*> m_connectionProviders;
 
 	AvailableHandlers m_requestHandlers;
 
@@ -110,19 +104,19 @@ private:
 	RequestToHandlers m_currentlyUsedHandlers;// clean this  up when an action dies
 };
 
-template < class _RequestResponses >
-CActionHandler< _RequestResponses >::CActionHandler()
+template < class _Types >
+CActionHandler< _Types >::CActionHandler()
 {
 }
 
-template < class _RequestResponses >
-CActionHandler< _RequestResponses >::~CActionHandler()
+template < class _Types >
+CActionHandler< _Types >::~CActionHandler()
 {
 }
 
-template < class _RequestResponses >
-CActionHandler< _RequestResponses >*
-CActionHandler< _RequestResponses >::getInstance( )
+template < class _Types >
+CActionHandler< _Types >*
+CActionHandler< _Types >::getInstance( )
 {
 	if ( !ms_instance )
 	{
@@ -131,9 +125,9 @@ CActionHandler< _RequestResponses >::getInstance( )
 	return ms_instance;
 }
 
-template < class _RequestResponses >
+template < class _Types >
 void
-CActionHandler< _RequestResponses >::executeAction( CAction< _RequestResponses >* _action )
+CActionHandler< _Types >::executeAction( CAction< ResponseType >* _action )
 {
 	boost::lock_guard<boost::mutex> lock(m_mutex);
 
@@ -144,38 +138,38 @@ CActionHandler< _RequestResponses >::executeAction( CAction< _RequestResponses >
 	}
 }
 
-template < class _RequestResponses >
+template < class _Types >
 void
-CActionHandler< _RequestResponses >::addConnectionProvider( CConnectionProvider< _RequestResponses >* _connectionProvider )
+CActionHandler< _Types >::addConnectionProvider( CConnectionProvider< FilterType >* _connectionProvider )
 {
 	m_connectionProviders.push_back( _connectionProvider );
 }
 
 /* I have  done some drastic simplification here, in case  of problems look how it  was  done before till August 7-8 */
-template < class _RequestResponses >
-std::list< CRequestHandler< _RequestResponses > * >
-CActionHandler< _RequestResponses >::provideHandler( CMediumFilter<_RequestResponses> const & _mediumFilter )
+template < class _Types >
+std::list< CRequestHandler< typename CActionHandler<_Types>::MediumType > * >
+CActionHandler< _Types >::provideHandler( FilterType const & _filter )
 {
-	std::list< CRequestHandler< _RequestResponses > * > requestHandelers;
+	std::list< CRequestHandler< MediumType > * > requestHandelers;
 
-	typename std::list< CConnectionProvider< _RequestResponses >*>::iterator iterator = m_connectionProviders.begin();
+	typename std::list< CConnectionProvider< FilterType >*>::iterator iterator = m_connectionProviders.begin();
 
 	while( iterator != m_connectionProviders.end() )// for now only one provider is allowed to service request so firs is best
 	{
-		std::list< CMedium< _RequestResponses >*> mediums= (*iterator)->provideConnection( _mediumFilter );
+		std::list< MediumType*> mediums= (*iterator)->provideConnection( _filter );
 
 		if ( !mediums.empty() )
 		{
-			BOOST_FOREACH( CMedium< _RequestResponses > * medium, mediums )
+			BOOST_FOREACH( MediumType * medium, mediums )
 			{
-				typename AvailableHandlers::iterator iterator = std::lower_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _RequestResponses >() );
-				if ( iterator != std::upper_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _RequestResponses >() ) )
+				typename AvailableHandlers::iterator iterator = std::lower_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< MediumType >() );
+				if ( iterator != std::upper_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< MediumType >() ) )
 				{
 					requestHandelers.push_back( *iterator );
 				}
 				else
 				{
-					CRequestHandler< _RequestResponses > * requestHandler = new CRequestHandler< _RequestResponses >( medium );
+					CRequestHandler< MediumType > * requestHandler = new CRequestHandler< MediumType >( medium );
 					m_requestHandlers.insert( requestHandler );
 					requestHandelers.push_back( requestHandler );
 				}
@@ -185,34 +179,34 @@ CActionHandler< _RequestResponses >::provideHandler( CMediumFilter<_RequestRespo
 
 		iterator++;
 	}
-	return std::list< CRequestHandler< _RequestResponses > * >();
+	return std::list< CRequestHandler< MediumType > * >();
 }
 
-template < class _RequestResponses >
+template < class _Types >
 void
-CActionHandler< _RequestResponses >::shutDown()
+CActionHandler< _Types >::shutDown()
 {
 }
 
-template < class _RequestResponses >
+template < class _Types >
 void
-CActionHandler< _RequestResponses >::loop()
+CActionHandler< _Types >::loop()
 {
-	std::set< CRequestHandler< _RequestResponses > * > requestHandlersToExecute;
-	std::set< CRequestHandler< _RequestResponses > * > requestHandlersToRead;
+	std::set< CRequestHandler< MediumType > * > requestHandlersToExecute;
+	std::set< CRequestHandler< MediumType > * > requestHandlersToRead;
 	while(1)
 	{
 
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
-			BOOST_FOREACH(CAction< _RequestResponses >* action, m_actions)
+			BOOST_FOREACH(CAction< ResponseType >* action, m_actions)
 			{
 
-				std::vector< CRequest< _RequestResponses >* > requests = action->getRequests();
+				std::vector< CRequest< ResponseType >* > requests = action->getRequests();
 
 				if ( !requests.empty() )
 				{
-					BOOST_FOREACH( CRequest< _RequestResponses >* request, requests )
+					BOOST_FOREACH( CRequest< ResponseType >* request, requests )
 					{
 						m_reqToAction.insert( std::make_pair( request, action ) );
 
@@ -221,9 +215,9 @@ CActionHandler< _RequestResponses >::loop()
 
 						if ( lower == upper )
 						{
-							std::list< CRequestHandler< _RequestResponses > * > requestHandlers = provideHandler( *request->getMediumFilter() );
+							std::list< CRequestHandler< MediumType > * > requestHandlers = provideHandler( *request->getMediumFilter() );
 
-							BOOST_FOREACH( CRequestHandler< _RequestResponses > * requestHandler, requestHandlers )
+							BOOST_FOREACH( CRequestHandler< MediumType > * requestHandler, requestHandlers )
 							{
 								requestHandlersToExecute.insert( requestHandler );
 								requestHandler->setRequest( request );
@@ -250,12 +244,12 @@ CActionHandler< _RequestResponses >::loop()
 			m_actions.clear();
 		}
 
-		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToRead )
+		BOOST_FOREACH( CRequestHandler< MediumType > * reqHandler, requestHandlersToRead )
 		{
 			reqHandler->processMediumResponses();
 		}
 
-		std::list< CRequest< _RequestResponses >* > requestsToErase;
+		std::list< CRequest< ResponseType >* > requestsToErase;
 
 		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
@@ -265,11 +259,11 @@ CActionHandler< _RequestResponses >::loop()
 			{
 				if ( it->second->isProcessed( reqAction.first ) )
 				{
-					std::vector< _RequestResponses > responses = it->second->getResponses( reqAction.first );
+					std::vector< ResponseType > responses = it->second->getResponses( reqAction.first );
 
-					BOOST_FOREACH( _RequestResponses const & response, responses )
+					BOOST_FOREACH( ResponseType const & response, responses )
 					{
-						CSetResponseVisitor< _RequestResponses > visitor( response );
+						CSetResponseVisitor< ResponseType > visitor( response );
 						reqAction.second->accept( visitor );
 					}
 					m_actions.insert( reqAction.second );
@@ -283,7 +277,7 @@ CActionHandler< _RequestResponses >::loop()
 			}
 		}
 
-		BOOST_FOREACH( CRequest< _RequestResponses >* & request, requestsToErase)
+		BOOST_FOREACH( CRequest< ResponseType >* & request, requestsToErase)
 		{
 			m_reqToAction.erase( request );
 		}
@@ -291,7 +285,7 @@ CActionHandler< _RequestResponses >::loop()
 		if ( m_reqToAction.empty() )
 			boost::this_thread::interruption_point();
 
-		BOOST_FOREACH( CRequestHandler< _RequestResponses > * reqHandler, requestHandlersToExecute )
+		BOOST_FOREACH( CRequestHandler< MediumType > * reqHandler, requestHandlersToExecute )
 		{
 			reqHandler->runRequests();
 			requestHandlersToRead.insert( reqHandler );

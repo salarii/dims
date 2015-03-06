@@ -11,7 +11,7 @@
 namespace client
 {
 
-class CSeedProvider : public common::CConnectionProvider< ClientResponses >
+class CSeedProvider : public common::CConnectionProvider< common::ClientResponses >
 {
 public:
 	std::list< common::CMedium< ClientResponses > *> provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter );

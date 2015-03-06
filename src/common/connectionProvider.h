@@ -9,17 +9,17 @@
 
 #include "request.h"
 #include "filters.h"
+#include "types.h"
 
 namespace common
 {
-template < class _RequestResponses >
-class CMedium;
+
 //?? one provider  for  every executable file??? right now  there is many of  them
-template < class _RequestResponses >
+template < class _MediumFilter >
 class CConnectionProvider
 {
 public:
-	virtual std::list< CMedium< _RequestResponses > *> provideConnection( CMediumFilter< _RequestResponses > const & ) = 0;
+	virtual std::list< MEDIUM_TYPE( _MediumFilter ) *> provideConnection( _MediumFilter const & ) = 0;
 };
 
 }

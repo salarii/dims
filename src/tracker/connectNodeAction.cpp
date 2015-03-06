@@ -40,7 +40,7 @@ struct CPairIdentifiedConnecting;
 struct CDetermineRoleConnected;
 
 common::CRequest< TrackerResponses > *
-createIdentifyResponse( 	std::vector<unsigned char> const &_payload, uint256 const & _actionKey,common::CMediumFilter< TrackerResponses >* _medium )
+createIdentifyResponse( 	std::vector<unsigned char> const &_payload, uint256 const & _actionKey,common::CTrackerMediumFilter* _medium )
 {
 	uint256 hash = Hash( &_payload.front(), &_payload.back() );
 

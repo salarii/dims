@@ -65,7 +65,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
 				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( validateTransactionsAction );
+				common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( validateTransactionsAction );
 			}
 		}
 		else if (
@@ -95,7 +95,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( provideInfoAction );
+				common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( provideInfoAction );
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
@@ -117,7 +117,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
 
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectNodeAction );
+				common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}
@@ -141,7 +141,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction(
+				common::CActionHandler< CTrackerTypes >::getInstance()->executeAction(
 							new CSynchronizationAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ), synchronizationInfo.m_timeStamp ) );
 			}
 		}

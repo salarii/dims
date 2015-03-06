@@ -14,7 +14,7 @@ namespace monitor
 
 class CBitcoinNodeMedium;
 
-class CInternalMediumProvider : public  common::CConnectionProvider< MonitorResponses >
+class CInternalMediumProvider : public  common::CConnectionProvider< common::CMonitorMediumFilter >
 {
 public:
 	virtual std::list< common::CMedium< MonitorResponses > *> provideConnection( common::CMediumFilter< MonitorResponses > const & _mediumFilter );

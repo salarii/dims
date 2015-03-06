@@ -46,50 +46,49 @@ class CInternalMediumProvider;
 
 namespace common
 {
+class CClientBaseMedium;
+
+class CMonitorBaseMedium;
+
+class CSeedBaseMedium;
+
+class CTrackerBaseMedium;
 
 template < class ResponseType >
 class CNodesManager;
 
 struct Dummy0; struct Dummy1; struct Dummy2; struct Dummy3; struct Dummy4; struct Dummy5;struct Dummy6; struct Dummy7;
 
-template < class _RequestResponses, class _V0 = Dummy0, class _V1 = Dummy1, class _V2 = Dummy2, class _V3 = Dummy3, class _V4 = Dummy4, class _V5 = Dummy5, class _V6 = Dummy6, class _V7 = Dummy7>
+template < class _Medium, class _V0 = Dummy0, class _V1 = Dummy1, class _V2 = Dummy2, class _V3 = Dummy3, class _V4 = Dummy4, class _V5 = Dummy5, class _V6 = Dummy6, class _V7 = Dummy7>
 struct CMediumFilterBase
 {
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V0 * _v0 )const{ return std::list< CMedium< _RequestResponses > *>(); }
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V1 * _v1 )const{ return std::list< CMedium< _RequestResponses > *>(); }
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V2 * _v2 )const{ return std::list< CMedium< _RequestResponses > *>(); }
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V3 * _v3 )const{ return std::list< CMedium< _RequestResponses > *>(); }
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V4 * _v4 )const{ return std::list< CMedium< _RequestResponses > *>(); }
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V5 * _v5 )const{ return std::list< CMedium< _RequestResponses > *>(); }
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V6 * _v6 )const{ return std::list< CMedium< _RequestResponses > *>(); }
-	virtual std::list< CMedium< _RequestResponses > *> getMediums( _V7 * _v7 )const{ return std::list< CMedium< _RequestResponses > *>(); }
+	typedef _Medium Medium;
+
+	virtual std::list< _Medium *> getMediums( _V0 * _v0 )const{ return std::list< _Medium *>(); }
+	virtual std::list< _Medium *> getMediums( _V1 * _v1 )const{ return std::list< _Medium *>(); }
+	virtual std::list< _Medium *> getMediums( _V2 * _v2 )const{ return std::list< _Medium *>(); }
+	virtual std::list< _Medium *> getMediums( _V3 * _v3 )const{ return std::list< _Medium *>(); }
+	virtual std::list< _Medium *> getMediums( _V4 * _v4 )const{ return std::list< _Medium *>(); }
+	virtual std::list< _Medium *> getMediums( _V5 * _v5 )const{ return std::list< _Medium *>(); }
+	virtual std::list< _Medium *> getMediums( _V6 * _v6 )const{ return std::list< _Medium *>(); }
+	virtual std::list< _Medium *> getMediums( _V7 * _v7 )const{ return std::list< _Medium *>(); }
 };
 
-template < class _RequestResponses >
-struct CMediumFilter : public CMediumFilterBase< _RequestResponses >
+struct CTrackerMediumFilter : public CMediumFilterBase< CTrackerBaseMedium, common::CNodesManager< tracker::TrackerResponses >, tracker::CInternalMediumProvider >
 {
 };
 
-template <>
-struct CMediumFilter< tracker::TrackerResponses > : public CMediumFilterBase< tracker::TrackerResponses, common::CNodesManager< tracker::TrackerResponses >, tracker::CInternalMediumProvider >
+struct CClientMediumFilter : public CMediumFilterBase< CClientBaseMedium, client::CSettingsConnectionProvider, client::CTrackerLocalRanking, client::CLocalServer, client::CErrorMediumProvider >
 {
 };
 
-template <>
-struct CMediumFilter< client::ClientResponses > : public CMediumFilterBase< client::ClientResponses, client::CSettingsConnectionProvider, client::CTrackerLocalRanking, client::CLocalServer, client::CErrorMediumProvider >
+struct CSeedMediumFilter : public CMediumFilterBase< CSeedBaseMedium, seed::CSeedNodesManager, common::CNodesManager< seed::SeedResponses > >
 {
 };
 
-template <>
-struct CMediumFilter< seed::SeedResponses > : public CMediumFilterBase< seed::SeedResponses, seed::CSeedNodesManager, common::CNodesManager< seed::SeedResponses > >
+struct CMonitorMediumFilter : public CMediumFilterBase< CMonitorBaseMedium, common::CNodesManager< monitor::MonitorResponses >, monitor::CInternalMediumProvider >
 {
 };
-
-template <>
-struct CMediumFilter< monitor::MonitorResponses > : public CMediumFilterBase< monitor::MonitorResponses, common::CNodesManager< monitor::MonitorResponses >, monitor::CInternalMediumProvider >
-{
-};
-
 
 }
 

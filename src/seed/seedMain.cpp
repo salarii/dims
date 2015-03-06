@@ -493,13 +493,13 @@ int main(int argc, char **argv) {
 
 	threadGroup.create_thread( boost::bind( &common::CTimeMedium< seed::SeedResponses >::workLoop, common::CTimeMedium< seed::SeedResponses >::getInstance() ) );
 
-	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( seed::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
 
 	if (fDNS) {
 		printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);

@@ -55,7 +55,7 @@ public:
 	{
 		CKeyID keyId;
 		CMnemonicAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
-		common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction( keyId, m_hash ) );
+		common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CGetBalanceAction( keyId, m_hash ) );
 	}
 
 	void operator()( CNetworkInfoReq const & _networkInfoReq ) const

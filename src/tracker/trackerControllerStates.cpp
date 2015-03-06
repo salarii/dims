@@ -33,7 +33,7 @@ CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 	{
 		BOOST_FOREACH( CAddress address, vAdd )
 		{
-			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+			common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 		}
 	}
 	else
@@ -43,7 +43,7 @@ CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 		// let know seed about our existence
 		BOOST_FOREACH( CAddress address, vAdd )
 		{
-			common::CActionHandler< TrackerResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+			common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 		}
 	}
 }
@@ -52,7 +52,7 @@ CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )
 {
 	CSynchronizationAction * synchronizationAction = new CSynchronizationAction();
 
-	common::CActionHandler< TrackerResponses >::getInstance()->executeAction( synchronizationAction );
+	common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( synchronizationAction );
 	synchronizationAction->process_event( CSwitchToSynchronizing() );
 
 }

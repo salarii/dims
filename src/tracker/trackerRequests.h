@@ -16,11 +16,11 @@ namespace tracker
 class CDeliverInfoRequest : public common::CRequest< TrackerResponses >
 {
 public:
-		CDeliverInfoRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+		CDeliverInfoRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
 
-		virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+		virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-		virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+		virtual common::CTrackerMediumFilter * getMediumFilter() const;
 		uint256 const & getActionKey() const
 		{
 			return m_actionKey;
@@ -45,9 +45,9 @@ class CMediumClassFilter;
 class  CValidateTransactionsRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CTrackerMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
 	std::vector< CTransaction > const & getTransactions() const;
 private:
@@ -60,9 +60,9 @@ private:
 class  CPassMessageRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CPassMessageRequest( common::CMessage const & _message, uint256 const & _actionKey, CPubKey const & _prevKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CPassMessageRequest( common::CMessage const & _message, uint256 const & _actionKey, CPubKey const & _prevKey, common::CTrackerMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
 	common::CMessage const & getMessage() const;
 
@@ -80,9 +80,9 @@ private:
 class CTransactionsPropagationRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey,common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey,common::CTrackerMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
 	uint256 getActionKey() const;
 
@@ -97,9 +97,9 @@ private:
 class  CTransactionsStatusRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
 	uint256 getActionKey() const;
 
@@ -114,11 +114,11 @@ private:
 class CAskForTransactionsRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, common::CTrackerMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< TrackerResponses > * m_mediumNumber ) const;
+	virtual void accept( common::CTrackerBaseMedium * m_mediumNumber ) const;
 
-	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	std::vector< uint256 > const & getBlockHashes() const;
 private:
@@ -132,9 +132,9 @@ class CSetBloomFilterRequest : public common::CRequest< TrackerResponses >
 public:
 	CSetBloomFilterRequest( CBloomFilter const & _bloomFilter );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	CBloomFilter const & getBloomFilter() const;
 private:
@@ -146,9 +146,9 @@ class CConnectToTrackerRequest : public common::CRequest< TrackerResponses >
 public:
 	CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	std::string getAddress() const;
 
@@ -167,11 +167,11 @@ class CGetSynchronizationInfoRequest : public common::CRequest< TrackerResponses
 public:
 	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp );
 
-	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, common::CMediumFilter< TrackerResponses > * _mediumFilter );
+	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, common::CTrackerMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 
@@ -185,11 +185,11 @@ private:
 class CGetNextBlockRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CGetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, int _blockKind );
+	CGetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, int _blockKind );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 
@@ -204,11 +204,11 @@ template < class Block >
 class CSetNextBlockRequest : public common::CRequest< TrackerResponses >
 {
 public:
-	CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
+	CSetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 
@@ -224,7 +224,7 @@ private:
 };
 
 template < class Block >
-CSetNextBlockRequest< Block >::CSetNextBlockRequest( uint256 const & _actionKey, common::CMediumFilter< TrackerResponses > * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
+CSetNextBlockRequest< Block >::CSetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
 	: common::CRequest< TrackerResponses >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_discBlock( _discBlock )
@@ -234,13 +234,13 @@ CSetNextBlockRequest< Block >::CSetNextBlockRequest( uint256 const & _actionKey,
 
 template < class Block >
 void
-CSetNextBlockRequest< Block >::accept( common::CMedium< TrackerResponses > * _medium ) const
+CSetNextBlockRequest< Block >::accept( common::CTrackerBaseMedium * _medium ) const
 {
 	_medium->add( this );
 }
 
 template < class Block >
-common::CMediumFilter< TrackerResponses > *
+common::CTrackerMediumFilter *
 CSetNextBlockRequest< Block >::getMediumFilter() const
 {
 	return common::CRequest< TrackerResponses >::m_mediumFilter;
@@ -273,9 +273,9 @@ class CGetBalanceRequest : public common::CRequest< TrackerResponses >
 public:
 	CGetBalanceRequest( uint160 const & _key );
 
-	virtual void accept( common::CMedium< TrackerResponses > * _medium ) const;
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CMediumFilter< TrackerResponses > * getMediumFilter() const;
+	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	uint160 getKey() const;
 private:
