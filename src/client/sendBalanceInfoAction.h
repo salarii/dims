@@ -21,12 +21,12 @@ namespace client
 
 struct CGetBalanceInfo;
 
-class CSendBalanceInfoAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetBalanceInfo >
+class CSendBalanceInfoAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetBalanceInfo >
 {
 public:
 	CSendBalanceInfoAction( bool _autoDelete );
 
-	void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
+	void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
 
 	void reset();
 
@@ -37,14 +37,12 @@ private:
 	std::vector< std::string > m_addresses;
 };
 
-struct CBalanceRequest : public common::CRequest< ClientResponses >
+struct CBalanceRequest : public common::CRequest< common::CClientTypes >
 {
 public:
 	CBalanceRequest( std::string _address );
 
-	common::CMediumFilter< ClientResponses > * getMediumFilter() const;
-
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
+	void accept( common::CClientBaseMedium * _medium ) const;
 
     std::string const m_address;
 

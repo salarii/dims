@@ -413,7 +413,7 @@ void periodicCheck()
 			bool getaddr = res.ourLastSuccess + 604800 < now;
 			//ugly
 			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
-			common::CActionHandler< SeedResponses >::getInstance()->executeAction( acceptNodeAction );
+			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptNodeAction );
 			m_searchedNodes.push_back( acceptNodeAction );
 		}
 
@@ -489,17 +489,17 @@ int main(int argc, char **argv) {
 		printf("done\n");
 	}
 
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< seed::SeedResponses >::loop, common::CActionHandler< seed::SeedResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CSeedTypes >::loop, common::CActionHandler< common::CSeedTypes >::getInstance() ) );
 
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium< seed::SeedResponses >::workLoop, common::CTimeMedium< seed::SeedResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CSeedBaseMedium >::workLoop, common::CTimeMedium< common::CSeedBaseMedium >::getInstance() ) );
 
-	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( seed::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
 
 	if (fDNS) {
 		printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);

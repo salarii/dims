@@ -10,10 +10,10 @@ namespace seed
 {
 
 template<>
-unsigned int const common::CActionHandler< SeedResponses >::m_sleepTime = 100;
+unsigned int const common::CActionHandler< common::CSeedTypes >::m_sleepTime = 100;
 template<>
-common::CActionHandler< SeedResponses > * common::CActionHandler< SeedResponses >::ms_instance = NULL;
+common::CActionHandler< common::CSeedTypes > * common::CActionHandler< common::CSeedTypes >::ms_instance = NULL;
 template<>
-common::CTimeMedium< SeedResponses > * common::CTimeMedium< SeedResponses >::ms_instance = NULL;
+common::CTimeMedium< common::CSeedBaseMedium > * common::CTimeMedium< common::CSeedBaseMedium >::ms_instance = NULL;
 
 }

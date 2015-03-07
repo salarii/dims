@@ -38,36 +38,34 @@ struct TrackerInfo
 
 extern std::vector< TrackerInfo::Enum > const TrackerDescription;
 
-class CSendInfoRequestAction : public common::CAction< ClientResponses >
+class CSendInfoRequestAction : public common::CAction< common::CClientTypes >
 {
 public:
 	CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo );
 
-	virtual void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
 };
 
-struct CTrackersInfoRequest : public common::CRequest< ClientResponses >
+struct CTrackersInfoRequest : public common::CRequest< common::CClientTypes >
 {
 public:
-	CTrackersInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter );
+	CTrackersInfoRequest( common::CClientMediumFilter * _mediumFilter );
 
 	~CTrackersInfoRequest(){};
 
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
-
-	common::CMediumFilter< ClientResponses > * getMediumFilter() const;
+	void accept( common::CClientBaseMedium * _medium ) const;
 
 	int m_mediumKind;
 };
 
-struct CMonitorInfoRequest : public common::CRequest< ClientResponses >
+struct CMonitorInfoRequest : public common::CRequest< common::CClientTypes >
 {
 public:
-	CMonitorInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter );
+	CMonitorInfoRequest( common::CClientMediumFilter * _mediumFilter );
 
 	void serialize( CBufferAsStream & _bufferStream ) const;
 
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
+	void accept( common::CClientBaseMedium * _medium ) const;
 };
 
 }

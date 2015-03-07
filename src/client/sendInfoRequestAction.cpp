@@ -21,18 +21,18 @@ CSendInfoRequestAction::CSendInfoRequestAction( NetworkInfo::Enum const _network
 }
 
 void
-CSendInfoRequestAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
+CSendInfoRequestAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }
 
-CTrackersInfoRequest::CTrackersInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter )
-	: common::CRequest< ClientResponses >( _mediumFilter )
+CTrackersInfoRequest::CTrackersInfoRequest( common::CClientMediumFilter * _mediumFilter )
+	: common::CRequest< common::CClientTypes >( _mediumFilter )
 {
 }
 
 void
-CTrackersInfoRequest::accept( common::CMedium< ClientResponses > * _medium ) const
+CTrackersInfoRequest::accept( common::CClientBaseMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -49,20 +49,14 @@ CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
 	
 }
 */
-common::CMediumFilter< ClientResponses > *
-CTrackersInfoRequest::getMediumFilter() const
-{
-	return common::CRequest< ClientResponses >::m_mediumFilter;
-}
 
-
-CMonitorInfoRequest::CMonitorInfoRequest( common::CMediumFilter< ClientResponses > * _mediumFilter )
-	: common::CRequest< ClientResponses >( _mediumFilter )
+CMonitorInfoRequest::CMonitorInfoRequest( common::CClientMediumFilter * _mediumFilter )
+	: common::CRequest< common::CClientTypes >( _mediumFilter )
 {
 }
 
 void
-CMonitorInfoRequest::accept( common::CMedium< ClientResponses > * _medium ) const
+CMonitorInfoRequest::accept( common::CClientBaseMedium * _medium ) const
 {
 	_medium->add( this );
 }

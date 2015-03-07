@@ -11,24 +11,20 @@
 namespace client
 {
 
-class CDnsInfoRequest : public common::CRequest< ClientResponses >
+class CDnsInfoRequest : public common::CRequest< common::CClientTypes >
 {
 public:
-   CDnsInfoRequest();
+	CDnsInfoRequest();
 
-   virtual void accept( common::CMedium< ClientResponses > * _medium ) const;
-
-   virtual common::CMediumFilter< ClientResponses > * getMediumFilter() const;
+	virtual void accept( common::CClientBaseMedium * _medium ) const;
 };
 
-class CRecognizeNetworkRequest : public common::CRequest< ClientResponses >
+class CRecognizeNetworkRequest : public common::CRequest< common::CClientTypes >
 {
 public:
-   CRecognizeNetworkRequest();
+	CRecognizeNetworkRequest();
 
-   virtual void accept( common::CMedium< ClientResponses > * _medium ) const;
-
-   virtual common::CMediumFilter< ClientResponses > * getMediumFilter() const;
+	virtual void accept( common::CClientBaseMedium * _medium ) const;
 };
 
 }

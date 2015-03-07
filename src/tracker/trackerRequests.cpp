@@ -21,13 +21,6 @@ CDeliverInfoRequest::accept( common::CTrackerBaseMedium * _medium ) const
 	_medium->add( this );
 }
 
-common::CTrackerMediumFilter *
-CDeliverInfoRequest::getMediumFilter() const
-{
-	return m_mediumFilter;
-}
-
-
 CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CTrackerMediumFilter * _mediumFilter )
 	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
 	, m_transactions( _transactions )
@@ -140,12 +133,6 @@ CAskForTransactionsRequest::accept( common::CTrackerBaseMedium * _medium ) const
 	_medium->add( this );
 }
 
-common::CTrackerMediumFilter *
-CAskForTransactionsRequest::getMediumFilter() const
-{
-	return common::CRequest< common::CTrackerTypes >::m_mediumFilter;
-}
-
 std::vector< uint256 > const &
 CAskForTransactionsRequest::getBlockHashes() const
 {
@@ -162,12 +149,6 @@ void
 CSetBloomFilterRequest::accept( common::CTrackerBaseMedium * _medium ) const
 {
 	_medium->add( this );
-}
-
-common::CTrackerMediumFilter *
-CSetBloomFilterRequest::getMediumFilter() const
-{
-	return m_mediumFilter;
 }
 
 CBloomFilter const &
@@ -189,13 +170,6 @@ CConnectToTrackerRequest::accept( common::CTrackerBaseMedium * _medium ) const
 {
 	_medium->add( this );
 }
-
-common::CTrackerMediumFilter *
-CConnectToTrackerRequest::getMediumFilter() const
-{
-	return m_mediumFilter;
-}
-
 std::string
 CConnectToTrackerRequest::getAddress() const
 {
@@ -229,12 +203,6 @@ CGetSynchronizationInfoRequest::accept( common::CTrackerBaseMedium * _medium ) c
 	_medium->add( this );
 }
 
-common::CTrackerMediumFilter *
-CGetSynchronizationInfoRequest::getMediumFilter() const
-{
-	return common::CRequest< common::CTrackerTypes >::m_mediumFilter;
-}
-
 uint256
 CGetSynchronizationInfoRequest::getActionKey() const
 {
@@ -260,12 +228,6 @@ CGetNextBlockRequest::accept( common::CTrackerBaseMedium * _medium ) const
 	_medium->add( this );
 }
 
-common::CTrackerMediumFilter *
-CGetNextBlockRequest::getMediumFilter() const
-{
-	return common::CRequest< common::CTrackerTypes >::m_mediumFilter;
-}
-
 uint256
 CGetNextBlockRequest::getActionKey() const
 {
@@ -289,12 +251,6 @@ void
 CGetBalanceRequest::accept( common::CTrackerBaseMedium * _medium ) const
 {
 	_medium->add( this );
-}
-
-common::CTrackerMediumFilter *
-CGetBalanceRequest::getMediumFilter() const
-{
-	return m_mediumFilter;
 }
 
 uint160

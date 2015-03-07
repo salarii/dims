@@ -17,17 +17,17 @@
 namespace  client
 {
 
-struct CMediumClassFilter : public common::CMediumFilter< ClientResponses >
+struct CMediumClassFilter : public common::CClientMediumFilter
 {
 	CMediumClassFilter( common::RequestKind::Enum _mediumClass, int _mediumNumber = -1 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber )
 	{}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( CSettingsConnectionProvider * _settingsMedium )const
+	std::list< common::CClientBaseMedium *> getMediums( CSettingsConnectionProvider * _settingsMedium )const
 	{
 
-		std::list< common::CMedium< ClientResponses > *> mediums;
+		std::list< common::CClientBaseMedium *> mediums;
 		mediums = _settingsMedium->getMediumByClass(m_mediumClass );
 
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
@@ -37,9 +37,9 @@ struct CMediumClassFilter : public common::CMediumFilter< ClientResponses >
 		return mediums;
 	}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
+	std::list< common::CClientBaseMedium *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
-		std::list< common::CMedium< ClientResponses > *> mediums = _trackerLocalRanking->getMediumByClass( m_mediumClass, m_mediumNumber );
+		std::list< common::CClientBaseMedium *> mediums = _trackerLocalRanking->getMediumByClass( m_mediumClass, m_mediumNumber );
 
 		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
 		{
@@ -49,7 +49,7 @@ struct CMediumClassFilter : public common::CMediumFilter< ClientResponses >
 		return mediums;
 	}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
 		_errorMediumProvider->getErrorMedium();
 	}
@@ -58,7 +58,7 @@ struct CMediumClassFilter : public common::CMediumFilter< ClientResponses >
 	int m_mediumNumber;
 };
 
-struct CSpecificMediumFilter : public common::CMediumFilter< ClientResponses >
+struct CSpecificMediumFilter : public common::CClientMediumFilter
 {
 	CSpecificMediumFilter( std::set< uintptr_t > const & _nodes )
 		: m_nodes( _nodes )
@@ -69,14 +69,14 @@ struct CSpecificMediumFilter : public common::CMediumFilter< ClientResponses >
 		m_nodes.insert( _node );
 	}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
+	std::list< common::CClientBaseMedium *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 
-		std::list< common::CMedium< ClientResponses > *> mediums;
+		std::list< common::CClientBaseMedium *> mediums;
 
 		BOOST_FOREACH( uintptr_t nodePtr , m_nodes )
 		{
-			common::CMedium< ClientResponses > * medium = _trackerLocalRanking->getSpecificTracker( nodePtr );
+			common::CClientBaseMedium * medium = _trackerLocalRanking->getSpecificTracker( nodePtr );
 			if ( medium )
 				mediums.push_back( medium );
 		}
@@ -84,10 +84,10 @@ struct CSpecificMediumFilter : public common::CMediumFilter< ClientResponses >
 		return mediums;
 	}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( CLocalServer * _localServer )const
+	std::list< common::CClientBaseMedium *> getMediums( CLocalServer * _localServer )const
 	{
 
-		std::list< common::CMedium< ClientResponses > *> mediums;
+		std::list< common::CClientBaseMedium *> mediums;
 
 		CLocalSocket * localSocket;
 
@@ -99,7 +99,7 @@ struct CSpecificMediumFilter : public common::CMediumFilter< ClientResponses >
 		return mediums;
 	}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
 		_errorMediumProvider->getErrorMedium();
 	}
@@ -107,18 +107,18 @@ struct CSpecificMediumFilter : public common::CMediumFilter< ClientResponses >
 	 std::set< uintptr_t > m_nodes;
 };
 
-struct CMediumByKeyFilter : public common::CMediumFilter< ClientResponses >
+struct CMediumByKeyFilter : public common::CClientMediumFilter
 {
 	CMediumByKeyFilter( CKeyID const & _keyId )
 		: m_keyId( _keyId )
 	{}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
+	std::list< common::CClientBaseMedium *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 
-		std::list< common::CMedium< ClientResponses > *> mediums;
+		std::list< common::CClientBaseMedium *> mediums;
 
-		common::CMedium< ClientResponses > * medium;
+		common::CClientBaseMedium * medium;
 
 		if ( _trackerLocalRanking->getSpecificMedium( m_keyId, medium ) )
 			mediums.push_back( medium );
@@ -126,7 +126,7 @@ struct CMediumByKeyFilter : public common::CMediumFilter< ClientResponses >
 		return mediums;
 	}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
 		_errorMediumProvider->getErrorMedium();
 	}
@@ -135,7 +135,7 @@ struct CMediumByKeyFilter : public common::CMediumFilter< ClientResponses >
 	CKeyID const m_keyId;
 };
 
-struct CMediumClassWithExceptionFilter : public common::CMediumFilter< ClientResponses >
+struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 {
 	CMediumClassWithExceptionFilter( uintptr_t const & _exceptionPtr, int _mediumClass, int _mediumNumber = -1 )
 		: m_mediumClass( _mediumClass )
@@ -151,16 +151,16 @@ struct CMediumClassWithExceptionFilter : public common::CMediumFilter< ClientRes
 	{}
 
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
+	std::list< common::CClientBaseMedium *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
-		std::list< common::CMedium< ClientResponses > *> mediums;
+		std::list< common::CClientBaseMedium *> mediums;
 		mediums = _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, -1 );
 
 		BOOST_FOREACH( uintptr_t const & ptr, m_exceptionPtrs )
 		{
-			common::CMedium< ClientResponses > * medium = _trackerLocalRanking->getSpecificTracker( ptr );
+			common::CClientBaseMedium * medium = _trackerLocalRanking->getSpecificTracker( ptr );
 
-			std::list< common::CMedium< ClientResponses > *>::iterator iterator = std::find( mediums.begin(), mediums.end(), medium );
+			std::list< common::CClientBaseMedium *>::iterator iterator = std::find( mediums.begin(), mediums.end(), medium );
 
 			if ( iterator != mediums.end() )
 			{
@@ -177,7 +177,7 @@ struct CMediumClassWithExceptionFilter : public common::CMediumFilter< ClientRes
 		return mediums;
 	}
 
-	std::list< common::CMedium< ClientResponses > *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
+	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
 		_errorMediumProvider->getErrorMedium();
 	}

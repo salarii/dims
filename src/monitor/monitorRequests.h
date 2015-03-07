@@ -11,14 +11,12 @@
 namespace monitor
 {
 
-class CConnectToNodeRequest : public common::CRequest< MonitorResponses >
+class CConnectToNodeRequest : public common::CRequest< common::CMonitorTypes >
 {
 public:
 	CConnectToNodeRequest( std::string const & _address, CAddress const & _serviceAddress );
 
-	virtual void accept( common::CMedium< MonitorResponses > * _medium ) const;
-
-	virtual common::CMediumFilter< MonitorResponses > * getMediumFilter() const;
+	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
 
 	std::string getAddress() const;
 
@@ -29,14 +27,12 @@ private:
 	CAddress const m_serviceAddress;
 };
 
-class CConnectCondition : public common::CRequest< MonitorResponses >
+class CConnectCondition : public common::CRequest< common::CMonitorTypes >
 {
 public:
-	CConnectCondition( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period , common::CMediumFilter< MonitorResponses > * _mediumFilter );
+	CConnectCondition( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period , common::CMonitorMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< MonitorResponses > * _medium ) const;
-
-	virtual common::CMediumFilter< MonitorResponses > * getMediumFilter() const;
+	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
 
 	unsigned int getPrice() const
 	{
@@ -60,14 +56,12 @@ private:
 	uint256 const m_actionKey;
 };
 
-class CInfoRequest : public common::CRequest< MonitorResponses >
+class CInfoRequest : public common::CRequest< common::CMonitorTypes >
 {
 public:
-	CInfoRequest( uint256 const & _actionKey, common::CMediumFilter< MonitorResponses > * _mediumFilter );
+	CInfoRequest( uint256 const & _actionKey, common::CMonitorMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMedium< MonitorResponses > * _medium ) const;
-
-	virtual common::CMediumFilter< MonitorResponses > * getMediumFilter() const;
+	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
 
 	uint256 const & getActionKey() const
 	{

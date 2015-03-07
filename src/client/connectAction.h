@@ -23,12 +23,12 @@ namespace client
 
 struct CClientUnconnected;
 
-class CConnectAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
+class CConnectAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
 {
 public:
 	CConnectAction( bool _autoDelete = true );
 
-	virtual void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
 
 	void reset();
 

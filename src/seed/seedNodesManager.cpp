@@ -10,7 +10,7 @@ namespace common
 {
 std::vector< uint256 > deleteList;
 
-template<>	CNodesManager< seed::SeedResponses > * common::CNodesManager< seed::SeedResponses >::ms_instance = 0;
+template<>	CNodesManager< common::CSeedMediumFilter > * common::CNodesManager< common::CSeedMediumFilter >::ms_instance = 0;
 }
 
 namespace seed
@@ -31,16 +31,16 @@ CSeedNodesManager::CSeedNodesManager()
 {
 }
 
-std::list< common::CMedium< SeedResponses > *>
-CSeedNodesManager::provideConnection( common::CMediumFilter<SeedResponses> const & _mediumFilter )
+std::list< common::CSeedBaseMedium *>
+CSeedNodesManager::provideConnection( common::CSeedMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-std::list< common::CMedium< SeedResponses > *>
+std::list< common::CSeedBaseMedium *>
 CSeedNodesManager::getInternalMedium()
 {
-	std::list< common::CMedium< SeedResponses > *> mediums;
+	std::list< common::CSeedBaseMedium *> mediums;
 
 	mediums.push_back( CInternalMedium::getInstance() );
 

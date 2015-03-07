@@ -22,12 +22,12 @@ namespace client
 
 struct CInitiateNetworkCheck;
 
-class CCheckNetworkAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CCheckNetworkAction, CInitiateNetworkCheck >
+class CCheckNetworkAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CCheckNetworkAction, CInitiateNetworkCheck >
 {
 public:
 	CCheckNetworkAction( bool _autoDelete );
 
-	void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
+	void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
 
 	void reset();
 };

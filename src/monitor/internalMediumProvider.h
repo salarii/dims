@@ -17,9 +17,9 @@ class CBitcoinNodeMedium;
 class CInternalMediumProvider : public  common::CConnectionProvider< common::CMonitorMediumFilter >
 {
 public:
-	virtual std::list< common::CMedium< MonitorResponses > *> provideConnection( common::CMediumFilter< MonitorResponses > const & _mediumFilter );
+	virtual std::list< common::CMonitorBaseMedium *> provideConnection( common::CMonitorMediumFilter const & _mediumFilter );
 
-	std::list< common::CMedium< MonitorResponses > *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
+	std::list< common::CMonitorBaseMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
 	static CInternalMediumProvider* getInstance( );
 

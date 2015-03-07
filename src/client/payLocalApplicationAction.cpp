@@ -55,7 +55,7 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 
 		context< CPayLocalApplicationAction >().dropRequests();
 		context< CPayLocalApplicationAction >().addRequests( new CErrorForAppPaymentProcessing( indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
-		context< CPayLocalApplicationAction >().addRequests( new common::CTimeEventRequest< ClientResponses >( 100, new CMediumClassFilter( common::RequestKind::Time ) ) );
+		context< CPayLocalApplicationAction >().addRequests( new common::CTimeEventRequest< common::CClientTypes >( 100, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -437,7 +437,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 }
 
 void
-CPayLocalApplicationAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
+CPayLocalApplicationAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

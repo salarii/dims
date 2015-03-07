@@ -72,7 +72,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CRecognizeNetworkRequest() );
-		context< CConnectAction >().addRequests( new common::CTimeEventRequest< ClientResponses >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
+		context< CConnectAction >().addRequests( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -179,7 +179,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
-		context< CConnectAction >().addRequests( new common::CTimeEventRequest< ClientResponses >( MonitorAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
+		context< CConnectAction >().addRequests( new common::CTimeEventRequest< common::CClientTypes >( MonitorAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 	// try  to  recognize  what  monitors  are  accepted by  which  node
 	// determine  network  of  valid monitors
@@ -457,7 +457,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 	{
 		context< CConnectAction >().dropRequests();
 		context< CConnectAction >().addRequests( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
-		context< CConnectAction >().addRequests( new common::CTimeEventRequest< ClientResponses >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
+		context< CConnectAction >().addRequests( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -540,13 +540,13 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 };
 
 CConnectAction::CConnectAction( bool _autoDelete )
-	: common::CAction< ClientResponses >( _autoDelete )
+	: common::CAction< common::CClientTypes >( _autoDelete )
 {
 	initiate();
 }
 
 void
-CConnectAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
+CConnectAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -560,7 +560,7 @@ CConnectAction::isRequestReady() const
 void
 CConnectAction::reset()
 {
-	common::CAction< ClientResponses >::reset();
+	common::CAction< common::CClientTypes >::reset();
 	initiate();
 }
 }

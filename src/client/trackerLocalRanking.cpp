@@ -139,16 +139,16 @@ CTrackerLocalRanking::removeMonitor( std::string const & _ip )
 	}
 }
 
-std::list< common::CMedium< ClientResponses > *>
-CTrackerLocalRanking::provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter )
+std::list< common::CClientBaseMedium *>
+CTrackerLocalRanking::provideConnection( common::CClientMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-std::list< common::CMedium< ClientResponses > *>
+std::list< common::CClientBaseMedium *>
 CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber )
 {
-	std::list< common::CMedium< ClientResponses > *> mediums;
+	std::list< common::CClientBaseMedium *> mediums;
 
 	switch ( _requestKind )
 	{
@@ -208,10 +208,10 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 	return mediums;
 }
 
-common::CMedium< ClientResponses > *
+common::CClientBaseMedium *
 CTrackerLocalRanking::getSpecificTracker( uintptr_t _trackerPtr ) const
 {
-	std::map< uintptr_t, common::CMedium< ClientResponses > * >::const_iterator iterator = m_mediumRegister.find( _trackerPtr );
+	std::map< uintptr_t, common::CClientBaseMedium * >::const_iterator iterator = m_mediumRegister.find( _trackerPtr );
 
 	return iterator != m_mediumRegister.end() ? iterator->second : 0;
 
@@ -370,7 +370,7 @@ CTrackerLocalRanking::getMonitorKeyForTracker( CPubKey const & _trackerKey, CPub
 }
 
 bool
-CTrackerLocalRanking::getSpecificMedium( CKeyID const & _nodeId, common::CMedium< ClientResponses > *& _medium )
+CTrackerLocalRanking::getSpecificMedium( CKeyID const & _nodeId, common::CClientBaseMedium *& _medium )
 {
 	if ( isValidTrackerKnown( _nodeId ) )
 	{

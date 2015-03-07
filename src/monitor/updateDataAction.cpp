@@ -29,7 +29,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	{
 		context< CUpdateDataAction >().dropRequests();
 		context< CUpdateDataAction >().addRequests( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
-		context< CUpdateDataAction >().addRequests( new common::CTimeEventRequest<MonitorResponses>( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CUpdateDataAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _result )
@@ -44,7 +44,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 		context< CUpdateDataAction >().dropRequests();
-		context< CUpdateDataAction >().addRequests( new common::CAckRequest< MonitorResponses >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+		context< CUpdateDataAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
 		m_presentTrackers.insert( _result.m_pubKey.GetID() );
 
@@ -75,14 +75,14 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 };
 
 CUpdateDataAction::CUpdateDataAction( bool _autoDelete )
-: common::CAction< MonitorResponses >( _autoDelete )
+: common::CAction< common::CMonitorTypes >( _autoDelete )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
 }
 
 void
-CUpdateDataAction::accept( common::CSetResponseVisitor< MonitorResponses > & _visitor )
+CUpdateDataAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -90,7 +90,7 @@ CUpdateDataAction::accept( common::CSetResponseVisitor< MonitorResponses > & _vi
 void
 CUpdateDataAction::reset()
 {
-	common::CAction< MonitorResponses >::reset();
+	common::CAction< common::CMonitorTypes >::reset();
 	initiate();
 }
 

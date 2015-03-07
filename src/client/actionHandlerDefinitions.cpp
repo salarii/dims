@@ -10,17 +10,17 @@
 namespace client
 {
 template<>
-unsigned int const common::CActionHandler< ClientResponses >::m_sleepTime = 100;
+unsigned int const common::CActionHandler< common::CClientTypes >::m_sleepTime = 100;
 template<>
-common::CActionHandler< ClientResponses > * common::CActionHandler< ClientResponses >::ms_instance = NULL;
+common::CActionHandler< common::CClientTypes > * common::CActionHandler< common::CClientTypes >::ms_instance = NULL;
 
 template<>
-common::CPeriodicActionExecutor< ClientResponses > * common::CPeriodicActionExecutor< ClientResponses >::ms_instance = NULL;
+common::CPeriodicActionExecutor< common::CClientTypes > * common::CPeriodicActionExecutor< common::CClientTypes >::ms_instance = NULL;
 
 template<>
-unsigned int const common::CPeriodicActionExecutor< ClientResponses >::m_sleepTime = 100;
+unsigned int const common::CPeriodicActionExecutor< common::CClientTypes >::m_sleepTime = 100;
 
 template<>
-common::CTimeMedium< ClientResponses > * common::CTimeMedium< ClientResponses >::ms_instance = NULL;
+common::CTimeMedium< common::CClientBaseMedium > * common::CTimeMedium< common::CClientBaseMedium >::ms_instance = NULL;
 
 }

@@ -19,7 +19,7 @@ CMonitorNodeMedium::add( CConnectCondition const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< MonitorResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CMonitorTypes >*)_request );
 }
 
 void
@@ -29,7 +29,7 @@ CMonitorNodeMedium::add( CInfoRequest const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< MonitorResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CMonitorTypes >*)_request );
 }
 
 }

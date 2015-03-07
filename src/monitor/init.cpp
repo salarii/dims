@@ -627,26 +627,26 @@ bool AppInit(boost::thread_group& threadGroup)
 #endif // !ENABLE_WALLET
 	// ********************************************************* Step 9: import blocks
 /* create  threads of  action  handler */
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< monitor::MonitorResponses >::loop, common::CActionHandler< monitor::MonitorResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CMonitorTypes >::loop, common::CActionHandler< common::CMonitorTypes >::getInstance() ) );
 
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium< monitor::MonitorResponses >::workLoop, common::CTimeMedium< monitor::MonitorResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CMonitorBaseMedium >::workLoop, common::CTimeMedium< common::CMonitorBaseMedium >::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
 
-	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)monitor::CInternalMediumProvider::getInstance() );
+	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)monitor::CInternalMediumProvider::getInstance() );
 
-	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)monitor::CReputationTracker::getInstance() );
+	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)monitor::CReputationTracker::getInstance() );
 
-		common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)CErrorMediumProvider::getInstance() );
+		common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)CErrorMediumProvider::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CPeriodicActionExecutor< monitor::MonitorResponses > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< monitor::MonitorResponses >::getInstance();
+	common::CPeriodicActionExecutor< common::CMonitorTypes > * periodicActionExecutor
+			= common::CPeriodicActionExecutor< common::CMonitorTypes >::getInstance();
 
-	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< monitor::MonitorResponses >::processingLoop, periodicActionExecutor ));
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< common::CMonitorTypes >::processingLoop, periodicActionExecutor ));
 
 	// ********************************************************* Step 10: load peers
 

@@ -11,14 +11,14 @@
 namespace monitor
 {
 /* for now  I am doing  everything in same  thread, do I need to  change  this behavior?? */
-class CInternalOperationsMedium : public common::CMedium< MonitorResponses >
+class CInternalOperationsMedium : public common::CMonitorBaseMedium
 {
 public:
 	virtual bool serviced() const;
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< MonitorResponses >const*, MonitorResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CMonitorTypes >const*, MonitorResponses > & _requestResponse );
 
 	virtual void add( CConnectToNodeRequest const * _request );
 
@@ -27,7 +27,7 @@ public:
 private:
 	void clearResponses();
 private:
-	std::multimap< common::CRequest< MonitorResponses >const*, MonitorResponses > m_responses;
+	std::multimap< common::CRequest< common::CMonitorTypes >const*, MonitorResponses > m_responses;
 
 	static CInternalOperationsMedium * ms_instance;
 };

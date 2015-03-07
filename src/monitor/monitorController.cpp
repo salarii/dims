@@ -80,7 +80,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 		{
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				common::CActionHandler< MonitorResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+				common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 			}
 		}
 		else
@@ -90,13 +90,13 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				common::CActionHandler< MonitorResponses >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+				common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 			}
 		}
 
 		/// move it to different place
 
-//		common::CPeriodicActionExecutor< MonitorResponses >::getInstance()->addAction( new CUpdateDataAction( false ), 10000 );
+//		common::CPeriodicActionExecutor< common::CMonitorTypes >::getInstance()->addAction( new CUpdateDataAction( false ), 10000 );
 	}
 
 	typedef boost::mpl::list<
@@ -114,7 +114,7 @@ struct CMonitorSynchronizing : boost::statechart::state< CMonitorSynchronizing, 
 	{
 	/*	CSynchronizationAction * synchronizationAction = new CSynchronizationAction();
 
-		common::CActionHandler< MonitorResponses >::getInstance()->executeAction( synchronizationAction );
+		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( synchronizationAction );
 		synchronizationAction->process_event( CSwitchToSynchronizing() );
 */
 	}

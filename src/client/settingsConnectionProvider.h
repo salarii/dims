@@ -15,9 +15,9 @@ class CDefaultMedium;
 class CSettingsConnectionProvider : public common::CConnectionProvider< common::CClientMediumFilter >
 {
 public:
-	virtual std::list< common::CMedium< ClientResponses > *> provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter );
+	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
 
-	std::list< common::CMedium< ClientResponses > *> getMediumByClass( common::RequestKind::Enum _requestKind );
+	std::list< common::CClientBaseMedium *> getMediumByClass( common::RequestKind::Enum _requestKind );
 
 	static CSettingsConnectionProvider* getInstance();
 

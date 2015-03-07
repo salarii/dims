@@ -20,7 +20,6 @@ public:
 
 		virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-		virtual common::CTrackerMediumFilter * getMediumFilter() const;
 		uint256 const & getActionKey() const
 		{
 			return m_actionKey;
@@ -118,8 +117,6 @@ public:
 
 	virtual void accept( common::CTrackerBaseMedium * m_mediumNumber ) const;
 
-	virtual common::CTrackerMediumFilter * getMediumFilter() const;
-
 	std::vector< uint256 > const & getBlockHashes() const;
 private:
 	std::vector< uint256 > const m_blockHashes;
@@ -134,8 +131,6 @@ public:
 
 	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CTrackerMediumFilter * getMediumFilter() const;
-
 	CBloomFilter const & getBloomFilter() const;
 private:
 	CBloomFilter const m_bloomFilter;
@@ -147,8 +142,6 @@ public:
 	CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress );
 
 	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
-
-	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	std::string getAddress() const;
 
@@ -171,8 +164,6 @@ public:
 
 	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
 
-	virtual common::CTrackerMediumFilter * getMediumFilter() const;
-
 	uint256 getActionKey() const;
 
 	uint64_t getTimeStamp() const;
@@ -188,8 +179,6 @@ public:
 	CGetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, int _blockKind );
 
 	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
-
-	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 
@@ -207,8 +196,6 @@ public:
 	CSetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
 
 	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
-
-	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	uint256 getActionKey() const;
 
@@ -240,13 +227,6 @@ CSetNextBlockRequest< Block >::accept( common::CTrackerBaseMedium * _medium ) co
 }
 
 template < class Block >
-common::CTrackerMediumFilter *
-CSetNextBlockRequest< Block >::getMediumFilter() const
-{
-	return common::CRequest< common::CTrackerTypes >::m_mediumFilter;
-}
-
-template < class Block >
 uint256
 CSetNextBlockRequest< Block >::getActionKey() const
 {
@@ -274,8 +254,6 @@ public:
 	CGetBalanceRequest( uint160 const & _key );
 
 	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
-
-	virtual common::CTrackerMediumFilter * getMediumFilter() const;
 
 	uint160 getKey() const;
 private:

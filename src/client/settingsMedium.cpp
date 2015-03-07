@@ -44,7 +44,7 @@ CDefaultMedium::serviced() const
 }
 
 void
-CDefaultMedium::add( common::CRequest< ClientResponses > const * _request )
+CDefaultMedium::add( common::CRequest< common::CClientTypes > const * _request )
 {
 }
 
@@ -56,7 +56,7 @@ CDefaultMedium::add( CDnsInfoRequest const * _request )
 
 	CDnsInfo dnsInfo( addresses );
 
-	m_requestResponse.insert( std::make_pair( ( common::CRequest< ClientResponses > * )_request, dnsInfo ) );
+	m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, dnsInfo ) );
 }
 
 void
@@ -91,7 +91,7 @@ CDefaultMedium::flush()
 }
 
 bool
-CDefaultMedium::getResponseAndClear( std::multimap<  CRequest< ClientResponses >const*, ClientResponses > & _requestResponse )
+CDefaultMedium::getResponseAndClear( std::multimap<  CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
 

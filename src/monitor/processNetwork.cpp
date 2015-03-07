@@ -53,7 +53,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoRes
 				)
 		{
-			common::CNodeMedium< MonitorResponses > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 			// not necessarily have to pass this
 			CPubKey key;
 			CReputationTracker::getInstance()->getNodeToKey( convertToInt( nodeMedium->getNode() ), key );
@@ -83,7 +83,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			common::CNodeMedium< MonitorResponses > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -98,7 +98,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
 
-				common::CActionHandler< MonitorResponses >::getInstance()->executeAction( connectNodeAction );
+				common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}
@@ -108,7 +108,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( message, ack );
 
-			common::CNodeMedium< MonitorResponses > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{

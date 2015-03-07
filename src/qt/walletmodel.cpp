@@ -324,7 +324,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 	  //  emit coinsSent(wallet, rcp, transaction_array);
     }
 /* create send  transaction  action */
-	common::CActionHandler< client::ClientResponses >::getInstance()->executeAction( new client::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
+	common::CActionHandler< common::CClientTypes >::getInstance()->executeAction( new client::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
     return SendCoinsReturn(OK);
 }
 

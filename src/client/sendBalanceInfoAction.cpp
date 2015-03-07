@@ -122,13 +122,13 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 };
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( bool _autoDelete )
-	: common::CAction< ClientResponses >( _autoDelete )
+	: common::CAction< common::CClientTypes >( _autoDelete )
 {
 	initiate();
 }
 
 void
-CSendBalanceInfoAction::accept( common::CSetResponseVisitor< ClientResponses > & _visitor )
+CSendBalanceInfoAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -136,7 +136,7 @@ CSendBalanceInfoAction::accept( common::CSetResponseVisitor< ClientResponses > &
 void
 CSendBalanceInfoAction::reset()
 {
-	common::CAction< ClientResponses >::reset();
+	common::CAction< common::CClientTypes >::reset();
 	initiate();
 }
 
@@ -153,22 +153,15 @@ CSendBalanceInfoAction::getAddresses() const
 }
 
 CBalanceRequest::CBalanceRequest( std::string _address )
-	: common::CRequest< ClientResponses >( new CMediumClassFilter( RequestKind::Balance, 1 ) )
+	: common::CRequest< common::CClientTypes >( new CMediumClassFilter( RequestKind::Balance, 1 ) )
 	, m_address( _address )
 {
 }
 
 void
-CBalanceRequest::accept( common::CMedium< ClientResponses > * _medium ) const
+CBalanceRequest::accept( common::CClientBaseMedium * _medium ) const
 {
 	_medium->add( this );
-}
-
-inline
-common::CMediumFilter< ClientResponses > *
-CBalanceRequest::getMediumFilter() const
-{
-	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
 }

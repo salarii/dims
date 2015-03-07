@@ -7,6 +7,8 @@
 
 #include "common/action.h"
 #include "common/communicationProtocol.h"
+#include "common/types.h"
+
 #include "configureSeedActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include <boost/optional.hpp>
@@ -16,14 +18,14 @@ namespace seed
 
 struct CUninitiated;
 
-class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
+class CAcceptNodeAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
 	CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr );
 
 	CAcceptNodeAction( CAddress const & _nodeAddress );
 
-	virtual void accept( common::CSetResponseVisitor< SeedResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CSeedTypes > & _visitor );
 
 	void setAddress( CAddress const & _address );
 

@@ -24,14 +24,14 @@ namespace monitor
 
 struct CMonitorConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >, public common::CCommunicationAction
+class CConnectNodeAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >, public common::CCommunicationAction
 {
 public:
 	CConnectNodeAction( CAddress const & _addrConnect );
 
 	CConnectNodeAction( CAddress const & _addrConnect, uint256 const & _actionKey, uintptr_t _mediumPtr );
 
-	virtual void accept( common::CSetResponseVisitor< MonitorResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
 	CAddress getServiceAddress() const;
 

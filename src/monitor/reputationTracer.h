@@ -62,7 +62,7 @@ struct CAllyTrackerData
 	unsigned int m_countedTime;
 };
 // for now  don't track other trackers registered in other monitors
-class CReputationTracker : public common::CNodesManager< MonitorResponses >
+class CReputationTracker : public common::CNodesManager< common::CMonitorMediumFilter >
 {
 public:
 	static CReputationTracker * getInstance();
@@ -76,7 +76,7 @@ public:
 
 	std::vector< CAllyMonitorData > getAllyMonitors() const;
 
-	std::list< common::CMedium< MonitorResponses > *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
+	std::list< common::CMonitorBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
 

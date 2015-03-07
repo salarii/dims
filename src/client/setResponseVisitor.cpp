@@ -157,37 +157,37 @@ public:
 
 };
 
-CSetResponseVisitor< client::ClientResponses >::CSetResponseVisitor( client::ClientResponses const & _requestRespond )
+CSetResponseVisitor< common::CClientTypes >::CSetResponseVisitor( client::ClientResponses const & _requestRespond )
 	:m_requestResponse( _requestRespond )
 {
 }
 
 void 
-CSetResponseVisitor< client::ClientResponses >::visit( client::CSendTransactionAction & _action )
+CSetResponseVisitor< common::CClientTypes >::visit( client::CSendTransactionAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< client::CSendTransactionAction, client::ClientResponseList > const &)CSetTransactionAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::ClientResponses >::visit( client::CConnectAction & _action )
+CSetResponseVisitor< common::CClientTypes >::visit( client::CConnectAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< client::CConnectAction, client::ClientResponseList > const &)CSetConnectAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::ClientResponses >::visit( client::CSendBalanceInfoAction & _action )
+CSetResponseVisitor< common::CClientTypes >::visit( client::CSendBalanceInfoAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< client::CSendBalanceInfoAction, client::ClientResponseList > const &)CSetBalanceInfoAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::ClientResponses >::visit( client::CPayLocalApplicationAction & _action )
+CSetResponseVisitor< common::CClientTypes >::visit( client::CPayLocalApplicationAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< client::CPayLocalApplicationAction, client::ClientResponseList > const &)CSetPayLocalApplicationAction( &_action ), m_requestResponse );
 }
 
 void
-CSetResponseVisitor< client::ClientResponses >::visit( CAction< client::ClientResponses > & _action )
+CSetResponseVisitor< common::CClientTypes >::visit( CAction< client::ClientResponses > & _action )
 {
 }
 

@@ -16,9 +16,9 @@ namespace client
 class CErrorMediumProvider : public common::CConnectionProvider< common::CClientMediumFilter >
 {
 public:
-	virtual std::list< common::CMedium< ClientResponses > *> provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter );
+	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
 
-	std::list< common::CMedium< ClientResponses > *> getErrorMedium();
+	std::list< common::CClientBaseMedium *> getErrorMedium();
 
 	static CErrorMediumProvider* getInstance();
 private:

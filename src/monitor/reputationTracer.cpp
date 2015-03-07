@@ -133,10 +133,10 @@ CReputationTracker::getAllyMonitors() const
 	return std::vector< CAllyMonitorData >();
 }
 
-std::list< common::CMedium< MonitorResponses > *>
+std::list< common::CMonitorBaseMedium *>
 CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {
-	std::list< common::CMedium< MonitorResponses > *> mediums;
+	std::list< common::CMonitorBaseMedium *> mediums;
 
 	uintptr_t nodeIndicator;
 	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
@@ -147,7 +147,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 				if ( !getKeyToNode( trackerData.second.m_publicKey, nodeIndicator) )
 					assert( !"something wrong" );
 
-				common::CMedium< MonitorResponses > * medium = findNodeMedium( nodeIndicator );
+				common::CMonitorBaseMedium * medium = findNodeMedium( nodeIndicator );
 
 				if ( !medium )
 					assert( !"something wrong" );
@@ -161,7 +161,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 				if ( !getKeyToNode( monitorData.second.m_publicKey, nodeIndicator) )
 					assert( !"something wrong" );
 
-				common::CMedium< MonitorResponses > * medium = findNodeMedium( nodeIndicator );
+				common::CMonitorBaseMedium * medium = findNodeMedium( nodeIndicator );
 
 				if ( !medium )
 					assert( !"something wrong" );

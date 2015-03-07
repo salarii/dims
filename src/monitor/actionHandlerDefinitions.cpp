@@ -10,17 +10,17 @@
 namespace monitor
 {
 template<>
-unsigned int const common::CActionHandler< MonitorResponses >::m_sleepTime = 1000;
+unsigned int const common::CActionHandler< common::CMonitorTypes >::m_sleepTime = 1000;
 template<>
-common::CActionHandler< MonitorResponses > * common::CActionHandler< MonitorResponses >::ms_instance = NULL;
+common::CActionHandler< common::CMonitorTypes > * common::CActionHandler< common::CMonitorTypes >::ms_instance = NULL;
 
 template<>
-common::CPeriodicActionExecutor< MonitorResponses > * common::CPeriodicActionExecutor< MonitorResponses >::ms_instance = NULL;
+common::CPeriodicActionExecutor< common::CMonitorTypes > * common::CPeriodicActionExecutor< common::CMonitorTypes >::ms_instance = NULL;
 
 template<>
-unsigned int const common::CPeriodicActionExecutor< MonitorResponses >::m_sleepTime = 100;
+unsigned int const common::CPeriodicActionExecutor< common::CMonitorTypes >::m_sleepTime = 100;
 
 template<>
-common::CTimeMedium< MonitorResponses > * common::CTimeMedium< MonitorResponses >::ms_instance = NULL;
+common::CTimeMedium< common::CMonitorBaseMedium > * common::CTimeMedium< common::CMonitorBaseMedium >::ms_instance = NULL;
 
 }

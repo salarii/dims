@@ -8,11 +8,11 @@
 namespace common
 {
 
-template < class _RequestResponses >
+template < class _Type >
 class CDefferedAction
 {
 public:
-	CDefferedAction( CAction< _RequestResponses >* _action, int64_t _deffer );
+	CDefferedAction( CAction< _Type >* _action, int64_t _deffer );
 
 	bool isReady();
 
@@ -22,11 +22,11 @@ public:
 private:
 	int64_t const m_deffer;
 	int64_t m_time;
-	CAction< _RequestResponses >* m_action;
+	CAction< _Type >* m_action;
 };
 
-template < class _RequestResponses >
-CDefferedAction< _RequestResponses >::CDefferedAction( CAction< _RequestResponses >* _action, int64_t _deffer )
+template < class _Type >
+CDefferedAction< _Type >::CDefferedAction( CAction< _Type >* _action, int64_t _deffer )
 	: m_deffer( _deffer )
 	, m_time( GetTimeMillis() - m_deffer )
 	, m_action( _action )
@@ -34,9 +34,9 @@ CDefferedAction< _RequestResponses >::CDefferedAction( CAction< _RequestResponse
 }
 
 
-template < class _RequestResponses >
+template < class _Type >
 bool
-CDefferedAction< _RequestResponses >::isReady()
+CDefferedAction< _Type >::isReady()
 {
 
 	if ( m_action->isExecuted() )
@@ -48,23 +48,23 @@ CDefferedAction< _RequestResponses >::isReady()
 	return GetTimeMillis() - m_time < m_deffer ? false : true;
 }
 
-template < class _RequestResponses >
+template < class _Type >
 void
-CDefferedAction< _RequestResponses >::reset()
+CDefferedAction< _Type >::reset()
 {
 	m_action->reset();
 }
 
 
-template < class _RequestResponses >
+template < class _Type >
 void
-CDefferedAction< _RequestResponses >::getRequest() const
+CDefferedAction< _Type >::getRequest() const
 {
-	CActionHandler< _RequestResponses >::getInstance()->executeAction( m_action );
+	CActionHandler< _Type >::getInstance()->executeAction( m_action );
 }
 
 
-template < class _RequestResponses >
+template < class _Type >
 class CPeriodicActionExecutor
 {
 public:
@@ -74,7 +74,7 @@ public:
 
 	void processingLoop();
 
-	void addAction( CAction< _RequestResponses > * _action, unsigned int _milisec );
+	void addAction( CAction< _Type > * _action, unsigned int _milisec );
 private:
 	CPeriodicActionExecutor();
 private:
@@ -84,17 +84,17 @@ private:
 
 	mutable boost::mutex m_mutex;
 
-	std::list< CDefferedAction< _RequestResponses > > m_periodicActions;
+	std::list< CDefferedAction< _Type > > m_periodicActions;
 };
 
-template < class _RequestResponses >
-CPeriodicActionExecutor< _RequestResponses >::CPeriodicActionExecutor()
+template < class _Type >
+CPeriodicActionExecutor< _Type >::CPeriodicActionExecutor()
 {
 }
 
-template < class _RequestResponses >
-CPeriodicActionExecutor< _RequestResponses >*
-CPeriodicActionExecutor< _RequestResponses >::getInstance()
+template < class _Type >
+CPeriodicActionExecutor< _Type >*
+CPeriodicActionExecutor< _Type >::getInstance()
 {
 	if ( !ms_instance )
 	{
@@ -103,24 +103,24 @@ CPeriodicActionExecutor< _RequestResponses >::getInstance()
 	return ms_instance;
 }
 
-template < class _RequestResponses >
+template < class _Type >
 void
-CPeriodicActionExecutor< _RequestResponses >::addAction( CAction< _RequestResponses > * _action, unsigned int _milisec )
+CPeriodicActionExecutor< _Type >::addAction( CAction< _Type > * _action, unsigned int _milisec )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_periodicActions.push_back( CDefferedAction< _RequestResponses >( _action, _milisec ) );
+	m_periodicActions.push_back( CDefferedAction< _Type >( _action, _milisec ) );
 }
 
-template < class _RequestResponses >
+template < class _Type >
 void
-CPeriodicActionExecutor< _RequestResponses >::processingLoop()
+CPeriodicActionExecutor< _Type >::processingLoop()
 {
 
 	while(1)
 	{
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
-			BOOST_FOREACH( CDefferedAction< _RequestResponses > & action, m_periodicActions)
+			BOOST_FOREACH( CDefferedAction< _Type > & action, m_periodicActions)
 			{
 				if ( action.isReady() )
 				{

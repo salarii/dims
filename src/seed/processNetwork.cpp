@@ -52,7 +52,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			common::CNodeMedium< SeedResponses > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -62,7 +62,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				CAcceptNodeAction * connectNodeAction= new CAcceptNodeAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
-				common::CActionHandler< SeedResponses >::getInstance()->executeAction( connectNodeAction );
+				common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}
@@ -83,7 +83,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( orginalMessage, networkRole );
 
-			common::CNodeMedium< SeedResponses > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -104,7 +104,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( orginalMessage, knownNetworkInfo );
 
-			common::CNodeMedium< SeedResponses > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -117,7 +117,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( message, ack );
 
-			common::CNodeMedium< SeedResponses > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -130,7 +130,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( message, end );
 
-			common::CNodeMedium< SeedResponses > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{

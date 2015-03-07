@@ -74,20 +74,20 @@ public:
 };
 
 
-CSetResponseVisitor< monitor::MonitorResponses >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
+CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
 {
 }
 
 void
-CSetResponseVisitor< monitor::MonitorResponses >::visit( monitor::CConnectNodeAction & _action )
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CConnectNodeAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult< monitor::CConnectNodeAction >( &_action ), m_requestResponse );
 }
 
 
 void
-CSetResponseVisitor< monitor::MonitorResponses >::visit( monitor::CUpdateDataAction & _action )
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CUpdateDataAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CUpdateDataAction >( &_action ), m_requestResponse );
 }

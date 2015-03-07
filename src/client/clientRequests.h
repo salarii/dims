@@ -13,38 +13,38 @@
 namespace client
 {
 
-struct CTransactionStatusRequest : public common::CRequest< ClientResponses >
+struct CTransactionStatusRequest : public common::CRequest< common::CClientTypes >
 {
 public:
-	CTransactionStatusRequest( uint256 const & _transactionHash, common::CMediumFilter< ClientResponses > * _mediumFilter );
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
-	common::CMediumFilter< ClientResponses > * getMediumFilter() const;
+	CTransactionStatusRequest( uint256 const & _transactionHash, common::CClientMediumFilter * _mediumFilter );
+	void accept( common::CClientBaseMedium * _medium ) const;
+	common::CClientMediumFilter * getMediumFilter() const;
 	uint256 m_transactionHash;
 };
 
-struct CTransactionSendRequest : public common::CRequest< ClientResponses >
+struct CTransactionSendRequest : public common::CRequest< common::CClientTypes >
 {
 public:
-	CTransactionSendRequest( CTransaction const & _transaction, common::CMediumFilter< ClientResponses > * _mediumFilter );
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
-	common::CMediumFilter< ClientResponses > * getMediumFilter() const;
+	CTransactionSendRequest( CTransaction const & _transaction, common::CClientMediumFilter * _mediumFilter );
+	void accept( common::CClientBaseMedium * _medium ) const;
+	common::CClientMediumFilter * getMediumFilter() const;
 	CTransaction m_transaction;
 };
 
-struct CErrorForAppPaymentProcessing : public common::CRequest< ClientResponses >
+struct CErrorForAppPaymentProcessing : public common::CRequest< common::CClientTypes >
 {
 public:
-	CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter< ClientResponses > * _mediumFilter );
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
+	CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CClientMediumFilter * _mediumFilter );
+	void accept( common::CClientBaseMedium * _medium ) const;
 	int m_error;
 };
 
-struct CProofTransactionAndStatusRequest : public common::CRequest< ClientResponses >
+struct CProofTransactionAndStatusRequest : public common::CRequest< common::CClientTypes >
 {
-	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CMediumFilter< ClientResponses > * _mediumFilter );
+	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CClientMediumFilter * _mediumFilter );
 
 public:
-	void accept( common::CMedium< ClientResponses > * _medium ) const;
+	void accept( common::CClientBaseMedium * _medium ) const;
 
 	common::CPayApplicationData m_payApplicationData;
 };

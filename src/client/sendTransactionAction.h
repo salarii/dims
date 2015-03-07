@@ -28,12 +28,12 @@ namespace client
 
 struct CPrepareAndSendTransaction;
 
-class CSendTransactionAction : public common::CAction< ClientResponses >, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
+class CSendTransactionAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
 {
 public:
 	CSendTransactionAction( const CTransaction & _Transaction );
 
-	void accept( common::CSetResponseVisitor< ClientResponses > & _visitor );
+	void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
 
 	CTransaction const & getTransaction() const;
 

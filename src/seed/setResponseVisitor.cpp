@@ -52,14 +52,14 @@ public:
 };
 
 
-CSetResponseVisitor< seed::SeedResponses >::CSetResponseVisitor( seed::SeedResponses const & _requestResponse )
+CSetResponseVisitor< common::CSeedTypes >::CSetResponseVisitor( seed::SeedResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
 {
 }
 
 
 void
-CSetResponseVisitor< seed::SeedResponses >::visit( seed::CAcceptNodeAction & _action )
+CSetResponseVisitor< common::CSeedTypes >::visit( seed::CAcceptNodeAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList > const &)CSetNodeConnectedResult< seed::CAcceptNodeAction >( &_action ), m_requestResponse );
 }

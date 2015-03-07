@@ -25,11 +25,4 @@ template < class RequestType >
 class CKnownNetworkInfoRequest;
 }
 
-namespace seed
-{
-
-typedef boost::mpl::list< common::CSendIdentifyDataRequest< SeedResponses >, common::CConnectToNodeRequest< SeedResponses >, common::CNetworkRoleRequest< SeedResponses >, common::CAckRequest< SeedResponses >, common::CKnownNetworkInfoRequest< SeedResponses > > SeedRequestsList;
-
-}
-
 #endif // SEED_REQUESTS_LIST_H

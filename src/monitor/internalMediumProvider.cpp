@@ -25,8 +25,8 @@ CInternalMediumProvider::CInternalMediumProvider()
 {
 }
 
-std::list< common::CMedium< MonitorResponses > *>
-CInternalMediumProvider::provideConnection( common::CMediumFilter< MonitorResponses > const & _mediumFilter )
+std::list< common::CMonitorBaseMedium *>
+CInternalMediumProvider::provideConnection( common::CMonitorMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
@@ -46,11 +46,11 @@ CInternalMediumProvider::removeNodeCallback( CNode * node )
 }
 
 
-std::list< common::CMedium< MonitorResponses > *>
+std::list< common::CMonitorBaseMedium *>
 CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	std::list< common::CMedium< MonitorResponses > *> mediums;
+	std::list< common::CMonitorBaseMedium *> mediums;
 
 	if ( common::CMediumKinds::Internal == _mediumKind )
 	{
@@ -58,7 +58,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	}
 	else if ( common::CMediumKinds::Time == _mediumKind )
 	{
-		mediums.push_back( common::CTimeMedium< MonitorResponses >::getInstance() );
+		mediums.push_back( common::CTimeMedium< common::CMonitorBaseMedium >::getInstance() );
 	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
@@ -71,7 +71,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 			if ( iterator != m_nodeToMedium.end() )
 			{
 				// validate that node  is  still working??
-				/*		mediums.push_back( static_cast< common::CMedium< MonitorResponses > * >( iterator->second ) );
+				/*		mediums.push_back( static_cast< common::CMonitorBaseMedium * >( iterator->second ) );
 				iterator++;
 				++i;*/
 			}

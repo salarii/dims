@@ -21,7 +21,7 @@ class CBufferAsStream;
 namespace client
 {
 
-class CNetworkClient : public common::CMedium< ClientResponses >, public QThread
+class CNetworkClient : public common::CClientBaseMedium, public QThread
 {
 public:
 	CNetworkClient( QString const & _ipAddr,ushort const _port );
@@ -32,7 +32,7 @@ public:
 
 	void prepareMedium();
 
-	void add( common::CRequest< ClientResponses > const * _request );
+	void add( common::CRequest< common::CClientTypes > const * _request );
 
 	void add( CBalanceRequest const * _request );
 
@@ -48,7 +48,7 @@ public:
 
 	bool flush();
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -60,7 +60,7 @@ private:
 
 	void write();
 
-	common::CRequest< ClientResponses >* takeMatching( uint256 const & _token );
+	common::CRequest< common::CClientTypes >* takeMatching( uint256 const & _token );
 
 	bool dropConnection() const;
 private:
@@ -77,9 +77,9 @@ private:
 
 	QTcpSocket * m_socket;
 
-	std::map< uint256, common::CRequest< ClientResponses >* > m_matching;
+	std::map< uint256, common::CRequest< common::CClientTypes >* > m_matching;
 
-	std::list< common::CRequest< ClientResponses >* > m_workingRequest;
+	std::list< common::CRequest< common::CClientTypes >* > m_workingRequest;
 
 	int64_t const m_sleepTime;
 };

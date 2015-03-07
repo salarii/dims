@@ -13,16 +13,16 @@ class CConnectToNodeRequest;
 namespace seed
 {
 
-class CInternalMedium : public common::CMedium< SeedResponses >
+class CInternalMedium : public common::CSeedBaseMedium
 {
 public:
 	virtual bool serviced() const;
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< SeedResponses >const*, SeedResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses > & _requestResponse );
 
-	virtual void add( common::CConnectToNodeRequest< SeedResponses > const *_request );
+	virtual void add( common::CConnectToNodeRequest< common::CSeedTypes > const *_request );
 
 	static CInternalMedium* getInstance();
 private:
@@ -30,7 +30,7 @@ private:
 
 	CInternalMedium();
 private:
-	std::multimap< common::CRequest< SeedResponses >const*, SeedResponses > m_responses;
+	std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses > m_responses;
 
 	static CInternalMedium * ms_instance;
 };

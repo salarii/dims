@@ -11,39 +11,26 @@ namespace client
 {
 
 CDnsInfoRequest::CDnsInfoRequest()
-	:common::CRequest< ClientResponses >( new CMediumClassFilter( common::RequestKind::Seed ) )
+	:common::CRequest< common::CClientTypes >( new CMediumClassFilter( common::RequestKind::Seed ) )
 {
 }
 
 void
-CDnsInfoRequest::accept( common::CMedium< ClientResponses > * _medium ) const
+CDnsInfoRequest::accept( common::CClientBaseMedium * _medium ) const
 {
 	_medium->add( this );
-}
-
-common::CMediumFilter< ClientResponses > *
-CDnsInfoRequest::getMediumFilter() const
-{
-	return common::CRequest< ClientResponses >::m_mediumFilter;
 }
 
 CRecognizeNetworkRequest::CRecognizeNetworkRequest()
-	:common::CRequest< ClientResponses >( new CMediumClassFilter( common::RequestKind::Unknown ) )
+	:common::CRequest< common::CClientTypes >( new CMediumClassFilter( common::RequestKind::Unknown ) )
 {
 
 }
 
 void
-CRecognizeNetworkRequest::accept( common::CMedium< ClientResponses > * _medium ) const
+CRecognizeNetworkRequest::accept( common::CClientBaseMedium * _medium ) const
 {
 	_medium->add( this );
 }
-
-common::CMediumFilter< ClientResponses > *
-CRecognizeNetworkRequest::getMediumFilter() const
-{
-	return common::CRequest< ClientResponses >::m_mediumFilter;
-}
-
 
 }

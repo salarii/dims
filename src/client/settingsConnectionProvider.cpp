@@ -32,27 +32,26 @@ CSettingsConnectionProvider::CSettingsConnectionProvider()
 	m_settingsMedium = client::CDefaultMedium::getInstance();
 }
 
-std::list< common::CMedium< ClientResponses > *>
-CSettingsConnectionProvider::provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter )
+std::list< common::CClientBaseMedium *>
+CSettingsConnectionProvider::provideConnection( common::CClientMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-std::list< common::CMedium< ClientResponses > *>
+std::list< common::CClientBaseMedium *>
 CSettingsConnectionProvider::getMediumByClass( common::RequestKind::Enum _requestKind )
 {
-	std::list< common::CMedium< ClientResponses > *> mediums;
+	std::list< common::CClientBaseMedium *> mediums;
 	if( common::RequestKind::NetworkInfo == _requestKind || common::RequestKind::Seed == _requestKind )// temporary???
 	{
 		mediums.push_back( m_settingsMedium );
 	}
 	else if ( common::RequestKind::Time == _requestKind )
 	{
-		mediums.push_back( common::CTimeMedium< ClientResponses >::getInstance() );
+		mediums.push_back( common::CTimeMedium< common::CClientBaseMedium >::getInstance() );
 	}
 
 	return mediums;
 }
-
 
 }

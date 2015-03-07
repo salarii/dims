@@ -21,12 +21,12 @@ struct CAskForUpdate;
 
 // rework  this  sooner  or later
 
-class CUpdateDataAction : public common::CAction< MonitorResponses >, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >, public common::CCommunicationAction
+class CUpdateDataAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >, public common::CCommunicationAction
 {
 public:
 	CUpdateDataAction( bool _autoDelete );
 
-	virtual void accept( common::CSetResponseVisitor< MonitorResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
 	void reset();
 

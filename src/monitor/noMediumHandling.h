@@ -15,7 +15,7 @@ namespace monitor
 class CErrorMediumProvider : public  common::CConnectionProvider< common::CMonitorMediumFilter >
 {
 public:
-	std::list< common::CMedium< MonitorResponses > *> provideConnection( common::CMediumFilter< MonitorResponses > const & _filter );
+	std::list< common::CMonitorBaseMedium *> provideConnection( common::CMonitorMediumFilter const & _filter );
 
 	static CErrorMediumProvider* getInstance( );
 private:
@@ -25,7 +25,7 @@ private:
 
 	static CErrorMediumProvider * ms_instance;
 
-	std::list< common::CMedium< MonitorResponses > *> m_mediums;
+	std::list< common::CMonitorBaseMedium *> m_mediums;
 };
 
 }

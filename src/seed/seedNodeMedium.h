@@ -12,10 +12,10 @@
 namespace seed
 {
 
-class CSeedNodeMedium : public common::CNodeMedium< SeedResponses >
+class CSeedNodeMedium : public common::CNodeMedium< common::CSeedBaseMedium >
 {
 public:
-	CSeedNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< SeedResponses >( _selfNode ){};
+	CSeedNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< common::CSeedBaseMedium >( _selfNode ){};
 private:
 };
 

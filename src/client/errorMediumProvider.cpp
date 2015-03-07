@@ -9,7 +9,7 @@
 namespace client
 {
 
-class CErrorMedium : public common::CMedium< ClientResponses >
+class CErrorMedium : public common::CClientBaseMedium
 {
 public:
 
@@ -17,26 +17,26 @@ public:
 
 	bool serviced() const;
 
-	void add( common::CRequest< ClientResponses > const * _request ){};
+	void add( common::CRequest< common::CClientTypes > const * _request ){};
 
 	void add( CMonitorInfoRequest const * _request )
 	{
-		m_requestResponse.insert( std::make_pair( ( common::CRequest< ClientResponses > * )_request, common::CNoMedium() ) );
+		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
 	}
 
 	void add( CTrackersInfoRequest const * _request )
 	{
-		m_requestResponse.insert( std::make_pair( ( common::CRequest< ClientResponses > * )_request, common::CNoMedium() ) );
+		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
 	}
 
 	void add( CBalanceRequest const * _request )
 	{
-		m_requestResponse.insert( std::make_pair( ( common::CRequest< ClientResponses > * )_request, common::CNoMedium() ) );
+		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
 	}
 
 	bool flush(){};
 
-	bool getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -46,7 +46,7 @@ private:
 private:
 	static CErrorMedium * ms_instance;
 
-	std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > m_requestResponse;
+	std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > m_requestResponse;
 };
 
 
@@ -69,7 +69,7 @@ CErrorMedium::serviced() const
 }
 
 bool
-CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< ClientResponses >const*, ClientResponses > & _requestResponse )
+CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
 
@@ -98,16 +98,16 @@ CErrorMediumProvider::CErrorMediumProvider()
 {
 }
 
-std::list< common::CMedium< ClientResponses > *>
-CErrorMediumProvider::provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter )
+std::list< common::CClientBaseMedium *>
+CErrorMediumProvider::provideConnection( common::CClientMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-std::list< common::CMedium< ClientResponses > *>
+std::list< common::CClientBaseMedium *>
 CErrorMediumProvider::getErrorMedium()
 {
-	std::list< common::CMedium< ClientResponses > *> mediums;
+	std::list< common::CClientBaseMedium *> mediums;
 	mediums.push_back( CErrorMedium::getInstance() );
 	return mediums;
 }

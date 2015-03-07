@@ -11,22 +11,16 @@ namespace monitor
 {
 
 CConnectToNodeRequest::CConnectToNodeRequest( std::string const & _address, CAddress const & _serviceAddress )
-	: common::CRequest< MonitorResponses >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+	: common::CRequest< common::CMonitorTypes >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_address( _address )
 	, m_serviceAddress( _serviceAddress )
 {
 }
 
 void
-CConnectToNodeRequest::accept( common::CMedium< MonitorResponses > * _medium ) const
+CConnectToNodeRequest::accept( common::CMonitorBaseMedium * _medium ) const
 {
 	_medium->add( this );
-}
-
-common::CMediumFilter< MonitorResponses > *
-CConnectToNodeRequest::getMediumFilter() const
-{
-	return m_mediumFilter;
 }
 
 std::string
@@ -41,8 +35,8 @@ CConnectToNodeRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-CConnectCondition::CConnectCondition( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period, common::CMediumFilter< MonitorResponses > * _mediumFilter )
-	: common::CRequest< MonitorResponses >( _mediumFilter )
+CConnectCondition::CConnectCondition( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period, common::CMonitorMediumFilter * _mediumFilter )
+	: common::CRequest< common::CMonitorTypes >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_price( _price )
 	, m_period( _period )
@@ -50,33 +44,21 @@ CConnectCondition::CConnectCondition( uint256 const & _actionKey,  unsigned int 
 }
 
 void
-CConnectCondition::accept( common::CMedium< MonitorResponses > * _medium ) const
+CConnectCondition::accept( common::CMonitorBaseMedium * _medium ) const
 {
 	_medium->add( this );
 }
 
-common::CMediumFilter< MonitorResponses > *
-CConnectCondition::getMediumFilter() const
-{
-	return m_mediumFilter;
-}
-
-CInfoRequest::CInfoRequest( uint256 const & _actionKey, common::CMediumFilter< MonitorResponses > * _mediumFilter )
-	: common::CRequest< MonitorResponses >( _mediumFilter )
+CInfoRequest::CInfoRequest( uint256 const & _actionKey, common::CMonitorMediumFilter * _mediumFilter )
+	: common::CRequest< common::CMonitorTypes >( _mediumFilter )
 	, m_actionKey( _actionKey )
 {
 }
 
 void
-CInfoRequest::accept( common::CMedium< MonitorResponses > * _medium ) const
+CInfoRequest::accept( common::CMonitorBaseMedium * _medium ) const
 {
 	_medium->add( this );
-}
-
-common::CMediumFilter< MonitorResponses > *
-CInfoRequest::getMediumFilter() const
-{
-	return m_mediumFilter;
 }
 
 }

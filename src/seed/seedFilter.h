@@ -12,15 +12,15 @@
 namespace seed
 {
 
-struct CSpecificMediumFilter : public common::CMediumFilter< SeedResponses >
+struct CSpecificMediumFilter : public common::CSeedMediumFilter
 {
 	CSpecificMediumFilter( uintptr_t _ptr )
 	: m_ptr( _ptr )
 	{}
 
-	std::list< common::CMedium< SeedResponses > *> getMediums( CSeedNodesManager * _nodesManager )const
+	std::list< common::CSeedBaseMedium *> getMediums( CSeedNodesManager * _nodesManager )const
 	{
-		std::list< common::CMedium< SeedResponses > *> mediums;
+		std::list< common::CSeedBaseMedium *> mediums;
 
 		mediums.push_back( _nodesManager->findNodeMedium( m_ptr ) );
 
@@ -30,14 +30,14 @@ struct CSpecificMediumFilter : public common::CMediumFilter< SeedResponses >
 };
 
 
-struct CMediumClassFilter : public common::CMediumFilter< SeedResponses >
+struct CMediumClassFilter : public common::CSeedMediumFilter
 {
 	CMediumClassFilter( common::CMediumKinds::Enum _mediumClass, int _mediumNumber = -1 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber )
 	{}
 //  fix  it
-	std::list< common::CMedium< SeedResponses > *> getMediums( CSeedNodesManager * _nodesManager )const
+	std::list< common::CSeedBaseMedium *> getMediums( CSeedNodesManager * _nodesManager )const
 	{
 		if ( common::CMediumKinds::Internal == m_mediumClass )
 		{
@@ -45,8 +45,8 @@ struct CMediumClassFilter : public common::CMediumFilter< SeedResponses >
 		}
 		else if( common::CMediumKinds::Time == m_mediumClass )
 		{
-			std::list< common::CMedium< SeedResponses > *> mediums;
-			mediums.push_back( common::CTimeMedium< SeedResponses >::getInstance() );//not nice
+			std::list< common::CSeedBaseMedium *> mediums;
+			mediums.push_back( common::CTimeMedium< common::CSeedBaseMedium >::getInstance() );//not nice
 			return mediums;
 		}
 	}

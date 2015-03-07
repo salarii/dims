@@ -11,10 +11,10 @@
 namespace client
 {
 
-class CSeedProvider : public common::CConnectionProvider< common::ClientResponses >
+class CSeedProvider : public common::CConnectionProvider< common::CClientMediumFilter >
 {
 public:
-	std::list< common::CMedium< ClientResponses > *> provideConnection( common::CMediumFilter< ClientResponses > const & _mediumFilter );
+	std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
 
 	~CSeedProvider();
 

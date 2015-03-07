@@ -16,20 +16,20 @@ namespace seed
 
 class CSeedNodeMedium;
 
-class CSeedNodesManager : public common::CNodesManager< SeedResponses >
+class CSeedNodesManager : public common::CNodesManager< common::CSeedMediumFilter >
 {
 public:
 	static CSeedNodesManager * getInstance();
 
-	std::list< common::CMedium< SeedResponses > *> provideConnection( common::CMediumFilter< SeedResponses > const & _mediumFilter );
+	std::list< common::CSeedBaseMedium *> provideConnection( common::CSeedMediumFilter const & _mediumFilter );
 
 	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
 
 	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 
-	std::list< common::CMedium< SeedResponses > *> getInternalMedium();
+	std::list< common::CSeedBaseMedium *> getInternalMedium();
 
-	std::list< common::CMedium< SeedResponses > *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const{ return std::list< common::CMedium< SeedResponses > *>(); }// not used  right now
+	std::list< common::CSeedBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const{ return std::list< common::CSeedBaseMedium *>(); }// not used  right now
 private:
 	CSeedNodesManager();
 private:
