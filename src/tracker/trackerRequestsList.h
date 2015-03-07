@@ -3,25 +3,25 @@
 
 namespace common
 {
-template < class ResponsesType >
+template < class _Types >
 class CSendIdentifyDataRequest;
 
-template < class ResponsesType >
+template < class _Types >
 class CNetworkRoleRequest;
 
-template < class ResponsesType >
+template < class _Types >
 class CKnownNetworkInfoRequest;
 
-template < class ResponsesType >
+template < class _Types >
 class CAckRequest;
 
-template < class ResponsesType >
+template < class _Types >
 class CEndRequest;
 
-template < class ResponsesType >
+template < class _Types >
 class CResultRequest;
 
-template < class ResponsesType >
+template < class _Types >
 class CTimeEventRequest;
 }
 

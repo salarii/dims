@@ -55,10 +55,10 @@ typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
 class CGetSynchronizationInfoRequest;
 
-class CTrackerNodeMedium : public common::CNodeMedium< TrackerResponses >
+class CTrackerNodeMedium : public common::CNodeMedium< common::CTrackerBaseMedium >
 {
 public:
-	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< TrackerResponses >( _selfNode ){};
+	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< common::CTrackerBaseMedium >( _selfNode ){};
 
 	void add( CGetSynchronizationInfoRequest const * _request );
 

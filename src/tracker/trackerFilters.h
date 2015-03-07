@@ -15,7 +15,7 @@ struct CMediumClassFilter : public common::CTrackerMediumFilter
 		m_mediumNumber( _mediumNumber )
 	{}
 
-	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< common::CTrackerMediumFilter > * _trackerNodesManager )const
 	{
 		std::list< common::CTrackerBaseMedium *> mediums;
 		mediums = _trackerNodesManager->getNodesByClass( m_mediumClass );
@@ -41,7 +41,7 @@ struct CNodeExceptionFilter : public common::CTrackerMediumFilter
 	CNodeExceptionFilter( uintptr_t _exception ):m_exception( _exception )
 	{}
 
-	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _trackerNodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< common::CTrackerMediumFilter > * _trackerNodesManager )const
 	{
 		std::list< common::CTrackerBaseMedium *> mediums;
 
@@ -60,7 +60,7 @@ struct CSpecificMediumFilter : public common::CTrackerMediumFilter
 	: m_ptr( _ptr )
 	{}
 
-	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< common::CTrackerMediumFilter > * _nodesManager )const
 	{
 		std::list< common::CTrackerBaseMedium *> mediums;
 
@@ -77,7 +77,7 @@ struct CComplexMediumFilter : public common::CTrackerMediumFilter
 		: m_nodes( _nodes )
 	{}
 
-	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< TrackerResponses > * _nodesManager )const
+	std::list< common::CTrackerBaseMedium *> getMediums( common::CNodesManager< common::CTrackerMediumFilter > * _nodesManager )const
 	{
 
 		std::list< common::CTrackerBaseMedium *> mediums;

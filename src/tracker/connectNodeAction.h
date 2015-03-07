@@ -24,7 +24,7 @@ namespace tracker
 
 struct CConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >, public common::CCommunicationAction
+class CConnectNodeAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >, public common::CCommunicationAction
 {
 public:
 	CConnectNodeAction( std::string const & _nodeAddress );
@@ -33,7 +33,7 @@ public:
 
 	CConnectNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr );
 
-	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	std::string getAddress() const;
 

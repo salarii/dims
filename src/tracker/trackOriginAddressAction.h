@@ -6,6 +6,7 @@
 #define TRACK_ORIGIN_ADDRESS_ACTION_H
 
 #include "common/action.h"
+#include "common/types.h"
 #include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include "main.h"
@@ -15,12 +16,12 @@ namespace tracker
 {
 struct CUninitiatedTrackAction;
 
-class CTrackOriginAddressAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
+class CTrackOriginAddressAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
 {
 public:
 	CTrackOriginAddressAction();
 
-	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	void requestFiltered();
 

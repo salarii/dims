@@ -6,21 +6,22 @@
 #define GET_BALANCE_ACTION_H
 
 #include "configureTrackerActionHandler.h"
-#include "common/action.h"
-
 #include <boost/statechart/state_machine.hpp>
+
+#include "common/action.h"
+#include "common/types.h"
 
 namespace tracker
 {
 
 struct CFindBalance;
 
-class CGetBalanceAction : public common::CAction< TrackerResponses >, public boost::statechart::state_machine< CGetBalanceAction, CFindBalance >
+class CGetBalanceAction : public common::CAction< common::CTrackerTypes >, public boost::statechart::state_machine< CGetBalanceAction, CFindBalance >
 {
 public:
 	CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash );
 
-	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	virtual void reset(){}
 

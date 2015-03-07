@@ -14,14 +14,14 @@ namespace tracker
 
 struct CUninitiated;
 
-class CSynchronizationAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >, public common::CCommunicationAction
+class CSynchronizationAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >, public common::CCommunicationAction
 {
 public:
 	CSynchronizationAction();
 
 	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
 
-	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	void clear();
 

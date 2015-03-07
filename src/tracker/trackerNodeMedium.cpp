@@ -42,7 +42,7 @@ CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 void
@@ -56,7 +56,7 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 void
@@ -66,7 +66,7 @@ CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 void
@@ -78,7 +78,7 @@ CTrackerNodeMedium::add( CSetNextBlockRequest< CSegmentHeader > const * _request
 
 	m_messages.push_back( message );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+		updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 void
@@ -90,7 +90,7 @@ CTrackerNodeMedium::add( CSetNextBlockRequest< CDiskBlock > const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 void
@@ -100,7 +100,7 @@ CTrackerNodeMedium::add( CTransactionsStatusRequest const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 void
@@ -110,7 +110,7 @@ CTrackerNodeMedium::add( CPassMessageRequest const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 void
@@ -120,7 +120,7 @@ CTrackerNodeMedium::add( CDeliverInfoRequest const * _request )
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< TrackerResponses >*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
 }

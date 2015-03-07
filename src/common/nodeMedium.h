@@ -5,14 +5,11 @@
 #ifndef NODE_MEDIUM_H
 #define NODE_MEDIUM_H
 
+#include <boost/variant.hpp>
+
 #include "common/medium.h"
 #include "common/communicationProtocol.h"
-#include <boost/variant.hpp>
-#include "common/medium.h"
 #include "common/mediumRequests.h"
-#include "common/nodeMedium.h"
-#include "common/actionHandler.h"
-#include "common/nodesManager.h"
 #include "common/authenticationProvider.h"
 
 namespace common
@@ -24,41 +21,44 @@ template < class _Medium >
 class CNodeMedium : public _Medium
 {
 public:
+	typedef TYPE(_Medium) Type;
+	typedef RESPONSE_TYPE(_Medium) Response;
+public:
 	CNodeMedium( common::CSelfNode * _selfNode ):m_usedNode( _selfNode ){};
 
 	bool serviced() const;
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< CRequest< RESPONSE_TYPE(_Medium) >const*, RESPONSE_TYPE(_Medium) > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest< Type >const*, Response > & _requestResponse );
 
-	void add( common::CRequest< RESPONSE_TYPE(_Medium) >const * _request );
+	void add( common::CRequest< Type >const * _request );
 
-	void add( CSendIdentifyDataRequest< RESPONSE_TYPE(_Medium) > const * _request );
+	void add( CSendIdentifyDataRequest< Type > const * _request );
 
-	void add( CNetworkRoleRequest< RESPONSE_TYPE(_Medium) > const * _request );
+	void add( CNetworkRoleRequest< Type > const * _request );
 
-	void add( CKnownNetworkInfoRequest< RESPONSE_TYPE(_Medium) > const * _request );
+	void add( CKnownNetworkInfoRequest< Type > const * _request );
 
-	void add( CAckRequest< RESPONSE_TYPE(_Medium) > const * _request );
+	void add( CAckRequest< Type > const * _request );
 
-	void add( CEndRequest< RESPONSE_TYPE(_Medium) > const * _request );
+	void add( CEndRequest< Type > const * _request );
 
-	void add( CResultRequest< RESPONSE_TYPE(_Medium) > const * _request );
+	void add( CResultRequest< Type > const * _request );
 
-	void setResponse( uint256 const & _id, RESPONSE_TYPE(_Medium) const & _responses );
+	void setResponse( uint256 const & _id, Response const & _responses );
 
 	common::CSelfNode * getNode() const;
 
 protected:
 	void clearResponses();
 // this  is wrong, but for now let it be
-	void updateLastRequest( uint256 const & _id, common::CRequest< RESPONSE_TYPE(_Medium) >const* _request );
+	void updateLastRequest( uint256 const & _id, common::CRequest< Type >const* _request );
 protected:
 	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
-	std::multimap< uint256, RESPONSE_TYPE(_Medium) > m_responses;
+	std::multimap< uint256, Response > m_responses;
 
 	static uint256 m_counter;
 
@@ -66,7 +66,7 @@ protected:
 
 	std::set< uint256 > m_indexes;
 
-	std::map< uint256, common::CRequest< RESPONSE_TYPE(_Medium) >const* > m_lastRequestForAction;
+	std::map< uint256, common::CRequest< Type >const* > m_lastRequestForAction;
 };
 
 template < class _Medium >
@@ -78,7 +78,7 @@ CNodeMedium< _Medium >::serviced() const
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::updateLastRequest( uint256 const & _id, common::CRequest< RESPONSE_TYPE(_Medium) >const* _request )
+CNodeMedium< _Medium >::updateLastRequest( uint256 const & _id, common::CRequest< Type >const* _request )
 {
 	if ( m_lastRequestForAction.find( _id ) != m_lastRequestForAction.end() )
 		m_lastRequestForAction.erase( _id );
@@ -103,13 +103,13 @@ extern std::vector< uint256 > deleteList;
 
 template < class _Medium >
 bool
-CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< RESPONSE_TYPE(_Medium) >const*, RESPONSE_TYPE(_Medium) > & _requestResponse )
+CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >const*, RESPONSE_TYPE(_Medium) > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
 	BOOST_FOREACH( uint256 const & id, m_indexes )
 	{
-		typename std::multimap< uint256, RESPONSE_TYPE(_Medium) >::const_iterator iterator = m_responses.lower_bound( id );
+		typename std::multimap< uint256, Response >::const_iterator iterator = m_responses.lower_bound( id );
 		while ( iterator != m_responses.upper_bound( id ) )
 		{
 			_requestResponse.insert( std::make_pair( m_lastRequestForAction.find( id )->second, iterator->second ) );
@@ -135,7 +135,7 @@ CNodeMedium< _Medium >::clearResponses()
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::setResponse( uint256 const & _id, RESPONSE_TYPE(_Medium) const & _response )
+CNodeMedium< _Medium >::setResponse( uint256 const & _id, Response const & _response )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_responses.insert( std::make_pair( _id, _response ) );
@@ -151,13 +151,13 @@ CNodeMedium< _Medium >::getNode() const
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( common::CRequest< RESPONSE_TYPE(_Medium) > const * _request )
+CNodeMedium< _Medium >::add( common::CRequest< Type > const * _request )
 {
 }
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CSendIdentifyDataRequest< RESPONSE_TYPE(_Medium) > const * _request )
+CNodeMedium< _Medium >::add( CSendIdentifyDataRequest< Type > const * _request )
 {
 	common::CIdentifyMessage identifyMessage;
 
@@ -171,12 +171,12 @@ CNodeMedium< _Medium >::add( CSendIdentifyDataRequest< RESPONSE_TYPE(_Medium) > 
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< RESPONSE_TYPE(_Medium) >const*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CNetworkRoleRequest< RESPONSE_TYPE(_Medium) > const * _request )
+CNodeMedium< _Medium >::add( CNetworkRoleRequest< Type > const * _request )
 {
 	common::CNetworkRole networkRole;
 
@@ -186,24 +186,24 @@ CNodeMedium< _Medium >::add( CNetworkRoleRequest< RESPONSE_TYPE(_Medium) > const
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< RESPONSE_TYPE(_Medium) >const*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CKnownNetworkInfoRequest< RESPONSE_TYPE(_Medium) > const * _request )
+CNodeMedium< _Medium >::add( CKnownNetworkInfoRequest< Type > const * _request )
 {
 
 	common::CMessage message( _request->getNetworkInfo(), _request->getActionKey() );
 
 	m_messages.push_back( message );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< RESPONSE_TYPE(_Medium) >const*)_request );
+		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CAckRequest< RESPONSE_TYPE(_Medium) > const * _request )
+CNodeMedium< _Medium >::add( CAckRequest< Type > const * _request )
 {
 	common::CAck ack;
 
@@ -211,13 +211,13 @@ CNodeMedium< _Medium >::add( CAckRequest< RESPONSE_TYPE(_Medium) > const * _requ
 
 	m_messages.push_back( message );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< RESPONSE_TYPE(_Medium) >const*)_request );
+		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
 }
 
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CEndRequest< RESPONSE_TYPE(_Medium) > const * _request )
+CNodeMedium< _Medium >::add( CEndRequest< Type > const * _request )
 {
 	common::CEnd end;
 
@@ -225,12 +225,12 @@ CNodeMedium< _Medium >::add( CEndRequest< RESPONSE_TYPE(_Medium) > const * _requ
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< RESPONSE_TYPE(_Medium) >const*)_request );//most likely wrong, but handy for time being
+	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );//most likely wrong, but handy for time being
 }
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CResultRequest< RESPONSE_TYPE(_Medium) > const * _request )
+CNodeMedium< _Medium >::add( CResultRequest< Type > const * _request )
 {
 	common::CResult result;
 
@@ -238,7 +238,7 @@ CNodeMedium< _Medium >::add( CResultRequest< RESPONSE_TYPE(_Medium) > const * _r
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< RESPONSE_TYPE(_Medium) >const*)_request );
+	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
 }
 
 }

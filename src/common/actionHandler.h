@@ -162,8 +162,8 @@ CActionHandler< _Types >::provideHandler( FilterType const & _filter )
 		{
 			BOOST_FOREACH( MediumType * medium, mediums )
 			{
-				typename AvailableHandlers::iterator iterator = std::lower_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< MediumType >() );
-				if ( iterator != std::upper_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< MediumType >() ) )
+				typename AvailableHandlers::iterator iterator = std::lower_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _Types >() );
+				if ( iterator != std::upper_bound( m_requestHandlers.begin(), m_requestHandlers.end(), medium, LessHandlers< _Types >() ) )
 				{
 					requestHandelers.push_back( *iterator );
 				}

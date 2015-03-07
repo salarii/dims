@@ -175,50 +175,48 @@ public:
 	}
 };
 
-CSetResponseVisitor< tracker::TrackerResponses >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
+CSetResponseVisitor< CTrackerTypes >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
 	: m_trackerResponses( _trackerResponse )
 {
 }
 
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( common::CAction< tracker::TrackerResponses > & _action )
+CSetResponseVisitor< CTrackerTypes >::visit( common::CAction< CTrackerTypes > & _action )
 {
-
 }
 
-
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CGetBalanceAction & _action )
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CGetBalanceAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList > const &)GetBalance< tracker::CGetBalanceAction >( &_action ), m_trackerResponses );
 }
 
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CValidateTransactionsAction & _action )
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CValidateTransactionsAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList > const &)CSetValidationResult< tracker::CValidateTransactionsAction >( &_action ), m_trackerResponses );
 }
 
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CConnectNodeAction & _action )
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CConnectNodeAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectNodeAction, tracker::TrackerResponseList > const &)CSetNodeConnectedResult< tracker::CConnectNodeAction >( &_action ), m_trackerResponses );
 }
 
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CTrackOriginAddressAction & _action )
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CTrackOriginAddressAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList > const &)CSetTrackOriginAddressResult( &_action ), m_trackerResponses );
 }
 
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CSynchronizationAction & _action )
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CSynchronizationAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList > const &)CSetSynchronizationResult( &_action ), m_trackerResponses );
 }
 
 void
-CSetResponseVisitor< tracker::TrackerResponses >::visit( tracker::CProvideInfoAction & _action )
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CProvideInfoAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CProvideInfoAction, tracker::TrackerResponseList > const &)CSetProvideInfoResult( &_action ), m_trackerResponses );
 }

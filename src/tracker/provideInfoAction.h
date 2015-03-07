@@ -26,12 +26,12 @@ namespace tracker
 struct CProvideInfo;
 // rework  this  sooner  or later
 
-class CProvideInfoAction : public common::CAction< TrackerResponses >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >, public common::CCommunicationAction
+class CProvideInfoAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >, public common::CCommunicationAction
 {
 public:
 	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
-	virtual void accept( common::CSetResponseVisitor< TrackerResponses > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	uintptr_t getNodeIndicator()const;
 

@@ -71,7 +71,7 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _n
 }
 
 void
-CProvideInfoAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+CProvideInfoAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

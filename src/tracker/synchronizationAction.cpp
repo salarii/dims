@@ -62,7 +62,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	{
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequests( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), 0 ) );
-		context< CSynchronizationAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( SynchronisingGetInfoTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CSynchronizationAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( SynchronisingGetInfoTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		m_bestTimeStamp = 0;
 	}
 
@@ -113,7 +113,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 															, CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) )
 														);
-		context< CSynchronizationAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( SynchronisingWaitTime * 2, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CSynchronizationAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( SynchronisingWaitTime * 2, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CGetEvent const & _getEvent )
@@ -174,7 +174,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	boost::statechart::result react( common::CEndEvent const & )
 	{
 		context< CSynchronizationAction >().dropRequests();
-		//context< CSynchronizationAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		//context< CSynchronizationAction >().addRequests( new common::CAckRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 		//generate  time  and  quit??
 		CTrackerController::getInstance()->process_event( CSynchronizedWithNetworkEvent() );
 		CSegmentFileStorage::getInstance()->resetState();
@@ -280,7 +280,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		{
 			context< CSynchronizationAction >().dropRequests();
 			context< CSynchronizationAction >().addRequests(
-						new common::CEndRequest<TrackerResponses>( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+						new common::CEndRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 		}
 
 		return discard_event();
@@ -331,7 +331,7 @@ CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uint
 }
 
 void
-CSynchronizationAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+CSynchronizationAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

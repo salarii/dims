@@ -61,7 +61,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	}
 	else if ( common::CMediumKinds::Time == _mediumKind )
 	{
-		mediums.push_back( common::CTimeMedium< TrackerResponses >::getInstance() );
+		mediums.push_back( common::CTimeMedium< common::CTrackerBaseMedium >::getInstance() );
 	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{

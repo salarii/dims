@@ -50,7 +50,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
 		context< CTrackOriginAddressAction >().dropRequests();
-		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -63,7 +63,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 		else
 		{
 			context< CTrackOriginAddressAction >().dropRequests();
-			context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
 
 		return discard_event();
@@ -79,7 +79,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 {
 	CReadingData( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
-		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest<TrackerResponses>( WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -127,7 +127,7 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 }
 
 void
-CTrackOriginAddressAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+CTrackOriginAddressAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

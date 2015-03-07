@@ -149,7 +149,7 @@ void
 
 		m_usedMedium->getResponseAndClear( requestResponses );
 
-		BOOST_FOREACH( PAIRTYPE( CRequest< Response >const*, Response ) const & response, requestResponses )
+		BOOST_FOREACH( PAIRTYPE( CRequest< _Type >const*, Response ) const & response, requestResponses )
 		{
 				m_processedRequests.insert( std::make_pair( response.first, response.second ) );
 		}

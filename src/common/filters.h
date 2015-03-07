@@ -72,9 +72,11 @@ struct CMediumFilterBase
 	virtual std::list< _Medium *> getMediums( _V5 * _v5 )const{ return std::list< _Medium *>(); }
 	virtual std::list< _Medium *> getMediums( _V6 * _v6 )const{ return std::list< _Medium *>(); }
 	virtual std::list< _Medium *> getMediums( _V7 * _v7 )const{ return std::list< _Medium *>(); }
+
+	virtual ~CMediumFilterBase(){}
 };
 
-struct CTrackerMediumFilter : public CMediumFilterBase< CTrackerBaseMedium, common::CNodesManager< tracker::TrackerResponses >, tracker::CInternalMediumProvider >
+struct CTrackerMediumFilter : public CMediumFilterBase< CTrackerBaseMedium, common::CNodesManager< CTrackerMediumFilter>, tracker::CInternalMediumProvider >
 {
 };
 
@@ -82,11 +84,11 @@ struct CClientMediumFilter : public CMediumFilterBase< CClientBaseMedium, client
 {
 };
 
-struct CSeedMediumFilter : public CMediumFilterBase< CSeedBaseMedium, seed::CSeedNodesManager, common::CNodesManager< seed::SeedResponses > >
+struct CSeedMediumFilter : public CMediumFilterBase< CSeedBaseMedium, seed::CSeedNodesManager, common::CNodesManager< CSeedMediumFilter > >
 {
 };
 
-struct CMonitorMediumFilter : public CMediumFilterBase< CMonitorBaseMedium, common::CNodesManager< monitor::MonitorResponses >, monitor::CInternalMediumProvider >
+struct CMonitorMediumFilter : public CMediumFilterBase< CMonitorBaseMedium, common::CNodesManager< CMonitorMediumFilter >, monitor::CInternalMediumProvider >
 {
 };
 

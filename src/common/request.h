@@ -43,7 +43,6 @@ template < class _Types >
 struct CRequest
 {
 	typedef MEDIUM_TYPE(_Types) MediumType;
-	typedef RESPONSE_TYPE(_Types) ResponseType;
 	typedef FILTER_TYPE(_Types) FilterType;
 
 	CRequest( FilterType * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter ){}

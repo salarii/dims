@@ -16,6 +16,8 @@
 
 #include "common/types.h"
 
+#define TYPE(_type) typename common::CGetType<_type>::type
+
 namespace common
 {
 
@@ -36,7 +38,7 @@ public:
 	virtual ~CMedium(){};
 };
 
-class CTrackerBaseMedium : public CMedium< CTrackerTypes>
+class CTrackerBaseMedium : public CMedium< CTrackerTypes >
 {
 public:
 	using CMedium::types;
@@ -110,36 +112,35 @@ public:
 	virtual void add( common::CTimeEventRequest< CSeedTypes > const * _request ){};
 };
 
-/*
 template < typename _Class >
 struct CGetType
 {
 	typedef int type;
 };
- Medium;
 
-CMonitorBaseMedium Medium;
-
-CClientBaseMedium Medium;
-
-CSeedBaseMedium Medium;
 template <>
-struct CGetResponseType< CTrackerBaseMedium >
+struct CGetType< CTrackerBaseMedium >
 {
 	typedef CTrackerBaseMedium::types type;
 };
 
 template <>
-struct CGetResponseType< CMonitorTypes >
+struct CGetType< CMonitorBaseMedium >
 {
-	typedef CMonitorTypes::Response type;
+	typedef CMonitorBaseMedium::types type;
 };
 
 template <>
-struct CGetResponseType< CClientTypes >
+struct CGetType< CClientBaseMedium >
 {
-	typedef CClientTypes::Response type;
+	typedef CClientBaseMedium::types type;
 };
-*/
+
+template <>
+struct CGetType< CSeedBaseMedium >
+{
+	typedef CSeedBaseMedium::types type;
+};
+
 }
 #endif // MEDIUM_H

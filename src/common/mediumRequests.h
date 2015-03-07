@@ -17,15 +17,16 @@
 namespace common
 {
 
-template < class ResponsesType >
-class CSendIdentifyDataRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CSendIdentifyDataRequest : public common::CRequest< _Types >
 {
 public:
-	CSendIdentifyDataRequest( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CSendIdentifyDataRequest( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, FilterType * _mediumFilter );
 
-	void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+	void accept( MediumType * _medium ) const;
 
 	std::vector< unsigned char > getSigned() const;
 
@@ -44,9 +45,9 @@ private:
 	uint256 const m_actionKey;
 };
 
-template < class ResponsesType >
-CSendIdentifyDataRequest< ResponsesType >::CSendIdentifyDataRequest( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )// new common::CMediumFilter< ResponsesType >( -1, -1, new CAcceptFilterByPtr< ResponsesType >( _ptr ) )
+template < class _Types >
+CSendIdentifyDataRequest< _Types >::CSendIdentifyDataRequest( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )// new FILTER_TYPE(_Types)( -1, -1, new CAcceptFilterByPtr< _Types >( _ptr ) )
 	, m_signed( _signed )
 	, m_key( _key )
 	, m_payload( _payload )
@@ -54,57 +55,51 @@ CSendIdentifyDataRequest< ResponsesType >::CSendIdentifyDataRequest( std::vector
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CSendIdentifyDataRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CSendIdentifyDataRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CSendIdentifyDataRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
+template < class _Types >
 std::vector< unsigned char >
-CSendIdentifyDataRequest< ResponsesType >::getSigned() const
+CSendIdentifyDataRequest< _Types >::getSigned() const
 {
 	return m_signed;
 }
 
-template < class ResponsesType >
+template < class _Types >
 CPubKey
-CSendIdentifyDataRequest< ResponsesType >::getKey() const
+CSendIdentifyDataRequest< _Types >::getKey() const
 {
 	return m_key;
 }
 
-template < class ResponsesType >
+template < class _Types >
 std::vector< unsigned char >
-CSendIdentifyDataRequest< ResponsesType >::getPayload()const
+CSendIdentifyDataRequest< _Types >::getPayload()const
 {
 	return m_payload;
 }
 
-template < class ResponsesType >
+template < class _Types >
 uint256
-CSendIdentifyDataRequest< ResponsesType >::getActionKey() const
+CSendIdentifyDataRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
 
-template < class ResponsesType >
-class CConnectToNodeRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CConnectToNodeRequest : public common::CRequest< _Types >
 {
 public:
-	CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, FilterType * _mediumFilter );
 
-	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+	virtual void accept( MediumType * _medium ) const;
 
 	std::string getAddress() const;
 
@@ -117,51 +112,45 @@ private:
 	uint256 const m_actionKey;
 };
 
-template < class ResponsesType >
-CConnectToNodeRequest< ResponsesType >::CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, common::CMediumFilter< ResponsesType > * _mediumFilter )
+template < class _Types >
+CConnectToNodeRequest< _Types >::CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, FilterType * _mediumFilter )
 	:m_trackerAddress( _trackerAddress )
 	,m_serviceAddress( _serviceAddress )
-	,common::CRequest< ResponsesType >( _mediumFilter )
+	,common::CRequest< _Types >( _mediumFilter )
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CConnectToNodeRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CConnectToNodeRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CConnectToNodeRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
+template < class _Types >
 std::string
-CConnectToNodeRequest< ResponsesType >::getAddress() const
+CConnectToNodeRequest< _Types >::getAddress() const
 {
 	return m_trackerAddress;
 }
 
-template < class ResponsesType >
+template < class _Types >
 CAddress
-CConnectToNodeRequest< ResponsesType >::getServiceAddress() const
+CConnectToNodeRequest< _Types >::getServiceAddress() const
 {
 	return m_serviceAddress;
 }
 
-template < class ResponsesType >
-class CNetworkRoleRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CNetworkRoleRequest : public common::CRequest< _Types >
 {
 public:
-	CNetworkRoleRequest( uint256 const & _actionKey, int _role, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CNetworkRoleRequest( uint256 const & _actionKey, int _role, FilterType * _mediumFilter );
 
-	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+	virtual void accept( MediumType * _medium ) const;
 
 	int getRole() const;
 
@@ -172,51 +161,45 @@ private:
 	int m_role;
 };
 
-template < class ResponsesType >
-CNetworkRoleRequest< ResponsesType >::CNetworkRoleRequest( uint256 const & _actionKey, int _role, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )
+template < class _Types >
+CNetworkRoleRequest< _Types >::CNetworkRoleRequest( uint256 const & _actionKey, int _role, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_role( _role )
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CNetworkRoleRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CNetworkRoleRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CNetworkRoleRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
+template < class _Types >
 int
-CNetworkRoleRequest< ResponsesType >::getRole() const
+CNetworkRoleRequest< _Types >::getRole() const
 {
 	return m_role;
 }
 
-template < class ResponsesType >
+template < class _Types >
 uint256
-CNetworkRoleRequest< ResponsesType >::getActionKey() const
+CNetworkRoleRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
 
-template < class ResponsesType >
-class CKnownNetworkInfoRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CKnownNetworkInfoRequest : public common::CRequest< _Types >
 {
 public:
-	CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, FilterType * _mediumFilter );
 
-	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+	virtual void accept( MediumType * _medium ) const;
 
 	CKnownNetworkInfo getNetworkInfo() const;
 
@@ -227,137 +210,119 @@ private:
 	CKnownNetworkInfo m_networkInfo;
 };
 
-template < class ResponsesType >
-CKnownNetworkInfoRequest< ResponsesType >::CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )
+template < class _Types >
+CKnownNetworkInfoRequest< _Types >::CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_networkInfo( _networkInfo )
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CKnownNetworkInfoRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CKnownNetworkInfoRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CKnownNetworkInfoRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
+template < class _Types >
 CKnownNetworkInfo
-CKnownNetworkInfoRequest< ResponsesType >::getNetworkInfo() const
+CKnownNetworkInfoRequest< _Types >::getNetworkInfo() const
 {
 	return m_networkInfo;
 }
 
-template < class ResponsesType >
+template < class _Types >
 uint256
-CKnownNetworkInfoRequest< ResponsesType >::getActionKey() const
+CKnownNetworkInfoRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
 
-template < class ResponsesType >
-class CAckRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CAckRequest : public common::CRequest< _Types >
 {
 public:
-	CAckRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CAckRequest( uint256 const & _actionKey, FilterType * _mediumFilter );
 
-	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+	virtual void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
 };
 
-template < class ResponsesType >
-CAckRequest< ResponsesType >::CAckRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )
+template < class _Types >
+CAckRequest< _Types >::CAckRequest( uint256 const & _actionKey, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
 	, m_actionKey( _actionKey )
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CAckRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CAckRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CAckRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
+template < class _Types >
 uint256
-CAckRequest< ResponsesType >::getActionKey() const
+CAckRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
 
-template < class ResponsesType >
-class CEndRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CEndRequest : public common::CRequest< _Types >
 {
 public:
-	CEndRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CEndRequest( uint256 const & _actionKey, FilterType * _mediumFilter );
 
-	void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+	void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
 private:
 	uint256 const m_actionKey;
 };
 
-template < class ResponsesType >
-CEndRequest< ResponsesType >::CEndRequest( uint256 const & _actionKey, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )
+template < class _Types >
+CEndRequest< _Types >::CEndRequest( uint256 const & _actionKey, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
 	, m_actionKey( _actionKey )
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CEndRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CEndRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CEndRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
+template < class _Types >
 uint256
-CEndRequest< ResponsesType >::getActionKey() const
+CEndRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
 
-template < class ResponsesType >
-class CResultRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CResultRequest : public common::CRequest< _Types >
 {
 public:
-	CResultRequest( uint256 const & _actionKey, unsigned int _result,common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CResultRequest( uint256 const & _actionKey, unsigned int _result, FilterType * _mediumFilter );
 
-	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
-
-	virtual common::CMediumFilter< ResponsesType > * getMediumFilter() const;
+	virtual void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
 private:
@@ -366,42 +331,38 @@ private:
 	uint256 const m_actionKey;
 };
 
-template < class ResponsesType >
-CResultRequest< ResponsesType >::CResultRequest( uint256 const & _actionKey, unsigned int _result, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )
+template < class _Types >
+CResultRequest< _Types >::CResultRequest( uint256 const & _actionKey, unsigned int _result, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_result( _result )
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CResultRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CResultRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
-common::CMediumFilter< ResponsesType > *
-CResultRequest< ResponsesType >::getMediumFilter() const
-{
-	return common::CRequest< ResponsesType >::m_mediumFilter;
-}
-
-template < class ResponsesType >
+template < class _Types >
 uint256
-CResultRequest< ResponsesType >::getActionKey() const
+CResultRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
 
-template < class ResponsesType >
-class CTimeEventRequest : public common::CRequest< ResponsesType >
+template < class _Types >
+class CTimeEventRequest : public common::CRequest< _Types >
 {
 public:
-	CTimeEventRequest( int64_t _requestedDelay, common::CMediumFilter< ResponsesType > * _mediumFilter );
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CTimeEventRequest( int64_t _requestedDelay, FilterType * _mediumFilter );
 
-	virtual void accept( common::CMedium< ResponsesType > * _medium ) const;
+	virtual void accept( MediumType * _medium ) const;
 
 	int64_t getEventTime() const;
 private:
@@ -410,23 +371,23 @@ private:
 	int64_t m_requestedDelay;
 };
 
-template < class ResponsesType >
-CTimeEventRequest< ResponsesType >::CTimeEventRequest( int64_t _requestedDelay, common::CMediumFilter< ResponsesType > * _mediumFilter )
-	: common::CRequest< ResponsesType >( _mediumFilter )
+template < class _Types >
+CTimeEventRequest< _Types >::CTimeEventRequest( int64_t _requestedDelay, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
 	, m_requestedDelay( _requestedDelay )
 {
 }
 
-template < class ResponsesType >
+template < class _Types >
 void
-CTimeEventRequest< ResponsesType >::accept( common::CMedium< ResponsesType > * _medium ) const
+CTimeEventRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
-template < class ResponsesType >
+template < class _Types >
 int64_t
-CTimeEventRequest< ResponsesType >::getEventTime() const
+CTimeEventRequest< _Types >::getEventTime() const
 {
 	return m_requestedDelay;
 }

@@ -10,7 +10,7 @@
 namespace tracker
 {
 
-common::CRequest< TrackerResponses > * LastRequest;//ugly way  to do responses <-> request  matching
+common::CRequest< common::CTrackerTypes > * LastRequest;//ugly way  to do responses <-> request  matching
 
 CBitcoinNodeMedium::CBitcoinNodeMedium( CNode * _node )
 	: m_node( _node )
@@ -32,7 +32,7 @@ CBitcoinNodeMedium::flush()
 }
 
 bool
-CBitcoinNodeMedium::getResponseAndClear( std::multimap< common::CRequest< TrackerResponses >const*, TrackerResponses > & _requestResponse )
+CBitcoinNodeMedium::getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
@@ -56,7 +56,7 @@ void
 CBitcoinNodeMedium::add( CAskForTransactionsRequest const * _request )
 {
 	LOCK( m_node->m_mediumLock );
-	LastRequest = (common::CRequest< TrackerResponses >*)_request;
+	LastRequest = (common::CRequest< common::CTrackerTypes >*)_request;
 
 	CBloomFilter bloomFilter =  CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_P2PUBKEY_ONLY);
 
@@ -70,7 +70,7 @@ void
 CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
 {
 	LOCK( m_node->m_mediumLock );
-	LastRequest = (common::CRequest< TrackerResponses >*)_request;
+	LastRequest = (common::CRequest< common::CTrackerTypes >*)_request;
 	m_node->m_filterSendQueue.push_back( _request->getBloomFilter() );
 
 }

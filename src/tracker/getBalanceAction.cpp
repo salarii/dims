@@ -47,7 +47,7 @@ CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _h
 }
 
 void
-CGetBalanceAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+CGetBalanceAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

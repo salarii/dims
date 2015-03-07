@@ -272,7 +272,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
 
 		context< CValidateTransactionsAction >().dropRequests();
-		context< CValidateTransactionsAction >().addRequests( new common::CAckRequest< TrackerResponses >( context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
+		context< CValidateTransactionsAction >().addRequests( new common::CAckRequest< common::CTrackerTypes >( context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
 
 		context< CValidateTransactionsAction >().addRequests(
 					new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
@@ -345,7 +345,7 @@ struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAct
 };
 
 CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransaction > const & _transactions )
-	: common::CAction< TrackerResponses >()
+	: common::CAction< common::CTrackerTypes >()
 	, m_transactions( _transactions )
 {
 	initiate();
@@ -359,7 +359,7 @@ CValidateTransactionsAction::CValidateTransactionsAction( uint256 const & _actio
 }
 
 void
-CValidateTransactionsAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+CValidateTransactionsAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

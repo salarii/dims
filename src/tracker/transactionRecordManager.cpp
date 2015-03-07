@@ -318,7 +318,7 @@ CTransactionRecordManager::loop()
 
 			if ( !m_transactionPool.empty() )
 			{
-				common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CValidateTransactionsAction( m_transactionPool ) );
+				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( (common::CAction< common::CTrackerTypes >*)new CValidateTransactionsAction( m_transactionPool ) );
 				m_transactionPool.clear();
 			}
 		}

@@ -37,7 +37,7 @@ json_spirit::Value connectToTracker( json_spirit::Array const & params, bool fHe
 
 	string strNode = params[0].get_str();
 
-	common::CActionHandler< CTrackerTypes >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CConnectNodeAction( strNode ) );
+	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( (common::CAction< common::CTrackerTypes >*)new CConnectNodeAction( strNode ) );
 	return json_spirit::Value::null;
 }
 

@@ -13,7 +13,7 @@
 namespace tracker
 {
 
-class CDeliverInfoRequest : public common::CRequest< TrackerResponses >
+class CDeliverInfoRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 		CDeliverInfoRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
@@ -42,7 +42,7 @@ struct CBundleStatus
 
 class CMediumClassFilter;
 
-class  CValidateTransactionsRequest : public common::CRequest< TrackerResponses >
+class  CValidateTransactionsRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CTrackerMediumFilter * _mediumFilter );
@@ -57,7 +57,7 @@ private:
 
 // one  template  for  all below
 
-class  CPassMessageRequest : public common::CRequest< TrackerResponses >
+class  CPassMessageRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CPassMessageRequest( common::CMessage const & _message, uint256 const & _actionKey, CPubKey const & _prevKey, common::CTrackerMediumFilter * _mediumFilter );
@@ -77,7 +77,7 @@ private:
 	CPubKey const m_prevKey;
 };
 
-class CTransactionsPropagationRequest : public common::CRequest< TrackerResponses >
+class CTransactionsPropagationRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey,common::CTrackerMediumFilter * _mediumFilter );
@@ -94,7 +94,7 @@ private:
 };
 
 // most likely temporary solution
-class  CTransactionsStatusRequest : public common::CRequest< TrackerResponses >
+class  CTransactionsStatusRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
@@ -111,7 +111,7 @@ private:
 };
 
 
-class CAskForTransactionsRequest : public common::CRequest< TrackerResponses >
+class CAskForTransactionsRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, common::CTrackerMediumFilter * _mediumFilter );
@@ -127,7 +127,7 @@ private:
 };
 
 
-class CSetBloomFilterRequest : public common::CRequest< TrackerResponses >
+class CSetBloomFilterRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CSetBloomFilterRequest( CBloomFilter const & _bloomFilter );
@@ -141,7 +141,7 @@ private:
 	CBloomFilter const m_bloomFilter;
 };
 
-class CConnectToTrackerRequest : public common::CRequest< TrackerResponses >
+class CConnectToTrackerRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress );
@@ -162,7 +162,7 @@ private:
 struct CSpecificMediumFilter;
 struct CDiskBlock;
 
-class CGetSynchronizationInfoRequest : public common::CRequest< TrackerResponses >
+class CGetSynchronizationInfoRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp );
@@ -182,7 +182,7 @@ private:
 	uint64_t const m_timeStamp;
 };
 
-class CGetNextBlockRequest : public common::CRequest< TrackerResponses >
+class CGetNextBlockRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CGetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, int _blockKind );
@@ -201,7 +201,7 @@ private:
 };
 
 template < class Block >
-class CSetNextBlockRequest : public common::CRequest< TrackerResponses >
+class CSetNextBlockRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CSetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
@@ -225,7 +225,7 @@ private:
 
 template < class Block >
 CSetNextBlockRequest< Block >::CSetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
-	: common::CRequest< TrackerResponses >( _mediumFilter )
+	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_discBlock( _discBlock )
 	, m_blockIndex( _blockIndex )
@@ -243,7 +243,7 @@ template < class Block >
 common::CTrackerMediumFilter *
 CSetNextBlockRequest< Block >::getMediumFilter() const
 {
-	return common::CRequest< TrackerResponses >::m_mediumFilter;
+	return common::CRequest< common::CTrackerTypes >::m_mediumFilter;
 }
 
 template < class Block >
@@ -268,7 +268,7 @@ CSetNextBlockRequest< Block >::getBlockIndex() const
 }
 
 
-class CGetBalanceRequest : public common::CRequest< TrackerResponses >
+class CGetBalanceRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
 	CGetBalanceRequest( uint160 const & _key );
