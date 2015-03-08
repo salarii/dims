@@ -10,7 +10,7 @@
 
 #include <sstream>
 
-#include "node/trackerLocalRanking.h"
+#include "client/trackerLocalRanking.h"
 #include "base58.h"
 
 using boost::assign::map_list_of;

@@ -17,9 +17,9 @@
 #include "common/actionHandler.h"
 #include "common/periodicActionExecutor.h"
 
-#include "node/settingsConnectionProvider.h"
-#include "node/configureNodeActionHadler.h"
-#include "node/connectAction.h"
+#include "client/settingsConnectionProvider.h"
+#include "client/configureClientActionHadler.h"
+#include "client/connectAction.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -45,36 +45,36 @@ class MonitorsScanerHandler : virtual public MonitorsScanerIf
 CInforamtionProvider m_informationProvider;
 };
 
+/*
+template<>
+unsigned int const common::CActionHandler< common::CClientTypes >::m_sleepTime = 100;
+template<>
+common::CActionHandler< common::CClientTypes > * common::CActionHandler< common::CClientTypes >::ms_instance = NULL;
+
 
 template<>
-unsigned int const common::CActionHandler< client::NodeResponses >::m_sleepTime = 100;
-template<>
-common::CActionHandler< client::NodeResponses > * common::CActionHandler< client::NodeResponses >::ms_instance = NULL;
-
+common::CPeriodicActionExecutor< common::CClientTypes > * common::CPeriodicActionExecutor< common::CClientTypes >::ms_instance = NULL;
 
 template<>
-common::CPeriodicActionExecutor< client::NodeResponses > * common::CPeriodicActionExecutor< client::NodeResponses >::ms_instance = NULL;
-
-template<>
-unsigned int const common::CPeriodicActionExecutor< client::NodeResponses >::m_sleepTime = 100;
-
+unsigned int const common::CPeriodicActionExecutor< common::CClientTypes >::m_sleepTime = 100;
+*/
 void
 init( boost::thread_group & _threadGroup )
 {
 	common::SelectRatcoinParamsFromCommandLine();
 
-	common::CPeriodicActionExecutor< client::NodeResponses > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< client::NodeResponses >::getInstance();
+	common::CPeriodicActionExecutor< common::CClientTypes > * periodicActionExecutor
+			= common::CPeriodicActionExecutor< common::CClientTypes >::getInstance();
 
-	_threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< client::NodeResponses >::processingLoop, periodicActionExecutor ));
+	_threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< common::CClientTypes >::processingLoop, periodicActionExecutor ));
 
-	_threadGroup.create_thread(boost::bind(&common::CActionHandler< client::NodeResponses >::loop, common::CActionHandler< client::NodeResponses >::getInstance()));
+	_threadGroup.create_thread(boost::bind(&common::CActionHandler< common::CClientTypes >::loop, common::CActionHandler< common::CClientTypes >::getInstance()));
 
-	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
+	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
-	common::CActionHandler< client::NodeResponses >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
+	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
 
-	common::CPeriodicActionExecutor< client::NodeResponses >::getInstance()->addAction( new client::CConnectAction( false ), 60000 );
+	common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( new client::CConnectAction( false ), 60000 );
 }
 
 int main(int argc, char **argv)
