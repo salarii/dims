@@ -8,16 +8,14 @@ MONITOR_SCANNER_H = \
   gen-cpp/MonitorsScaner.h \  
   gen-cpp/monitorsScaner_constants.h \
   gen-cpp/monitorsScaner_types.h \
-  server/informationProvider.h \
-  server/dataHandler.h
+  server/informationProvider.h 
   
 MONITOR_SCANNER_CPP = \
   gen-cpp/MonitorsScaner.cpp \  
   gen-cpp/monitorsScaner_constants.cpp \
   gen-cpp/monitorsScaner_types.cpp \
   server/monitorsScaner_server.cpp \
-  server/informationProvider.cpp \
-  server/dataHandler.cpp
+  server/informationProvider.cpp 
 
 THRIFT_DIR := /usr/local/include/thrift
 GEN_DIR := gen-cpp
