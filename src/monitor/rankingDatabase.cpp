@@ -24,6 +24,19 @@ using namespace boost;
 
 static uint64_t nAccountingEntryNumber = 0;
 
+CRankingDatabase * CRankingDatabase::ms_instance = NULL;
+
+CRankingDatabase*
+CRankingDatabase::getInstance()
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CRankingDatabase( "rankingData", "rc+" );
+	};
+	return ms_instance;
+}
+
+
 //
 // CRankingDatabase
 //
@@ -43,7 +56,7 @@ CRankingDatabase::eraseTrackerData( CPubKey const & _publicKey )
 
 
 bool
-ReadTrackerData( std::map< CKeyID, CTrackerData > & _trackerData, CDataStream& _stream, CDataStream& _ssValue, string& _strErr)
+ReadTrackerData( std::map< uint160, CTrackerData > & _trackerData, CDataStream& _stream, CDataStream& _ssValue, string& _strErr)
 {
 	try {
 		// Unserialize
@@ -75,7 +88,7 @@ ReadTrackerData( std::map< CKeyID, CTrackerData > & _trackerData, CDataStream& _
 	return true;
 }
 
-DBErrors CRankingDatabase::loadIdentificationDatabase( std::map< CKeyID, CTrackerData > & _trackers )
+DBErrors CRankingDatabase::loadIdentificationDatabase( std::map< uint160, CTrackerData > & _trackers )
 {
 	bool fNoncriticalErrors = false;
 	DBErrors result = DB_LOAD_OK;

@@ -25,7 +25,6 @@ uint64_t const CReputationTracker::m_recalculateTime = 10000;// this  time is  v
 
 CReputationTracker::CReputationTracker()
 {
-	m_rankingDatabase = new CRankingDatabase( "rankingData", "rc+" );
 }
 
 CReputationTracker*
@@ -107,6 +106,22 @@ CReputationTracker::loop()
 		MilliSleep( m_recalculateTime );
 	}
 }
+
+void
+CReputationTracker::storeCurrentRanking()
+{
+	BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
+	{
+		CRankingDatabase::getInstance()->writeTrackerData( tracker.second );
+	}
+}
+
+void
+CReputationTracker::loadCurrentRanking()
+{
+	CRankingDatabase::getInstance()->loadIdentificationDatabase( m_registeredTrackers );
+}
+
 
 void
 CReputationTracker::checkValidity( CAllyTrackerData const & _allyTrackerData )

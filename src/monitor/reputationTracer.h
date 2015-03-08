@@ -15,8 +15,6 @@
 namespace monitor
 {
 
-class CRankingDatabase;
-
 struct CTrackerData
 {
 	CTrackerData(){}
@@ -95,7 +93,10 @@ private:
 	unsigned int calculateReputation( uint64_t _passedTime );
 
 	void checkValidity( CAllyTrackerData const & _allyTrackerData );
-	//	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	void storeCurrentRanking();
+
+	void loadCurrentRanking();
 // counting reputation is crucial, it will be  done  differently in separate  action, something I consider  to call "super  action"
 	void loop();
 private:
@@ -120,8 +121,6 @@ private:
 	static CReputationTracker * ms_instance;
 
 	static uint64_t const m_recalculateTime;
-
-	CRankingDatabase * m_rankingDatabase;
 
 	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
 };

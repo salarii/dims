@@ -33,17 +33,22 @@ public:
 		Self
 	};
 public:
-	CRankingDatabase(std::string strFilename, const char* pszMode="r+") : CDB(strFilename.c_str(), pszMode)
-	{
-	}
-
 	bool writeTrackerData( CTrackerData const& _trackerData );
 
 	bool eraseTrackerData( CPubKey const & _publicKey );
 
-	DBErrors loadIdentificationDatabase( std::map< CKeyID, CTrackerData > & _trackers );
+	DBErrors loadIdentificationDatabase( std::map< uint160, CTrackerData > & _trackers );
+
+	static CRankingDatabase * getInstance();
 private:
+	CRankingDatabase(std::string strFilename, const char* pszMode="r+") : CDB(strFilename.c_str(), pszMode)
+	{
+	}
+private:
+	static CRankingDatabase * ms_instance;
+
 	CRankingDatabase( CRankingDatabase const &);
+
 	void operator=( CRankingDatabase const &);
 };
 
