@@ -5,8 +5,11 @@
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
 #include "common/commonEvents.h"
+
 #include "monitor/connectNodeAction.h"
 #include "monitor/updateDataAction.h"
+#include "monitor/admitTrackerAction.h"
+#include "monitor/admitTransactionsBundle.h"
 
 namespace common
 {
@@ -85,11 +88,22 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CConnectNodeAction
 	boost::apply_visitor( (CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult< monitor::CConnectNodeAction >( &_action ), m_requestResponse );
 }
 
-
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CUpdateDataAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CUpdateDataAction >( &_action ), m_requestResponse );
+}
+
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTrackerAction & _action )
+{
+		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CAdmitTrackerAction >( &_action ), m_requestResponse );
+}
+
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTransactionBundle & _action )
+{
+		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitTransactionBundle, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CAdmitTransactionBundle >( &_action ), m_requestResponse );
 }
 
 }

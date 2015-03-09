@@ -2,18 +2,18 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "processNetwork.h"
-
 #include "common/nodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
-
 #include "common/nodeMedium.h"
 
-#include "configureMonitorActionHandler.h"
+#include "monitor/processNetwork.h"
+#include "monitor/configureMonitorActionHandler.h"
 #include "monitor/connectNodeAction.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/monitorNodeMedium.h"
+#include "monitor/admitTrackerAction.h"
+#include "monitor/admitTransactionsBundle.h"
 
 namespace monitor
 {
@@ -51,6 +51,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoRes
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Admit
+				|| message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions
 				)
 		{
 			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
@@ -64,6 +66,18 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::Admit )
+				{
+					CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
+					admitTrackerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTrackerAction );
+
+				}
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions )
+				{
+					CAdmitTransactionBundle::getInstance()->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( CAdmitTransactionBundle::getInstance() );
+				}
 			}
 		}
 		/*	{

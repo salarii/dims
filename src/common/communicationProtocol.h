@@ -37,7 +37,8 @@ struct CPayloadKind
 		Message,
 		End,
 		ConnectCondition,
-		Result
+		Result,
+		Admit
 	};
 };
 
@@ -257,6 +258,15 @@ struct CResult
 	unsigned int m_result;
 };
 
+struct CAdmit
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_proofTransactionHash );
+	)
+	uint256 m_proofTransactionHash;
+};
+
 struct CMessage
 {
 public:
@@ -272,9 +282,10 @@ public:
 	CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey );
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
-	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
 	CMessage( CConnectCondition const & _connectCondition, uint256 const & _actionKey );
 	CMessage( CResult const & _result, uint256 const & _actionKey );
+	CMessage( CAdmit const & _admit, uint256 const & _actionKey );
+	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
 
 	IMPLEMENT_SERIALIZE
 	(

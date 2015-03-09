@@ -8,6 +8,8 @@ bin_PROGRAMS = dims_monitor
 noinst_LIBRARIES = libmonitor.a
 
 MONITOR_H = \
+	admitTrackerAction.h \
+	admitTransactionsBundle.h \
 	clientRequestsManager.h \
 	connectNodeAction.h \
 	filters.h \
@@ -25,8 +27,11 @@ MONITOR_H = \
 	server.h \
 	updateDataAction.h
 
+	
 MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
+	admitTrackerAction.cpp \
+	admitTransactionsBundle.cpp \
 	clientRequestsManager.cpp \
 	connectNodeAction.cpp \
 	init.cpp \

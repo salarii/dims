@@ -44,6 +44,11 @@ namespace monitor
 class CConnectNodeAction;
 
 class CUpdateDataAction;
+
+class CAdmitTrackerAction;
+
+class CAdmitTransactionBundle;
+
 }
 
 namespace seed
@@ -120,6 +125,10 @@ public:
 	void visit( monitor::CConnectNodeAction & _action );
 
 	virtual void visit( monitor::CUpdateDataAction & _action );
+
+	virtual void visit( monitor::CAdmitTrackerAction & _action );
+
+	virtual void visit( monitor::CAdmitTransactionBundle & _action );
 private:
 
 	monitor::MonitorResponses m_requestResponse;
