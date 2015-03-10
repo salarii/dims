@@ -5,6 +5,8 @@
 #ifndef ADMIT_TRANSACTIONS_BUNDLE_H
 #define ADMIT_TRANSACTIONS_BUNDLE_H
 
+#include "core.h"
+
 #include "common/action.h"
 #include "common/types.h"
 
@@ -14,6 +16,26 @@ namespace monitor
 {
 
 struct CWaitForBundle;
+
+// temporary solution
+class CPaymentTracking
+{
+public:
+	void addTransactionToSearch( uint256 const & _hash );
+
+	bool transactionPresent( uint256 const & _transactionId, CTransaction & _transaction );
+
+	void analyseIncommingBundle( std::vector< CTransaction > const & _transactionBundle );
+private:
+	CPaymentTracking();
+private:
+	mutable boost::mutex m_mutex;
+
+	std::map< uint256, CTransaction > m_foundTransactions;
+
+	std::set< uint256 > m_searchTransaction;
+};
+
 // this is weird action most likely it should be ordinary singleton
 class CAdmitTransactionBundle : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTransactionBundle, CWaitForBundle >, public common::CCommunicationAction
 {

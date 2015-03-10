@@ -18,6 +18,7 @@ bool findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId ,
 
 std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash );
 
+bool findKeyInInputs( CTransaction const & _tx, CKeyID const & _keyId );
 }
 
 #endif // ANALYSE_TRANSACTION_H

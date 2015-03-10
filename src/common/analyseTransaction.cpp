@@ -111,4 +111,36 @@ getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const 
 	return availableCoins;
 }
 
+
+bool
+findKeyInInputs( CTransaction const & _tx, CKeyID const & _keyId )
+{
+
+	std::list< CKeyID > keys;
+	for (unsigned int i = 0; i < _tx.vin.size(); i++)
+	{
+		const CTxIn& txin = _tx.vin[i];
+
+		CScript::const_iterator pc = txin.scriptSig.begin();
+
+		opcodetype opcode;
+
+		std::vector<unsigned char> data;
+
+		while( pc < txin.scriptSig.end() )
+		{
+			if (!txin.scriptSig.GetOp(pc, opcode, data))
+				return false;
+
+			if ( data.size() == 33 || data.size() == 65 )
+			{
+				if ( _keyId == CPubKey( data ).GetID() )
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 }

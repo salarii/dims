@@ -2,16 +2,38 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "core.h"
+
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
+#include "common/authenticationProvider.h"
 #include "common/setResponseVisitor.h"
+#include "common/analyseTransaction.h"
 
 #include "monitor/admitTrackerAction.h"
+#include "monitor/monitorController.h"
 
 namespace monitor
 {
+
+bool analyseTransaction( CTransaction & _transaction, uint256 const & _hash, CKeyID const & _trackerId )
+{
+	if ( !common::findKeyInInputs( _transaction, _trackerId ) )
+		return false;
+
+	CTxOut txOut;
+	unsigned id;
+
+	bool outputExist = common::findOutputInTransaction(
+				_transaction
+				, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
+				, txOut
+				, id );
+
+	return txOut.nValue >= CMonitorController::getInstance()->getPrice();
+}
 
 struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerAction >
 {

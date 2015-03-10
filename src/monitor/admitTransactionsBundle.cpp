@@ -6,7 +6,6 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-
 #include "common/setResponseVisitor.h"
 
 #include "monitor/admitTransactionsBundle.h"
@@ -51,6 +50,43 @@ void
 CAdmitTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
 {
 	_visitor.visit( *this );
+}
+
+void
+CPaymentTracking::addTransactionToSearch( uint256 const & _hash )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_searchTransaction.insert( _hash );
+}
+
+bool
+CPaymentTracking::transactionPresent( uint256 const & _transactionId, CTransaction & _transaction )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	std::map< uint256, CTransaction >::const_iterator iterator = m_foundTransactions.find( _transactionId );
+
+	if ( iterator == m_foundTransactions.end() )
+		return false;
+
+	_transaction = iterator->second;
+	return true;
+}
+
+void
+CPaymentTracking::analyseIncommingBundle( std::vector< CTransaction > const & _transactionBundle )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	std::list< uint256 > remove;
+	BOOST_FOREACH( CTransaction const & transaction, _transactionBundle )
+	{
+		std::set< uint256 >::const_iterator iterator = m_searchTransaction.find( transaction.GetHash() );
+		if ( iterator != m_searchTransaction.end() )
+		{
+			remove.push_back( *iterator );
+			m_foundTransactions.insert( std::make_pair( *iterator, transaction ) );
+		}
+	}
 }
 
 }
