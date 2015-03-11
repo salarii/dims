@@ -75,8 +75,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions )
 				{
-					CAdmitTransactionBundle::getInstance()->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
-					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( CAdmitTransactionBundle::getInstance() );
+					CAdmitAskTransactionBundle * admitTransactionBundle = new CAdmitAskTransactionBundle;
+					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTransactionBundle );
 				}
 			}
 		}

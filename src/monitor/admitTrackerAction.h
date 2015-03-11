@@ -22,8 +22,11 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
+	uintptr_t getMedium() const { return m_medium; }
+
 	~CAdmitTrackerAction(){};
 private:
+	uintptr_t m_medium;
 };
 
 }

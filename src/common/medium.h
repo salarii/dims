@@ -80,6 +80,7 @@ public:
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
 	virtual void add( monitor::CConnectCondition const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
+	virtual void add( common::CResultRequest< CMonitorTypes > const * _request ){};
 };
 
 class CClientBaseMedium : public CMedium< CClientTypes >

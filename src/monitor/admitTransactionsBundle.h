@@ -7,10 +7,10 @@
 
 #include "core.h"
 
+#include <boost/statechart/state_machine.hpp>
+
 #include "common/action.h"
 #include "common/types.h"
-
-#include <boost/statechart/state_machine.hpp>
 
 namespace monitor
 {
@@ -21,34 +21,34 @@ struct CWaitForBundle;
 class CPaymentTracking
 {
 public:
+	static CPaymentTracking* getInstance();
+
 	void addTransactionToSearch( uint256 const & _hash );
 
 	bool transactionPresent( uint256 const & _transactionId, CTransaction & _transaction );
 
 	void analyseIncommingBundle( std::vector< CTransaction > const & _transactionBundle );
 private:
-	CPaymentTracking();
+	CPaymentTracking(){};
 private:
 	mutable boost::mutex m_mutex;
 
 	std::map< uint256, CTransaction > m_foundTransactions;
 
 	std::set< uint256 > m_searchTransaction;
+
+	static CPaymentTracking * ms_instance;
 };
 
 // this is weird action most likely it should be ordinary singleton
-class CAdmitTransactionBundle : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTransactionBundle, CWaitForBundle >, public common::CCommunicationAction
+class CAdmitAskTransactionBundle : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitAskTransactionBundle, CWaitForBundle >, public common::CCommunicationAction
 {
 public:
-	static CAdmitTransactionBundle* getInstance();
+	CAdmitAskTransactionBundle();
 
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
-	~CAdmitTransactionBundle(){};
-private:
-	CAdmitTransactionBundle();
-
-	static CAdmitTransactionBundle * ms_instance;
+	~CAdmitAskTransactionBundle(){};
 };
 
 

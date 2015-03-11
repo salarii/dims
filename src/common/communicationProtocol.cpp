@@ -181,7 +181,7 @@ CMessage::CMessage( CResult const & _result, uint256 const & _actionKey )
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CAdmit const & _admit, uint256 const & _actionKey )
+CMessage::CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey )
 	: m_header( (int)CPayloadKind::Admit, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _admit, m_payload );

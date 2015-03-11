@@ -99,10 +99,10 @@ BitcoinGUI::BitcoinGUI(bool fIsTestnet, QWidget *parent) :
     {
         windowTitle += " " + tr("[testnet]");
 #ifndef Q_OS_MAC
-        QApplication::setWindowIcon(QIcon(":icons/bitcoin_testnet"));
-        setWindowIcon(QIcon(":icons/bitcoin_testnet"));
+        QApplication::setWindowIcon(QIcon(":icons/dims_testnet"));
+        setWindowIcon(QIcon(":icons/dims_testnet"));
 #else
-        MacDockIconHandler::instance()->setIcon(QIcon(":icons/bitcoin_testnet"));
+        MacDockIconHandler::instance()->setIcon(QIcon(":icons/dims_testnet"));
 #endif
     }
     setWindowTitle(windowTitle);
@@ -269,7 +269,7 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     if (!fIsTestnet)
         aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About Bitcoin Core"), this);
     else
-        aboutAction = new QAction(QIcon(":/icons/bitcoin_testnet"), tr("&About Bitcoin Core"), this);
+        aboutAction = new QAction(QIcon(":/icons/dims_testnet"), tr("&About Bitcoin Core"), this);
     aboutAction->setStatusTip(tr("Show information about Bitcoin"));
     aboutAction->setMenuRole(QAction::AboutRole);
 #if QT_VERSION < 0x050000
@@ -285,7 +285,7 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     if (!fIsTestnet)
         toggleHideAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Show / Hide"), this);
     else
-        toggleHideAction = new QAction(QIcon(":/icons/bitcoin_testnet"), tr("&Show / Hide"), this);
+        toggleHideAction = new QAction(QIcon(":/icons/dims_testnet"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
     encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);

@@ -13,19 +13,7 @@
 namespace monitor
 {
 
-CAdmitTransactionBundle * CAdmitTransactionBundle::ms_instance = NULL;
-
-CAdmitTransactionBundle*
-CAdmitTransactionBundle::getInstance()
-{
-	if ( !ms_instance )
-	{
-		ms_instance = new CAdmitTransactionBundle();
-	};
-	return ms_instance;
-}
-
-struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransactionBundle >
+struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitAskTransactionBundle >
 {
 	CWaitForBundle( my_context ctx ) : my_base( ctx )
 	{
@@ -40,16 +28,28 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 	> reactions;
 };
 
-CAdmitTransactionBundle::CAdmitTransactionBundle()
+CAdmitAskTransactionBundle::CAdmitAskTransactionBundle()
 	: common::CAction< common::CMonitorTypes >( false )
 {
 	initiate();
 }
 
 void
-CAdmitTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CAdmitAskTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
 {
 	_visitor.visit( *this );
+}
+
+CPaymentTracking * CPaymentTracking::ms_instance = NULL;
+
+CPaymentTracking*
+CPaymentTracking::getInstance()
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CPaymentTracking();
+	};
+	return ms_instance;
 }
 
 void

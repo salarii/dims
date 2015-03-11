@@ -258,7 +258,7 @@ struct CResult
 	unsigned int m_result;
 };
 
-struct CAdmit
+struct CAdmitAsk
 {
 	IMPLEMENT_SERIALIZE
 	(
@@ -284,7 +284,7 @@ public:
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
 	CMessage( CConnectCondition const & _connectCondition, uint256 const & _actionKey );
 	CMessage( CResult const & _result, uint256 const & _actionKey );
-	CMessage( CAdmit const & _admit, uint256 const & _actionKey );
+	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
 
 	IMPLEMENT_SERIALIZE

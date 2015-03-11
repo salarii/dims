@@ -101,9 +101,9 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTrackerActio
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTransactionBundle & _action )
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitAskTransactionBundle & _action )
 {
-		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitTransactionBundle, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CAdmitTransactionBundle >( &_action ), m_requestResponse );
+		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitAskTransactionBundle, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CAdmitAskTransactionBundle >( &_action ), m_requestResponse );
 }
 
 }
