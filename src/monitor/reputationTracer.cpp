@@ -159,7 +159,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 
 		BOOST_FOREACH( PAIRTYPE( uint160, CTrackerData ) const & trackerData, m_registeredTrackers )
 		{
-				if ( !getKeyToNode( trackerData.second.m_publicKey, nodeIndicator) )
+				if ( !getKeyToNode( trackerData.second.m_key, nodeIndicator) )
 					assert( !"something wrong" );
 
 				common::CMonitorBaseMedium * medium = findNodeMedium( nodeIndicator );
@@ -173,7 +173,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 	{
 		BOOST_FOREACH( PAIRTYPE( uint160, CAllyMonitorData ) const & monitorData, m_monitors )
 		{
-				if ( !getKeyToNode( monitorData.second.m_publicKey, nodeIndicator) )
+				if ( !getKeyToNode( monitorData.second.m_key, nodeIndicator) )
 					assert( !"something wrong" );
 
 				common::CMonitorBaseMedium * medium = findNodeMedium( nodeIndicator );
@@ -216,14 +216,14 @@ CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )c
 		}
 	}
 
-	return  false;
+	return false;
 }
 
 void
 CReputationTracker::addTracker( CTrackerData const & _trackerData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	m_registeredTrackers.insert( std::make_pair( _trackerData.m_publicKey.GetID(), _trackerData ) );
+	m_registeredTrackers.insert( std::make_pair( _trackerData.m_key.GetID(), _trackerData ) );
 }
 
 

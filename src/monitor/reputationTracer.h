@@ -10,46 +10,40 @@
 #include "protocol.h"
 
 #include <boost/thread/mutex.hpp>
+
 #include "common/nodesManager.h"
 
 namespace monitor
 {
 
-struct CTrackerData
+struct CTrackerData : public common::CValidNodeInfo
 {
 	CTrackerData(){}
-	CTrackerData( CAddress _address, unsigned int _reputation, CPubKey _publicKey, uint64_t _networkTime, uint64_t _contractTime ): m_address( _address ),m_reputation( _reputation ), m_publicKey( _publicKey ), m_networkTime( _networkTime ), m_contractTime( _contractTime ){}
+	CTrackerData(  CPubKey _publicKey, CAddress _address, unsigned int _reputation, uint64_t _networkTime, uint64_t _contractTime ): common::CValidNodeInfo( _publicKey, _address ),m_reputation( _reputation ), m_networkTime( _networkTime ), m_contractTime( _contractTime ){}
 
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_address);
+		READWRITE(*(common::CValidNodeInfo*)this);
 		READWRITE(m_reputation);
-		READWRITE(m_publicKey);
 		READWRITE(m_networkTime);
 		READWRITE(m_contractTime);
 	)
 
-	CAddress m_address;
 	unsigned int m_reputation;
-	CPubKey m_publicKey;
 	uint64_t m_networkTime;
 	uint64_t m_contractTime;
 };
 
 
-struct CAllyMonitorData
+struct CAllyMonitorData : public common::CValidNodeInfo
 {
 	CAllyMonitorData(){}
-	CAllyMonitorData( CAddress _address, CPubKey _publicKey ): m_address( _address ), m_publicKey( _publicKey ){}
+	CAllyMonitorData( CAddress _address, CPubKey _publicKey ): common::CValidNodeInfo( _publicKey, _address ){}
 
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_address);
-		READWRITE(m_publicKey);
+		READWRITE(*(common::CValidNodeInfo*)this);
 	)
-
-	CAddress m_address;
-	CPubKey m_publicKey;
 };
 
 struct CAllyTrackerData
@@ -107,6 +101,8 @@ private:
 	typedef std::map< uint160, std::vector< CAllyTrackerData > > AllyMonitors;
 
 	typedef std::map< uint160, unsigned int > TransactionsAddmited;
+
+	std::map< uint160, common::CValidNodeInfo > m_candidates;
 
 	std::map< uint160, CAllyMonitorData > m_monitors;
 

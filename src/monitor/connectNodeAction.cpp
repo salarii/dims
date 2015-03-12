@@ -304,7 +304,7 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 			{
 				context< CConnectNodeAction >().dropRequests();
 				context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-				CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getServiceAddress(), 0, context< CConnectNodeAction >().getPublicKey(), CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+				CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress(), 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 			}
 		}
 		else

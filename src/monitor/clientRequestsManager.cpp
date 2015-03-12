@@ -48,7 +48,7 @@ public:
 		{
 			monitors.push_back(
 						common::CNodeInfo(
-									  allyMonitorData.m_publicKey
+									  allyMonitorData.m_key
 									, allyMonitorData.m_address.ToStringIPPort()
 									, allyMonitorData.m_address.GetPort()
 									, common::CRole::Monitor ));
@@ -60,7 +60,7 @@ public:
 		{
 			trackers.push_back(
 						common::CNodeInfo(
-									  trackerData.m_publicKey
+									  trackerData.m_key
 									, trackerData.m_address.ToStringIP()
 									, trackerData.m_address.GetPort()
 									, common::CRole::Tracker ));
