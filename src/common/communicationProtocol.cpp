@@ -165,7 +165,7 @@ CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CConnectCondition const & _connectCondition, uint256 const & _actionKey )
+CMessage::CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey )
 : m_header( (int)CPayloadKind::ConnectCondition, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _connectCondition, m_payload );
@@ -181,8 +181,24 @@ CMessage::CMessage( CResult const & _result, uint256 const & _actionKey )
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CAdmitProof const & _admit, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::AdmitProof, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+{
+	createPayload( _admit, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
+CMessage::CMessage( CValidRegistration const & _valid, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::ValidRegistration, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+{
+	createPayload( _valid, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 CMessage::CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Admit, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+	: m_header( (int)CPayloadKind::AdmitAsk, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _admit, m_payload );
 

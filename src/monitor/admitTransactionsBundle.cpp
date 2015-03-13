@@ -13,7 +13,7 @@
 namespace monitor
 {
 
-struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitAskTransactionBundle >
+struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitProofTransactionBundle >
 {
 	CWaitForBundle( my_context ctx ) : my_base( ctx )
 	{
@@ -28,14 +28,14 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitAskTrans
 	> reactions;
 };
 
-CAdmitAskTransactionBundle::CAdmitAskTransactionBundle()
+CAdmitProofTransactionBundle::CAdmitProofTransactionBundle()
 	: common::CAction< common::CMonitorTypes >( false )
 {
 	initiate();
 }
 
 void
-CAdmitAskTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CAdmitProofTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

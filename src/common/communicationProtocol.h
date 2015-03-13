@@ -38,7 +38,9 @@ struct CPayloadKind
 		End,
 		ConnectCondition,
 		Result,
-		Admit
+		AdmitProof,
+		ValidRegistration,
+		AdmitAsk
 	};
 };
 
@@ -201,7 +203,7 @@ struct CValidNodeInfo
 	CAddress m_address;
 };
 
-struct CConnectCondition
+struct CRegistrationTerms
 {
 	IMPLEMENT_SERIALIZE
 	(
@@ -209,13 +211,28 @@ struct CConnectCondition
 		READWRITE( m_period );
 	)
 
-	CConnectCondition():m_price( 0 ),m_period( 0 ){}
-	CConnectCondition( unsigned int _price, uint256 const & _period ):m_price( _price ), m_period( _period ){}
+	CRegistrationTerms():m_price( 0 ),m_period( 0 ){}
+
+	CRegistrationTerms( unsigned int _price, uint256 const & _period ):m_price( _price ), m_period( _period ){}
 
 	unsigned int m_price;
 	uint256 m_period;
 };
 
+struct CValidRegistration
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_key );
+		READWRITE( m_period );
+	)
+
+	CValidRegistration():m_key(),m_period( 0 ){}
+	CValidRegistration( CPubKey const & _key, uint256 const & _period ):m_key( _key ), m_period( _period ){}
+
+	CPubKey m_key;
+	uint256 m_period;
+};
 
 struct CKnownNetworkInfo
 {
@@ -258,13 +275,22 @@ struct CResult
 	unsigned int m_result;
 };
 
-struct CAdmitAsk
+struct CAdmitProof
 {
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_proofTransactionHash );
 	)
 	uint256 m_proofTransactionHash;
+};
+
+struct CAdmitAsk
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+	int m_dummy;
 };
 
 struct CMessage
@@ -282,11 +308,12 @@ public:
 	CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey );
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
 	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
-	CMessage( CConnectCondition const & _connectCondition, uint256 const & _actionKey );
+	CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey );
 	CMessage( CResult const & _result, uint256 const & _actionKey );
-	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey );
+	CMessage( CAdmitProof const & _admit, uint256 const & _actionKey );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
-
+	CMessage( CValidRegistration const & _valid, uint256 const & _actionKey );
+	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey );
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);

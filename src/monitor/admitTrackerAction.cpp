@@ -53,7 +53,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
-		common::CAdmitAsk admitMessage;
+		common::CAdmitProof admitMessage;
 
 		common::convertPayload( orginalMessage, admitMessage );
 
@@ -113,6 +113,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 };
 
 CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _mediumPtr )
+	: CCommunicationAction( _actionKey )
 {
 	initiate();
 }

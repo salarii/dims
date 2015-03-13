@@ -364,7 +364,7 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 		if ( !common::CommunicationProtocol::unwindMessage( _connectCondition.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
 			assert( !"service it somehow" );
 
-		common::CConnectCondition connectCondition;
+		common::CRegistrationTerms connectCondition;
 
 		common::convertPayload( orginalMessage, connectCondition );
 

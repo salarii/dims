@@ -28,7 +28,7 @@ namespace monitor
 
 class CConnectToNodeRequest;
 
-class CConnectCondition;
+class CRegistrationTerms;
 
 class CInfoRequest;
 }

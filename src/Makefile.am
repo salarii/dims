@@ -75,6 +75,7 @@ TRACKER_CORE_H = \
   tracker/originAddressScaner.h \
   tracker/processNetwork.h \
   tracker/provideInfoAction.h \
+  tracker/registerAction.h \
   tracker/segmentFileStorage.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
@@ -172,6 +173,7 @@ TRACKER_CORE_CPP = \
   tracker/originAddressScaner.cpp \
   tracker/processNetwork.cpp \
   tracker/provideInfoAction.cpp \
+  tracker/registerAction.cpp \
   tracker/rpcTracker.cpp \
   tracker/segmentFileStorage.cpp \
   tracker/server.cpp \

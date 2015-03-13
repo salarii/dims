@@ -11,9 +11,9 @@ namespace monitor
 {
 
 void
-CMonitorNodeMedium::add( CConnectCondition const * _request )
+CMonitorNodeMedium::add( CRegistrationTerms const * _request )
 {
-	common::CConnectCondition connectCondition( _request->getPrice(), _request->getPeriod() );
+	common::CRegistrationTerms connectCondition( _request->getPrice(), _request->getPeriod() );
 
 	common::CMessage message( connectCondition, _request->getActionKey() );
 

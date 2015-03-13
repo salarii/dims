@@ -27,10 +27,10 @@ private:
 	CAddress const m_serviceAddress;
 };
 
-class CConnectCondition : public common::CRequest< common::CMonitorTypes >
+class CRegistrationTerms : public common::CRequest< common::CMonitorTypes >
 {
 public:
-	CConnectCondition( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period , common::CMonitorMediumFilter * _mediumFilter );
+	CRegistrationTerms( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period , common::CMonitorMediumFilter * _mediumFilter );
 
 	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
 

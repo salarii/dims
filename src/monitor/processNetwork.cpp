@@ -51,7 +51,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoRes
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Admit
+				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitProof
+				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions
 				)
 		{
@@ -66,7 +67,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				if ( message.m_header.m_payloadKind == common::CPayloadKind::Admit )
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk )
 				{
 					CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
 					admitTrackerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
@@ -75,7 +76,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions )
 				{
-					CAdmitAskTransactionBundle * admitTransactionBundle = new CAdmitAskTransactionBundle;
+					CAdmitProofTransactionBundle * admitTransactionBundle = new CAdmitProofTransactionBundle;
 					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTransactionBundle );
 				}

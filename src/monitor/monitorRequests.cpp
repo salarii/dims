@@ -35,7 +35,7 @@ CConnectToNodeRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-CConnectCondition::CConnectCondition( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period, common::CMonitorMediumFilter * _mediumFilter )
+CRegistrationTerms::CRegistrationTerms( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period, common::CMonitorMediumFilter * _mediumFilter )
 	: common::CRequest< common::CMonitorTypes >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_price( _price )
@@ -44,7 +44,7 @@ CConnectCondition::CConnectCondition( uint256 const & _actionKey,  unsigned int 
 }
 
 void
-CConnectCondition::accept( common::CMonitorBaseMedium * _medium ) const
+CRegistrationTerms::accept( common::CMonitorBaseMedium * _medium ) const
 {
 	_medium->add( this );
 }

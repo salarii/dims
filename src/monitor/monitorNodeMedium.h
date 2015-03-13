@@ -13,7 +13,7 @@
 namespace monitor
 {
 
-class CConnectCondition;
+class CRegistrationTerms;
 
 class CInfoRequest;
 
@@ -22,7 +22,7 @@ class CMonitorNodeMedium : public common::CNodeMedium< common::CMonitorBaseMediu
 public:
 	CMonitorNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< common::CMonitorBaseMedium >( _selfNode ){};
 
-	void add( CConnectCondition const * _request );
+	void add( CRegistrationTerms const * _request );
 
 	void add( CInfoRequest const * _request );
 private:

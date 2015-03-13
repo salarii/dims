@@ -274,7 +274,7 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getMediumPtr() );
 
-		context< CConnectNodeAction >().addRequests( new CConnectCondition( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().addRequests( new CRegistrationTerms( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
@@ -285,32 +285,6 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 
 	boost::statechart::result react( common::CMessageResult const & _result )
 	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
-			assert( !"service it somehow" );
-
-		common::CResult result;
-
-		common::convertPayload( orginalMessage, result );
-
-		if ( result.m_result )
-		{
-
-			if ( CMonitorController::getInstance()->getPrice() )
-			{
-				// create action send ack
-			}
-			else
-			{
-				context< CConnectNodeAction >().dropRequests();
-				context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-				CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress(), 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
-			}
-		}
-		else
-		{
-			// ask about status  of  this  tracker
-		}
 		return discard_event();
 	}
 

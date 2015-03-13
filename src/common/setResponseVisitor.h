@@ -47,7 +47,7 @@ class CUpdateDataAction;
 
 class CAdmitTrackerAction;
 
-class CAdmitAskTransactionBundle;
+class CAdmitProofTransactionBundle;
 
 }
 
@@ -128,7 +128,7 @@ public:
 
 	virtual void visit( monitor::CAdmitTrackerAction & _action );
 
-	virtual void visit( monitor::CAdmitAskTransactionBundle & _action );
+	virtual void visit( monitor::CAdmitProofTransactionBundle & _action );
 private:
 
 	monitor::MonitorResponses m_requestResponse;
