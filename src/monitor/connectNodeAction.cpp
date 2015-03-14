@@ -300,7 +300,6 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 {
 	CMonitorConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().dropRequests();
 		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
