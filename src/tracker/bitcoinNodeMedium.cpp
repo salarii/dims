@@ -48,7 +48,6 @@ CBitcoinNodeMedium::clearResponses()
 	m_responses.clear();
 	m_merkles.clear();
 	m_transactions.clear();
-	LastRequest = 0;
 }
 
 

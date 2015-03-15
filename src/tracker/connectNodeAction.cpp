@@ -38,6 +38,7 @@ struct CUnconnected;
 struct CCantReachNode;
 struct CPairIdentifiedConnecting;
 struct CDetermineRoleConnected;
+struct CDetermineRoleConnecting;
 
 common::CRequest< common::CTrackerTypes > *
 createIdentifyResponse( 	std::vector<unsigned char> const &_payload, uint256 const & _actionKey,common::CTrackerMediumFilter* _medium )
@@ -129,7 +130,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		// something  is  wrong  with  pair react  somehow for  now put 0
 			context< CConnectNodeAction >().dropRequests();
 		}
-		return transit< CDetermineRoleConnected >();
+		return transit< CDetermineRoleConnecting >();
 	}
 
 	typedef boost::mpl::list<

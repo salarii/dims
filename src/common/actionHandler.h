@@ -249,10 +249,13 @@ CActionHandler< _Types >::loop()
 			reqHandler->processMediumResponses();
 		}
 
-		std::list< CRequest< _Types >* > requestsToErase;
+		std::set< CAction< _Types >* > actionsToErase;
+
+		std::multimap< CAction< _Types >*, CRequest< _Types > * > eraseCandidates;
 
 		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
+			eraseCandidates.insert( std::make_pair( reqAction.second, reqAction.first ) );
 			typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound (reqAction.first);
 			typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound (reqAction.first);
 			for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
@@ -268,7 +271,7 @@ CActionHandler< _Types >::loop()
 					}
 					m_actions.insert( reqAction.second );
 					it->second->deleteRequest( reqAction.first );
-					requestsToErase.push_back( reqAction.first );
+					actionsToErase.insert( reqAction.second );
 				}
 				else
 				{
@@ -277,9 +280,19 @@ CActionHandler< _Types >::loop()
 			}
 		}
 
-		BOOST_FOREACH( CRequest< _Types >* & request, requestsToErase)
+		BOOST_FOREACH( CAction< _Types >* const & action, actionsToErase)
 		{
-			m_reqToAction.erase( request );
+			typename std::multimap< CAction< _Types >*, CRequest< _Types > * >::const_iterator lower
+					= eraseCandidates.lower_bound ( action );
+			typename std::multimap< CAction< _Types >*, CRequest< _Types > * >::const_iterator upper
+					= eraseCandidates.upper_bound ( action );
+
+			for ( typename std::multimap< CAction< _Types >*, CRequest< _Types > * >::const_iterator it = lower; it!=upper; ++it)
+			{
+				m_reqToAction.erase( it->second );
+			}
+
+			// request handlers cleanup should go here unfortunately quite complex one
 		}
 
 		if ( m_reqToAction.empty() )

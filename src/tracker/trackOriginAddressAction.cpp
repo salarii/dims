@@ -171,7 +171,7 @@ CTrackOriginAddressAction::requestFiltered()
 
 }
 
-// it should be  done  in fency style i  final version,
+// it should be  done  in fency style in  final version,
 // but for  now I will keep it simple as much as possible
 
 typedef std::map< long long, std::vector< CMerkleBlock > >::value_type MerkleResult;
