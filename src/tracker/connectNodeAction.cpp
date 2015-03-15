@@ -190,6 +190,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
 		{
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
+			context< CConnectNodeAction >().setServiceAddress( _identificationResult.m_address );
 
 			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 			context< CConnectNodeAction >().dropRequests();

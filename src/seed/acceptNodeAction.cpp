@@ -190,6 +190,8 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 							new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() )
 							)
 						);
+
+			context< CAcceptNodeAction >().setAddress( _identificationResult.m_address );
 		}
 		else
 		{
