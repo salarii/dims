@@ -36,7 +36,7 @@ struct CPairIdentifiedConnecting;
 struct CDetermineRoleConnecting;
 struct CDetermineRoleConnected;
 
-uint64_t const WaitTime = 10;
+uint64_t const WaitTime = 10000;
 
 common::CRequest< common::CSeedTypes > *
 createIdentifyResponse( 	std::vector<unsigned char> const &_payload, uint256 const & _actionKey,common::CSeedMediumFilter* _medium )
@@ -91,6 +91,15 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 						new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() )
 						)
 					);
+
+		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAcceptNodeAction >().dropRequests();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -115,6 +124,8 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 			context< CAcceptNodeAction >().dropRequests();
 			context< CAcceptNodeAction >().addRequests( new common::CAckRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 			context< CAcceptNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+			context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 		}
 		else
 		{
@@ -124,7 +135,14 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		return transit< CDetermineRoleConnecting >();
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAcceptNodeAction >().dropRequests();
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CIdentificationResult >
 	> reactions;
 };
@@ -191,6 +209,8 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 							)
 						);
 
+			context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 			context< CAcceptNodeAction >().setAddress( _identificationResult.m_address );
 		}
 		else
@@ -201,7 +221,14 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAcceptNodeAction >().dropRequests();
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CIdentificationResult >,
 	boost::statechart::transition< common::CAckEvent, CDetermineRoleConnected >
 	> reactions;
@@ -218,7 +245,14 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 		m_role = _roleEvent.m_role;
 		context< CAcceptNodeAction >().dropRequests();
 		context< CAcceptNodeAction >().addRequests( new common::CAckRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		context< CAcceptNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAcceptNodeAction >().dropRequests();
 		return discard_event();
 	}
 
@@ -242,6 +276,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 
