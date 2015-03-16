@@ -237,8 +237,8 @@ CActionHandler< _Types >::loop()
 						BOOST_FOREACH( CRequest< _Types >* request,dropped )
 						{
 							m_currentlyUsedHandlers.erase( request );
-							delete request;
 						}
+						delete action;
 					}
 					else
 						action->setExecuted();
