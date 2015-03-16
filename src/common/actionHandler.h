@@ -239,7 +239,6 @@ CActionHandler< _Types >::loop()
 							m_currentlyUsedHandlers.erase( request );
 							delete request;
 						}
-						delete action;
 					}
 					else
 						action->setExecuted();
