@@ -23,6 +23,28 @@
 // ugly as hell, refactor as soon as possible
 namespace seed
 {
+boost::mutex mutex;
+std::map< std::string, bool > m_result;
+
+void addResult( std::string const & _key, bool _value )
+{
+	boost::lock_guard<boost::mutex> lock( mutex );
+	m_result.insert( std::make_pair( _key, _value ) );
+}
+
+bool
+getResult( std::string const & _key, bool & _value )
+{
+	boost::lock_guard<boost::mutex> lock( mutex );
+	std::map< std::string, bool >::const_iterator iterator = m_result.find( _key );
+
+	if ( iterator == m_result.end() )
+		return false;
+	_value = iterator->second;
+
+	return true;
+}
+
 extern CAddrDb db;
 
 struct CUnconnected;
@@ -98,8 +120,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CAcceptNodeAction >().dropRequests();
-		return discard_event();
+		return transit< CCantReachNode >();
 	}
 
 	typedef boost::mpl::list<
@@ -137,8 +158,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CAcceptNodeAction >().dropRequests();
-		return discard_event();
+		return transit< CCantReachNode >();
 	}
 
 	typedef boost::mpl::list<
@@ -223,8 +243,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CAcceptNodeAction >().dropRequests();
-		return discard_event();
+		return transit< CCantReachNode >();
 	}
 
 	typedef boost::mpl::list<
@@ -252,8 +271,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CAcceptNodeAction >().dropRequests();
-		return discard_event();
+		return transit< CCantReachNode >();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -403,8 +421,7 @@ CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _med
 }
 
 CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
-	: common::CAction< common::CSeedTypes >( false )
-	, m_nodeAddress( _nodeAddress )
+	: m_nodeAddress( _nodeAddress )
 	, m_passive( false )
 	, m_valid( false )
 {

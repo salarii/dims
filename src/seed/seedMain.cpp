@@ -30,7 +30,6 @@ boost::thread_group threadGroup;
 
 namespace seed
 {
-
 pthread_mutex_t nodesLock;
 
 bool fTestNet = false;
@@ -380,11 +379,6 @@ extern "C" void* ThreadSeeder(void*) {
   } while(1);
 }
 
-bool stateExecuted( CAcceptNodeAction * _acceptNodeAction )
-{
-	return !_acceptNodeAction->isExecuted();
-}
-
 void periodicCheck()
 {
 	while(1)
@@ -401,7 +395,8 @@ void periodicCheck()
 		}
 
 		vector<CAddress> addr;
-		std::list< CAcceptNodeAction * > m_searchedNodes;
+
+		m_result.empty();
 
 		for (int i=0; i<ips.size(); i++)
 		{
@@ -414,23 +409,19 @@ void periodicCheck()
 			//ugly
 			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
 			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptNodeAction );
-			m_searchedNodes.push_back( acceptNodeAction );
 		}
 
 		// this is  against action  handler  philosophy but here  we can live  with  that
-		while( 1 )
-		{
-			std::list< CAcceptNodeAction * >::iterator it = std::find_if( m_searchedNodes.begin(), m_searchedNodes.end(), stateExecuted );
-			if ( it == m_searchedNodes.end() )
-				break;
-		}
+		while( ips.size() != m_result.size() );
 
-		int i = 0;
-		BOOST_FOREACH( CAcceptNodeAction * nodeAction, m_searchedNodes )
+		bool isNodeValid;
+		bool resultValid;
+		for (int i=0; i<ips.size(); i++)
 		{
-			ips[ i ].fGood = nodeAction->getValid();
-			i++;
-			delete nodeAction;
+			resultValid = getResult( ips[ i ].service.ToString(), isNodeValid );
+
+			assert( resultValid );
+			ips[ i ].fGood = isNodeValid;
 		}
 
 		db.ResultMany(ips);

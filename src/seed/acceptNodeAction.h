@@ -16,6 +16,14 @@
 namespace seed
 {
 
+extern boost::mutex mutex;
+extern std::map< std::string, bool > m_result;
+
+void addResult( std::string const & _key, bool _value );
+
+bool
+getResult( std::string const & _key, bool & _value );
+
 struct CUninitiated;
 
 class CAcceptNodeAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
@@ -39,7 +47,7 @@ public:
 
 	bool getValid() const{ return m_valid; }
 
-	void setValid( bool _valid ){ m_valid = _valid; }
+	void setValid( bool _valid ){ addResult( m_nodeAddress.ToString(), _valid ); }
 
 	~CAcceptNodeAction(){};
 private:
