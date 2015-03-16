@@ -35,7 +35,10 @@ public:
 		m_droppedRequests.insert( m_droppedRequests.end(), m_requests.begin(), m_requests.end() );
 		m_requests.clear();
 	}
-
+	std::vector< CRequest< _Type >* > const & getDroppedRequests() const
+	{
+		return m_droppedRequests;
+	}
 	void setInProgress(){ m_inProgress = true; }
 
 	bool isInProgress()const{ return m_inProgress; }

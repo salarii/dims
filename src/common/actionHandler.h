@@ -233,7 +233,12 @@ CActionHandler< _Types >::loop()
 				{
 					if ( action->autoDelete() )
 					{
-						// clean m_currentlyUsedHandlers here
+						std::vector< CRequest< _Types >* > dropped = action->getDroppedRequests();
+						BOOST_FOREACH( CRequest< _Types >* request,dropped )
+						{
+							m_currentlyUsedHandlers.erase( request );
+							delete request;
+						}
 						delete action;
 					}
 					else
@@ -270,7 +275,6 @@ CActionHandler< _Types >::loop()
 						reqAction.second->accept( visitor );
 					}
 					m_actions.insert( reqAction.second );
-					it->second->deleteRequest( reqAction.first );
 					actionsToErase.insert( reqAction.second );
 				}
 				else
@@ -292,7 +296,7 @@ CActionHandler< _Types >::loop()
 				m_reqToAction.erase( it->second );
 			}
 
-			// request handlers cleanup should go here unfortunately quite complex one
+			// ??request handlers cleanup should go here unfortunately quite complex one
 		}
 
 		if ( m_reqToAction.empty() )
