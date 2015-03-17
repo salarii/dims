@@ -238,6 +238,7 @@ CActionHandler< _Types >::loop()
 						{
 							m_currentlyUsedHandlers.erase( request );
 						}
+						// not  sure??request handlers cleanup should go here unfortunately quite complex one
 						delete action;
 					}
 					else
@@ -275,6 +276,7 @@ CActionHandler< _Types >::loop()
 					}
 					m_actions.insert( reqAction.second );
 					actionsToErase.insert( reqAction.second );
+					it->second->deleteRequest( reqAction.first );
 				}
 				else
 				{
@@ -295,7 +297,6 @@ CActionHandler< _Types >::loop()
 				m_reqToAction.erase( it->second );
 			}
 
-			// ??request handlers cleanup should go here unfortunately quite complex one
 		}
 
 		if ( m_reqToAction.empty() )
