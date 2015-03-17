@@ -396,7 +396,7 @@ void periodicCheck()
 
 		vector<CAddress> addr;
 
-		m_result.empty();
+		m_result.clear();
 
 		for (int i=0; i<ips.size(); i++)
 		{

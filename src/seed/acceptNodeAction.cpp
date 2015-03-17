@@ -124,6 +124,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::transition< common::CAckEvent, CPairIdentifiedConnecting >
 	> reactions;
 };
