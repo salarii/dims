@@ -19,6 +19,8 @@ public:
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
+		LogPrintf("set response \"connect node\" to action: %p \n", this->m_action );
+
 		if ( _param.m_node )
 			this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );
 		else
@@ -27,26 +29,35 @@ public:
 
 	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
+		LogPrintf("set response \"identification result\" to action: %p \n", this->m_action );
+
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CRoleResult & _param ) const
 	{
+		LogPrintf("set response \"role\" to action: %p \n", this->m_action );
+
 		this->m_action->process_event( common::CRoleEvent( _param.m_role ) );
 	}
 
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
 	{
+		LogPrintf("set response \"network info\" to action: %p \n", this->m_action );
+
 		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
 	}
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CAckResult & _param ) const
 	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent( _param.m_nodePtr ) );
 	}
 };

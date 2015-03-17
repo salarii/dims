@@ -85,6 +85,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p unconnected state \n", &context< CAcceptNodeAction >() );
 		context< CAcceptNodeAction >().dropRequests();
 		context< CAcceptNodeAction >().addRequests(
 					new common::CConnectToNodeRequest< common::CSeedTypes >( std::string(""), context< CAcceptNodeAction >().getAddress(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
@@ -101,6 +102,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 {
 	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p both unidentified connecting \n", &context< CAcceptNodeAction >() );
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CAcceptNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
@@ -133,6 +135,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 {
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p pair identified connecting \n", &context< CAcceptNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -172,6 +175,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p determine role connecting \n", &context< CAcceptNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -211,6 +215,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p both unidentified connected \n", &context< CAcceptNodeAction >() );
 	}
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
 	{
@@ -258,6 +263,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 {
 	CDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p determine role connected \n", &context< CAcceptNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -307,6 +313,8 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAct
 {
 	CCantReachNode( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p can't reach node \n", &context< CAcceptNodeAction >() );
+
 		context< CAcceptNodeAction >().setValid( false );
 		context< CAcceptNodeAction >().dropRequests();
 	}
@@ -316,6 +324,8 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p connected to tracker \n", &context< CAcceptNodeAction >() );
+
 		m_time = GetTime();
 
 		context< CAcceptNodeAction >().setValid( true );
@@ -359,6 +369,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CAcceptNodeA
 {
 	ConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p connected to seed \n", &context< CAcceptNodeAction >() );
 	}
 };
 
@@ -367,6 +378,7 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CAccep
 {
 	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("accept node action: %p connected to monitor \n", &context< CAcceptNodeAction >() );
 
 		context< CAcceptNodeAction >().setValid( true );
 
@@ -405,11 +417,6 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CAccep
 	uint64_t m_time;
 };
 
-
-struct CSynchronizing : boost::statechart::simple_state< CSynchronizing, CAcceptNodeAction >
-{
-
-};
 
 CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr )
 	: common::CCommunicationAction( _actionKey )

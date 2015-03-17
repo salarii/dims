@@ -412,7 +412,7 @@ void periodicCheck()
 		}
 
 		// this is  against action  handler  philosophy but here  we can live  with  that
-		while( ips.size() != m_result.size() );
+		while( ips.size() != m_result.size() );// bug  fix it
 
 		bool isNodeValid;
 		bool resultValid;
