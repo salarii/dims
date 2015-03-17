@@ -418,7 +418,9 @@ void periodicCheck()
 		bool resultValid;
 		for (int i=0; i<ips.size(); i++)
 		{
-			resultValid = getResult( ips[ i ].service.ToString(), isNodeValid );
+			std::string ipPort = ips[ i ].service.ToString();
+
+			resultValid = getResult( ipPort, isNodeValid );
 
 			assert( resultValid );
 			ips[ i ].fGood = isNodeValid;
