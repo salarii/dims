@@ -44,16 +44,19 @@ public:
 
 	void operator()( CPending & _peding ) const
 	{
+		LogPrintf("set response \"pending\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _peding );
 	}
 
 	void operator()( common::CTransactionStatus & _transactionStats ) const
 	{
+		LogPrintf("set response \"transaction status\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _transactionStats );
 	}
 
 	void operator()( common::CTransactionAck & _transactionAck ) const
 	{
+		LogPrintf("set response \"transaction ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( client::CTransactionAckEvent( ( common::TransactionsStatus::Enum )_transactionAck.m_status, _transactionAck.m_transaction ) );
 	}
 };
@@ -65,16 +68,19 @@ public:
 
 	void operator()( CPending & _peding ) const
 	{
+		LogPrintf("set response \"pending\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _peding );
 	}
 
 	void operator()( common::CNoMedium & _noMedium ) const
 	{
+		LogPrintf("set response \"no medium\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _noMedium );
 	}
 
 	void operator()( common::CAvailableCoins & _availableCoins ) const
 	{
+		LogPrintf("set response \"available coins\" to action: %p \n", this->m_action );
 		this->m_action->process_event( client::CCoinsEvent( _availableCoins.m_availableCoins ) );
 	}
 };
@@ -86,36 +92,43 @@ public:
 
 	void operator()(client::CDnsInfo & _dnsInfo ) const
 	{
+		LogPrintf("set response \"dns info\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _dnsInfo );
 	}
 
 	void operator()( common::CNoMedium & _noMedium ) const
 	{
+		LogPrintf("set response \"no medium\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _noMedium );
 	}
 
 	void operator()( common::CNodeSpecific< CClientNetworkInfoResult > & _networkInfo ) const
 	{
+		LogPrintf("set response \"network info\" to action: %p \n", this->m_action );
 		this->m_action->process_event( CClientNetworkInfoEvent( _networkInfo.m_networkInfo, _networkInfo.m_selfKey, _networkInfo.m_selfRole, _networkInfo.m_ip, _networkInfo.m_nodeIndicator ) );
 	}
 
 	void operator()( common::CNodeSpecific< CTrackerSpecificStats > & _trackerStats ) const
 	{
+		LogPrintf("set response \"tracker specific stats\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CTrackerStatsEvent( 0, _trackerStats.m_price, _trackerStats.m_ip, _trackerStats.m_nodeIndicator ) );
 	}
 
 	void operator()( common::CNodeSpecific< CMonitorData > & _monitorData ) const
 	{
+		LogPrintf("set response \"monitordata\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CMonitorStatsEvent( _monitorData, _monitorData.m_ip, _monitorData.m_nodeIndicator ) );
 	}
 
 	void operator()(common::CMediumException & _systemError ) const
 	{
+				LogPrintf("set response \"system error\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CErrorEvent() );
 	}
 
 	void operator()(CPending & _peding ) const
 	{
+		LogPrintf("set response \"pending\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _peding );
 	}
 };
@@ -127,31 +140,37 @@ public:
 
 	void operator()(CPending & _peding ) const
 	{
+		LogPrintf("set response \"pending\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _peding );
 	}
 
 	void operator()(common::CTimeEvent & _timeEvent )
 	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _timeEvent );
 	}
 
 	void operator()( common::CTransactionStatus & _transactionStats ) const
 	{
+		LogPrintf("set response \"transaction status\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _transactionStats );
 	}
 
 	void operator()( common::CNodeSpecific< CMonitorData > & _monitorData ) const
 	{
+		LogPrintf("set response \"monitor data\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CMonitorStatsEvent( _monitorData, _monitorData.m_ip, _monitorData.m_nodeIndicator ) );
 	}
 
 	void operator()( common::CNoMedium & _noMedium ) const
 	{
+		LogPrintf("set response \"no medium\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _noMedium );
 	}
 
 	void operator()( common::CTransactionAck & _transactionAck ) const
 	{
+		LogPrintf("set response \"transaction ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( client::CTransactionAckEvent( ( common::TransactionsStatus::Enum )_transactionAck.m_status, _transactionAck.m_transaction ) );
 	}
 

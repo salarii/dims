@@ -1,4 +1,27 @@
-#ifndef PINGACTION_H
-#define PINGACTION_H
+#ifndef PING_ACTION_H
+#define PING_ACTION_H
 
-#endif // PINGACTION_H
+namespace common
+{
+
+// send  ping to  all
+// if  not  working
+CSendPing
+
+CTryToReconnect
+{
+	// do  cleanup
+
+}
+
+
+template< class _Type >
+class CPingAction
+{
+
+};
+
+
+}
+
+#endif // PING_ACTION_H

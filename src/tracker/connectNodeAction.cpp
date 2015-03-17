@@ -64,9 +64,10 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction
 {
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p unconnected \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().dropRequests();
 		context< CConnectNodeAction >().addRequests(
-				  new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
+					new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
 	}
 
 	typedef boost::mpl::list<
@@ -80,6 +81,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 {
 	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p both unidentified connecting \n", &context< CConnectNodeAction >() );
 
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CConnectNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
@@ -110,6 +112,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 {
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p pair identified connecting \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -127,7 +130,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		}
 		else
 		{
-		// something  is  wrong  with  pair react  somehow for  now put 0
+			// something  is  wrong  with  pair react  somehow for  now put 0
 			context< CConnectNodeAction >().dropRequests();
 		}
 		return transit< CDetermineRoleConnecting >();
@@ -143,6 +146,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
@@ -181,6 +185,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 {
 	CBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p both unidentified connected \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -222,6 +227,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 {
 	CDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p determine role connected \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().dropRequests();
 	}
 
@@ -264,7 +270,8 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CConnectNodeAc
 {
 	CCantReachNode( my_context ctx ) : my_base( ctx )
 	{
-				context< CConnectNodeAction >().dropRequests();
+		LogPrintf("connect node action: %p can't reach node \n", &context< CConnectNodeAction >() );
+		context< CConnectNodeAction >().dropRequests();
 	}
 };
 
@@ -272,11 +279,12 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 {
 	ConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
 		CTrackerNodesManager::getInstance()->setNodeInfo(
 					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Seed );
 
 		CTrackerNodesManager::getInstance()->setKeyToNode(
-					  context< CConnectNodeAction >().getPublicKey()
+					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getMediumPtr()
 					);
 		common::CAuthenticationProvider::getInstance()->addPubKey( context< CConnectNodeAction >().getPublicKey() );
@@ -300,11 +308,12 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 {
 	ConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p connected to seed \n", &context< CConnectNodeAction >() );
 		CTrackerNodesManager::getInstance()->setNodeInfo(
 					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Seed );
 
 		CTrackerNodesManager::getInstance()->setKeyToNode(
-					  context< CConnectNodeAction >().getPublicKey()
+					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getMediumPtr()
 					);
 
@@ -344,11 +353,13 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 {
 	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p connected to monitor \n", &context< CConnectNodeAction >() );
+
 		CTrackerNodesManager::getInstance()->setNodeInfo(
 					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Monitor );
 
 		CTrackerNodesManager::getInstance()->setKeyToNode(
-					  context< CConnectNodeAction >().getPublicKey()
+					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getMediumPtr()
 					);
 
@@ -389,7 +400,7 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 		context< CConnectNodeAction >().addRequests( new common::CResultRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), result, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
 
 		if ( !result )
-			 transit< CStop >();
+			transit< CStop >();
 
 		return discard_event();
 	}
@@ -410,14 +421,15 @@ struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
 {
 	CStop( my_context ctx ) : my_base( ctx )
 	{
-			context< CConnectNodeAction >().dropRequests();
+		LogPrintf("connect node action: %p stop \n", &context< CConnectNodeAction >() );
+		context< CConnectNodeAction >().dropRequests();
 	}
 };
 
 CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr )
-: CCommunicationAction( _actionKey )
-, m_passive( true )
-, m_mediumPtr( _mediumPtr )
+	: CCommunicationAction( _actionKey )
+	, m_passive( true )
+	, m_mediumPtr( _mediumPtr )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
@@ -496,7 +508,6 @@ CConnectNodeAction::setPublicKey( CPubKey const & _pubKey )
 	m_key = _pubKey;
 }
 
-
 void
 CConnectNodeAction::setMediumPtr( uintptr_t _mediumPtr )
 {
@@ -504,6 +515,3 @@ CConnectNodeAction::setMediumPtr( uintptr_t _mediumPtr )
 }
 
 }
-
-
-

@@ -25,6 +25,7 @@ public:
 
 	virtual void operator()( common::CAvailableCoins & _param ) const
 	{
+		LogPrintf("set response \"available coins\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 };
@@ -37,21 +38,25 @@ public:
 
 	virtual void operator()( tracker::CValidationResult & _param ) const
 	{
+		LogPrintf("set response \"validation result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( tracker::CValidationEvent( _param.m_invalidTransactionIndexes ) );
 	}
 
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CAckResult & _param ) const
 	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent( _param.m_nodePtr ) );
 	}
 
 	virtual void operator()( common::CErrorEvent & _param ) const
 	{
+		LogPrintf("set response \"error\" to action: %p \n", this->m_action );
 		//handle it somehow
 	}
 };
@@ -64,6 +69,7 @@ public:
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
+		LogPrintf("set response \"connect node\" to action: %p \n", this->m_action );
 		if ( _param.m_node )
 			this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );
 		else
@@ -72,31 +78,37 @@ public:
 
 	virtual void operator()( common::CIdentificationResult & _param ) const
 	{
+		LogPrintf("set response \"identification result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CRoleResult & _param ) const
 	{
+		LogPrintf("set response \"role\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CRoleEvent( _param.m_role ) );
 	}
 
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
 	{
+		LogPrintf("set response \"network info\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
 	}
 
 	virtual void operator()( common::CAckResult & _param ) const
 	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent() );
 	}
 
 	virtual void operator()( common::CGetPrompt & _param ) const
 	{
+		LogPrintf("set response \"get prompt\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CGetEvent(_param.m_type) );
 	}
 
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 };
@@ -108,11 +120,13 @@ public:
 
 	virtual void operator()( tracker::CRequestedMerkles & _param ) const
 	{
+		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
 		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_id ) );
 	}
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 };
@@ -125,36 +139,43 @@ public:
 
 	virtual void operator()( tracker::CRequestedMerkles & _param ) const
 	{
+		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
 		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_id ) );
 	}
 
 	virtual void operator()( tracker::CSynchronizationInfoResult & _param ) const
 	{
+		LogPrintf("set response \"synchronization result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( tracker::CSynchronizationInfoEvent( _param.m_timeStamp, _param.m_nodeIndicator ) );
 	}
 
 	virtual void operator()( tracker::CSynchronizationBlockResult<tracker::CDiskBlock> & _param ) const
 	{
+		LogPrintf("set response \"synchronization block, disc block\" to action: %p \n", this->m_action );
 		this->m_action->process_event( tracker::CTransactionBlockEvent<tracker::CDiskBlock>( _param.m_discBlock, _param.m_blockIndex ) );
 	}
 
 	virtual void operator()( tracker::CSynchronizationBlockResult<tracker::CSegmentHeader> & _param ) const
 	{
+		LogPrintf("set response \"synchronization block, segment header\" to action: %p \n", this->m_action );
 		this->m_action->process_event( tracker::CTransactionBlockEvent<tracker::CSegmentHeader>( _param.m_discBlock, _param.m_blockIndex ) );
 	}
 
 	virtual void operator()( common::CGetPrompt & _param ) const
 	{
+		LogPrintf("set response \"get prompt\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CGetEvent( _param.m_type ) );
 	}
 
 	virtual void operator()( common::CEndEvent & _param ) const
 	{
+		LogPrintf("set response \"end event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CAckResult & _param ) const
 	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent() );
 	}
 };
@@ -166,11 +187,13 @@ public:
 
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CAckResult & _param ) const
 	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent() );
 	}
 };

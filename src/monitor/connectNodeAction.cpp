@@ -58,6 +58,8 @@ struct CMonitorUnconnected : boost::statechart::state< CMonitorUnconnected, CCon
 {
 	CMonitorUnconnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p monitor unconnected \n", &context< CConnectNodeAction >() );
+
 		context< CConnectNodeAction >().dropRequests();
 		context< CConnectNodeAction >().addRequests(
 					new CConnectToNodeRequest( "", context< CConnectNodeAction >().getServiceAddress() ) );
@@ -73,6 +75,8 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 {
 	CMonitorBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p both unidentified connecting \n", &context< CConnectNodeAction >() );
+
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CConnectNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
@@ -97,6 +101,7 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 {
 	CMonitorPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p pair identified connecting \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -113,7 +118,7 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 		}
 		else
 		{
-		// something  is  wrong  with  pair react  somehow for  now put 0
+			// something  is  wrong  with  pair react  somehow for  now put 0
 			context< CConnectNodeAction >().dropRequests();
 		}
 		return transit< CMonitorDetermineRoleConnecting >();
@@ -128,6 +133,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 {
 	CMonitorDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _roleEvent )
@@ -174,6 +180,7 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 {
 	CMonitorBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p both unidentified connecting \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -213,6 +220,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 {
 	CMonitorDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _roleEvent )
@@ -262,6 +270,7 @@ struct CMonitorCantReachNode : boost::statechart::state< CMonitorCantReachNode, 
 {
 	CMonitorCantReachNode( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p can't reach node' \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().dropRequests();
 	}
 };
@@ -270,6 +279,8 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 {
 	CMonitorConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
+
 		CReputationTracker::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getMediumPtr() );
@@ -300,6 +311,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 {
 	CMonitorConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p connected to seed \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
@@ -350,6 +362,7 @@ struct CMonitorConnectedToMonitor : boost::statechart::state< CMonitorConnectedT
 {
 	CMonitorConnectedToMonitor( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("connect node action: %p connected to monitor \n", &context< CConnectNodeAction >() );
 		CReputationTracker::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getMediumPtr() );
