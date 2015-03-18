@@ -392,6 +392,43 @@ CTimeEventRequest< _Types >::getEventTime() const
 	return m_requestedDelay;
 }
 
+template < class _Types >
+class CPingRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CPingRequest( uint256 const & _actionKey, FilterType * _mediumFilter );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+};
+
+template < class _Types >
+CPingRequest< _Types >::CPingRequest( uint256 const & _actionKey, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_actionKey( _actionKey )
+{
+}
+
+template < class _Types >
+void
+CPingRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CPingRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
 }
 
 #endif // MEDIUM_REQUESTS_H

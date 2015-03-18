@@ -31,6 +31,7 @@ COMMON_H = \
   common/commonEvents.h \
   common/commonResponses.h \
   common/databaseManager.h \
+  common/dimsParams.h \
   common/filters.h \
   common/identifyRequest.h \
   common/manageNetwork.h \
@@ -38,7 +39,7 @@ COMMON_H = \
   common/nodeMessages.h \
   common/nodesManager.h \
   common/periodicActionExecutor.h \
-  common/dimsParams.h \
+  common/pingAction.h \
   common/responseVisitorInternal.h \
   common/requestHandler.h \
   common/request.h \
@@ -46,15 +47,15 @@ COMMON_H = \
   common/timeMedium.h \
   common/transactionStatus.h \
   common/visitorConfigurationUtilities.h 
-
+  
 COMMON_CPP = \
   common/analyseTransaction.cpp \
   common/authenticationProvider.cpp \
   common/communicationProtocol.cpp \
   common/commonResponses.cpp \
   common/databaseManager.cpp \
-  common/manageNetwork.cpp \
   common/dimsParams.cpp \
+  common/manageNetwork.cpp \
   common/selfNode.cpp 
   
 # tracker core #
