@@ -57,7 +57,7 @@ struct CSynchronizationBlockResult
 };
 
 // list all desired types
-typedef boost::mpl::list< common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, CRequestedMerkles, CSynchronizationInfoResult, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult< CSegmentHeader >, CSynchronizationBlockResult< CDiskBlock >, common::CEndEvent, common::CMessageResult, common::CTimeEvent > TrackerResponseList;
+typedef boost::mpl::list< common::CPingPongResult, common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, CRequestedMerkles, CSynchronizationInfoResult, common::CRoleResult, common::CNetworkInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult< CSegmentHeader >, CSynchronizationBlockResult< CDiskBlock >, common::CEndEvent, common::CMessageResult, common::CTimeEvent > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

@@ -429,6 +429,43 @@ CPingRequest< _Types >::getActionKey() const
 	return m_actionKey;
 }
 
+template < class _Types >
+class CPongRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CPongRequest( uint256 const & _actionKey, FilterType * _mediumFilter );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+};
+
+template < class _Types >
+CPongRequest< _Types >::CPongRequest( uint256 const & _actionKey, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_actionKey( _actionKey )
+{
+}
+
+template < class _Types >
+void
+CPongRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CPongRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
 }
 
 #endif // MEDIUM_REQUESTS_H

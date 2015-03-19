@@ -197,6 +197,8 @@ struct CConnectedNode
 	common::CSelfNode * m_node;
 };
 
+
+
 struct CAckResult
 {
 	CAckResult(){};
@@ -204,6 +206,15 @@ struct CAckResult
 	{}
 
 	uintptr_t m_nodePtr;
+};
+
+struct CPingPongResult : boost::statechart::event< CPingPongResult >
+{
+	CPingPongResult( bool _isPing, uintptr_t _nodePtr ):m_isPing( _isPing ), m_nodePtr( _nodePtr ){}
+
+	uintptr_t m_nodePtr;
+
+	bool m_isPing;
 };
 
 struct CMessageResult : boost::statechart::event< CMessageResult >

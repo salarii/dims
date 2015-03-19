@@ -46,6 +46,10 @@ public:
 
 	void add( CResultRequest< Type > const * _request );
 
+	void add( CPingRequest< Type > const * _request );
+
+	void add( CPongRequest< Type > const * _request );
+
 	void setResponse( uint256 const & _id, Response const & _responses );
 
 	common::CSelfNode * getNode() const;
@@ -239,6 +243,32 @@ CNodeMedium< _Medium >::add( CResultRequest< Type > const * _request )
 	m_messages.push_back( message );
 
 	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CPingRequest< Type > const * _request )
+{
+	CPing ping;
+
+	common::CMessage message( ping, _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CPongRequest< Type > const * _request )
+{
+	CPong pong;
+
+	common::CMessage message( pong, _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
 }
 
 }

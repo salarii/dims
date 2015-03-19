@@ -137,6 +137,22 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				nodeMedium->setResponse( message.m_header.m_actionKey, common::CEndEvent() );
 			}
 		}
+		else if (
+					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )
+		{
+			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				bool isPing = message.m_header.m_payloadKind == common::CPayloadKind::Ping;
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CPingPongResult( isPing, convertToInt( nodeMedium->getNode() ) ) );
+			}
+			else
+			{
+				assert(!"it should be existing action");
+			}
+		}
 	}
 }
 

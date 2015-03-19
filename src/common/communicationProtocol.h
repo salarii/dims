@@ -40,7 +40,9 @@ struct CPayloadKind
 		Result,
 		AdmitProof,
 		ValidRegistration,
-		AdmitAsk
+		AdmitAsk,
+		Ping,
+		Pong
 	};
 };
 
@@ -139,6 +141,24 @@ struct CNetworkRole
 	)
 
 	int m_role;
+};
+
+struct CPing
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+	int m_dummy;
+};
+
+struct CPong
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+	int m_dummy;
 };
 
 struct CAck
@@ -314,6 +334,8 @@ public:
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
 	CMessage( CValidRegistration const & _valid, uint256 const & _actionKey );
 	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey );
+	CMessage( CPong const & _pong, uint256 const & _actionKey );
+	CMessage( CPing const & _ping, uint256 const & _actionKey );
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);

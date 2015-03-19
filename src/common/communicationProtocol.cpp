@@ -205,6 +205,22 @@ CMessage::CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey )
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CPong const & _pong, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::Pong, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+{
+	createPayload( _pong, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
+CMessage::CMessage( CPing const & _ping, uint256 const & _actionKey )
+	: m_header( (int)CPayloadKind::Ping, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+{
+	createPayload( _ping, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 uint256
 getRandNumber()
 {

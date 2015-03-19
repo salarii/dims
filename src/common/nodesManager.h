@@ -58,7 +58,7 @@ void
 CNodesManager< _MediumFilter >::addNode( CNodeMedium< Medium > * _medium )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
-
+// create  and  run ping  action
 	m_ptrToNodes.insert( std::make_pair( convertToInt( _medium->getNode() ), _medium ) );
 }
 
