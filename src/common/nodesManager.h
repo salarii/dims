@@ -37,13 +37,15 @@ public:
 
 	Medium * findNodeMedium( uintptr_t _ptr ) const;
 
+	Medium * eraseMedium( uintptr_t _nodePtr );
+
 	virtual std::list< Medium *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
 protected:
 	CNodesManager();
 
 	mutable boost::mutex m_nodesLock;
 
-	std::map< unsigned int, CNodeMedium< Medium >* > m_ptrToNodes;
+	std::map< uintptr_t, CNodeMedium< Medium >* > m_ptrToNodes;
 protected:
 	static CNodesManager< _MediumFilter > * ms_instance;
 };
@@ -66,7 +68,7 @@ template < class _MediumFilter >
 CNodeMedium< MEDIUM_TYPE(_MediumFilter) >*
 CNodesManager< _MediumFilter >::getMediumForNode( common::CSelfNode * _node ) const
 {
-	typename std::map< unsigned int, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
+	typename std::map< uintptr_t, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
 	if ( iterator != m_ptrToNodes.end() )
 	{
 		return iterator->second;
@@ -86,9 +88,25 @@ template < class _MediumFilter >
 MEDIUM_TYPE(_MediumFilter) *
 CNodesManager< _MediumFilter >::findNodeMedium( uintptr_t _ptr ) const
 {
-	typename std::map< unsigned int, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
+	typename std::map< uintptr_t, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
 
 	return iterator != m_ptrToNodes.end() ? iterator->second : 0;
+}
+
+template < class _MediumFilter >
+MEDIUM_TYPE(_MediumFilter) *
+CNodesManager< _MediumFilter >::eraseMedium( uintptr_t _nodePtr )
+{
+	typename std::map< uintptr_t, CNodeMedium< Medium >* >::iterator iterator = m_ptrToNodes.find( _nodePtr );
+
+	if ( iterator == m_ptrToNodes.end() )
+		return 0;
+
+	Medium * medium = iterator->second;
+
+	m_ptrToNodes.erase( iterator );
+
+	return medium;
 }
 
 }

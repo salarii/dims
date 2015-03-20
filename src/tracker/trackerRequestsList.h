@@ -23,6 +23,12 @@ class CResultRequest;
 
 template < class _Types >
 class CTimeEventRequest;
+
+template < class _Types >
+class CPingRequest;
+
+template < class _Types >
+class CPongRequest;
 }
 
 namespace tracker

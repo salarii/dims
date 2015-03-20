@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-namespace  common
+namespace common
 {
 
 template < class T, class Enum >

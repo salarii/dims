@@ -44,6 +44,8 @@ public:
 	using CMedium::types;
 public:
 	virtual void add( common::CAckRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CPingRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CPongRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CEndRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CResultRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CSendIdentifyDataRequest<CTrackerTypes> const * _request ){};
@@ -73,6 +75,8 @@ public:
 	using CMedium::types;
 public:
 	virtual void add( common::CSendIdentifyDataRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CPingRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CPongRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CAckRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CNetworkRoleRequest< CMonitorTypes > const * _request ){};
@@ -106,6 +110,8 @@ public:
 	using CMedium::types;
 public:
 	virtual void add( common::CSendIdentifyDataRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CPingRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CPongRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CConnectToNodeRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CNetworkRoleRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CAckRequest< CSeedTypes > const * _request ){};

@@ -9,6 +9,7 @@ SEED_H = \
 	acceptNodeAction.h \
 	configureSeedActionHandler.h \
 	internalMedium.h \
+	pingAction.h \
 	processNetwork.h \
 	seedBitcoin.h \
 	seedDb.h \
@@ -19,6 +20,7 @@ SEED_CPP = \
 	acceptNodeAction.cpp \
 	actionHandlerDefinitions.cpp \
 	internalMedium.cpp \
+	pingAction.cpp \
 	processNetwork.cpp \
 	seedBitcoin.cpp \
 	seedDb.cpp \

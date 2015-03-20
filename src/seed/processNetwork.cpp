@@ -60,7 +60,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				CAcceptNodeAction * connectNodeAction= new CAcceptNodeAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
+				CAcceptNodeAction * connectNodeAction = new CAcceptNodeAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
+				connectNodeAction->process_event( common::CSwitchToConnectedEvent() );
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
 				common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( connectNodeAction );
 			}

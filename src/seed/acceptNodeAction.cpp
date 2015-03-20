@@ -151,6 +151,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 			context< CAcceptNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 			context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
+			context< CAcceptNodeAction >().setAddress( _identificationResult.m_address );
 		}
 		else
 		{
@@ -425,7 +426,6 @@ CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _med
 	, m_valid( false )
 {
 	initiate();
-	process_event( common::CSwitchToConnectedEvent() );
 }
 
 CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
@@ -438,7 +438,6 @@ CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
 		m_payload.push_back( insecure_rand() % 256 );
 	}
 	initiate();
-	process_event( common::CSwitchToConnectingEvent() );
 }
 
 void

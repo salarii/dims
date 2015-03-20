@@ -408,6 +408,8 @@ void periodicCheck()
 			bool getaddr = res.ourLastSuccess + 604800 < now;
 			//ugly
 			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
+			acceptNodeAction->process_event( common::CSwitchToConnectingEvent() );
+
 			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptNodeAction );
 		}
 

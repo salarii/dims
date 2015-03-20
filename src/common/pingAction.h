@@ -29,11 +29,27 @@ struct CSendPing : boost::statechart::state< CSendPing< _Type >, CPingAction< _T
 {
 	CSendPing( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().dropRequests();
-	//	context< CConnectNodeAction >().addRequests(  );
+		context< CSendPing >().dropRequests();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		CPingRequest
+		CPongRequest
+		context< CConnectNodeAction >().addRequests(
+					new common::CKnownNetworkInfoRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey()
+																				   , knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CPingPongResult const & _pingPong )
+	{
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CPingPongResult >
 	> reactions;
 
 };
