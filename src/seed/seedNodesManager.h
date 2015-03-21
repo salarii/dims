@@ -23,9 +23,11 @@ public:
 
 	std::list< common::CSeedBaseMedium *> provideConnection( common::CSeedMediumFilter const & _mediumFilter );
 
-	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
+	void setPublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey );
 
-	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
+	bool getPublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const;
+
+	bool clearPublicKey( uintptr_t _nodeIndicator );
 
 	std::list< common::CSeedBaseMedium *> getInternalMedium();
 
@@ -33,7 +35,7 @@ public:
 private:
 	CSeedNodesManager();
 private:
-	std::map< CAddress, CPubKey > m_keyStore;
+	std::map< uintptr_t, CPubKey > m_keyStore;
 };
 
 }

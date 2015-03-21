@@ -49,8 +49,14 @@ public:
 
 	bool operator<( CRequestHandler< _Type > const & _handler ) const;
 private:
+	void setInvalid(){ m_valid = false; }
+private:
+	bool m_valid;
+
 	std::vector<CRequest< _Type >*> m_newRequest;
+
 	std::map<CRequest< _Type >*,uint256> m_pendingRequest;
+
 	std::multimap<CRequest< _Type >const*,Response > m_processedRequests;
 
 	Medium * m_usedMedium;
@@ -58,8 +64,10 @@ private:
 
 template < class _Type >
 CRequestHandler< _Type >::CRequestHandler( Medium * _medium )
-	:m_usedMedium( _medium )
+	: m_usedMedium( _medium )
+	, m_valid( true )
 {
+	_medium->registerDeleteHook( boost::bind( &CRequestHandler< _Type >::setInvalid, this ) );
 }
 
 template < class _Type >
@@ -127,6 +135,9 @@ template < class _Type >
 void
  CRequestHandler< _Type >::runRequests()
 {
+	if ( !m_valid )
+		return;
+
 	m_usedMedium->prepareMedium();
 	BOOST_FOREACH( CRequest< _Type >* request, m_newRequest )
 	{
@@ -138,8 +149,11 @@ void
 
 template < class _Type >
 void
- CRequestHandler< _Type >::processMediumResponses()
+CRequestHandler< _Type >::processMediumResponses()
 {
+	if ( !m_valid )
+		return;
+
 	try
 	{
 		if( !m_usedMedium->serviced() )

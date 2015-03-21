@@ -23,6 +23,8 @@ public:
 
 	uintptr_t getNodeIndicator()const;
 
+	void cleanup() const;
+
 	~CPingAction(){};
 private:
 	uintptr_t m_nodeIndicator;

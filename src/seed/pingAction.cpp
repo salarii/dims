@@ -34,6 +34,8 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 	{
 		if ( !m_received )
 		{
+			context< CPingAction >().cleanup();
+
 			CAcceptNodeAction * acceptAction = new CAcceptNodeAction(
 						context< CPingAction >().getActionKey()
 						, context< CPingAction >().getNodeIndicator() );
@@ -84,6 +86,8 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 		if ( !m_received )
 		{
+			context< CPingAction >().cleanup();
+
 			CAcceptNodeAction * acceptAction = new CAcceptNodeAction(
 						context< CPingAction >().getActionKey()
 						, context< CPingAction >().getNodeIndicator() );
@@ -132,6 +136,17 @@ uintptr_t
 CPingAction::getNodeIndicator() const
 {
 	return m_nodeIndicator;
+}
+
+void
+CPingAction::cleanup() const
+{
+	CSeedNodesManager::getInstance()->clearPublicKey( m_nodeIndicator );
+	common::CSeedBaseMedium * medium =
+			CSeedNodesManager::getInstance()->eraseMedium( m_nodeIndicator );
+
+	if ( medium )
+		delete medium;
 }
 
 }

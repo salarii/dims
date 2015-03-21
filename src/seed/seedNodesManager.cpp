@@ -48,15 +48,15 @@ CSeedNodesManager::getInternalMedium()
 }
 
 void
-CSeedNodesManager::setPublicKey( CAddress const & _address, CPubKey const & _pubKey )
+CSeedNodesManager::setPublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey )
 {
-	m_keyStore.insert( std::make_pair( _address, _pubKey ) );
+	m_keyStore.insert( std::make_pair( _nodeIndicator, _pubKey ) );
 }
 
 bool
-CSeedNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const
+CSeedNodesManager::getPublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const
 {
-	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _address );
+	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_keyStore.find( _nodeIndicator );
 
 	if ( iterator == m_keyStore.end() )
 		return false;
@@ -66,5 +66,10 @@ CSeedNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) 
 	return true;
 }
 
+bool
+CSeedNodesManager::clearPublicKey( uintptr_t _nodeIndicator )
+{
+	m_keyStore.erase( _nodeIndicator );
+}
 
 }

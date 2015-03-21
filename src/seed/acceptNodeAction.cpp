@@ -144,7 +144,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
 		{
-			CSeedNodesManager::getInstance()->setPublicKey( _identificationResult.m_address, _identificationResult.m_key );
+			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getMediumPtr(), _identificationResult.m_key );
 
 			context< CAcceptNodeAction >().dropRequests();
 			context< CAcceptNodeAction >().addRequests( new common::CAckRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
@@ -224,7 +224,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
 		{
-			CSeedNodesManager::getInstance()->setPublicKey( _identificationResult.m_address, _identificationResult.m_key );
+			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getMediumPtr(), _identificationResult.m_key );
 			context< CAcceptNodeAction >().dropRequests();
 			context< CAcceptNodeAction >().addRequests( new common::CAckRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getMediumPtr() ) ) );
 

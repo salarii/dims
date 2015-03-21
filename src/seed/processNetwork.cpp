@@ -74,7 +74,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
 			CPubKey pubKey;
-			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			if ( !CSeedNodesManager::getInstance()->getPublicKey( convertToInt( pfrom ), pubKey ) )
 				;//service  error  somehow, can't  decode  action  at  this point  so it  have  to  be  done as  common  solution  for  all  such  issues
 			common::CMessage orginalMessage;
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
@@ -94,8 +94,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
 		{
 			CPubKey pubKey;
-			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-				;
+			if ( !CSeedNodesManager::getInstance()->getPublicKey( convertToInt( pfrom ), pubKey ) );
 
 			common::CMessage orginalMessage;
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
