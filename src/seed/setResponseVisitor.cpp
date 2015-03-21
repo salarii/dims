@@ -6,7 +6,8 @@
 #include "common/responseVisitorInternal.h"
 #include "common/commonEvents.h"
 
-#include "acceptNodeAction.h"
+#include "seed/acceptNodeAction.h"
+#include "seed/pingAction.h"
 
 namespace common
 {
@@ -62,18 +63,41 @@ public:
 	}
 };
 
+template < class _Action >
+class CSetPingResult : public CResponseVisitorBase< _Action, seed::SeedResponseList >
+{
+public:
+	CSetPingResult( _Action * const _action ):CResponseVisitorBase< _Action, seed::SeedResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CPingPongResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+};
+
 
 CSetResponseVisitor< common::CSeedTypes >::CSetResponseVisitor( seed::SeedResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
 {
 }
 
-
 void
 CSetResponseVisitor< common::CSeedTypes >::visit( seed::CAcceptNodeAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList > const &)CSetNodeConnectedResult< seed::CAcceptNodeAction >( &_action ), m_requestResponse );
 }
+
+void
+CSetResponseVisitor< common::CSeedTypes >::visit( seed::CPingAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList > const &)CSetPingResult< seed::CPingAction >( &_action ), m_requestResponse );
+}
+
 
 }
 

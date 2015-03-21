@@ -54,6 +54,8 @@ class CAdmitProofTransactionBundle;
 namespace seed
 {
 class CAcceptNodeAction;
+
+class CPingAction;
 }
 
 namespace common
@@ -142,6 +144,7 @@ public:
 
 	void visit( seed::CAcceptNodeAction & _action );
 
+	void visit( seed::CPingAction & _action );
 private:
 	seed::SeedResponses m_requestResponse;
 };

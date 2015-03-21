@@ -14,10 +14,10 @@ namespace seed
 {
 struct CUninitialised;
 
-class CPingAction : public common::CAction< _Type >, public  boost::statechart::state_machine< CPingAction, CUninitialised >, public common::CCommunicationAction
+class CPingAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CPingAction, CUninitialised >, public common::CCommunicationAction
 {
 public:
-	CPingAction( uintptr_t _nodeIndicator, uint256 const & _actionKey );
+	CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	virtual void accept( common::CSetResponseVisitor< common::CSeedTypes > & _visitor );
 

@@ -2,7 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "common/mediumRequests.h"
+#include "common/support.h"
+
 #include "seed/pingAction.h"
+#include "seed/seedFilter.h"
+#include "seed/acceptNodeAction.h"
 
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
@@ -10,6 +15,13 @@
 
 namespace seed
 {
+
+struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
+{
+	CUninitialised( my_context ctx ) : my_base( ctx )
+	{
+	}
+};
 
 struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 {
@@ -20,13 +32,25 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CSendPong >().dropRequests();
-
-		context< CPingAction >().addRequests(
-					new common::CPongRequest< common::CSeedTypes >(
+		if ( !m_received )
+		{
+			CAcceptNodeAction * acceptAction = new CAcceptNodeAction(
 						context< CPingAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
+						, context< CPingAction >().getNodeIndicator() );
 
+			acceptAction->process_event( common::CSwitchToConnectingEvent() );
+
+			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptAction );
+		}
+		else
+		{
+			context< CPingAction >().dropRequests();
+
+			context< CPingAction >().addRequests(
+						new common::CPongRequest< common::CSeedTypes >(
+							context< CPingAction >().getActionKey()
+							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
+		}
 		return discard_event();
 	}
 
@@ -51,22 +75,22 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 {
 	CSendPong( my_context ctx ) : my_base( ctx )
 	{
-		context< CSendPong >().dropRequests();
+		context< CPingAction >().dropRequests();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CSendPong >().dropRequests();
+		context< CPingAction >().dropRequests();
 
 		if ( !m_received )
 		{
-			context< CPingAction >().addRequests(
-						new common::CAcceptNodeAction< common::CSeedTypes >(
-							context< CPingAction >().getActionKey()
-							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
+			CAcceptNodeAction * acceptAction = new CAcceptNodeAction(
+						context< CPingAction >().getActionKey()
+						, context< CPingAction >().getNodeIndicator() );
 
-		CSwitchToConnectedEvent
-				CSwitchToConnectingEvent
+			acceptAction->process_event( common::CSwitchToConnectingEvent() );
+
+			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptAction );
 		}
 		else
 		{
@@ -96,7 +120,6 @@ CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
-	process_event( common::CSwitchToConnectedEvent() );
 }
 
 void
