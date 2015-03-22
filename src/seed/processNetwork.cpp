@@ -2,13 +2,15 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "processNetwork.h"
-#include "seedNodeMedium.h"
-#include "seedNodesManager.h"
-#include "acceptNodeAction.h"
 #include "common/actionHandler.h"
 #include "common/communicationProtocol.h"
 #include "common/commonEvents.h"
+
+#include "seed/processNetwork.h"
+#include "seed/seedNodeMedium.h"
+#include "seed/seedNodesManager.h"
+#include "seed/acceptNodeAction.h"
+#include "seed/pingAction.h"
 
 namespace seed
 {
@@ -150,7 +152,20 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				assert(!"it should be existing action");
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
+				{
+
+					CPingAction * pingAction
+							= new CPingAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
+
+					pingAction->process_event( common::CStartPongEvent() );
+
+					common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( pingAction );
+				}
+				else
+				{
+					assert(!"it should be existing action");
+				}
 			}
 		}
 	}

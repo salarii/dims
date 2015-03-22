@@ -74,6 +74,7 @@ TRACKER_CORE_H = \
   tracker/internalOperationsMedium.h \
   tracker/originTransactionsDatabase.h \
   tracker/originAddressScaner.h \
+  tracker/pingAction.h \
   tracker/processNetwork.h \
   tracker/provideInfoAction.h \
   tracker/registerAction.h \
@@ -172,6 +173,7 @@ TRACKER_CORE_CPP = \
   tracker/internalOperationsMedium.cpp \
   tracker/originTransactionsDatabase.cpp \
   tracker/originAddressScaner.cpp \
+  tracker/pingAction.cpp \
   tracker/processNetwork.cpp \
   tracker/provideInfoAction.cpp \
   tracker/registerAction.cpp \

@@ -2,17 +2,18 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "processNetwork.h"
-#include "trackerNodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
-#include "trackerFilters.h"
 
-#include "trackerNodeMedium.h"
-#include "connectNodeAction.h"
-#include "synchronizationAction.h"
-#include "validateTransactionsAction.h"
-#include "provideInfoAction.h"
+#include "tracker/processNetwork.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/trackerFilters.h"
+#include "tracker/trackerNodeMedium.h"
+#include "tracker/connectNodeAction.h"
+#include "tracker/synchronizationAction.h"
+#include "tracker/validateTransactionsAction.h"
+#include "tracker/provideInfoAction.h"
+#include "tracker/pingAction.h"
 
 namespace tracker
 {
@@ -299,7 +300,20 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				assert(!"it should be existing action");
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
+				{
+
+					CPingAction * pingAction
+							= new CPingAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
+
+					pingAction->process_event( common::CStartPongEvent() );
+
+					common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( pingAction );
+				}
+				else
+				{
+					assert(!"it should be existing action");
+				}
 			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::End )

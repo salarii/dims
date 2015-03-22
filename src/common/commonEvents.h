@@ -111,6 +111,14 @@ struct CGetEvent : boost::statechart::event< CGetEvent >
 	int m_type;
 };
 
+struct CStartPingEvent : boost::statechart::event< CStartPingEvent >
+{
+};
+
+struct CStartPongEvent : boost::statechart::event< CStartPongEvent >
+{
+};
+
 }
 
 #endif // COMMON_EVENTS_H

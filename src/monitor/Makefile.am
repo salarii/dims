@@ -21,6 +21,7 @@ MONITOR_H = \
 	monitorRequests.h \
 	monitorRequestsList.h \
 	noMediumHandling.h \
+	pingAction.h \
 	processNetwork.h \
 	rankingDatabase.h \
 	reputationTracer.h \
@@ -42,6 +43,7 @@ MONITOR_CPP = \
 	monitorNodeMedium.cpp \
 	monitorRequests.cpp \
 	noMediumHandling.cpp \
+	pingAction.cpp \
 	processNetwork.cpp \
 	rankingDatabase.cpp \
 	reputationTracer.cpp \

@@ -23,6 +23,8 @@ class CSynchronizationAction;
 
 class CProvideInfoAction;
 
+class CPingAction;
+
 }
 
 namespace client
@@ -48,6 +50,8 @@ class CUpdateDataAction;
 class CAdmitTrackerAction;
 
 class CAdmitProofTransactionBundle;
+
+class CPingAction;
 
 }
 
@@ -91,6 +95,8 @@ public:
 	virtual void visit( tracker::CSynchronizationAction & _action );
 
 	virtual void visit( tracker::CProvideInfoAction & _action );
+
+	virtual void visit( tracker::CPingAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };
@@ -131,6 +137,9 @@ public:
 	virtual void visit( monitor::CAdmitTrackerAction & _action );
 
 	virtual void visit( monitor::CAdmitProofTransactionBundle & _action );
+
+	virtual void visit( monitor::CPingAction & _action );
+
 private:
 
 	monitor::MonitorResponses m_requestResponse;

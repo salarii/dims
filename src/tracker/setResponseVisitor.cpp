@@ -13,6 +13,7 @@
 #include "tracker/trackOriginAddressAction.h"
 #include "tracker/synchronizationAction.h"
 #include "tracker/provideInfoAction.h"
+#include "tracker/pingAction.h"
 
 namespace common
 {
@@ -198,6 +199,23 @@ public:
 	}
 };
 
+template < class _Action >
+class CSetPingResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+{
+public:
+	CSetPingResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CPingPongResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+};
+
 CSetResponseVisitor< CTrackerTypes >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
 	: m_trackerResponses( _trackerResponse )
 {
@@ -242,6 +260,12 @@ void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CProvideInfoAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CProvideInfoAction, tracker::TrackerResponseList > const &)CSetProvideInfoResult( &_action ), m_trackerResponses );
+}
+
+void
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CPingAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CPingAction, tracker::TrackerResponseList > const &)CSetPingResult< tracker::CPingAction >( &_action ), m_trackerResponses );
 }
 
 }

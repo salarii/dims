@@ -10,6 +10,7 @@
 #include "monitor/updateDataAction.h"
 #include "monitor/admitTrackerAction.h"
 #include "monitor/admitTransactionsBundle.h"
+#include "monitor/pingAction.h"
 
 namespace common
 {
@@ -87,6 +88,23 @@ public:
 };
 
 
+template < class _Action >
+class CSetPingResult : public CResponseVisitorBase< _Action, monitor::MonitorResponseList >
+{
+public:
+	CSetPingResult( _Action * const _action ):CResponseVisitorBase< _Action, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CPingPongResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+};
+
 CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
 {
@@ -115,6 +133,13 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitProofTransac
 {
 		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitProofTransactionBundle, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CAdmitProofTransactionBundle >( &_action ), m_requestResponse );
 }
+
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CPingAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList > const &)CSetPingResult< monitor::CPingAction >( &_action ), m_requestResponse );
+}
+
 
 }
 

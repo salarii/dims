@@ -16,11 +16,19 @@
 namespace seed
 {
 
+struct CSendPing;
+struct CSendPong;
+
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
 	CUninitialised( my_context ctx ) : my_base( ctx )
 	{
 	}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< common::CStartPingEvent, CSendPing >,
+	boost::statechart::transition< common::CStartPongEvent, CSendPong >
+	> reactions;
 };
 
 struct CSendPing : boost::statechart::state< CSendPing, CPingAction >

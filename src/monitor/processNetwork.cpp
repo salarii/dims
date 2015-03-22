@@ -14,6 +14,7 @@
 #include "monitor/monitorNodeMedium.h"
 #include "monitor/admitTrackerAction.h"
 #include "monitor/admitTransactionsBundle.h"
+#include "monitor/pingAction.h"
 
 namespace monitor
 {
@@ -108,8 +109,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			else
 			{
 				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
-							  nodeMedium->getNode()->addr
-							, message.m_header.m_actionKey
+							  message.m_header.m_actionKey
 							, convertToInt( nodeMedium->getNode() ) );
 
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
@@ -144,7 +144,19 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 			else
 			{
-				assert(!"it should be existing action");
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
+				{
+					CPingAction * pingAction
+							= new CPingAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
+
+					pingAction->process_event( common::CStartPongEvent() );
+
+					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( pingAction );
+				}
+				else
+				{
+					assert(!"it should be existing action");
+				}
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
