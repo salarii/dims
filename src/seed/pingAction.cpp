@@ -19,7 +19,7 @@ namespace seed
 struct CSendPing;
 struct CSendPong;
 
-int64_t PingPeriod = 20;
+int64_t PingPeriod = 20000;//milisec
 
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
@@ -79,7 +79,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 	boost::statechart::result react( common::CPingPongResult const & _pingPong )
 	{
-		assert( _pingPong.m_isPing );// remove this  debug only
+		assert( !_pingPong.m_isPing );// remove this  debug only
 
 		if ( !_pingPong.m_isPing )
 			m_received = true;
@@ -141,7 +141,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 	boost::statechart::result react( common::CPingPongResult const & _pingPong )
 	{
-		assert( !_pingPong.m_isPing );// remove this  debug only
+		assert( _pingPong.m_isPing );// remove this  debug only
 
 		if ( _pingPong.m_isPing )
 			m_received = true;
