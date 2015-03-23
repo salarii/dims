@@ -125,15 +125,16 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 {
 	CBothUnidentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
-		CPingAction * pingAction= new CPingAction( context< CAcceptNodeAction >().getNodePtr() );
+		LogPrintf("accept node action: %p both unidentified connecting \n", &context< CAcceptNodeAction >() );
+		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
+		context< CAcceptNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
+
+		CPingAction * pingAction= new CPingAction( convertToInt( connectedEvent->m_node ) );
 
 		pingAction->process_event( common::CStartPingEvent() );
 
 		common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( pingAction );
 
-		LogPrintf("accept node action: %p both unidentified connecting \n", &context< CAcceptNodeAction >() );
-		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
-		context< CAcceptNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
 		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
 		context< CAcceptNodeAction >().dropRequests();
 

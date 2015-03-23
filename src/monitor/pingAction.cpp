@@ -20,7 +20,7 @@ namespace monitor
 struct CSendPing;
 struct CSendPong;
 
-int64_t Period = 10;
+int64_t PingPeriod = 20;
 
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
@@ -41,7 +41,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		context< CPingAction >().dropRequests();
 
 		context< CPingAction >().addRequests(
-					new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		context< CPingAction >().addRequests(
 					new common::CPingRequest< common::CMonitorTypes >(
@@ -66,7 +66,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		else
 		{
 			context< CPingAction >().addRequests(
-						new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 			context< CPingAction >().addRequests(
 						new common::CPongRequest< common::CMonitorTypes >(
@@ -101,7 +101,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		context< CPingAction >().dropRequests();
 
 		context< CPingAction >().addRequests(
-					new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		context< CPingAction >().addRequests(
 					new common::CPongRequest< common::CMonitorTypes >(
@@ -126,7 +126,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		else
 		{
 			context< CPingAction >().addRequests(
-						new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 			context< CPingAction >().addRequests(
 						new common::CPongRequest< common::CMonitorTypes >(
