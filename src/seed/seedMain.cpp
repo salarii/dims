@@ -420,7 +420,7 @@ void periodicCheck()
 		bool resultValid;
 		for (int i=0; i<ips.size(); i++)
 		{
-			std::string ipPort = ips[ i ].service.ToString();
+			std::string ipPort = ips[ i ].service.ToStringIP();
 
 			resultValid = getResult( ipPort, isNodeValid );
 

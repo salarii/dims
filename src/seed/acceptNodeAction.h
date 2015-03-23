@@ -47,7 +47,7 @@ public:
 
 	bool getValid() const{ return m_valid; }
 
-	void setValid( bool _valid ){ addResult( m_nodeAddress.ToString(), _valid ); }
+	void setValid( bool _valid ){ addResult( m_nodeAddress.ToStringIP(), _valid ); }
 
 	~CAcceptNodeAction(){};
 private:
