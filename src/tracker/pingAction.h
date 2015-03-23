@@ -17,6 +17,8 @@ struct CUninitialised;
 class CPingAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CPingAction, CUninitialised >, public common::CCommunicationAction
 {
 public:
+	CPingAction( uintptr_t _nodeIndicator );
+
 	CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );

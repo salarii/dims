@@ -20,6 +20,8 @@ namespace monitor
 struct CSendPing;
 struct CSendPong;
 
+int64_t Period = 10;
+
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
 	CUninitialised( my_context ctx ) : my_base( ctx )
@@ -37,10 +39,20 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 	CSendPing( my_context ctx ) : my_base( ctx )
 	{
 		context< CPingAction >().dropRequests();
+
+		context< CPingAction >().addRequests(
+					new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		context< CPingAction >().addRequests(
+					new common::CPingRequest< common::CMonitorTypes >(
+						context< CPingAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CPingAction >().dropRequests();
+
 		if ( !m_received )
 		{
 			CConnectNodeAction * connectNode = new CConnectNodeAction(
@@ -53,7 +65,8 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		}
 		else
 		{
-			context< CPingAction >().dropRequests();
+			context< CPingAction >().addRequests(
+						new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 			context< CPingAction >().addRequests(
 						new common::CPongRequest< common::CMonitorTypes >(
@@ -65,9 +78,10 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 	boost::statechart::result react( common::CPingPongResult const & _pingPong )
 	{
-		assert( !_pingPong.m_isPing );// remove this  debug only
+		assert( _pingPong.m_isPing );// remove this  debug only
 
-		m_received = true;
+		if ( !_pingPong.m_isPing )
+			m_received = true;
 
 		return discard_event();
 	}
@@ -85,6 +99,14 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 	CSendPong( my_context ctx ) : my_base( ctx )
 	{
 		context< CPingAction >().dropRequests();
+
+		context< CPingAction >().addRequests(
+					new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		context< CPingAction >().addRequests(
+					new common::CPongRequest< common::CMonitorTypes >(
+						context< CPingAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -104,7 +126,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		else
 		{
 			context< CPingAction >().addRequests(
-						new common::CPingRequest< common::CMonitorTypes >(
+						new common::CTimeEventRequest< common::CMonitorTypes >( Period, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+			context< CPingAction >().addRequests(
+						new common::CPongRequest< common::CMonitorTypes >(
 							context< CPingAction >().getActionKey()
 							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
 		}
@@ -113,6 +138,11 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 	boost::statechart::result react( common::CPingPongResult const & _pingPong )
 	{
+		assert( !_pingPong.m_isPing );// remove this  debug only
+
+		if ( _pingPong.m_isPing )
+			m_received = true;
+
 		return discard_event();
 	}
 
@@ -123,6 +153,12 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 	bool m_received;
 };
+
+CPingAction::CPingAction( uintptr_t _nodeIndicator )
+	: m_nodeIndicator( _nodeIndicator )
+{
+	initiate();
+}
 
 CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: CCommunicationAction( _actionKey )
