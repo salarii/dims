@@ -20,7 +20,7 @@ namespace tracker
 struct CSendPing;
 struct CSendPong;
 
-int64_t PingPeriod = 20;
+int64_t PingPeriod = 20000;//milisec
 
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
@@ -36,7 +36,7 @@ struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 
 struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 {
-	CSendPing( my_context ctx ) : my_base( ctx )
+	CSendPing( my_context ctx ) : my_base( ctx ), m_received( true )
 	{
 		context< CPingAction >().dropRequests();
 
