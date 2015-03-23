@@ -78,7 +78,7 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 		LogPrintf("connect node action: %p both unidentified connecting \n", &context< CConnectNodeAction >() );
 
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
-		context< CConnectNodeAction >().setMediumPtr( convertToInt( connectedEvent->m_node ) );
+		context< CConnectNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CReputationTracker::getInstance()->addNode( new common::CNodeMedium< common::CMonitorBaseMedium >( connectedEvent->m_node ) );
 		context< CConnectNodeAction >().dropRequests();
@@ -86,7 +86,7 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 					createIdentifyResponse(
 						context< CConnectNodeAction >().getPayload(),
 						context< CConnectNodeAction >().getActionKey(),
-						new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() )
+						new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() )
 						)
 					);
 	}
@@ -113,8 +113,8 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
 
 			context< CConnectNodeAction >().dropRequests();
-			context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-			context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), common::CRole::Monitor, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+			context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+			context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), common::CRole::Monitor, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else
 		{
@@ -147,7 +147,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 		common::convertPayload( orginalMessage, networkRole );
 
 		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		switch ( networkRole.m_role )
 		{
@@ -192,13 +192,13 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
 
 			context< CConnectNodeAction >().dropRequests();
-			context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+			context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			context< CConnectNodeAction >().addRequests(
 						createIdentifyResponse(
 							_identificationResult.m_payload,
 							context< CConnectNodeAction >().getActionKey(),
-							new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() )
+							new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() )
 							)
 						);
 		}
@@ -235,8 +235,8 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 
 		m_role = networkRole.m_role;
 		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
-		context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), common::CRole::Monitor, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), common::CRole::Monitor, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		return discard_event();
 	}
 
@@ -283,9 +283,9 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 
 		CReputationTracker::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
-					, context< CConnectNodeAction >().getMediumPtr() );
+					, context< CConnectNodeAction >().getNodePtr() );
 
-		context< CConnectNodeAction >().addRequests( new CRegistrationTerms( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().addRequests( new CRegistrationTerms( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
@@ -333,7 +333,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
 
 		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests( new common::CKnownNetworkInfoRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getMediumPtr() ) ) );
+		context< CConnectNodeAction >().addRequests( new common::CKnownNetworkInfoRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		return discard_event();
 	}
@@ -365,14 +365,14 @@ struct CMonitorConnectedToMonitor : boost::statechart::state< CMonitorConnectedT
 		LogPrintf("connect node action: %p connected to monitor \n", &context< CConnectNodeAction >() );
 		CReputationTracker::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
-					, context< CConnectNodeAction >().getMediumPtr() );
+					, context< CConnectNodeAction >().getNodePtr() );
 	}
 };
 
-CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr )
+CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: CCommunicationAction( _actionKey )
 	, m_passive( true )
-	, m_mediumPtr( _mediumPtr )
+	, m_nodePtr( _nodePtr )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
@@ -409,9 +409,9 @@ CConnectNodeAction::getPayload() const
 }
 
 uintptr_t
-CConnectNodeAction::getMediumPtr() const
+CConnectNodeAction::getNodePtr() const
 {
-	return m_mediumPtr;
+	return m_nodePtr;
 }
 
 CPubKey
@@ -428,9 +428,9 @@ CConnectNodeAction::setPublicKey( CPubKey const & _pubKey )
 
 
 void
-CConnectNodeAction::setMediumPtr( uintptr_t _mediumPtr )
+CConnectNodeAction::setNodePtr( uintptr_t _nodePtr )
 {
-	m_mediumPtr = _mediumPtr;
+	m_nodePtr = _nodePtr;
 }
 
 }

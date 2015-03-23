@@ -18,7 +18,7 @@ struct CWaitForInfo;
 class CAdmitTrackerAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTrackerAction, CWaitForInfo >, public common::CCommunicationAction
 {
 public:
-	CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _mediumPtr );
+	CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 

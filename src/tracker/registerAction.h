@@ -18,7 +18,7 @@ struct CInitiateRegistration;
 class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >, public common::CCommunicationAction
 {
 public:
-	CRegisterAction( uint256 const & _actionKey, uintptr_t _mediumPtr );
+	CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 

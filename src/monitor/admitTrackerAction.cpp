@@ -112,7 +112,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 	int64_t const m_checkPeriod;
 };
 
-CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _mediumPtr )
+CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: CCommunicationAction( _actionKey )
 {
 	initiate();

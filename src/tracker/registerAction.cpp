@@ -34,9 +34,9 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 	> reactions;
 };
 
-CRegisterAction::CRegisterAction( uint256 const & _actionKey, uintptr_t _mediumPtr )
+CRegisterAction::CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: CCommunicationAction( _actionKey )
-	, m_medium( _mediumPtr )
+	, m_medium( _nodePtr )
 {
 }
 

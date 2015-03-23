@@ -29,6 +29,8 @@ public:
 
 	bool clearPublicKey( uintptr_t _nodeIndicator );
 
+	bool isKnown( CPubKey const & _pubKey ) const;
+
 	std::list< common::CSeedBaseMedium *> getInternalMedium();
 
 	std::list< common::CSeedBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const{ return std::list< common::CSeedBaseMedium *>(); }// not used  right now

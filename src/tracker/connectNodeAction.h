@@ -31,7 +31,7 @@ public:
 
 	CConnectNodeAction( CAddress const & _addrConnect );
 
-	CConnectNodeAction( uint256 const & _actionKey, uintptr_t _mediumPtr );
+	CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
@@ -43,9 +43,9 @@ public:
 
 	std::vector< unsigned char > const & getPayload() const;
 
-	void setMediumPtr( uintptr_t _mediumPtr );
+	void setNodePtr( uintptr_t _nodePtr );
 
-	uintptr_t getMediumPtr() const;
+	uintptr_t getNodePtr() const;
 
 	CPubKey getPublicKey() const;
 
@@ -65,7 +65,7 @@ private:
 
 	CPubKey m_key;
 
-	uintptr_t m_mediumPtr;
+	uintptr_t m_nodePtr;
 };
 
 

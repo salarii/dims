@@ -72,4 +72,18 @@ CSeedNodesManager::clearPublicKey( uintptr_t _nodeIndicator )
 	m_keyStore.erase( _nodeIndicator );
 }
 
+bool
+CSeedNodesManager::isKnown( CPubKey const & _pubKey ) const
+{
+	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_keyStore.begin();
+
+	while( iterator != m_keyStore.end() )
+	{
+		if ( iterator->second == _pubKey )
+			return true;
+		iterator++;
+	}
+	return false;
+}
+
 }

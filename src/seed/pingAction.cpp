@@ -40,6 +40,8 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CPingAction >().dropRequests();
+
 		if ( !m_received )
 		{
 			context< CPingAction >().cleanup();
@@ -54,7 +56,6 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		}
 		else
 		{
-			context< CPingAction >().dropRequests();
 
 			context< CPingAction >().addRequests(
 						new common::CPongRequest< common::CSeedTypes >(
@@ -126,6 +127,12 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 	bool m_received;
 };
+
+CPingAction::CPingAction( uintptr_t _nodeIndicator )
+	: m_nodeIndicator( _nodeIndicator )
+{
+	initiate();
+}
 
 CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: CCommunicationAction( _actionKey )
