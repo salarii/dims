@@ -235,7 +235,6 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CAcceptNodeAction >().dropRequests();
 		return discard_event();
 	}
 
