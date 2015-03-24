@@ -19,6 +19,9 @@ namespace seed
 struct CSendPing;
 struct CSendPong;
 
+std::set< uintptr_t >
+CPingAction::m_pingedNodes;
+
 int64_t PingPeriod = 20000;//milisec
 
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
@@ -160,6 +163,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 CPingAction::CPingAction( uintptr_t _nodeIndicator )
 	: m_nodeIndicator( _nodeIndicator )
 {
+	m_pingedNodes.insert( _nodeIndicator );
 	initiate();
 }
 
@@ -167,6 +171,7 @@ CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: CCommunicationAction( _actionKey )
 	, m_nodeIndicator( _nodeIndicator )
 {
+	m_pingedNodes.insert( _nodeIndicator );
 	initiate();
 }
 
@@ -191,6 +196,12 @@ CPingAction::cleanup() const
 
 	if ( medium )
 		delete medium;
+}
+
+bool
+CPingAction::isPinged( uintptr_t _nodeIndicator )
+{
+	return m_pingedNodes.find( _nodeIndicator ) != m_pingedNodes.end();
 }
 
 }

@@ -27,9 +27,16 @@ public:
 
 	void cleanup() const;
 
-	~CPingAction(){};
+	static bool isPinged( uintptr_t _nodeIndicator );
+
+	~CPingAction()
+	{
+		m_pingedNodes.erase( m_nodeIndicator );
+	};
 private:
 	uintptr_t m_nodeIndicator;
+
+	static std::set< uintptr_t > m_pingedNodes; //a bit ugly
 };
 
 

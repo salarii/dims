@@ -129,8 +129,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CAcceptNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
 
-		CPubKey pubKey;
-		if ( !CSeedNodesManager::getInstance()->getPublicKey( convertToInt( connectedEvent->m_node ), pubKey ) )
+		if ( !CPingAction::isPinged( convertToInt( connectedEvent->m_node ) ) )
 		{
 			CPingAction * pingAction= new CPingAction( convertToInt( connectedEvent->m_node ) );
 

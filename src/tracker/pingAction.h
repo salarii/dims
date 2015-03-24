@@ -23,11 +23,15 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
-	uintptr_t getNodeIndicator()const;
+	uintptr_t getNodeIndicator() const;
+
+	static bool isPinged( uintptr_t _nodeIndicator );
 
 	~CPingAction(){};
 private:
 	uintptr_t m_nodeIndicator;
+
+	static std::set< uintptr_t > m_pingedNodes; //a bit ugly
 };
 
 
