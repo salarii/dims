@@ -190,6 +190,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		else
 		{
 		// something  is  wrong  with  pair react  somehow for  now put 0
+			assert( !"message wrongly signed" );
 			context< CAcceptNodeAction >().dropRequests();
 		}
 		return transit< CDetermineRoleConnecting >();
@@ -210,7 +211,6 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
-		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		LogPrintf("accept node action: %p determine role connecting \n", &context< CAcceptNodeAction >() );
 	}
 
