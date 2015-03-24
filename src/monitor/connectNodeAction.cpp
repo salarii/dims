@@ -180,7 +180,7 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 {
 	CMonitorBothUnidentifiedConnected( my_context ctx ) : my_base( ctx )
 	{
-		LogPrintf("connect node action: %p both unidentified connecting \n", &context< CConnectNodeAction >() );
+		LogPrintf("connect node action: %p both unidentified connected \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -220,7 +220,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 {
 	CMonitorDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
-		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
+		LogPrintf("connect node action: %p determine role connected \n", &context< CConnectNodeAction >() );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _roleEvent )

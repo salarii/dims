@@ -180,7 +180,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 			context< CAcceptNodeAction >().dropRequests();
 			context< CAcceptNodeAction >().addRequests( new common::CAckRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
-			context< CAcceptNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+			context< CAcceptNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), common::CRole::Seed, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 			context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 			context< CAcceptNodeAction >().setAddress( _identificationResult.m_address );

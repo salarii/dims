@@ -413,11 +413,24 @@ void periodicCheck()
 			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptNodeAction );
 		}
 
-		// this is  against action  handler  philosophy but here  we can live  with  that
-		while( ips.size() != m_result.size() );// bug  fix it
-
-		bool isNodeValid;
 		bool resultValid;
+		bool isNodeValid;
+		// this is  against action  handler  philosophy but here  we can live  with  that
+		while( 1 )
+		{
+			for (int i=0; i<ips.size(); i++)
+			{
+				std::string ipPort = ips[ i ].service.ToStringIP();
+
+				resultValid = getResult( ipPort, isNodeValid );
+				if ( !resultValid )
+					goto Wait;
+			}
+			break;
+Wait:
+			MilliSleep( 10 );
+		}
+
 		for (int i=0; i<ips.size(); i++)
 		{
 			std::string ipPort = ips[ i ].service.ToStringIP();
