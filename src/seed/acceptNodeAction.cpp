@@ -168,6 +168,8 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("accept node action: %p pair identified connecting \n", &context< CAcceptNodeAction >() );
+
+		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -208,6 +210,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		LogPrintf("accept node action: %p determine role connecting \n", &context< CAcceptNodeAction >() );
 	}
 
