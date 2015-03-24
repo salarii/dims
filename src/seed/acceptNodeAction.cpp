@@ -236,7 +236,13 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return transit< CCantReachNode >();
+	}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CRoleEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
