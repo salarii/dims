@@ -26,6 +26,7 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 	CInitiateRegistration( my_context ctx )
 		: my_base( ctx )
 	{
+		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
 		context< CRegisterAction >().dropRequests();
 		context< CRegisterAction >().addRequests(
 		 new common::CTimeEventRequest< common::CTrackerTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -77,6 +78,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	CFreeRegistration( my_context ctx )
 		: my_base( ctx )
 	{
+		LogPrintf("register action: %p free registration \n", &context< CRegisterAction >() );
 		context< CRegisterAction >().dropRequests();
 		context< CRegisterAction >().addRequests(
 					new common::CTimeEventRequest< common::CTrackerTypes >(

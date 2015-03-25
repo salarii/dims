@@ -46,6 +46,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		: my_base( ctx )
 		, m_checkPeriod( 3000 )
 	{
+		LogPrintf("admit tracker action: %p wait for info \n", &context< CAdmitTrackerAction >() );
 		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequests( new CRegistrationTerms(
 														  context< CAdmitTrackerAction >().getActionKey()
@@ -86,7 +87,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 					  context< CAdmitTrackerAction >().getNodePtr()
 					, pubKey );
 
-		if ( analyseTransaction( transaction, m_proofHash, pubKey.GetID() ) )
+		if ( !CMonitorController::getInstance()->getPrice() || analyseTransaction( transaction, m_proofHash, pubKey.GetID() ) )
 		{
 			//CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getServiceAddress(), 0, context< CConnectNodeAction >().getPublicKey(), CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 			context< CAdmitTrackerAction >().dropRequests();

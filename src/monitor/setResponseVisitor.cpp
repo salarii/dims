@@ -67,11 +67,10 @@ public:
 	}
 };
 
-template < class _Action >
-class CSetUpdateDataResult : public CResponseVisitorBase< _Action, monitor::MonitorResponseList >
+class CSetUpdateDataResult : public CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList >
 {
 public:
-	CSetUpdateDataResult( _Action * const _action ):CResponseVisitorBase< _Action, monitor::MonitorResponseList >( _action ){};
+	CSetUpdateDataResult( monitor::CUpdateDataAction * const _action ):CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList >( _action ){};
 
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
@@ -93,11 +92,30 @@ public:
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CPingPongResult & _param ) const
 	{
+		LogPrintf("set response \"ping pong\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+};
+
+class CSetAdmitTrackerAction : public CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList >
+{
+public:
+	CSetAdmitTrackerAction( monitor::CAdmitTrackerAction * const _action ):CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 };
@@ -116,19 +134,18 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CConnectNodeAction
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CUpdateDataAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CUpdateDataAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTrackerAction & _action )
 {
-		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CAdmitTrackerAction >( &_action ), m_requestResponse );
+		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList > const &)CSetAdmitTrackerAction( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitProofTransactionBundle & _action )
 {
-		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitProofTransactionBundle, monitor::MonitorResponseList > const &)CSetUpdateDataResult< monitor::CAdmitProofTransactionBundle >( &_action ), m_requestResponse );
 }
 
 void

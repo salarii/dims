@@ -203,11 +203,13 @@ public:
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CPingPongResult & _param ) const
 	{
+		LogPrintf("set response \"ping pong\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 };
@@ -219,16 +221,19 @@ public:
 
 	virtual void operator()( common::CAckResult & _param ) const
 	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent() );
 	}
 
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 };

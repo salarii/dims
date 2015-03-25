@@ -29,6 +29,7 @@ struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
 	CUninitialised( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("ping action: %p uninitialised \n", &context< CPingAction >() );
 	}
 
 	typedef boost::mpl::list<
@@ -41,6 +42,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 {
 	CSendPing( my_context ctx ) : my_base( ctx ), m_received( true )
 	{
+		LogPrintf("ping action: %p send ping \n", &context< CPingAction >() );
 		context< CPingAction >().dropRequests();
 
 		context< CPingAction >().addRequests(
@@ -101,6 +103,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 {
 	CSendPong( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("ping action: %p send pong \n", &context< CPingAction >() );
 		context< CPingAction >().dropRequests();
 
 		context< CPingAction >().addRequests(
