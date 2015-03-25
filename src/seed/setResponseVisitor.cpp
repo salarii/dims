@@ -12,11 +12,10 @@
 namespace common
 {
 
-template < class _Action >
-class CSetNodeConnectedResult : public CResponseVisitorBase< _Action, seed::SeedResponseList >
+class CSetNodeConnectedResult : public CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList >
 {
 public:
-	CSetNodeConnectedResult( _Action * const _action ):CResponseVisitorBase< _Action, seed::SeedResponseList >( _action ){};
+	CSetNodeConnectedResult( seed::CAcceptNodeAction * const _action ):CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList >( _action ){};
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
@@ -63,11 +62,10 @@ public:
 	}
 };
 
-template < class _Action >
-class CSetPingResult : public CResponseVisitorBase< _Action, seed::SeedResponseList >
+class CSetPingResult : public CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList >
 {
 public:
-	CSetPingResult( _Action * const _action ):CResponseVisitorBase< _Action, seed::SeedResponseList >( _action ){};
+	CSetPingResult( seed::CPingAction * const _action ):CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -89,13 +87,13 @@ CSetResponseVisitor< common::CSeedTypes >::CSetResponseVisitor( seed::SeedRespon
 void
 CSetResponseVisitor< common::CSeedTypes >::visit( seed::CAcceptNodeAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList > const &)CSetNodeConnectedResult< seed::CAcceptNodeAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList > const &)CSetNodeConnectedResult( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< common::CSeedTypes >::visit( seed::CPingAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList > const &)CSetPingResult< seed::CPingAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList > const &)CSetPingResult( &_action ), m_requestResponse );
 }
 
 

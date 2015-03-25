@@ -30,7 +30,7 @@ private:
 class CRegistrationTerms : public common::CRequest< common::CMonitorTypes >
 {
 public:
-	CRegistrationTerms( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period , common::CMonitorMediumFilter * _mediumFilter );
+	CRegistrationTerms( uint256 const & _actionKey,  unsigned int _price, int64_t const & _period , common::CMonitorMediumFilter * _mediumFilter );
 
 	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
 
@@ -39,7 +39,7 @@ public:
 		return m_price;
 	}
 
-	uint256 const & getPeriod() const
+	int64_t const & getPeriod() const
 	{
 		return m_period;
 	}
@@ -51,7 +51,7 @@ public:
 private:
 	unsigned int m_price;
 
-	uint256 m_period;
+	int64_t m_period;
 
 	uint256 const m_actionKey;
 };

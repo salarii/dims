@@ -15,11 +15,10 @@
 namespace common
 {
 
-template < class _Action >
-class CSetNodeConnectedResult : public CResponseVisitorBase< _Action, monitor::MonitorResponseList >
+class CSetNodeConnectedResult : public CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList >
 {
 public:
-	CSetNodeConnectedResult( _Action * const _action ):CResponseVisitorBase< _Action, monitor::MonitorResponseList >( _action ){};
+	CSetNodeConnectedResult( monitor::CConnectNodeAction * const _action ):CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList >( _action ){};
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
@@ -87,12 +86,10 @@ public:
 	}
 };
 
-
-template < class _Action >
-class CSetPingResult : public CResponseVisitorBase< _Action, monitor::MonitorResponseList >
+class CSetPingResult : public CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList >
 {
 public:
-	CSetPingResult( _Action * const _action ):CResponseVisitorBase< _Action, monitor::MonitorResponseList >( _action ){};
+	CSetPingResult( monitor::CPingAction * const _action ):CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -113,7 +110,7 @@ CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::Moni
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CConnectNodeAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult< monitor::CConnectNodeAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult( &_action ), m_requestResponse );
 }
 
 void
@@ -137,7 +134,7 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitProofTransac
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CPingAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList > const &)CSetPingResult< monitor::CPingAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList > const &)CSetPingResult( &_action ), m_requestResponse );
 }
 
 

@@ -21,12 +21,7 @@
 
 namespace common
 {
-/*
-	virtual void operator()( common::CTimeEvent & _param ) const
-	{
-		this->m_action->process_event( _param );
-	}
-*/
+
 template < class _Action >
 class CGetMediumError : public CResponseVisitorBase< _Action, client::ClientResponseList >
 {

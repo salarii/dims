@@ -123,4 +123,14 @@ CTrackerNodeMedium::add( CDeliverInfoRequest const * _request )
 	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
+void
+CTrackerNodeMedium::add( CAskForRegistrationRequest const * _request )
+{
+	common::CMessage message( common::CAdmitAsk(), _request->getActionKey() );
+
+	m_messages.push_back( message );
+
+	updateLastRequest( _request->getActionKey(), (common::CRequest< common::CTrackerTypes >*)_request );
+}
+
 }

@@ -14,15 +14,15 @@
 #include "tracker/synchronizationAction.h"
 #include "tracker/provideInfoAction.h"
 #include "tracker/pingAction.h"
+#include "tracker/registerAction.h"
 
 namespace common
 {
 
-template < class _Action >
-class GetBalance : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+class GetBalance : public CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList >
 {
 public:
-	GetBalance( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+	GetBalance( tracker::CGetBalanceAction * const _action ):CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList >( _action ){};
 
 	virtual void operator()( common::CAvailableCoins & _param ) const
 	{
@@ -31,11 +31,10 @@ public:
 	}
 };
 
-template < class _Action >
-class CSetValidationResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+class CSetValidationResult : public CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList >
 {
 public:
-	CSetValidationResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+	CSetValidationResult( tracker::CValidateTransactionsAction * const _action ):CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList >( _action ){};
 
 	virtual void operator()( tracker::CValidationResult & _param ) const
 	{
@@ -62,11 +61,10 @@ public:
 	}
 };
 
-template < class _Action >
-class CSetNodeConnectedResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+class CSetNodeConnectedResult : public CResponseVisitorBase< tracker::CConnectNodeAction, tracker::TrackerResponseList >
 {
 public:
-	CSetNodeConnectedResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+	CSetNodeConnectedResult( tracker::CConnectNodeAction * const _action ):CResponseVisitorBase< tracker::CConnectNodeAction, tracker::TrackerResponseList >( _action ){};
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
@@ -131,7 +129,6 @@ public:
 		this->m_action->process_event( _param );
 	}
 };
-
 
 class CSetSynchronizationResult : public CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList >
 {
@@ -199,11 +196,10 @@ public:
 	}
 };
 
-template < class _Action >
-class CSetPingResult : public CResponseVisitorBase< _Action, tracker::TrackerResponseList >
+class CSetPingResult : public CResponseVisitorBase< tracker::CPingAction, tracker::TrackerResponseList >
 {
 public:
-	CSetPingResult( _Action * const _action ):CResponseVisitorBase< _Action, tracker::TrackerResponseList >( _action ){};
+	CSetPingResult( tracker::CPingAction * const _action ):CResponseVisitorBase< tracker::CPingAction, tracker::TrackerResponseList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -215,6 +211,28 @@ public:
 		this->m_action->process_event( _param );
 	}
 };
+
+class CSetRegisterAction : public CResponseVisitorBase< tracker::CRegisterAction, tracker::TrackerResponseList >
+{
+public:
+	CSetRegisterAction( tracker::CRegisterAction * const _action ):CResponseVisitorBase< tracker::CRegisterAction, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		this->m_action->process_event( common::CAckEvent() );
+	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		this->m_action->process_event( _param );
+	}
+};
+
 
 CSetResponseVisitor< CTrackerTypes >::CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponse )
 	: m_trackerResponses( _trackerResponse )
@@ -229,19 +247,19 @@ CSetResponseVisitor< CTrackerTypes >::visit( common::CAction< CTrackerTypes > & 
 void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CGetBalanceAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList > const &)GetBalance< tracker::CGetBalanceAction >( &_action ), m_trackerResponses );
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList > const &)GetBalance( &_action ), m_trackerResponses );
 }
 
 void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CValidateTransactionsAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList > const &)CSetValidationResult< tracker::CValidateTransactionsAction >( &_action ), m_trackerResponses );
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList > const &)CSetValidationResult( &_action ), m_trackerResponses );
 }
 
 void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CConnectNodeAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectNodeAction, tracker::TrackerResponseList > const &)CSetNodeConnectedResult< tracker::CConnectNodeAction >( &_action ), m_trackerResponses );
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectNodeAction, tracker::TrackerResponseList > const &)CSetNodeConnectedResult( &_action ), m_trackerResponses );
 }
 
 void
@@ -265,7 +283,13 @@ CSetResponseVisitor< CTrackerTypes >::visit( tracker::CProvideInfoAction & _acti
 void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CPingAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< tracker::CPingAction, tracker::TrackerResponseList > const &)CSetPingResult< tracker::CPingAction >( &_action ), m_trackerResponses );
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CPingAction, tracker::TrackerResponseList > const &)CSetPingResult( &_action ), m_trackerResponses );
+}
+
+void
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CRegisterAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CRegisterAction, tracker::TrackerResponseList > const &)CSetRegisterAction( &_action ), m_trackerResponses );
 }
 
 }

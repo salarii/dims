@@ -259,4 +259,23 @@ CGetBalanceRequest::getKey() const
 	return m_key;
 }
 
+
+CAskForRegistrationRequest::CAskForRegistrationRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
+	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+	, m_actionKey( _actionKey )
+{
+}
+
+void
+CAskForRegistrationRequest::accept( common::CTrackerBaseMedium * _medium ) const
+{
+	_medium->add( this );
+}
+
+uint256
+CAskForRegistrationRequest::getActionKey() const
+{
+	return m_actionKey;
+}
+
 }

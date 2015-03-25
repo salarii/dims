@@ -25,6 +25,7 @@ class CProvideInfoAction;
 
 class CPingAction;
 
+class CRegisterAction;
 }
 
 namespace client
@@ -97,6 +98,8 @@ public:
 	virtual void visit( tracker::CProvideInfoAction & _action );
 
 	virtual void visit( tracker::CPingAction & _action );
+
+	virtual void visit( tracker::CRegisterAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };

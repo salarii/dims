@@ -260,6 +260,18 @@ private:
 	uint160 m_key;
 };
 
+class CAskForRegistrationRequest : public common::CRequest< common::CTrackerTypes >
+{
+public:
+	CAskForRegistrationRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
+
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+};
+
 }
 
 #endif // TRACKER_REQUESTS_H

@@ -8,41 +8,132 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
+#include "common/mediumRequests.h"
+#include "common/setResponseVisitor.h"
+
+#include "tracker/trackerRequests.h"
+
 namespace tracker
 {
+
+//milisec
+unsigned int const WaitTime = 20000;
+
+struct CFreeRegistration;
 
 struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, CRegisterAction >
 {
 	CInitiateRegistration( my_context ctx )
 		: my_base( ctx )
 	{
+		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().addRequests(
+		 new common::CTimeEventRequest< common::CTrackerTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		context< CRegisterAction >().addRequests(
+					new CAskForRegistrationRequest(
+						context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		return discard_event();
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CRegistrationTerms connectCondition;
+
+		common::convertPayload( orginalMessage, connectCondition );
+
+		if ( !connectCondition.m_price )
+			return transit< CFreeRegistration >();
+		else
+			//do something later
+			return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		assert( !"no response" );
+		context< CRegisterAction >().dropRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
 
-CRegisterAction::CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr )
-	: CCommunicationAction( _actionKey )
-	, m_medium( _nodePtr )
+struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegisterAction >
+{
+	CFreeRegistration( my_context ctx )
+		: my_base( ctx )
+	{
+		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().addRequests(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		context< CRegisterAction >().addRequests(
+					new common::CAckRequest< common::CTrackerTypes >(
+						context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CResult result;
+
+		common::convertPayload( orginalMessage, result );
+
+		assert( result.m_result );// for debug only, do something here
+
+		context< CRegisterAction >().addRequests(
+					new common::CAckRequest< common::CTrackerTypes >(
+						context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CRegisterAction >().dropRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
+CRegisterAction::CRegisterAction( uintptr_t _nodePtr )
+	: m_nodePtr( _nodePtr )
 {
 }
 
 void
 CRegisterAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
+	_visitor.visit( *this );
 }
 
 }

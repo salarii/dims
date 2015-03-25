@@ -277,6 +277,7 @@ struct CMonitorCantReachNode : boost::statechart::state< CMonitorCantReachNode, 
 
 struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedToTracker, CConnectNodeAction >
 {
+
 	CMonitorConnectedToTracker( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
@@ -285,7 +286,6 @@ struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedT
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getNodePtr() );
 
-		context< CConnectNodeAction >().addRequests( new CRegistrationTerms( context< CConnectNodeAction >().getActionKey(), CMonitorController::getInstance()->getPrice(), CMonitorController::getInstance()->getPeriod(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 

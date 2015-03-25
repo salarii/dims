@@ -2,18 +2,20 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "connectNodeAction.h"
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"
 #include "common/authenticationProvider.h"
 #include "common/mediumRequests.h"
+#include "common/actionHandler.h"
 
+#include "tracker/connectNodeAction.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/trackerFilters.h"
 #include "tracker/trackerController.h"
 #include "tracker/trackerControllerEvents.h"
 #include "tracker/trackerNodeMedium.h"
 #include "tracker/trackerRequests.h"
+#include "tracker/registerAction.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -364,45 +366,14 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 					);
 
 		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( MonitorLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		// wrong but for now ok
+		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRegisterAction( context< CConnectNodeAction >().getNodePtr() ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CConnectNodeAction >().dropRequests();
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _connectCondition )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _connectCondition.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
-			assert( !"service it somehow" );
-
-		common::CRegistrationTerms connectCondition;
-
-		common::convertPayload( orginalMessage, connectCondition );
-
-		unsigned int result = 0;
-
-		CMonitorData & acquireMonitorData = CTrackerController::getInstance()->acquireMonitorData();
-
-		if ( !acquireMonitorData.m_isAdmitted )
-		{
-			if ( acquireMonitorData.m_allowAdmission )
-			{
-				if ( acquireMonitorData.m_accepableRatio >= ( double )connectCondition.m_price / ( double )connectCondition.m_period.GetLow64() )
-				{
-					result = 1;
-				}
-			}
-
-		}
-		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests( new common::CResultRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), result, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
-
-		if ( !result )
-			transit< CStop >();
-
-		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -412,7 +383,6 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };

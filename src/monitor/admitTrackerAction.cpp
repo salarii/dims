@@ -18,6 +18,7 @@
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/filters.h"
 #include "monitor/reputationTracer.h"
+#include "monitor/monitorRequests.h"
 
 namespace monitor
 {
@@ -45,6 +46,12 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		: my_base( ctx )
 		, m_checkPeriod( 3000 )
 	{
+		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().addRequests( new CRegistrationTerms(
+														  context< CAdmitTrackerAction >().getActionKey()
+														, CMonitorController::getInstance()->getPrice()
+														 , CMonitorController::getInstance()->getPeriod()
+														 , new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -76,7 +83,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 
 		CPubKey pubKey;
 		CReputationTracker::getInstance()->getNodeToKey(
-					  context< CAdmitTrackerAction >().getMedium()
+					  context< CAdmitTrackerAction >().getNodePtr()
 					, pubKey );
 
 		if ( analyseTransaction( transaction, m_proofHash, pubKey.GetID() ) )
@@ -87,7 +94,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
 							, 1
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getMedium() ) ) );
+							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
 		}
 		else
@@ -97,7 +104,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
 							, 0
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getMedium() ) ) );
+							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
 		}
 	}
@@ -114,6 +121,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 
 CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: CCommunicationAction( _actionKey )
+	, m_nodePtr( _nodePtr )
 {
 	initiate();
 }

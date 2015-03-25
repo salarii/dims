@@ -13,20 +13,20 @@
 namespace tracker
 {
 
-struct CInitiateRegistration;
+struct CAskForRegistration;
 
-class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >, public common::CCommunicationAction
+class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CAskForRegistration >, public common::CCommunicationAction
 {
 public:
-	CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr );
+	CRegisterAction( uintptr_t _nodePtr );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
-	uintptr_t getMedium() const { return m_medium; }
+	uintptr_t getNodePtr() const { return m_nodePtr; }
 
 	~CRegisterAction(){};
 private:
-	uintptr_t m_medium;
+	uintptr_t m_nodePtr;
 };
 
 }

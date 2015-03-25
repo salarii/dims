@@ -35,7 +35,7 @@ CConnectToNodeRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-CRegistrationTerms::CRegistrationTerms( uint256 const & _actionKey,  unsigned int _price, uint256 const & _period, common::CMonitorMediumFilter * _mediumFilter )
+CRegistrationTerms::CRegistrationTerms( uint256 const & _actionKey,  unsigned int _price, int64_t const & _period, common::CMonitorMediumFilter * _mediumFilter )
 	: common::CRequest< common::CMonitorTypes >( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_price( _price )
