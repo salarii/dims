@@ -18,7 +18,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses, common::CLess< common::CRequest< common::CTrackerTypes > > > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > & _requestResponse );
 
 	virtual void add(CGetBalanceRequest const * _request );
 
@@ -33,7 +33,7 @@ private:
 
 	void clearResponses();
 
-	std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses, common::CLess< common::CRequest< common::CTrackerTypes > > > m_trackerResponses;
+	std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > m_trackerResponses;
 
 	static CInternalOperationsMedium * ms_instance;
 };

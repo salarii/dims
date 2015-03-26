@@ -21,7 +21,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< CRequest< Types > const*, Response, CLess< common::CRequest< Types > > > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest< Types > const*, Response > & _requestResponse );
 
 	void add( CTimeEventRequest< Types > const * _request );
 
@@ -38,9 +38,9 @@ protected:
 protected:
 	mutable boost::mutex m_mutex;
 
-	std::multimap< common::CRequest< Types >const*, Response, CLess< common::CRequest< Types > > > m_responses;
+	std::multimap< common::CRequest< Types >const*, Response > m_responses;
 
-	std::map< CTimeEventRequest< Types > const *, int64_t, CLess< CTimeEventRequest< Types > > > m_timeLeftToTrigger;
+	std::map< CTimeEventRequest< Types > const *, int64_t > m_timeLeftToTrigger;
 
 	static CTimeMedium* ms_instance;
 
@@ -75,7 +75,7 @@ CTimeMedium< Medium >::flush()
 
 template < class Medium >
 bool
-CTimeMedium< Medium >::getResponseAndClear( std::multimap< CRequest< Types >const*, Response, CLess< common::CRequest< Types > > > & _requestResponse )
+CTimeMedium< Medium >::getResponseAndClear( std::multimap< CRequest< Types >const*, Response > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	_requestResponse = m_responses;

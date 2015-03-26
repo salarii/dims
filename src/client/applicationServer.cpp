@@ -93,7 +93,7 @@ CLocalSocket::clearResponses()
 }
 
 bool
-CLocalSocket::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > & _requestResponse )
+CLocalSocket::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
 {
 	_requestResponse = m_nodeResponses;
 

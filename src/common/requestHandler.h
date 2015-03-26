@@ -49,6 +49,15 @@ public:
 
 	bool operator<( CRequestHandler< _Type > const & _handler ) const;
 private:
+	template< class _ComparedType >
+	struct CLess
+	{
+		bool operator()( _ComparedType const * const _lhs, _ComparedType const * const _rhs ) const
+		{
+			return _lhs->getKey() < _rhs->getKey();
+		}
+	};
+private:
 	void setInvalid(){ m_valid = false; }
 private:
 	bool m_valid;
@@ -157,7 +166,7 @@ CRequestHandler< _Type >::processMediumResponses()
 		if( !m_usedMedium->serviced() )
 			return;
 
-		std::multimap< CRequest< _Type >const*, Response, CLess< CRequest< _Type > > > requestResponses;
+		std::multimap< CRequest< _Type >const*, Response > requestResponses;
 
 		m_usedMedium->getResponseAndClear( requestResponses );
 

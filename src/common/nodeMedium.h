@@ -30,7 +30,7 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< CRequest< Type >const*, Response, CLess< common::CRequest< Type > > > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest< Type >const*, Response > & _requestResponse );
 
 	void add( common::CRequest< Type >const * _request );
 
@@ -107,7 +107,7 @@ extern std::vector< uint256 > deleteList;
 
 template < class _Medium >
 bool
-CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >const*, RESPONSE_TYPE(_Medium), CLess< common::CRequest< Type > > > & _requestResponse )
+CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >const*, RESPONSE_TYPE(_Medium) > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 

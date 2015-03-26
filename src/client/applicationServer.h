@@ -33,7 +33,7 @@ public:
 
 	void handleInput();
 
-	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );
 
 	QLocalSocket * getSocket() const;
 
@@ -44,7 +44,7 @@ protected:
 
 	QLocalSocket * m_localSocket;
 
-	std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > m_nodeResponses;
+	std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > m_nodeResponses;
 };
 
 

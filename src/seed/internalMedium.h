@@ -20,7 +20,7 @@ public:
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses, common::CLess< common::CRequest< common::CSeedTypes > > > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses > & _requestResponse );
 
 	virtual void add( common::CConnectToNodeRequest< common::CSeedTypes > const *_request );
 
@@ -30,7 +30,7 @@ private:
 
 	CInternalMedium();
 private:
-	std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses, common::CLess< common::CRequest< common::CSeedTypes > > > m_responses;
+	std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses > m_responses;
 
 	static CInternalMedium * ms_instance;
 };

@@ -44,7 +44,7 @@ CInternalMedium::add( common::CConnectToNodeRequest< common::CSeedTypes > const 
 
 
 bool
-CInternalMedium::getResponseAndClear( std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses, common::CLess< common::CRequest< common::CSeedTypes > > > & _requestResponse )
+CInternalMedium::getResponseAndClear( std::multimap< common::CRequest< common::CSeedTypes >const*, SeedResponses > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();

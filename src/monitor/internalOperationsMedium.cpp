@@ -43,7 +43,7 @@ CInternalOperationsMedium::add( CConnectToNodeRequest const *_request )
 }
 
 bool
-CInternalOperationsMedium::getResponseAndClear( std::multimap< common::CRequest< common::CMonitorTypes >const*, MonitorResponses, common::CLess< common::CRequest< common::CMonitorTypes > > > & _requestResponse )
+CInternalOperationsMedium::getResponseAndClear( std::multimap< common::CRequest< common::CMonitorTypes >const*, MonitorResponses > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();
