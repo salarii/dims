@@ -32,7 +32,7 @@ CBitcoinNodeMedium::flush()
 }
 
 bool
-CBitcoinNodeMedium::getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > & _requestResponse )
+CBitcoinNodeMedium::getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses, common::CLess< common::CRequest< common::CTrackerTypes > > > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 

@@ -91,7 +91,7 @@ CDefaultMedium::flush()
 }
 
 bool
-CDefaultMedium::getResponseAndClear( std::multimap<  CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
+CDefaultMedium::getResponseAndClear( std::multimap<  CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
 

@@ -58,5 +58,14 @@ getRandNumber()
 	return *reinterpret_cast< uint256* >( &number[0] );
 }
 
+template< class _ComparedType >
+struct CLess
+{
+	bool operator()( _ComparedType const * const _lhs, _ComparedType const * const _rhs ) const
+	{
+		return _lhs->getKey() < _rhs->getKey();
+	}
+};
+
 }
 #endif

@@ -36,7 +36,7 @@ public:
 
 	bool flush(){};
 
-	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -46,7 +46,7 @@ private:
 private:
 	static CErrorMedium * ms_instance;
 
-	std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > m_requestResponse;
+	std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > m_requestResponse;
 };
 
 
@@ -69,7 +69,7 @@ CErrorMedium::serviced() const
 }
 
 bool
-CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
+CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
 

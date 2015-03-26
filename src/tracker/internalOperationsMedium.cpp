@@ -81,7 +81,7 @@ CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 
 
 bool
-CInternalOperationsMedium::getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > & _requestResponse )
+CInternalOperationsMedium::getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses, common::CLess< common::CRequest< common::CTrackerTypes > > > & _requestResponse )
 {
 	_requestResponse = m_trackerResponses;
 

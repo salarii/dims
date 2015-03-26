@@ -247,7 +247,7 @@ CNetworkClient::clearResponses()
 }
 
 bool
-CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
+CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses, common::CLess< common::CRequest< common::CClientTypes > > > & _requestResponse )
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(
