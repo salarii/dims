@@ -13,9 +13,9 @@
 namespace tracker
 {
 
-struct CAskForRegistration;
+struct CInitiateRegistration;
 
-class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CAskForRegistration >, public common::CCommunicationAction
+class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >, public common::CCommunicationAction
 {
 public:
 	CRegisterAction( uintptr_t _nodePtr );
