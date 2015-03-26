@@ -297,6 +297,7 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CConne
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CConnectNodeAction >().dropRequests();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -326,6 +327,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CConnectNodeAction >().dropRequests();
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
@@ -366,19 +368,19 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 					);
 
 		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( MonitorLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
-		// wrong but for now ok
-		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRegisterAction( context< CConnectNodeAction >().getNodePtr() ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		// wrong but for now ok
+		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRegisterAction( context< CConnectNodeAction >().getNodePtr() ) );
 		context< CConnectNodeAction >().dropRequests();
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		return transit< CStop >();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
