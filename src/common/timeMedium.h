@@ -27,6 +27,8 @@ public:
 
 	void setResponse( Response const & _responses );
 
+	void deleteRequest( CRequest< Types >const* _request );
+
 	void workLoop();
 
 	static CTimeMedium* getInstance();
@@ -97,6 +99,14 @@ CTimeMedium< Medium >::add( CTimeEventRequest< Types > const * _request )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_timeLeftToTrigger.insert( std::make_pair( _request, _request->getEventTime() ) );
+}
+
+template < class Medium >
+void
+CTimeMedium< Medium >::deleteRequest( CRequest< Types >const* _request )
+{
+	m_timeLeftToTrigger.erase( ( CTimeEventRequest< Types > const * )_request );// ugly  solution
+		m_responses.erase( _request );
 }
 
 template < class Medium >

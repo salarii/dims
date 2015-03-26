@@ -34,6 +34,7 @@ public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
 	virtual void prepareMedium(){};
+	virtual void deleteRequest( CRequest< _Type >const* _request ){};// needed in some cases
 	virtual bool getResponseAndClear( std::multimap< CRequest< _Type >const*, RESPONSE_TYPE(_Type) > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
 	void registerDeleteHook( boost::signals2::slot< void () > const & _deleteHook )
 	{
