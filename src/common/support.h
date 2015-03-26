@@ -43,5 +43,20 @@ uintptr_t convertToInt( T * _t )
 	return reinterpret_cast< uintptr_t >( _t );
 }
 
+inline
+uint256
+getRandNumber()
+{
+	int const ComponentNumber = 8;
+	uint32_t number[ ComponentNumber ];
+
+	for( unsigned int i = 0; i < ComponentNumber; ++i )
+	{
+		number[i] = insecure_rand();
+	}
+
+	return *reinterpret_cast< uint256* >( &number[0] );
+}
+
 }
 #endif

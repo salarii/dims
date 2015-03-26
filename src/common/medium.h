@@ -23,7 +23,7 @@ namespace common
 
 //fix  stupid look  of  all those  mediums
 template < class _RequestResponses >
-struct CRequest;
+class CRequest;
 
 template < class _Type >
 class CMedium

@@ -27,7 +27,7 @@ namespace common
 
 template < class _Type > class CSetResponseVisitor;
 template < class _Type > class CRequestHandler;
-template < class _Type > struct CRequest;
+template < class _Type > class CRequest;
 
 template < class _Type >
 struct LessHandlers : public std::binary_function< CRequestHandler< _Type >* ,CRequestHandler< _Type >* ,bool>

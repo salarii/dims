@@ -14,7 +14,7 @@ namespace common
 template < class _Type >
 class CSetResponseVisitor;
 
-template < class _Type > struct CRequest;
+template < class _Type > class CRequest;
 
 
 template < class _Type >

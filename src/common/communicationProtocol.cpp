@@ -221,20 +221,6 @@ CMessage::CMessage( CPing const & _ping, uint256 const & _actionKey )
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-uint256
-getRandNumber()
-{
-	int const ComponentNumber = 8;
-	uint32_t number[ ComponentNumber ];
-
-	for( unsigned int i = 0; i < ComponentNumber; ++i )
-	{
-		number[i] = insecure_rand();
-	}
-
-	return *reinterpret_cast< uint256* >( &number[0] );
-}
-
 CNetworkActionRegister * CNetworkActionRegister::ms_instance = NULL;
 
 CNetworkActionRegister*

@@ -40,16 +40,26 @@ class CMediumFilter;
 class CRequestVisitor;
 
 template < class _Types >
-struct CRequest
+class CRequest
 {
+public:
 	typedef MEDIUM_TYPE(_Types) MediumType;
 	typedef FILTER_TYPE(_Types) FilterType;
-
-	CRequest( FilterType * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter ){}
+public:
+	CRequest( FilterType * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter )
+	{
+		m_key = getRandNumber();
+	}
 
 	virtual void accept( MediumType * _medium ) const = 0;
 
 	virtual FilterType * getMediumFilter() const{ return m_mediumFilter; }
+
+	uint256
+	getKey() const
+	{
+		return m_key;
+	}
 
 	virtual ~CRequest()
 	{
@@ -57,7 +67,10 @@ struct CRequest
 			delete m_mediumFilter;
 	};
 
+protected:
 	FilterType * m_mediumFilter;
+
+	uint256 m_key;
 };
 
 
