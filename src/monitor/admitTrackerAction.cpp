@@ -22,6 +22,10 @@
 
 namespace monitor
 {
+struct CPaidRegistration;
+struct CFreeRegistration;
+//milisec
+unsigned int const WaitTime = 20000;
 
 bool analyseTransaction( CTransaction & _transaction, uint256 const & _hash, CKeyID const & _trackerId )
 {
@@ -44,15 +48,111 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 {
 	CWaitForInfo( my_context ctx )
 		: my_base( ctx )
-		, m_checkPeriod( 3000 )
 	{
 		LogPrintf("admit tracker action: %p wait for info \n", &context< CAdmitTrackerAction >() );
+		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		// todo create alredy registered logic _messageResult.m_pubKey
+
 		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequests( new CRegistrationTerms(
 														  context< CAdmitTrackerAction >().getActionKey()
 														, CMonitorController::getInstance()->getPrice()
 														 , CMonitorController::getInstance()->getPeriod()
 														 , new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		if ( CMonitorController::getInstance()->getPrice() )
+			return transit< CPaidRegistration >();
+		else
+			return transit< CFreeRegistration >();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAdmitTrackerAction >().dropRequests();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+};
+
+struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTrackerAction >
+{
+	CFreeRegistration( my_context ctx )
+		: my_base( ctx )
+	{
+		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
+		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CAdmitProof admitMessage;
+
+		common::convertPayload( orginalMessage, admitMessage );
+
+		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().addRequests(
+					new common::CResultRequest< common::CMonitorTypes >(
+						  context< CAdmitTrackerAction >().getActionKey()
+						, 1
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAdmitTrackerAction >().dropRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CAdmitTrackerAction >().dropRequests();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+
+};
+
+struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTrackerAction >
+{
+	CPaidRegistration( my_context ctx )
+		: my_base( ctx )
+		, m_checkPeriod( 3000 )
+	{
+		LogPrintf("admit tracker action: %p paid registration \n", &context< CAdmitTrackerAction >() );
+		context< CAdmitTrackerAction >().dropRequests();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -87,7 +187,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 					  context< CAdmitTrackerAction >().getNodePtr()
 					, pubKey );
 
-		if ( !CMonitorController::getInstance()->getPrice() || analyseTransaction( transaction, m_proofHash, pubKey.GetID() ) )
+		if ( analyseTransaction( transaction, m_proofHash, pubKey.GetID() ) )
 		{
 			CReputationTracker::getInstance()->addTracker( CTrackerData( pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 			context< CAdmitTrackerAction >().dropRequests();

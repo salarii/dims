@@ -118,6 +118,12 @@ public:
 		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
+		this->m_action->process_event( common::CAckEvent() );
+	}
 };
 
 CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )

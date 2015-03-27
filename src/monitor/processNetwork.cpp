@@ -71,6 +71,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				if ( message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk )
 				{
 					CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
+					admitTrackerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTrackerAction );
 
 				}

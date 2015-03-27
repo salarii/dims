@@ -35,11 +35,6 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 					new CAskForRegistrationRequest(
 						context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
-
-		context< CRegisterAction >().addRequests(
-					new CRegisterProofRequest(
-						context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -92,6 +87,11 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 
 		context< CRegisterAction >().addRequests(
 					new common::CAckRequest< common::CTrackerTypes >(
+						context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+
+		context< CRegisterAction >().addRequests(
+					new CRegisterProofRequest(
 						context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	}
