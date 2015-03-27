@@ -340,6 +340,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
+		context< CConnectNodeAction >().dropRequests();
 		return transit< CMonitorStop >();
 	}
 
@@ -354,6 +355,7 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CConnectNodeAction
 {
 	CMonitorStop( my_context ctx ) : my_base( ctx )
 	{
+		context< CConnectNodeAction >().dropRequests();
 	}
 };
 
