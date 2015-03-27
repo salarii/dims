@@ -72,6 +72,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if (
 					  message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition
 				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
 				 )
 		{
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
