@@ -44,26 +44,44 @@ public:
 
 		std::vector< CAllyMonitorData > allyMonitors = CReputationTracker::getInstance()->getAllyMonitors();
 
+		bool success;
+		uintptr_t nodeIndicator;
+		CAddress address;
+
 		BOOST_FOREACH( CAllyMonitorData const & allyMonitorData, allyMonitors )
 		{
+
+			success = CReputationTracker::getInstance()->getKeyToNode( allyMonitorData.m_publicKey, nodeIndicator );
+			assert( success );
+
+			success = CReputationTracker::getInstance()->getAddress( nodeIndicator, address );
+			assert( success );
+			//fix this
 			monitors.push_back(
 						common::CNodeInfo(
-									  allyMonitorData.m_key
-									, allyMonitorData.m_address.ToStringIPPort()
-									, allyMonitorData.m_address.GetPort()
-									, common::CRole::Monitor ));
+							allyMonitorData.m_key
+							, address.ToStringIP()
+							, address.GetPort()
+							, common::CRole::Monitor ));
 		}
 
 		std::vector< CTrackerData > trackersData = CReputationTracker::getInstance()->getTrackers();
 
 		BOOST_FOREACH( CTrackerData const & trackerData, trackersData )
 		{
+
+			success = CReputationTracker::getInstance()->getKeyToNode( trackerData.m_publicKey, nodeIndicator );
+			assert( success );
+
+			success = CReputationTracker::getInstance()->getAddress( nodeIndicator, address );
+			assert( success );
+
 			trackers.push_back(
 						common::CNodeInfo(
-									  trackerData.m_key
-									, trackerData.m_address.ToStringIP()
-									, trackerData.m_address.GetPort()
-									, common::CRole::Tracker ));
+							trackerData.m_publicKey
+							, address.ToStringIP()
+							, address.GetPort()
+							, common::CRole::Tracker ));
 		}
 
 		CMonitorData monitorData( trackers, monitors );

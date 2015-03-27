@@ -259,7 +259,6 @@ CGetBalanceRequest::getKey() const
 	return m_key;
 }
 
-
 CAskForRegistrationRequest::CAskForRegistrationRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
 	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
 	, m_actionKey( _actionKey )
@@ -274,6 +273,24 @@ CAskForRegistrationRequest::accept( common::CTrackerBaseMedium * _medium ) const
 
 uint256
 CAskForRegistrationRequest::getActionKey() const
+{
+	return m_actionKey;
+}
+
+CRegisterProofRequest::CRegisterProofRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
+	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+	, m_actionKey( _actionKey )
+{
+}
+
+void
+CRegisterProofRequest::accept( common::CTrackerBaseMedium * _medium ) const
+{
+	_medium->add( this );
+}
+
+uint256
+CRegisterProofRequest::getActionKey() const
 {
 	return m_actionKey;
 }

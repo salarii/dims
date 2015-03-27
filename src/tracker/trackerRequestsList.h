@@ -46,6 +46,7 @@ class CPassMessageRequest;
 class CDeliverInfoRequest;
 class CGetBalanceRequest;
 class CAskForRegistrationRequest;
+class CRegisterProofRequest;
 
 template < class Block >
 class CSetNextBlockRequest;

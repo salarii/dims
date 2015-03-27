@@ -40,6 +40,8 @@ public:
 	Medium * eraseMedium( uintptr_t _nodePtr );
 
 	virtual std::list< Medium *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
+
+	bool getAddress( uintptr_t _nodePtr, CAddress & _address ) const;
 protected:
 	CNodesManager();
 
@@ -107,6 +109,20 @@ CNodesManager< _MediumFilter >::eraseMedium( uintptr_t _nodePtr )
 	m_ptrToNodes.erase( iterator );
 
 	return medium;
+}
+
+template < class _MediumFilter >
+bool
+CNodesManager< _MediumFilter >::getAddress( uintptr_t _nodePtr, CAddress & _address ) const
+{
+	typename std::map< uintptr_t, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( _nodePtr );
+
+	if ( iterator == m_ptrToNodes.end() )
+		return false;
+
+	_address = iterator->second->getNode()->addr;
+
+	return true;
 }
 
 }

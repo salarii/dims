@@ -43,7 +43,7 @@ CRankingDatabase::getInstance()
 bool
 CRankingDatabase::writeTrackerData( CTrackerData const& _trackerData )
 {
-	bool result = Write( std::make_pair( std::string("tracker"), _trackerData.m_key.GetID() ), _trackerData, false );
+	bool result = Write( std::make_pair( std::string("tracker"), _trackerData.m_publicKey.GetID() ), _trackerData, false );
 	Flush();
 	return result;
 }
@@ -75,7 +75,7 @@ ReadTrackerData( std::map< uint160, CTrackerData > & _trackerData, CDataStream& 
 
 			_ssValue >> trackerData;
 
-			if ( trackerData.m_key.GetID() == keyId )
+			if ( trackerData.m_publicKey.GetID() == keyId )
 				return false;
 
 			_trackerData.insert( std::make_pair( keyId, trackerData ) );

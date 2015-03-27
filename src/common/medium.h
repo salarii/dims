@@ -77,6 +77,7 @@ public:
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual void add( tracker::CAskForRegistrationRequest const * _request ){};
+	virtual void add( tracker::CRegisterProofRequest const * _request ){};
 
 	virtual ~CTrackerBaseMedium(){};
 };

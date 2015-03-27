@@ -77,6 +77,8 @@ public:
 	void add( CDeliverInfoRequest const * _request );
 
 	void add( CAskForRegistrationRequest const * _request );
+
+	void add( CRegisterProofRequest const * _request );
 private:
 };
 

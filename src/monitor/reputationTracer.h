@@ -16,19 +16,20 @@
 namespace monitor
 {
 
-struct CTrackerData : public common::CValidNodeInfo
+struct CTrackerData
 {
 	CTrackerData(){}
-	CTrackerData(  CPubKey _publicKey, CAddress _address, unsigned int _reputation, uint64_t _networkTime, uint64_t _contractTime ): common::CValidNodeInfo( _publicKey, _address ),m_reputation( _reputation ), m_networkTime( _networkTime ), m_contractTime( _contractTime ){}
+	CTrackerData( CPubKey _publicKey, unsigned int _reputation, uint64_t _networkTime, uint64_t _contractTime ): m_publicKey( _publicKey ),m_reputation( _reputation ), m_networkTime( _networkTime ), m_contractTime( _contractTime ){}
 
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(*(common::CValidNodeInfo*)this);
+		READWRITE(m_publicKey);
 		READWRITE(m_reputation);
 		READWRITE(m_networkTime);
 		READWRITE(m_contractTime);
 	)
 
+	CPubKey m_publicKey;
 	unsigned int m_reputation;
 	uint64_t m_networkTime;
 	uint64_t m_contractTime;
@@ -38,12 +39,14 @@ struct CTrackerData : public common::CValidNodeInfo
 struct CAllyMonitorData : public common::CValidNodeInfo
 {
 	CAllyMonitorData(){}
-	CAllyMonitorData( CAddress _address, CPubKey _publicKey ): common::CValidNodeInfo( _publicKey, _address ){}
+	CAllyMonitorData( CPubKey const &_publicKey ): m_publicKey( _publicKey ){}
 
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(*(common::CValidNodeInfo*)this);
+		READWRITE(m_publicKey);
 	)
+
+	CPubKey m_publicKey;
 };
 
 struct CAllyTrackerData
@@ -81,6 +84,7 @@ public:
 			boost::lock_guard<boost::mutex> lock( m_lock );
 			m_presentTrackers = _presentTrackers;
 	}
+
 private:
 	CReputationTracker();
 

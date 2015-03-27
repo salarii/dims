@@ -271,6 +271,18 @@ public:
 private:
 	uint256 const m_actionKey;
 };
+// not final version
+class CRegisterProofRequest : public common::CRequest< common::CTrackerTypes >
+{
+public:
+	CRegisterProofRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
+
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+};
 
 }
 

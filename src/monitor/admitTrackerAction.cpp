@@ -89,7 +89,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 
 		if ( !CMonitorController::getInstance()->getPrice() || analyseTransaction( transaction, m_proofHash, pubKey.GetID() ) )
 		{
-			//CReputationTracker::getInstance()->addTracker( CTrackerData( context< CConnectNodeAction >().getServiceAddress(), 0, context< CConnectNodeAction >().getPublicKey(), CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+			CReputationTracker::getInstance()->addTracker( CTrackerData( pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 			context< CAdmitTrackerAction >().dropRequests();
 			context< CAdmitTrackerAction >().addRequests(
 						new common::CResultRequest< common::CMonitorTypes >(

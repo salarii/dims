@@ -35,6 +35,11 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 					new CAskForRegistrationRequest(
 						context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+
+		context< CRegisterAction >().addRequests(
+					new CRegisterProofRequest(
+						context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
