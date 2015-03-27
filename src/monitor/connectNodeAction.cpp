@@ -334,7 +334,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 
 		context< CConnectNodeAction >().dropRequests();
 		context< CConnectNodeAction >().addRequests( new common::CKnownNetworkInfoRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
-
+		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		return discard_event();
 	}
 
