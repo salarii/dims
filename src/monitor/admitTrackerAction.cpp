@@ -100,7 +100,6 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 		: my_base( ctx )
 	{
 		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
-		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
