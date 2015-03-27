@@ -236,9 +236,14 @@ CActionHandler< _Types >::loop()
 						std::vector< CRequest< _Types >* > dropped = action->getDroppedRequests();
 						BOOST_FOREACH( CRequest< _Types >* request,dropped )
 						{
+							typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound ( request );
+							typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound ( request );
+							for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
+							{
+									it->second->deleteRequest( request );
+							}
 							m_currentlyUsedHandlers.erase( request );
 						}
-						// not  sure??request handlers cleanup should go here unfortunately quite complex one
 						delete action;
 					}
 					else

@@ -105,6 +105,7 @@ template < class Medium >
 void
 CTimeMedium< Medium >::deleteRequest( CRequest< Types >const* _request )
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_timeLeftToTrigger.erase( ( CTimeEventRequest< Types > const * )_request );// ugly  solution
 		m_responses.erase( _request );
 }
