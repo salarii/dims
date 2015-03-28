@@ -50,10 +50,12 @@ CInforamtionProvider::reloadData()
 			monitor = node.ToString();
 		}
 
+		node.Set( tracker.m_key.GetID(), common::NodePrefix::Tracker );
+
 		m_trackers.insert(
 					std::make_pair(
 						monitor
-						, ( std::list<std::string> const & )boost::assign::list_of( tracker.m_ip + ":" + convert( tracker.m_ip ) )( node.ToString() )( "" )( convert( tracker.m_reputation ) )( convert( tracker.m_price ) )
+						, ( std::list<std::string> const & )boost::assign::list_of( tracker.m_ip )( node.ToString() )( "" )( convert( tracker.m_reputation ) )( convert( tracker.m_price ) )
 						)
 				);
 	}
@@ -64,7 +66,7 @@ CInforamtionProvider::reloadData()
 		CNodeAddress monitorAddress;
 
 		monitorAddress.Set( monitor.m_key.GetID(), common::NodePrefix::Monitor );
-		m_usedMonitorsTest.push_back( boost::assign::list_of( monitor.m_ip + ":" + convert( monitor.m_ip ) )( monitorAddress.ToString() )("")("")("") );
+		m_usedMonitorsTest.push_back( boost::assign::list_of( monitor.m_ip )( monitorAddress.ToString() )("")("")("") );
 	}
 }
 
