@@ -503,6 +503,8 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
+			context< CConnectAction >().m_connected();
+
 			context< CConnectAction >().dropRequests();
 		}
 
@@ -515,6 +517,8 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 						CNetworkDiscoveredEvent(
 							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
+
+			context< CConnectAction >().m_connected();
 
 			context< CConnectAction >().dropRequests();
 			return discard_event();

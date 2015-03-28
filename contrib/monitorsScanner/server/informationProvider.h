@@ -20,7 +20,7 @@ class Data;
 class CInforamtionProvider
 {
 public:
-	CInforamtionProvider();
+	static CInforamtionProvider* getInstance();
 
 	void getInfo(monitorsScaner::Data& _return, const monitorsScaner::InfoRequest& infoRequest);
 
@@ -28,9 +28,14 @@ public:
 
 	void reloadThread();
 private:
+	CInforamtionProvider();
+
 	void getTrackers(monitorsScaner::Data& _trackers, std::string _publicKey ) const;
+
 	void getMonitorsInfo(monitorsScaner::Data& _monitors)const;
 private:
+	static CInforamtionProvider * ms_instance;
+
 	std::list<std::list<std::string> > m_usedMonitorsTest;
 
 	std::list<std::list<std::string> > m_usedMonitorsMain;

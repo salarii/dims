@@ -40,10 +40,9 @@ class MonitorsScanerHandler : virtual public MonitorsScanerIf
 
   void getInfo(Data& _return, const InfoRequest& infoRequest)
   {
-	m_informationProvider.getInfo( _return, infoRequest );
+	CInforamtionProvider::getInstance()->getInfo( _return, infoRequest );
   }
 
-CInforamtionProvider m_informationProvider;
 };
 
 /*
@@ -77,7 +76,11 @@ init( boost::thread_group & _threadGroup )
 
 	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
 
-	common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( new client::CConnectAction( false ), 60000 );
+	client::CConnectAction * connectAction =  new client::CConnectAction( false );
+
+	connectAction->m_connected.connect( boost::bind( &CInforamtionProvider::reloadData, CInforamtionProvider::getInstance() ) );
+
+	common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( connectAction, 60000 );
 }
 
 int main(int argc, char **argv)
@@ -94,8 +97,6 @@ int main(int argc, char **argv)
   boost::thread_group threadGroup;
 
   init( threadGroup );
-
-  threadGroup.create_thread( boost::bind( &CInforamtionProvider::reloadThread, &handler->m_informationProvider ) );
 
   TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
   server.serve();

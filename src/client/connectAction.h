@@ -33,6 +33,9 @@ public:
 	void reset();
 
 	bool isRequestReady() const;
+
+	//experimental
+	boost::signals2::signal< void () > m_connected;
 };
 
 }

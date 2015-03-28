@@ -27,6 +27,19 @@ convert( ConvertedType const & _converted )
 	return stream.str();
 }
 
+CInforamtionProvider * CInforamtionProvider::ms_instance = NULL;
+
+CInforamtionProvider*
+CInforamtionProvider::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CInforamtionProvider();
+	};
+	return ms_instance;
+}
+
+
 CInforamtionProvider::CInforamtionProvider()
 {
 }
@@ -149,17 +162,5 @@ CInforamtionProvider::getInfo(monitorsScaner::Data& _return, const InfoRequest& 
 
 		e.msg = "specify tracker or monitor info";
 		throw e;
-	}
-}
-
-
-void 
-CInforamtionProvider::reloadThread()
-{
-	while(1)
-	{
-		reloadData();
-		boost::this_thread::sleep(boost::posix_time::seconds(20));
-		boost::this_thread::interruption_point();
 	}
 }
