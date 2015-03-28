@@ -238,6 +238,8 @@ CNodeMedium< _Medium >::add( CResultRequest< Type > const * _request )
 {
 	common::CResult result;
 
+	result.m_result = _request->getResult();
+
 	common::CMessage message( result, _request->getActionKey() );
 
 	m_messages.push_back( message );

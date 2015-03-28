@@ -325,6 +325,8 @@ public:
 	virtual void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
+
+	unsigned int getResult() const{ return m_result; }
 private:
 	unsigned int m_result;
 
