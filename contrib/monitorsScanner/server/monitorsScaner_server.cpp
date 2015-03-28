@@ -20,6 +20,7 @@
 #include "client/settingsConnectionProvider.h"
 #include "client/configureClientActionHadler.h"
 #include "client/connectAction.h"
+#include "client/errorMediumProvider.h"
 
 using namespace ::apache::thrift;
 using namespace ::apache::thrift::protocol;
@@ -73,6 +74,8 @@ init( boost::thread_group & _threadGroup )
 	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
 	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
+
+	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
 
 	common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( new client::CConnectAction( false ), 60000 );
 }

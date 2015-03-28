@@ -34,6 +34,8 @@ CInforamtionProvider::CInforamtionProvider()
 void
 CInforamtionProvider::reloadData()
 {
+	m_trackers.clear();
+	m_usedMonitorsTest.clear();
 	std::vector< common::CTrackerStats > trackers = client::CTrackerLocalRanking::getInstance()->getTrackers();
 	BOOST_FOREACH( common::CTrackerStats const & tracker, trackers )
 	{

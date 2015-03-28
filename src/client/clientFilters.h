@@ -179,7 +179,7 @@ struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 
 	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
-		_errorMediumProvider->getErrorMedium();
+		return _errorMediumProvider->getErrorMedium();
 	}
 
 	int m_mediumClass;
