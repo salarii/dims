@@ -236,6 +236,8 @@ CTcpServerConnection::handleIncommingBuffor()
 	{
 		m_tokens.erase( token );
 	}
+
+	m_pullBuffer.clear();
 }
 
 void runServer()
