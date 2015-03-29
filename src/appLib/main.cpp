@@ -23,7 +23,7 @@ std::vector< std::string > const PossibleMonitors = boost::assign::list_of( "mK8
 
 std::vector< std::string > const PossibleTrackers;
 
-std::string const AuthorId = "dKqwKfMdUcxipQ82NzP1NoZ3AtTEUsGMKV";
+std::string const AuthorId = "dXUT2rfnE8J7nqfa3TQHqPJnur6BX9YsFe";
 
 int Value = 10000;
 }
@@ -79,6 +79,10 @@ int main(int argc, char *argv[])
 			app.quit();
 			return 0;
 		}
+	}
+	else
+	{
+		window->setEnabled( true );
 	}
 
 	return app.exec();
