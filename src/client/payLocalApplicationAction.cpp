@@ -29,6 +29,10 @@ namespace client
 
 const unsigned MonitorAskLoopTime = 20;//seconds
 
+struct CIndicateErrorCondition;
+struct CServiceByTracker;
+struct CResolveByMonitor;
+
 struct CServiceByTrackerEvent : boost::statechart::event< CServiceByTrackerEvent >
 {
 	CServiceByTrackerEvent( CKeyID const & _keyId ):m_keyId( _keyId ) {}
@@ -45,6 +49,19 @@ struct CIndicateErrorEvent : boost::statechart::event< CIndicateErrorEvent >
 {
 	CIndicateErrorEvent( dims::CAppError::Enum const _error ):m_error( _error ){}
 	dims::CAppError::Enum const m_error;
+};
+
+struct CCheckAppData : boost::statechart::state< CCheckAppData, CPayLocalApplicationAction >
+{
+	CCheckAppData( my_context ctx ) : my_base( ctx )
+	{
+	}
+
+	typedef boost::mpl::list<
+	  boost::statechart::transition< CIndicateErrorEvent, CIndicateErrorCondition >
+	, boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >
+	, boost::statechart::transition< CResolveByMonitorEvent, CResolveByMonitor >
+	> reactions;
 };
 
 struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorCondition, CPayLocalApplicationAction >
@@ -84,18 +101,7 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 	//
 	boost::statechart::result react( common::CPending const & _pending )
 	{
-		int64_t time = GetTime();
-
-		if ( time - m_lastAskTime > MonitorAskLoopTime )
-		{
-			assert(!"sort this out");
 			return discard_event();
-		}
-		else
-		{
-			context< CPayLocalApplicationAction >().dropRequests();
-			return discard_event();
-		}
 	}
 
 	boost::statechart::result react( common::CMonitorStatsEvent const & _monitorStatsEvent )
@@ -201,19 +207,6 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 	, boost::statechart::custom_reaction< CTransactionAckEvent >
 	> reactions;
 
-};
-
-struct CCheckAppData : boost::statechart::state< CCheckAppData, CPayLocalApplicationAction >
-{
-	CCheckAppData( my_context ctx ) : my_base( ctx )
-	{
-	}
-
-	typedef boost::mpl::list<
-	  boost::statechart::transition< CIndicateErrorEvent, CIndicateErrorCondition >
-	, boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >
-	, boost::statechart::transition< CResolveByMonitorEvent, CResolveByMonitor >
-	> reactions;
 };
 
 struct CSecondTransaction;
