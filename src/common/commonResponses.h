@@ -373,6 +373,8 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
+typedef boost::variant< int > ScheduledResult;
+
 }
 
 #endif // TRACKER_RESPONSES_H
