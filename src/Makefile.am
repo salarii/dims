@@ -27,6 +27,7 @@ COMMON_H = \
   common/action.h \
   common/analyseTransaction.h \
   common/authenticationProvider.h \
+  common/commandLine.h \
   common/communicationProtocol.h \
   common/commonEvents.h \
   common/commonResponses.h \

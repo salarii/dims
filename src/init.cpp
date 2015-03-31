@@ -53,6 +53,8 @@
 #include "common/actionHandler.h"
 #include "common/timeMedium.h"
 
+#include "common/commandLine.h"
+
 using namespace std;
 using namespace boost;
 
