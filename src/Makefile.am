@@ -52,6 +52,7 @@ COMMON_H = \
 COMMON_CPP = \
   common/analyseTransaction.cpp \
   common/authenticationProvider.cpp \
+  common/commandLine.cpp \
   common/communicationProtocol.cpp \
   common/commonResponses.cpp \
   common/databaseManager.cpp \

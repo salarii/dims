@@ -1,3 +1,7 @@
+// Copyright (c) 2014-2015 Dims dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef COMMAND_LINE_H
 #define COMMAND_LINE_H
 
@@ -8,6 +12,8 @@
 #include <openssl/crypto.h>
 
 #include <boost/foreach.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 namespace common
 {
@@ -28,158 +34,33 @@ public:
 	};
 public:
 	void workLoop();
+
+	static CCommandLine* getInstance();
 protected:
+	CCommandLine(){};
+
 	void request( std::string const & _command );
 
 	bool parseCommandLine( std::vector<std::string> & _args, std::string const & _strCommand );
 
-	void reply( int _category, std::string const & _command ){};
+	void reply( CMessageClass::Enum _category, std::string const & _commandResponse );
+
+	void addOutputMessage( std::string const & _outputMessage )
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		m_outputs.push_back( _outputMessage );
+	}
 protected:
-	std::vector< std::string > m_communicatesToPrint;
+	mutable boost::mutex m_lock;
+
+	std::list< std::string > m_outputs;
+
+	static CCommandLine * ms_instance;
 
 	std::vector< std::string > m_history;
 	int m_historyPtr;
 };
 
-void
-CCommandLine::workLoop()
-{
-
-	while ( 1 )
-	{
-		std::string line;
-		std::cout << "APP > " && std::getline(std::cin, line);
-
-		if ( !line.empty() )
-		;
-	}
-}
-
-
-bool
-CCommandLine::parseCommandLine( std::vector<std::string> & _args, const std::string & _strCommand )
-{
-	enum CmdParseState
-	{
-		STATE_EATING_SPACES,
-		STATE_ARGUMENT,
-		STATE_SINGLEQUOTED,
-		STATE_DOUBLEQUOTED,
-		STATE_ESCAPE_OUTER,
-		STATE_ESCAPE_DOUBLEQUOTED
-	} state = STATE_EATING_SPACES;
-	std::string curarg;
-	BOOST_FOREACH( char const & ch, _strCommand )
-	{
-		switch(state)
-		{
-		case STATE_ARGUMENT: // In or after argument
-		case STATE_EATING_SPACES: // Handle runs of whitespace
-			switch(ch)
-			{
-			case '"': state = STATE_DOUBLEQUOTED; break;
-			case '\'': state = STATE_SINGLEQUOTED; break;
-			case '\\': state = STATE_ESCAPE_OUTER; break;
-			case ' ': case '\n': case '\t':
-				if( state == STATE_ARGUMENT ) // Space ends argument
-				{
-					_args.push_back(curarg);
-					curarg.clear();
-				}
-				state = STATE_EATING_SPACES;
-				break;
-			default: curarg += ch; state = STATE_ARGUMENT;
-			}
-			break;
-		case STATE_SINGLEQUOTED: // Single-quoted string
-			switch(ch)
-			{
-			case '\'': state = STATE_ARGUMENT; break;
-			default: curarg += ch;
-			}
-			break;
-		case STATE_DOUBLEQUOTED: // Double-quoted string
-			switch(ch)
-			{
-			case '"': state = STATE_ARGUMENT; break;
-			case '\\': state = STATE_ESCAPE_DOUBLEQUOTED; break;
-			default: curarg += ch;
-			}
-			break;
-		case STATE_ESCAPE_OUTER: // '\' outside quotes
-			curarg += ch; state = STATE_ARGUMENT;
-			break;
-		case STATE_ESCAPE_DOUBLEQUOTED: // '\' in double-quoted text
-			if(ch != '"' && ch != '\\') curarg += '\\'; // keep '\' for everything but the quote and '\' itself
-			curarg += ch; state = STATE_DOUBLEQUOTED;
-			break;
-		}
-	}
-	switch(state) // final state
-	{
-	case STATE_EATING_SPACES:
-		return true;
-	case STATE_ARGUMENT:
-		_args.push_back( curarg );
-		return true;
-	default: // ERROR to end in one of the other states
-		return false;
-	}
-}
-
-void
-CCommandLine::request( std::string const & _command )
-{
-	std::vector<std::string> args;
-
-	if( !parseCommandLine( args, _command ) )
-	{
-		reply( CMessageClass::CMD_ERROR, "Parse error: unbalanced ' or \"" );
-		return;
-	}
-	if(args.empty())
-		return; // Nothing to do
-	try
-	{
-		std::string strPrint;
-		// Convert argument list to JSON objects in method-dependent way,
-		// and pass it along with the method name to the dispatcher.
-		json_spirit::Value result = tableRPC.execute(
-			args[0],
-			RPCConvertValues(args[0], std::vector<std::string>(args.begin() + 1, args.end())));
-
-		// Format result reply
-		if (result.type() == json_spirit::null_type)
-			strPrint = "";
-		else if (result.type() == json_spirit::str_type)
-			strPrint = result.get_str();
-		else
-			strPrint = write_string(result, true);
-
-		reply( CMessageClass::CMD_REPLY, strPrint );
-	}
-	catch (json_spirit::Object& objError)
-	{
-		try // Nice formatting for standard-format error
-		{
-			int code = find_value(objError, "code").get_int();
-			std::string message = find_value(objError, "message").get_str();
-
-			ostringstream errorStream;
-			errorStream << code;
-
-			reply(CMessageClass::CMD_ERROR, message + " (code " + errorStream.str() + ")");
-		}
-		catch(std::runtime_error &) // raised when converting to invalid type, i.e. missing code or message
-		{   // Show raw JSON object
-			reply( CMessageClass::CMD_ERROR, write_string( json_spirit::Value(objError), false) );
-		}
-	}
-	catch (std::exception& e)
-	{
-		reply( CMessageClass::CMD_ERROR, std::string("Error: ") + e.what());
-	}
-}
 /*
 void RPCConsole::clear()
 {

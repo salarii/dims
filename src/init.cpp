@@ -962,6 +962,7 @@ seed_insecure_rand();
 	threadGroup.create_thread( boost::bind( &tracker::COriginAddressScanner::loop, tracker::COriginAddressScanner::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CTrackerTypes >::loop, common::CActionHandler< common::CTrackerTypes >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CTrackerBaseMedium >::workLoop, common::CTimeMedium< common::CTrackerBaseMedium >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
