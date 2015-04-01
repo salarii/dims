@@ -12,12 +12,13 @@
 #include "chainparams.h"
 #include "checkpoints.h"
 #include "checkqueue.h"
-#include "init.h"
 #include "net.h"
 #include "txdb.h"
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "util.h"
+#include "rpcserver.h"
+
 #include "tracker/originAddressScaner.h"
 #include "tracker/internalMediumProvider.h"
 
@@ -2067,7 +2068,7 @@ bool AbortNode(const std::string &strMessage) {
     strMiscWarning = strMessage;
     LogPrintf("*** %s\n", strMessage);
     uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_ERROR);
-    StartShutdown();
+	StopHook();
     return false;
 }
 

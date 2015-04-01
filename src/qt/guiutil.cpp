@@ -10,7 +10,7 @@
 #include "walletmodel.h"
 
 #include "core.h"
-#include "init.h"
+#include "tracker/init.h"
 #include "util.h"
 
 #ifdef WIN32

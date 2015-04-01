@@ -4,7 +4,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "base58.h"
-#include "init.h"
 #include "main.h"
 #include "net.h"
 #include "netbase.h"
@@ -61,68 +60,17 @@ Value getinfo(const Array& params, bool fHelp)
     Object obj;
     obj.push_back(Pair("version",       (int)CLIENT_VERSION));
     obj.push_back(Pair("protocolversion",(int)PROTOCOL_VERSION));
-#ifdef ENABLE_WALLET
-    if (pwalletMain) {
-        obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
-        obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
-    }
-#endif
+
     obj.push_back(Pair("blocks",        (int)chainActive.Height()));
     obj.push_back(Pair("timeoffset",    (boost::int64_t)GetTimeOffset()));
     obj.push_back(Pair("connections",   (int)vNodes.size()));
     obj.push_back(Pair("proxy",         (proxy.first.IsValid() ? proxy.first.ToStringIPPort() : string())));
     obj.push_back(Pair("difficulty",    (double)GetDifficulty()));
     obj.push_back(Pair("testnet",       TestNet()));
-#ifdef ENABLE_WALLET
-    if (pwalletMain) {
-        obj.push_back(Pair("keypoololdest", (boost::int64_t)pwalletMain->GetOldestKeyPoolTime()));
-        obj.push_back(Pair("keypoolsize",   (int)pwalletMain->GetKeyPoolSize()));
-    }
-    obj.push_back(Pair("paytxfee",      ValueFromAmount(nTransactionFee)));
-    if (pwalletMain && pwalletMain->IsCrypted())
-        obj.push_back(Pair("unlocked_until", (boost::int64_t)nWalletUnlockTime));
-#endif
+
     obj.push_back(Pair("errors",        GetWarnings("statusbar")));
     return obj;
 }
-
-#ifdef ENABLE_WALLET
-class DescribeAddressVisitor : public boost::static_visitor<Object>
-{
-public:
-    Object operator()(const CNoDestination &dest) const { return Object(); }
-
-    Object operator()(const CKeyID &keyID) const {
-        Object obj;
-        CPubKey vchPubKey;
-        pwalletMain->GetPubKey(keyID, vchPubKey);
-        obj.push_back(Pair("isscript", false));
-        obj.push_back(Pair("pubkey", HexStr(vchPubKey)));
-        obj.push_back(Pair("iscompressed", vchPubKey.IsCompressed()));
-        return obj;
-    }
-
-    Object operator()(const CScriptID &scriptID) const {
-        Object obj;
-        obj.push_back(Pair("isscript", true));
-        CScript subscript;
-        pwalletMain->GetCScript(scriptID, subscript);
-        std::vector<CTxDestination> addresses;
-        txnouttype whichType;
-        int nRequired;
-        ExtractDestinations(subscript, whichType, addresses, nRequired);
-        obj.push_back(Pair("script", GetTxnOutputType(whichType)));
-        obj.push_back(Pair("hex", HexStr(subscript.begin(), subscript.end())));
-        Array a;
-        BOOST_FOREACH(const CTxDestination& addr, addresses)
-            a.push_back(CMnemonicAddress(addr).ToString());
-        obj.push_back(Pair("addresses", a));
-        if (whichType == TX_MULTISIG)
-            obj.push_back(Pair("sigsrequired", nRequired));
-        return obj;
-    }
-};
-#endif
 
 Value validateaddress(const Array& params, bool fHelp)
 {
@@ -157,16 +105,7 @@ Value validateaddress(const Array& params, bool fHelp)
         CTxDestination dest = address.Get();
         string currentAddress = address.ToString();
         ret.push_back(Pair("address", currentAddress));
-#ifdef ENABLE_WALLET
-        bool fMine = pwalletMain ? IsMine(*pwalletMain, dest) : false;
-        ret.push_back(Pair("ismine", fMine));
-        if (fMine) {
-            Object detail = boost::apply_visitor(DescribeAddressVisitor(), dest);
-            ret.insert(ret.end(), detail.begin(), detail.end());
-        }
-        if (pwalletMain && pwalletMain->mapAddressBook.count(dest))
-            ret.push_back(Pair("account", pwalletMain->mapAddressBook[dest].name));
-#endif
+
     }
     return ret;
 }
@@ -191,27 +130,7 @@ CScript _createmultisig(const Array& params)
     for (unsigned int i = 0; i < keys.size(); i++)
     {
         const std::string& ks = keys[i].get_str();
-#ifdef ENABLE_WALLET
-        // Case 1: Bitcoin address and we have full public key:
-        CMnemonicAddress address(ks);
-        if (pwalletMain && address.IsValid())
-        {
-            CKeyID keyID;
-            if (!address.GetKeyID(keyID))
-                throw runtime_error(
-                    strprintf("%s does not refer to a key",ks));
-            CPubKey vchPubKey;
-            if (!pwalletMain->GetPubKey(keyID, vchPubKey))
-                throw runtime_error(
-                    strprintf("no full public key for address %s",ks));
-            if (!vchPubKey.IsFullyValid())
-                throw runtime_error(" Invalid public key: "+ks);
-            pubkeys[i] = vchPubKey;
-        }
 
-        // Case 2: hex public key
-        else
-#endif
         if (IsHex(ks))
         {
             CPubKey vchPubKey(ParseHex(ks));

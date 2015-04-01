@@ -140,6 +140,10 @@ CTimeMedium< Medium >::workLoop()
 			m_timeLeftToTrigger.erase( timeEventReq );
 			m_responses.insert( std::make_pair( timeEventReq, CTimeEvent() ) );
 		}
+
+		if ( m_timeLeftToTrigger.empty() && m_responses.empty() )
+			boost::this_thread::interruption_point();
+
 	}
 
 }

@@ -5,12 +5,6 @@
 #ifndef COMMAND_LINE_H
 #define COMMAND_LINE_H
 
-#include "rpcserver.h"
-#include "rpcclient.h"
-
-#include "json/json_spirit_value.h"
-#include <openssl/crypto.h>
-
 #include <boost/foreach.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>

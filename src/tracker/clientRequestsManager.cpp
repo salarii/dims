@@ -154,6 +154,8 @@ CClientRequestsManager::processRequestLoop()
 
 			m_getInfoRequest.clear();
 		}
+
+		boost::this_thread::interruption_point();
 		
 	}
 }

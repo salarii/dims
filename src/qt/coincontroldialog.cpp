@@ -8,7 +8,7 @@
 #include "addresstablemodel.h"
 #include "dimsUnits.h"
 #include "guiutil.h"
-#include "init.h"
+#include "tracker/init.h"
 #include "optionsmodel.h"
 #include "walletmodel.h"
 

@@ -4,8 +4,8 @@ import string
 
 # ===== BEGIN USER SETTINGS =====
 # if you do not set these you will be prompted for a password for every command
-rpcuser = ""
-rpcpass = ""
+rpcuser = "a"
+rpcpass = "b"
 # ====== END USER SETTINGS ======
 
 

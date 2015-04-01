@@ -18,6 +18,8 @@
 #include "json/json_spirit_utils.h"
 #include "json/json_spirit_writer_template.h"
 
+#include "boost/signals2.hpp"
+
 class CBlockIndex;
 
 /* Start RPC threads */
@@ -167,6 +169,7 @@ extern json_spirit::Value getrawmempool(const json_spirit::Array& params, bool f
 extern json_spirit::Value gettxoutsetinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value gettxout(const json_spirit::Array& params, bool fHelp);
 
+extern boost::signals2::signal< void () > StopHook;
 namespace tracker
 {
 extern json_spirit::Value connectToTracker(const json_spirit::Array& params, bool fHelp);

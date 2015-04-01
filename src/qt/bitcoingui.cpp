@@ -24,7 +24,7 @@
 #include "macdockiconhandler.h"
 #endif
 
-#include "init.h"
+#include "tracker/init.h"
 #include "ui_interface.h"
 
 #include <iostream>

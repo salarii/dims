@@ -6,7 +6,6 @@
 #include "rpcserver.h"
 
 #include "base58.h"
-#include "init.h"
 #include "main.h"
 #include "ui_interface.h"
 #include "util.h"
@@ -41,6 +40,8 @@ static map<string, boost::shared_ptr<deadline_timer> > deadlineTimers;
 static ssl::context* rpc_ssl_context = NULL;
 static boost::thread_group* rpc_worker_group = NULL;
 static boost::asio::io_service::work *rpc_dummy_work = NULL;
+
+boost::signals2::signal< void () > StopHook;
 
 void RPCTypeCheck(const Array& params,
                   const list<Value_type>& typesExpected,
@@ -155,10 +156,6 @@ string CRPCTable::help(string strCommand) const
             continue;
         if (strCommand != "" && strMethod != strCommand)
             continue;
-#ifdef ENABLE_WALLET
-        if (pcmd->reqWallet && !pwalletMain)
-            continue;
-#endif
 
         try
         {
@@ -209,10 +206,10 @@ Value stop(const Array& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "stop\n"
-            "\nStop Bitcoin server.");
+			"\nStop program.");
     // Shutdown will take long enough that the response should get back
-    StartShutdown();
-    return "Bitcoin server stopping";
+	StopHook();
+	return "Program stopping";
 }
 
 
@@ -272,8 +269,7 @@ static const CRPCCommand vRPCCommands[] =
     { "dumpprivkey",            &dumpprivkey,            true,      false,      true },
     { "dumpwallet",             &dumpwallet,             true,      false,      true },
     { "importprivkey",          &importprivkey,          false,     false,      true },
-    { "importwallet",           &importwallet,           false,     false,      true },
-    { "listunspent",            &listunspent,            false,     false,      true },
+	{ "importwallet",           &importwallet,           false,     false,      true },
     { "lockunspent",            &lockunspent,            false,     false,      true },
     { "listlockunspent",        &listlockunspent,        false,     false,      true },
     { "settxfee",               &settxfee,               false,     false,      true },
@@ -493,7 +489,7 @@ void StartRPCThreads()
                 GetConfigFile().string(),
                 EncodeBase58(&rand_pwd[0],&rand_pwd[0]+32)),
                 "", CClientUIInterface::MSG_ERROR);
-        StartShutdown();
+		StopHook();
         return;
     }
 
@@ -575,7 +571,7 @@ void StartRPCThreads()
 
     if (!fListening) {
         uiInterface.ThreadSafeMessageBox(strerr, "", CClientUIInterface::MSG_ERROR);
-        StartShutdown();
+		StopHook();
         return;
     }
 
@@ -793,10 +789,7 @@ json_spirit::Value CRPCTable::execute(const std::string &strMethod, const json_s
     const CRPCCommand *pcmd = tableRPC[strMethod];
     if (!pcmd)
         throw JSONRPCError(RPC_METHOD_NOT_FOUND, "Method not found");
-#ifdef ENABLE_WALLET
-    if (pcmd->reqWallet && !pwalletMain)
-        throw JSONRPCError(RPC_METHOD_NOT_FOUND, "Method not found (disabled)");
-#endif
+
 
     // Observe safe mode
     string strWarning = GetWarnings("rpc");
@@ -811,20 +804,7 @@ json_spirit::Value CRPCTable::execute(const std::string &strMethod, const json_s
         {
             if (pcmd->threadSafe)
                 result = pcmd->actor(params, false);
-#ifdef ENABLE_WALLET
-            else if (!pwalletMain) {
-                LOCK(cs_main);
-                result = pcmd->actor(params, false);
-            } else {
-                LOCK2(cs_main, pwalletMain->cs_wallet);
-                result = pcmd->actor(params, false);
-            }
-#else // ENABLE_WALLET
-            else {
-                LOCK(cs_main);
-                result = pcmd->actor(params, false);
-            }
-#endif // !ENABLE_WALLET
+
         }
         return result;
     }

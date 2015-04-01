@@ -12,7 +12,7 @@
 #include "guiutil.h"
 
 #include "clientversion.h"
-#include "init.h"
+#include "tracker/init.h"
 #include "util.h"
 
 #include <QLabel>

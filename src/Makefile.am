@@ -14,9 +14,6 @@ if BUILD_BITCOIND
   bin_PROGRAMS += dims_tracker
 endif
 
-if BUILD_BITCOIN_CLI
-  bin_PROGRAMS += bitcoin-cli
-endif
 
 SUBDIRS = . $(BUILD_QT) $(BUILD_TEST) monitor seed appLib
 DIST_SUBDIRS = . qt test
@@ -72,6 +69,7 @@ TRACKER_CORE_H = \
   tracker/connectNodeAction.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
+  tracker/init.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
   tracker/originTransactionsDatabase.h \
@@ -117,7 +115,6 @@ BITCOIN_CORE_H = \
   crypter.h \
   db.h \
   hash.h \
-  init.h \
   key.h \
   keystore.h \
   limitedmap.h \
@@ -171,6 +168,7 @@ TRACKER_CORE_CPP = \
   tracker/connectNodeAction.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
+  tracker/init.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
   tracker/originTransactionsDatabase.cpp \
@@ -208,7 +206,6 @@ libbitcoin_server_a_SOURCES = \
   chainparams.cpp \
   checkpoints.cpp \
   coins.cpp \
-  init.cpp \
   keystore.cpp \
   main.cpp \
   net.cpp \
@@ -263,7 +260,7 @@ dims_tracker_LDADD = \
   libbitcoin_common.a \
   $(LIBLEVELDB) \
   $(LIBMEMENV)
-dims_tracker_SOURCES = bitcoind.cpp
+dims_tracker_SOURCES = tracker/tracker.cpp
 #
 
 if TARGET_WINDOWS
@@ -273,17 +270,9 @@ endif
 AM_CPPFLAGS += $(BDB_CPPFLAGS)
 dims_tracker_LDADD += $(BOOST_LIBS) $(BDB_LIBS)
 
-# bitcoin-cli binary #
-bitcoin_cli_LDADD = \
-  libbitcoin_cli.a \
-  libbitcoin_common.a \
-  $(BOOST_LIBS)
-bitcoin_cli_SOURCES = bitcoin-cli.cpp
 #
 
-if TARGET_WINDOWS
-bitcoin_cli_SOURCES += bitcoin-cli-res.rc
-endif
+
 
 # NOTE: This dependency is not strictly necessary, but without it make may try to build both in parallel, which breaks the LevelDB build system in a race
 leveldb/libleveldb.a: leveldb/libmemenv.a

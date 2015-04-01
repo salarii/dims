@@ -11,7 +11,7 @@
 #include "dimsUnits.h"
 #include "guiutil.h"
 
-#include "init.h"
+#include "tracker/init.h"
 #include "main.h"
 #include "net.h"
 #include "txdb.h" // for -dbcache defaults

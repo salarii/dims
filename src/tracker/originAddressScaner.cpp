@@ -114,6 +114,7 @@ COriginAddressScanner::loop()
 
 		}
 		boost::this_thread::interruption_point();
+		MilliSleep(50);
 	}
 
 }
