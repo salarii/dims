@@ -1019,6 +1019,7 @@ seed_insecure_rand();
 	if (fServer)
 		StartRPCThreads();
 
+	StopHook.connect( &StartShutdown );
 
 
     // ********************************************************* Step 12: finished

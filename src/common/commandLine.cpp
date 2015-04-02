@@ -60,10 +60,44 @@ CCommandLine::reply( CMessageClass::Enum _category, std::string const & _command
 void
 CCommandLine::workLoop()
 {
+	fd_set read_fds;
+	timeval waitTime;
+	waitTime.tv_sec = 0;
+	waitTime.tv_usec = 0;
+
+	bool promptPrinted = false;
 	while ( 1 )
 	{
+
+		if ( !promptPrinted )
+		{
+			promptPrinted = true;
+			std::cout << "PROMPT > ";
+			std::cout.flush();
+		}
+
 		std::string line;
-		std::cout << "PROMPT > " && std::getline(std::cin, line);
+
+		FD_ZERO(&read_fds);
+		FD_SET( STDIN_FILENO, &read_fds );
+
+		int result = select( FD_SETSIZE, &read_fds, NULL, NULL, &waitTime );
+		if (result == -1 && errno != EINTR)
+		{
+			assert(!"Error in select");
+		}
+		else if (result == -1 && errno == EINTR)
+		{
+			assert(!"problem");
+		}
+		else
+		{
+			if (FD_ISSET(STDIN_FILENO, &read_fds))
+			{
+				promptPrinted = false;
+				std::getline(std::cin, line);
+			}
+		}
 
 		if ( !line.empty() )
 		{

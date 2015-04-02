@@ -224,56 +224,28 @@ static const CRPCCommand vRPCCommands[] =
   //  ------------------------  -----------------------  ---------- ---------- ---------
     { "help",                   &help,                   true,      true,       false },
     { "stop",                   &stop,                   true,      true,       false },
-    { "getconnectioncount",     &getconnectioncount,     true,      false,      false },
+/*
+  { "getconnectioncount",     &getconnectioncount,     true,      false,      false },
     { "getpeerinfo",            &getpeerinfo,            true,      false,      false },
     { "ping",                   &ping,                   true,      false,      false },
     { "addnode",                &addnode,                true,      true,       false },
     { "getaddednodeinfo",       &getaddednodeinfo,       true,      true,       false },
-    { "getnettotals",           &getnettotals,           true,      true,       false },
     { "getrawtransaction",      &getrawtransaction,      false,     false,      false },
     { "createrawtransaction",   &createrawtransaction,   false,     false,      false },
     { "decoderawtransaction",   &decoderawtransaction,   false,     false,      false },
 	{ "decodescript",           &decodescript,           false,     false,      false },
 	{ "connecttotracker",     &tracker::connectToTracker,     false,     false,      false },
-
+*/
 #ifdef ENABLE_WALLET
     /* Wallet */
-    { "getnewaddress",          &getnewaddress,          true,      false,      true },
-    { "getaccountaddress",      &getaccountaddress,      true,      false,      true },
-    { "getrawchangeaddress",    &getrawchangeaddress,    true,      false,      true },
-    { "setaccount",             &setaccount,             true,      false,      true },
-    { "getaccount",             &getaccount,             false,     false,      true },
-    { "getaddressesbyaccount",  &getaddressesbyaccount,  true,      false,      true },
+/*
+  { "getaccountaddress",      &getaccountaddress,      true,      false,      true },
     { "sendtoaddress",          &sendtoaddress,          false,     false,      true },
-    { "getreceivedbyaddress",   &getreceivedbyaddress,   false,     false,      true },
-    { "getreceivedbyaccount",   &getreceivedbyaccount,   false,     false,      true },
-    { "listreceivedbyaddress",  &listreceivedbyaddress,  false,     false,      true },
-    { "listreceivedbyaccount",  &listreceivedbyaccount,  false,     false,      true },
-    { "backupwallet",           &backupwallet,           true,      false,      true },
-    { "keypoolrefill",          &keypoolrefill,          true,      false,      true },
-    { "walletpassphrase",       &walletpassphrase,       true,      false,      true },
-    { "walletpassphrasechange", &walletpassphrasechange, false,     false,      true },
-    { "walletlock",             &walletlock,             true,      false,      true },
-    { "encryptwallet",          &encryptwallet,          false,     false,      true },
-    { "getbalance",             &getbalance,             false,     false,      true },
-    { "getunconfirmedbalance",  &getunconfirmedbalance,  false,     false,      true },
-    { "move",                   &movecmd,                false,     false,      true },
-    { "sendfrom",               &sendfrom,               false,     false,      true },
-    { "sendmany",               &sendmany,               false,     false,      true },
-    { "gettransaction",         &gettransaction,         false,     false,      true },
-    { "listtransactions",       &listtransactions,       false,     false,      true },
-    { "listaddressgroupings",   &listaddressgroupings,   false,     false,      true },
-    { "signmessage",            &signmessage,            false,     false,      true },
-    { "listaccounts",           &listaccounts,           false,     false,      true },
-    { "listsinceblock",         &listsinceblock,         false,     false,      true },
+	{ "getbalance",             &getbalance,             false,     false,      true },
+	{ "gettransaction",         &gettransaction,         false,     false,      true },
     { "dumpprivkey",            &dumpprivkey,            true,      false,      true },
-    { "dumpwallet",             &dumpwallet,             true,      false,      true },
-    { "importprivkey",          &importprivkey,          false,     false,      true },
-	{ "importwallet",           &importwallet,           false,     false,      true },
-    { "lockunspent",            &lockunspent,            false,     false,      true },
-    { "listlockunspent",        &listlockunspent,        false,     false,      true },
-    { "settxfee",               &settxfee,               false,     false,      true },
-
+	{ "importprivkey",          &importprivkey,          false,     false,      true },
+*/
 #endif // ENABLE_WALLET
 };
 
