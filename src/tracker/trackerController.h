@@ -38,6 +38,15 @@ public:
 		return m_monitorData;
 	}
 
+	void setStatusMessage( std::string const & _statusMessage )
+	{
+		m_statusMessage = _statusMessage;
+	}
+
+	std::string getStatusMessage()
+	{
+		return m_statusMessage;
+	}
 
 private:
 	CTrackerController();
@@ -52,6 +61,8 @@ private:
 	CMonitorData m_monitorData;
 
 	float const m_deviation;
+
+	std::string m_statusMessage;
 };
 
 

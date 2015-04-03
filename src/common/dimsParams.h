@@ -86,6 +86,7 @@ public:
 	static AppType::Enum getAppType(){ return m_appType; }
 	std::vector<unsigned char> const getNodePrefix( NodePrefix::Enum const _nodePrefix ) const{ return nodesPrefixes[ _nodePrefix ]; }
 	virtual const vector<CPubKey>& getPreferedMonitorsAddresses() const = 0;
+	int getUsedBitcoinNodesNumber()const{ return 3; }
 protected:
 
 

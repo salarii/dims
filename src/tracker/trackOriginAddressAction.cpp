@@ -27,7 +27,7 @@
 
 namespace tracker
 {
-uint const UsedMediumNumber = 3;
+
 uint const MaxMerkleNumber = 1000;
 uint const WaitResultTime = 30000;
 uint const CleanTime = 2;
@@ -55,7 +55,9 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		if ( vNodes.size() >= UsedMediumNumber )
+		CTrackerController::getInstance()->process_event( CBitcoinNetworkConnection( vNodes.size() ) );
+
+		if ( vNodes.size() >= common::dimsParams().getUsedBitcoinNodesNumber() )
 		{
 			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
 			return transit< CReadingData >();
@@ -160,6 +162,8 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
+	tracker::CTrackerController::getInstance()->process_event( CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
+
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );
 
@@ -167,7 +171,7 @@ CTrackOriginAddressAction::requestFiltered()
 		CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
 
 	dropRequests();
-	addRequests( new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, UsedMediumNumber ) ) );
+	addRequests( new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
 
 }
 
@@ -258,7 +262,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 	}
 
 	// get size of  accepted
-	if (m_acceptedBlocks.size() < UsedMediumNumber )
+	if (m_acceptedBlocks.size() < common::dimsParams().getUsedBitcoinNodesNumber() )
 		return;
 
 	uint size = -1;

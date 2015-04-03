@@ -78,6 +78,7 @@ TRACKER_CORE_H = \
   tracker/processNetwork.h \
   tracker/provideInfoAction.h \
   tracker/registerAction.h \
+  tracker/registerRpcHooks.h \
   tracker/segmentFileStorage.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
@@ -177,6 +178,7 @@ TRACKER_CORE_CPP = \
   tracker/processNetwork.cpp \
   tracker/provideInfoAction.cpp \
   tracker/registerAction.cpp \
+  tracker/registerRpcHooks.cpp \
   tracker/rpcTracker.cpp \
   tracker/segmentFileStorage.cpp \
   tracker/server.cpp \

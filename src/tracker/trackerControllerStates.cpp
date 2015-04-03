@@ -18,8 +18,56 @@ namespace tracker
 {
 
 CInitialSynchronization::CInitialSynchronization()
+	:m_blockLeft( -1 )
 {
 	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
+}
+
+boost::statechart::result
+CInitialSynchronization::react( CSetScanBitcoinChainProgress const & _event )
+{
+	m_blockLeft = _event.m_blockLeft;
+	return discard_event();
+}
+
+boost::statechart::result
+CInitialSynchronization::react( CBitcoinNetworkConnection const & _event )
+{
+	m_nodesNumber = _event.m_nodesNumber;
+	return discard_event();
+}
+
+boost::statechart::result
+CInitialSynchronization::react( CUpdateStatus const & _event )
+{
+	std::string status;
+
+	if ( m_nodesNumber < common::dimsParams().getUsedBitcoinNodesNumber() )
+	{
+		{
+			std::ostringstream convert;
+			convert << m_nodesNumber;
+
+			status = "Connecting to bitcoin network \n currently there is:  " + convert.str() + "  connections \n";
+		}
+		{
+			std::ostringstream convert;
+			convert << common::dimsParams().getUsedBitcoinNodesNumber();
+
+			status += "there is " + convert.str() + " needed";
+		}
+	}
+	else
+	{
+		status = "Reading bitcoin blockchain for base transactions: \n";
+
+		std::ostringstream convert;
+		convert << m_blockLeft;
+
+		status += "left " + convert.str() + " blocks to  be checked..\n";
+	}
+	context< CTrackerController >().setStatusMessage( status );
+	return discard_event();
 }
 
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )

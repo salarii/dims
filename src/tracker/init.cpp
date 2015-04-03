@@ -46,6 +46,7 @@
 #include "tracker/processNetwork.h"
 #include "tracker/trackOriginAddressAction.h"
 #include "tracker/trackerController.h"
+#include "tracker/registerRpcHooks.h"
 
 #include "client/settingsConnectionProvider.h"
 
@@ -1020,7 +1021,7 @@ seed_insecure_rand();
 		StartRPCThreads();
 
 	StopHook.connect( &StartShutdown );
-
+	tracker::registerHooks();
 
     // ********************************************************* Step 12: finished
 

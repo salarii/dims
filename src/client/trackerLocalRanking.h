@@ -21,6 +21,10 @@
 
 namespace client
 {
+/*
+y = -5.3724+3.3381*log(x);
+y = -5.0505e-03+ 1./( 9.9497e-01 .+   1.9701e-04.*x );
+*/
 
 class CNetworkClient;
 

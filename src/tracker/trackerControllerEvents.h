@@ -5,6 +5,8 @@
 #ifndef TRACKER_CONTROLLER_EVENTS_H
 #define TRACKER_CONTROLLER_EVENTS_H
 
+#include <boost/statechart/event.hpp>
+
 namespace tracker
 {
 
@@ -36,6 +38,24 @@ struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTracke
 	CConnectWithTrackerRequest( std::string const & _trackerAddress ):m_trackerAddress( _trackerAddress ){};
 
 	std::string const m_trackerAddress;
+};
+
+struct CSetScanBitcoinChainProgress : boost::statechart::event< CSetScanBitcoinChainProgress >
+{
+	CSetScanBitcoinChainProgress( int _blockLeft ):m_blockLeft( _blockLeft ){}
+
+	int m_blockLeft;
+};
+
+struct CBitcoinNetworkConnection : boost::statechart::event< CBitcoinNetworkConnection >
+{
+	CBitcoinNetworkConnection( int _nodesNumber ):m_nodesNumber( _nodesNumber ){}
+
+	int m_nodesNumber;
+};
+
+struct CUpdateStatus : boost::statechart::event< CUpdateStatus >
+{
 };
 
 }
