@@ -372,9 +372,6 @@ struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CConne
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		// wrong but for now ok
-		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRegisterAction( context< CConnectNodeAction >().getNodePtr() ) );
-		context< CConnectNodeAction >().dropRequests();
 		return discard_event();
 	}
 

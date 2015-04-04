@@ -42,6 +42,8 @@ COMMON_H = \
   common/requestHandler.h \
   common/request.h \
   common/selfNode.h \
+  common/scheduleAbleAction.h \
+  common/scheduledActionManager.h \
   common/timeMedium.h \
   common/transactionStatus.h \
   common/visitorConfigurationUtilities.h 
@@ -77,6 +79,7 @@ TRACKER_CORE_H = \
   tracker/pingAction.h \
   tracker/processNetwork.h \
   tracker/provideInfoAction.h \
+  tracker/recognizeNetworkAction.h \
   tracker/registerAction.h \
   tracker/registerRpcHooks.h \
   tracker/segmentFileStorage.h \
@@ -177,6 +180,7 @@ TRACKER_CORE_CPP = \
   tracker/pingAction.cpp \
   tracker/processNetwork.cpp \
   tracker/provideInfoAction.cpp \
+  tracker/recognizeNetworkAction.cpp \
   tracker/registerAction.cpp \
   tracker/registerRpcHooks.cpp \
   tracker/rpcTracker.cpp \

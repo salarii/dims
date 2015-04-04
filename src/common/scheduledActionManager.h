@@ -1,32 +1,48 @@
 #ifndef SCHEDULED_ACTION_MANAGER_H
 #define SCHEDULED_ACTION_MANAGER_H
 
+#include "common/request.h"
+
 namespace common
 {
-
-
 
 template < class _Type >
 class CScheduledActionManager : public _Type::Medium
 {
 public:
-	CScheduledActionManager(){};
+	static CScheduledActionManager * getInstance();
 
 	bool serviced() const;
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< CRequest< Type >const*, Response > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest< Type >const*, _Type::Response > & _requestResponse );
 
 	void setResponse( uint256 const & _id, Response const & _responses );
 
+	void setResponseForAction( uint256 const & _id, ScheduledResult const & _responses );
+protected:
+	CScheduledActionManager(){};
 protected:
 	static CScheduledActionManager< _Type > * ms_instance;
 	// scheduleable action result as  boost  variant ??
 	// but  this  have  to  be  passed  through
-
-
+	std::multimap< CRequest< Type >const*, Response > m_responses;
+	std::multimap< uint256, uint256 > m_actionToRequest;
 };
+
+static CScheduledActionManager * getInstance();
+CScheduledActionManager * CScheduledActionManager::ms_instance = NULL;
+
+CScheduledActionManager*
+CScheduledActionManager::getInstance( )
+{
+	if ( !ms_instance )
+	{
+		ms_instance = new CScheduledActionManager();
+	};
+	return ms_instance;
+}
 
 template < class _Medium >
 bool
