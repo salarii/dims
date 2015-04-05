@@ -63,6 +63,7 @@ public:
 	virtual void add( common::CNetworkRoleRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CTimeEventRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CScheduleActionRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};

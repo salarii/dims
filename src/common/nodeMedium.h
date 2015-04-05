@@ -11,6 +11,7 @@
 #include "common/communicationProtocol.h"
 #include "common/mediumRequests.h"
 #include "common/authenticationProvider.h"
+#include "common/selfNode.h"
 
 namespace common
 {

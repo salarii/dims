@@ -5,8 +5,8 @@
 #ifndef CONNECT_NODE_ACTION_H
 #define CONNECT_NODE_ACTION_H
 
-#include "common/action.h"
 #include "common/filters.h"
+#include "common/scheduleAbleAction.h"
 
 #include "configureTrackerActionHandler.h"
 
@@ -24,7 +24,7 @@ namespace tracker
 
 struct CConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >, public common::CCommunicationAction
+class CConnectNodeAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >, public common::CCommunicationAction
 {
 public:
 	CConnectNodeAction( std::string const & _nodeAddress );

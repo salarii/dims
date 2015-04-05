@@ -468,6 +468,46 @@ CPongRequest< _Types >::getActionKey() const
 	return m_actionKey;
 }
 
+template < class _Types >
+class CScheduleAbleAction;
+
+template < class _Types >
+class CScheduleActionRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CScheduleActionRequest( CScheduleAbleAction< _Types > * _scheduleAbleAction, FilterType * _mediumFilter );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	CScheduleAbleAction< _Types > * getAction() const;
+private:
+	CScheduleAbleAction< _Types > * m_scheduleAbleAction;
+};
+
+template < class _Types >
+CScheduleActionRequest< _Types >::CScheduleActionRequest( CScheduleAbleAction< _Types > * _scheduleAbleAction, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_scheduleAbleAction( _scheduleAbleAction )
+{
+}
+
+template < class _Types >
+void
+CScheduleActionRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+CScheduleAbleAction< _Types > *
+CScheduleActionRequest< _Types >::getAction() const
+{
+	return m_scheduleAbleAction;
+}
+
 }
 
 #endif // MEDIUM_REQUESTS_H

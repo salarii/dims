@@ -43,7 +43,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		}
 	}
 
-	boost::statechart::result react()
+	boost::statechart::result react(  )
 	{
 		//return transit< CDetermineRoleConnecting >();
 	}

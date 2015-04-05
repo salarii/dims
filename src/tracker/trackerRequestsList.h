@@ -29,6 +29,9 @@ class CPingRequest;
 
 template < class _Types >
 class CPongRequest;
+
+template < class _Types >
+class CScheduleActionRequest;
 }
 
 namespace tracker

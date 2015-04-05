@@ -2,6 +2,9 @@
 #define SCHEDULED_ACTION_MANAGER_H
 
 #include "common/request.h"
+#include "common/medium.h"
+#include "common/mediumRequests.h"
+#include "common/actionHandler.h"
 
 namespace common
 {
@@ -16,71 +19,110 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< CRequest< Type >const*, _Type::Response > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest< _Type >const*, typename _Type::Response > & _requestResponse );
 
-	void setResponse( uint256 const & _id, Response const & _responses );
+	void setResponse( uint256 const & _id, typename _Type::Response const & _responses );
 
 	void setResponseForAction( uint256 const & _id, ScheduledResult const & _responses );
+
+	void add( CScheduleActionRequest< _Type > const * _request );
+
+	void clearResponses();
+
+	void deleteRequest( CRequest< _Type >const* _request );
 protected:
 	CScheduledActionManager(){};
 protected:
+	mutable boost::mutex m_mutex;
+
 	static CScheduledActionManager< _Type > * ms_instance;
 	// scheduleable action result as  boost  variant ??
 	// but  this  have  to  be  passed  through
-	std::multimap< CRequest< Type >const*, Response > m_responses;
-	std::multimap< uint256, uint256 > m_actionToRequest;
+	std::multimap< CRequest< _Type >const*, typename _Type::Response > m_responses;
+
+	std::multimap< uint256, CRequest< _Type >const* > m_actionToRequest;
 };
 
-static CScheduledActionManager * getInstance();
-CScheduledActionManager * CScheduledActionManager::ms_instance = NULL;
-
-CScheduledActionManager*
-CScheduledActionManager::getInstance( )
+template < class _Type >
+CScheduledActionManager< _Type >*
+CScheduledActionManager< _Type >::getInstance( )
 {
 	if ( !ms_instance )
 	{
-		ms_instance = new CScheduledActionManager();
+		ms_instance = new CScheduledActionManager< _Type >();
 	};
 	return ms_instance;
 }
 
-template < class _Medium >
+template < class _Type >
 bool
-CScheduledActionManager< _Medium >::serviced() const
+CScheduledActionManager< _Type >::serviced() const
 {
-	return false;
+	return !m_responses.empty();
 }
 
-template < class _Medium >
+template < class _Type >
 void
-CScheduledActionManager< _Medium >::updateLastRequest( uint256 const & _id, common::CRequest< Type >const* _request )
+CScheduledActionManager< _Type >::deleteRequest( CRequest< _Type >const* _request )
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_responses.erase( _request );
+
+	typename std::multimap< uint256, CRequest< _Type >const* >::iterator iterator = m_actionToRequest.begin();
+
+	while( iterator != m_actionToRequest.end() )
+	{
+		if ( iterator->second == _request )
+		{
+			m_actionToRequest.erase( iterator );
+			break;
+		}
+	}
 }
 
-template < class _Medium >
+template < class _Type >
 bool
-CScheduledActionManager< _Medium >::flush()
+CScheduledActionManager< _Type >::flush()
 {
 	return true;
 }
 
-template < class _Medium >
+template < class _Type >
 bool
-CScheduledActionManager< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >const*, RESPONSE_TYPE(_Medium) > & _requestResponse )
+CScheduledActionManager< _Type >::getResponseAndClear( std::multimap< CRequest< _Type >const*, typename _Type::Response > & _requestResponse )
 {
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	_requestResponse = m_responses;
+	clearResponses();
 	return true;
 }
 
-template < class _Medium >
+template < class _Type >
 void
-CScheduledActionManager< _Medium >::clearResponses()
+CScheduledActionManager< _Type >::clearResponses()
 {
+	m_responses.clear();
 }
 
-template < class _Medium >
+template < class _Type >
 void
-CScheduledActionManager< _Medium >::setResponse( uint256 const & _id, Response const & _response )
+CScheduledActionManager< _Type >::setResponseForAction( uint256 const & _id, ScheduledResult const & _responses )
 {
+		boost::lock_guard<boost::mutex> lock( m_mutex );
+	typename std::multimap< uint256, CRequest< _Type >const* >::const_iterator iterator = m_actionToRequest.find( _id );
+
+	assert( iterator != m_actionToRequest.end() );
+
+	m_responses.insert( std::make_pair( iterator->second, _responses ) );
+}
+
+template < class _Type >
+void
+CScheduledActionManager< _Type >::add( CScheduleActionRequest< _Type > const * _request )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_actionToRequest.insert( std::make_pair( _request->getAction()->getScheduleKey(), _request ) );
+	common::CActionHandler< _Type >::getInstance()->executeAction( _request->getAction() );
 }
 
 }
