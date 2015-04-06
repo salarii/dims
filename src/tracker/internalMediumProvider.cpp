@@ -7,6 +7,7 @@
 #include "bitcoinNodeMedium.h"
 
 #include "common/timeMedium.h"
+#include "common/scheduledActionManager.h"
 
 namespace tracker
 {
@@ -62,6 +63,10 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	else if ( common::CMediumKinds::Time == _mediumKind )
 	{
 		mediums.push_back( common::CTimeMedium< common::CTrackerBaseMedium >::getInstance() );
+	}
+	else if ( common::CMediumKinds::Shedule == _mediumKind )
+	{
+		mediums.push_back( common::CScheduledActionManager< common::CTrackerTypes >::getInstance() );
 	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{

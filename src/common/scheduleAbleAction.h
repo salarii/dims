@@ -2,7 +2,8 @@
 #define SCHEDULE_ABLE_ACTION_H
 
 #include "common/action.h"
-#include "common/scheduledActionManager.h"
+
+//need to  do  explicit because  those classes are circularly dependent
 
 namespace common
 {
@@ -11,26 +12,13 @@ template < class _Type >
 class CScheduleAbleAction : public CAction< _Type >
 {
 public:
-		CScheduleAbleAction ()
-		{
-			m_scheduleKey = getRandNumber();
-		}
+		CScheduleAbleAction ();
 
-		uint256 getScheduleKey() const
-		{
-			return m_scheduleKey;
-		}
+		uint256 getScheduleKey() const;
 
-		virtual void reset()
-		{
-			CScheduledActionManager< _Type >::getInstance()->setResponseForAction( m_scheduleKey, m_result );
-			CAction< _Type >::reset();
-		}
+		virtual void reset();
 
-		~CScheduleAbleAction()
-		{
-			CScheduledActionManager< _Type >::getInstance()->setResponseForAction( m_scheduleKey, m_result );
-		}
+		~CScheduleAbleAction();
 	protected:
 		uint256 m_scheduleKey;
 

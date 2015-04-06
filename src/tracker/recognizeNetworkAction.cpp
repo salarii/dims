@@ -7,6 +7,7 @@
 
 #include "tracker/recognizeNetworkAction.h"
 #include "tracker/connectNodeAction.h"
+#include "tracker/trackerFilters.h"
 
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
@@ -28,7 +29,11 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+				context< CRecognizeNetworkAction >().dropRequests();
+				context< CRecognizeNetworkAction >().addRequests(
+							new common::CScheduleActionRequest< common::CTrackerTypes >(
+								  new CConnectNodeAction( address )
+								, new CMediumClassFilter( common::CMediumKinds::Shedule) ) );
 			}
 		}
 		else
@@ -38,7 +43,11 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
+				context< CRecognizeNetworkAction >().dropRequests();
+				context< CRecognizeNetworkAction >().addRequests(
+							new common::CScheduleActionRequest< common::CTrackerTypes >(
+								  new CConnectNodeAction( address )
+								, new CMediumClassFilter( common::CMediumKinds::Shedule) ) );
 			}
 		}
 	}

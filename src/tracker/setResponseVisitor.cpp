@@ -15,6 +15,7 @@
 #include "tracker/provideInfoAction.h"
 #include "tracker/pingAction.h"
 #include "tracker/registerAction.h"
+#include "tracker/recognizeNetworkAction.h"
 
 namespace common
 {
@@ -202,6 +203,33 @@ public:
 	}
 };
 
+class CSetRecognizeNetworkResult : public CResponseVisitorBase< tracker::CRecognizeNetworkAction, tracker::TrackerResponseList >
+{
+public:
+	class CResolveNetworkResult : public boost::static_visitor< void >
+	{
+	public:
+		CResolveNetworkResult( tracker::CRecognizeNetworkAction * const _action)
+		{}
+
+		void operator()( CNetworkInfoResult const & _networkInfoResult ) const
+		{
+			m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
+		}
+
+	private:
+		tracker::CRecognizeNetworkAction * m_action;
+	};
+
+public:
+	CSetRecognizeNetworkResult( tracker::CRecognizeNetworkAction * const _action ):CResponseVisitorBase< tracker::CRecognizeNetworkAction, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::ScheduledResult & _param ) const
+	{
+		boost::apply_visitor( CResolveNetworkResult( this->m_action ), _param );
+	}
+};
+
 class CSetProvideInfoResult : public CResponseVisitorBase< tracker::CProvideInfoAction, tracker::TrackerResponseList >
 {
 public:
@@ -325,6 +353,12 @@ void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CRegisterAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CRegisterAction, tracker::TrackerResponseList > const &)CSetRegisterAction( &_action ), m_trackerResponses );
+}
+
+void
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CRecognizeNetworkAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CRecognizeNetworkAction, tracker::TrackerResponseList > const &)CSetRecognizeNetworkResult( &_action ), m_trackerResponses );
 }
 
 }

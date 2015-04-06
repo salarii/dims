@@ -2,17 +2,20 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "trackerControllerStates.h"
+
 #include "boost/foreach.hpp"
 #include "protocol.h"
 
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
-#include "connectNodeAction.h"
-#include "synchronizationAction.h"
-#include "trackerEvents.h"
-#include "trackerController.h"
-#include "trackOriginAddressAction.h"
+
+#include "tracker/connectNodeAction.h"
+#include "tracker/synchronizationAction.h"
+#include "tracker/trackerEvents.h"
+#include "tracker/trackerController.h"
+#include "tracker/trackOriginAddressAction.h"
+#include "tracker/trackerControllerStates.h"
+#include "tracker/recognizeNetworkAction.h"
 
 namespace tracker
 {
@@ -72,28 +75,7 @@ CInitialSynchronization::react( CUpdateStatus const & _event )
 
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 {
-	// search for  seeder  action
-	std::vector<CAddress> vAdd;
-
-	common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
-
-	if ( !vAdd.empty() )
-	{
-		BOOST_FOREACH( CAddress address, vAdd )
-		{
-			common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
-		}
-	}
-	else
-	{
-		common::CManageNetwork::getInstance()->getSeedIps( vAdd );
-
-		// let know seed about our existence
-		BOOST_FOREACH( CAddress address, vAdd )
-		{
-			common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
-		}
-	}
+	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
 }
 
 CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )

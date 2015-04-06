@@ -12,7 +12,6 @@
 
 #include "common/nodeMessages.h"
 #include "common/transactionStatus.h"
-#include "common/commonResponses.h"
 #include "common/errorResponse.h"
 #include "common/communicationProtocol.h"
 
@@ -377,7 +376,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< int > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult > ScheduledResult;
 
 }
 

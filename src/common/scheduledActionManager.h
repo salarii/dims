@@ -5,6 +5,7 @@
 #include "common/medium.h"
 #include "common/mediumRequests.h"
 #include "common/actionHandler.h"
+#include "common/scheduleAbleAction.h"
 
 namespace common
 {
