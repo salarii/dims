@@ -22,8 +22,6 @@ public:
 
 	bool getResponseAndClear( std::multimap< CRequest< _Type >const*, typename _Type::Response > & _requestResponse );
 
-	void setResponse( uint256 const & _id, typename _Type::Response const & _responses );
-
 	void setResponseForAction( uint256 const & _id, ScheduledResult const & _responses );
 
 	void add( CScheduleActionRequest< _Type > const * _request );

@@ -15,9 +15,9 @@
 namespace tracker
 {
 
-struct CStartRecognition;
+struct CGetDnsInfo;
 
-class CRecognizeNetworkAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRecognizeNetworkAction, CStartRecognition >
+class CRecognizeNetworkAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRecognizeNetworkAction, CGetDnsInfo >
 {
 public:
 	CRecognizeNetworkAction();

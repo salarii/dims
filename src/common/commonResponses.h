@@ -106,16 +106,11 @@ struct CRoleResult
 
 struct CNetworkInfoResult
 {
-	CNetworkInfoResult( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo(_trackersInfo),m_monitorsInfo(_monitorsInfo){}
+	CNetworkInfoResult( CPubKey const & _sourceKey, std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo(_trackersInfo),m_monitorsInfo(_monitorsInfo){}
 
 	CNetworkInfoResult(){}
 
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_trackersInfo);
-		READWRITE(m_monitorsInfo);
-	)
-
+	CPubKey m_sourceKey;
 	std::set< CValidNodeInfo > m_trackersInfo;
 	std::set< CValidNodeInfo > m_monitorsInfo;
 };

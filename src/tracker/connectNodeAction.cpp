@@ -100,11 +100,6 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 						)
 					);	}
 
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		return discard_event();
-	}
-
 	typedef boost::mpl::list<
 	boost::statechart::transition< common::CAckEvent, CPairIdentifiedConnecting >
 	> reactions;
@@ -336,7 +331,6 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		knownNetworkInfo.m_trackersInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker );
 		knownNetworkInfo.m_monitorsInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-		context< CConnectNodeAction >().dropRequests();
 		context< CConnectNodeAction >().addRequests( new common::CKnownNetworkInfoRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		return discard_event();
 	}

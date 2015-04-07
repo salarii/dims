@@ -399,6 +399,12 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CAcceptNodeAction >().dropRequests();
+		return discard_event();
+	}
+
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CAcceptNodeAction >().dropRequests();
@@ -407,7 +413,8 @@ struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAccep
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
+	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 
 	uint64_t m_time;

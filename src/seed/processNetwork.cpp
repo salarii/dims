@@ -110,7 +110,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( message.m_header.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_trackersInfo, knownNetworkInfo.m_monitorsInfo ) );
+				nodeMedium->setResponse( message.m_header.m_actionKey, common::CNetworkInfoResult( pubKey, knownNetworkInfo.m_trackersInfo, knownNetworkInfo.m_monitorsInfo ) );
 			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )

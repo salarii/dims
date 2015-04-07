@@ -52,13 +52,13 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		}
 	}
 
-	boost::statechart::result react(  )
+	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfoEvent )
 	{
 		//return transit< CDetermineRoleConnecting >();
 	}
 
 	typedef boost::mpl::list<
-//	boost::statechart::custom_reaction< common::CIdentificationResult >
+	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
 	> reactions;
 
 };
@@ -66,13 +66,13 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 CRecognizeNetworkAction::CRecognizeNetworkAction()
 {
-
+	initiate();
 }
 
 void
 CRecognizeNetworkAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
-
+	_visitor.visit( *this );
 }
 
 }
