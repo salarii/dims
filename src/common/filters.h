@@ -76,7 +76,7 @@ struct CMediumFilterBase
 	virtual ~CMediumFilterBase(){}
 };
 
-struct CTrackerMediumFilter : public CMediumFilterBase< CTrackerBaseMedium, common::CNodesManager< CTrackerMediumFilter>, tracker::CInternalMediumProvider >
+struct CTrackerMediumFilter : public CMediumFilterBase< CTrackerBaseMedium, common::CNodesManager< CTrackerTypes>, tracker::CInternalMediumProvider >
 {
 };
 
@@ -84,11 +84,11 @@ struct CClientMediumFilter : public CMediumFilterBase< CClientBaseMedium, client
 {
 };
 
-struct CSeedMediumFilter : public CMediumFilterBase< CSeedBaseMedium, seed::CSeedNodesManager, common::CNodesManager< CSeedMediumFilter > >
+struct CSeedMediumFilter : public CMediumFilterBase< CSeedBaseMedium, seed::CSeedNodesManager, common::CNodesManager< CSeedTypes> >
 {
 };
 
-struct CMonitorMediumFilter : public CMediumFilterBase< CMonitorBaseMedium, common::CNodesManager< CMonitorMediumFilter >, monitor::CInternalMediumProvider >
+struct CMonitorMediumFilter : public CMediumFilterBase< CMonitorBaseMedium, common::CNodesManager< CMonitorTypes >, monitor::CInternalMediumProvider >
 {
 };
 

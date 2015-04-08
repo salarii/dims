@@ -10,7 +10,7 @@ namespace common
 {
 std::vector< uint256 > deleteList;
 
-template<>	CNodesManager< common::CSeedMediumFilter > * common::CNodesManager< common::CSeedMediumFilter >::ms_instance = 0;
+template<>	CNodesManager< common::CSeedTypes > * common::CNodesManager< common::CSeedTypes >::ms_instance = 0;
 }
 
 namespace seed

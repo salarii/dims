@@ -43,8 +43,8 @@ template < class _Types >
 class CRequest
 {
 public:
-	typedef MEDIUM_TYPE(_Types) MediumType;
-	typedef FILTER_TYPE(_Types) FilterType;
+	typedef typename _Types::Medium MediumType;
+	typedef typename _Types::Filter FilterType;
 public:
 	CRequest( FilterType * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter )
 	{

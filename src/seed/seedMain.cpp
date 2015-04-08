@@ -501,13 +501,13 @@ int main(int argc, char **argv) {
 
 	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CSeedBaseMedium >::workLoop, common::CTimeMedium< common::CSeedBaseMedium >::getInstance() ) );
 
-	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedTypes >*)CSeedNodesManager::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( seed::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedMediumFilter >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedTypes >*)CSeedNodesManager::getInstance() );
 
 	if (fDNS) {
 		printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);

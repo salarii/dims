@@ -6,7 +6,7 @@
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"
 #include "common/authenticationProvider.h"
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>

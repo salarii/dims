@@ -3,7 +3,7 @@
 
 #include "common/request.h"
 #include "common/medium.h"
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 #include "common/actionHandler.h"
 #include "common/scheduleAbleAction.h"
 

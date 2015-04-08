@@ -26,8 +26,8 @@ template < class _Type >
 class CRequestHandler
 {
 public:
-	typedef RESPONSE_TYPE(_Type) Response;
-	typedef MEDIUM_TYPE(_Type) Medium;
+	typedef typename _Type::Response Response;
+	typedef typename _Type::Medium Medium;
 public:
 	CRequestHandler( Medium * _medium );
 

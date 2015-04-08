@@ -9,14 +9,89 @@
 
 #include "visitorConfigurationUtilities.h"
 
-#include "tracker/trackerRequestsList.h"
-#include "client/nodeRequestList.h"
-#include "monitor/monitorRequestsList.h"
-#include "seed/seedRequestsList.h"
-
 #include "common/types.h"
 
-#define TYPE(_type) typename common::CGetType<_type>::type
+namespace common
+{
+template < class _Types >
+class CSendIdentifyDataRequest;
+
+template < class _Types >
+class CNetworkRoleRequest;
+
+template < class _Types >
+class CKnownNetworkInfoRequest;
+
+template < class _Types >
+class CAckRequest;
+
+template < class _Types >
+class CEndRequest;
+
+template < class _Types >
+class CResultRequest;
+
+template < class _Types >
+class CTimeEventRequest;
+
+template < class _Types >
+class CPingRequest;
+
+template < class _Types >
+class CPongRequest;
+
+template < class _Types >
+class CScheduleActionRequest;
+
+template < class _Types >
+class CInfoAskRequest;
+
+template < class _Types >
+class CConnectToNodeRequest;
+}
+
+namespace tracker
+{
+class CValidateTransactionsRequest;
+class CConnectToTrackerRequest;
+class CAskForTransactionsRequest;
+class CSetBloomFilterRequest;
+class CGetSynchronizationInfoRequest;
+class CGetNextBlockRequest;
+class CTransactionsStatusRequest;
+class CTransactionsPropagationRequest;
+class CPassMessageRequest;
+class CDeliverInfoRequest;
+class CGetBalanceRequest;
+class CAskForRegistrationRequest;
+class CRegisterProofRequest;
+
+template < class Block >
+class CSetNextBlockRequest;
+
+struct CSegmentHeader;
+struct CDiskBlock;
+}
+
+namespace client
+{
+struct CBalanceRequest;
+struct CTransactionStatusRequest;
+struct CTransactionSendRequest;
+struct CTrackersInfoRequest;
+struct CMonitorInfoRequest;
+struct CDnsInfoRequest;
+struct CRecognizeNetworkRequest;
+struct CErrorForAppPaymentProcessing;
+struct CProofTransactionAndStatusRequest;
+}
+
+namespace monitor
+{
+class CConnectToNodeRequest;
+class CRegistrationTerms;
+class CInfoRequest;
+}
 
 namespace common
 {
@@ -35,7 +110,7 @@ public:
 	virtual bool flush() = 0;
 	virtual void prepareMedium(){};
 	virtual void deleteRequest( CRequest< _Type >const* _request ){};// needed in some cases
-	virtual bool getResponseAndClear( std::multimap< CRequest< _Type >const*, RESPONSE_TYPE(_Type) > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
+	virtual bool getResponseAndClear( std::multimap< CRequest< _Type >const*, typename _Type::Response > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
 	void registerDeleteHook( boost::signals2::slot< void () > const & _deleteHook )
 	{
 		m_deleteHook.connect( _deleteHook );
@@ -64,6 +139,7 @@ public:
 	virtual void add( common::CKnownNetworkInfoRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CTimeEventRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CScheduleActionRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CInfoAskRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};

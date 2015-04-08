@@ -633,11 +633,11 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
 
-	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)monitor::CInternalMediumProvider::getInstance() );
+	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)monitor::CInternalMediumProvider::getInstance() );
 
-	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)monitor::CReputationTracker::getInstance() );
+	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)monitor::CReputationTracker::getInstance() );
 
-		common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorMediumFilter >*)CErrorMediumProvider::getInstance() );
+		common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)CErrorMediumProvider::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 

@@ -48,7 +48,7 @@ protected:
 };
 
 
-class CLocalServer :  public QObject, public common::CConnectionProvider< common::CClientMediumFilter >
+class CLocalServer :  public QObject, public common::CConnectionProvider< common::CClientTypes >
 {
 	Q_OBJECT
 public:

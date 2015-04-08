@@ -2,8 +2,6 @@
 #define TYPES_H
 
 #define MEDIUM_TYPE(_type) typename common::CGetMediumType<_type>::type
-#define RESPONSE_TYPE(_type) typename common::CGetResponseType<_type>::type
-#define FILTER_TYPE(_type) typename common::CGetFilterType<_type>::type
 
 #include "tracker/configureTrackerActionHandler.h"
 #include "client/configureClientActionHadler.h"

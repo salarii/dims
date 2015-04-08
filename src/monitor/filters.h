@@ -18,7 +18,7 @@ struct CMediumClassFilter : public common::CMonitorMediumFilter
 		m_mediumNumber( _mediumNumber )
 	{}
 
-	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorMediumFilter > * _nodesManager )const
+	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorTypes > * _nodesManager )const
 	{
 		std::list< common::CMonitorBaseMedium *> mediums;
 		mediums = _nodesManager->getNodesByClass( m_mediumClass );
@@ -44,7 +44,7 @@ struct CNodeExceptionFilter : public common::CMonitorMediumFilter
 	CNodeExceptionFilter( uintptr_t _exception ):m_exception( _exception )
 	{}
 
-	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorMediumFilter > * _trackerNodesManager )const
+	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorTypes > * _trackerNodesManager )const
 	{
 		std::list< common::CMonitorBaseMedium *> mediums;
 
@@ -63,7 +63,7 @@ struct CSpecificMediumFilter : public common::CMonitorMediumFilter
 	: m_ptr( _ptr )
 	{}
 
-	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorMediumFilter > * _nodesManager )const
+	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorTypes > * _nodesManager )const
 	{
 		std::list< common::CMonitorBaseMedium *> mediums;
 
@@ -79,7 +79,7 @@ struct CComplexMediumFilter : public common::CMonitorMediumFilter
 	CComplexMediumFilter( std::set< uintptr_t > const & _nodes )
 		: m_nodes( _nodes )
 	{}
-	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorMediumFilter > * _nodesManager )const
+	std::list< common::CMonitorBaseMedium *> getMediums( common::CNodesManager< common::CMonitorTypes > * _nodesManager )const
 	{
 
 		std::list< common::CMonitorBaseMedium *> mediums;

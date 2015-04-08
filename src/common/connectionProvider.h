@@ -14,12 +14,11 @@
 namespace common
 {
 
-//?? one provider  for  every executable file??? right now  there is many of  them
-template < class _MediumFilter >
+template < class _Type >
 class CConnectionProvider
 {
 public:
-	virtual std::list< MEDIUM_TYPE( _MediumFilter ) *> provideConnection( _MediumFilter const & ) = 0;
+	virtual std::list< typename _Type::Medium *> provideConnection( typename _Type::Filter const & ) = 0;
 };
 
 }

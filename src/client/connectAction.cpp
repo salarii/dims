@@ -5,7 +5,7 @@
 #include "connectAction.h"
 #include "clientResponses.h"
 #include "controlRequests.h"
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"

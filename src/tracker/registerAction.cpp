@@ -8,7 +8,7 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 #include "common/setResponseVisitor.h"
 
 #include "tracker/trackerRequests.h"

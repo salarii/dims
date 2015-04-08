@@ -12,7 +12,7 @@
 namespace monitor
 {
 
-class CErrorMediumProvider : public  common::CConnectionProvider< common::CMonitorMediumFilter >
+class CErrorMediumProvider : public  common::CConnectionProvider< common::CMonitorTypes >
 {
 public:
 	std::list< common::CMonitorBaseMedium *> provideConnection( common::CMonitorMediumFilter const & _filter );

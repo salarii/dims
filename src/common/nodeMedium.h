@@ -9,7 +9,7 @@
 
 #include "common/medium.h"
 #include "common/communicationProtocol.h"
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 #include "common/authenticationProvider.h"
 #include "common/selfNode.h"
 // fix  this !!!
@@ -22,8 +22,8 @@ template < class _Medium >
 class CNodeMedium : public _Medium
 {
 public:
-	typedef TYPE(_Medium) Type;
-	typedef RESPONSE_TYPE(_Medium) Response;
+	typedef typename _Medium::types Type;
+	typedef typename Type::Response Response;
 public:
 	CNodeMedium( common::CSelfNode * _selfNode ):m_usedNode( _selfNode ){};
 
@@ -108,7 +108,7 @@ extern std::vector< uint256 > deleteList;
 
 template < class _Medium >
 bool
-CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >const*, RESPONSE_TYPE(_Medium) > & _requestResponse )
+CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >const*, Response > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 

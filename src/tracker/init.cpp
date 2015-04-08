@@ -968,8 +968,8 @@ seed_insecure_rand();
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
 
-	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerMediumFilter >*)tracker::CInternalMediumProvider::getInstance() );
-	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerMediumFilter >*)tracker::CTrackerNodesManager::getInstance() );
+	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerTypes >*)tracker::CInternalMediumProvider::getInstance() );
+	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerTypes >*)tracker::CTrackerNodesManager::getInstance() );
 	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );

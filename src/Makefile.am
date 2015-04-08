@@ -28,6 +28,7 @@ COMMON_H = \
   common/communicationProtocol.h \
   common/commonEvents.h \
   common/commonResponses.h \
+  common/commonRequests.h \
   common/databaseManager.h \
   common/dimsParams.h \
   common/filters.h \

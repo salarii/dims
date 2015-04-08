@@ -19,7 +19,6 @@ MONITOR_H = \
 	monitorController.h \
 	monitorNodeMedium.h \
 	monitorRequests.h \
-	monitorRequestsList.h \
 	noMediumHandling.h \
 	pingAction.h \
 	processNetwork.h \

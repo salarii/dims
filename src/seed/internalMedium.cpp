@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "internalMedium.h"
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 #include "common/manageNetwork.h"
 
 #include <algorithm>

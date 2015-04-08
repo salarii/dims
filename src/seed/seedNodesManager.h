@@ -16,7 +16,7 @@ namespace seed
 
 class CSeedNodeMedium;
 
-class CSeedNodesManager : public common::CNodesManager< common::CSeedMediumFilter >
+class CSeedNodesManager : public common::CNodesManager< common::CSeedTypes >
 {
 public:
 	static CSeedNodesManager * getInstance();

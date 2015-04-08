@@ -104,6 +104,13 @@ struct CRoleResult
 	int m_role;
 };
 
+struct CInfoAsk : boost::statechart::event< CInfoAsk >
+{
+	CInfoAsk( uint256 const & _id, CInfoKind::Enum _infoKind ) : m_id( _id ), m_infoKind( _infoKind ){}
+	uint256 m_id;
+	CInfoKind::Enum m_infoKind;
+};
+
 struct CNetworkInfoResult
 {
 	CNetworkInfoResult( CPubKey const & _sourceKey, std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo(_trackersInfo),m_monitorsInfo(_monitorsInfo){}
@@ -114,7 +121,6 @@ struct CNetworkInfoResult
 	std::set< CValidNodeInfo > m_trackersInfo;
 	std::set< CValidNodeInfo > m_monitorsInfo;
 };
-
 
 struct CClientNetworkInfoResult
 {

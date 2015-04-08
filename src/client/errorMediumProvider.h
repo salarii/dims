@@ -13,7 +13,7 @@
 namespace client
 {
 
-class CErrorMediumProvider : public common::CConnectionProvider< common::CClientMediumFilter >
+class CErrorMediumProvider : public common::CConnectionProvider< common::CClientTypes >
 {
 public:
 	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );

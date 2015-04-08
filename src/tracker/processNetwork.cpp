@@ -73,6 +73,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					  message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition
 				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
+				|| message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
+				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
+				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
 				 )
 		{
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
@@ -221,55 +224,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			}
 		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CNetworkRole networkRole;
-
-			common::convertPayload( orginalMessage, networkRole );
-
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_actionKey, common::CRoleResult( networkRole.m_role ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-			}
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
-		{
-			CPubKey pubKey;
-			if( CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CKnownNetworkInfo knownNetworkInfo;
-
-			common::convertPayload( orginalMessage, knownNetworkInfo );
-
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_actionKey, common::CNetworkInfoResult( pubKey, knownNetworkInfo.m_monitorsInfo, knownNetworkInfo.m_trackersInfo ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
-		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
 		{
 			common::CAck ack;
@@ -317,7 +271,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				}
 			}
 		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::End )
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::End )
 		{
 			common::CEnd end;
 

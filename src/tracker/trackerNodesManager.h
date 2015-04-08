@@ -17,7 +17,7 @@ namespace tracker
 {
 class CTrackerNodeMedium;
 
-class CTrackerNodesManager : public common::CNodesManager< common::CTrackerMediumFilter >
+class CTrackerNodesManager : public common::CNodesManager< common::CTrackerTypes >
 {
 public:
 	bool isNodeHonest();

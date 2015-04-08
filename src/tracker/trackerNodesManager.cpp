@@ -12,7 +12,7 @@ namespace common
 {
 std::vector< uint256 > deleteList;
 
-template<> CNodesManager< common::CTrackerMediumFilter > * common::CNodesManager< common::CTrackerMediumFilter >::ms_instance = 0;
+template<> CNodesManager< common::CTrackerTypes > * common::CNodesManager< common::CTrackerTypes >::ms_instance = 0;
 }
 
 namespace tracker

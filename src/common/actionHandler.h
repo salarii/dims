@@ -37,12 +37,12 @@ struct LessHandlers : public std::binary_function< CRequestHandler< _Type >* ,CR
 		return *_handlerLhs < *_handlerRhs;
 	}
 
-	bool operator() ( CRequestHandler< _Type >* const & _handlerLhs, MEDIUM_TYPE( _Type )* const & _medium) const
+	bool operator() ( CRequestHandler< _Type >* const & _handlerLhs, typename _Type::Medium* const & _medium) const
 	{
 		return *_handlerLhs < _medium;
 	}
 
-	bool operator() ( MEDIUM_TYPE( _Type )* const & _medium, CRequestHandler< _Type >* const & _handlerLhs ) const
+	bool operator() ( typename _Type::Medium* const & _medium, CRequestHandler< _Type >* const & _handlerLhs ) const
 	{
 		if ( *_handlerLhs < _medium )
 			return false;
@@ -59,9 +59,9 @@ template < class _Types >
 class CActionHandler
 {
 public:
-	typedef MEDIUM_TYPE(_Types) MediumType;
-	typedef RESPONSE_TYPE(_Types) ResponseType;
-	typedef FILTER_TYPE(_Types) FilterType;
+	typedef typename _Types::Medium MediumType;
+	typedef typename _Types::Response ResponseType;
+	typedef typename _Types::Filter FilterType;
 
 	typedef std::set< CRequestHandler< _Types > *, LessHandlers< _Types > > AvailableHandlers;
 
@@ -76,7 +76,7 @@ public:
 
 	void executeAction( CAction< _Types >* _action );
 
-	void addConnectionProvider( CConnectionProvider< FilterType >* _connectionProvider );
+	void addConnectionProvider( CConnectionProvider< _Types >* _connectionProvider );
 private:
 	CActionHandler();
 
@@ -95,7 +95,7 @@ private:
 
 	std::map< CAction< _Types >*, std::set< CRequest< _Types >* > > m_actionToExecutedRequests;
 
-	std::list<CConnectionProvider< FilterType >*> m_connectionProviders;
+	std::list<CConnectionProvider< _Types >*> m_connectionProviders;
 
 	AvailableHandlers m_requestHandlers;
 
@@ -140,7 +140,7 @@ CActionHandler< _Types >::executeAction( CAction< _Types >* _action )
 
 template < class _Types >
 void
-CActionHandler< _Types >::addConnectionProvider( CConnectionProvider< FilterType >* _connectionProvider )
+CActionHandler< _Types >::addConnectionProvider( CConnectionProvider< _Types >* _connectionProvider )
 {
 	m_connectionProviders.push_back( _connectionProvider );
 }
@@ -152,7 +152,7 @@ CActionHandler< _Types >::provideHandler( FilterType const & _filter )
 {
 	std::list< CRequestHandler< _Types > * > requestHandelers;
 
-	typename std::list< CConnectionProvider< FilterType >*>::iterator iterator = m_connectionProviders.begin();
+	typename std::list< CConnectionProvider< _Types >*>::iterator iterator = m_connectionProviders.begin();
 
 	while( iterator != m_connectionProviders.end() )// for now only one provider is allowed to service request so firs is best
 	{

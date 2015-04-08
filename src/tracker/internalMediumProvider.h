@@ -14,7 +14,7 @@ namespace tracker
 
 class CBitcoinNodeMedium;
 
-class CInternalMediumProvider : public  common::CConnectionProvider< common::CTrackerMediumFilter >
+class CInternalMediumProvider : public  common::CConnectionProvider< common::CTrackerTypes >
 {
 public:
 	virtual std::list< common::CTrackerBaseMedium *> provideConnection( common::CTrackerMediumFilter const & _mediumFilter );

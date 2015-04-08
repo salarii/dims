@@ -2,7 +2,7 @@
 #define TIME_MEDIUM_H
 
 #include "common/medium.h"
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 #include "common/actionHandler.h"
 
 namespace common
@@ -14,8 +14,8 @@ template < class Medium >
 class CTimeMedium : public Medium
 {
 public:
-	typedef TYPE(Medium) Types;
-	typedef RESPONSE_TYPE(Types) Response;
+	typedef typename Medium::types Types;
+	typedef typename Types::Response Response;
 public:
 	bool serviced() const;
 

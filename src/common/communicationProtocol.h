@@ -46,6 +46,15 @@ struct CPayloadKind
 	};
 };
 
+struct CInfoKind
+{
+	enum Enum
+	{
+		  NetworkInfoAsk
+		, RoleInfoAsk
+	};
+};
+
 struct CRole
 {
 	enum Enum
@@ -179,14 +188,19 @@ struct CEnd
 	int m_dummy;
 };
 
-// those  two below will change, for  now  dummy  data
 struct CInfoRequestData
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_dummy);
+		READWRITE( m_kind );
+		READWRITE( m_period );
 	)
-	int m_dummy;
+	CInfoRequestData(){};
+
+	CInfoRequestData( int _kind, uint256 const & _period ): m_kind( _kind ), m_period( _period ) {};
+
+	int m_kind;
+	uint256 m_period;
 };
 
 struct CInfoResponseData

@@ -11,7 +11,7 @@
 #include "common/setResponseVisitor.h"
 #include "common/medium.h"
 #include "common/analyseTransaction.h"
-#include "common/mediumRequests.h"
+#include "common/commonRequests.h"
 
 #include "clientFilters.h"
 #include "clientRequests.h"

@@ -12,6 +12,7 @@
 #include <boost/thread/mutex.hpp>
 
 #include "common/nodesManager.h"
+#include "common/types.h"
 
 namespace monitor
 {
@@ -57,7 +58,7 @@ struct CAllyTrackerData
 	unsigned int m_countedTime;
 };
 // for now  don't track other trackers registered in other monitors
-class CReputationTracker : public common::CNodesManager< common::CMonitorMediumFilter >
+class CReputationTracker : public common::CNodesManager< common::CMonitorTypes >
 {
 public:
 	static CReputationTracker * getInstance();

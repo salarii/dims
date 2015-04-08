@@ -12,7 +12,7 @@ namespace client
 {
 class CDefaultMedium;
 // stupid  name
-class CSettingsConnectionProvider : public common::CConnectionProvider< common::CClientMediumFilter >
+class CSettingsConnectionProvider : public common::CConnectionProvider< common::CClientTypes >
 {
 public:
 	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
