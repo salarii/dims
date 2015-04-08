@@ -48,7 +48,11 @@ public:
 public:
 	CRequest( FilterType * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter )
 	{
-		m_key = getRandNumber();
+		m_id = getRandNumber();
+	}
+
+	CRequest( uint256 const & _id, FilterType * _mediumFilter = 0 ) : m_id( _id ), m_mediumFilter( _mediumFilter )
+	{
 	}
 
 	virtual void accept( MediumType * _medium ) const = 0;
@@ -56,9 +60,9 @@ public:
 	virtual FilterType * getMediumFilter() const{ return m_mediumFilter; }
 
 	uint256
-	getKey() const
+	getId() const
 	{
-		return m_key;
+		return m_id;
 	}
 
 	virtual ~CRequest()
@@ -70,9 +74,8 @@ public:
 protected:
 	FilterType * m_mediumFilter;
 
-	uint256 m_key;
+	uint256 m_id;
 };
-
 
 }
 

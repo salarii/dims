@@ -271,6 +271,7 @@ public:
 private:
 	uint256 const m_actionKey;
 };
+
 // not final version
 class CRegisterProofRequest : public common::CRequest< common::CTrackerTypes >
 {

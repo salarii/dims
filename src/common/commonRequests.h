@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef MEDIUM_REQUESTS_H
-#define MEDIUM_REQUESTS_H
+#ifndef COMMON_REQUESTS_H
+#define COMMON_REQUESTS_H
 
 #include "common/request.h"
 #include "common/medium.h"
@@ -47,7 +47,7 @@ private:
 
 template < class _Types >
 CSendIdentifyDataRequest< _Types >::CSendIdentifyDataRequest( std::vector< unsigned char > const & _signed, CPubKey const & _key, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _mediumFilter )// new FILTER_TYPE(_Types)( -1, -1, new CAcceptFilterByPtr< _Types >( _ptr ) )
+	: common::CRequest< _Types >( _mediumFilter )
 	, m_signed( _signed )
 	, m_key( _key )
 	, m_payload( _payload )
@@ -148,24 +148,29 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CNetworkRoleRequest( uint256 const & _actionKey, int _role, FilterType * _mediumFilter );
+	CNetworkRoleRequest( int _role, uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter );
 
 	virtual void accept( MediumType * _medium ) const;
 
 	int getRole() const;
 
 	uint256 getActionKey() const;
+
+	uint256 getId() const;
 private:
 	uint256 const m_actionKey;
+
+	uint256 m_id;
 
 	int m_role;
 };
 
 template < class _Types >
-CNetworkRoleRequest< _Types >::CNetworkRoleRequest( uint256 const & _actionKey, int _role, FilterType * _mediumFilter )
+CNetworkRoleRequest< _Types >::CNetworkRoleRequest( int _role, uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter )
 	: common::CRequest< _Types >( _mediumFilter )
-	, m_actionKey( _actionKey )
 	, m_role( _role )
+	, m_actionKey( _actionKey )
+	, m_id( _id )
 {
 }
 
@@ -186,6 +191,66 @@ CNetworkRoleRequest< _Types >::getRole() const
 template < class _Types >
 uint256
 CNetworkRoleRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class _Types >
+uint256
+CNetworkRoleRequest< _Types >::getId() const
+{
+	return m_id;
+}
+
+template < class _Types >
+class CInfoAskRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CInfoAskRequest( common::CInfoKind::Enum _infoKind, uint256 const & _actionKey, FilterType * _mediumFilter );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	common::CInfoKind::Enum getInfoKind() const;
+
+	uint256 getId() const;
+private:
+	uint256 const m_actionKey;
+
+	common::CInfoKind::Enum m_infoKind;
+
+	uint256 m_id;
+};
+
+template < class _Types >
+CInfoAskRequest< _Types >::CInfoAskRequest( common::CInfoKind::Enum _infoKind, uint256 const & _actionKey, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_infoKind( _infoKind )
+	, m_actionKey( _actionKey )
+{
+}
+
+template < class _Types >
+void
+CInfoAskRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CInfoAskRequest< _Types >::getId() const
+{
+	return m_id;
+}
+
+template < class _Types >
+uint256
+CInfoAskRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
@@ -246,7 +311,7 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CAckRequest( uint256 const & _actionKey, FilterType * _mediumFilter );
+	CAckRequest( uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter );
 
 	virtual void accept( MediumType * _medium ) const;
 
@@ -256,8 +321,8 @@ private:
 };
 
 template < class _Types >
-CAckRequest< _Types >::CAckRequest( uint256 const & _actionKey, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _mediumFilter )
+CAckRequest< _Types >::CAckRequest( uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _id, _mediumFilter )
 	, m_actionKey( _actionKey )
 {
 }
@@ -510,4 +575,4 @@ CScheduleActionRequest< _Types >::getAction() const
 
 }
 
-#endif // MEDIUM_REQUESTS_H
+#endif // COMMON_REQUESTS_H

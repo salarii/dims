@@ -48,7 +48,17 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 		common::convertPayload( orginalMessage, connectCondition );
 
 		if ( !connectCondition.m_price )
+		{
+			context< CRegisterAction >().dropRequests();
+
+			context< CRegisterAction >().addRequests(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CRegisterAction >().getActionKey()
+							, connectCondition.m_id
+							, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+
 			return transit< CFreeRegistration >();
+		}
 		else
 			//do something later
 			return discard_event();
@@ -79,16 +89,11 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 		: my_base( ctx )
 	{
 		LogPrintf("register action: %p free registration \n", &context< CRegisterAction >() );
-		context< CRegisterAction >().dropRequests();
+
 		context< CRegisterAction >().addRequests(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
-		context< CRegisterAction >().addRequests(
-					new common::CAckRequest< common::CTrackerTypes >(
-						context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 
 		context< CRegisterAction >().addRequests(
 					new CRegisterProofRequest(
@@ -110,7 +115,8 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 
 		context< CRegisterAction >().addRequests(
 					new common::CAckRequest< common::CTrackerTypes >(
-						context< CRegisterAction >().getActionKey()
+						  context< CRegisterAction >().getActionKey()
+						, result.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	}
 

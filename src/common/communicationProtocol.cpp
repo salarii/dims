@@ -55,7 +55,7 @@ CommunicationProtocol::createMessage( CMessage const & _inMessage, CMessage & _o
 
 inline
 CTransactionBundle::CTransactionBundle( std::vector< CTransaction > const & _bundle )
-: m_bundle( _bundle )
+: m_transactions( _bundle )
 {
 }
 
@@ -73,7 +73,7 @@ CMessage::CMessage()
 {
 }
 
-CMessage::CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey )
+CMessage::CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey )
 	: m_header( (int)CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
 {
 	createPayload( _bundle, m_payload );

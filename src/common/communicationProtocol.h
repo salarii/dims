@@ -65,19 +65,6 @@ struct CRole
 	};
 };
 
-struct CTransactionBundle
-{
-	CTransactionBundle( std::vector< CTransaction > const & _bundle );
-	std::vector< CTransaction > m_bundle;
-
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_bundle);
-	)
-};
-
-typedef boost::variant< CTransactionBundle > Payload;
-
 class CMessage;
 
 class CAuthenticationProvider;
@@ -88,8 +75,6 @@ public:
 	static bool signPayload( std::vector<unsigned char> const & _payload, std::vector<unsigned char> & _signedHash );
 
 	bool createMessage( CMessage const & _inMessage, CMessage & _outMessage ) const;
-
-	Payload retrieveData();
 
 	static bool unwindMessage( CMessage const & _message, CMessage & _originalMessage, int64_t const _time, CPubKey const & _pubKey );
 private:
@@ -147,9 +132,24 @@ struct CNetworkRole
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_role);
+		READWRITE(m_id);
 	)
 
 	int m_role;
+	uint256 m_id;
+};
+
+struct CTransactionBundle
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_transactions);
+		READWRITE(m_id);
+	)
+	CTransactionBundle( std::vector< CTransaction > const & _bundle );
+
+	std::vector< CTransaction > m_transactions;
+	uint256 m_id;
 };
 
 struct CPing
@@ -193,14 +193,14 @@ struct CInfoRequestData
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_kind );
-		READWRITE( m_period );
+		READWRITE( m_id );
 	)
 	CInfoRequestData(){};
 
-	CInfoRequestData( int _kind, uint256 const & _period ): m_kind( _kind ), m_period( _period ) {};
+	CInfoRequestData( int _kind, uint256 const & _id ): m_kind( _kind ), m_id( _id ) {};
 
 	int m_kind;
-	uint256 m_period;
+	uint256 m_id;
 };
 
 struct CInfoResponseData
@@ -243,14 +243,16 @@ struct CRegistrationTerms
 	(
 		READWRITE( m_price );
 		READWRITE( m_period );
+		READWRITE( m_id );
 	)
 
 	CRegistrationTerms():m_price( 0 ),m_period( 0 ){}
 
-	CRegistrationTerms( unsigned int _price, uint256 const & _period ):m_price( _price ), m_period( _period ){}
+	CRegistrationTerms( unsigned int _price, uint64_t const & _period ):m_price( _price ), m_period( _period ){}
 
 	unsigned int m_price;
-	uint256 m_period;
+	uint64_t m_period;
+	uint256 m_id;
 };
 
 struct CValidRegistration
@@ -262,10 +264,10 @@ struct CValidRegistration
 	)
 
 	CValidRegistration():m_key(),m_period( 0 ){}
-	CValidRegistration( CPubKey const & _key, uint256 const & _period ):m_key( _key ), m_period( _period ){}
+	CValidRegistration( CPubKey const & _key, uint64_t const & _period ):m_key( _key ), m_period( _period ){}
 
 	CPubKey m_key;
-	uint256 m_period;
+	uint64_t m_period;
 };
 
 struct CKnownNetworkInfo
@@ -305,8 +307,11 @@ struct CResult
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_result );
+		READWRITE( m_id );
 	)
+
 	unsigned int m_result;
+	uint256 m_id;
 };
 
 struct CAdmitProof
@@ -341,7 +346,7 @@ public:
 	CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey );
 	CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey );
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
-	CMessage( std::vector< CTransaction > const & _bundle, uint256 const & _actionKey );
+	CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey );
 	CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey );
 	CMessage( CResult const & _result, uint256 const & _actionKey );
 	CMessage( CAdmitProof const & _admit, uint256 const & _actionKey );

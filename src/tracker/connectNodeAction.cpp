@@ -122,8 +122,12 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 			context< CConnectNodeAction >().dropRequests();
-			context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
-			context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, _identificationResult.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else
 		{
@@ -143,25 +147,63 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
+		context< CConnectNodeAction >().dropRequests();
+
+		context< CConnectNodeAction >().addRequests(
+					  new common::CInfoAskRequest< common::CTrackerTypes >(
+						  common::CInfoKind::RoleInfoAsk
+						, context< CConnectNodeAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
 		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 	}
 
-	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
 
-		switch ( _roleEvent.m_role )
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
 		{
-		case common::CRole::Tracker:
-			CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
-			return transit< ConnectedToTracker >();
-		case common::CRole::Seed:
-			return transit< ConnectedToSeed >();
-		case common::CRole::Monitor:
-			return transit< ConnectedToMonitor >();
-		default:
-			break;
+			common::CInfoRequestData infoRequest;
+
+			common::convertPayload( orginalMessage, infoRequest );
+
+			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CNetworkRoleRequest< common::CTrackerTypes >(
+							  common::CRole::Tracker
+							, context< CConnectNodeAction >().getActionKey()
+							, infoRequest.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		}
+		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
+		{
+			common::CNetworkRole networkRole;
+			common::convertPayload( orginalMessage, networkRole );
+
+			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().addRequests(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, networkRole.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+			switch ( networkRole.m_role )
+			{
+			case common::CRole::Tracker:
+				CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
+				return transit< ConnectedToTracker >();
+			case common::CRole::Seed:
+				return transit< ConnectedToSeed >();
+			case common::CRole::Monitor:
+				return transit< ConnectedToMonitor >();
+			default:
+				break;
+			}
+
 		}
 
 		return discard_event();
@@ -173,7 +215,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
@@ -196,7 +238,12 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 			context< CConnectNodeAction >().dropRequests();
-			context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, _identificationResult.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			context< CConnectNodeAction >().addRequests(
 						createIdentifyResponse(
@@ -225,37 +272,74 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	CDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p determine role connected \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().dropRequests();
 	}
 
-	boost::statechart::result react( common::CRoleEvent const & _roleEvent )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		m_role = _roleEvent.m_role;
-		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests( new common::CAckRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
-		context< CConnectNodeAction >().addRequests( new common::CNetworkRoleRequest< common::CTrackerTypes >( context< CConnectNodeAction >().getActionKey(), common::CRole::Tracker, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+		{
+			common::CInfoRequestData infoRequest;
+
+			common::convertPayload( orginalMessage, infoRequest );
+
+			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CNetworkRoleRequest< common::CTrackerTypes >(
+							  common::CRole::Tracker
+							, context< CConnectNodeAction >().getActionKey()
+							, infoRequest.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		}
+		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
+		{
+			common::CNetworkRole networkRole;
+			common::convertPayload( orginalMessage, networkRole );
+
+			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().addRequests(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, networkRole.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+			switch ( networkRole.m_role )
+			{
+			case common::CRole::Tracker:
+				CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
+				return transit< ConnectedToTracker >();
+			case common::CRole::Seed:
+				return transit< ConnectedToSeed >();
+			case common::CRole::Monitor:
+				return transit< ConnectedToMonitor >();
+			default:
+				break;
+			}
+
+		}
+
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
+		context< CConnectNodeAction >().dropRequests();
 
-		switch ( m_role )
-		{
-		case common::CRole::Tracker:
-			CTrackerController::getInstance()->process_event( CTrackerConnectingEvent() );
-			return transit< ConnectedToTracker >();
-		case common::CRole::Seed:
-			return transit< ConnectedToSeed >();
-		case common::CRole::Monitor:
-			return transit< ConnectedToMonitor >();
-		default:
-			break;
-		}
+		context< CConnectNodeAction >().addRequests(
+					  new common::CInfoAskRequest< common::CTrackerTypes >(
+						  common::CInfoKind::RoleInfoAsk
+						, context< CConnectNodeAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRoleEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 

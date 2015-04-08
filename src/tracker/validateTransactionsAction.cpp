@@ -272,7 +272,10 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
 
 		context< CValidateTransactionsAction >().dropRequests();
-		context< CValidateTransactionsAction >().addRequests( new common::CAckRequest< common::CTrackerTypes >( context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
+		context< CValidateTransactionsAction >().addRequests(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CValidateTransactionsAction >().getActionKey()
+						, new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
 
 		context< CValidateTransactionsAction >().addRequests(
 					new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
