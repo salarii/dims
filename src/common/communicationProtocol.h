@@ -146,7 +146,6 @@ struct CTransactionBundle
 		READWRITE(m_transactions);
 		READWRITE(m_id);
 	)
-	CTransactionBundle( std::vector< CTransaction > const & _bundle );
 
 	std::vector< CTransaction > m_transactions;
 	uint256 m_id;

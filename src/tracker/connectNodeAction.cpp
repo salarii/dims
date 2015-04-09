@@ -92,6 +92,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		context< CConnectNodeAction >().setServiceAddress( connectedEvent->m_node->addr );
 
 		context< CConnectNodeAction >().dropRequests();
+
 		context< CConnectNodeAction >().addRequests(
 					createIdentifyResponse(
 						context< CConnectNodeAction >().getPayload(),
@@ -147,7 +148,6 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().dropRequests();
 
 		context< CConnectNodeAction >().addRequests(
 					  new common::CInfoAskRequest< common::CTrackerTypes >(

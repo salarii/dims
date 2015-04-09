@@ -53,12 +53,6 @@ CommunicationProtocol::createMessage( CMessage const & _inMessage, CMessage & _o
 	return true;
 }
 
-inline
-CTransactionBundle::CTransactionBundle( std::vector< CTransaction > const & _bundle )
-: m_transactions( _bundle )
-{
-}
-
 CHeader::CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey, uint256 const & _actionKey )
 	: m_payloadKind( (int)_payloadKind )
 	, m_signedHash( _signedHash )

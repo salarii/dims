@@ -44,7 +44,8 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 		context< CUpdateDataAction >().dropRequests();
-		context< CUpdateDataAction >().addRequests( new common::CAckRequest< common::CMonitorTypes >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+//		context< CUpdateDataAction >().addRequests(
+//					new common::CAckRequest< common::CMonitorTypes >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
 		m_presentTrackers.insert( _result.m_pubKey.GetID() );
 

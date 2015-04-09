@@ -172,6 +172,7 @@ public:
 	virtual void add( common::CNetworkRoleRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CTimeEventRequest< CMonitorTypes > const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
+	virtual void add( common::CInfoAskRequest< CMonitorTypes > const * _request ){};
 	virtual void add( monitor::CRegistrationTerms const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual void add( common::CResultRequest< CMonitorTypes > const * _request ){};
@@ -206,6 +207,7 @@ public:
 	virtual void add( common::CNetworkRoleRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CAckRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CInfoAskRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CTimeEventRequest< CSeedTypes > const * _request ){};
 };
 

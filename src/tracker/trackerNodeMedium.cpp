@@ -62,7 +62,12 @@ CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
 void
 CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 {
-	common::CMessage message( _request->getTransactions(), _request->getActionKey() );
+	common::CTransactionBundle transactionBundle;
+
+	transactionBundle.m_transactions = _request->getTransactions();
+	transactionBundle.m_id = _request->getId();
+
+	common::CMessage message( transactionBundle, _request->getActionKey() );
 
 	m_messages.push_back( message );
 

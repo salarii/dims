@@ -49,6 +49,10 @@ public:
 
 	void setValid( bool _valid ){ addResult( m_nodeAddress.ToStringIP(), _valid ); }
 
+	CPubKey getPublicKey() const;
+
+	void setPublicKey( CPubKey const & _pubKey );
+
 	~CAcceptNodeAction(){};
 private:
 	CAddress m_nodeAddress;
@@ -62,6 +66,8 @@ private:
 	bool const m_passive;
 
 	bool m_valid;
+
+	CPubKey m_key;
 };
 
 

@@ -266,15 +266,20 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		if ( !common::CommunicationProtocol::unwindMessage( messageResult->m_message, orginalMessage, GetTime(), messageResult->m_pubKey ) )
 			assert( !"service it somehow" );
 
-		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().acquireTransactions();
-		convertPayload( orginalMessage, transactions );
+		common::CTransactionBundle transactionBundle;
+
+		convertPayload( orginalMessage, transactionBundle );
+
+		context< CValidateTransactionsAction >().setTransactions( transactionBundle.m_transactions );
 
 		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
 
 		context< CValidateTransactionsAction >().dropRequests();
+
 		context< CValidateTransactionsAction >().addRequests(
 					new common::CAckRequest< common::CTrackerTypes >(
 						  context< CValidateTransactionsAction >().getActionKey()
+						, transactionBundle.m_id
 						, new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
 
 		context< CValidateTransactionsAction >().addRequests(
