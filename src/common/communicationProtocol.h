@@ -90,14 +90,16 @@ struct CHeader
 		READWRITE(m_time);
 		READWRITE(m_prevKey);
 		READWRITE(m_actionKey);
+		READWRITE(m_id);
 	)
 
-	CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey, uint256 const & _actionKey );
+	CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey, uint256 const & _actionKey, uint256 const & _id );
 	int m_payloadKind;
 	std::vector<unsigned char> m_signedHash;
 	int64_t m_time;
 	CPubKey m_prevKey;
 	uint256 m_actionKey;
+	uint256 m_id;
 };
 
 struct CIdentifyMessage
@@ -335,25 +337,25 @@ struct CMessage
 {
 public:
 	CMessage();
-	CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey );
-	CMessage( CNetworkRole const & _networkRole, uint256 const & _actionKey );
-	CMessage( CKnownNetworkInfo const & _knownNetworkInfo, uint256 const & _actionKey );
-	CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey );
-	CMessage( CAck const & _ack, uint256 const & _actionKey );
-	CMessage( CGet const & _get, uint256 const & _actionKey );
-	CMessage( CEnd const & _end, uint256 const & _actionKey );
-	CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey );
-	CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey );
-	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey );
-	CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey );
-	CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey );
-	CMessage( CResult const & _result, uint256 const & _actionKey );
-	CMessage( CAdmitProof const & _admit, uint256 const & _actionKey );
-	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey );
-	CMessage( CValidRegistration const & _valid, uint256 const & _actionKey );
-	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey );
-	CMessage( CPong const & _pong, uint256 const & _actionKey );
-	CMessage( CPing const & _ping, uint256 const & _actionKey );
+	CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CNetworkRole const & _networkRole, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CKnownNetworkInfo const & _knownNetworkInfo, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CAck const & _ack, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CGet const & _get, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CEnd const & _end, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CResult const & _result, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CAdmitProof const & _admit, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CValidRegistration const & _valid, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CPong const & _pong, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CPing const & _ping, uint256 const & _actionKey, uint256 const & _id );
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);

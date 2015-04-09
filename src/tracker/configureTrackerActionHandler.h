@@ -25,19 +25,20 @@ struct CValidationResult
 
 struct CRequestedMerkles
 {
-	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, long long _id ):m_merkles( _merkles ),m_transactions( _transactions ), m_id( _id ){};
+	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, long long _merkleId ):m_merkles( _merkles ),m_transactions( _transactions ), m_merkleId( _merkleId ){};
 
 	std::vector< CMerkleBlock > m_merkles;
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
-	long long m_id;
+	long long m_merkleId;
 };
 
-struct CSynchronizationInfoResult
+struct CSynchronizationInfoResult : boost::statechart::event< CSynchronizationInfoResult >
 {
-	CSynchronizationInfoResult( uint64_t const _timeStamp, uintptr_t _nodeIndicator ):m_timeStamp( _timeStamp ),m_nodeIndicator( _nodeIndicator ){};
+	CSynchronizationInfoResult( uint64_t const _timeStamp, uintptr_t _nodeIndicator, uint256 const & m_id ):m_timeStamp( _timeStamp ),m_nodeIndicator( _nodeIndicator ){};
 
 	uint64_t m_timeStamp;
 	uintptr_t m_nodeIndicator;
+	uint256 m_id;
 };
 
 struct CDiskBlock;

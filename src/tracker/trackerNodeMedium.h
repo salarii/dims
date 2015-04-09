@@ -46,9 +46,9 @@ struct CSynchronizationSegmentHeader
 struct CTrackerMessage : public common::CMessage
 {
 public:
-	CTrackerMessage( CSynchronizationBlock const & _synchronizationBlock, uint256 const & _actionKey );
+	CTrackerMessage( CSynchronizationBlock const & _synchronizationBlock, uint256 const & _actionKey, uint256 const & _id );
 
-	CTrackerMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey );
+	CTrackerMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id );
 };
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;

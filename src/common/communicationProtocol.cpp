@@ -53,162 +53,163 @@ CommunicationProtocol::createMessage( CMessage const & _inMessage, CMessage & _o
 	return true;
 }
 
-CHeader::CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey, uint256 const & _actionKey )
+CHeader::CHeader( int _payloadKind, std::vector<unsigned char> const & _signedHash, int64_t _time, CPubKey const & _prevKey, uint256 const & _actionKey, uint256 const & _id )
 	: m_payloadKind( (int)_payloadKind )
 	, m_signedHash( _signedHash )
 	, m_time( _time )
 	, m_prevKey( _prevKey )
 	, m_actionKey( _actionKey )
+	, m_id( _id )
 {
 }
 
 CMessage::CMessage()
-	: m_header( (int)CPayloadKind::Uninitiated, std::vector<unsigned char>(), 0, CPubKey(), uint256() )
+	: m_header( (int)CPayloadKind::Uninitiated, std::vector<unsigned char>(), 0, CPubKey(), uint256(), uint256() )
 {
 }
 
-CMessage::CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::Transactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _bundle, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::IntroductionReq, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _identifyMessage, m_payload );
 }
 
-CMessage::CMessage( CNetworkRole const & _networkRole, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::RoleInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CNetworkRole const & _networkRole, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::RoleInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _networkRole, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CKnownNetworkInfo const & _knownNetworkInfo, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::NetworkInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CKnownNetworkInfo const & _knownNetworkInfo, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::NetworkInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _knownNetworkInfo, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::SynchronizationInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _synchronizationInfo, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CGet const & _get, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Get, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CGet const & _get, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::Get, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _get, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CEnd const & _end, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::End, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CEnd const & _end, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::End, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _end, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::InfoRes, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::InfoRes, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _infoResponse, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::InfoReq, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::InfoReq, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _infoRequest, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CAck const & _ack, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CAck const & _ack, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _ack, m_payload );
 }
 
-CMessage::CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey )
-: m_header( (int)CPayloadKind::StatusTransactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey, uint256 const & _id )
+: m_header( (int)CPayloadKind::StatusTransactions, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _transactionsBundleStatus, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey )
-	: m_header( (int)_message.m_header.m_payloadKind, std::vector<unsigned char>(), GetTime(), _prevKey, _actionKey )
+CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)_message.m_header.m_payloadKind, std::vector<unsigned char>(), GetTime(), _prevKey, _actionKey, _id )
 {
 	createPayload( _message, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey )
-: m_header( (int)CPayloadKind::ConnectCondition, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey, uint256 const & _id )
+: m_header( (int)CPayloadKind::ConnectCondition, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _connectCondition, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CResult const & _result, uint256 const & _actionKey )
-: m_header( (int)CPayloadKind::Result, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CResult const & _result, uint256 const & _actionKey, uint256 const & _id )
+: m_header( (int)CPayloadKind::Result, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _result, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CAdmitProof const & _admit, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::AdmitProof, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CAdmitProof const & _admit, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::AdmitProof, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _admit, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CValidRegistration const & _valid, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::ValidRegistration, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CValidRegistration const & _valid, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::ValidRegistration, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _valid, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::AdmitAsk, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::AdmitAsk, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _admit, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CPong const & _pong, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Pong, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CPong const & _pong, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::Pong, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _pong, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CPing const & _ping, uint256 const & _actionKey )
-	: m_header( (int)CPayloadKind::Ping, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey )
+CMessage::CMessage( CPing const & _ping, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::Ping, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _ping, m_payload );
 

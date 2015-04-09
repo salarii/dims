@@ -12,7 +12,7 @@
 #include "common/commonRequests.h"
 #include "common/authenticationProvider.h"
 #include "common/selfNode.h"
-// fix  this !!!
+
 namespace common
 {
 
@@ -53,12 +53,14 @@ public:
 
 	void setResponse( uint256 const & _id, Response const & _responses );
 
+	void deleteRequest( CRequest< Type >const* _request );
+
 	common::CSelfNode * getNode() const;
 
 protected:
 	void clearResponses();
-// this  is wrong, but for now let it be
-	void updateLastRequest( uint256 const & _id, common::CRequest< Type >const* _request );
+
+	void setLastRequest( uint256 const & _id, common::CRequest< Type >const* _request );
 protected:
 	common::CSelfNode * m_usedNode;
 
@@ -71,7 +73,7 @@ protected:
 
 	std::set< uint256 > m_indexes;
 
-	std::map< uint256, common::CRequest< Type >const* > m_lastRequestForAction;
+	std::map< uint256, common::CRequest< Type >const* > m_idToRequest;
 };
 
 template < class _Medium >
@@ -83,12 +85,14 @@ CNodeMedium< _Medium >::serviced() const
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::updateLastRequest( uint256 const & _id, common::CRequest< Type >const* _request )
+CNodeMedium< _Medium >::setLastRequest( uint256 const & _id, common::CRequest< Type >const* _request )
 {
-	if ( m_lastRequestForAction.find( _id ) != m_lastRequestForAction.end() )
-		m_lastRequestForAction.erase( _id );
+	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	m_lastRequestForAction.insert( std::make_pair( _id, _request ) );
+	if ( m_idToRequest.find( _id ) != m_idToRequest.end() )
+		m_idToRequest.erase( _id );
+
+	m_idToRequest.insert( std::make_pair( _id, _request ) );
 }
 
 template < class _Medium >
@@ -117,7 +121,7 @@ CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >cons
 		typename std::multimap< uint256, Response >::const_iterator iterator = m_responses.lower_bound( id );
 		while ( iterator != m_responses.upper_bound( id ) )
 		{
-			_requestResponse.insert( std::make_pair( m_lastRequestForAction.find( id )->second, iterator->second ) );
+			_requestResponse.insert( std::make_pair( m_idToRequest.find( id )->second, iterator->second ) );
 			deleteList.push_back( id );
 			++iterator;
 		}
@@ -133,6 +137,7 @@ CNodeMedium< _Medium >::clearResponses()
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
 		m_responses.erase( m_responses.lower_bound( id ) );
+		m_idToRequest.erase( id );
 	}
 	deleteList.clear();
 	m_indexes.clear();
@@ -172,11 +177,11 @@ CNodeMedium< _Medium >::add( CSendIdentifyDataRequest< Type > const * _request )
 
 	identifyMessage.m_key = _request->getKey();
 
-	common::CMessage message( identifyMessage, _request->getActionKey() );
+	common::CMessage message( identifyMessage, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
@@ -187,23 +192,22 @@ CNodeMedium< _Medium >::add( CNetworkRoleRequest< Type > const * _request )
 
 	networkRole.m_role = _request->getRole();
 
-	common::CMessage message( networkRole, _request->getActionKey() );
+	common::CMessage message( networkRole, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
 void
 CNodeMedium< _Medium >::add( CKnownNetworkInfoRequest< Type > const * _request )
 {
-
-	common::CMessage message( _request->getNetworkInfo(), _request->getActionKey() );
+	common::CMessage message( _request->getNetworkInfo(), _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
@@ -212,11 +216,11 @@ CNodeMedium< _Medium >::add( CAckRequest< Type > const * _request )
 {
 	common::CAck ack;
 
-	common::CMessage message( ack, _request->getActionKey() );
+	common::CMessage message( ack, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 
@@ -226,11 +230,11 @@ CNodeMedium< _Medium >::add( CEndRequest< Type > const * _request )
 {
 	common::CEnd end;
 
-	common::CMessage message( end, _request->getActionKey() );
+	common::CMessage message( end, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );//most likely wrong, but handy for time being
+	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );//most likely wrong, but handy for time being
 }
 
 template < class _Medium >
@@ -241,11 +245,11 @@ CNodeMedium< _Medium >::add( CResultRequest< Type > const * _request )
 
 	result.m_result = _request->getResult();
 
-	common::CMessage message( result, _request->getActionKey() );
+	common::CMessage message( result, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-	updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
@@ -254,11 +258,21 @@ CNodeMedium< _Medium >::add( CPingRequest< Type > const * _request )
 {
 	CPing ping;
 
-	common::CMessage message( ping, _request->getActionKey() );
+	common::CMessage message( ping, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::deleteRequest( CRequest< Type >const* _request )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_idToRequest.erase( _request->getId() );
+	m_responses.erase( _request->getId() );
+	m_indexes.erase( _request->getId() );
 }
 
 template < class _Medium >
@@ -267,11 +281,11 @@ CNodeMedium< _Medium >::add( CPongRequest< Type > const * _request )
 {
 	CPong pong;
 
-	common::CMessage message( pong, _request->getActionKey() );
+	common::CMessage message( pong, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-		updateLastRequest( _request->getActionKey(), (common::CRequest< Type >const*)_request );
+		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 }
