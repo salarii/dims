@@ -65,7 +65,6 @@ CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 	common::CTransactionBundle transactionBundle;
 
 	transactionBundle.m_transactions = _request->getTransactions();
-	transactionBundle.m_id = _request->getId();
 
 	common::CMessage message( transactionBundle, _request->getActionKey(), _request->getId() );
 

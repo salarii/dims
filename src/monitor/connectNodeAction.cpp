@@ -166,7 +166,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 						new common::CNetworkRoleRequest< common::CMonitorTypes >(
 							common::CRole::Monitor
 							, context< CConnectNodeAction >().getActionKey()
-							, infoRequest.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
@@ -178,7 +178,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 			context< CConnectNodeAction >().addRequests(
 						new common::CAckRequest< common::CMonitorTypes >(
 							context< CConnectNodeAction >().getActionKey()
-							, networkRole.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			switch ( networkRole.m_role )
@@ -290,7 +290,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 			context< CConnectNodeAction >().addRequests(
 						new common::CAckRequest< common::CMonitorTypes >(
 							  context< CConnectNodeAction >().getActionKey()
-							, networkRole.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			switch ( networkRole.m_role )

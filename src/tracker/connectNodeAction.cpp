@@ -99,7 +99,8 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 						context< CConnectNodeAction >().getActionKey(),
 						new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() )
 						)
-					);	}
+					);
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::transition< common::CAckEvent, CPairIdentifiedConnecting >
@@ -171,12 +172,13 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			common::convertPayload( orginalMessage, infoRequest );
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
+			context< CConnectNodeAction >().dropRequests();
 
 			context< CConnectNodeAction >().addRequests(
 						new common::CNetworkRoleRequest< common::CTrackerTypes >(
 							  common::CRole::Tracker
 							, context< CConnectNodeAction >().getActionKey()
-							, infoRequest.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
@@ -188,7 +190,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			context< CConnectNodeAction >().addRequests(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
-							, networkRole.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			switch ( networkRole.m_role )
@@ -304,7 +306,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			context< CConnectNodeAction >().addRequests(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
-							, networkRole.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			switch ( networkRole.m_role )

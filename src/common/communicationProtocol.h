@@ -134,11 +134,9 @@ struct CNetworkRole
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_role);
-		READWRITE(m_id);
 	)
 
 	int m_role;
-	uint256 m_id;
 };
 
 struct CTransactionBundle
@@ -146,11 +144,9 @@ struct CTransactionBundle
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_transactions);
-		READWRITE(m_id);
 	)
 
 	std::vector< CTransaction > m_transactions;
-	uint256 m_id;
 };
 
 struct CPing

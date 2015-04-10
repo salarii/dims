@@ -258,7 +258,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			context< CAcceptNodeAction >().addRequests(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
-							, networkRole.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
 			switch ( networkRole.m_role )
@@ -394,7 +394,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			context< CAcceptNodeAction >().addRequests(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
-							, networkRole.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
 			switch ( m_role )
