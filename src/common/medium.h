@@ -96,6 +96,9 @@ class CInfoRequest;
 namespace common
 {
 
+template < class _Type >
+class CAction;
+
 //fix  stupid look  of  all those  mediums
 template < class _RequestResponses >
 class CRequest;
@@ -111,6 +114,8 @@ public:
 	virtual void prepareMedium(){};
 	virtual void deleteRequest( CRequest< _Type >const* _request ){};// needed in some cases
 	virtual bool getResponseAndClear( std::multimap< CRequest< _Type >const*, typename _Type::Response > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
+	virtual bool getDirectActionResponseAndClear( CAction< _Type >const * _action, std::list< typename _Type::Response > & _responses ){ return false; }
+	virtual bool deleteAction( CAction< _Type >const * _action ){};
 	void registerDeleteHook( boost::signals2::slot< void () > const & _deleteHook )
 	{
 		m_deleteHook.connect( _deleteHook );

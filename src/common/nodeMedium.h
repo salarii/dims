@@ -16,6 +16,9 @@
 namespace common
 {
 
+template < class _Type >
+class CAction;
+
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
 template < class _Medium >
@@ -57,6 +60,9 @@ public:
 
 	common::CSelfNode * getNode() const;
 
+	bool getDirectActionResponseAndClear( CAction< Type >const * _action, std::list< typename Type::Response > & _responses );
+
+	void addActionResponse( CAction< Type > const * _action, Response const & _response );
 protected:
 	void clearResponses();
 
@@ -74,6 +80,8 @@ protected:
 	std::set< uint256 > m_indexes;
 
 	std::map< uint256, common::CRequest< Type >const* > m_idToRequest;
+
+	std::multimap< CAction< Type > const *, Response > m_actionToResponse;
 };
 
 template < class _Medium >
@@ -137,7 +145,7 @@ CNodeMedium< _Medium >::clearResponses()
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
 		m_responses.erase( m_responses.lower_bound( id ) );
-		m_idToRequest.erase( id );
+		m_idToRequest.erase( id );//doubt if this is ok
 	}
 	deleteList.clear();
 	m_indexes.clear();
@@ -157,6 +165,32 @@ common::CSelfNode *
 CNodeMedium< _Medium >::getNode() const
 {
 	return m_usedNode;
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::addActionResponse( CAction< Type > const * _action, Response const & _response )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	m_actionToResponse.insert( std::make_pair( _action, _response ) );
+}
+
+template < class _Medium >
+bool
+CNodeMedium< _Medium >::getDirectActionResponseAndClear( CAction< Type >const * _action, std::list< typename Type::Response > & _responses )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	typename std::multimap< CAction< Type >const *, Response >::const_iterator iterator
+			= m_actionToResponse.lower_bound( _action );
+
+	while ( iterator != m_actionToResponse.upper_bound( _action ) )
+	{
+		_responses.push_back( iterator->second );
+	}
+
+	m_actionToResponse.erase( _action );
+	return true;
 }
 
 template < class _Medium >

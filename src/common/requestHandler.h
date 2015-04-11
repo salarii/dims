@@ -48,6 +48,10 @@ public:
 	void setRequest( CRequest< _Type >* _request );
 
 	bool operator<( CRequestHandler< _Type > const & _handler ) const;
+
+	std::list< typename _Type::Response > getDirectActionResponse( CAction< _Type >const * _action );// this is bad use but I don't know  what will really happen yet
+
+	void deleteAction( CAction< _Type >const * _action );
 private:
 	void setInvalid(){ m_valid = false; }
 private:
@@ -146,6 +150,24 @@ void
 	}
 	m_newRequest.clear();
 	m_usedMedium->flush();
+}
+
+template < class _Type >
+std::list< typename _Type::Response >
+CRequestHandler< _Type >::getDirectActionResponse( CAction< _Type >const * _action )
+{
+	bool responseVaid;
+	std::list< typename _Type::Response > responses;
+	responseVaid = m_usedMedium->getDirectActionResponseAndClear( _action, responses );
+
+	return responses;
+}
+
+template < class _Type >
+void
+CRequestHandler< _Type >::deleteAction( CAction< _Type >const * _action )
+{
+	m_usedMedium->deleteAction( _action );
 }
 
 template < class _Type >

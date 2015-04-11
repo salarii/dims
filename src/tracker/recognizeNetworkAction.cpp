@@ -25,7 +25,13 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
 
-		if ( !vAdd.empty() )
+
+context< CRecognizeNetworkAction >().dropRequests();
+context< CRecognizeNetworkAction >().addRequests(
+			new common::CScheduleActionRequest< common::CTrackerTypes >(
+				  new CConnectNodeAction( CAddress( CService("94.156.77.114", 20020) ) )
+				, new CMediumClassFilter( common::CMediumKinds::Shedule) ) );
+/*		if ( !vAdd.empty() )
 		{
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
@@ -49,7 +55,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 								  new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Shedule) ) );
 			}
-		}
+		}*/
 	}
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfoEvent )

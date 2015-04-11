@@ -21,7 +21,7 @@ template < class _Type >
 class CAction
 {
 public:
-	CAction( bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_autoDelete( _autoDelete ){};
+	CAction( bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_exit( false ),m_autoDelete( _autoDelete ){};
 
 	virtual void accept( CSetResponseVisitor< _Type > & _visitor ) = 0;
 
@@ -49,7 +49,11 @@ public:
 
 	bool autoDelete(){ return m_autoDelete; }
 
-	virtual void reset(){ m_executed = false; m_inProgress = false; }
+	virtual void reset(){ m_executed = false; m_inProgress = false; m_exit =false; }
+
+	void setExit(){ m_exit = true; }
+
+	bool needToExit()const{ return m_exit; }
 
 	virtual ~CAction()
 	{
@@ -64,6 +68,8 @@ protected:
 	bool m_executed;
 
 	bool const m_autoDelete;
+
+	bool m_exit;
 
 	std::vector< CRequest< _Type >* > m_requests;
 

@@ -91,6 +91,8 @@ private:
 
 	std::set< CAction< _Types >* > m_actions;
 
+		std::set< CAction< _Types >* > m_allActions;
+
 	RequestToAction m_reqToAction;
 
 	std::map< CAction< _Types >*, std::set< CRequest< _Types >* > > m_actionToExecutedRequests;
@@ -135,6 +137,7 @@ CActionHandler< _Types >::executeAction( CAction< _Types >* _action )
 	{
 			_action->setInProgress();
 			m_actions.insert( _action );
+			m_allActions.insert( _action );
 	}
 }
 
@@ -199,14 +202,51 @@ CActionHandler< _Types >::loop()
 
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
+			std::list< CAction< _Types >* > toErase;
 			BOOST_FOREACH(CAction< _Types >* action, m_actions)
 			{
-
 				std::vector< CRequest< _Types >* > requests = action->getRequests();
+
+				if ( action->needToExit() )
+				{
+					toErase.push_back( action );
+
+					if ( action->autoDelete() )
+					{
+						std::vector< CRequest< _Types >* > dropped = action->getDroppedRequests();
+						BOOST_FOREACH( CRequest< _Types >* request,dropped )
+						{
+							typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound ( request );
+							typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound ( request );
+							for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
+							{
+								it->second->deleteRequest( request );
+							}
+							m_currentlyUsedHandlers.erase( request );
+						}
+						m_allActions.erase( action );
+
+						delete action;
+					}
+					else
+						action->setExecuted();
+				}
 
 				if ( !requests.empty() )
 				{
+					toErase.push_back( action );
+					std::vector< CRequest< _Types >* > combined;
+
+					combined = action->getDroppedRequests();
+
+					combined.insert( combined.end(), requests.begin(), requests.end() );
+
 					BOOST_FOREACH( CRequest< _Types >* request, requests )
+					{
+						m_reqToAction.insert( std::make_pair( request, action ) );
+					}
+
+					BOOST_FOREACH( CRequest< _Types >* request, combined )
 					{
 						m_reqToAction.insert( std::make_pair( request, action ) );
 
@@ -229,34 +269,29 @@ CActionHandler< _Types >::loop()
 
 					}
 				}
-				else
-				{
-					if ( action->autoDelete() )
-					{
-						std::vector< CRequest< _Types >* > dropped = action->getDroppedRequests();
-						BOOST_FOREACH( CRequest< _Types >* request,dropped )
-						{
-							typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound ( request );
-							typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound ( request );
-							for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
-							{
-									it->second->deleteRequest( request );
-							}
-							m_currentlyUsedHandlers.erase( request );
-						}
-						delete action;
-					}
-					else
-						action->setExecuted();
-				}
-
 			}
-			m_actions.clear();
+			BOOST_FOREACH( CAction< _Types >* action, toErase )
+			{
+				m_actions.erase( action );
+			}
 		}
 
 		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToRead )
 		{
 			reqHandler->processMediumResponses();
+		}
+
+		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToRead )
+		{
+			BOOST_FOREACH( CAction< _Types >* action,m_allActions )
+			{
+				std::list< ResponseType > responses = reqHandler->getDirectActionResponse( action );
+				BOOST_FOREACH( ResponseType const & response, responses )
+				{
+					CSetResponseVisitor< _Types > visitor( response );
+					action->accept( visitor );
+				}
+			}
 		}
 
 		std::set< CAction< _Types >* > actionsToErase;
