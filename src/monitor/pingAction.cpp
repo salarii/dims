@@ -158,7 +158,8 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 };
 
 CPingAction::CPingAction( uintptr_t _nodeIndicator )
-	: m_nodeIndicator( _nodeIndicator )
+	: CCommunicationAction( getActionKey() )
+	, m_nodeIndicator( _nodeIndicator )
 {
 	m_pingedNodes.insert( _nodeIndicator );
 	initiate();

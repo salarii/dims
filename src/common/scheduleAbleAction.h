@@ -12,17 +12,15 @@ template < class _Type >
 class CScheduleAbleAction : public CAction< _Type >
 {
 public:
-		CScheduleAbleAction ();
+	CScheduleAbleAction ();
 
-		uint256 getScheduleKey() const;
+	CScheduleAbleAction (uint256 const & _actionKey );
 
-		virtual void reset();
+	virtual void reset();
 
-		~CScheduleAbleAction();
-	protected:
-		uint256 m_scheduleKey;
-
-		ScheduledResult m_result;
+	~CScheduleAbleAction();
+protected:
+	ScheduledResult m_result;
 };
 
 }

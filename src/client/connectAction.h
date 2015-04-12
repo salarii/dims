@@ -23,7 +23,7 @@ namespace client
 
 struct CClientUnconnected;
 
-class CConnectAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >, public common::CCommunicationAction
+class CConnectAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >
 {
 public:
 	CConnectAction( bool _autoDelete = true );

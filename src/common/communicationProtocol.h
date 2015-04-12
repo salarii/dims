@@ -392,19 +392,15 @@ private:
 
 	std::set< uint256 > m_actionsInProgress;
 };
-
+// a bit shitty /should be  virtual inheritance ??/
 class CCommunicationAction
 {
 public:
-	CCommunicationAction();
-
 	CCommunicationAction( uint256 const & _actionKey );
 
-	uint256 getActionKey() const;
-
 	~CCommunicationAction();
-protected:
-	uint256 m_actionKey;
+private:
+	uint256 const & m_actionKey;
 };
 
 template < class T >

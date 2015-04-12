@@ -290,6 +290,7 @@ CActionHandler< _Types >::loop()
 				{
 					CSetResponseVisitor< _Types > visitor( response );
 					action->accept( visitor );
+					m_actions.insert( action );
 				}
 			}
 		}

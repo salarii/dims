@@ -249,13 +249,6 @@ CNetworkActionRegister::registerServicedByAction( uint256 const & _actionKey )
 	m_actionsInProgress.insert( _actionKey );
 }
 
-CCommunicationAction::CCommunicationAction()
-{
-	m_actionKey = getRandNumber();
-
-	CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );
-}
-
 CCommunicationAction::CCommunicationAction( uint256 const & _actionKey )
 	: m_actionKey( _actionKey )
 {
@@ -265,12 +258,6 @@ CCommunicationAction::CCommunicationAction( uint256 const & _actionKey )
 CCommunicationAction::~CCommunicationAction()
 {
 	CNetworkActionRegister::getInstance()->unregisterServicedByAction( m_actionKey );
-}
-
-uint256
-CCommunicationAction::getActionKey() const
-{
-	return m_actionKey;
 }
 
 }

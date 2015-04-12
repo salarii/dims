@@ -120,7 +120,7 @@ void
 CScheduledActionManager< _Type >::add( CScheduleActionRequest< _Type > const * _request )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_actionToRequest.insert( std::make_pair( _request->getAction()->getScheduleKey(), _request ) );
+	m_actionToRequest.insert( std::make_pair( _request->getAction()->getActionKey(), _request ) );
 	common::CActionHandler< _Type >::getInstance()->executeAction( _request->getAction() );
 }
 

@@ -139,7 +139,8 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 };
 
 CRegisterAction::CRegisterAction( uintptr_t _nodePtr )
-	: m_nodePtr( _nodePtr )
+	: CCommunicationAction( getActionKey() )
+	, m_nodePtr( _nodePtr )
 {
 	initiate();
 }

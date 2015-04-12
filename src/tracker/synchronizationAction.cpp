@@ -317,6 +317,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 };
 
 CSynchronizationAction::CSynchronizationAction()
+	: CCommunicationAction( getActionKey() )
 {
 	initiate();
 }

@@ -220,7 +220,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 };
 
 CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
-	: CCommunicationAction( _actionKey )
+	: common::CAction< common::CMonitorTypes >( _actionKey )
+	, CCommunicationAction( _actionKey )
 	, m_nodePtr( _nodePtr )
 {
 	initiate();

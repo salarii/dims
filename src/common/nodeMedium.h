@@ -12,12 +12,10 @@
 #include "common/commonRequests.h"
 #include "common/authenticationProvider.h"
 #include "common/selfNode.h"
+#include "common/action.h"
 
 namespace common
 {
-
-template < class _Type >
-class CAction;
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
@@ -62,7 +60,7 @@ public:
 
 	bool getDirectActionResponseAndClear( CAction< Type >const * _action, std::list< typename Type::Response > & _responses );
 
-	void addActionResponse( CAction< Type > const * _action, Response const & _response );
+	void addActionResponse( uint256 const & _action, Response const & _response );
 protected:
 	void clearResponses();
 
@@ -81,7 +79,7 @@ protected:
 
 	std::map< uint256, common::CRequest< Type >const* > m_idToRequest;
 
-	std::multimap< CAction< Type > const *, Response > m_actionToResponse;
+	std::multimap< uint256, Response > m_actionToResponse;
 };
 
 template < class _Medium >
@@ -169,7 +167,7 @@ CNodeMedium< _Medium >::getNode() const
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::addActionResponse( CAction< Type > const * _action, Response const & _response )
+CNodeMedium< _Medium >::addActionResponse( uint256 const & _action, Response const & _response )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_actionToResponse.insert( std::make_pair( _action, _response ) );
@@ -181,15 +179,15 @@ CNodeMedium< _Medium >::getDirectActionResponseAndClear( CAction< Type >const * 
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	typename std::multimap< CAction< Type >const *, Response >::const_iterator iterator
-			= m_actionToResponse.lower_bound( _action );
+	typename std::multimap< uint256, Response >::const_iterator iterator
+			= m_actionToResponse.lower_bound( _action->getActionKey() );
 
-	while ( iterator != m_actionToResponse.upper_bound( _action ) )
+	while ( iterator != m_actionToResponse.upper_bound( _action->getActionKey() ) )
 	{
 		_responses.push_back( iterator->second );
 	}
 
-	m_actionToResponse.erase( _action );
+	m_actionToResponse.erase( _action->getActionKey() );
 	return true;
 }
 

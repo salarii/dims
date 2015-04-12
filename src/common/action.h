@@ -8,6 +8,8 @@
 #include <vector>
 #include <boost/foreach.hpp>
 
+#include "common/support.h"
+
 namespace common
 {
 
@@ -21,7 +23,15 @@ template < class _Type >
 class CAction
 {
 public:
-	CAction( bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_exit( false ),m_autoDelete( _autoDelete ){};
+	CAction( bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_exit( false ),m_autoDelete( _autoDelete )
+	{
+		m_actionKey = getRandNumber();
+	};
+
+	CAction( uint256 const & _actionKey, bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_exit( false ),m_autoDelete( _autoDelete )
+	{
+		m_actionKey = _actionKey;
+	};
 
 	virtual void accept( CSetResponseVisitor< _Type > & _visitor ) = 0;
 
@@ -29,6 +39,12 @@ public:
 
 	// following two are  ugly
 	virtual void addRequests( CRequest< _Type >* _request ){ m_requests.push_back( _request ); }
+
+	uint256
+	getActionKey() const
+	{
+		return m_actionKey;
+	}
 
 	virtual void dropRequests()
 	{
@@ -70,6 +86,8 @@ protected:
 	bool const m_autoDelete;
 
 	bool m_exit;
+
+	uint256 m_actionKey;
 
 	std::vector< CRequest< _Type >* > m_requests;
 

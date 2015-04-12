@@ -7,6 +7,9 @@
 #define SUPPORT_H
 
 #include <stdint.h>
+#include "uint256.h"
+
+extern uint32_t insecure_rand(void);
 
 namespace common
 {
