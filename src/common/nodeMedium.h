@@ -185,6 +185,7 @@ CNodeMedium< _Medium >::getDirectActionResponseAndClear( CAction< Type >const * 
 	while ( iterator != m_actionToResponse.upper_bound( _action->getActionKey() ) )
 	{
 		_responses.push_back( iterator->second );
+		iterator++;
 	}
 
 	m_actionToResponse.erase( _action->getActionKey() );
