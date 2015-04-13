@@ -278,11 +278,6 @@ CActionHandler< _Types >::loop()
 
 		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToRead )
 		{
-			reqHandler->processMediumResponses();
-		}
-
-		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToRead )
-		{
 			BOOST_FOREACH( CAction< _Types >* action,m_allActions )
 			{
 				std::list< ResponseType > responses = reqHandler->getDirectActionResponse( action );
@@ -293,6 +288,11 @@ CActionHandler< _Types >::loop()
 					m_actions.insert( action );
 				}
 			}
+		}
+
+		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToRead )
+		{
+			reqHandler->processMediumResponses();
 		}
 
 		std::set< CAction< _Types >* > actionsToErase;

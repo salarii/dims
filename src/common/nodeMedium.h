@@ -60,7 +60,7 @@ public:
 
 	bool getDirectActionResponseAndClear( CAction< Type >const * _action, std::list< typename Type::Response > & _responses );
 
-	void addActionResponse( uint256 const & _action, Response const & _response );
+	void addActionResponse( uint256 const & _actionId, Response const & _response );
 protected:
 	void clearResponses();
 
@@ -76,6 +76,8 @@ protected:
 	std::vector< common::CMessage > m_messages;
 
 	std::set< uint256 > m_indexes;
+
+	std::list< uint256 > m_synchronizeQueue;
 
 	std::map< uint256, common::CRequest< Type >const* > m_idToRequest;
 
@@ -122,15 +124,26 @@ CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >cons
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	BOOST_FOREACH( uint256 const & id, m_indexes )
+	if ( m_synchronizeQueue.empty() )
+		return false;
+
+	std::set< uint256 >::const_iterator indexIterator = m_indexes.begin();
+	while( indexIterator != m_indexes.end() )
 	{
-		typename std::multimap< uint256, Response >::const_iterator iterator = m_responses.lower_bound( id );
-		while ( iterator != m_responses.upper_bound( id ) )
+		if ( *indexIterator != m_synchronizeQueue.front() )
+			break;
+
+		m_synchronizeQueue.pop_front();
+
+		typename std::multimap< uint256, Response >::const_iterator iterator = m_responses.lower_bound( *indexIterator );
+		while ( iterator != m_responses.upper_bound( *indexIterator ) )
 		{
-			_requestResponse.insert( std::make_pair( m_idToRequest.find( id )->second, iterator->second ) );
-			deleteList.push_back( id );
+			_requestResponse.insert( std::make_pair( m_idToRequest.find( *indexIterator )->second, iterator->second ) );
+			deleteList.push_back( *indexIterator );
 			++iterator;
 		}
+
+		indexIterator++;
 	}
 	clearResponses();
 	return true;
@@ -144,9 +157,9 @@ CNodeMedium< _Medium >::clearResponses()
 	{
 		m_responses.erase( m_responses.lower_bound( id ) );
 		m_idToRequest.erase( id );//doubt if this is ok
+			m_indexes.erase( id );
 	}
 	deleteList.clear();
-	m_indexes.clear();
 }
 
 template < class _Medium >
@@ -156,6 +169,7 @@ CNodeMedium< _Medium >::setResponse( uint256 const & _id, Response const & _resp
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_responses.insert( std::make_pair( _id, _response ) );
 	m_indexes.insert( _id );
+	m_synchronizeQueue.push_back( _id );
 }
 
 template < class _Medium >
@@ -167,10 +181,11 @@ CNodeMedium< _Medium >::getNode() const
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::addActionResponse( uint256 const & _action, Response const & _response )
+CNodeMedium< _Medium >::addActionResponse( uint256 const & _actionId, Response const & _response )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_actionToResponse.insert( std::make_pair( _action, _response ) );
+	m_actionToResponse.insert( std::make_pair( _actionId, _response ) );
+		m_synchronizeQueue.push_back( _actionId );
 }
 
 template < class _Medium >
@@ -178,6 +193,14 @@ bool
 CNodeMedium< _Medium >::getDirectActionResponseAndClear( CAction< Type >const * _action, std::list< typename Type::Response > & _responses )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	if ( m_synchronizeQueue.empty() )
+		return false;
+
+	if ( _action->getActionKey() != m_synchronizeQueue.front() )
+		return false;
+
+	m_synchronizeQueue.pop_front();
 
 	typename std::multimap< uint256, Response >::const_iterator iterator
 			= m_actionToResponse.lower_bound( _action->getActionKey() );
