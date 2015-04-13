@@ -52,6 +52,8 @@ public:
 
 	void add( CPongRequest< Type > const * _request );
 
+	void add( CInfoAskRequest< Type > const * _request );
+
 	void setResponse( uint256 const & _id, Response const & _responses );
 
 	void deleteRequest( CRequest< Type >const* _request );
@@ -342,6 +344,19 @@ CNodeMedium< _Medium >::add( CPongRequest< Type > const * _request )
 	m_messages.push_back( message );
 
 		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CInfoAskRequest< Type > const * _request )
+{
+	CInfoRequestData infoReqData( ( int ) _request->getInfoKind() );
+
+	common::CMessage message( infoReqData, _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 }

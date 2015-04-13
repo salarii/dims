@@ -45,7 +45,8 @@ struct CAvailableCoins : boost::statechart::event< CAvailableCoins >
 
 struct CIdentificationResult : boost::statechart::event< CIdentificationResult >
 {
-	CIdentificationResult( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, CPubKey const & _key, CAddress const & _address = CAddress(), uint256 const & _id = uint256() )
+
+	CIdentificationResult( std::vector<unsigned char> const & _payload, std::vector<unsigned char> const & _signed, CPubKey const & _key, CAddress const & _address, uint256 const & _id )
 		: m_payload( _payload )
 		, m_signed( _signed )
 		, m_key( _key )

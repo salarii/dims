@@ -278,7 +278,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 						new common::CNetworkRoleRequest< common::CMonitorTypes >(
 							  common::CRole::Monitor
 							, context< CConnectNodeAction >().getActionKey()
-							, infoRequest.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )

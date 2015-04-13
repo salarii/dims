@@ -256,6 +256,13 @@ CInfoAskRequest< _Types >::getActionKey() const
 }
 
 template < class _Types >
+common::CInfoKind::Enum
+CInfoAskRequest< _Types >::getInfoKind() const
+{
+	return m_infoKind;
+}
+
+template < class _Types >
 class CKnownNetworkInfoRequest : public common::CRequest< _Types >
 {
 public:

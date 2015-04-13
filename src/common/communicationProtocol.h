@@ -190,14 +190,12 @@ struct CInfoRequestData
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_kind );
-		READWRITE( m_id );
 	)
 	CInfoRequestData(){};
 
-	CInfoRequestData( int _kind, uint256 const & _id ): m_kind( _kind ), m_id( _id ) {};
+	CInfoRequestData( int _kind ): m_kind( _kind ){};
 
 	int m_kind;
-	uint256 m_id;
 };
 
 struct CInfoResponseData

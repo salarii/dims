@@ -246,7 +246,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 						new common::CNetworkRoleRequest< common::CSeedTypes >(
 							  common::CRole::Seed
 							, context< CAcceptNodeAction >().getActionKey()
-							, infoRequest.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
@@ -382,7 +382,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 						new common::CNetworkRoleRequest< common::CSeedTypes >(
 							  common::CRole::Seed
 							, context< CAcceptNodeAction >().getActionKey()
-							, infoRequest.m_id
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
