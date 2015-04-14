@@ -181,24 +181,25 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
-			switch ( networkRole.m_role )
-			{
-			case common::CRole::Tracker:
-				return transit< CMonitorConnectedToTracker >();
-			case common::CRole::Seed:
-				return transit< CMonitorConnectedToSeed >();
-			case common::CRole::Monitor:
-				return transit< CMonitorConnectedToMonitor >();
-			default:
-				break;
-			}
-
-			return discard_event();
+			m_role = ( common::CRole::Enum )networkRole.m_role;
 		}
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
+
+		switch ( m_role )
+		{
+		case common::CRole::Tracker:
+			return transit< CMonitorConnectedToTracker >();
+		case common::CRole::Seed:
+			return transit< CMonitorConnectedToSeed >();
+		case common::CRole::Monitor:
+			return transit< CMonitorConnectedToMonitor >();
+		default:
+			break;
+		}
 		return discard_event();
 	}
 
@@ -206,6 +207,8 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
+
+	common::CRole::Enum m_role;
 };
 
 struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBothUnidentifiedConnected, CConnectNodeAction >

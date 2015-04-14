@@ -193,19 +193,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
-			switch ( networkRole.m_role )
-			{
-			case common::CRole::Tracker:
-				CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
-				return transit< ConnectedToTracker >();
-			case common::CRole::Seed:
-				return transit< ConnectedToSeed >();
-			case common::CRole::Monitor:
-				return transit< ConnectedToMonitor >();
-			default:
-				break;
-			}
-
+			m_role = ( common::CRole::Enum )networkRole.m_role;
 		}
 
 		return discard_event();
@@ -213,6 +201,19 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
+		switch ( m_role )
+		{
+		case common::CRole::Tracker:
+			CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
+			return transit< ConnectedToTracker >();
+		case common::CRole::Seed:
+			return transit< ConnectedToSeed >();
+		case common::CRole::Monitor:
+			return transit< ConnectedToMonitor >();
+		default:
+			break;
+		}
+
 		return discard_event();
 	}
 
@@ -220,6 +221,8 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
+
+	common::CRole::Enum m_role;
 };
 
 struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedConnected, CConnectNodeAction >
