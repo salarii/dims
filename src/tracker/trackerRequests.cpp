@@ -10,8 +10,8 @@ namespace tracker
 {
 
 CDeliverInfoRequest::CDeliverInfoRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
-	: m_actionKey( _actionKey )
-	, common::CRequest< common::CTrackerTypes >( _mediumFilter )
+	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+	, m_actionKey( _actionKey )
 {
 }
 
@@ -72,8 +72,8 @@ CPassMessageRequest::getPreviousKey() const
 
 CTransactionsPropagationRequest::CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
 	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
-	, m_transactions( _transactions )
 	, m_actionKey( _actionKey )
+	, m_transactions( _transactions )
 {
 }
 

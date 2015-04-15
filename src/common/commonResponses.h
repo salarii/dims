@@ -222,7 +222,7 @@ struct CAckResult
 
 struct CPingPongResult : boost::statechart::event< CPingPongResult >
 {
-	CPingPongResult( bool _isPing, uintptr_t _nodePtr ):m_isPing( _isPing ), m_nodePtr( _nodePtr ){}
+	CPingPongResult( bool _isPing, uintptr_t _nodePtr ): m_nodePtr( _nodePtr ), m_isPing( _isPing ){}
 
 	uintptr_t m_nodePtr;
 

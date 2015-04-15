@@ -34,7 +34,7 @@ public:
 		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
 	}
 
-	bool flush(){};
+	bool flush(){ return true; };
 
 	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );
 private:
@@ -74,6 +74,8 @@ CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< common::CCli
 	_requestResponse = m_requestResponse;
 
 	clearResponses();
+
+	return true;
 }
 
 void

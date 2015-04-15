@@ -35,7 +35,7 @@ CAppClient::connectServer()
 bool
 CAppClient::isOpen()
 {
-	conection->isOpen();
+	return conection->isOpen();
 }
 
 CAppClient::~CAppClient()

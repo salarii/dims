@@ -41,15 +41,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
-		if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
+		if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
 		{
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
@@ -58,7 +50,14 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( message.m_header.m_id, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
+				nodeMedium->addActionResponse(
+							message.m_header.m_actionKey
+							, common::CIdentificationResult(
+								  identifyMessage.m_payload
+								, identifyMessage.m_signed
+								, identifyMessage.m_key
+								, pfrom->addr
+								, message.m_header.m_id ) );
 			}
 			else
 			{
@@ -69,48 +68,22 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 
 		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
+		else if (
+				 message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
+				 || message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
+				 )
 		{
-			//
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
-		{
+
+			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+
 			CPubKey pubKey;
+
 			if ( !CSeedNodesManager::getInstance()->getPublicKey( convertToInt( pfrom ), pubKey ) )
-				;//service  error  somehow, can't  decode  action  at  this point  so it  have  to  be  done as  common  solution  for  all  such  issues
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
-
-			common::CNetworkRole networkRole;
-
-			common::convertPayload( orginalMessage, networkRole );
-
-			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-		//		nodeMedium->setResponse( message.m_header.m_id, common::CRoleResult( networkRole.m_role ) );
-			}
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
-		{
-			CPubKey pubKey;
-			if ( !CSeedNodesManager::getInstance()->getPublicKey( convertToInt( pfrom ), pubKey ) );
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CKnownNetworkInfo knownNetworkInfo;
-
-			common::convertPayload( orginalMessage, knownNetworkInfo );
-
-			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-//				nodeMedium->setResponse( message.m_header.m_id, common::CNetworkInfoResult( pubKey, knownNetworkInfo.m_trackersInfo, knownNetworkInfo.m_monitorsInfo ) );
+				nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )

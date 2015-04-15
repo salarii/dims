@@ -26,7 +26,7 @@ public:
 
 	static CTrackerNodesManager * getInstance();
 
-	std::set< common::CValidNodeInfo > const & getNodesInfo( common::CRole::Enum _role ) const;
+	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 
 	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 

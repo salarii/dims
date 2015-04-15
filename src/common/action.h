@@ -23,12 +23,12 @@ template < class _Type >
 class CAction
 {
 public:
-	CAction( bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_exit( false ),m_autoDelete( _autoDelete )
+	CAction( bool _autoDelete = true ): m_inProgress( false ), m_executed( false ), m_autoDelete( _autoDelete ), m_exit( false )
 	{
 		m_actionKey = getRandNumber();
 	};
 
-	CAction( uint256 const & _actionKey, bool _autoDelete = true ): m_executed( false ), m_inProgress( false ), m_exit( false ),m_autoDelete( _autoDelete )
+	CAction( uint256 const & _actionKey, bool _autoDelete = true ): m_inProgress( false ), m_executed( false ), m_autoDelete( _autoDelete ), m_exit( false )
 	{
 		m_actionKey = _actionKey;
 	};

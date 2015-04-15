@@ -1478,11 +1478,6 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 	return true;
 }
 
-bool searchInVout(  )
-{
-
-}
-
 void
 CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const & _addmitedTransaction )
 {
@@ -1653,7 +1648,6 @@ CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecS
 					return false;
 				}
 
-			/*
 			// don't know  what for is logic below
 
 			//	wtxNew.AddSupportingTransactions();
@@ -1669,10 +1663,7 @@ CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecS
 */
 bool CWallet::determineChangeAddress( std::vector< CAvailableCoin > const & _coinsForTransaction, CKeyID & _keyId )
 {
-
 	std::multimap< uint160, CAvailableCoin >::const_iterator iterator = m_availableCoins.begin();
-
-	uint64_t balance = 0;
 
 	while( iterator != m_availableCoins.end() )
 	{

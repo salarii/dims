@@ -239,7 +239,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
 	if ( ui->setManual->isChecked() )
     {
-	    qint64 _outputSum;
+		qint64 _outputSum = 0;
 	    if (! fillCoinControl(_outputSum,*CoinControlDialog::coinControl ) )
 		return; // insuficient funds 
     }

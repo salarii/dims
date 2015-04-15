@@ -26,10 +26,9 @@ extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 {
 	if (fHelp || params.size() != 0)
 		throw runtime_error(
-			"status\n"
-			"\Request info about current activity\n"
-			"Results provide current status ad  activity performed\n"
-			"\n"
+			"status\n" \
+			"\Request info about current activity\n" \
+			"Results provide current status ad  activity performed\n\n "
 		);
 
 	std::string status = *SatusHook();

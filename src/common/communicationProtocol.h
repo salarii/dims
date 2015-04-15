@@ -390,7 +390,7 @@ private:
 
 	std::set< uint256 > m_actionsInProgress;
 };
-// a bit shitty /should be  virtual inheritance ??/
+// a bit shitty /should be  virtual inheritance ??
 class CCommunicationAction
 {
 public:

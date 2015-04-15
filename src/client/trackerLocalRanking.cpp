@@ -203,7 +203,7 @@ CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, 
 		;
 	}
 	// there will be  not many  mediums  I belive
-	if ( _mediumNumber != -1 && mediums.size() > _mediumNumber )
+	if ( _mediumNumber != (unsigned int)-1 && mediums.size() > _mediumNumber )
 		mediums.resize( _mediumNumber );
 	return mediums;
 }
@@ -339,7 +339,6 @@ CTrackerLocalRanking::determineTracker( unsigned int _amount, common::CTrackerSt
 {
 	unsigned int bestFee = -1;
 
-	unsigned int fee;
 	BOOST_FOREACH( common::CTrackerStats const & tracker, m_balancedRanking )
 	{
 		if ( bestFee > tracker.m_price )

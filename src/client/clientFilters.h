@@ -19,7 +19,7 @@ namespace  client
 
 struct CMediumClassFilter : public common::CClientMediumFilter
 {
-	CMediumClassFilter( common::RequestKind::Enum _mediumClass, int _mediumNumber = -1 ):
+	CMediumClassFilter( common::RequestKind::Enum _mediumClass, int _mediumNumber = ( unsigned int )-1 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber )
 	{}
@@ -30,7 +30,7 @@ struct CMediumClassFilter : public common::CClientMediumFilter
 		std::list< common::CClientBaseMedium *> mediums;
 		mediums = _settingsMedium->getMediumByClass(m_mediumClass );
 
-		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
+		if ( m_mediumNumber != (unsigned int)-1 && mediums.size() > m_mediumNumber )
 		{
 			mediums.resize( m_mediumNumber );
 		}
@@ -41,7 +41,7 @@ struct CMediumClassFilter : public common::CClientMediumFilter
 	{
 		std::list< common::CClientBaseMedium *> mediums = _trackerLocalRanking->getMediumByClass( m_mediumClass, m_mediumNumber );
 
-		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
+		if ( m_mediumNumber != ( unsigned int )-1 && mediums.size() > m_mediumNumber )
 		{
 			mediums.resize( m_mediumNumber );
 		}
@@ -51,11 +51,11 @@ struct CMediumClassFilter : public common::CClientMediumFilter
 
 	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
-		_errorMediumProvider->getErrorMedium();
+		return _errorMediumProvider->getErrorMedium();
 	}
 
 	common::RequestKind::Enum m_mediumClass;
-	int m_mediumNumber;
+	unsigned int m_mediumNumber;
 };
 
 struct CSpecificMediumFilter : public common::CClientMediumFilter
@@ -101,7 +101,7 @@ struct CSpecificMediumFilter : public common::CClientMediumFilter
 
 	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
-		_errorMediumProvider->getErrorMedium();
+		return _errorMediumProvider->getErrorMedium();
 	}
 
 	 std::set< uintptr_t > m_nodes;
@@ -128,10 +128,8 @@ struct CMediumByKeyFilter : public common::CClientMediumFilter
 
 	std::list< common::CClientBaseMedium *> getMediums( CErrorMediumProvider * _errorMediumProvider )const
 	{
-		_errorMediumProvider->getErrorMedium();
+		return _errorMediumProvider->getErrorMedium();
 	}
-
-
 	CKeyID const m_keyId;
 };
 
@@ -145,8 +143,8 @@ struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 	}
 
 	CMediumClassWithExceptionFilter( std::set< uintptr_t > const & _exceptionPtrs, int _mediumClass, int _mediumNumber = -1 )
-		: m_exceptionPtrs( _exceptionPtrs )
-		, m_mediumClass( _mediumClass )
+		: m_mediumClass( _mediumClass )
+		, m_exceptionPtrs( _exceptionPtrs )
 		, m_mediumNumber( _mediumNumber )
 	{}
 
@@ -154,7 +152,7 @@ struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 	std::list< common::CClientBaseMedium *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 		std::list< common::CClientBaseMedium *> mediums;
-		mediums = _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, -1 );
+		mediums = _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, (unsigned int)-1 );
 
 		BOOST_FOREACH( uintptr_t const & ptr, m_exceptionPtrs )
 		{
@@ -169,7 +167,7 @@ struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 
 		}
 
-		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
+		if ( m_mediumNumber != (unsigned int)-1 && mediums.size() > m_mediumNumber )
 		{
 			mediums.resize( m_mediumNumber );
 		}
@@ -184,7 +182,7 @@ struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 
 	int m_mediumClass;
 	std::set< uintptr_t > m_exceptionPtrs;
-	int m_mediumNumber;
+	unsigned int m_mediumNumber;
 };
 
 }

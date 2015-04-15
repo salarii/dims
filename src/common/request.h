@@ -51,7 +51,7 @@ public:
 		m_id = getRandNumber();
 	}
 
-	CRequest( uint256 const & _id, FilterType * _mediumFilter = 0 ) : m_id( _id ), m_mediumFilter( _mediumFilter )
+	CRequest( uint256 const & _id, FilterType * _mediumFilter = 0 ) : m_mediumFilter( _mediumFilter ), m_id( _id )
 	{
 	}
 

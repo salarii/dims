@@ -158,11 +158,11 @@ public:
 
 	uint256 getId() const;
 private:
+	int m_role;
+
 	uint256 const m_actionKey;
 
 	uint256 m_id;
-
-	int m_role;
 };
 
 template < class _Types >
@@ -216,21 +216,17 @@ public:
 	uint256 getActionKey() const;
 
 	common::CInfoKind::Enum getInfoKind() const;
-
-	uint256 getId() const;
 private:
 	uint256 const m_actionKey;
 
 	common::CInfoKind::Enum m_infoKind;
-
-	uint256 m_id;
 };
 
 template < class _Types >
 CInfoAskRequest< _Types >::CInfoAskRequest( common::CInfoKind::Enum _infoKind, uint256 const & _actionKey, FilterType * _mediumFilter )
 	: common::CRequest< _Types >( _mediumFilter )
-	, m_infoKind( _infoKind )
 	, m_actionKey( _actionKey )
+	, m_infoKind( _infoKind )
 {
 }
 
@@ -239,13 +235,6 @@ void
 CInfoAskRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
-}
-
-template < class _Types >
-uint256
-CInfoAskRequest< _Types >::getId() const
-{
-	return m_id;
 }
 
 template < class _Types >

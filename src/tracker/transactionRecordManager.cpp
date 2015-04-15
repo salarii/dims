@@ -84,7 +84,6 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uin
 	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
 	m_addressToCoinsViewCache->setCoins( _keyId, _tx.GetHash() );
 
-	bool pfMissingInputs;
 	CValidationState state;
 
 	// this  is  needed  but does not work like it should, so I commented it out
@@ -184,7 +183,7 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 bool
 CTransactionRecordManager::checkIfCoinsAvailable( CTransaction const & _tx ) const
 {
-	m_coinsViewCache->HaveInputs(_tx);
+	return m_coinsViewCache->HaveInputs(_tx);
 }
 
 bool
@@ -369,6 +368,8 @@ CTransactionRecordManager::setTransactionToTemporary( CTransaction const & _tran
 	}
 
 	iterator->second.insert( std::make_pair( _transaction.GetHash(), _transaction ) );
+
+	return true;
 }
 
 void

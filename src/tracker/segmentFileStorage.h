@@ -170,7 +170,8 @@ public:
 	public:
 		CDiscBlockCache(): mruset< CCacheElement >(m_maximumSize){}
 
-		std::pair<iterator, bool> insert( CCacheElement const & x)
+		//std::pair<iterator, bool>
+		void insert( CCacheElement const & x)
 		{
 			if ( nMaxSize && queue.size() == nMaxSize )
 			{
@@ -300,7 +301,7 @@ private:
 
 	TransactionLocationToBuddy m_transactionLocationToBuddy;
 
-	static size_t const m_segmentSize = 1 << KiloByteShift * 512;
+	static size_t const m_segmentSize = ( 1 << KiloByteShift ) * 512;
 
 	//this is  good for synchronisation concerning short absence, but it should contain rather timestamps and transactions
 	mruset< CStore > m_recentlyStored;

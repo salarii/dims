@@ -34,20 +34,6 @@ public:
 		this->m_action->process_event( _param );
 	}
 
-	virtual void operator()( common::CRoleResult & _param ) const
-	{
-		LogPrintf("set response \"role\" to action: %p \n", this->m_action );
-
-		this->m_action->process_event( common::CRoleEvent( _param.m_role ) );
-	}
-
-	virtual void operator()( common::CNetworkInfoResult & _param ) const
-	{
-		LogPrintf("set response \"network info\" to action: %p \n", this->m_action );
-
-		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
-	}
-
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
 		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
@@ -59,6 +45,12 @@ public:
 	{
 		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent( _param.m_nodePtr ) );
+	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
 	}
 };
 

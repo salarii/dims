@@ -279,7 +279,7 @@ bool AddressTableModel::serviceOutputAmountByAddress( qint64 & _outputSum, CCoin
 	{
 		assert( std::find (iterator->tx->vfSpent.begin(),iterator->tx->vfSpent.end(),iterator->i) != iterator->tx->vfSpent.end() );
 
-		_outputSum - iterator->tx->vout[ iterator->i ].nValue;
+		_outputSum -= iterator->tx->vout[ iterator->i ].nValue;
 
 		if ( _outputSum <= 0 )
 			return true;

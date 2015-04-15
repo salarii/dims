@@ -131,7 +131,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
 		{
 			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{}
 
 			common::CMessage orginalMessage;
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
@@ -159,7 +160,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Get )
 		{
 			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{}
 
 			common::CMessage orginalMessage;
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
@@ -182,7 +184,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock )
 		{
 			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{}
 
 			common::CMessage orginalMessage;
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
@@ -205,7 +208,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader )
 		{
 			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{}
 
 			common::CMessage orginalMessage;
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )

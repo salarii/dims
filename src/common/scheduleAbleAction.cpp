@@ -24,6 +24,13 @@ CScheduleAbleAction< _Type >::reset()
 }
 
 template < class _Type >
+void
+CScheduleAbleAction< _Type >::setResult( ScheduledResult const & _result )
+{
+	m_result = _result;
+}
+
+template < class _Type >
 CScheduleAbleAction< _Type >::~CScheduleAbleAction()
 {
 	CScheduledActionManager< _Type >::getInstance()->setResponseForAction( CAction< _Type >::m_actionKey, m_result );

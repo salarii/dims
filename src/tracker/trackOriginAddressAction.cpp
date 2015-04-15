@@ -283,7 +283,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 	CBlockHeader headerToSave;
 
-	for ( int i = 0; size > i; ++i )
+	for ( unsigned int i = 0; size > i; ++i )
 	{
 		blocksToAccept.push_back( blockVector.at( i ).header.GetHash() );
 

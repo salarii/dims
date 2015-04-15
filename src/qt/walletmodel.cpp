@@ -141,7 +141,7 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
 {
     if(addressTableModel)
         addressTableModel->updateEntry(address, label, isMine, purpose, status);
-	if ( status == CT_NEW );
+	//if ( status == CT_NEW );
 		//common::CPeriodicActionExecutor< client::ClientResponses >::getInstance()->addAction( new client::CSendBalanceInfoAction( address.toStdString() ), 6000 );
 }
 
@@ -283,7 +283,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
                 newTx->vOrderForm.push_back(make_pair("Message", rcp.message.toStdString()));
         }
 
-        CReserveKey *keyChange = transaction.getPossibleKeyChange();
+	 //   CReserveKey *keyChange = transaction.getPossibleKeyChange();
 
 		// disable this  for time beeing
 		/*  if(!wallet->CommitTransaction(*newTx, *keyChange))
@@ -295,34 +295,6 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         transaction_array.append(&(ssTx[0]), ssTx.size());
     }
 
-    // Add addresses / update labels that we've sent to to the address book,
-    // and emit coinsSent signal for each recipient
-    foreach(const SendCoinsRecipient &rcp, transaction.getRecipients())
-    {
-        // Don't touch the address book when we have a payment request
-	  /*  if (!rcp.paymentRequest.IsInitialized())
-        {
-            std::string strAddress = rcp.address.toStdString();
-			CTxDestination dest = CMnemonicAddress(strAddress).Get();
-            std::string strLabel = rcp.label.toStdString();
-            {
-                LOCK(wallet->cs_wallet);
-
-                std::map<CTxDestination, CAddressBookData>::iterator mi = wallet->mapAddressBook.find(dest);
-
-                // Check if we have a new address or an updated label
-                if (mi == wallet->mapAddressBook.end())
-                {
-                    wallet->SetAddressBook(dest, strLabel, "send");
-                }
-                else if (mi->second.name != strLabel)
-                {
-                    wallet->SetAddressBook(dest, strLabel, ""); // "" means don't change purpose
-                }
-            }
-		}*/
-	  //  emit coinsSent(wallet, rcp, transaction_array);
-    }
 /* create send  transaction  action */
 	common::CActionHandler< common::CClientTypes >::getInstance()->executeAction( new client::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
     return SendCoinsReturn(OK);

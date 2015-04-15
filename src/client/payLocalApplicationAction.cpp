@@ -17,7 +17,7 @@
 #include "clientRequests.h"
 #include "clientEvents.h"
 #include "clientControl.h"
-#include "sendInfoRequestAction.h""
+#include "sendInfoRequestAction.h"
 #include "configureClientActionHadler.h"
 #include "serialize.h"
 #include "base58.h"
@@ -116,7 +116,7 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 		context< CPayLocalApplicationAction >().setServicingMonitor( key );
 
 		key.Verify( common::hashMonitorData( _monitorStatsEvent.m_monitorData ), _monitorStatsEvent.m_monitorData.m_signed );
-		unsigned int bestFee = -1, fee;
+		unsigned int bestFee = -1;
 		BOOST_FOREACH( common::CNodeInfo const & trackers, _monitorStatsEvent.m_monitorData.m_trackers )
 		{
 			CTrackerLocalRanking::getInstance()->getTrackerStats( trackers.m_key.GetID(), trackerStats );
@@ -232,8 +232,6 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
 		{
 			CClientControl::getInstance()->transactionAddmited( context< CPayLocalApplicationAction >().getFirstInitailHash(), context< CPayLocalApplicationAction >().getFirstTransaction() );
-
-			CTransaction const & transaction = context< CPayLocalApplicationAction >().getFirstTransaction();
 
 			return  transit< CSecondTransaction >();
 		}

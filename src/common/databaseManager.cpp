@@ -24,9 +24,6 @@ using namespace boost;
 
 namespace common
 {
-
-static uint64_t nAccountingEntryNumber = 0;
-
 //
 // CIdentificationDB
 //
@@ -183,16 +180,7 @@ DBErrors CIdentificationDB::loadIdentificationDatabase( std::map< CKeyID, CPubKe
 	DBErrors result = DB_LOAD_OK;
 
 	try {
-		//LOCK(pwallet->cs_wallet); do  I need  something like this ???
-		int nMinVersion = 0;
 
-		// may be  needed  one day
-	/*	if (Read((string)"minversion", nMinVersion))
-		{
-			if (nMinVersion > CLIENT_VERSION)
-				return DB_TOO_NEW;
-			pwallet->LoadMinVersion(nMinVersion);
-		}*/
 
 		// Get cursor
 		Dbc* pcursor = GetCursor();
@@ -339,7 +327,7 @@ void ThreadFlushWalletDB(const string& strFile)
 		}
 	}
 }
-/*
+
 bool BackupWallet(const CWallet& wallet, const string& strDest)
 {
 	if (!wallet.fFileBacked)

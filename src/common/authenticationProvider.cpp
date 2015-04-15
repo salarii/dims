@@ -124,7 +124,7 @@ CAuthenticationProvider::setPassword( SecureString const & _strWalletPassphrase 
 		delete m_keyStorageDataBase;
 		m_keyStorageDataBase = NULL;
 
-	/*	Lock();
+		Lock();
 		Unlock(strWalletPassphrase);
 		NewKeyPool();
 		Lock();

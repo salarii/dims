@@ -1003,9 +1003,6 @@ const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool 
 
     LOCK(csPathCached);
 
-	int nNet = common::AppType::SizeOfEnum;
-	if (fNetSpecific) nNet = _appType;
-
 	fs::path &path = pathCached[(int)_appType];
 
     // This can be called during exceptions by LogPrintf(), so we cache the

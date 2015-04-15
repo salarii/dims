@@ -66,8 +66,8 @@ private:
 
 template < class _Type >
 CRequestHandler< _Type >::CRequestHandler( Medium * _medium )
-	: m_usedMedium( _medium )
-	, m_valid( true )
+	: m_valid( true )
+	, m_usedMedium( _medium )
 {
 	_medium->registerDeleteHook( boost::bind( &CRequestHandler< _Type >::setInvalid, this ) );
 }
@@ -156,9 +156,8 @@ template < class _Type >
 std::list< typename _Type::Response >
 CRequestHandler< _Type >::getDirectActionResponse( CAction< _Type >const * _action )
 {
-	bool responseVaid;
 	std::list< typename _Type::Response > responses;
-	responseVaid = m_usedMedium->getDirectActionResponseAndClear( _action, responses );
+	m_usedMedium->getDirectActionResponseAndClear( _action, responses );
 
 	return responses;
 }

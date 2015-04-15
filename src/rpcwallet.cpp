@@ -27,7 +27,7 @@ static CCriticalSection cs_nWalletUnlockTime;
 
 std::string HelpRequiringPassphrase()
 {
-
+	return std::string();
 }
 
 void EnsureWalletIsUnlocked()
@@ -89,9 +89,6 @@ Value sendtoaddress(const Array& params, bool fHelp)
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
 
-    // Amount
-    int64_t nAmount = AmountFromValue(params[1]);
-
     // Wallet comments
     CWalletTx wtx;
     if (params.size() > 2 && params[2].type() != null_type && !params[2].get_str().empty())
@@ -123,6 +120,7 @@ int64_t GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMi
 
 int64_t GetAccountBalance(const string& strAccount, int nMinDepth)
 {
+	return 0;
 }
 
 
@@ -190,19 +188,6 @@ struct tallyitem
 
 Value ListReceived(const Array& params, bool fByAccounts)
 {
-    // Minimum confirmations
-    int nMinDepth = 1;
-    if (params.size() > 0)
-        nMinDepth = params[0].get_int();
-
-    // Whether to include empty accounts
-    bool fIncludeEmpty = false;
-    if (params.size() > 1)
-        fIncludeEmpty = params[1].get_bool();
-
-    // Tally
-	map<CMnemonicAddress, tallyitem> mapTally;
-
     // Reply
     Array ret;
 
@@ -306,12 +291,3 @@ Value gettransaction(const Array& params, bool fHelp)
 
     return entry;
 }
-
-static void LockWallet(CWallet* pWallet)
-{
-    LOCK(cs_nWalletUnlockTime);
-    nWalletUnlockTime = 0;
-    pWallet->Lock();
-}
-
-

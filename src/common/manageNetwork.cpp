@@ -559,12 +559,6 @@ CManageNetwork::threadOpenAddedConnections()
 				BOOST_FOREACH(string& strAddNode, vAddedNodes)
 					lAddresses.push_back(strAddNode);
 			}
-			BOOST_FOREACH(string& strAddNode, lAddresses) {
-				CAddress addr;
-				CSemaphoreGrant grant(*m_semOutbound);
-				//OpenNetworkConnection(addr, &grant, strAddNode.c_str());
-				MilliSleep(500);
-			}
 			MilliSleep(120000); // Retry every 2 minutes
 		}
 	}
@@ -605,12 +599,6 @@ CManageNetwork::threadOpenAddedConnections()
 						it--;
 						break;
 					}
-		}
-		BOOST_FOREACH(vector<CService>& vserv, lservAddressesToAdd)
-		{
-			CSemaphoreGrant grant(*m_semOutbound);
-//			OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
-			MilliSleep(500);
 		}
 		MilliSleep(120000); // Retry every 2 minutes
 	}
@@ -954,7 +942,6 @@ void
 CManageNetwork::StartSync(const vector<CSelfNode*> &vNodes)
 {
 	CSelfNode *pnodeNewSync = NULL;
-	double dBestScore = 0;
 
 	// Iterate over all nodes
 	BOOST_FOREACH(CSelfNode* pnode, m_nodes) {

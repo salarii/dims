@@ -170,8 +170,6 @@ Value getrawtransaction(const Array& params, bool fHelp)
             + HelpExampleRpc("getrawtransaction", "\"mytxid\", 1")
         );
 
-    uint256 hash = ParseHashV(params[0], "parameter 1");
-
     bool fVerbose = false;
     if (params.size() > 1)
         fVerbose = (params[1].get_int() != 0);

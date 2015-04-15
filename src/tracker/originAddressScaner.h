@@ -28,9 +28,9 @@ public:
 	static COriginAddressScanner* getInstance();
 // probably wrong, scanner needs to remember balances for  sanity checks, but also has to remember
 // when a given transacion was  added this  is  needed because, those  may be included  latter to  downloaded storage
-	void addTransaction(long long const _timeStamp, CTransaction const&  _tx);
+	void addTransaction( uint64_t const _timeStamp, CTransaction const&  _tx);
 
-	void updateTransactionRecord( long long const _timeStamp );
+	void updateTransactionRecord( uint64_t const _timeStamp );
 private:
 	COriginAddressScanner();
 

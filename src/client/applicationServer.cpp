@@ -27,8 +27,10 @@ CLocalSocket::CLocalSocket( QLocalSocket * _localSocket )
 CLocalSocket::~CLocalSocket()
 {
 	size_t size = m_localSocket->bytesAvailable ();
-	m_localSocket->close();
-	m_localSocket->deleteLater();
+	if ( !size )
+		m_localSocket->close();
+	else
+		m_localSocket->deleteLater();
 }
 
 void
@@ -98,6 +100,8 @@ CLocalSocket::getResponseAndClear( std::multimap< common::CRequest< common::CCli
 	_requestResponse = m_nodeResponses;
 
 	clearResponses();
+
+	return true;
 }
 
 void

@@ -36,7 +36,7 @@ COriginAddressScanner::COriginAddressScanner()
 }
 
 void
-COriginAddressScanner::addTransaction( long long const _timeStamp, CTransaction const&  _tx)
+COriginAddressScanner::addTransaction( uint64_t const _timeStamp, CTransaction const&  _tx)
 {
 	boost::lock_guard<boost::mutex> lock(m_lock);
 
@@ -62,7 +62,7 @@ COriginAddressScanner::addTransaction( long long const _timeStamp, CTransaction 
 }
 
 void
-COriginAddressScanner::updateTransactionRecord( long long const _timeStamp )
+COriginAddressScanner::updateTransactionRecord( uint64_t const _timeStamp )
 {
 	boost::lock_guard<boost::mutex> lock(m_lock);
 	std::vector< std::vector< unsigned char > > keys;

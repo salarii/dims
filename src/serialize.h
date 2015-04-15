@@ -1452,6 +1452,7 @@ public:
 		if ( nSourceSize <= nPos )
 			return false;
 		nReadWritePos = nPos;
+		return true;
 	}
 
 

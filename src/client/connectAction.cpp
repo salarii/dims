@@ -219,11 +219,12 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 				std::set< CPubKey > dependentTrackers;
 				std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackers = m_trackersInfo.find( info.m_key );
 				if ( trackers != m_trackersInfo.end() )
-				BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
 				{
-					dependentTrackers.insert( nodeInfo.m_key );
+					BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
+					{
+						dependentTrackers.insert( nodeInfo.m_key );
+					}
 				}
-
 				CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( info, dependentTrackers ) );
 			}
 
@@ -251,11 +252,12 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 			std::set< CPubKey > dependentTrackers;
 			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackers = m_trackersInfo.find( nodeInfo.m_key );
 			if ( trackers != m_trackersInfo.end() )
-			BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
 			{
-				dependentTrackers.insert( nodeInfo.m_key );
+				BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
+				{
+					dependentTrackers.insert( nodeInfo.m_key );
+				}
 			}
-
 			CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( nodeInfo, dependentTrackers ) );
 		}
 		CPubKey monitorKey;

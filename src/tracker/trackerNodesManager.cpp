@@ -33,7 +33,7 @@ CTrackerNodesManager::CTrackerNodesManager()
 {
 }
 
-std::set< common::CValidNodeInfo > const &
+std::set< common::CValidNodeInfo > const
 CTrackerNodesManager::getNodesInfo( common::CRole::Enum _role ) const
 {
 	switch( _role )

@@ -131,7 +131,7 @@ COriginTransactionDatabase::getOriginTransactions(
 	if ( !getCurrentFlushNumber( max ) )
 		return false;
 
-	int current = --max;
+	unsigned int current = --max;
 
 	if ( !current )
 		return true;

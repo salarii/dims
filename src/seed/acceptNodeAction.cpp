@@ -50,9 +50,8 @@ extern CAddrDb db;
 struct CUnconnected;
 struct CBothUnidentifiedConnected;
 struct CCantReachNode;
-struct ConnectedToTracker;
+struct CGetNetworkInfo;
 struct ConnectedToSeed;
-struct ConnectedToMonitor;
 struct CBothUnidentifiedConnecting;
 struct CPairIdentifiedConnecting;
 struct CDetermineRoleConnecting;
@@ -261,18 +260,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
-			switch ( networkRole.m_role )
-			{
-			case common::CRole::Tracker:
-				return transit< ConnectedToTracker >();
-			case common::CRole::Seed:
-				return transit< ConnectedToSeed >();
-			case common::CRole::Monitor:
-				return transit< ConnectedToMonitor >();
-			default:
-				break;
-			}
-
+			m_role = ( common::CRole::Enum )networkRole.m_role;
 		}
 
 		return discard_event();
@@ -280,7 +268,19 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-
+		switch ( m_role )
+		{
+		case common::CRole::Tracker:
+			LogPrintf("accept node action: %p connected to tracker \n", &context< CAcceptNodeAction >() );
+			return transit< CGetNetworkInfo >();
+		case common::CRole::Seed:
+			return transit< ConnectedToSeed >();
+		case common::CRole::Monitor:
+			LogPrintf("accept node action: %p connected to monitor \n", &context< CAcceptNodeAction >() );
+			return transit< CGetNetworkInfo >();
+		default:
+			break;
+		}
 		return discard_event();
 	}
 
@@ -296,6 +296,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	> reactions;
 
 	uint64_t m_time;
+	common::CRole::Enum m_role;
 };
 
 struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedConnected, CAcceptNodeAction >
@@ -400,13 +401,15 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			switch ( m_role )
 			{
 			case common::CRole::Tracker:
+				LogPrintf("accept node action: %p connected to tracker \n", &context< CAcceptNodeAction >() );
 				db.Add( context< CAcceptNodeAction >().getAddress() );
-				return transit< ConnectedToTracker >();
+				return transit< CGetNetworkInfo >();
 			case common::CRole::Seed:
 				return transit< ConnectedToSeed >();
 			case common::CRole::Monitor:
+				LogPrintf("accept node action: %p connected to monitor \n", &context< CAcceptNodeAction >() );
 				db.Add( context< CAcceptNodeAction >().getAddress() );
-				return transit< ConnectedToMonitor >();
+				return transit< CGetNetworkInfo >();
 			default:
 				break;
 			}
@@ -455,56 +458,71 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAct
 	}
 };
 
-struct ConnectedToTracker : boost::statechart::state< ConnectedToTracker, CAcceptNodeAction >
+struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeAction >
 {
-	ConnectedToTracker( my_context ctx ) : my_base( ctx )
+	CGetNetworkInfo( my_context ctx ) : my_base( ctx )
 	{
-		LogPrintf("accept node action: %p connected to tracker \n", &context< CAcceptNodeAction >() );
-
-		m_time = GetTime();
-
 		context< CAcceptNodeAction >().setValid( true );
 
+		context< CAcceptNodeAction >().dropRequests();
+
 		context< CAcceptNodeAction >().addRequests(
-					new common::CKnownNetworkInfoRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), common::CKnownNetworkInfo(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
-		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( 20000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					  new common::CInfoAskRequest< common::CSeedTypes >(
+						  common::CInfoKind::NetworkInfoAsk
+						, context< CAcceptNodeAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+
+		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
-	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		context< CAcceptNodeAction >().dropRequests();
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CAcceptNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
 
-		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_trackersInfo )
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
 		{
+			common::CKnownNetworkInfo knownNetworkInfo;
+
+			common::convertPayload( orginalMessage, knownNetworkInfo );
+
+			context< CAcceptNodeAction >().dropRequests();
+
+			context< CAcceptNodeAction >().addRequests(
+						new common::CAckRequest< common::CSeedTypes >(
+							  context< CAcceptNodeAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+
+			BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, knownNetworkInfo.m_trackersInfo )
+			{
 				db.Add( validNodeInfo.m_address );
+			}
+
+			BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, knownNetworkInfo.m_monitorsInfo )
+			{
+				db.Add( validNodeInfo.m_address );
+			}
 		}
 
-		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_monitorsInfo )
-		{
-				db.Add( validNodeInfo.m_address );
-		}
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		context< CAcceptNodeAction >().dropRequests();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CAcceptNodeAction >().dropRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
-
-	uint64_t m_time;
 };
 
 struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CAcceptNodeAction >
@@ -514,51 +532,6 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CAcceptNodeA
 		LogPrintf("accept node action: %p connected to seed \n", &context< CAcceptNodeAction >() );
 	}
 };
-
-
-struct ConnectedToMonitor : boost::statechart::state< ConnectedToMonitor, CAcceptNodeAction >
-{
-	ConnectedToMonitor( my_context ctx ) : my_base( ctx )
-	{
-		LogPrintf("accept node action: %p connected to monitor \n", &context< CAcceptNodeAction >() );
-
-		context< CAcceptNodeAction >().setValid( true );
-
-		context< CAcceptNodeAction >().addRequests(
-					new common::CKnownNetworkInfoRequest< common::CSeedTypes >( context< CAcceptNodeAction >().getActionKey(), common::CKnownNetworkInfo(), new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );// vicious usage of CKnownNetworkInfoRequest
-		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( 20000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
-
-	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
-	{
-		context< CAcceptNodeAction >().dropRequests();
-
-		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_trackersInfo )
-		{
-				db.Add( validNodeInfo.m_address );
-		}
-
-		BOOST_FOREACH( common::CValidNodeInfo validNodeInfo, _networkInfo.m_monitorsInfo )
-		{
-				db.Add( validNodeInfo.m_address );
-		}
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CAcceptNodeAction >().dropRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-			boost::statechart::custom_reaction< common::CTimeEvent >,
-			boost::statechart::custom_reaction< common::CNetworkInfoEvent >
-	> reactions;
-
-	uint64_t m_time;
-};
-
 
 CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: common::CAction< common::CSeedTypes >( _actionKey )

@@ -18,6 +18,8 @@ public:
 
 	virtual void reset();
 
+	void setResult( ScheduledResult const & _result );
+
 	~CScheduleAbleAction();
 protected:
 	ScheduledResult m_result;

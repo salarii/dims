@@ -108,7 +108,6 @@ set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexValid; // may contain 
 
 CCriticalSection cs_LastBlockFile;
 CBlockFileInfo infoLastBlockFile;
-int nLastBlockFile = 0;
 
 // Every received block is assigned a unique and increasing identifier, so we
 // know which one to give priority in case of a fork.
@@ -763,13 +762,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         // you should add code here to check that the transaction does a
         // reasonable number of ECDSA signature verifications.
 
-        int64_t nValueIn = view.GetValueIn(tx);
-        int64_t nValueOut = tx.GetValueOut();
-        int64_t nFees = nValueIn-nValueOut;
         double dPriority = view.GetPriority(tx, chainActive.Height());
 
 		CTxMemPoolEntry entry(tx, GetTime(), dPriority);
-        unsigned int nSize = entry.GetTxSize();
 
         // Continuously rate-limit free transactions
         // This mitigates 'penny-flooding' -- sending thousands of free transactions just to
@@ -1070,40 +1065,6 @@ void Misbehaving(NodeId pnode, int howmuch)
         LogPrintf("Misbehaving: %s (%d -> %d)\n", state->name, state->nMisbehavior-howmuch, state->nMisbehavior);
 }
 
-void static InvalidChainFound(CBlockIndex* pindexNew)
-{
-    if (!pindexBestInvalid || pindexNew->nChainWork > pindexBestInvalid->nChainWork)
-    {
-        pindexBestInvalid = pindexNew;
-    }
-    LogPrintf("InvalidChainFound: invalid block=%s  height=%d  log2_work=%.8g  date=%s\n",
-      pindexNew->GetBlockHash().ToString(), pindexNew->nHeight,
-      log(pindexNew->nChainWork.getdouble())/log(2.0), DateTimeStrFormat("%Y-%m-%d %H:%M:%S",
-      pindexNew->GetBlockTime()));
-    LogPrintf("InvalidChainFound:  current best=%s  height=%d  log2_work=%.8g  date=%s\n",
-      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), log(chainActive.Tip()->nChainWork.getdouble())/log(2.0),
-      DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()));
-    CheckForkWarningConditions();
-}
-
-void static InvalidBlockFound(CBlockIndex *pindex, const CValidationState &state) {
-    int nDoS = 0;
-    if (state.IsInvalid(nDoS)) {
-        std::map<uint256, NodeId>::iterator it = mapBlockSource.find(pindex->GetBlockHash());
-        if (it != mapBlockSource.end() && State(it->second)) {
-            CBlockReject reject = {state.GetRejectCode(), state.GetRejectReason(), pindex->GetBlockHash()};
-            State(it->second)->rejects.push_back(reject);
-            if (nDoS > 0)
-                Misbehaving(it->second, nDoS);
-        }
-    }
-    if (!state.CorruptionPossible()) {
-		pindex->nStatus |= BLOCK_FAILED_VALID;
-        setBlockIndexValid.erase(pindex);
-        InvalidChainFound(pindex);
-    }
-}
-
 void UpdateTime(CBlockHeader& block, const CBlockIndex* pindexPrev)
 {
     block.nTime = max(pindexPrev->GetMedianTimePast()+1, GetAdjustedTime());
@@ -1398,7 +1359,7 @@ bool static DisconnectTip(CValidationState &state) {
     UpdateTip(pindexDelete->pprev);
     return true;
 }
-
+/*
 // Connect a new block to chainActive.
 bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew) {
     assert(pindexNew->pprev == chainActive.Tip());
@@ -1407,7 +1368,7 @@ bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew) {
     UpdateTip(pindexNew);
     return true;
 }
-
+*/
 // Make chainMostWork correspond to the chain with the most work in it, that isn't
 // known to be invalid (it's however far from certain to be valid).
 void static FindMostWorkChain() {
@@ -1739,7 +1700,6 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CDiskBlockPos* dbp)
 
     // Write block to history file
     try {
-        unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
         CDiskBlockPos blockPos;
         if (dbp != NULL)
             blockPos = *dbp;
@@ -2293,8 +2253,6 @@ bool InitBlockIndex() {
             	block = const_cast<CBlock&>(Params().GenesisBlock());
             }
 
-            // Start new block file
-            unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
             CDiskBlockPos blockPos;
             CValidationState state;
             if (!AddToBlockIndex(block, state, blockPos))
@@ -2451,8 +2409,8 @@ bool static AlreadyHave(const CInv& inv)
     {
     case MSG_TX:
         {
-            bool txInMap = false;
-            txInMap = mempool.exists(inv.hash);
+/*		bool txInMap = false;
+			txInMap = mempool.exists(inv.hash);*/
 			return true;
         }
     case MSG_BLOCK:
@@ -2955,7 +2913,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
 		LOCK(cs_main);
 
-		bool fMissingInputs = false;
 		CValidationState state;
 		tracker::CInternalMediumProvider::getInstance()->setResponse( tx, pfrom );
 	}

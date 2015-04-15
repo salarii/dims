@@ -241,6 +241,8 @@ convertAppType( AppType::Enum _appType )
 	}
 #endif
 #endif
+	assert( !"not recognized" );
+	return TargetType::SeedLinux;
 }
 
 }

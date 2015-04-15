@@ -135,26 +135,11 @@ QString ClientModel::formatClientStartupTime() const
     return QDateTime::fromTime_t(nClientStartupTime).toString();
 }
 
-// Handlers for core signals
-static void NotifyBlocksChanged(ClientModel *clientmodel)
-{
-    // This notification is too frequent. Don't trigger a signal.
-    // Don't remove it, though, as it might be useful later.
-}
-
 static void NotifyNumConnectionsChanged(ClientModel *clientmodel, int newNumTrackerConnections, int newNumMonitorConnections)
 {
     // Too noisy: qDebug() << "NotifyNumConnectionsChanged : " + QString::number(newNumConnections);
     QMetaObject::invokeMethod(clientmodel, "updateNumConnections", Qt::QueuedConnection,
 							  Q_ARG(int, newNumTrackerConnections),Q_ARG(int, newNumMonitorConnections));
-}
-
-static void NotifyAlertChanged(ClientModel *clientmodel, const uint256 &hash, ChangeType status)
-{
-    qDebug() << "NotifyAlertChanged : " + QString::fromStdString(hash.GetHex()) + " status=" + QString::number(status);
-    QMetaObject::invokeMethod(clientmodel, "updateAlert", Qt::QueuedConnection,
-                              Q_ARG(QString, QString::fromStdString(hash.GetHex())),
-                              Q_ARG(int, status));
 }
 
 void ClientModel::subscribeToCoreSignals()

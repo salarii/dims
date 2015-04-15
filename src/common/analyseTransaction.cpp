@@ -68,7 +68,6 @@ std::vector< CAvailableCoin >
 getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash )
 {
 	std::vector< CAvailableCoin > availableCoins;
-	unsigned int valueSum = 0, totalInputSum = 0;
 	for (unsigned int i = 0; i < _coins.vout.size(); i++)
 	{
 		const CTxOut& txout = _coins.vout[i];

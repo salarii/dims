@@ -10,7 +10,7 @@ namespace tracker
 
 struct CMediumClassFilter : public common::CTrackerMediumFilter
 {
-	CMediumClassFilter( common::CMediumKinds::Enum _mediumClass, int _mediumNumber = -1 ):
+	CMediumClassFilter( common::CMediumKinds::Enum _mediumClass, unsigned int _mediumNumber = (unsigned int)-1 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber )
 	{}
@@ -20,7 +20,7 @@ struct CMediumClassFilter : public common::CTrackerMediumFilter
 		std::list< common::CTrackerBaseMedium *> mediums;
 		mediums = _trackerNodesManager->getNodesByClass( m_mediumClass );
 
-		if ( m_mediumNumber != -1 && mediums.size() > m_mediumNumber )
+		if ( m_mediumNumber != (unsigned int)-1 && mediums.size() > m_mediumNumber )
 		{
 			mediums.resize( m_mediumNumber );
 		}
@@ -33,7 +33,7 @@ struct CMediumClassFilter : public common::CTrackerMediumFilter
 	}
 
 	common::CMediumKinds::Enum m_mediumClass;
-	int m_mediumNumber;
+	unsigned int m_mediumNumber;
 };
 
 struct CNodeExceptionFilter : public common::CTrackerMediumFilter

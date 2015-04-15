@@ -34,7 +34,7 @@ struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchr
 	boost::statechart::transition< CInitialSynchronizationDoneEvent, CStandAlone > > reactions;
 
 	int m_blockLeft;
-	int m_nodesNumber;
+	unsigned int m_nodesNumber;
 };
 
 

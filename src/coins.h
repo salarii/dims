@@ -81,7 +81,7 @@ public:
     int nVersion;
 
     // construct a CCoins from a CTransaction, at a given height
-	CCoins(const CTransaction &tx) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), nVersion(tx.nVersion), m_location( tx.m_location ) {
+	CCoins(const CTransaction &tx) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), m_location( tx.m_location ), nVersion(tx.nVersion) {
         ClearUnspendable();
     }
 
