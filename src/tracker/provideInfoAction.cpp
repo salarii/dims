@@ -46,6 +46,8 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		context< CProvideInfoAction >().dropRequests();
 		context< CProvideInfoAction >().addRequests( new CDeliverInfoRequest( context< CProvideInfoAction >().getActionKey(), new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+
+		return discard_event();
 	}
 	int64_t m_enterStateTime;
 

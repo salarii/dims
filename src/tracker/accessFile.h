@@ -58,7 +58,7 @@ CAccessFile::loadSegmentFromFile( unsigned int _index, std::string const & _file
 
 	fileStream = openDiskFile( serialSize * _index, _fileName, false);
 
-	unsigned int bufferedSize = (1 << KiloByteShift) * 4;
+//	unsigned int bufferedSize = (1 << KiloByteShift) * 4;
 	CBufferedFile blkdat(fileStream, 2*serialSize, serialSize, SER_DISK, CLIENT_VERSION);
 
 	blkdat >> _t;

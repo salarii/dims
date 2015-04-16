@@ -234,6 +234,15 @@ public:
 };
 
 struct CServiceResult {
+	CServiceResult()
+		: fGood(false)
+		, nBanTime( 0 )
+		, nHeight( 0 )
+		, nClientV( 0 )
+		, strClientV()
+		, ourLastSuccess( 0 )
+	{}
+
     CService service;
     bool fGood;
     int nBanTime;
@@ -243,14 +252,14 @@ struct CServiceResult {
 	int64_t ourLastSuccess;
 };
 
-//             seen nodes
-//            /          \
-// (a) banned nodes       available nodes--------------
-//                       /       |                     \
-//               tracked nodes   (b) unknown nodes   (e) active nodes
-//              /           \
-//     (d) good nodes   (c) non-good nodes 
-
+/*             seen nodes
+			/          \
+ (a) banned nodes       available nodes--------------
+					   /       |                     \
+			   tracked nodes   (b) unknown nodes   (e) active nodes
+			  /           \
+	 (d) good nodes   (c) non-good nodes
+*/
 class CAddrDb {
 private:
   mutable CCriticalSection cs;
@@ -271,7 +280,7 @@ protected:
   void Bad_(const CService &ip, int ban);  // mark an IP as bad (and optionally ban it) (must have been returned by Get_)
   void Skipped_(const CService &ip);       // mark an IP as skipped (must have been returned by Get_)
   int Lookup_(const CService &ip);         // look up id of an IP
-  void GetIPs_(std::set<CNetAddr>& ips, int max, const bool *nets); // get a random set of IPs (shared lock only)
+  void GetIPs_(std::set<CNetAddr>& ips, unsigned int max, const bool *nets); // get a random set of IPs (shared lock only)
 
 public:
   std::map<CService, time_t> banned; // nodes that are banned, with their unban time (a)
@@ -384,7 +393,7 @@ public:
   void GetMany(std::vector<CServiceResult> &ips, int max, int& wait) {
     CRITICAL_BLOCK(cs) {
       while (max > 0) {
-          CServiceResult ip = {};
+		  CServiceResult ip;
           if (!Get_(ip, wait))
               return;
           ips.push_back(ip);

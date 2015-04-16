@@ -71,11 +71,6 @@ Value importprivkey(const Array& params, bool fHelp)
     CKey key = vchSecret.GetKey();
     if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Private key outside allowed range");
 
-	CPubKey pubkey = key.GetPubKey();
-	{
-
-    }
-
     return Value::null;
 }
 

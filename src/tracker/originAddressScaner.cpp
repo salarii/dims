@@ -121,7 +121,7 @@ COriginAddressScanner::loop()
 
 void COriginAddressScanner::createBaseTransaction(CTransaction const &  _tx)
 {
-	unsigned int valueSum = 0, totalInputSum = 0;
+	unsigned int valueSum = 0;
 	for (unsigned int i = 0; i < _tx.vout.size(); i++)
 	{
 		const CTxOut& txout = _tx.vout[i];

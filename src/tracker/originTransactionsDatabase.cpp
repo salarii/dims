@@ -53,7 +53,8 @@ COriginTransactionDatabase::storeOriginTransactionsFlush(
 
 	BOOST_FOREACH( std::vector< unsigned char > const & key, _keys )
 	{
-		setKey( ( flushNumber << 32 ) | description.m_keyNumber, _balances.at( description.m_keyNumber++ ), key );
+		setKey( ( flushNumber << 32 ) | description.m_keyNumber, _balances.at( description.m_keyNumber ), key );
+		description.m_keyNumber++;
 	}
 
 	setResourceDescription( flushNumber, description );
@@ -81,6 +82,8 @@ COriginTransactionDatabase::getKey( uint64_t const _id, uint64_t & _balance, std
 
 	_balance = key.first;
 	_key = key.second;
+
+	return true;
 }
 
 bool
@@ -150,15 +153,13 @@ COriginTransactionDatabase::getOriginTransactions(
 
 		if ( _timeStamp <= time && _timeStamp >= prevTime )
 		{
-
-			resourceDescription.m_keyNumber;
 			do{
 				for ( unsigned int i = 0;  ; i++ )
 				{
 					uint64_t balance;
 					std::vector< unsigned char > key;
-
-					if ( !getKey( ( current << 32 ) | i, balance, key ) )
+					uint64_t temp = current;
+					if ( !getKey( ( temp << 32 ) | i, balance, key ) )
 						return false;
 
 					_keys.push_back( key );

@@ -6,6 +6,8 @@
 #include "common/actionHandler.h"
 #include "common/periodicActionExecutor.h"
 #include "common/timeMedium.h"
+#include "common/scheduledActionManager.h"
+#include "common/scheduleAbleAction.h"
 
 namespace monitor
 {

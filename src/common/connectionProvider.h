@@ -19,6 +19,8 @@ class CConnectionProvider
 {
 public:
 	virtual std::list< typename _Type::Medium *> provideConnection( typename _Type::Filter const & ) = 0;
+
+	virtual ~CConnectionProvider(){};
 };
 
 }

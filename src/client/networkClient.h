@@ -56,7 +56,7 @@ private:
 
 	unsigned int read();
 
-	int waitForInput();
+	unsigned int waitForInput();
 
 	void write();
 

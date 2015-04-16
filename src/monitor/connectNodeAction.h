@@ -5,7 +5,7 @@
 #ifndef CONNECT_NODE_ACTION_H
 #define CONNECT_NODE_ACTION_H
 
-#include "common/action.h"
+#include "common/scheduleAbleAction.h"
 #include "common/filters.h"
 
 #include "configureMonitorActionHandler.h"
@@ -24,7 +24,7 @@ namespace monitor
 
 struct CMonitorConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >, public common::CCommunicationAction
+class CConnectNodeAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >, public common::CCommunicationAction
 {
 public:
 	CConnectNodeAction( CAddress const & _addrConnect );

@@ -242,7 +242,7 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 	boost::statechart::result react( common::CMessageResult const & _message )
 	{
 		m_participating.erase( _message.m_nodeIndicator );
-
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<

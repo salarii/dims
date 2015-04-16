@@ -385,6 +385,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().setExit();
 		return discard_event();
 	}
 
@@ -489,6 +490,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CConnectNodeAction >().setExit();
 		return discard_event();
 	}
 

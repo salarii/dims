@@ -29,7 +29,7 @@ CSegmentFileStorage::ms_headerFileName = "serheaders";
 
 std::map< unsigned int, unsigned int > CDiskBlock::m_currentLastBlockIds;
 
-#define assert(a) ;
+//#define assert(a) ;
 
 CDiskBlock::CDiskBlock( CSimpleBuddy const & _simpleBuddy )
 	:CSimpleBuddy( _simpleBuddy )
@@ -90,7 +90,7 @@ CSegmentHeader::getNumberOfFullBucketSets()
 int
 CSegmentHeader::getIndexForBucket( unsigned int _bucket ) const
 {
-	for( int i = 0;i < m_recordsNumber/MAX_BUCKET; i++)
+	for( unsigned i = 0;i < m_recordsNumber/MAX_BUCKET; i++)
 	{
 		CRecord record = m_records[ i*(m_recordsNumber/MAX_BUCKET) + _bucket ];
 		if ( record.m_blockNumber )
@@ -157,9 +157,9 @@ CSegmentFileStorage::getInstance()
 
 
 CSegmentFileStorage::CSegmentFileStorage()
-: m_recentlyStored(MAX_BUCKET)
+: m_synchronizationInProgress( 0 )
+, m_recentlyStored(MAX_BUCKET)
 , m_lastFlushTime( 0 )
-, m_synchronizationInProgress( 0 )
 {
 	m_transactionQueue = new TransactionQueue;
 
@@ -441,7 +441,7 @@ CSegmentFileStorage::getDiscBlock( uint64_t const _location )
 		return 0;
 
 	CDiskBlock * diskBlock = new CDiskBlock;
-	if ( blockNumber != -1 )
+	if ( blockNumber != (unsigned int)-1 )
 		getBlock( blockNumber, *diskBlock );
 
 	return diskBlock;
@@ -493,7 +493,7 @@ CSegmentFileStorage::flushLoop()
 
 				BOOST_FOREACH( CLocation const & location, m_locationUsedFromLastUpdate )
 				{
-					assert( m_transactionLocationToBuddy.find( location ) != m_transactionLocationToBuddy.end() )
+					assert( m_transactionLocationToBuddy.find( location ) != m_transactionLocationToBuddy.end() );
 
 					processedLocationToBuddy.insert( *m_transactionLocationToBuddy.find( location ) );
 
@@ -521,7 +521,6 @@ CSegmentFileStorage::flushLoop()
 
 					stream << transaction;
 
-					assert( m_discBlockCache.find( location ) != m_discBlockCache.end() );
 					*(CSimpleBuddy*)usedBlock.second = *processedLocationToBuddy.find( transaction.m_location )->second;
 
 					if ( !transaction.IsCoinBase() )
@@ -667,7 +666,7 @@ CSegmentFileStorage::readTransactions( CDiskBlock const & _discBlock, std::vecto
 	}
 */
 	/* should  I play with merkle here??? */
-
+	return true;
 }
 
 unsigned int
@@ -786,12 +785,15 @@ CSegmentFileStorage::setDiscBlock( CDiskBlock const & _discBlock, unsigned int _
 
 	if ( !readTransactions( _discBlock, _transactions ) )
 		return false;
+
+	return true;
 }
 
 bool
 CSegmentFileStorage::setDiscBlock( CSegmentHeader const & _segmentHeader, unsigned int _index )
 {
 	saveBlock( _index, _segmentHeader );
+	return true;
 }
 
 /*

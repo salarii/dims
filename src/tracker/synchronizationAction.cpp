@@ -74,6 +74,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 			context< CSynchronizationAction >().setNodeIdentifier( _synchronizationInfoEvent.m_nodeIdentifier );
 		}
 		context< CSynchronizationAction >().dropRequests();
+		return discard_event();
 	}
 
 
@@ -324,8 +325,8 @@ CSynchronizationAction::CSynchronizationAction()
 
 CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp )
 	: common::CCommunicationAction( _actionKey )
-	, m_nodeIdentifier( _nodeIndicator )
 	, m_timeStamp( _timeStamp )
+	, m_nodeIdentifier( _nodeIndicator )
 {
 	initiate();
 	process_event( CSwitchToSynchronized() );

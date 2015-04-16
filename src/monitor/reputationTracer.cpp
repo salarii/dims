@@ -219,6 +219,39 @@ CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )c
 	return false;
 }
 
+std::set< common::CValidNodeInfo > const
+CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
+{
+	std::set< common::CValidNodeInfo > nodesInfo;
+	if ( _role == common::CRole::Tracker )
+	{
+		BOOST_FOREACH( RegisteredTrackers::value_type const & tracker, m_registeredTrackers )
+		{
+			uintptr_t nodePtr;
+			getKeyToNode( tracker.second.m_publicKey, nodePtr );
+
+			CAddress address;
+			getAddress( nodePtr, address );
+
+			nodesInfo.insert( common::CValidNodeInfo( tracker.second.m_publicKey, address ) );
+		}
+	}
+	else if ( _role == common::CRole::Monitor )
+	{
+		BOOST_FOREACH( Monitor::value_type const & monitor, m_monitors )
+		{
+			uintptr_t nodePtr;
+			getKeyToNode( monitor.second.m_publicKey, nodePtr );
+
+			CAddress address;
+			getAddress( nodePtr, address );
+
+			nodesInfo.insert( common::CValidNodeInfo( monitor.second.m_publicKey, address ) );
+		}
+	}
+	return nodesInfo;
+}
+
 void
 CReputationTracker::addTracker( CTrackerData const & _trackerData )
 {

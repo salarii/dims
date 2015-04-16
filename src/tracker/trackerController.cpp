@@ -43,6 +43,7 @@ bool
 CTrackerController::setConnected( bool _connected )
 {
 	m_connected = _connected;
+	return true;
 }
 
 CTrackerController::CTrackerController()

@@ -86,6 +86,7 @@ public:
 			m_presentTrackers = _presentTrackers;
 	}
 
+	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 private:
 	CReputationTracker();
 
@@ -106,6 +107,8 @@ private:
 	typedef std::map< uint160, std::vector< CAllyTrackerData > > AllyMonitors;
 
 	typedef std::map< uint160, unsigned int > TransactionsAddmited;
+
+	typedef std::map< uint160, CAllyMonitorData > Monitor;
 
 	std::map< uint160, common::CValidNodeInfo > m_candidates;
 

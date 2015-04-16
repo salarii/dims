@@ -61,6 +61,7 @@ context< CRecognizeNetworkAction >().addRequests(
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfoEvent )
 	{
 		//return transit< CDetermineRoleConnecting >();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<

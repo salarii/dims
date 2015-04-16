@@ -170,7 +170,7 @@ void CAddrDb::Add_(const CAddress &addr, bool force) {
   nDirty++;
 }
 
-void CAddrDb::GetIPs_(set<CNetAddr>& ips, int max, const bool* nets) {
+void CAddrDb::GetIPs_(set<CNetAddr>& ips, unsigned int max, const bool* nets) {
   if (goodId.size() == 0) {
  /*   int id = -1;
     if (ourId.size() == 0) {

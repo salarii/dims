@@ -35,10 +35,15 @@ CScheduleAbleAction< _Type >::~CScheduleAbleAction()
 {
 	CScheduledActionManager< _Type >::getInstance()->setResponseForAction( CAction< _Type >::m_actionKey, m_result );
 }
-
+//ugly
 template class CScheduleAbleAction< CTrackerTypes >;
+template class CScheduleAbleAction< CMonitorTypes >;
 
+template<>
+CScheduledActionManager< CMonitorTypes > * CScheduledActionManager< CMonitorTypes >::ms_instance = NULL;
+
+template<>
+CScheduledActionManager< CTrackerTypes > * CScheduledActionManager< CTrackerTypes >::ms_instance = NULL;
 
 }
-
 

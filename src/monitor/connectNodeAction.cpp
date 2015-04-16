@@ -26,10 +26,9 @@ unsigned int const LoopTime = 20000;//milices
 struct CMonitorUnconnected;
 struct CMonitorBothUnidentifiedConnected;
 struct CMonitorConnectedToSeed;
-struct CMonitorConnectedToMonitor;
-struct CMonitorConnectedToTracker;
 struct CMonitorBothUnidentifiedConnecting;
 struct CMonitorCantReachNode;
+struct CGetNetworkInfo;
 struct CMonitorPairIdentifiedConnecting;
 struct CMonitorDetermineRoleConnecting;
 struct CMonitorDetermineRoleConnected;
@@ -192,11 +191,13 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 		switch ( m_role )
 		{
 		case common::CRole::Tracker:
-			return transit< CMonitorConnectedToTracker >();
+			LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
+			return transit< CGetNetworkInfo >();
 		case common::CRole::Seed:
 			return transit< CMonitorConnectedToSeed >();
 		case common::CRole::Monitor:
-			return transit< CMonitorConnectedToMonitor >();
+			LogPrintf("connect node action: %p connected to monitor \n", &context< CConnectNodeAction >() );
+			return transit< CGetNetworkInfo >();
 		default:
 			break;
 		}
@@ -299,11 +300,13 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 			switch ( networkRole.m_role )
 			{
 			case common::CRole::Tracker:
-				return transit< CMonitorConnectedToTracker >();
+				LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
+				return transit< CGetNetworkInfo >();
 			case common::CRole::Seed:
 				return transit< CMonitorConnectedToSeed >();
 			case common::CRole::Monitor:
-				return transit< CMonitorConnectedToMonitor >();
+				LogPrintf("connect node action: %p connected to monitor \n", &context< CConnectNodeAction >() );
+				return transit< CGetNetworkInfo >();
 			default:
 				break;
 			}
@@ -342,36 +345,6 @@ struct CMonitorCantReachNode : boost::statechart::state< CMonitorCantReachNode, 
 		LogPrintf("connect node action: %p can't reach node' \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().dropRequests();
 	}
-};
-
-struct CMonitorConnectedToTracker : boost::statechart::state< CMonitorConnectedToTracker, CConnectNodeAction >
-{
-
-	CMonitorConnectedToTracker( my_context ctx ) : my_base( ctx )
-	{
-		LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
-
-		CReputationTracker::getInstance()->setKeyToNode(
-					context< CConnectNodeAction >().getPublicKey()
-					, context< CConnectNodeAction >().getNodePtr() );
-
-		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CConnectNodeAction >().dropRequests();
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _result )
-	{
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CTimeEvent >
-	> reactions;
 };
 
 struct CMonitorStop;
@@ -428,20 +401,97 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CConnectNodeAction
 	}
 };
 
-
-struct CMonitorConnectedToMonitor : boost::statechart::state< CMonitorConnectedToMonitor, CConnectNodeAction >
+struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNodeAction >
 {
-	CMonitorConnectedToMonitor( my_context ctx ) : my_base( ctx )
+	CGetNetworkInfo( my_context ctx ) : my_base( ctx )
 	{
-		LogPrintf("connect node action: %p connected to monitor \n", &context< CConnectNodeAction >() );
 		CReputationTracker::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getNodePtr() );
+
+		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().addRequests(
+					  new common::CInfoAskRequest< common::CMonitorTypes >(
+						  common::CInfoKind::NetworkInfoAsk
+						, context< CConnectNodeAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+		context< CConnectNodeAction >().addRequests(
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						  LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+		{
+			common::CInfoRequestData infoRequest;
+
+			common::convertPayload( orginalMessage, infoRequest );
+
+			assert( infoRequest.m_kind == common::CInfoKind::NetworkInfoAsk );
+			context< CConnectNodeAction >().dropRequests();
+
+			common::CKnownNetworkInfo knownNetworkInfo;
+			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
+			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CKnownNetworkInfoRequest< common::CMonitorTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, knownNetworkInfo
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		}
+		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
+		{
+			common::CKnownNetworkInfo knownNetworkInfo;
+
+			common::convertPayload( orginalMessage, knownNetworkInfo );
+
+			context< CConnectNodeAction >().dropRequests();
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CAckRequest< common::CMonitorTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+			common::CNetworkInfoResult networkRoleInfo(
+								  context< CConnectNodeAction >().getPublicKey()
+								, knownNetworkInfo.m_monitorsInfo
+								, knownNetworkInfo.m_trackersInfo );
+
+			context< CConnectNodeAction >().setResult( networkRoleInfo );
+		}
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CConnectNodeAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
 };
 
+
 CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
-	: common::CAction< common::CMonitorTypes >( _actionKey )
+	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
 	, CCommunicationAction( _actionKey )
 	, m_passive( true )
 	, m_nodePtr( _nodePtr )

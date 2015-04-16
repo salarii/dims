@@ -88,6 +88,7 @@ CDefaultMedium::getSeedIps( vector<CAddress> & _vAdd )
 bool
 CDefaultMedium::flush()
 {
+	return true;
 }
 
 bool
@@ -96,6 +97,8 @@ CDefaultMedium::getResponseAndClear( std::multimap<  CRequest< common::CClientTy
 	_requestResponse = m_requestResponse;
 
 	clearResponses();
+
+	return true;
 }
 
 void

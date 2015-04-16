@@ -92,6 +92,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
 	{
 		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
+		return discard_event();
 	}
 
 	~CReadingData()
@@ -273,7 +274,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			size = nodeResults.second.size();
 	}
 
-	if ( size == -1 || size == 0 )
+	if ( size == (uint)-1 || size == 0 )
 		return;
 	// go  through transaction  queue analyse  if  the  same  content
 

@@ -78,18 +78,6 @@ bool static InitWarning(const std::string &str)
 	return true;
 }
 
-bool static Bind(const CService &addr, unsigned int flags) {
-	if (!(flags & BF_EXPLICIT) && IsLimited(addr))
-		return false;
-	std::string strError;
-	if (!BindListenPort(addr, strError)) {
-		if (flags & BF_REPORT_ERROR)
-			return InitError(strError);
-		return false;
-	}
-	return true;
-}
-
 /** Initialize bitcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */

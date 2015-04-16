@@ -6,6 +6,7 @@
 #include "common/actionHandler.h"
 #include "common/timeMedium.h"
 #include "common/scheduledActionManager.h"
+#include "common/scheduleAbleAction.h"
 
 namespace tracker
 {
@@ -17,8 +18,5 @@ common::CActionHandler< common::CTrackerTypes > * common::CActionHandler< common
 
 template<>
 common::CTimeMedium< common::CTrackerBaseMedium > * common::CTimeMedium< common::CTrackerBaseMedium >::ms_instance = NULL;
-
-template<>
-common::CScheduledActionManager< common::CTrackerTypes > * common::CScheduledActionManager< common::CTrackerTypes >::ms_instance = NULL;
 
 }

@@ -118,6 +118,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 						  context< CRegisterAction >().getActionKey()
 						, result.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

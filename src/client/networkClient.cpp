@@ -33,10 +33,10 @@ CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
 	m_pushStream->SetPos(0);
 	start();
 }
-
-int CNetworkClient::waitForInput()
+unsigned int
+CNetworkClient::waitForInput()
 {
-	int bytesAvail = 0;
+	unsigned int bytesAvail = 0;
 
 	while( m_socket->state() == QAbstractSocket::ConnectedState && bytesAvail == 0 )
 	{
@@ -55,7 +55,7 @@ int CNetworkClient::waitForInput()
 unsigned int
 CNetworkClient::read()
 {
-	int bytesAvail = waitForInput();
+	unsigned int bytesAvail = waitForInput();
 
 	if (bytesAvail > 0)
 	{
@@ -339,6 +339,7 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< common::CC
 	}
 
 	clearResponses();
+	return true;
 }
 
 CNetworkClient::~CNetworkClient()
