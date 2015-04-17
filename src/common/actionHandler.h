@@ -231,8 +231,7 @@ CActionHandler< _Types >::loop()
 					else
 						action->setExecuted();
 				}
-
-				if ( !requests.empty() )
+				else if ( !requests.empty() )
 				{
 					toErase.push_back( action );
 					std::vector< CRequest< _Types >* > combined;
