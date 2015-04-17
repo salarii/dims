@@ -389,17 +389,32 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfo )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		common::CKnownNetworkInfo knownNetworkInfo;
-		knownNetworkInfo.m_trackersInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker );
-		knownNetworkInfo.m_monitorsInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Monitor );
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
 
-		context< CConnectNodeAction >().addRequests(
-					new common::CKnownNetworkInfoRequest< common::CTrackerTypes >(
-						  context< CConnectNodeAction >().getActionKey()
-						, knownNetworkInfo
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+		{
+			common::CInfoRequestData infoRequest;
+
+			common::convertPayload( orginalMessage, infoRequest );
+
+			assert( infoRequest.m_kind == common::CInfoKind::NetworkInfoAsk );
+			context< CConnectNodeAction >().dropRequests();
+
+			common::CKnownNetworkInfo knownNetworkInfo;
+			knownNetworkInfo.m_trackersInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker );
+			knownNetworkInfo.m_monitorsInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Monitor );
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CKnownNetworkInfoRequest< common::CTrackerTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, knownNetworkInfo
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		}
 		return discard_event();
 	}
 
@@ -410,7 +425,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
@@ -461,6 +476,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						new common::CKnownNetworkInfoRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, knownNetworkInfo
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )

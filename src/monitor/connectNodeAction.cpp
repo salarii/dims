@@ -362,22 +362,32 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 		context< CConnectNodeAction >().dropRequests();
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _result )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
 			assert( !"service it somehow" );
 
-		common::CKnownNetworkInfo knownNetworkInfo;
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+		{
+			common::CInfoRequestData infoRequest;
 
-		// save  this  stuff
+			common::convertPayload( orginalMessage, infoRequest );
 
-		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
+			assert( infoRequest.m_kind == common::CInfoKind::NetworkInfoAsk );
+			context< CConnectNodeAction >().dropRequests();
 
-		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests( new common::CKnownNetworkInfoRequest< common::CMonitorTypes >( context< CConnectNodeAction >().getActionKey(), knownNetworkInfo, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
-		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-		return discard_event();
+			common::CKnownNetworkInfo knownNetworkInfo;
+			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
+			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
+
+			context< CConnectNodeAction >().addRequests(
+						new common::CKnownNetworkInfoRequest< common::CMonitorTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, knownNetworkInfo
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		}
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
@@ -446,6 +456,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						new common::CKnownNetworkInfoRequest< common::CMonitorTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, knownNetworkInfo
+							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )

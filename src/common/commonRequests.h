@@ -258,7 +258,7 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, FilterType * _mediumFilter );
+	CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, uint256 const & _id, FilterType * _mediumFilter );
 
 	virtual void accept( MediumType * _medium ) const;
 
@@ -272,8 +272,8 @@ private:
 };
 
 template < class _Types >
-CKnownNetworkInfoRequest< _Types >::CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _mediumFilter )
+CKnownNetworkInfoRequest< _Types >::CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, uint256 const & _id, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _id, _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_networkInfo( _networkInfo )
 {
