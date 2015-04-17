@@ -29,7 +29,7 @@ namespace tracker
 //milisec
 unsigned int const TrackerLoopTime = 20000;
 unsigned int const SeedLoopTime = 25000;
-unsigned int const MonitorLoopTime = 25000;
+unsigned int const MonitorLoopTime = 60000;
 
 struct CBothUnidentifiedConnected;
 struct CBothUnidentifiedConnecting;

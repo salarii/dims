@@ -133,7 +133,7 @@ CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >cons
 	while( indexIterator != m_indexes.end() )
 	{
 		if ( *indexIterator != m_synchronizeQueue.front() )
-			break;
+			continue;
 
 		m_synchronizeQueue.pop_front();
 
