@@ -397,6 +397,7 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CConnectNodeAction
 {
 	CMonitorStop( my_context ctx ) : my_base( ctx )
 	{
+		context< CConnectNodeAction >().setExit();
 		context< CConnectNodeAction >().dropRequests();
 	}
 };
@@ -485,7 +486,8 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 };
 

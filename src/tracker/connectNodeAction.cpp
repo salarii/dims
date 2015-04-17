@@ -501,7 +501,8 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 };
 
@@ -510,6 +511,7 @@ struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
 	CStop( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p stop \n", &context< CConnectNodeAction >() );
+		context< CConnectNodeAction >().setExit();
 		context< CConnectNodeAction >().dropRequests();
 	}
 };
