@@ -24,7 +24,7 @@ namespace tracker
 
 struct CConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >, public common::CCommunicationAction
+class CConnectNodeAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >
 {
 public:
 	CConnectNodeAction( std::string const & _nodeAddress );
@@ -53,6 +53,8 @@ public:
 
 	~CConnectNodeAction(){};
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	std::string const m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;

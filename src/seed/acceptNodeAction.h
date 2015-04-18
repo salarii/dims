@@ -26,7 +26,7 @@ getResult( std::string const & _key, bool & _value );
 
 struct CUninitiated;
 
-class CAcceptNodeAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
+class CAcceptNodeAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
 {
 public:
 	CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr );
@@ -55,6 +55,8 @@ public:
 
 	~CAcceptNodeAction(){};
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	CAddress m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;

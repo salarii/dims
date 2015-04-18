@@ -41,7 +41,7 @@ private:
 };
 
 // this is weird action most likely it should be ordinary singleton
-class CAdmitProofTransactionBundle : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitProofTransactionBundle, CWaitForBundle >, public common::CCommunicationAction
+class CAdmitProofTransactionBundle : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitProofTransactionBundle, CWaitForBundle >
 {
 public:
 	CAdmitProofTransactionBundle();
@@ -49,6 +49,8 @@ public:
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
 	~CAdmitProofTransactionBundle(){};
+private:
+	common::CCommunicationRegisterObject m_registerObject;
 };
 
 

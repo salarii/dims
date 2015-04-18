@@ -534,7 +534,7 @@ struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
 
 CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: common::CScheduleAbleAction< common::CTrackerTypes >( _actionKey )
-	, CCommunicationAction( _actionKey )
+	, m_registerObject( _actionKey )
 	, m_passive( true )
 	, m_nodePtr( _nodePtr )
 {
@@ -543,7 +543,7 @@ CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _n
 }
 
 CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
-	: common::CCommunicationAction( getActionKey() )
+	: m_registerObject( getActionKey() )
 	, m_passive( false )
 	, m_addrConnect( _addrConnect )
 {
@@ -557,7 +557,7 @@ CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
 
 
 CConnectNodeAction::CConnectNodeAction( std::string const & _nodeAddress )
-	: common::CCommunicationAction( getActionKey() )
+	: m_registerObject( getActionKey() )
 	, m_nodeAddress( _nodeAddress )
 	, m_passive( false )
 {

@@ -353,8 +353,8 @@ struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAct
 };
 
 CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransaction > const & _transactions )
-	: common::CCommunicationAction( getActionKey() )
-	, common::CAction< common::CTrackerTypes >()
+	: common::CAction< common::CTrackerTypes >()
+	, m_registerObject( getActionKey() )
 	, m_transactions( _transactions )
 {
 	initiate();
@@ -362,7 +362,7 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 }
 
 CValidateTransactionsAction::CValidateTransactionsAction( uint256 const & _actionKey )
-	: CCommunicationAction( _actionKey )
+	: m_registerObject( _actionKey )
 {
 	initiate();
 }

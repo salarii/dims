@@ -262,12 +262,7 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
             strHTML += "<ul>";
 
             {
-                LOCK(wallet->cs_wallet);
-                BOOST_FOREACH(const CTxIn& txin, wtx.vin)
-                {
-                    COutPoint prevout = txin.prevout;
 
-                }
             }
 
             strHTML += "</ul>";

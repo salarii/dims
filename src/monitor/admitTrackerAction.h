@@ -15,7 +15,7 @@ namespace monitor
 
 struct CWaitForInfo;
 
-class CAdmitTrackerAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTrackerAction, CWaitForInfo >, public common::CCommunicationAction
+class CAdmitTrackerAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTrackerAction, CWaitForInfo >
 {
 public:
 	CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr );
@@ -26,6 +26,8 @@ public:
 
 	~CAdmitTrackerAction(){};
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	uintptr_t m_nodePtr;
 };
 

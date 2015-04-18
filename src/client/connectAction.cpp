@@ -190,6 +190,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		m_pending.insert( _pending.m_networkPtr );
 		m_checked.insert( _pending.m_networkPtr );
+
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

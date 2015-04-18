@@ -14,7 +14,7 @@ namespace tracker
 
 struct CUninitiated;
 
-class CSynchronizationAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >, public common::CCommunicationAction
+class CSynchronizationAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
 {
 public:
 	CSynchronizationAction();
@@ -31,6 +31,8 @@ public:
 
 	bool isRequestInitialized() const;
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	uint256 m_currentHash;
 
 	uint64_t m_timeStamp;

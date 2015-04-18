@@ -261,6 +261,8 @@ CTcpServerConnection::handleIncommingBuffor()
 	}
 
 	m_pullBuffer.clear();
+
+	return true;
 }
 
 

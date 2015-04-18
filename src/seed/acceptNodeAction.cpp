@@ -535,7 +535,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CAcceptNodeA
 
 CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: common::CAction< common::CSeedTypes >( _actionKey )
-	, common::CCommunicationAction( _actionKey )
+	, m_registerObject( _actionKey )
 	, m_passive( true )
 	, m_nodePtr( _nodePtr )
 	, m_valid( false )
@@ -544,7 +544,7 @@ CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nod
 }
 
 CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
-	: CCommunicationAction( getActionKey() )
+	: m_registerObject( getActionKey() )
 	, m_nodeAddress( _nodeAddress )
 	, m_passive( false )
 	, m_valid( false )

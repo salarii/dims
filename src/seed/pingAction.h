@@ -14,7 +14,7 @@ namespace seed
 {
 struct CUninitialised;
 
-class CPingAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CPingAction, CUninitialised >, public common::CCommunicationAction
+class CPingAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CPingAction, CUninitialised >
 {
 public:
 	CPingAction( uintptr_t _nodeIndicator );
@@ -34,6 +34,8 @@ public:
 		m_pingedNodes.erase( m_nodeIndicator );
 	};
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	uintptr_t m_nodeIndicator;
 
 	static std::set< uintptr_t > m_pingedNodes; //a bit ugly

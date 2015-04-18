@@ -391,12 +391,12 @@ private:
 	std::set< uint256 > m_actionsInProgress;
 };
 // a bit shitty /should be  virtual inheritance ??
-class CCommunicationAction
+class CCommunicationRegisterObject
 {
 public:
-	CCommunicationAction( uint256 const & _actionKey );
+	CCommunicationRegisterObject( uint256 const & _actionKey );
 
-	~CCommunicationAction();
+	~CCommunicationRegisterObject();
 private:
 	uint256 const & m_actionKey;
 };

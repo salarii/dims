@@ -505,7 +505,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
-	, CCommunicationAction( _actionKey )
+	, m_registerObject( _actionKey )
 	, m_passive( true )
 	, m_nodePtr( _nodePtr )
 {
@@ -514,7 +514,7 @@ CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _n
 }
 
 CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
-	: CCommunicationAction( getActionKey() )
+	: m_registerObject( getActionKey() )
 	, m_passive( false )
 	, m_addrConnect( _addrConnect )
 {

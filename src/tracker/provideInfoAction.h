@@ -26,7 +26,7 @@ namespace tracker
 struct CProvideInfo;
 // rework  this  sooner  or later
 
-class CProvideInfoAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >, public common::CCommunicationAction
+class CProvideInfoAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >
 {
 public:
 	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
@@ -37,6 +37,8 @@ public:
 
 	~CProvideInfoAction(){};
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	uintptr_t m_nodeIndicator;
 };
 

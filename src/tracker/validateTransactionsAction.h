@@ -19,7 +19,7 @@ struct CInitial;
 // extremely simplified,  no  confirmation message
 // it was  working  once, but  right now  not  very likely  ! test it !
 // add ack  event where necessary
-class CValidateTransactionsAction : public common::CAction< common::CTrackerTypes >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >, public common::CCommunicationAction
+class CValidateTransactionsAction : public common::CAction< common::CTrackerTypes >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >
 {
 public:
 	CValidateTransactionsAction( std::vector< CTransaction > const & _transactions );
@@ -42,6 +42,8 @@ public:
 
 	common::CMessage getMessage() const;
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	uintptr_t m_initiatingNode;
 
 	common::CMessage m_message;

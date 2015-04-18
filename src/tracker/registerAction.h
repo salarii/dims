@@ -15,7 +15,7 @@ namespace tracker
 
 struct CInitiateRegistration;
 
-class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >, public common::CCommunicationAction
+class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >
 {
 public:
 	CRegisterAction( uintptr_t _nodePtr );
@@ -26,6 +26,8 @@ public:
 
 	~CRegisterAction(){};
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	uintptr_t m_nodePtr;
 };
 

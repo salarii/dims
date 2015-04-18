@@ -21,7 +21,7 @@ struct CAskForUpdate;
 
 // rework  this  sooner  or later
 
-class CUpdateDataAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >, public common::CCommunicationAction
+class CUpdateDataAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >
 {
 public:
 	CUpdateDataAction( bool _autoDelete );
@@ -31,6 +31,8 @@ public:
 	void reset();
 
 	~CUpdateDataAction(){};
+private:
+	common::CCommunicationRegisterObject m_registerObject;
 };
 
 

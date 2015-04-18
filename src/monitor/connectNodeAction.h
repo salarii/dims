@@ -24,7 +24,7 @@ namespace monitor
 
 struct CMonitorConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >, public common::CCommunicationAction
+class CConnectNodeAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >
 {
 public:
 	CConnectNodeAction( CAddress const & _addrConnect );
@@ -47,6 +47,8 @@ public:
 
 	~CConnectNodeAction(){};
 private:
+	common::CCommunicationRegisterObject m_registerObject;
+
 	static int const ms_randomPayloadLenght = 32;
 
 	std::vector< unsigned char > m_payload;
