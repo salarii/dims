@@ -25,4 +25,7 @@ unsigned int const common::CPeriodicActionExecutor< common::CMonitorTypes >::m_s
 template<>
 common::CTimeMedium< common::CMonitorBaseMedium > * common::CTimeMedium< common::CMonitorBaseMedium >::ms_instance = NULL;
 
+template<>
+common::CScheduledActionManager< common::CMonitorTypes > * common::CScheduledActionManager< common::CMonitorTypes >::ms_instance = NULL;
+
 }

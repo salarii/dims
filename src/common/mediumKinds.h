@@ -15,7 +15,7 @@ struct CMediumKinds
 		, Monitors
 		, Seeds
 		, Time
-		, Shedule
+		, Schedule
 		, All
 	};
 };

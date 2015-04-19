@@ -122,7 +122,7 @@ CActionHandler< _Types >::getInstance( )
 {
 	if ( !ms_instance )
 	{
-		ms_instance = new CActionHandler();
+		ms_instance = new CActionHandler< _Types >();
 	};
 	return ms_instance;
 }

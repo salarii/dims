@@ -6,6 +6,8 @@
 #include "internalOperationsMedium.h"
 
 #include "common/timeMedium.h"
+#include "common/scheduledActionManager.h"
+
 namespace monitor
 {
 
@@ -59,6 +61,10 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	else if ( common::CMediumKinds::Time == _mediumKind )
 	{
 		mediums.push_back( common::CTimeMedium< common::CMonitorBaseMedium >::getInstance() );
+	}
+	else if ( common::CMediumKinds::Schedule == _mediumKind )
+	{
+		mediums.push_back( common::CScheduledActionManager< common::CMonitorTypes >::getInstance() );
 	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{

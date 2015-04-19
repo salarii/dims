@@ -17,9 +17,10 @@
 #include "common/manageNetwork.h"
 #include "common/periodicActionExecutor.h"
 
-#include "connectNodeAction.h"
-
-#include "updateDataAction.h"
+#include "monitor/filters.h"
+#include "monitor/connectNodeAction.h"
+#include "monitor/updateDataAction.h"
+#include "monitor/recognizeNetworkAction.h"
 
 namespace monitor
 {
@@ -71,7 +72,9 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 {
 	CMonitorStandAlone( my_context ctx ) : my_base( ctx )
 	{
-		// search for  seeder  action
+		// search for seeder action
+		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
+		/*
 		std::vector<CAddress> vAdd;
 
 		common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
@@ -93,7 +96,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 				common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
 			}
 		}
-
+*/
 		/// move it to different place
 
 //		common::CPeriodicActionExecutor< common::CMonitorTypes >::getInstance()->addAction( new CUpdateDataAction( false ), 10000 );

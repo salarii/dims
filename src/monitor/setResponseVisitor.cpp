@@ -11,6 +11,7 @@
 #include "monitor/admitTrackerAction.h"
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/pingAction.h"
+#include "monitor/recognizeNetworkAction.h"
 
 namespace common
 {
@@ -82,6 +83,33 @@ public:
 	{
 		LogPrintf("set response \"no medium\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
+	}
+};
+
+class CSetRecognizeNetworkResult : public CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList >
+{
+public:
+	class CResolveNetworkResult : public boost::static_visitor< void >
+	{
+	public:
+		CResolveNetworkResult( monitor::CRecognizeNetworkAction * const _action)
+		{}
+
+		void operator()( CNetworkInfoResult const & _networkInfoResult ) const
+		{
+			m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
+		}
+
+	private:
+		monitor::CRecognizeNetworkAction * m_action;
+	};
+
+public:
+	CSetRecognizeNetworkResult( monitor::CRecognizeNetworkAction * const _action ):CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::ScheduledResult & _param ) const
+	{
+		boost::apply_visitor( CResolveNetworkResult( this->m_action ), _param );
 	}
 };
 
@@ -160,6 +188,11 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CPingAction & _act
 	boost::apply_visitor( (CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList > const &)CSetPingResult( &_action ), m_requestResponse );
 }
 
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CRecognizeNetworkAction & _action )
+{
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList > const & )CSetRecognizeNetworkResult( &_action ), m_requestResponse );
+}
 
 }
 

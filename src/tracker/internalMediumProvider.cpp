@@ -64,7 +64,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	{
 		mediums.push_back( common::CTimeMedium< common::CTrackerBaseMedium >::getInstance() );
 	}
-	else if ( common::CMediumKinds::Shedule == _mediumKind )
+	else if ( common::CMediumKinds::Schedule == _mediumKind )
 	{
 		mediums.push_back( common::CScheduledActionManager< common::CTrackerTypes >::getInstance() );
 	}

@@ -59,7 +59,6 @@ COMMON_CPP = \
   common/databaseManager.cpp \
   common/dimsParams.cpp \
   common/manageNetwork.cpp \
-  common/scheduleAbleAction.cpp \
   common/selfNode.cpp 
   
 # tracker core #

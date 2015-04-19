@@ -23,6 +23,7 @@ MONITOR_H = \
 	pingAction.h \
 	processNetwork.h \
 	rankingDatabase.h \
+	recognizeNetworkAction.h \
 	reputationTracer.h \
 	server.h \
 	updateDataAction.h
@@ -45,6 +46,7 @@ MONITOR_CPP = \
 	pingAction.cpp \
 	processNetwork.cpp \
 	rankingDatabase.cpp \
+	recognizeNetworkAction.cpp \
 	reputationTracer.cpp \
 	server.cpp \
 	setResponseVisitor.cpp \
