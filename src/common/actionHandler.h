@@ -275,6 +275,8 @@ CActionHandler< _Types >::loop()
 			}
 		}
 
+		std::set< CAction< _Types >* > actionsToErase;// bit obsolete and overcomplicated, replace it, on the other hand  maybe this  way it have  small performence  adventage
+
 		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToRead )
 		{
 			BOOST_FOREACH( CAction< _Types >* action,m_allActions )
@@ -285,6 +287,7 @@ CActionHandler< _Types >::loop()
 					CSetResponseVisitor< _Types > visitor( response );
 					action->accept( visitor );
 					m_actions.insert( action );
+					actionsToErase.insert( action );
 				}
 			}
 		}
@@ -294,10 +297,8 @@ CActionHandler< _Types >::loop()
 			reqHandler->processMediumResponses();
 		}
 
-		std::set< CAction< _Types >* > actionsToErase;
-
 		std::multimap< CAction< _Types >*, CRequest< _Types > * > eraseCandidates;
-
+// obsolete, at some point replace it
 		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
 			eraseCandidates.insert( std::make_pair( reqAction.second, reqAction.first ) );
