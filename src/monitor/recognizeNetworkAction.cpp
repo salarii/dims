@@ -5,15 +5,15 @@
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
 
-#include "tracker/recognizeNetworkAction.h"
-#include "tracker/connectNodeAction.h"
-#include "tracker/trackerFilters.h"
+#include "monitor/recognizeNetworkAction.h"
+#include "monitor/connectNodeAction.h"
+#include "monitor/filters.h"
 
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-namespace tracker
+namespace monitor
 {
 
 struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAction >
@@ -31,7 +31,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				context< CRecognizeNetworkAction >().dropRequests();
 				context< CRecognizeNetworkAction >().addRequests(
-							new common::CScheduleActionRequest< common::CTrackerTypes >(
+							new common::CScheduleActionRequest< common::CMonitorTypes >(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
@@ -45,7 +45,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				context< CRecognizeNetworkAction >().dropRequests();
 				context< CRecognizeNetworkAction >().addRequests(
-							new common::CScheduleActionRequest< common::CTrackerTypes >(
+							new common::CScheduleActionRequest< common::CMonitorTypes >(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
@@ -71,7 +71,7 @@ CRecognizeNetworkAction::CRecognizeNetworkAction()
 }
 
 void
-CRecognizeNetworkAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CRecognizeNetworkAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

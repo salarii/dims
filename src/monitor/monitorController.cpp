@@ -74,6 +74,9 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 	{
 		// search for seeder action
 		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
+
+		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CConnectNodeAction( CAddress( CService("87.121.52.152", 20020) ) ) );
+
 		/*
 		std::vector<CAddress> vAdd;
 

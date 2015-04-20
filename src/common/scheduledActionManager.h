@@ -22,7 +22,7 @@ public:
 
 	bool getResponseAndClear( std::multimap< CRequest< _Type >const*, typename _Type::Response > & _requestResponse );
 
-	void setResponseForAction( uint256 const & _id, ScheduledResult const & _responses );
+	void setResponseForAction( ScheduledResult const & _responses, uint256 const & _id );
 
 	void add( CScheduleActionRequest< _Type > const * _request );
 
@@ -105,7 +105,7 @@ CScheduledActionManager< _Type >::clearResponses()
 
 template < class _Type >
 void
-CScheduledActionManager< _Type >::setResponseForAction( uint256 const & _id, ScheduledResult const & _responses )
+CScheduledActionManager< _Type >::setResponseForAction( ScheduledResult const & _responses, uint256 const & _id )
 {
 		boost::lock_guard<boost::mutex> lock( m_mutex );
 		typename std::multimap< uint256, CRequest< _Type >const* >::const_iterator iterator = m_actionToRequest.find( _id );
@@ -122,6 +122,9 @@ CScheduledActionManager< _Type >::add( CScheduleActionRequest< _Type > const * _
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_actionToRequest.insert( std::make_pair( _request->getAction()->getActionKey(), _request ) );
+
+	_request->getAction()->registerSetResponseWhileDeleted( boost::bind( &CScheduledActionManager< _Type >::setResponseForAction, this, _1, _2 ) );
+
 	common::CActionHandler< _Type >::getInstance()->executeAction( _request->getAction() );
 }
 

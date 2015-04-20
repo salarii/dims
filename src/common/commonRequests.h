@@ -397,8 +397,8 @@ private:
 template < class _Types >
 CResultRequest< _Types >::CResultRequest( uint256 const & _actionKey, unsigned int _result, FilterType * _mediumFilter )
 	: common::CRequest< _Types >( _mediumFilter )
-	, m_actionKey( _actionKey )
 	, m_result( _result )
+	, m_actionKey( _actionKey )
 {
 }
 
