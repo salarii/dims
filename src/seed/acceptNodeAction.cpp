@@ -173,6 +173,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
 	{
+		context< CAcceptNodeAction >().setPublicKey( _identificationResult.m_key );
 		uint256 hash = Hash( &_identificationResult.m_payload.front(), &_identificationResult.m_payload.back() );
 
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
@@ -307,6 +308,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 	}
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
 	{
+		context< CAcceptNodeAction >().setPublicKey( _identificationResult.m_key );
 		uint256 hash = Hash( &_identificationResult.m_payload.front(), &_identificationResult.m_payload.back() );
 
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
