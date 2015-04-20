@@ -365,6 +365,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	CDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("accept node action: %p determine role connected \n", &context< CAcceptNodeAction >() );
+		context< CAcceptNodeAction >().dropRequests();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
