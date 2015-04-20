@@ -70,8 +70,11 @@ public:
 	typedef std::multimap< CRequest< _Types >*, CRequestHandler< _Types > * > RequestToHandlers;
 public:
 	void loop();
+
 	void shutDown();
+
 	~CActionHandler();
+
 	static CActionHandler* getInstance( );
 
 	void executeAction( CAction< _Types >* _action );
@@ -90,8 +93,6 @@ private:
 	mutable boost::mutex m_mutex;
 
 	std::set< CAction< _Types >* > m_actions;
-
-		std::set< CAction< _Types >* > m_allActions;
 
 	RequestToAction m_reqToAction;
 
@@ -137,7 +138,6 @@ CActionHandler< _Types >::executeAction( CAction< _Types >* _action )
 	{
 			_action->setInProgress();
 			m_actions.insert( _action );
-			m_allActions.insert( _action );
 	}
 }
 
@@ -218,13 +218,13 @@ CActionHandler< _Types >::loop()
 						{
 							typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound ( request );
 							typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound ( request );
+
 							for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
 							{
 								it->second->deleteRequest( request );
 							}
 							m_currentlyUsedHandlers.erase( request );
 						}
-						m_allActions.erase( action );
 
 						delete action;
 					}
@@ -233,7 +233,6 @@ CActionHandler< _Types >::loop()
 				}
 				else if ( !requests.empty() )
 				{
-					toErase.push_back( action );
 					std::vector< CRequest< _Types >* > combined;
 
 					combined = action->getDroppedRequests();
@@ -275,11 +274,9 @@ CActionHandler< _Types >::loop()
 			}
 		}
 
-		std::set< CAction< _Types >* > actionsToErase;// bit obsolete and overcomplicated, replace it, on the other hand  maybe this  way it have  small performence  adventage
-
 		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToRead )
 		{
-			BOOST_FOREACH( CAction< _Types >* action,m_allActions )
+			BOOST_FOREACH( CAction< _Types >* action,m_actions )
 			{
 				std::list< ResponseType > responses = reqHandler->getDirectActionResponse( action );
 				BOOST_FOREACH( ResponseType const & response, responses )
@@ -287,7 +284,6 @@ CActionHandler< _Types >::loop()
 					CSetResponseVisitor< _Types > visitor( response );
 					action->accept( visitor );
 					m_actions.insert( action );
-					actionsToErase.insert( action );
 				}
 			}
 		}
@@ -315,8 +311,7 @@ CActionHandler< _Types >::loop()
 						CSetResponseVisitor< _Types > visitor( response );
 						reqAction.second->accept( visitor );
 					}
-					m_actions.insert( reqAction.second );
-					actionsToErase.insert( reqAction.second );
+
 					it->second->deleteRequest( reqAction.first );
 				}
 				else
@@ -325,22 +320,9 @@ CActionHandler< _Types >::loop()
 				}
 			}
 		}
+		m_reqToAction.clear();
 
-		BOOST_FOREACH( CAction< _Types >* const & action, actionsToErase)
-		{
-			typename std::multimap< CAction< _Types >*, CRequest< _Types > * >::const_iterator lower
-					= eraseCandidates.lower_bound ( action );
-			typename std::multimap< CAction< _Types >*, CRequest< _Types > * >::const_iterator upper
-					= eraseCandidates.upper_bound ( action );
-
-			for ( typename std::multimap< CAction< _Types >*, CRequest< _Types > * >::const_iterator it = lower; it!=upper; ++it)
-			{
-				m_reqToAction.erase( it->second );
-			}
-
-		}
-
-		if ( m_reqToAction.empty() )
+		if ( m_actions.empty() )
 			boost::this_thread::interruption_point();
 
 		BOOST_FOREACH( CRequestHandler< _Types > * reqHandler, requestHandlersToExecute )
