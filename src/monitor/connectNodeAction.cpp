@@ -360,6 +360,8 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().setExit();
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -388,11 +390,14 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
+
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
 		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().setExit();
 		return transit< CMonitorStop >();
 	}
 

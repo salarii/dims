@@ -75,33 +75,6 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 		// search for seeder action
 		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
 
-		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CConnectNodeAction( CAddress( CService("87.121.52.152", 20020) ) ) );
-
-		/*
-		std::vector<CAddress> vAdd;
-
-		common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
-
-		if ( !vAdd.empty() )
-		{
-			BOOST_FOREACH( CAddress address, vAdd )
-			{
-				common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
-			}
-		}
-		else
-		{
-			common::CManageNetwork::getInstance()->getSeedIps( vAdd );
-
-			// let know seed about our existence
-			BOOST_FOREACH( CAddress address, vAdd )
-			{
-				common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CConnectNodeAction( address ) );
-			}
-		}
-*/
-		/// move it to different place
-
 //		common::CPeriodicActionExecutor< common::CMonitorTypes >::getInstance()->addAction( new CUpdateDataAction( false ), 10000 );
 	}
 

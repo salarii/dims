@@ -69,8 +69,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 		}
 		else if (
-				 message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
-				 || message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
+					  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
+				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
+				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
 				 )
 		{
 
@@ -83,7 +84,10 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+				else
+					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
