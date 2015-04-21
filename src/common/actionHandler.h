@@ -246,8 +246,6 @@ CActionHandler< _Types >::loop()
 
 					BOOST_FOREACH( CRequest< _Types >* request, combined )
 					{
-						m_reqToAction.insert( std::make_pair( request, action ) );
-
 						typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound (request);
 						typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound (request);
 
@@ -294,10 +292,9 @@ CActionHandler< _Types >::loop()
 		}
 
 		std::multimap< CAction< _Types >*, CRequest< _Types > * > eraseCandidates;
-// obsolete, at some point replace it
+
 		BOOST_FOREACH( typename RequestToAction::value_type & reqAction, m_reqToAction)
 		{
-			eraseCandidates.insert( std::make_pair( reqAction.second, reqAction.first ) );
 			typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound (reqAction.first);
 			typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound (reqAction.first);
 			for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
