@@ -514,6 +514,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CAcceptNodeAction >().setExit();
 		return discard_event();
 	}
 
