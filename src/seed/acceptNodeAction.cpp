@@ -401,7 +401,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
-			switch ( m_role )
+			switch ( networkRole.m_role )
 			{
 			case common::CRole::Tracker:
 				LogPrintf("accept node action: %p connected to tracker \n", &context< CAcceptNodeAction >() );
