@@ -4,9 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #define CONFIRM_LIMIT 6
 
-
 #include "main.h"
-
 #include "addrman.h"
 #include "alert.h"
 #include "chainparams.h"
@@ -19,7 +17,8 @@
 #include "util.h"
 #include "rpcserver.h"
 
-#include "tracker/originAddressScaner.h"
+#include "common/originAddressScanner.h"
+
 #include "tracker/internalMediumProvider.h"
 
 #include <inttypes.h>

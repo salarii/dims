@@ -37,6 +37,8 @@ COMMON_H = \
   common/nodeMedium.h \
   common/nodeMessages.h \
   common/nodesManager.h \
+  common/originAddressScanner.h \
+  common/originTransactionsDatabase.h \
   common/periodicActionExecutor.h \
   common/pingAction.h \
   common/responseVisitorInternal.h \
@@ -59,6 +61,8 @@ COMMON_CPP = \
   common/databaseManager.cpp \
   common/dimsParams.cpp \
   common/manageNetwork.cpp \
+  common/originAddressScanner.cpp \
+  common/originTransactionsDatabase.cpp \
   common/selfNode.cpp 
   
 # tracker core #
@@ -76,8 +80,6 @@ TRACKER_CORE_H = \
   tracker/init.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
-  tracker/originTransactionsDatabase.h \
-  tracker/originAddressScaner.h \
   tracker/pingAction.h \
   tracker/processNetwork.h \
   tracker/provideInfoAction.h \
@@ -177,8 +179,6 @@ TRACKER_CORE_CPP = \
   tracker/init.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
-  tracker/originTransactionsDatabase.cpp \
-  tracker/originAddressScaner.cpp \
   tracker/pingAction.cpp \
   tracker/processNetwork.cpp \
   tracker/provideInfoAction.cpp \

@@ -3,8 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "trackOriginAddressAction.h"
-#include "originAddressScaner.h"
 
+#include "common/originAddressScanner.h"
 #include "common/setResponseVisitor.h"
 #include "common/commonRequests.h"
 #include "common/commonEvents.h"
@@ -340,7 +340,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			{
 				BOOST_FOREACH( CTransaction const & transaction, toInclude )
 				{
-					tracker::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
+					common::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
 				}
 			}
 

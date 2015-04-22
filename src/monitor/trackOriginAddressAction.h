@@ -7,21 +7,21 @@
 
 #include "common/action.h"
 #include "common/types.h"
-#include "configureTrackerActionHandler.h"
+#include "configureMonitorActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include "main.h"
 
 // please add excluding of bad nodes( not responding )
-namespace tracker
+namespace monitor
 {
 struct CUninitiatedTrackAction;
 
-class CTrackOriginAddressAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
+class CTrackOriginAddressAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
 {
 public:
 	CTrackOriginAddressAction();
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
 	void requestFiltered();
 

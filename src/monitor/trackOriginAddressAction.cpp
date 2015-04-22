@@ -2,9 +2,6 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "trackOriginAddressAction.h"
-#include "originAddressScaner.h"
-
 #include "common/setResponseVisitor.h"
 #include "common/commonRequests.h"
 #include "common/commonEvents.h"
@@ -18,14 +15,12 @@
 #include "main.h"
 #include "chainparams.h"
 
-#include "tracker/trackerEvents.h"
-#include "tracker/trackerController.h"
-#include "tracker/trackerControllerEvents.h"
-#include "tracker/trackerFilters.h"
-#include "tracker/trackerNodeMedium.h"
-#include "tracker/trackerRequests.h"
+#include "monitor/monitorController.h"
+#include "monitor/filters.h"
+#include "monitor/monitorNodeMedium.h"
+#include "monitor/trackOriginAddressAction.h"
 
-namespace tracker
+namespace monitor
 {
 
 uint const MaxMerkleNumber = 1000;
@@ -33,15 +28,6 @@ uint const WaitResultTime = 30000;
 uint const CleanTime = 2;
 uint const SynchronizedTreshold = 10;
 
-/*
-store last  tracked  block  number
-track blocks  between  last  checked  and present
-use  at  least  three node  and  compare  results, in case of inconsistency of data  replace  wrong node  by  other correct  one
-
-
- what I need is bicoin node  medium
-
-*/
 struct CReadingData;
 
 
@@ -50,12 +36,12 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
 		context< CTrackOriginAddressAction >().dropRequests();
-		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		CTrackerController::getInstance()->process_event( CBitcoinNetworkConnection( vNodes.size() ) );
+//		CTrackerController::getInstance()->process_event( CBitcoinNetworkConnection( vNodes.size() ) );
 
 		if ( vNodes.size() >= common::dimsParams().getUsedBitcoinNodesNumber() )
 		{
@@ -65,7 +51,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 		else
 		{
 			context< CTrackOriginAddressAction >().dropRequests();
-			context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
 
 		return discard_event();
@@ -81,27 +67,27 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 {
 	CReadingData( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
 	{
-		context< CTrackOriginAddressAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		return transit< CUninitiatedTrackAction >();
 	}
-
+/*
 	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
 	{
 		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
 		return discard_event();
 	}
-
+*/
 	~CReadingData()
 	{
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< CMerkleBlocksEvent >
+	boost::statechart::custom_reaction< common::CTimeEvent >/*,
+	boost::statechart::custom_reaction< CMerkleBlocksEvent >*/
 	> reactions;
 
 	uint m_time;
@@ -130,7 +116,7 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 }
 
 void
-CTrackOriginAddressAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CTrackOriginAddressAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -148,7 +134,7 @@ CTrackOriginAddressAction::requestFiltered()
 	{
 		if ( index == 0 )
 		{
-			CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
+			//CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
 			return;
 		}
 		index = index->pprev;
@@ -163,16 +149,16 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
-	tracker::CTrackerController::getInstance()->process_event( CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
+	//tracker::CTrackerController::getInstance()->process_event( CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
 
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );
-
+/*
 	if ( requestedBlocks.size() < SynchronizedTreshold )
 		CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
-
+*/
 	dropRequests();
-	addRequests( new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
+	//addRequest( new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
 
 }
 
@@ -340,7 +326,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			{
 				BOOST_FOREACH( CTransaction const & transaction, toInclude )
 				{
-					tracker::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
+		//			tracker::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
 				}
 			}
 

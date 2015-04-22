@@ -40,7 +40,6 @@
 #include "tracker/clientRequestsManager.h"
 #include "tracker/internalMediumProvider.h"
 #include "tracker/transactionRecordManager.h"
-#include "tracker/originAddressScaner.h"
 #include "tracker/segmentFileStorage.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/processNetwork.h"
@@ -53,7 +52,7 @@
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
 #include "common/timeMedium.h"
-
+#include "common/originAddressScanner.h"
 #include "common/commandLine.h"
 
 using namespace std;
@@ -960,7 +959,7 @@ seed_insecure_rand();
     }
 
 /* create  threads of  action  handler */
-	threadGroup.create_thread( boost::bind( &tracker::COriginAddressScanner::loop, tracker::COriginAddressScanner::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CTrackerTypes >::loop, common::CActionHandler< common::CTrackerTypes >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CTrackerBaseMedium >::workLoop, common::CTimeMedium< common::CTrackerBaseMedium >::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
