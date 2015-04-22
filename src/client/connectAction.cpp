@@ -39,10 +39,10 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		CTrackerLocalRanking::getInstance()->resetMonitors();
 		CTrackerLocalRanking::getInstance()->resetTrackers();
 		context< CConnectAction >().dropRequests();
-		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
+		context< CConnectAction >().addRequest( new CDnsInfoRequest() );
 	}
 
-	//		context< CConnectAction >().addRequests( new CDnsInfoRequest() );
+	//		context< CConnectAction >().addRequest( new CDnsInfoRequest() );
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
@@ -71,8 +71,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectAction >().dropRequests();
-		context< CConnectAction >().addRequests( new CRecognizeNetworkRequest() );
-		context< CConnectAction >().addRequests( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
+		context< CConnectAction >().addRequest( new CRecognizeNetworkRequest() );
+		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CPending const & _pending )
@@ -178,8 +178,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	CMonitorPresent( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectAction >().dropRequests();
-		context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
-		context< CConnectAction >().addRequests( new common::CTimeEventRequest< common::CClientTypes >( MonitorAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
+		context< CConnectAction >().addRequest( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
+		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( MonitorAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 	// try  to  recognize  what  monitors  are  accepted by  which  node
 	// determine  network  of  valid monitors
@@ -198,7 +198,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		m_checked.insert( m_pending.begin(), m_pending.end() );
 		context< CConnectAction >().dropRequests();
-		context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
+		context< CConnectAction >().addRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 
 		return discard_event();
 	}
@@ -281,7 +281,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		if ( m_pending.empty() )
 		{
 			context< CConnectAction >().dropRequests();
-			context< CConnectAction >().addRequests( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
+			context< CConnectAction >().addRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 		}
 
 		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
@@ -460,8 +460,8 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 	CDetermineTrackers( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectAction >().dropRequests();
-		context< CConnectAction >().addRequests( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
-		context< CConnectAction >().addRequests( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
+		context< CConnectAction >().addRequest( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
+		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

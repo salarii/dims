@@ -90,7 +90,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 		m_usedAddress = context< CAcceptNodeAction >().getAddress();
 
 		context< CAcceptNodeAction >().dropRequests();
-		context< CAcceptNodeAction >().addRequests(
+		context< CAcceptNodeAction >().addRequest(
 					new common::CConnectToNodeRequest< common::CSeedTypes >( std::string(""), m_usedAddress, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
@@ -105,7 +105,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 			m_default = true;
 			m_usedAddress.SetPort( common::dimsParams().GetDefaultPort() );
 			context< CAcceptNodeAction >().dropRequests();
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CConnectToNodeRequest< common::CSeedTypes >( std::string(""), m_usedAddress, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 		}
 		return discard_event();
@@ -140,7 +140,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
 		context< CAcceptNodeAction >().dropRequests();
 
-		context< CAcceptNodeAction >().addRequests(
+		context< CAcceptNodeAction >().addRequest(
 					createIdentifyResponse(
 						context< CAcceptNodeAction >().getPayload(),
 						context< CAcceptNodeAction >().getActionKey(),
@@ -148,7 +148,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 						)
 					);
 
-		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAcceptNodeAction >().addRequest( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -168,7 +168,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	{
 		LogPrintf("accept node action: %p pair identified connecting \n", &context< CAcceptNodeAction >() );
 
-		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAcceptNodeAction >().addRequest( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -181,13 +181,13 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
 
 			context< CAcceptNodeAction >().dropRequests();
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
 							, _identificationResult.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CTimeEventRequest< common::CSeedTypes >(
 							  WaitTime
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -220,7 +220,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	{
 		LogPrintf("accept node action: %p determine role connecting \n", &context< CAcceptNodeAction >() );
 
-		context< CAcceptNodeAction >().addRequests(
+		context< CAcceptNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CSeedTypes >(
 						  common::CInfoKind::RoleInfoAsk
 						, context< CAcceptNodeAction >().getActionKey()
@@ -242,7 +242,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CNetworkRoleRequest< common::CSeedTypes >(
 							  common::CRole::Seed
 							, context< CAcceptNodeAction >().getActionKey()
@@ -255,7 +255,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			common::convertPayload( orginalMessage, networkRole );
 
 			context< CAcceptNodeAction >().dropRequests();
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
@@ -322,13 +322,13 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 
 			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
 			context< CAcceptNodeAction >().dropRequests();
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
 							, _identificationResult.m_id
 							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						createIdentifyResponse(
 							_identificationResult.m_payload,
 							context< CAcceptNodeAction >().getActionKey(),
@@ -336,7 +336,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 							)
 						);
 
-			context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			context< CAcceptNodeAction >().addRequest( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 			context< CAcceptNodeAction >().setAddress( _identificationResult.m_address );
 		}
@@ -382,7 +382,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CNetworkRoleRequest< common::CSeedTypes >(
 							  common::CRole::Seed
 							, context< CAcceptNodeAction >().getActionKey()
@@ -395,7 +395,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			common::convertPayload( orginalMessage, networkRole );
 
 			context< CAcceptNodeAction >().dropRequests();
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
@@ -431,7 +431,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	{
 		context< CAcceptNodeAction >().dropRequests();
 
-		context< CAcceptNodeAction >().addRequests(
+		context< CAcceptNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CSeedTypes >(
 						  common::CInfoKind::RoleInfoAsk
 						, context< CAcceptNodeAction >().getActionKey()
@@ -469,13 +469,13 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 
 		context< CAcceptNodeAction >().dropRequests();
 
-		context< CAcceptNodeAction >().addRequests(
+		context< CAcceptNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CSeedTypes >(
 						  common::CInfoKind::NetworkInfoAsk
 						, context< CAcceptNodeAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
-		context< CAcceptNodeAction >().addRequests( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAcceptNodeAction >().addRequest( new common::CTimeEventRequest< common::CSeedTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -492,7 +492,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 
 			context< CAcceptNodeAction >().dropRequests();
 
-			context< CAcceptNodeAction >().addRequests(
+			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id

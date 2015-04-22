@@ -26,9 +26,9 @@ MONITOR_H = \
 	recognizeNetworkAction.h \
 	reputationTracer.h \
 	server.h \
+	trackOriginAddressAction.h \
 	updateDataAction.h
 
-	
 MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
 	admitTrackerAction.cpp \
@@ -50,6 +50,7 @@ MONITOR_CPP = \
 	reputationTracer.cpp \
 	server.cpp \
 	setResponseVisitor.cpp \
+	trackOriginAddressAction.cpp \
 	updateDataAction.cpp
 
 libmonitor_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) 

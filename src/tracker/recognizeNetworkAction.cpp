@@ -30,7 +30,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
 				context< CRecognizeNetworkAction >().dropRequests();
-				context< CRecognizeNetworkAction >().addRequests(
+				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CTrackerTypes >(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
@@ -44,7 +44,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
 				context< CRecognizeNetworkAction >().dropRequests();
-				context< CRecognizeNetworkAction >().addRequests(
+				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CTrackerTypes >(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );

@@ -38,7 +38,7 @@ public:
 	virtual std::vector< CRequest< _Type >* > getRequests() const{ return m_requests; }
 
 	// following two are  ugly
-	virtual void addRequests( CRequest< _Type >* _request ){ m_requests.push_back( _request ); }
+	virtual void addRequest( CRequest< _Type >* _request ){ m_requests.push_back( _request ); }
 
 	uint256
 	getActionKey() const

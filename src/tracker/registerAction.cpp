@@ -28,10 +28,10 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 	{
 		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
 		context< CRegisterAction >().dropRequests();
-		context< CRegisterAction >().addRequests(
+		context< CRegisterAction >().addRequest(
 		 new common::CTimeEventRequest< common::CTrackerTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CRegisterAction >().addRequests(
+		context< CRegisterAction >().addRequest(
 					new CAskForRegistrationRequest(
 						context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
@@ -51,7 +51,7 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 		{
 			context< CRegisterAction >().dropRequests();
 
-			context< CRegisterAction >().addRequests(
+			context< CRegisterAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CRegisterAction >().getActionKey()
 							, connectCondition.m_id
@@ -90,12 +90,12 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	{
 		LogPrintf("register action: %p free registration \n", &context< CRegisterAction >() );
 
-		context< CRegisterAction >().addRequests(
+		context< CRegisterAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CRegisterAction >().addRequests(
+		context< CRegisterAction >().addRequest(
 					new CRegisterProofRequest(
 						context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
@@ -113,7 +113,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 
 		assert( result.m_result );// for debug only, do something here
 
-		context< CRegisterAction >().addRequests(
+		context< CRegisterAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
 						  context< CRegisterAction >().getActionKey()
 						, result.m_id

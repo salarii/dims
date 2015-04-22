@@ -43,10 +43,10 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 	{
 		context< CPingAction >().dropRequests();
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CPingRequest< common::CMonitorTypes >(
 						context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
@@ -68,10 +68,10 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		}
 		else
 		{
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CPongRequest< common::CMonitorTypes >(
 							context< CPingAction >().getActionKey()
 							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
@@ -103,10 +103,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 	{
 		context< CPingAction >().dropRequests();
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CPongRequest< common::CMonitorTypes >(
 						context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
@@ -128,10 +128,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		}
 		else
 		{
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CPongRequest< common::CMonitorTypes >(
 							context< CPingAction >().getActionKey()
 							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );

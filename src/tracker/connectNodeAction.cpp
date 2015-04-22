@@ -67,7 +67,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction
 	{
 		LogPrintf("connect node action: %p unconnected \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests(
+		context< CConnectNodeAction >().addRequest(
 					new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
 	}
 
@@ -92,7 +92,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 
 		context< CConnectNodeAction >().dropRequests();
 
-		context< CConnectNodeAction >().addRequests(
+		context< CConnectNodeAction >().addRequest(
 					createIdentifyResponse(
 						context< CConnectNodeAction >().getPayload(),
 						context< CConnectNodeAction >().getActionKey(),
@@ -124,7 +124,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 			context< CConnectNodeAction >().dropRequests();
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
@@ -149,7 +149,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests(
+		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CTrackerTypes >(
 						  common::CInfoKind::RoleInfoAsk
 						, context< CConnectNodeAction >().getActionKey()
@@ -173,7 +173,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 			context< CConnectNodeAction >().dropRequests();
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CNetworkRoleRequest< common::CTrackerTypes >(
 							  common::CRole::Tracker
 							, context< CConnectNodeAction >().getActionKey()
@@ -186,7 +186,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			common::convertPayload( orginalMessage, networkRole );
 
 			context< CConnectNodeAction >().dropRequests();
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
@@ -245,13 +245,13 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 			context< CConnectNodeAction >().dropRequests();
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						createIdentifyResponse(
 							_identificationResult.m_payload,
 							context< CConnectNodeAction >().getActionKey(),
@@ -294,7 +294,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CNetworkRoleRequest< common::CTrackerTypes >(
 							  common::CRole::Tracker
 							, context< CConnectNodeAction >().getActionKey()
@@ -307,7 +307,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			common::convertPayload( orginalMessage, networkRole );
 
 			context< CConnectNodeAction >().dropRequests();
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
@@ -337,7 +337,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	{
 		context< CConnectNodeAction >().dropRequests();
 
-		context< CConnectNodeAction >().addRequests(
+		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CTrackerTypes >(
 						  common::CInfoKind::RoleInfoAsk
 						, context< CConnectNodeAction >().getActionKey()
@@ -378,7 +378,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 					, context< CConnectNodeAction >().getNodePtr()
 					);
 
-		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( SeedLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CConnectNodeAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( SeedLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 	}
 
@@ -408,7 +408,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 			knownNetworkInfo.m_trackersInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CKnownNetworkInfoRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, knownNetworkInfo
@@ -444,13 +444,13 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					);
 
 		context< CConnectNodeAction >().dropRequests();
-		context< CConnectNodeAction >().addRequests(
+		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CTrackerTypes >(
 						  common::CInfoKind::NetworkInfoAsk
 						, context< CConnectNodeAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
-		context< CConnectNodeAction >().addRequests( new common::CTimeEventRequest< common::CTrackerTypes >( MonitorLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CConnectNodeAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( MonitorLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -472,7 +472,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 			knownNetworkInfo.m_trackersInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CKnownNetworkInfoRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, knownNetworkInfo
@@ -487,7 +487,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 			context< CConnectNodeAction >().dropRequests();
 
-			context< CConnectNodeAction >().addRequests(
+			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id

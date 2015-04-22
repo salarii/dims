@@ -12,6 +12,7 @@
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/pingAction.h"
 #include "monitor/recognizeNetworkAction.h"
+#include "monitor/trackOriginAddressAction.h"
 
 namespace common
 {
@@ -154,6 +155,18 @@ public:
 	}
 };
 
+class CSetTrackOriginAddressResult : public CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList >
+{
+public:
+	CSetTrackOriginAddressResult( monitor::CTrackOriginAddressAction * const _action ):CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+};
+
 CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
 {
@@ -192,6 +205,12 @@ void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CRecognizeNetworkAction & _action )
 {
 	boost::apply_visitor( ( CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList > const & )CSetRecognizeNetworkResult( &_action ), m_requestResponse );
+}
+
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CTrackOriginAddressAction & _action )
+{
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList > const & )CSetTrackOriginAddressResult( &_action ), m_requestResponse );
 }
 
 }

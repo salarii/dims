@@ -43,7 +43,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		{
 			m_pubKey = addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().dropRequests();
-			context< CSendBalanceInfoAction >().addRequests( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
+			context< CSendBalanceInfoAction >().addRequest( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
 		}
 		else
 			context< CSendBalanceInfoAction >().dropRequests();
@@ -75,7 +75,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		{
 			m_pubKey = m_addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().dropRequests();
-			context< CSendBalanceInfoAction >().addRequests( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
+			context< CSendBalanceInfoAction >().addRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
 		}
 		else
 		{

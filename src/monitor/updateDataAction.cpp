@@ -28,8 +28,8 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	CAskForUpdate( my_context ctx ) : my_base( ctx )
 	{
 		context< CUpdateDataAction >().dropRequests();
-		context< CUpdateDataAction >().addRequests( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
-		context< CUpdateDataAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CUpdateDataAction >().addRequest( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		context< CUpdateDataAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _result )
@@ -44,7 +44,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 		context< CUpdateDataAction >().dropRequests();
-//		context< CUpdateDataAction >().addRequests(
+//		context< CUpdateDataAction >().addRequest(
 //					new common::CAckRequest< common::CMonitorTypes >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
 		m_presentTrackers.insert( _result.m_pubKey.GetID() );

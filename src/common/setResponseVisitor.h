@@ -57,6 +57,8 @@ class CAdmitProofTransactionBundle;
 class CPingAction;
 
 class CRecognizeNetworkAction;
+
+class CTrackOriginAddressAction;
 }
 
 namespace seed
@@ -149,6 +151,8 @@ public:
 	virtual void visit( monitor::CPingAction & _action );
 
 	virtual void visit( monitor::CRecognizeNetworkAction & _action );
+
+	virtual void visit( monitor::CTrackOriginAddressAction & _action );
 private:
 
 	monitor::MonitorResponses m_requestResponse;

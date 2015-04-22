@@ -45,10 +45,10 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		LogPrintf("ping action: %p send ping \n", &context< CPingAction >() );
 		context< CPingAction >().dropRequests();
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CPingRequest< common::CTrackerTypes >(
 						context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
@@ -70,10 +70,10 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		}
 		else
 		{
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CPingRequest< common::CTrackerTypes >(
 							context< CPingAction >().getActionKey()
 							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
@@ -106,10 +106,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		LogPrintf("ping action: %p send pong \n", &context< CPingAction >() );
 		context< CPingAction >().dropRequests();
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CPingAction >().addRequests(
+		context< CPingAction >().addRequest(
 					new common::CPongRequest< common::CTrackerTypes >(
 						context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
@@ -131,10 +131,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		}
 		else
 		{
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			context< CPingAction >().addRequests(
+			context< CPingAction >().addRequest(
 						new common::CPongRequest< common::CTrackerTypes >(
 							context< CPingAction >().getActionKey()
 							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );

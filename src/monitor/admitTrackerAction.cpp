@@ -51,7 +51,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 	{
 		LogPrintf("admit tracker action: %p wait for info \n", &context< CAdmitTrackerAction >() );
 		context< CAdmitTrackerAction >().dropRequests();
-		context< CAdmitTrackerAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 	}
 
@@ -64,7 +64,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		// todo create alredy registered logic _messageResult.m_pubKey
 
 		context< CAdmitTrackerAction >().dropRequests();
-		context< CAdmitTrackerAction >().addRequests( new CRegistrationTerms(
+		context< CAdmitTrackerAction >().addRequest( new CRegistrationTerms(
 														  context< CAdmitTrackerAction >().getActionKey()
 														, CMonitorController::getInstance()->getPrice()
 														 , CMonitorController::getInstance()->getPeriod()
@@ -100,7 +100,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 		: my_base( ctx )
 	{
 		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
-		context< CAdmitTrackerAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -115,7 +115,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 		context< CAdmitTrackerAction >().dropRequests();
-		context< CAdmitTrackerAction >().addRequests(
+		context< CAdmitTrackerAction >().addRequest(
 					new common::CResultRequest< common::CMonitorTypes >(
 						  context< CAdmitTrackerAction >().getActionKey()
 						, 1
@@ -169,7 +169,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
 		context< CAdmitTrackerAction >().dropRequests();
-		context< CAdmitTrackerAction >().addRequests( new common::CTimeEventRequest< common::CMonitorTypes >( m_checkPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( m_checkPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		return discard_event();
 	}
@@ -190,7 +190,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		{
 			CReputationTracker::getInstance()->addTracker( CTrackerData( pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 			context< CAdmitTrackerAction >().dropRequests();
-			context< CAdmitTrackerAction >().addRequests(
+			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
 							, 1
@@ -200,7 +200,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		else
 		{
 			context< CAdmitTrackerAction >().dropRequests();
-			context< CAdmitTrackerAction >().addRequests(
+			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
 							, 0

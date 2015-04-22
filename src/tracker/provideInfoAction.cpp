@@ -45,7 +45,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		common::convertPayload( orginalMessage, requestedInfo );
 
 		context< CProvideInfoAction >().dropRequests();
-		context< CProvideInfoAction >().addRequests( new CDeliverInfoRequest( context< CProvideInfoAction >().getActionKey(), new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+		context< CProvideInfoAction >().addRequest( new CDeliverInfoRequest( context< CProvideInfoAction >().getActionKey(), new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 
 		return discard_event();
 	}
