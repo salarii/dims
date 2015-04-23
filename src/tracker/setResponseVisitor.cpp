@@ -154,16 +154,16 @@ public:
 		this->m_action->process_event( tracker::CSynchronizationInfoEvent( _param.m_timeStamp, _param.m_nodeIndicator ) );
 	}
 
-	virtual void operator()( tracker::CSynchronizationBlockResult<tracker::CDiskBlock> & _param ) const
+	virtual void operator()( tracker::CSynchronizationBlockResult<common::CDiskBlock> & _param ) const
 	{
 		LogPrintf("set response \"synchronization block, disc block\" to action: %p \n", this->m_action );
-		this->m_action->process_event( tracker::CTransactionBlockEvent<tracker::CDiskBlock>( _param.m_discBlock, _param.m_blockIndex ) );
+		this->m_action->process_event( tracker::CTransactionBlockEvent<common::CDiskBlock>( _param.m_discBlock, _param.m_blockIndex ) );
 	}
 
-	virtual void operator()( tracker::CSynchronizationBlockResult<tracker::CSegmentHeader> & _param ) const
+	virtual void operator()( tracker::CSynchronizationBlockResult<common::CSegmentHeader> & _param ) const
 	{
 		LogPrintf("set response \"synchronization block, segment header\" to action: %p \n", this->m_action );
-		this->m_action->process_event( tracker::CTransactionBlockEvent<tracker::CSegmentHeader>( _param.m_discBlock, _param.m_blockIndex ) );
+		this->m_action->process_event( tracker::CTransactionBlockEvent<common::CSegmentHeader>( _param.m_discBlock, _param.m_blockIndex ) );
 	}
 
 	virtual void operator()( common::CGetPrompt & _param ) const

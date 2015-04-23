@@ -2,11 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
-#include "communicationProtocol.h"
-#include "authenticationProvider.h"
 #include "util.h"
 #include "version.h"
+
+#include "common/communicationProtocol.h"
+#include "common/authenticationProvider.h"
+
 namespace common
 {
 
@@ -214,6 +215,22 @@ CMessage::CMessage( CPing const & _ping, uint256 const & _actionKey, uint256 con
 	createPayload( _ping, m_payload );
 
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
+CMessage::CMessage( CSynchronizationBlock const & _synchronizationInfo, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)common::CPayloadKind::SynchronizationBlock, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
+{
+	common::createPayload( _synchronizationInfo, m_payload );
+
+	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
+CMessage::CMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)common::CPayloadKind::SynchronizationHeader, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
+{
+	common::createPayload( _synchronizationSegmentHeader, m_payload );
+
+	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
 CNetworkActionRegister * CNetworkActionRegister::ms_instance = NULL;

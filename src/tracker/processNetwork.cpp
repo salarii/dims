@@ -191,14 +191,14 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
 
-			CSynchronizationBlock synchronizationBlock( new CDiskBlock, -1 );
+			common::CSynchronizationBlock synchronizationBlock( new common::CDiskBlock, -1 );
 			common::convertPayload( orginalMessage, synchronizationBlock );
 
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( message.m_header.m_id, CSynchronizationBlockResult< CDiskBlock >( synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex ) );
+				nodeMedium->setResponse( message.m_header.m_id, CSynchronizationBlockResult< common::CDiskBlock >( synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex ) );
 			}
 			else
 			{
@@ -215,14 +215,14 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
 				assert( !"service it somehow" );
 
-			CSynchronizationSegmentHeader synchronizationSegmentHeader( new CSegmentHeader, -1 );
+			common::CSynchronizationSegmentHeader synchronizationSegmentHeader( new common::CSegmentHeader, -1 );
 			common::convertPayload( orginalMessage, synchronizationSegmentHeader );
 
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( message.m_header.m_id, CSynchronizationBlockResult< CSegmentHeader >( synchronizationSegmentHeader.m_segmentHeader, synchronizationSegmentHeader.m_blockIndex ) );
+				nodeMedium->setResponse( message.m_header.m_id, CSynchronizationBlockResult< common::CSegmentHeader >( synchronizationSegmentHeader.m_segmentHeader, synchronizationSegmentHeader.m_blockIndex ) );
 			}
 			else
 			{

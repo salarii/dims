@@ -6,7 +6,9 @@
 #include "util.h"
 #include "version.h"
 #include "core.h"
-#include "tracker/segmentFileStorage.h"
+
+#include "common/segmentFileStorage.h"
+
 #include "json/json_spirit_writer_template.h"
 #include "json/json_spirit_reader_template.h"
 #include "data/tx_valid.json.h"
@@ -71,7 +73,7 @@ struct CSetLocation
 	CTransaction operator()( CTransaction const & _transaction )
 	{
 		CTransaction transaction( _transaction );
-		transaction.m_location = tracker::CSegmentFileStorage::getInstance()->assignPosition( _transaction );
+		transaction.m_location = common::CSegmentFileStorage::getInstance()->assignPosition( _transaction );
 		return transaction;
 	}
 };
@@ -79,9 +81,9 @@ struct CSetLocation
 BOOST_AUTO_TEST_CASE( basics )
 {
 
-	tracker::CSegmentFileStorage * fileStorage = tracker::CSegmentFileStorage::getInstance();
+	common::CSegmentFileStorage * fileStorage = common::CSegmentFileStorage::getInstance();
 
-	boost::thread( boost::bind(&tracker::CSegmentFileStorage::flushLoop, fileStorage) );
+	boost::thread( boost::bind(&common::CSegmentFileStorage::flushLoop, fileStorage) );
 
 	std::vector< CTransaction > transactions = getTransactionArray();
 	while(1)

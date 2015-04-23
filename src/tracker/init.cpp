@@ -35,12 +35,18 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <openssl/crypto.h>
 
+#include "common/manageNetwork.h"
+#include "common/actionHandler.h"
+#include "common/timeMedium.h"
+#include "common/originAddressScanner.h"
+#include "common/commandLine.h"
+#include "common/segmentFileStorage.h"
+
 #include "tracker/server.h"
 #include "tracker/configureTrackerActionHandler.h"
 #include "tracker/clientRequestsManager.h"
 #include "tracker/internalMediumProvider.h"
 #include "tracker/transactionRecordManager.h"
-#include "tracker/segmentFileStorage.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/processNetwork.h"
 #include "tracker/trackOriginAddressAction.h"
@@ -48,12 +54,6 @@
 #include "tracker/registerRpcHooks.h"
 
 #include "client/settingsConnectionProvider.h"
-
-#include "common/manageNetwork.h"
-#include "common/actionHandler.h"
-#include "common/timeMedium.h"
-#include "common/originAddressScanner.h"
-#include "common/commandLine.h"
 
 using namespace std;
 using namespace boost;
@@ -965,7 +965,7 @@ seed_insecure_rand();
 	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
-	threadGroup.create_thread( boost::bind( &tracker::CSegmentFileStorage::flushLoop, tracker::CSegmentFileStorage::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CSegmentFileStorage::flushLoop, common::CSegmentFileStorage::getInstance() ) );
 
 	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerTypes >*)tracker::CInternalMediumProvider::getInstance() );
 	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerTypes >*)tracker::CTrackerNodesManager::getInstance() );

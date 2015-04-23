@@ -8,48 +8,10 @@
 #include "common/nodeMedium.h"
 #include "common/communicationProtocol.h"
 
-#include "segmentFileStorage.h"
-
 #include <boost/variant.hpp>
 
 namespace tracker
 {
-// not good place  to put  this
-struct CSynchronizationBlock
-{
-	CSynchronizationBlock( CDiskBlock * _diskBlock, unsigned int _blockIndex ):m_diskBlock( _diskBlock ), m_blockIndex(_blockIndex){}
-
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(*m_diskBlock);
-		READWRITE(m_blockIndex);
-	)
-
-	CDiskBlock * m_diskBlock;
-	unsigned int m_blockIndex;
-};
-
-struct CSynchronizationSegmentHeader
-{
-	CSynchronizationSegmentHeader( CSegmentHeader * _segmentHeader, unsigned int _blockIndex ):m_segmentHeader( _segmentHeader ), m_blockIndex(_blockIndex){}
-
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(*m_segmentHeader);
-		READWRITE(m_blockIndex);
-	)
-
-	CSegmentHeader * m_segmentHeader;
-	unsigned int m_blockIndex;
-};
-
-struct CTrackerMessage : public common::CMessage
-{
-public:
-	CTrackerMessage( CSynchronizationBlock const & _synchronizationBlock, uint256 const & _actionKey, uint256 const & _id );
-
-	CTrackerMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id );
-};
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
@@ -63,10 +25,6 @@ public:
 	void add( CGetSynchronizationInfoRequest const * _request );
 
 	void add( CGetNextBlockRequest const * _request );
-
-	void add( CSetNextBlockRequest< CSegmentHeader > const * _request );
-
-	void add( CSetNextBlockRequest< CDiskBlock > const * _request );
 
 	void add( CTransactionsPropagationRequest const * _request );
 

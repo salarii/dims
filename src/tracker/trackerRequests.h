@@ -153,7 +153,6 @@ private:
 };
 
 struct CSpecificMediumFilter;
-struct CDiskBlock;
 
 class CGetSynchronizationInfoRequest : public common::CRequest< common::CTrackerTypes >
 {
@@ -188,65 +187,6 @@ private:
 
 	int m_blockKind;
 };
-
-template < class Block >
-class CSetNextBlockRequest : public common::CRequest< common::CTrackerTypes >
-{
-public:
-	CSetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
-
-	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
-
-	uint256 getActionKey() const;
-
-	Block * getBlock() const;
-
-	unsigned int getBlockIndex() const;
-private:
-	uint256 const m_actionKey;
-
-	Block * m_discBlock;
-
-	unsigned int m_blockIndex;
-};
-
-template < class Block >
-CSetNextBlockRequest< Block >::CSetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
-	, m_actionKey( _actionKey )
-	, m_discBlock( _discBlock )
-	, m_blockIndex( _blockIndex )
-{
-}
-
-template < class Block >
-void
-CSetNextBlockRequest< Block >::accept( common::CTrackerBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class Block >
-uint256
-CSetNextBlockRequest< Block >::getActionKey() const
-{
-	return m_actionKey;
-}
-
-template < class Block >
-Block *
-CSetNextBlockRequest< Block >::getBlock() const
-{
-	return m_discBlock;
-}
-
-template < class Block >
-unsigned int
-CSetNextBlockRequest< Block >::getBlockIndex() const
-{
-	return m_blockIndex;
-}
-
 
 class CGetBalanceRequest : public common::CRequest< common::CTrackerTypes >
 {

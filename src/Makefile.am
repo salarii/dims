@@ -20,10 +20,12 @@ DIST_SUBDIRS = . qt test
 .PHONY: FORCE
 	
 COMMON_H = \
+  common/accessFile.h \
   common/actionHandler.h \
   common/action.h \
   common/analyseTransaction.h \
   common/authenticationProvider.h \
+  common/blockInfoDatabase.h \
   common/commandLine.h \
   common/communicationProtocol.h \
   common/commonEvents.h \
@@ -44,16 +46,21 @@ COMMON_H = \
   common/responseVisitorInternal.h \
   common/requestHandler.h \
   common/request.h \
-  common/selfNode.h \
   common/scheduleAbleAction.h \
   common/scheduledActionManager.h \
+  common/segmentFileStorage.h \
+  common/selfNode.h \
+  common/simpleBuddy.h \
+  common/supportTransactionsDatabase.h \
   common/timeMedium.h \
   common/transactionStatus.h \
   common/visitorConfigurationUtilities.h 
   
 COMMON_CPP = \
+  common/accessFile.cpp \
   common/analyseTransaction.cpp \
   common/authenticationProvider.cpp \
+  common/blockInfoDatabase.cpp \
   common/commandLine.cpp \
   common/communicationProtocol.cpp \
   common/commonInstantiation.cpp \
@@ -63,14 +70,15 @@ COMMON_CPP = \
   common/manageNetwork.cpp \
   common/originAddressScanner.cpp \
   common/originTransactionsDatabase.cpp \
-  common/selfNode.cpp 
+  common/segmentFileStorage.cpp \
+  common/selfNode.cpp \
+  common/simpleBuddy.cpp \
+  common/supportTransactionsDatabase.cpp
   
 # tracker core #
 TRACKER_CORE_H = \
-  tracker/accessFile.h \
   tracker/addressToCoins.h \
   tracker/bitcoinNodeMedium.h \
-  tracker/blockInfoDatabase.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
@@ -86,11 +94,8 @@ TRACKER_CORE_H = \
   tracker/recognizeNetworkAction.h \
   tracker/registerAction.h \
   tracker/registerRpcHooks.h \
-  tracker/segmentFileStorage.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
-  tracker/simpleBuddy.h \
-  tracker/supportTransactionsDatabase.h \
   tracker/synchronizationAction.h \
   tracker/trackerController.h \
   tracker/trackerControllerStates.h \
@@ -168,11 +173,9 @@ version.o: obj/build.h
 
 # tracker core #
 TRACKER_CORE_CPP = \
-  tracker/accessFile.cpp \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
   tracker/bitcoinNodeMedium.cpp \
-  tracker/blockInfoDatabase.cpp \
   tracker/connectNodeAction.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
@@ -186,11 +189,8 @@ TRACKER_CORE_CPP = \
   tracker/registerAction.cpp \
   tracker/registerRpcHooks.cpp \
   tracker/rpcTracker.cpp \
-  tracker/segmentFileStorage.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
-  tracker/simpleBuddy.cpp \
-  tracker/supportTransactionsDatabase.cpp \
   tracker/synchronizationAction.cpp \
   tracker/trackerController.cpp \
   tracker/trackerControllerEvents.cpp \

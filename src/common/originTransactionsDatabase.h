@@ -7,7 +7,7 @@
 #include "leveldbwrapper.h"
 #include "serialize.h"
 
-namespace tracker
+namespace common
 {
 
 class COriginTransactionDatabase

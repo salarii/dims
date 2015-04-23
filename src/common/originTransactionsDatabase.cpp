@@ -4,11 +4,11 @@
 
 #include "boost/foreach.hpp"
 
-#include "tracker/originTransactionsDatabase.h"
+#include "common/originTransactionsDatabase.h"
 
 #include "util.h"
 
-namespace tracker
+namespace common
 {
 
 COriginTransactionDatabase * COriginTransactionDatabase::ms_instance = NULL;

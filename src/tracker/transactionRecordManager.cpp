@@ -2,22 +2,18 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "transactionRecordManager.h"
-
 #include "txdb.h"
-
 #include "txmempool.h"
 
 #include "main.h"
-#include "addressToCoins.h"
 
 #include "common/actionHandler.h"
+#include "common/segmentFileStorage.h"
+#include "common/supportTransactionsDatabase.h"
 
-#include "validateTransactionsAction.h"
-
-#include "segmentFileStorage.h"
-
-#include "supportTransactionsDatabase.h"
+#include "tracker/validateTransactionsAction.h"
+#include "tracker/addressToCoins.h"
+#include "tracker/transactionRecordManager.h"
 
 namespace tracker
 {
@@ -66,7 +62,7 @@ CTransactionRecordManager::CTransactionRecordManager()
 //add  passing  cache  size ??
 	m_addressToCoinsViewCache = CAddressToCoinsViewCache::getInstance();
 
-	m_supportTransactionsDatabase = CSupportTransactionsDatabase::getInstance();
+	m_supportTransactionsDatabase = common::CSupportTransactionsDatabase::getInstance();
 }
 
 CTransactionRecordManager::~CTransactionRecordManager()
@@ -96,10 +92,10 @@ void
 CTransactionRecordManager::addTransactionToStorage( CTransaction const & _tx )
 {
 	CTransaction tx( _tx );
-	tx.m_location = CSegmentFileStorage::getInstance()->assignPosition( _tx );
+	tx.m_location = common::CSegmentFileStorage::getInstance()->assignPosition( _tx );
 
 	m_supportTransactionsDatabase->setTransactionLocation( _tx.GetHash(), tx.m_location );
-	CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
+	common::CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
 
 	m_supportTransactionsDatabase->flush();
 }
@@ -110,10 +106,10 @@ CTransactionRecordManager::addTransactionsToStorage( std::vector< CTransaction >
 	BOOST_FOREACH( CTransaction const & transaction, _transaction )
 	{
 		CTransaction tx( transaction );
-		tx.m_location = CSegmentFileStorage::getInstance()->assignPosition( tx );
+		tx.m_location = common::CSegmentFileStorage::getInstance()->assignPosition( tx );
 
 		m_supportTransactionsDatabase->setTransactionLocation( tx.GetHash(), tx.m_location );
-		CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
+		common::CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
 	}
 	m_supportTransactionsDatabase->flush();
 	return true;

@@ -13,24 +13,6 @@
 namespace tracker
 {
 
-CTrackerMessage::CTrackerMessage( CSynchronizationBlock const & _synchronizationInfo, uint256 const & _actionKey, uint256 const & _id )
-{
-	m_header = common::CHeader( (int)common::CPayloadKind::SynchronizationBlock, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id );
-
-	common::createPayload( _synchronizationInfo, m_payload );
-
-	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
-}
-
-CTrackerMessage::CTrackerMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id )
-{
-	m_header = common::CHeader( (int)common::CPayloadKind::SynchronizationHeader, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id );
-
-	common::createPayload( _synchronizationSegmentHeader, m_payload );
-
-	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
-}
-
 void
 CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 {
@@ -67,30 +49,6 @@ CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 	transactionBundle.m_transactions = _request->getTransactions();
 
 	common::CMessage message( transactionBundle, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
-}
-
-void
-CTrackerNodeMedium::add( CSetNextBlockRequest< CSegmentHeader > const * _request )
-{
-	CSynchronizationSegmentHeader synchronizationSegmentHeader( _request->getBlock(), _request->getBlockIndex() );
-
-	CTrackerMessage message( synchronizationSegmentHeader, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
-}
-
-void
-CTrackerNodeMedium::add( CSetNextBlockRequest< CDiskBlock > const * _request )
-{
-	CSynchronizationBlock synchronizationBlock( _request->getBlock(), _request->getBlockIndex() );
-
-	CTrackerMessage message( synchronizationBlock, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 

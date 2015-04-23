@@ -14,10 +14,13 @@
 #include "common/selfNode.h"
 #include "common/action.h"
 
+
 namespace common
 {
-
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
+
+class CSegmentHeader;
+struct CDiskBlock;
 
 template < class _Medium >
 class CNodeMedium : public _Medium
@@ -53,6 +56,10 @@ public:
 	void add( CPongRequest< Type > const * _request );
 
 	void add( CInfoAskRequest< Type > const * _request );
+
+	void add( CSetNextBlockRequest< CSegmentHeader, Type > const * _request );
+
+	void add( CSetNextBlockRequest< CDiskBlock, Type > const * _request );
 
 	void setResponse( uint256 const & _id, Response const & _responses );
 
@@ -357,6 +364,32 @@ CNodeMedium< _Medium >::add( CInfoAskRequest< Type > const * _request )
 	m_messages.push_back( message );
 
 	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CSetNextBlockRequest< CSegmentHeader, Type > const * _request )
+{
+	CSynchronizationSegmentHeader synchronizationSegmentHeader( _request->getBlock(), _request->getBlockIndex() );
+
+	CMessage message( synchronizationSegmentHeader, _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< Type >*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CSetNextBlockRequest< CDiskBlock, Type > const * _request )
+{
+	CSynchronizationBlock synchronizationBlock( _request->getBlock(), _request->getBlockIndex() );
+
+	CMessage message( synchronizationBlock, _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< Type >*)_request );
 }
 
 }

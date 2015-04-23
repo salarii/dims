@@ -49,6 +49,9 @@ class CInfoAskRequest;
 
 template < class _Types >
 class CConnectToNodeRequest;
+
+template < class _Block, class _Types >
+class CSetNextBlockRequest;
 }
 
 namespace tracker
@@ -67,11 +70,6 @@ class CGetBalanceRequest;
 class CAskForRegistrationRequest;
 class CRegisterProofRequest;
 
-template < class Block >
-class CSetNextBlockRequest;
-
-struct CSegmentHeader;
-struct CDiskBlock;
 }
 
 namespace client
@@ -146,6 +144,8 @@ public:
 	virtual void add( common::CTimeEventRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CScheduleActionRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CInfoAskRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CTrackerTypes > const * _request ){};
+	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
@@ -153,8 +153,6 @@ public:
 	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
 	virtual void add( tracker::CGetSynchronizationInfoRequest const * _request ){};
 	virtual void add( tracker::CGetNextBlockRequest const * _request ){};
-	virtual void add( tracker::CSetNextBlockRequest< tracker::CDiskBlock > const * _request ){};
-	virtual void add( tracker::CSetNextBlockRequest< tracker::CSegmentHeader > const * _request ){};
 	virtual void add( tracker::CTransactionsStatusRequest const * _request ){};
 	virtual void add( tracker::CTransactionsPropagationRequest const * _request ){};
 	virtual void add( tracker::CPassMessageRequest const * _request ){};

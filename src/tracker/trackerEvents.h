@@ -33,8 +33,6 @@ struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInf
 	unsigned int m_nodeIdentifier;
 };
 
-struct CDiskBlock;
-
 template < class Block >
 struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent<Block> >
 {

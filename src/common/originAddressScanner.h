@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef ORIGIN_ADDRESS_SCANER_H
-#define ORIGIN_ADDRESS_SCANER_H
+#ifndef ORIGIN_ADDRESS_SCANNER_H
+#define ORIGIN_ADDRESS_SCANNER_H
 
 class CTransaction;
 
@@ -15,7 +15,7 @@ class CTxMemPool;
 #include <map>
 #include <set>
 
-namespace tracker
+namespace common
 {
 
 class COriginAddressScanner
@@ -29,16 +29,14 @@ public:
 // probably wrong, scanner needs to remember balances for  sanity checks, but also has to remember
 // when a given transacion was  added this  is  needed because, those  may be included  latter to  downloaded storage
 	void addTransaction( uint64_t const _timeStamp, CTransaction const&  _tx);
-
-	void updateTransactionRecord( uint64_t const _timeStamp );
-private:
+protected:
 	COriginAddressScanner();
 
 	void lock();
 
 	void unlock();
 
-	void createBaseTransaction(CTransaction const&  _tx);
+	bool createBaseTransaction( CTransaction const & _tx, CTransaction & _baseTx, CKeyID & _baseKey );
 
 	void getHeightOfLastScanedBlock();
 private:

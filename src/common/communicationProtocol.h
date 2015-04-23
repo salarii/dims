@@ -6,10 +6,12 @@
 #define COMMUNICATION_PROTOCOL_H
 
 #include <boost/variant.hpp>
+
 #include "serialize.h"
 #include "core.h"
 #include "net.h"
 
+#include "common/segmentFileStorage.h"
 
 namespace common
 {
@@ -64,6 +66,10 @@ struct CRole
 		Monitor
 	};
 };
+
+struct CSynchronizationBlock;
+
+struct CSynchronizationSegmentHeader;
 
 class CMessage;
 
@@ -147,6 +153,34 @@ struct CTransactionBundle
 	)
 
 	std::vector< CTransaction > m_transactions;
+};
+
+struct CSynchronizationBlock
+{
+	CSynchronizationBlock( CDiskBlock * _diskBlock, unsigned int _blockIndex ):m_diskBlock( _diskBlock ), m_blockIndex(_blockIndex){}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(*m_diskBlock);
+		READWRITE(m_blockIndex);
+	)
+
+	CDiskBlock * m_diskBlock;
+	unsigned int m_blockIndex;
+};
+
+struct CSynchronizationSegmentHeader
+{
+	CSynchronizationSegmentHeader( CSegmentHeader * _segmentHeader, unsigned int _blockIndex ):m_segmentHeader( _segmentHeader ), m_blockIndex(_blockIndex){}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(*m_segmentHeader);
+		READWRITE(m_blockIndex);
+	)
+
+	CSegmentHeader * m_segmentHeader;
+	unsigned int m_blockIndex;
 };
 
 struct CPing
@@ -350,6 +384,8 @@ public:
 	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CPong const & _pong, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CPing const & _ping, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CSynchronizationBlock const & _synchronizationBlock, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id );
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);

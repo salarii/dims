@@ -17,9 +17,13 @@ class CCoinsViewCache;
 
 class CTxMemPool;
 
-namespace tracker
+namespace common
 {
 class CSupportTransactionsDatabase;
+}
+
+namespace tracker
+{
 class CValidationManager;
 class CAddressToCoinsViewCache;
 
@@ -85,7 +89,7 @@ private:
 	mutable boost::mutex m_coinsViewLock;
 	CCoinsViewCache * m_coinsViewCache;
 	CAddressToCoinsViewCache * m_addressToCoinsViewCache;
-	CSupportTransactionsDatabase * m_supportTransactionsDatabase;
+	common::CSupportTransactionsDatabase * m_supportTransactionsDatabase;
 
 	// mutex
 	CTxMemPool * m_memPool;

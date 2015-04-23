@@ -569,6 +569,67 @@ CScheduleActionRequest< _Types >::getAction() const
 	return m_scheduleAbleAction;
 }
 
+template < class Block, class _Types >
+class CSetNextBlockRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CSetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	Block * getBlock() const;
+
+	unsigned int getBlockIndex() const;
+private:
+	uint256 const m_actionKey;
+
+	Block * m_discBlock;
+
+	unsigned int m_blockIndex;
+};
+
+template < class Block, class _Types >
+CSetNextBlockRequest< Block, _Types >::CSetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_actionKey( _actionKey )
+	, m_discBlock( _discBlock )
+	, m_blockIndex( _blockIndex )
+{
+}
+
+template < class Block, class _Types >
+void
+CSetNextBlockRequest< Block, _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class Block, class _Types >
+uint256
+CSetNextBlockRequest< Block, _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class Block, class _Types >
+Block *
+CSetNextBlockRequest< Block, _Types >::getBlock() const
+{
+	return m_discBlock;
+}
+
+template < class Block, class _Types >
+unsigned int
+CSetNextBlockRequest< Block, _Types >::getBlockIndex() const
+{
+	return m_blockIndex;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H
