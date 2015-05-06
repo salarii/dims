@@ -4,7 +4,7 @@
 #include "leveldbwrapper.h"
 #include "uint256.h"
 
-namespace tracker
+namespace common
 {
 
 class CTransactionSpecificData

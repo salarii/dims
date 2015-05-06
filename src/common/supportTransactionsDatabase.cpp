@@ -2,12 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "supportTransactionsDatabase.h"
+#include "common/supportTransactionsDatabase.h"
 
 #include <boost/foreach.hpp>
 //#include <stdint.h>
 
-namespace tracker
+namespace common
 {
 
 template <class K, class T, char _prefix >

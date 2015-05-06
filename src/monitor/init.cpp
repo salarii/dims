@@ -687,6 +687,8 @@ bool AppInit(boost::thread_group& threadGroup)
 //	if (fServer)
 //		StartRPCThreads();
 
+	StartNode(threadGroup);
+
 	monitor::runServer();
 
 	// ********************************************************* Step 12: finished

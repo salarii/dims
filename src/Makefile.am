@@ -25,6 +25,7 @@ COMMON_H = \
   common/action.h \
   common/analyseTransaction.h \
   common/authenticationProvider.h \
+  common/bitcoinNodeMedium.h \
   common/blockInfoDatabase.h \
   common/commandLine.h \
   common/communicationProtocol.h \

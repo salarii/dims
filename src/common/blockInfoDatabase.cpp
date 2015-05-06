@@ -3,10 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 
-#include "tracker/blockInfoDatabase.h"
+#include "common/blockInfoDatabase.h"
 #include "util.h"
 
-namespace tracker
+namespace common
 {
 
 CBlockInfoDatabase * CBlockInfoDatabase::ms_instance = NULL;

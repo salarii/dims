@@ -630,6 +630,81 @@ CSetNextBlockRequest< Block, _Types >::getBlockIndex() const
 	return m_blockIndex;
 }
 
+template < class _Types >
+class CAskForTransactionsRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, FilterType * _mediumFilter );
+
+	virtual void accept( MediumType * m_mediumNumber ) const;
+
+	std::vector< uint256 > const & getBlockHashes() const;
+private:
+	std::vector< uint256 > const m_blockHashes;
+
+};
+
+template < class _Types >
+CAskForTransactionsRequest< _Types >::CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_blockHashes( _blockHashes )
+{
+}
+
+template < class _Types >
+void
+CAskForTransactionsRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+std::vector< uint256 > const &
+CAskForTransactionsRequest< _Types >::getBlockHashes() const
+{
+	return m_blockHashes;
+}
+
+template < class _Types >
+class CSetBloomFilterRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CSetBloomFilterRequest( CBloomFilter const & _bloomFilter, FilterType * _filterType );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	CBloomFilter const & getBloomFilter() const;
+private:
+	CBloomFilter const m_bloomFilter;
+};
+
+template < class _Types >
+CSetBloomFilterRequest< _Types >::CSetBloomFilterRequest( CBloomFilter const & _bloomFilter, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_bloomFilter( _bloomFilter )
+{
+}
+
+template < class _Types >
+void
+CSetBloomFilterRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+CBloomFilter const &
+CSetBloomFilterRequest< _Types >::getBloomFilter() const
+{
+	return m_bloomFilter;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

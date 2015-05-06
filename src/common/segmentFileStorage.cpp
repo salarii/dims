@@ -2,18 +2,19 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "segmentFileStorage.h"
-
-#include "simpleBuddy.h"
-#include "util.h"
 #include <boost/foreach.hpp>
-#include "core.h"
-#include "coins.h"
-#include "blockInfoDatabase.h"
-#include "supportTransactionsDatabase.h"
 #include <boost/algorithm/cxx11/any_of.hpp>
 
-namespace tracker
+#include "util.h"
+#include "core.h"
+#include "coins.h"
+
+#include "common/blockInfoDatabase.h"
+#include "common/supportTransactionsDatabase.h"
+#include "common/segmentFileStorage.h"
+#include "common/simpleBuddy.h"
+
+namespace common
 {
 
 std::string const

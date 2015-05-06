@@ -17,7 +17,7 @@
 
 #define  KiloByteShift 10
 
-namespace tracker
+namespace common
 {
 
 struct CSimpleBuddy

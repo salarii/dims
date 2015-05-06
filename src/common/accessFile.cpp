@@ -2,11 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "common/dimsParams.h"
-#include "accessFile.h"
 #include "util.h"
 
-namespace tracker
+#include "common/dimsParams.h"
+#include "common/accessFile.h"
+
+namespace common
 {
 
 struct CDiskBlock;

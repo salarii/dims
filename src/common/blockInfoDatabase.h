@@ -3,7 +3,7 @@
 
 #include "leveldbwrapper.h"
 
-namespace tracker
+namespace common
 {
 
 class CBlockInfoDatabase

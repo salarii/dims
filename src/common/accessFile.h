@@ -9,13 +9,14 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "common/dimsParams.h"
-
 #include "serialize.h"
 #include "version.h"
-#include "simpleBuddy.h"
 
-namespace tracker
+#include "common/dimsParams.h"
+#include "common/simpleBuddy.h"
+
+
+namespace common
 {
 
 template < class T >

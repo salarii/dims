@@ -10,13 +10,13 @@ separate headers  and  blocks?
 */
 #include <list>
 #include <boost/thread.hpp>
-//#include <boost/atomic.hpp>
 
 #include "uint256.h"
 #include "serialize.h"
 #include "mruset.h"
-#include "simpleBuddy.h"
-#include "accessFile.h"
+
+#include "common/simpleBuddy.h"
+#include "common/accessFile.h"
 
 class CTransaction;
 
@@ -24,7 +24,7 @@ class CCoinsViewCache;
 
 class CCoins;
 
-namespace tracker
+namespace common
 {
 
 #define BLOCK_SIZE ( 1 << 10 )
