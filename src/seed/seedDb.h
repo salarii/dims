@@ -371,7 +371,7 @@ public:
   }
   void Add(const std::vector<CAddress> &vAddr, bool fForce = false) {
     CRITICAL_BLOCK(cs)
-      for (int i=0; i<vAddr.size(); i++)
+	  for (unsigned int i=0; i<vAddr.size(); i++)
         Add_(vAddr[i], fForce);
   }
   void Good(const CService &addr, int clientVersion, std::string clientSubVersion, int blocks) {
@@ -403,7 +403,7 @@ public:
   }
   void ResultMany(const std::vector<CServiceResult> &ips) {
     CRITICAL_BLOCK(cs) {
-      for (int i=0; i<ips.size(); i++) {
+	  for (unsigned int i=0; i<ips.size(); i++) {
         if (ips[i].fGood) {
           Good_(ips[i].service, ips[i].nClientV, ips[i].strClientV, ips[i].nHeight);
         } else {

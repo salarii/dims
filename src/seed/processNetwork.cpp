@@ -146,6 +146,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 		}
 	}
+	return true;
 }
 
 bool

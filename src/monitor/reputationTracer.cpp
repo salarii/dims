@@ -73,6 +73,8 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 	}
 
 	m_transactionsAddmited.clear();
+
+	return 0;
 }
 
 void

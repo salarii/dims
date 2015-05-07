@@ -35,7 +35,7 @@ bool analyseTransaction( CTransaction & _transaction, uint256 const & _hash, CKe
 	CTxOut txOut;
 	unsigned id;
 
-	bool outputExist = common::findOutputInTransaction(
+	common::findOutputInTransaction(
 				_transaction
 				, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
 				, txOut
@@ -207,6 +207,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
 		}
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<

@@ -43,16 +43,16 @@ struct CMediumClassFilter : public common::CSeedMediumFilter
 //  fix  it
 	std::list< common::CSeedBaseMedium *> getMediums( CSeedNodesManager * _nodesManager )const
 	{
+		std::list< common::CSeedBaseMedium *> mediums;
 		if ( common::CMediumKinds::Internal == m_mediumClass )
 		{
 			return _nodesManager->getInternalMedium();// not nice
 		}
 		else if( common::CMediumKinds::Time == m_mediumClass )
 		{
-			std::list< common::CSeedBaseMedium *> mediums;
 			mediums.push_back( common::CTimeMedium< common::CSeedBaseMedium >::getInstance() );//not nice
-			return mediums;
 		}
+		return mediums;
 	}
 	common::CMediumKinds::Enum m_mediumClass;
 	int m_mediumNumber;

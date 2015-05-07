@@ -349,7 +349,7 @@ CTrackerLocalRanking::determineTracker( unsigned int _amount, common::CTrackerSt
 	}
 	_fee = bestFee;
 
-	return bestFee != -1;
+	return bestFee != (unsigned int)-1;
 }
 
 bool

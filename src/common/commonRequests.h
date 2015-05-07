@@ -108,15 +108,13 @@ private:
 	std::string const m_trackerAddress;
 
 	CAddress const m_serviceAddress;
-
-	uint256 const m_actionKey;
 };
 
 template < class _Types >
 CConnectToNodeRequest< _Types >::CConnectToNodeRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress, FilterType * _mediumFilter )
-	:m_trackerAddress( _trackerAddress )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_trackerAddress( _trackerAddress )
 	,m_serviceAddress( _serviceAddress )
-	,common::CRequest< _Types >( _mediumFilter )
 {
 }
 

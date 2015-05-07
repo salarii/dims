@@ -174,7 +174,7 @@ extern "C" void* ThreadCrawler(void* data) {
 	} while(1);
 }
 */
-extern "C" int GetIPList(void *thread, addr_t *addr, int max, int ipv4, int ipv6);
+extern "C" int GetIPList(void *thread, addr_t *addr, unsigned int max, int ipv4, int ipv6);
 
 class CDnsThread {
 public:
@@ -250,7 +250,7 @@ public:
 	}
 };
 
-extern "C" int GetIPList(void *data, addr_t* addr, int max, int ipv4, int ipv6) {
+extern "C" int GetIPList(void *data, addr_t* addr, unsigned int max, int ipv4, int ipv6) {
 	CDnsThread *thread = (CDnsThread*)data;
 	thread->cacheHit();
 	unsigned int size = thread->cache.size();
@@ -259,9 +259,9 @@ extern "C" int GetIPList(void *data, addr_t* addr, int max, int ipv4, int ipv6) 
 		max = size;
 	if (max > maxmax)
 		max = maxmax;
-	int i=0;
+	unsigned int i=0;
 	while (i<max) {
-		int j = i + (rand() % (size - i));
+		unsigned int j = i + (rand() % (size - i));
 		do {
 			bool ok = (ipv4 && thread->cache[j].v == 4) ||
 					(ipv6 && thread->cache[j].v == 6);
@@ -283,6 +283,7 @@ vector<CDnsThread*> dnsThread;
 extern "C" void* ThreadDNS(void* arg) {
 	CDnsThread *thread = (CDnsThread*)arg;
 	thread->run();
+	return 0;
 }
 
 int StatCompare(const CAddrReport& a, const CAddrReport& b) {
@@ -377,6 +378,7 @@ extern "C" void* ThreadSeeder(void*) {
     }
 	MilliSleep(1800000);
   } while(1);
+	return 0;
 }
 
 void periodicCheck()
@@ -398,14 +400,13 @@ void periodicCheck()
 
 		m_result.clear();
 
-		for (int i=0; i<ips.size(); i++)
+		for (unsigned int i=0; i<ips.size(); i++)
 		{
 			CServiceResult &res = ips[i];
 			res.nBanTime = 0;
 			res.nClientV = 0;
 			res.nHeight = 0;
 			res.strClientV = "";
-			bool getaddr = res.ourLastSuccess + 604800 < now;
 			//ugly
 			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
 			acceptNodeAction->process_event( common::CSwitchToConnectingEvent() );
@@ -418,7 +419,7 @@ void periodicCheck()
 		// this is  against action  handler  philosophy but here  we can live  with  that
 		while( 1 )
 		{
-			for (int i=0; i<ips.size(); i++)
+			for (unsigned int i=0; i<ips.size(); i++)
 			{
 				std::string ipPort = ips[ i ].service.ToStringIP();
 
@@ -431,7 +432,7 @@ Wait:
 			MilliSleep( 10 );
 		}
 
-		for (int i=0; i<ips.size(); i++)
+		for (unsigned int i=0; i<ips.size(); i++)
 		{
 			std::string ipPort = ips[ i ].service.ToStringIP();
 
@@ -537,7 +538,6 @@ int main(int argc, char **argv) {
 
 	threadGroup.create_thread( ThreadStats );
 	threadGroup.create_thread( ThreadDumper );
-	void* res;
 
 	threadGroup.join_all();
 	return 0;

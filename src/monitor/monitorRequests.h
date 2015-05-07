@@ -49,11 +49,11 @@ public:
 		return m_actionKey;
 	}
 private:
+	uint256 const m_actionKey;
+
 	unsigned int m_price;
 
 	int64_t m_period;
-
-	uint256 const m_actionKey;
 };
 
 class CInfoRequest : public common::CRequest< common::CMonitorTypes >

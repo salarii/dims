@@ -72,7 +72,7 @@ class CNode {
       sock = INVALID_SOCKET;
     }
   }
-  /*
+
   void PushVersion() {
 	int64_t nTime = time(NULL);
 	uint64_t nLocalNonce = BITCOIN_SEED_NONCE;
@@ -206,7 +206,7 @@ public:
       vRecv.SetVersion(209);
     }
   }
-  /*
+
   bool Run() {
     bool res = true;
     if (!ConnectSocket(you, sock)) return false;

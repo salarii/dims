@@ -22,8 +22,6 @@ namespace monitor
 using namespace std;
 using namespace boost;
 
-static uint64_t nAccountingEntryNumber = 0;
-
 CRankingDatabase * CRankingDatabase::ms_instance = NULL;
 
 CRankingDatabase*
@@ -95,8 +93,6 @@ DBErrors CRankingDatabase::loadIdentificationDatabase( std::map< uint160, CTrack
 
 	try {
 		//LOCK(pwallet->cs_wallet); do  I need  something like this ???
-		int nMinVersion = 0;
-
 		// Get cursor
 		Dbc* pcursor = GetCursor();
 		if (!pcursor)

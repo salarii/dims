@@ -70,6 +70,7 @@ bool
 CSeedNodesManager::clearPublicKey( uintptr_t _nodeIndicator )
 {
 	m_keyStore.erase( _nodeIndicator );
+	return true;
 }
 
 bool

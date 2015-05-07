@@ -36,8 +36,6 @@ void CAddrInfo::Update(bool good) {
 }
 
 bool CAddrDb::Get_(CServiceResult &ip, int &wait) {
-  int64_t now = time(NULL);
-  int cont = 0;
   int tot = unkId.size() + ourId.size();
   if (tot == 0) {
     wait = 5;

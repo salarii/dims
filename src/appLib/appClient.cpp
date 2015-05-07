@@ -68,7 +68,7 @@ void CAppClient::send( QByteArray const & _message )
 		if(conection->isOpen())
 		{
 			size_t bytesWritten = conection->write(_message );
-			if ( bytesWritten== -1 )
+			if ( bytesWritten== (size_t)-1 )
 				assert(!"couldn't send anything");
 		}
 		else
