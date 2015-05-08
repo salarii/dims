@@ -1048,4 +1048,9 @@ protected:
     friend void ::UnregisterAllWallets();
 };
 
+//set transaction
+extern boost::signals2::signal<void ( CTransaction const & _transaction, CNode * _node )> m_setTransaction;
+//set merkle
+extern boost::signals2::signal<void ( CMerkleBlock const & _merkle, CNode * _node )> m_setMerkleBlock;
+
 #endif

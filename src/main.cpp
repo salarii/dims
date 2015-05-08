@@ -18,6 +18,7 @@
 #include "rpcserver.h"
 
 #include "common/originAddressScanner.h"
+#include "common/dimsParams.h"
 
 #include "tracker/internalMediumProvider.h"
 
@@ -128,18 +129,18 @@ map<uint256, NodeId> mapBlockSource;
 
 namespace {
 struct CMainSignals {
-    // Notifies listeners of updated transaction data (passing hash, transaction, and optionally the block it is found in.
-    boost::signals2::signal<void (const uint256 &, const CTransaction &, const CBlock *)> SyncTransaction;
-    // Notifies listeners of an erased transaction (currently disabled, requires transaction replacement).
-    boost::signals2::signal<void (const uint256 &)> EraseTransaction;
-    // Notifies listeners of an updated transaction without new data (for now: a coinbase potentially becoming visible).
-    boost::signals2::signal<void (const uint256 &)> UpdatedTransaction;
-    // Notifies listeners of a new active block chain.
-    boost::signals2::signal<void (const CBlockLocator &)> SetBestChain;
-    // Notifies listeners about an inventory item being seen on the network.
-    boost::signals2::signal<void (const uint256 &)> Inventory;
-    // Tells listeners to broadcast their data.
-    boost::signals2::signal<void ()> Broadcast;
+	// Notifies listeners of updated transaction data (passing hash, transaction, and optionally the block it is found in.
+	boost::signals2::signal<void (const uint256 &, const CTransaction &, const CBlock *)> SyncTransaction;
+	// Notifies listeners of an erased transaction (currently disabled, requires transaction replacement).
+	boost::signals2::signal<void (const uint256 &)> EraseTransaction;
+	// Notifies listeners of an updated transaction without new data (for now: a coinbase potentially becoming visible).
+	boost::signals2::signal<void (const uint256 &)> UpdatedTransaction;
+	// Notifies listeners of a new active block chain.
+	boost::signals2::signal<void (const CBlockLocator &)> SetBestChain;
+	// Notifies listeners about an inventory item being seen on the network.
+	boost::signals2::signal<void (const uint256 &)> Inventory;
+	// Tells listeners to broadcast their data.
+	boost::signals2::signal<void ()> Broadcast;
 } g_signals;
 }
 
@@ -2033,7 +2034,7 @@ bool AbortNode(const std::string &strMessage) {
 
 bool CheckDiskSpace(uint64_t nAdditionalBytes)
 {
-    uint64_t nFreeBytesAvailable = filesystem::space(GetDataDir(common::AppType::Tracker)).available;
+	uint64_t nFreeBytesAvailable = filesystem::space(GetDataDir(common::CDimsParams::getAppType())).available;
 
     // Check for nMinDiskSpace bytes (currently 50MB)
     if (nFreeBytesAvailable < nMinDiskSpace + nAdditionalBytes)
@@ -2046,7 +2047,7 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
 {
     if (pos.IsNull())
         return NULL;
-    boost::filesystem::path path = GetDataDir(common::AppType::Tracker) / "blocks" / strprintf("%s%05u.dat", prefix, pos.nFile);
+	boost::filesystem::path path = GetDataDir(common::CDimsParams::getAppType()) / "blocks" / strprintf("%s%05u.dat", prefix, pos.nFile);
     boost::filesystem::create_directories(path.parent_path());
     FILE* file = fopen(path.string().c_str(), "rb+");
     if (!file && !fReadOnly)
@@ -2067,7 +2068,7 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
 
 bool FileExist(const char *prefix)
 {
-    boost::filesystem::path path = GetDataDir(common::AppType::Tracker) / "blocks" / strprintf("%s%05u.dat", prefix, 0);
+	boost::filesystem::path path = GetDataDir(common::CDimsParams::getAppType()) / "blocks" / strprintf("%s%05u.dat", prefix, 0);
 
     return filesystem::exists(path);
 
@@ -2913,14 +2914,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		LOCK(cs_main);
 
 		CValidationState state;
-		tracker::CInternalMediumProvider::getInstance()->setResponse( tx, pfrom );
+		m_setTransaction( tx, pfrom );
 	}
 	else if (strCommand == "merkleblock")
 	{
 		CMerkleBlock merkleBlock;
 		vRecv >> merkleBlock;
 
-		tracker::CInternalMediumProvider::getInstance()->setResponse( merkleBlock, pfrom );
+		m_setMerkleBlock( merkleBlock, pfrom );
 	}
 	else if (strCommand == "headers")
 	{
@@ -3498,3 +3499,8 @@ public:
         mapOrphanTransactions.clear();
     }
 } instance_of_cmaincleanup;
+
+boost::signals2::signal<void ( CTransaction const & _transaction, CNode * _node )> m_setTransaction;
+boost::signals2::signal<void ( CMerkleBlock const & _merkle, CNode * _node )> m_setMerkleBlock;
+
+

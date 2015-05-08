@@ -97,10 +97,8 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 
 }
 
-
-
 void
-CInternalMediumProvider::setResponse( CTransaction const & _response, CNode * _node )
+CInternalMediumProvider::setTransaction( CTransaction const & _response, CNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
@@ -112,7 +110,7 @@ CInternalMediumProvider::setResponse( CTransaction const & _response, CNode * _n
 }
 
 void
-CInternalMediumProvider::setResponse( CMerkleBlock const & _merkle, CNode * _node )
+CInternalMediumProvider::setMerkleBlock( CMerkleBlock const & _merkle, CNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 

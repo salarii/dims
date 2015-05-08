@@ -96,5 +96,28 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	return mediums;
 }
 
+void
+CInternalMediumProvider::setResponse( CTransaction const & _response, CNode * _node )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+
+	if( iterator == m_nodeToMedium.end() ) return;// not  asked
+
+	//iterator->second->setResponse( _response );
+}
+
+void
+CInternalMediumProvider::setResponse( CMerkleBlock const & _merkle, CNode * _node )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+
+	if( iterator == m_nodeToMedium.end() ) return;// not  asked
+
+	//iterator->second->setResponse( _merkle );
+}
 
 }

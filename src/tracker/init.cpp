@@ -1010,6 +1010,9 @@ seed_insecure_rand();
     LogPrintf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 	// run this in main thread ??
+	m_setTransaction.connect( boost::bind( &tracker::CInternalMediumProvider::setTransaction, tracker::CInternalMediumProvider::getInstance(), _1, _2 ) );
+	m_setMerkleBlock.connect( boost::bind( &tracker::CInternalMediumProvider::setMerkleBlock, tracker::CInternalMediumProvider::getInstance(), _1, _2 ) );
+
     tracker::runServer();
 
 	StartNode(threadGroup);

@@ -21,6 +21,10 @@ public:
 
 	std::list< common::CMonitorBaseMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
+	void setResponse( CTransaction const & _response, CNode * _node );
+
+	void setResponse( CMerkleBlock const & _merkle, CNode * _node );
+
 	static CInternalMediumProvider* getInstance( );
 
 	void registerRemoveCallback( CNodeSignals& nodeSignals );

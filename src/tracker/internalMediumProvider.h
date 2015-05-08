@@ -20,9 +20,9 @@ public:
 	virtual std::list< common::CTrackerBaseMedium *> provideConnection( common::CTrackerMediumFilter const & _mediumFilter );
 
 	// set response, merkle ?? transaction ??
-	void setResponse( CTransaction const & _response, CNode * _node );
+	void setTransaction( CTransaction const & _response, CNode * _node );
 
-	void setResponse( CMerkleBlock const & _merkle, CNode * _node );
+	void setMerkleBlock( CMerkleBlock const & _merkle, CNode * _node );
 
 	std::list< common::CTrackerBaseMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
