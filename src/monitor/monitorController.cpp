@@ -21,6 +21,7 @@
 #include "monitor/connectNodeAction.h"
 #include "monitor/updateDataAction.h"
 #include "monitor/recognizeNetworkAction.h"
+#include "monitor/trackOriginAddressAction.h"
 
 namespace monitor
 {
@@ -56,6 +57,8 @@ struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTracke
 };
 
 struct CMonitorStandAlone;
+struct CMonitorConnected;
+struct CMonitorSynchronizing;
 
 struct CMonitorInitialSynchronization : boost::statechart::simple_state< CMonitorInitialSynchronization, CMonitorController >
 {
@@ -64,9 +67,13 @@ struct CMonitorInitialSynchronization : boost::statechart::simple_state< CMonito
 	typedef boost::statechart::transition< CInitialSynchronizationDoneEvent, CMonitorStandAlone > reactions;
 };
 
-
-struct CMonitorConnected;
-struct CMonitorSynchronizing;
+struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitcoin, CMonitorController >
+{
+	CSynchronizeWithBitcoin( my_context ctx ) : my_base( ctx )
+	{
+		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CTrackOriginAddressAction() );
+	}
+};
 
 struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonitorController >
 {

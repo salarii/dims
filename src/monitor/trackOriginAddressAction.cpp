@@ -6,6 +6,7 @@
 #include "common/commonRequests.h"
 #include "common/commonEvents.h"
 #include "common/mediumKinds.h"
+#include "common/originAddressScanner.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -153,12 +154,15 @@ CTrackOriginAddressAction::requestFiltered()
 
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );
-/*
+
 	if ( requestedBlocks.size() < SynchronizedTreshold )
-		CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
-*/
+		CMonitorController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
+
 	dropRequests();
-	//addRequest( new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
+	addRequest( new common::CAskForTransactionsRequest< common::CMonitorTypes >(
+					  requestedBlocks
+					, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes
+											  , common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
 
 }
 
@@ -326,7 +330,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			{
 				BOOST_FOREACH( CTransaction const & transaction, toInclude )
 				{
-		//			tracker::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
+					common::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
 				}
 			}
 
@@ -349,8 +353,6 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 // return list of  hashes
 // later return  list of  problems
-
-
 void
 CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected )
 {

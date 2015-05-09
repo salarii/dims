@@ -9,8 +9,11 @@
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/custom_reaction.hpp>
-#include "trackerController.h"
-#include "trackerControllerEvents.h"
+
+#include "common/commonEvents.h"
+
+#include "tracker/trackerController.h"
+#include "tracker/trackerControllerEvents.h"
 
 namespace tracker
 {
@@ -31,7 +34,7 @@ struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchr
 	boost::statechart::custom_reaction< CUpdateStatus >,
 	boost::statechart::custom_reaction< CBitcoinNetworkConnection >,
 	boost::statechart::custom_reaction< CSetScanBitcoinChainProgress >,
-	boost::statechart::transition< CInitialSynchronizationDoneEvent, CStandAlone > > reactions;
+	boost::statechart::transition< common::CInitialSynchronizationDoneEvent, CStandAlone > > reactions;
 
 	int m_blockLeft;
 	unsigned int m_nodesNumber;

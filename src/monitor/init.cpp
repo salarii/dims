@@ -47,11 +47,11 @@
 #include "common/nodesManager.h"
 #include "common/periodicActionExecutor.h"
 #include "common/timeMedium.h"
+#include "common/commandLine.h"
 
-#include "processNetwork.h"
-#include "monitorController.h"
-#include "internalMediumProvider.h"
-
+#include "monitor/processNetwork.h"
+#include "monitor/monitorController.h"
+#include "monitor/internalMediumProvider.h"
 #include "monitor/server.h"
 #include "monitor/clientRequestsManager.h"
 #include "monitor/reputationTracer.h"
@@ -632,6 +632,8 @@ bool AppInit(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CMonitorBaseMedium >::workLoop, common::CTimeMedium< common::CMonitorBaseMedium >::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
 
 	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)monitor::CInternalMediumProvider::getInstance() );
 

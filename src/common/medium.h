@@ -52,6 +52,9 @@ class CConnectToNodeRequest;
 
 template < class _Block, class _Types >
 class CSetNextBlockRequest;
+
+template < class _Types >
+class CAskForTransactionsRequest;
 }
 
 namespace tracker
@@ -178,6 +181,7 @@ public:
 	virtual void add( common::CScheduleActionRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CInfoAskRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CResultRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CAskForTransactionsRequest< CMonitorTypes > const * _request ){};
 	virtual void add( monitor::CRegistrationTerms const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};

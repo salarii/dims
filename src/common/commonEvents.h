@@ -123,6 +123,10 @@ struct CStartPongEvent : boost::statechart::event< CStartPongEvent >
 {
 };
 
+struct CInitialSynchronizationDoneEvent : boost::statechart::event< CInitialSynchronizationDoneEvent >
+{
+};
+
 }
 
 #endif // COMMON_EVENTS_H

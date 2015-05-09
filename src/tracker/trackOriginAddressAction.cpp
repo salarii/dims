@@ -148,7 +148,7 @@ CTrackOriginAddressAction::requestFiltered()
 	{
 		if ( index == 0 )
 		{
-			CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
+			CTrackerController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 			return;
 		}
 		index = index->pprev;
@@ -169,7 +169,7 @@ CTrackOriginAddressAction::requestFiltered()
 		requestedBlocks.resize( MaxMerkleNumber );
 
 	if ( requestedBlocks.size() < SynchronizedTreshold )
-		CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
+		CTrackerController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
 	dropRequests();
 	addRequest( new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
