@@ -76,7 +76,7 @@ bool AppInit(int argc, char* argv[])
 		}
 		ReadConfigFile(mapArgs, mapMultiArgs);
 		// Check for -testnet or -regtest parameter (TestNet() calls are only valid after this clause)
-		if (!SelectParamsFromCommandLine()|| !common::SelectRatcoinParamsFromCommandLine() ) {
+		if (!SelectParamsFromCommandLine()|| !common::SelectDimsParamsFromCommandLine() ) {
 			fprintf(stderr, "Error: Invalid combination of -regtest and -testnet.\n");
 			return false;
 		}

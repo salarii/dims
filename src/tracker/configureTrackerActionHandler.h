@@ -30,15 +30,6 @@ struct CValidationResult
 	std::vector< unsigned int > m_invalidTransactionIndexes;
 };
 
-struct CRequestedMerkles
-{
-	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, long long _merkleId ):m_merkles( _merkles ),m_transactions( _transactions ), m_merkleId( _merkleId ){};
-
-	std::vector< CMerkleBlock > m_merkles;
-	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
-	long long m_merkleId;
-};
-
 struct CSynchronizationInfoResult : boost::statechart::event< CSynchronizationInfoResult >
 {
 	CSynchronizationInfoResult( uint64_t const _timeStamp, uintptr_t _nodeIndicator, uint256 const & m_id ):m_timeStamp( _timeStamp ),m_nodeIndicator( _nodeIndicator ){};
@@ -61,7 +52,7 @@ struct CSynchronizationBlockResult
 };
 
 // list all desired types
-typedef boost::mpl::list< common::ScheduledResult, common::CPingPongResult, common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, CRequestedMerkles, CSynchronizationInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult< common::CSegmentHeader >, CSynchronizationBlockResult< common::CDiskBlock >, common::CEndEvent, common::CMessageResult, common::CTimeEvent > TrackerResponseList;
+typedef boost::mpl::list< common::ScheduledResult, common::CPingPongResult, common::CMediumException, CDummyResponse, common::CAvailableCoins, CValidationResult, common::CConnectedNode, common::CIdentificationResult, common::CRequestedMerkles, CSynchronizationInfoResult, common::CAckResult, common::CGetPrompt, CSynchronizationBlockResult< common::CSegmentHeader >, CSynchronizationBlockResult< common::CDiskBlock >, common::CEndEvent, common::CMessageResult, common::CTimeEvent > TrackerResponseList;
 
 typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
 }

@@ -4,8 +4,8 @@
 
 #include "internalMediumProvider.h"
 #include "internalOperationsMedium.h"
-#include "bitcoinNodeMedium.h"
 
+#include "common/bitcoinNodeMedium.h"
 #include "common/timeMedium.h"
 #include "common/scheduledActionManager.h"
 
@@ -70,7 +70,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
-		std::map< CNode *, CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
+		std::map< CNode *, common::CBitcoinNodeMedium< common::CTrackerTypes > * >::const_iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
 		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumNumber ); )
 		{
@@ -85,7 +85,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 			else
 			{
 				CNode * node = vNodes.at( i );
-				m_nodeToMedium.insert( std::make_pair( node, new CBitcoinNodeMedium( node ) ) );
+				m_nodeToMedium.insert( std::make_pair( node, new common::CBitcoinNodeMedium< common::CTrackerTypes >( node ) ) );
 				//ugly
 				iterator =  m_nodeToMedium.begin();
 				std::advance( iterator, i );
@@ -102,7 +102,7 @@ CInternalMediumProvider::setTransaction( CTransaction const & _response, CNode *
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+	std::map< CNode *, common::CBitcoinNodeMedium< common::CTrackerTypes > * >::iterator iterator = m_nodeToMedium.find( _node );
 
 	if( iterator == m_nodeToMedium.end() ) return;// not  asked
 
@@ -114,7 +114,7 @@ CInternalMediumProvider::setMerkleBlock( CMerkleBlock const & _merkle, CNode * _
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+	std::map< CNode *, common::CBitcoinNodeMedium< common::CTrackerTypes > * >::iterator iterator = m_nodeToMedium.find( _node );
 
 	if( iterator == m_nodeToMedium.end() ) return;// not  asked
 

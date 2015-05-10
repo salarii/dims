@@ -476,7 +476,7 @@ int main(int argc, char **argv) {
 	if (opts.fUseTestNet) {
 		printf("Using testnet.\n");
 		fTestNet = true;
-		common::SelectRatcoinParams(CNetworkParams::TESTNET);
+		common::SelectDimsParams(CNetworkParams::TESTNET);
 	}
 	if (!opts.ns) {
 		printf("No nameserver set. Not starting DNS server.\n");

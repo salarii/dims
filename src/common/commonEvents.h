@@ -6,7 +6,9 @@
 #define COMMON_EVENTS_H
 
 #include <boost/statechart/event.hpp>
+
 #include "net.h"
+#include "main.h"
 
 #include "common/commonResponses.h"
 
@@ -125,6 +127,14 @@ struct CStartPongEvent : boost::statechart::event< CStartPongEvent >
 
 struct CInitialSynchronizationDoneEvent : boost::statechart::event< CInitialSynchronizationDoneEvent >
 {
+};
+
+struct CMerkleBlocksEvent : boost::statechart::event< CMerkleBlocksEvent >
+{
+	CMerkleBlocksEvent( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions,long long _id ):m_merkles( _merkles ), m_transactions( _transactions ),m_id( _id ){};
+	std::vector< CMerkleBlock > m_merkles;
+	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
+	long long const m_id;
 };
 
 }

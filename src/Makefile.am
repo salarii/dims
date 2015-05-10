@@ -79,7 +79,6 @@ COMMON_CPP = \
 # tracker core #
 TRACKER_CORE_H = \
   tracker/addressToCoins.h \
-  tracker/bitcoinNodeMedium.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
@@ -176,7 +175,6 @@ version.o: obj/build.h
 TRACKER_CORE_CPP = \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
-  tracker/bitcoinNodeMedium.cpp \
   tracker/connectNodeAction.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \

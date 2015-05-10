@@ -89,7 +89,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 		return transit< CUninitiatedTrackAction >();
 	}
 
-	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
+	boost::statechart::result react( common::CMerkleBlocksEvent const & _merkleblockEvent )
 	{
 		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
 		return discard_event();
@@ -101,7 +101,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< CMerkleBlocksEvent >
+	boost::statechart::custom_reaction< common::CMerkleBlocksEvent >
 	> reactions;
 
 	uint m_time;

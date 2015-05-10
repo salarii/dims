@@ -160,6 +160,12 @@ class CSetTrackOriginAddressResult : public CResponseVisitorBase< monitor::CTrac
 public:
 	CSetTrackOriginAddressResult( monitor::CTrackOriginAddressAction * const _action ):CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList >( _action ){};
 
+	virtual void operator()( common::CRequestedMerkles & _param ) const
+	{
+		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
+		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_merkleId ) );
+	}
+
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
 		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );

@@ -13,6 +13,13 @@ class CNode;
 
 namespace common
 {
+
+template < class _Types >
+class CAskForTransactionsRequest;
+
+template < class _Types >
+class CSetBloomFilterRequest;
+
 // current  implementation does not  pay  attention  to checking  if  responses are correctly assigned   to correspondent  request( I don't know if this may cause problems )
 // besides this, it is primitie and ugly but  still may  serve
 template < class _Type >
@@ -25,11 +32,11 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< common::CRequest< _Type >const*, TrackerResponses > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest< _Type >const*, typename _Type::Response > & _requestResponse );
 
-	virtual void add( CAskForTransactionsRequest const * _request );
+	virtual void add( CAskForTransactionsRequest< _Type > const * _request );
 
-	virtual void add( CSetBloomFilterRequest const * _request );
+	virtual void add( CSetBloomFilterRequest< _Type > const * _request );
 
 	void setResponse( CTransaction const & _tx );
 
@@ -41,7 +48,7 @@ private:
 private:
 	mutable boost::mutex m_mutex;
 
-	std::multimap< common::CRequest< _Type >const*, TrackerResponses > m_responses;
+	std::multimap< common::CRequest< _Type >const*, typename _Type::Response > m_responses;
 
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
 
@@ -55,21 +62,21 @@ private:
 
 
 template < class _Type >
-CBitcoinNodeMedium::CBitcoinNodeMedium( CNode * _node )
+CBitcoinNodeMedium< _Type >::CBitcoinNodeMedium( CNode * _node )
 	: m_node( _node )
 {
 }
 
 template < class _Type >
 bool
-CBitcoinNodeMedium::serviced() const
+CBitcoinNodeMedium< _Type >::serviced() const
 {
 	return !m_transactions.empty() || !m_merkles.empty();
 }
 
 template < class _Type >
 bool
-CBitcoinNodeMedium::flush()
+CBitcoinNodeMedium< _Type >::flush()
 {
 // not sure if it is ok
 	return true;
@@ -78,7 +85,7 @@ CBitcoinNodeMedium::flush()
 
 template < class _Type >
 bool
-CBitcoinNodeMedium::getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > & _requestResponse )
+CBitcoinNodeMedium< _Type >::getResponseAndClear( std::multimap< common::CRequest< _Type >const*, typename _Type::Response > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
@@ -90,7 +97,7 @@ CBitcoinNodeMedium::getResponseAndClear( std::multimap< common::CRequest< common
 
 template < class _Type >
 void
-CBitcoinNodeMedium::clearResponses()
+CBitcoinNodeMedium< _Type >::clearResponses()
 {
 	m_responses.clear();
 	m_merkles.clear();
@@ -99,7 +106,7 @@ CBitcoinNodeMedium::clearResponses()
 
 template < class _Type >
 void
-CBitcoinNodeMedium::add( CAskForTransactionsRequest const * _request )
+CBitcoinNodeMedium< _Type >::add( CAskForTransactionsRequest< _Type > const * _request )
 {
 	LOCK( m_node->m_mediumLock );
 	LastRequest = (common::CRequest< _Type >*)_request;
@@ -114,7 +121,7 @@ CBitcoinNodeMedium::add( CAskForTransactionsRequest const * _request )
 
 template < class _Type >
 void
-CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
+CBitcoinNodeMedium< _Type >::add( CSetBloomFilterRequest< _Type > const * _request )
 {
 	LOCK( m_node->m_mediumLock );
 	LastRequest = (common::CRequest< _Type >*)_request;
@@ -124,7 +131,7 @@ CBitcoinNodeMedium::add( CSetBloomFilterRequest const * _request )
 
 template < class _Type >
 void
-CBitcoinNodeMedium::reloadResponses()
+CBitcoinNodeMedium< _Type >::reloadResponses()
 {
 	m_responses.clear();
 
@@ -133,7 +140,7 @@ CBitcoinNodeMedium::reloadResponses()
 
 template < class _Type >
 void
-CBitcoinNodeMedium::setResponse( CMerkleBlock const & _merkle )
+CBitcoinNodeMedium< _Type >::setResponse( CMerkleBlock const & _merkle )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_merkles.push_back( _merkle );
@@ -142,7 +149,7 @@ CBitcoinNodeMedium::setResponse( CMerkleBlock const & _merkle )
 // it is tricky  because for simplification tx and merkle have to go through the same channel in concurrent way
 template < class _Type >
 void
-CBitcoinNodeMedium::setResponse( CTransaction const & _tx )
+CBitcoinNodeMedium< _Type >::setResponse( CTransaction const & _tx )
 {
 // using m_merkle.back may cause  problem, when merkle  will be  processed but tx will not  arrive on time
 //m_merkle may be  cleared ?? is this  really a potential problem ??

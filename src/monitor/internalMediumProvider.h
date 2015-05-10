@@ -8,11 +8,10 @@
 #include "common/connectionProvider.h"
 #include "common/medium.h"
 #include "common/mediumKinds.h"
+#include "common/bitcoinNodeMedium.h"
 
 namespace monitor
 {
-
-class CBitcoinNodeMedium;
 
 class CInternalMediumProvider : public  common::CConnectionProvider< common::CMonitorTypes >
 {
@@ -21,9 +20,9 @@ public:
 
 	std::list< common::CMonitorBaseMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
-	void setResponse( CTransaction const & _response, CNode * _node );
+	void setTransaction( CTransaction const & _response, CNode * _node );
 
-	void setResponse( CMerkleBlock const & _merkle, CNode * _node );
+	void setMerkleBlock( CMerkleBlock const & _merkle, CNode * _node );
 
 	static CInternalMediumProvider* getInstance( );
 
@@ -38,7 +37,7 @@ private:
 	static CInternalMediumProvider * ms_instance;
 
 	// this is simplified approach
-	std::map< CNode *, CBitcoinNodeMedium * > m_nodeToMedium;
+	std::map< CNode *, common::CBitcoinNodeMedium< common::CMonitorTypes > * > m_nodeToMedium;
 };
 
 }

@@ -9,6 +9,7 @@
 #include "key.h"
 #include "core.h"
 #include "net.h"
+#include "main.h"
 
 #include "common/nodeMessages.h"
 #include "common/transactionStatus.h"
@@ -386,6 +387,15 @@ hashMonitorData( CMonitorData const & _monitorData )
 }
 
 typedef boost::variant< CNetworkInfoResult > ScheduledResult;
+
+struct CRequestedMerkles
+{
+	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, long long _merkleId ):m_merkles( _merkles ),m_transactions( _transactions ), m_merkleId( _merkleId ){};
+
+	std::vector< CMerkleBlock > m_merkles;
+	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
+	long long m_merkleId;
+};
 
 }
 

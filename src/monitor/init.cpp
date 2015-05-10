@@ -686,8 +686,12 @@ bool AppInit(boost::thread_group& threadGroup)
 #endif
 	// InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
-//	if (fServer)
-//		StartRPCThreads();
+
+	m_setTransaction.connect( boost::bind( &monitor::CInternalMediumProvider::setTransaction, monitor::CInternalMediumProvider::getInstance(), _1, _2 ) );
+	m_setMerkleBlock.connect( boost::bind( &monitor::CInternalMediumProvider::setMerkleBlock, monitor::CInternalMediumProvider::getInstance(), _1, _2 ) );
+
+	if (fServer)
+		StartRPCThreads();
 
 	StartNode(threadGroup);
 

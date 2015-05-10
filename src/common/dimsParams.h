@@ -131,13 +131,13 @@ protected:
 CDimsParams const &dimsParams();
 
 /** Sets the params returned by Params() to those for the given network. */
-void SelectRatcoinParams(CNetworkParams::Network network);
+void SelectDimsParams(CNetworkParams::Network network);
 
 /**
  * Looks for -regtest or -testnet and then calls SelectParams as appropriate.
  * Returns false if an invalid combination is given.
  */
-bool SelectRatcoinParamsFromCommandLine();
+bool SelectDimsParamsFromCommandLine();
 
 inline bool TestNet()
 {

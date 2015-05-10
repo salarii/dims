@@ -15,7 +15,7 @@ namespace monitor
 
 struct CDummyResponse{};
 
-typedef boost::mpl::list< common::ScheduledResult,common::CPingPongResult, common::CMediumException, CDummyResponse, common::CIdentificationResult, common::CConnectedNode, common::CAckResult, common::CMessageResult, common::CNoMedium, common::CTimeEvent > MonitorResponseList;
+typedef boost::mpl::list< common::ScheduledResult,common::CPingPongResult, common::CMediumException, CDummyResponse, common::CIdentificationResult, common::CConnectedNode, common::CAckResult, common::CMessageResult, common::CNoMedium, common::CTimeEvent, common::CRequestedMerkles > MonitorResponseList;
 
 typedef boost::make_variant_over< MonitorResponseList >::type MonitorResponses;
 

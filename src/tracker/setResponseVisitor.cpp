@@ -124,10 +124,10 @@ class CSetTrackOriginAddressResult : public CResponseVisitorBase< tracker::CTrac
 public:
 	CSetTrackOriginAddressResult( tracker::CTrackOriginAddressAction * const _action ):CResponseVisitorBase< tracker::CTrackOriginAddressAction, tracker::TrackerResponseList >( _action ){};
 
-	virtual void operator()( tracker::CRequestedMerkles & _param ) const
+	virtual void operator()( common::CRequestedMerkles & _param ) const
 	{
 		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
-		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_merkleId ) );
+		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_merkleId ) );
 	}
 
 	virtual void operator()( common::CTimeEvent & _param ) const
@@ -142,10 +142,10 @@ class CSetSynchronizationResult : public CResponseVisitorBase< tracker::CSynchro
 public:
 	CSetSynchronizationResult( tracker::CSynchronizationAction * const _action ):CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList >( _action ){};
 
-	virtual void operator()( tracker::CRequestedMerkles & _param ) const
+	virtual void operator()( common::CRequestedMerkles & _param ) const
 	{
 		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
-		this->m_action->process_event( tracker::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_merkleId ) );
+		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_merkleId ) );
 	}
 
 	virtual void operator()( tracker::CSynchronizationInfoResult & _param ) const

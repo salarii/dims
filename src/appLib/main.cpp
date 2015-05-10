@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	if ( argc == 2 )
 	{
 		if ( std::string( argv[1] ) == std::string( "-testnet" ) )
-			common::SelectRatcoinParams(CNetworkParams::TESTNET);
+			common::SelectDimsParams(CNetworkParams::TESTNET);
 	}
 
 	dims::CPaymentProcessing * paymentProcessing = dims::CPaymentProcessing::getInstance();

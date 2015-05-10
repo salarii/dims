@@ -69,7 +69,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
 
-		std::map< CNode *, CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
+		std::map< CNode *, common::CBitcoinNodeMedium< common::CMonitorTypes > * >::const_iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
 		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumNumber ); )
 		{
@@ -77,18 +77,17 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 			if ( iterator != m_nodeToMedium.end() )
 			{
 				// validate that node  is  still working??
-				/*		mediums.push_back( static_cast< common::CMonitorBaseMedium * >( iterator->second ) );
+				mediums.push_back( static_cast< common::CMonitorBaseMedium * >( iterator->second ) );
 				iterator++;
-				++i;*/
+				++i;
 			}
 			else
 			{
-				/*
 				CNode * node = vNodes.at( i );
-				m_nodeToMedium.insert( std::make_pair( node, new CBitcoinNodeMedium( node ) ) );
+				m_nodeToMedium.insert( std::make_pair( node, new common::CBitcoinNodeMedium< common::CMonitorTypes >( node ) ) );
 				//ugly
 				iterator =  m_nodeToMedium.begin();
-				std::advance( iterator, i );*/
+				std::advance( iterator, i );
 			}
 
 		}
@@ -97,27 +96,27 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 }
 
 void
-CInternalMediumProvider::setResponse( CTransaction const & _response, CNode * _node )
+CInternalMediumProvider::setTransaction( CTransaction const & _response, CNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+	std::map< CNode *, common::CBitcoinNodeMedium< common::CMonitorTypes > * >::iterator iterator = m_nodeToMedium.find( _node );
 
 	if( iterator == m_nodeToMedium.end() ) return;// not  asked
 
-	//iterator->second->setResponse( _response );
+	iterator->second->setResponse( _response );
 }
 
 void
-CInternalMediumProvider::setResponse( CMerkleBlock const & _merkle, CNode * _node )
+CInternalMediumProvider::setMerkleBlock( CMerkleBlock const & _merkle, CNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+	std::map< CNode *, common::CBitcoinNodeMedium< common::CMonitorTypes > * >::iterator iterator = m_nodeToMedium.find( _node );
 
 	if( iterator == m_nodeToMedium.end() ) return;// not  asked
 
-	//iterator->second->setResponse( _merkle );
+	iterator->second->setResponse( _merkle );
 }
 
 }

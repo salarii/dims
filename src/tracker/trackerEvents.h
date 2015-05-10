@@ -17,14 +17,6 @@ struct CValidationEvent : boost::statechart::event< CValidationEvent >
 	std::vector< unsigned int > m_invalidTransactionIndexes;
 };
 
-struct CMerkleBlocksEvent : boost::statechart::event< CMerkleBlocksEvent >
-{
-	CMerkleBlocksEvent( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions,long long _id ):m_merkles( _merkles ), m_transactions( _transactions ),m_id( _id ){};
-	std::vector< CMerkleBlock > m_merkles;
-	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
-	long long const m_id;
-};
-
 struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInfoEvent >
 {
 	CSynchronizationInfoEvent( uint64_t _timeStamp, unsigned int _nodeIdentifier ):m_timeStamp( _timeStamp ),m_nodeIdentifier(_nodeIdentifier){}

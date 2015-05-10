@@ -9,10 +9,16 @@
 #include "common/medium.h"
 #include "common/mediumKinds.h"
 
-namespace tracker
+namespace common
 {
 
+template < class _Type >
 class CBitcoinNodeMedium;
+
+}
+
+namespace tracker
+{
 
 class CInternalMediumProvider : public  common::CConnectionProvider< common::CTrackerTypes >
 {
@@ -38,7 +44,7 @@ private:
 
 	static CInternalMediumProvider * ms_instance;
 	// this is simplified approach
-	std::map< CNode *, CBitcoinNodeMedium * > m_nodeToMedium;
+	std::map< CNode *, common::CBitcoinNodeMedium< common::CTrackerTypes > * > m_nodeToMedium;
 };
 
 }

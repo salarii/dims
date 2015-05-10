@@ -150,7 +150,7 @@ CDimsParams::getDefaultDirectory() const
 };
 
 bool 
-SelectRatcoinParamsFromCommandLine()
+SelectDimsParamsFromCommandLine()
 {
 	bool fRegTest = GetBoolArg("-regtest", false);
 	bool fTestNet = GetBoolArg("-testnet", false);
@@ -162,21 +162,21 @@ SelectRatcoinParamsFromCommandLine()
 
 	if (fRegTest)
 	{
-		SelectRatcoinParams(CNetworkParams::REGTEST);
+		SelectDimsParams(CNetworkParams::REGTEST);
 	}
 	else if (fTestNet)
 	{
-		SelectRatcoinParams(CNetworkParams::TESTNET);
+		SelectDimsParams(CNetworkParams::TESTNET);
 	}
 	else
 	{
-		SelectRatcoinParams(CNetworkParams::MAIN);
+		SelectDimsParams(CNetworkParams::MAIN);
 	}
 	return true;
 }
 
 void 
-SelectRatcoinParams(CNetworkParams::Network network) 
+SelectDimsParams(CNetworkParams::Network network)
 {
 	switch (network)
 	{
