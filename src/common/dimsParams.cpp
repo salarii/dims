@@ -143,6 +143,25 @@ CDimsParams const &dimsParams()
 }
 
 std::string
+CDimsParams::getConfigurationFileName( AppType::Enum const _appType ) const
+{
+	switch( _appType )
+	{
+	case AppType::Client :
+		return "client.conf";
+	case AppType::Tracker :
+		return "tracker.conf";
+	case AppType::Monitor :
+		return "monitor.conf";
+	case AppType::Seed :
+		return "seed.conf";
+	default:
+		assert(!"unknown application type");
+		return std::string();
+	}
+}
+
+std::string
 CDimsParams::getDefaultDirectory() const
 {
 	assert( m_defaultDirectory.find(convertAppType( getAppType() )) != m_defaultDirectory.end() );

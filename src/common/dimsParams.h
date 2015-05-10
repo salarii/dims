@@ -82,6 +82,7 @@ public:
 	static CNetworkParams const & getNetworkParameters();
 	std::string getDefaultDirectory() const;
 	virtual unsigned int getDefaultClientPort() const = 0;
+	std::string getConfigurationFileName( AppType::Enum const _appType ) const;
 	static void setAppType( AppType::Enum const _appType ){ m_appType = _appType; }
 	static AppType::Enum getAppType(){ return m_appType; }
 	std::vector<unsigned char> const getNodePrefix( NodePrefix::Enum const _nodePrefix ) const{ return nodesPrefixes[ _nodePrefix ]; }

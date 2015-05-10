@@ -1033,17 +1033,18 @@ void ClearDatadirCache()
               boost::filesystem::path());
 }
 
-boost::filesystem::path GetConfigFile()
+boost::filesystem::path GetConfigFile( common::AppType::Enum _appType )
 {
-	boost::filesystem::path pathConfigFile(GetArg("-conf", "tracker.conf"));
-    if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir(common::AppType::Tracker,false) / pathConfigFile;
-    return pathConfigFile;
+	boost::filesystem::path pathConfigFile( GetArg( "-conf", common::dimsParams().getConfigurationFileName( _appType ) ) );
+	if ( !pathConfigFile.is_complete() )
+		pathConfigFile = GetDataDir( _appType, false ) / pathConfigFile;
+	return pathConfigFile;
 }
 
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
+	boost::filesystem::ifstream streamConfig(GetConfigFile( common::CDimsParams::getAppType() ) );
     if (!streamConfig.good())
 		return; // No tracker.conf file is OK
 

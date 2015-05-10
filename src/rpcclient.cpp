@@ -35,7 +35,7 @@ Object CallRPC(const string& strMethod, const Array& params)
         throw runtime_error(strprintf(
             _("You must set rpcpassword=<password> in the configuration file:\n%s\n"
               "If the file does not exist, create it with owner-readable-only file permissions."),
-                GetConfigFile().string().c_str()));
+				GetConfigFile(common::CDimsParams::getAppType()).string().c_str()));
 
     // Connect to localhost
     bool fUseSSL = GetBoolArg("-rpcssl", false);

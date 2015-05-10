@@ -191,7 +191,7 @@ void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
 bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest);
 boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType);
 const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool fNetSpecific = true );
-boost::filesystem::path GetConfigFile();
+boost::filesystem::path GetConfigFile( common::AppType::Enum _appType );
 boost::filesystem::path GetPidFile();
 #ifndef WIN32
 void CreatePidFile(const boost::filesystem::path &path, pid_t pid);

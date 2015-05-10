@@ -459,7 +459,7 @@ void StartRPCThreads()
               "It is also recommended to set alertnotify so you are notified of problems;\n"
               "for example: alertnotify=echo %%s | mail -s \"Bitcoin Alert\" admin@foo.com\n"),
                 strWhatAmI,
-                GetConfigFile().string(),
+				GetConfigFile( common::CDimsParams::getAppType() ).string(),
                 EncodeBase58(&rand_pwd[0],&rand_pwd[0]+32)),
                 "", CClientUIInterface::MSG_ERROR);
 		StopHook();
