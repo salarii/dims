@@ -489,6 +489,24 @@ bool AppInit(boost::thread_group& threadGroup)
 		nStart = GetTimeMillis();
 		do {
 			try {
+				UnloadBlockIndex();
+
+				/* if (!LoadBlockIndex()) {
+					strLoadError = _("Error loading block database");
+					break;
+				}*/
+
+				// If the loaded chain has a wrong genesis, bail out immediately
+				// (we're likely using a testnet datadir, or the other way around).
+				if (!mapBlockIndex.empty() && chainActive.Genesis() == NULL)
+					return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
+
+				// Initialize the block index (no-op if non-empty database was already loaded)
+				if (!InitBlockIndex()) {
+					strLoadError = _("Error initializing block database");
+					break;
+				}
+
 				// Check for changed -txindex state
 				if (fTxIndex != GetBoolArg("-txindex", false)) {
 					strLoadError = _("You need to rebuild the database using -reindex to change -txindex");
