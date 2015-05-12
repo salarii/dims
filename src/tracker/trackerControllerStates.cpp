@@ -27,21 +27,21 @@ CInitialSynchronization::CInitialSynchronization()
 }
 
 boost::statechart::result
-CInitialSynchronization::react( CSetScanBitcoinChainProgress const & _event )
+CInitialSynchronization::react( common::CSetScanBitcoinChainProgress const & _event )
 {
 	m_blockLeft = _event.m_blockLeft;
 	return discard_event();
 }
 
 boost::statechart::result
-CInitialSynchronization::react( CBitcoinNetworkConnection const & _event )
+CInitialSynchronization::react( common::CBitcoinNetworkConnection const & _event )
 {
 	m_nodesNumber = _event.m_nodesNumber;
 	return discard_event();
 }
 
 boost::statechart::result
-CInitialSynchronization::react( CUpdateStatus const & _event )
+CInitialSynchronization::react( common::CUpdateStatus const & _event )
 {
 	std::string status;
 

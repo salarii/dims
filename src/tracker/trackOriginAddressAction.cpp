@@ -55,7 +55,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		CTrackerController::getInstance()->process_event( CBitcoinNetworkConnection( vNodes.size() ) );
+		CTrackerController::getInstance()->process_event( common::CBitcoinNetworkConnection( vNodes.size() ) );
 
 		if ( vNodes.size() >= common::dimsParams().getUsedBitcoinNodesNumber() )
 		{
@@ -163,7 +163,7 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
-	tracker::CTrackerController::getInstance()->process_event( CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
+	tracker::CTrackerController::getInstance()->process_event( common::CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
 
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );

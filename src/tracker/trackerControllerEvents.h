@@ -36,24 +36,6 @@ struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTracke
 	std::string const m_trackerAddress;
 };
 
-struct CSetScanBitcoinChainProgress : boost::statechart::event< CSetScanBitcoinChainProgress >
-{
-	CSetScanBitcoinChainProgress( int _blockLeft ):m_blockLeft( _blockLeft ){}
-
-	int m_blockLeft;
-};
-
-struct CBitcoinNetworkConnection : boost::statechart::event< CBitcoinNetworkConnection >
-{
-	CBitcoinNetworkConnection( int _nodesNumber ):m_nodesNumber( _nodesNumber ){}
-
-	int m_nodesNumber;
-};
-
-struct CUpdateStatus : boost::statechart::event< CUpdateStatus >
-{
-};
-
 }
 
 #endif // TRACKER_CONTROLLER_EVENTS_H

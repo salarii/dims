@@ -56,6 +56,7 @@
 #include "monitor/clientRequestsManager.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/noMediumHandling.h"
+#include "monitor/registerRpcHooks.h"
 
 using namespace std;
 using namespace boost;
@@ -712,6 +713,9 @@ bool AppInit(boost::thread_group& threadGroup)
 		StartRPCThreads();
 
 	StartNode(threadGroup);
+
+//	StopHook.connect( &StartShutdown );
+	monitor::registerHooks();
 
 	monitor::runServer();
 

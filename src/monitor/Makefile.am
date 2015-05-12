@@ -24,6 +24,7 @@ MONITOR_H = \
 	processNetwork.h \
 	rankingDatabase.h \
 	recognizeNetworkAction.h \
+	registerRpcHooks.h \
 	reputationTracer.h \
 	server.h \
 	trackOriginAddressAction.h \
@@ -47,6 +48,7 @@ MONITOR_CPP = \
 	processNetwork.cpp \
 	rankingDatabase.cpp \
 	recognizeNetworkAction.cpp \
+	registerRpcHooks.cpp \
 	reputationTracer.cpp \
 	server.cpp \
 	setResponseVisitor.cpp \

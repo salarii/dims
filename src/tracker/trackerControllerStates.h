@@ -24,16 +24,16 @@ struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchr
 {
 	CInitialSynchronization();
 
-	boost::statechart::result react( CSetScanBitcoinChainProgress const & _event );
+	boost::statechart::result react( common::CSetScanBitcoinChainProgress const & _event );
 
-	boost::statechart::result react( CUpdateStatus const & _event );
+	boost::statechart::result react( common::CUpdateStatus const & _event );
 
-	boost::statechart::result react( CBitcoinNetworkConnection const & _event );
+	boost::statechart::result react( common::CBitcoinNetworkConnection const & _event );
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CUpdateStatus >,
-	boost::statechart::custom_reaction< CBitcoinNetworkConnection >,
-	boost::statechart::custom_reaction< CSetScanBitcoinChainProgress >,
+	boost::statechart::custom_reaction< common::CUpdateStatus >,
+	boost::statechart::custom_reaction< common::CBitcoinNetworkConnection >,
+	boost::statechart::custom_reaction< common::CSetScanBitcoinChainProgress >,
 	boost::statechart::transition< common::CInitialSynchronizationDoneEvent, CStandAlone > > reactions;
 
 	int m_blockLeft;

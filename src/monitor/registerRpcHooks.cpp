@@ -4,8 +4,6 @@
 
 #include "rpcserver.h"
 
-#include "common/commonEvents.h"
-
 #include "tracker/trackerControllerEvents.h"
 #include "tracker/trackerController.h"
 #include "tracker/registerRpcHooks.h"
@@ -16,7 +14,7 @@ namespace tracker
 std::string
 getStatus()
 {
-	CTrackerController::getInstance()->process_event( common::CUpdateStatus() );
+	CTrackerController::getInstance()->process_event( CUpdateStatus() );
 
 	return CTrackerController::getInstance()->getStatusMessage();
 }

@@ -37,10 +37,23 @@ public:
 	{
 		m_price = _price;
 	}
+
+	void setStatusMessage( std::string const & _statusMessage )
+	{
+		m_statusMessage = _statusMessage;
+	}
+
+	std::string getStatusMessage()
+	{
+		return m_statusMessage;
+	}
+
 private:
 	CMonitorController();
 
 private:
+	std::string m_statusMessage;
+
 	static CMonitorController * ms_instance;
 
 	unsigned int m_price;

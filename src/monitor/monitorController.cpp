@@ -73,6 +73,61 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 	{
 		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CTrackOriginAddressAction() );
 	}
+
+	boost::statechart::result
+	react( common::CUpdateStatus const & _event )
+	{
+		std::string status;
+
+		if ( m_nodesNumber < common::dimsParams().getUsedBitcoinNodesNumber() )
+		{
+			{
+				std::ostringstream convert;
+				convert << m_nodesNumber;
+
+				status = "Connecting to bitcoin network \n currently there is:  " + convert.str() + "  connections \n";
+			}
+			{
+				std::ostringstream convert;
+				convert << common::dimsParams().getUsedBitcoinNodesNumber();
+
+				status += "there is " + convert.str() + " needed";
+			}
+		}
+		else
+		{
+			status = "Reading bitcoin blockchain for base transactions: \n";
+
+			std::ostringstream convert;
+			convert << m_blockLeft;
+
+			status += "left " + convert.str() + " blocks to  be checked..\n";
+		}
+		context< CMonitorController >().setStatusMessage( status );
+		return discard_event();
+	}
+
+	boost::statechart::result
+	react( common::CBitcoinNetworkConnection const & _event )
+	{
+		m_nodesNumber = _event.m_nodesNumber;
+		return discard_event();
+	}
+
+	boost::statechart::result
+	react( common::CSetScanBitcoinChainProgress const & _event )
+	{
+		m_blockLeft = _event.m_blockLeft;
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CUpdateStatus >,
+	boost::statechart::custom_reaction< common::CBitcoinNetworkConnection >,
+	boost::statechart::custom_reaction< common::CSetScanBitcoinChainProgress > > reactions;
+
+	int m_blockLeft;
+	unsigned int m_nodesNumber;
 };
 
 struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonitorController >

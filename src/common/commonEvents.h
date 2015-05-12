@@ -137,6 +137,26 @@ struct CMerkleBlocksEvent : boost::statechart::event< CMerkleBlocksEvent >
 	long long const m_id;
 };
 
+struct CUpdateStatus : boost::statechart::event< CUpdateStatus >
+{
+};
+
+
+
+struct CSetScanBitcoinChainProgress : boost::statechart::event< CSetScanBitcoinChainProgress >
+{
+	CSetScanBitcoinChainProgress( int _blockLeft ):m_blockLeft( _blockLeft ){}
+
+	int m_blockLeft;
+};
+
+struct CBitcoinNetworkConnection : boost::statechart::event< CBitcoinNetworkConnection >
+{
+	CBitcoinNetworkConnection( int _nodesNumber ):m_nodesNumber( _nodesNumber ){}
+
+	int m_nodesNumber;
+};
+
 }
 
 #endif // COMMON_EVENTS_H
