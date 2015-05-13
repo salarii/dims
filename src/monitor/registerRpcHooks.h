@@ -5,7 +5,7 @@
 #ifndef REGISTER_RPC_HOOKS_H
 #define REGISTER_RPC_HOOKS_H
 
-namespace tracker
+namespace monitor
 {
 
 void registerHooks();
