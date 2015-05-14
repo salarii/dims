@@ -4,7 +4,9 @@
 
 
 #include "boost/foreach.hpp"
+
 #include "protocol.h"
+#include "base58.h"
 
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
@@ -76,6 +78,32 @@ CInitialSynchronization::react( common::CUpdateStatus const & _event )
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 {
 	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
+}
+
+boost::statechart::result
+CStandAlone::react( common::CNetworkRecognizedEvent const & _event )
+{
+	std::string status;
+
+	status = "\nDetected following trackers \n";
+
+	BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_trackersInfo )
+	{
+		CNodeAddress tracker;
+		tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
+		status = "key " + tracker.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+	}
+
+	status = "\nDetected following monitors \n";
+	BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
+	{
+		CNodeAddress tracker;
+		tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
+		status = "key " + tracker.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+	}
+
+	context< CTrackerController >().setStatusMessage( status );
+	return discard_event();
 }
 
 CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )

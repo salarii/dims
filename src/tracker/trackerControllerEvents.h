@@ -28,7 +28,7 @@ struct CTrackerConnectingEvent : boost::statechart::event< CTrackerConnectingEve
 	CTrackerConnectingEvent(){}
 };
 
-// do I need this
+// do I need this??
 struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTrackerRequest >
 {
 	CConnectWithTrackerRequest( std::string const & _trackerAddress ):m_trackerAddress( _trackerAddress ){};

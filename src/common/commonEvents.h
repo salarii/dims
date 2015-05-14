@@ -33,12 +33,22 @@ struct CRoleEvent : boost::statechart::event< CRoleEvent >
 	int m_role;
 };
 
+struct CNetworkRecognizedEvent : boost::statechart::event< CNetworkRecognizedEvent >
+{
+	CNetworkRecognizedEvent(){};
+	CNetworkRecognizedEvent( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
+	std::set< CValidNodeInfo > m_trackersInfo;
+	std::set< CValidNodeInfo > m_monitorsInfo;
+};
+
 struct CNetworkInfoEvent : boost::statechart::event< CNetworkInfoEvent >
 {
 	CNetworkInfoEvent(){};
 	CNetworkInfoEvent( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
 	std::set< CValidNodeInfo > m_trackersInfo;
 	std::set< CValidNodeInfo > m_monitorsInfo;
+	CValidNodeInfo m_self;
+	common::CRole::Enum m_role;
 };
 
 struct CClientNetworkInfoEvent : boost::statechart::event< CClientNetworkInfoEvent >

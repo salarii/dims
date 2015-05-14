@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Dims dev-team
+﻿// Copyright (c) 2014-2015 Dims dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -54,13 +54,56 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfoEvent )
 	{
-		//return transit< CDetermineRoleConnecting >();
+		std::set< common::CValidNodeInfo > nodesToAsk;
+
+		if ( _networkInfoEvent.m_role == common::CRole::Tracker )
+		{
+			m_trackers.insert( _networkInfoEvent.m_self );
+		}
+		else if ( _networkInfoEvent.m_role == common::CRole::Monitor )
+		{
+			m_monitors.insert( _networkInfoEvent.m_self );
+		}
+
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_monitorsInfo )
+		{
+			if ( m_monitors.find( nodeInfo ) == m_monitors.end() )
+			{
+				nodesToAsk.insert( nodeInfo );
+			}
+		}
+
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_trackersInfo )
+		{
+			if ( m_trackers.find( nodeInfo ) == m_trackers.end() )
+			{
+				nodesToAsk.insert( nodeInfo );
+			}
+		}
+
+		if ( nodesToAsk.empty() )
+		{
+// network  recognized
+		}
+		else
+		{
+			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, nodesToAsk )
+			{
+				context< CRecognizeNetworkAction >().addRequest(
+							new common::CScheduleActionRequest< common::CTrackerTypes >(
+								new CConnectNodeAction( nodeInfo.m_address )
+								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+			}
+		}
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
 	> reactions;
+
+	std::set< common::CValidNodeInfo > m_trackers;
+	std::set< common::CValidNodeInfo > m_monitors;
 
 };
 
