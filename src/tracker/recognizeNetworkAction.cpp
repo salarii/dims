@@ -8,6 +8,7 @@
 #include "tracker/recognizeNetworkAction.h"
 #include "tracker/connectNodeAction.h"
 #include "tracker/trackerFilters.h"
+#include "tracker/trackerController.h"
 
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
@@ -83,7 +84,8 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		if ( nodesToAsk.empty() )
 		{
-// network  recognized
+			CTrackerController::getInstance()->process_event( common::CNetworkRecognizedEvent( m_trackers, m_monitors ) );
+			context< CRecognizeNetworkAction >().setExit();
 		}
 		else
 		{

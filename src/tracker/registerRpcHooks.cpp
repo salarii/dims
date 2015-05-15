@@ -21,13 +21,17 @@ getStatus()
 	return CTrackerController::getInstance()->getStatusMessage();
 }
 
+void registerInNetwork()
+{}
+
+void connectNetwork()
+{}
+
 void registerHooks()
 {
 	SatusHook.connect( &getStatus );
+	RegisterInNetworkHook.connect( &registerInNetwork );
+	ConnectNetworkHook.connect( &connectNetwork );
 }
 
 }
-
-
-
-

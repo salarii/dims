@@ -97,9 +97,9 @@ CStandAlone::react( common::CNetworkRecognizedEvent const & _event )
 	status = "\nDetected following monitors \n";
 	BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
 	{
-		CNodeAddress tracker;
-		tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
-		status = "key " + tracker.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+		CNodeAddress monitor;
+		monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
+		status = "key " + monitor.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
 	}
 
 	context< CTrackerController >().setStatusMessage( status );

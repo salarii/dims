@@ -111,6 +111,8 @@ extern std::string HelpExampleRpc(std::string methodname, std::string args);
 extern void EnsureWalletIsUnlocked();
 
 extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getconnectioncount(const json_spirit::Array& params, bool fHelp); // in rpcnet.cpp
 extern json_spirit::Value getpeerinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value ping(const json_spirit::Array& params, bool fHelp);
@@ -132,6 +134,9 @@ extern json_spirit::Value decoderawtransaction(const json_spirit::Array& params,
 
 extern boost::signals2::signal< void () > StopHook;
 extern boost::signals2::signal< std::string () > SatusHook;
+extern boost::signals2::signal< void () > RegisterInNetworkHook;
+extern boost::signals2::signal< void () > ConnectNetworkHook;
+
 namespace tracker
 {
 extern json_spirit::Value connectToTracker(const json_spirit::Array& params, bool fHelp);

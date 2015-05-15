@@ -38,6 +38,24 @@ extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 	return status;
 }
 
+extern json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+			"status\n" \
+			"\nRequest info about current activity\n" \
+			"Results provide current status ad  activity performed\n"
+				"\nExamples:\n"
+				+ HelpExampleRpc("status", "")
+		);
+	return Value::null;
+}
+
+extern json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
+{
+	return Value::null;
+}
+
 Value getconnectioncount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)

@@ -2,8 +2,6 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "monitorController.h"
-
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -12,6 +10,7 @@
 #include <vector>
 
 #include "net.h"
+#include "base58.h"
 
 #include "common/actionHandler.h"
 #include "common/manageNetwork.h"
@@ -22,6 +21,7 @@
 #include "monitor/updateDataAction.h"
 #include "monitor/recognizeNetworkAction.h"
 #include "monitor/trackOriginAddressAction.h"
+#include "monitor/monitorController.h"
 
 namespace monitor
 {
@@ -134,16 +134,39 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 {
 	CMonitorStandAlone( my_context ctx ) : my_base( ctx )
 	{
-		// search for seeder action
 		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
+	}
 
-//		common::CPeriodicActionExecutor< common::CMonitorTypes >::getInstance()->addAction( new CUpdateDataAction( false ), 10000 );
+	boost::statechart::result
+	react( common::CNetworkRecognizedEvent const & _event )
+	{
+		std::string status;
+
+		status = "\nDetected following trackers \n";
+
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_trackersInfo )
+		{
+			CNodeAddress tracker;
+			tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
+			status = "key " + tracker.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+		}
+
+		status = "\nDetected following monitors \n";
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
+		{
+			CNodeAddress monitor;
+			monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
+			status = "key " + monitor.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+		}
+
+		context< CMonitorController >().setStatusMessage( status );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< CConnectedToTrackerEvent, CMonitorSynchronizing >,
-	boost::statechart::transition< CTrackerConnectingEvent, CMonitorConnected > > reactions;
+	boost::statechart::custom_reaction< common::CNetworkRecognizedEvent > > reactions;
 };
+
 // not right, since  first connection will trigger synchronization( apply  wait  time to  allow  other connections to appear ??)
 // this is outside action handler so I can't deffer this in "normal way"
 // is  this irrelevant ???????, when monitors will came this  will change anyway ??????
