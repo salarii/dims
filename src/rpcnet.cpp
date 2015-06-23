@@ -21,6 +21,8 @@ using namespace json_spirit;
 using namespace std;
 
 boost::signals2::signal< std::string () > SatusHook;
+boost::signals2::signal< void () > RegisterInNetworkHook;
+boost::signals2::signal< void () > ConnectNetworkHook;
 
 extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 {

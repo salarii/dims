@@ -25,8 +25,12 @@ public:
 	uintptr_t getNodePtr() const { return m_nodePtr; }
 
 	~CRegisterAction(){};
+
+	int64_t getRegisterPayment() const{ return m_registerPayment; }
 private:
 	common::CCommunicationRegisterObject m_registerObject;
+
+	int64_t m_registerPayment;
 
 	uintptr_t m_nodePtr;
 };

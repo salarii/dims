@@ -85,6 +85,7 @@ TRACKER_CORE_H = \
   tracker/connectNodeAction.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \
+  tracker/getSelfBalanceAction.h \	
   tracker/init.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
@@ -94,6 +95,7 @@ TRACKER_CORE_H = \
   tracker/recognizeNetworkAction.h \
   tracker/registerAction.h \
   tracker/registerRpcHooks.h \
+  tracker/selfWallet.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/synchronizationAction.h \
@@ -178,6 +180,7 @@ TRACKER_CORE_CPP = \
   tracker/connectNodeAction.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
+  tracker/getSelfBalanceAction.cpp \
   tracker/init.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
@@ -188,6 +191,7 @@ TRACKER_CORE_CPP = \
   tracker/registerAction.cpp \
   tracker/registerRpcHooks.cpp \
   tracker/rpcTracker.cpp \
+  tracker/selfWallet.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/synchronizationAction.cpp \

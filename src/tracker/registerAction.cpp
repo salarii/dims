@@ -12,9 +12,31 @@
 #include "common/setResponseVisitor.h"
 
 #include "tracker/trackerRequests.h"
+#include "tracker/selfWallet.h"
+#include "tracker/getSelfBalanceAction.h"
 
 namespace tracker
 {
+
+/*
+get information about registration status
+get  conditions of registration
+
+------>> 1 <<-------
+-no other trackes
+-start operating
+-prepare transaction emit it
+-send hash to monitor
+- conclude
+------>> 2 <<-------
+- other trackers
+- ask for balance ( send  proof of registration if refused )
+- prepare  transaction and emit
+- send hash to monitor
+- conclude
+*/
+
+
 
 //milisec
 unsigned int const WaitTime = 20000;
@@ -124,6 +146,96 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CRegisterAction >().dropRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
+struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
+{
+	// send  ready  to  monitor      ??????
+	CNoTrackers( my_context ctx )
+		: my_base( ctx )
+	{
+		tracker::CSelfWallet::getInstance()->createTransaction( context< CRegisterAction >().getRegisterPayment() );
+		//	CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
+		context< CRegisterAction >().addRequest(
+					new CRegisterProofRequest(
+						context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+	}
+
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CResult result;
+
+		common::convertPayload( orginalMessage, result );
+
+		assert( result.m_result );// for debug only, do something here
+
+		context< CRegisterAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CRegisterAction >().getActionKey()
+						, result.m_id
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CRegisterAction >().dropRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
+
+struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction >
+{
+	// follow ------>> 2 <<-------
+	CNetworkAlive( my_context ctx )
+		: my_base( ctx )
+	{
+		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().addRequest(
+					new common::CScheduleActionRequest< common::CTrackerTypes >(
+						new CGetSelfBalanceAction()
+						, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
+
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
 		return discard_event();
 	}
 

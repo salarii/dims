@@ -10,6 +10,7 @@
 #include "serialize.h"
 #include "core.h"
 #include "net.h"
+#include "coins.h"
 
 #include "common/segmentFileStorage.h"
 
@@ -44,7 +45,8 @@ struct CPayloadKind
 		ValidRegistration,
 		AdmitAsk,
 		Ping,
-		Pong
+		Pong,
+		Balance
 	};
 };
 
@@ -219,6 +221,18 @@ struct CEnd
 	int m_dummy;
 };
 
+struct CBalance
+{
+	CBalance( std::map< uint256, CCoins > const & _availableCoins );
+	CBalance();
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_availableCoins);
+	)
+	std::map< uint256, CCoins > m_availableCoins;
+};
+
 struct CInfoRequestData
 {
 	IMPLEMENT_SERIALIZE
@@ -386,6 +400,8 @@ public:
 	CMessage( CPing const & _ping, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationBlock const & _synchronizationBlock, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CBalance, uint256 const & _actionKey, uint256 const & _id );
+
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);

@@ -233,6 +233,11 @@ CMessage::CMessage( CSynchronizationSegmentHeader const & _synchronizationSegmen
 	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CBalance, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)common::CPayloadKind::Balance, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
+{
+}
+
 CNetworkActionRegister * CNetworkActionRegister::ms_instance = NULL;
 
 CNetworkActionRegister*

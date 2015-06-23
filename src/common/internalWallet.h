@@ -1,0 +1,4 @@
+#ifndef INTERNALWALLET_H
+#define INTERNALWALLET_H
+
+#endif // INTERNALWALLET_H
