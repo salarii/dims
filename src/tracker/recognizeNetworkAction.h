@@ -23,6 +23,7 @@ public:
 	CRecognizeNetworkAction();
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+
 private:
 };
 

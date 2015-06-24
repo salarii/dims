@@ -55,6 +55,9 @@ class CSetNextBlockRequest;
 
 template < class _Types >
 class CAskForTransactionsRequest;
+
+template < class _Types >
+class CBalanceRequest;
 }
 
 namespace tracker
@@ -149,6 +152,7 @@ public:
 	virtual void add( common::CInfoAskRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CTrackerTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CTrackerTypes > const * _request ){};
+	virtual void add( common::CBalanceRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};

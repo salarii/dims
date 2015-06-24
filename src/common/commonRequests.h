@@ -703,6 +703,42 @@ CSetBloomFilterRequest< _Types >::getBloomFilter() const
 	return m_bloomFilter;
 }
 
+template < class _Types >
+class CBalanceRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CBalanceRequest( FilterType * _filterType );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint160 getKey() const;
+private:
+	uint160 m_key;
+};
+
+template < class _Types >
+CBalanceRequest< _Types >::CBalanceRequest( FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+{
+}
+
+template < class _Types >
+void
+CBalanceRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint160
+CBalanceRequest< _Types >::getKey() const
+{
+	return m_key;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

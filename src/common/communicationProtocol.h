@@ -56,6 +56,7 @@ struct CInfoKind
 	{
 		  NetworkInfoAsk
 		, RoleInfoAsk
+		,
 	};
 };
 
@@ -238,12 +239,15 @@ struct CInfoRequestData
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_kind );
+		READWRITE( m_payload );
 	)
 	CInfoRequestData(){};
 
 	CInfoRequestData( int _kind ): m_kind( _kind ){};
 
 	int m_kind;
+
+	std::vector<unsigned char> m_payload;
 };
 
 struct CInfoResponseData

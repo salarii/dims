@@ -77,6 +77,7 @@ CInitialSynchronization::react( common::CUpdateStatus const & _event )
 
 CStandAlone::CStandAlone( my_context ctx ) : my_base( ctx )
 {
+	context< CTrackerController >().setStatusMessage( "detecting existing network" );
 	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
 }
 
@@ -85,23 +86,36 @@ CStandAlone::react( common::CNetworkRecognizedEvent const & _event )
 {
 	std::string status;
 
-	status = "\nDetected following trackers \n";
-
-	BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_trackersInfo )
+	if ( _event.m_trackersInfo.empty() )
 	{
-		CNodeAddress tracker;
-		tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
-		status = "key " + tracker.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+		status = "\nNo trackers detected\n";
+	}
+	else
+	{
+		status = "\nDetected following trackers \n";
+
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_trackersInfo )
+		{
+			CNodeAddress tracker;
+			tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
+			status += "key " + tracker.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+		}
 	}
 
-	status = "\nDetected following monitors \n";
-	BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
+	if ( _event.m_monitorsInfo.empty() )
 	{
-		CNodeAddress monitor;
-		monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
-		status = "key " + monitor.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+		status += "\nNo monitors detected\n";
 	}
-
+	else
+	{
+		status = "\nDetected following monitors \n";
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
+		{
+			CNodeAddress monitor;
+			monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
+			status += "key " + monitor.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+		}
+	}
 	context< CTrackerController >().setStatusMessage( status );
 	return discard_event();
 }

@@ -41,6 +41,11 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			common::CManageNetwork::getInstance()->getSeedIps( vAdd );
 
+			if ( !vAdd.empty() )
+			{
+				context< CRecognizeNetworkAction >().setExit();
+				return;
+			}
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
@@ -84,7 +89,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		if ( nodesToAsk.empty() )
 		{
-			CTrackerController::getInstance()->process_event( common::CNetworkRecognizedEvent( m_trackers, m_monitors ) );
 			context< CRecognizeNetworkAction >().setExit();
 		}
 		else
@@ -98,6 +102,11 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			}
 		}
 		return discard_event();
+	}
+
+	~CGetDnsInfo()
+	{
+		CTrackerController::getInstance()->process_event( common::CNetworkRecognizedEvent( m_trackers, m_monitors ) );
 	}
 
 	typedef boost::mpl::list<
