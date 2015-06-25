@@ -26,11 +26,6 @@
 namespace monitor
 {
 
-
-struct CInitialSynchronizationDoneEvent : boost::statechart::event< CInitialSynchronizationDoneEvent >
-{
-};
-
 struct CGetStateEvent : boost::statechart::event< CGetStateEvent >
 {
 };
@@ -59,13 +54,6 @@ struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTracke
 struct CMonitorStandAlone;
 struct CMonitorConnected;
 struct CMonitorSynchronizing;
-
-struct CMonitorInitialSynchronization : boost::statechart::simple_state< CMonitorInitialSynchronization, CMonitorController >
-{
-	CMonitorInitialSynchronization(){};
-
-	typedef boost::statechart::transition< CInitialSynchronizationDoneEvent, CMonitorStandAlone > reactions;
-};
 
 struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitcoin, CMonitorController >
 {
@@ -125,7 +113,7 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 	boost::statechart::custom_reaction< common::CUpdateStatus >,
 	boost::statechart::custom_reaction< common::CBitcoinNetworkConnection >,
 	boost::statechart::custom_reaction< common::CSetScanBitcoinChainProgress >,
-	boost::statechart::transition< CInitialSynchronizationDoneEvent, CMonitorStandAlone > > reactions;
+	boost::statechart::transition< common::CInitialSynchronizationDoneEvent, CMonitorStandAlone > > reactions;
 
 	int m_blockLeft;
 	unsigned int m_nodesNumber;
