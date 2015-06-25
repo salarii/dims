@@ -124,7 +124,8 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CUpdateStatus >,
 	boost::statechart::custom_reaction< common::CBitcoinNetworkConnection >,
-	boost::statechart::custom_reaction< common::CSetScanBitcoinChainProgress > > reactions;
+	boost::statechart::custom_reaction< common::CSetScanBitcoinChainProgress >,
+	boost::statechart::transition< CInitialSynchronizationDoneEvent, CMonitorStandAlone > > reactions;
 
 	int m_blockLeft;
 	unsigned int m_nodesNumber;
@@ -134,6 +135,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 {
 	CMonitorStandAlone( my_context ctx ) : my_base( ctx )
 	{
+		context< CMonitorController >().setStatusMessage( "detecting existing network" );
 		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
 	}
 
