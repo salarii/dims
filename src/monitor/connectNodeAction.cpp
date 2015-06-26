@@ -451,7 +451,6 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 			common::convertPayload( orginalMessage, infoRequest );
 
 			assert( infoRequest.m_kind == common::CInfoKind::NetworkInfoAsk );
-			context< CConnectNodeAction >().dropRequests();
 
 			common::CKnownNetworkInfo knownNetworkInfo;
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
@@ -470,8 +469,6 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 			common::convertPayload( orginalMessage, knownNetworkInfo );
 
-			context< CConnectNodeAction >().dropRequests();
-
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CMonitorTypes >(
 							  context< CConnectNodeAction >().getActionKey()
@@ -479,9 +476,10 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			common::CNetworkInfoResult networkRoleInfo(
-								  context< CConnectNodeAction >().getPublicKey()
-								, knownNetworkInfo.m_monitorsInfo
-								, knownNetworkInfo.m_trackersInfo );
+						  context< CConnectNodeAction >().getPublicKey()
+						, context< CConnectNodeAction >().getRole()
+						, knownNetworkInfo.m_monitorsInfo
+						, knownNetworkInfo.m_trackersInfo );
 
 			context< CConnectNodeAction >().setResult( networkRoleInfo );
 		}

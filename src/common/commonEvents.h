@@ -45,10 +45,10 @@ struct CNetworkInfoEvent : boost::statechart::event< CNetworkInfoEvent >
 {
 	CNetworkInfoEvent(){};
 	CNetworkInfoEvent( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
-	std::set< CValidNodeInfo > m_trackersInfo;
-	std::set< CValidNodeInfo > m_monitorsInfo;
 	CValidNodeInfo m_self;
 	common::CRole::Enum m_role;
+	std::set< CValidNodeInfo > m_trackersInfo;
+	std::set< CValidNodeInfo > m_monitorsInfo;
 };
 
 struct CClientNetworkInfoEvent : boost::statechart::event< CClientNetworkInfoEvent >

@@ -198,11 +198,12 @@ public:
 	{
 	public:
 		CResolveNetworkResult( tracker::CRecognizeNetworkAction * const _action)
+			: m_action( _action )
 		{}
 
 		void operator()( CNetworkInfoResult const & _networkInfoResult ) const
 		{
-			m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
+			this->m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
 		}
 
 	private:

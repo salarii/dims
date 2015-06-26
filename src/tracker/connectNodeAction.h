@@ -51,6 +51,10 @@ public:
 
 	void setPublicKey( CPubKey const & _pubKey );
 
+	common::CRole::Enum getRole() const{ return m_role; }
+
+	void setRole( common::CRole::Enum _role ){ m_role = _role; }
+
 	~CConnectNodeAction(){};
 private:
 	common::CCommunicationRegisterObject m_registerObject;
@@ -68,6 +72,8 @@ private:
 	CPubKey m_key;
 
 	uintptr_t m_nodePtr;
+
+	common::CRole::Enum m_role;
 };
 
 

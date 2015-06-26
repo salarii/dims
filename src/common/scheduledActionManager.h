@@ -110,7 +110,7 @@ CScheduledActionManager< _Type >::setResponseForAction( ScheduledResult const & 
 		boost::lock_guard<boost::mutex> lock( m_mutex );
 		typename std::multimap< uint256, CRequest< _Type >const* >::const_iterator iterator = m_actionToRequest.find( _id );
 
-		if( iterator != m_actionToRequest.end() )
+		if( iterator == m_actionToRequest.end() )
 			return;
 
 	m_responses.insert( std::make_pair( iterator->second, _responses ) );

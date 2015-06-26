@@ -11,7 +11,7 @@
 namespace tracker
 {
 struct CInitialSynchronization;
-
+struct CStandAlone;
 struct CMonitorData
 {
 	CMonitorData( bool _isAdmitted = false, CPubKey _monitorPublicKey = CPubKey(), bool _allowAdmission = true, double _accepableRatio = 0 ):m_isAdmitted( _isAdmitted ), m_monitorPublicKey( _monitorPublicKey ), m_allowAdmission( _allowAdmission ), m_accepableRatio( _accepableRatio ){}
@@ -21,7 +21,7 @@ struct CMonitorData
 	double m_accepableRatio;// price / period
 };
 
-class CTrackerController : public boost::statechart::state_machine< CTrackerController, CInitialSynchronization >
+class CTrackerController : public boost::statechart::state_machine< CTrackerController, CStandAlone >
 {
 public:
 	static CTrackerController* getInstance();
