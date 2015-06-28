@@ -122,11 +122,11 @@ struct CInfoAsk : boost::statechart::event< CInfoAsk >
 
 struct CNetworkInfoResult
 {
-	CNetworkInfoResult( CPubKey const & _sourceKey, common::CRole::Enum _role,std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_sourceKey( _sourceKey ), m_role( _role ), m_trackersInfo(_trackersInfo), m_monitorsInfo(_monitorsInfo){}
+	CNetworkInfoResult( CValidNodeInfo const & _nodeSelfInfo, common::CRole::Enum _role,std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_nodeSelfInfo( _nodeSelfInfo ), m_role( _role ), m_trackersInfo(_trackersInfo), m_monitorsInfo(_monitorsInfo){}
 
 	CNetworkInfoResult(){}
 
-	CPubKey m_sourceKey;
+	CValidNodeInfo m_nodeSelfInfo;
 	common::CRole::Enum m_role;
 	std::set< CValidNodeInfo > m_trackersInfo;
 	std::set< CValidNodeInfo > m_monitorsInfo;

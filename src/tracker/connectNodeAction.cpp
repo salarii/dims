@@ -491,7 +491,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			common::CNetworkInfoResult networkRoleInfo(
-						  context< CConnectNodeAction >().getPublicKey()
+						  common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() )
 						, context< CConnectNodeAction >().getRole()
 						, knownNetworkInfo.m_monitorsInfo
 						, knownNetworkInfo.m_trackersInfo );

@@ -41,7 +41,7 @@ public:
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
 	{
 		LogPrintf("set response \"network info result\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_trackersInfo, _param.m_monitorsInfo ) );
+		this->m_action->process_event( common::CNetworkInfoEvent( _param.m_nodeSelfInfo, _param.m_role, _param.m_trackersInfo, _param.m_monitorsInfo ) );
 	}
 
 	virtual void operator()( common::CTimeEvent & _param ) const
@@ -98,7 +98,7 @@ public:
 
 		void operator()( CNetworkInfoResult const & _networkInfoResult ) const
 		{
-			m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
+			m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_nodeSelfInfo, _networkInfoResult.m_role, _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
 		}
 
 	private:

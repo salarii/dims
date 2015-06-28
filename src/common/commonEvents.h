@@ -44,7 +44,7 @@ struct CNetworkRecognizedEvent : boost::statechart::event< CNetworkRecognizedEve
 struct CNetworkInfoEvent : boost::statechart::event< CNetworkInfoEvent >
 {
 	CNetworkInfoEvent(){};
-	CNetworkInfoEvent( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
+	CNetworkInfoEvent( CValidNodeInfo const & _self, common::CRole::Enum _role, std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ): m_self( _self ), m_role( _role ), m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
 	CValidNodeInfo m_self;
 	common::CRole::Enum m_role;
 	std::set< CValidNodeInfo > m_trackersInfo;

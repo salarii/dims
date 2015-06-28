@@ -180,7 +180,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
-			m_role = ( common::CRole::Enum )networkRole.m_role;
+			context< CConnectNodeAction >().setRole( ( common::CRole::Enum )networkRole.m_role );
 		}
 		return discard_event();
 	}
@@ -188,7 +188,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 
-		switch ( m_role )
+		switch ( context< CConnectNodeAction >().getRole() )
 		{
 		case common::CRole::Tracker:
 			LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
@@ -208,8 +208,6 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
-
-	common::CRole::Enum m_role;
 };
 
 struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBothUnidentifiedConnected, CConnectNodeAction >
@@ -296,6 +294,8 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+			context< CConnectNodeAction >().setRole( ( common::CRole::Enum )networkRole.m_role );
 
 			switch ( networkRole.m_role )
 			{
@@ -476,7 +476,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			common::CNetworkInfoResult networkRoleInfo(
-						  context< CConnectNodeAction >().getPublicKey()
+						  common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() )
 						, context< CConnectNodeAction >().getRole()
 						, knownNetworkInfo.m_monitorsInfo
 						, knownNetworkInfo.m_trackersInfo );
