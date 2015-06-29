@@ -21,7 +21,7 @@ using namespace json_spirit;
 using namespace std;
 
 boost::signals2::signal< std::string () > SatusHook;
-boost::signals2::signal< void () > RegisterInNetworkHook;
+boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
 boost::signals2::signal< void () > ConnectNetworkHook;
 
 extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
@@ -42,15 +42,18 @@ extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 
 extern json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp)
 {
-	if (fHelp || params.size() != 0)
+	if (fHelp || params.size() != 1)
 		throw runtime_error(
-			"status\n" \
-			"\nRequest info about current activity\n" \
-			"Results provide current status ad  activity performed\n"
+			"registerInNetwork\n" \
+			"\nRequest registration in specified monitor\n" \
+			"Results provide registration conditions\n"
 				"\nExamples:\n"
-				+ HelpExampleRpc("status", "")
+				+ HelpExampleRpc("registerInNetwork", "monitor_key")
 		);
-	return Value::null;
+
+	std::string result = *RegisterInNetworkHook( params[0].get_str() );
+
+	return result;
 }
 
 extern json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)

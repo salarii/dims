@@ -140,7 +140,10 @@ CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >cons
 	while( indexIterator != m_indexes.end() )
 	{
 		if ( *indexIterator != m_synchronizeQueue.front() )
+		{
+			indexIterator++;
 			continue;
+		}
 
 		m_synchronizeQueue.pop_front();
 
@@ -338,6 +341,7 @@ CNodeMedium< _Medium >::deleteRequest( CRequest< Type >const* _request )
 	m_idToRequest.erase( _request->getId() );
 	m_responses.erase( _request->getId() );
 	m_indexes.erase( _request->getId() );
+	m_synchronizeQueue.remove( _request->getId() );
 }
 
 template < class _Medium >

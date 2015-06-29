@@ -134,7 +134,7 @@ extern json_spirit::Value decoderawtransaction(const json_spirit::Array& params,
 
 extern boost::signals2::signal< void () > StopHook;
 extern boost::signals2::signal< std::string () > SatusHook;
-extern boost::signals2::signal< void () > RegisterInNetworkHook;
+extern boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
 extern boost::signals2::signal< void () > ConnectNetworkHook;
 
 namespace tracker
