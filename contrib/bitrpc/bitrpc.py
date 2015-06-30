@@ -304,7 +304,14 @@ elif cmd == "status":
 		print access.status()
 	except:
 		print "\n---An error occurred---\n"
-
+		
+elif cmd == "registerinnetwork":
+	try:
+		addr = raw_input("Address: ")
+		print access.registerInNetwork(addr)
+	except:
+		print "\n---An error occurred---\n"
+	    
 elif cmd == "validateaddress":
 	try:
 		addr = raw_input("Address: ")

@@ -113,7 +113,8 @@ CStandAlone::react( common::CNetworkRecognizedEvent const & _event )
 		{
 			CNodeAddress monitor;
 			monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
-			status += "key " + monitor.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+
+			status += "key: " + monitor.ToString() + " ip: " + nodeInfo.m_address.ToString() + "\n";
 		}
 	}
 	context< CTrackerController >().setStatusMessage( status );

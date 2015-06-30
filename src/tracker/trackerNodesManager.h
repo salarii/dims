@@ -39,13 +39,15 @@ public:
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
 
 	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator)const;
+
+	bool getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndicator)const;
 private:
 	CTrackerNodesManager();
 private:
 	// is this ok??? seems like temporary solution, move it  to  common???
 	std::map< CAddress, CPubKey > m_keyStore;
 
-	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
+	std::map< CKeyID, uintptr_t > m_pubKeyToNodeIndicator;
 
 	std::set< common::CValidNodeInfo > m_trackers;
 

@@ -151,13 +151,24 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 void
 CTrackerNodesManager::setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator)
 {
-	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey, _nodeIndicator ) );
+	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey.GetID(), _nodeIndicator ) );
 }
 
 bool
 CTrackerNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator) const
 {
-	std::map< CPubKey, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKey );
+	std::map< CKeyID, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKey.GetID() );
+
+	if ( iterator != m_pubKeyToNodeIndicator.end() )
+		_nodeIndicator = iterator->second;
+
+	return iterator != m_pubKeyToNodeIndicator.end();
+}
+
+bool
+CTrackerNodesManager::getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndicator) const
+{
+	std::map< CKeyID, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _keyId );
 
 	if ( iterator != m_pubKeyToNodeIndicator.end() )
 		_nodeIndicator = iterator->second;
