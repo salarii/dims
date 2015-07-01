@@ -72,9 +72,10 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
 		context< CAdmitTrackerAction >().addRequest( new CRegistrationTerms(
-														  context< CAdmitTrackerAction >().getActionKey()
-														, CMonitorController::getInstance()->getPrice()
+														  CMonitorController::getInstance()->getPrice()
 														 , CMonitorController::getInstance()->getPeriod()
+														 , context< CAdmitTrackerAction >().getActionKey()
+														 , _messageResult.m_message.m_header.m_id
 														 , new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
 		return discard_event();
