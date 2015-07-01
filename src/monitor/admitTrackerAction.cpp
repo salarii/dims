@@ -64,6 +64,13 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		// todo create alredy registered logic _messageResult.m_pubKey
 
 		context< CAdmitTrackerAction >().dropRequests();
+
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CAckRequest< common::CMonitorTypes >(
+						context< CAdmitTrackerAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+
 		context< CAdmitTrackerAction >().addRequest( new CRegistrationTerms(
 														  context< CAdmitTrackerAction >().getActionKey()
 														, CMonitorController::getInstance()->getPrice()
