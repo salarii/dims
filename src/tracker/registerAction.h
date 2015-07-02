@@ -26,7 +26,11 @@ public:
 
 	~CRegisterAction(){};
 
+	void setRegisterPayment( int64_t _payment ){ m_registerPayment = _payment; }
+
 	int64_t getRegisterPayment() const{ return m_registerPayment; }
+
+	CPubKey getPublicKey() const;
 private:
 	common::CCommunicationRegisterObject m_registerObject;
 

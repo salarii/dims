@@ -2,7 +2,11 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "selfWallet.h"
+#include "wallet.h"
+
+#include "tracker/selfWallet.h"
+
+extern CWallet* pwalletMain;
 
 namespace tracker
 {
@@ -18,5 +22,9 @@ CSelfWallet::getInstance( )
 	};
 	return ms_instance;
 }
+
+
+
+
 
 }

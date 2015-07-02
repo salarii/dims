@@ -1,0 +1,10 @@
+#ifndef PASS_TRANSACTION_ACTION_H
+#define PASS_TRANSACTION_ACTION_H
+
+namespace tracker
+{
+
+
+}
+
+#endif // PASS_TRANSACTION_ACTION_H

@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "registerAction.h"
+#include "wallet.h"
 
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
@@ -14,6 +15,8 @@
 #include "tracker/trackerRequests.h"
 #include "tracker/selfWallet.h"
 #include "tracker/getSelfBalanceAction.h"
+
+extern CWallet* pwalletMain;
 
 namespace tracker
 {
@@ -167,7 +170,33 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 	CNoTrackers( my_context ctx )
 		: my_base( ctx )
 	{
-		tracker::CSelfWallet::getInstance()->createTransaction( context< CRegisterAction >().getRegisterPayment() );
+
+		std::vector< std::pair< CKeyID, int64_t > > outputs;
+
+		outputs.push_back(
+					std::pair< CKeyID, int64_t >(
+						context< CRegisterAction >().getPublicKey().GetID()
+						, context< CRegisterAction >().getRegisterPayment() ) );
+
+			CWalletTx tx;
+			std::string failReason;
+
+			common::CTrackerStats tracker;
+			tracker.m_price = 0; // this  will produce transaction with no tracker output
+			if ( pwalletMain->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
+			{
+
+
+			}
+			else
+			{
+				// wait  till  money  available
+				context< CRegisterAction >().addRequest(
+							new common::CTimeEventRequest< common::CTrackerTypes >(
+								WaitTime
+								, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			}
+
 		//	CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
 		context< CRegisterAction >().addRequest(
 					new CRegisterProofRequest(
@@ -256,6 +285,20 @@ CRegisterAction::CRegisterAction( uintptr_t _nodePtr )
 	, m_nodePtr( _nodePtr )
 {
 	initiate();
+}
+
+CPubKey
+CRegisterAction::getPublicKey() const
+{
+	CAddress address;
+	if ( !CTrackerNodesManager::getInstance()->getAddress( m_nodePtr, address ) )
+		return CPubKey();
+
+	CPubKey pubKey;
+	if ( !CTrackerNodesManager::getInstance()->getPublicKey( address, pubKey ) )
+		return CPubKey();
+
+	return pubKey;
 }
 
 void
