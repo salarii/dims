@@ -225,6 +225,22 @@ private:
 	uint256 const m_actionKey;
 };
 
+class CTransactionAsClientRequest : public common::CRequest< common::CTrackerTypes >
+{
+public:
+	CTransactionAsClientRequest( CTransaction const & _transaction, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
+
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	CTransaction getTransaction() const;
+private:
+	CTransaction m_transaction;
+
+	uint256 const m_actionKey;
+};
+
 }
 
 #endif // TRACKER_REQUESTS_H

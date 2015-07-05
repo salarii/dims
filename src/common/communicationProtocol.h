@@ -46,7 +46,8 @@ struct CPayloadKind
 		AdmitAsk,
 		Ping,
 		Pong,
-		Balance
+		Balance,
+		ClientTransaction
 	};
 };
 
@@ -379,6 +380,15 @@ struct CAdmitAsk
 	int m_dummy;
 };
 
+struct CClientTransaction
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_transaction );
+	)
+	CTransaction m_transaction;
+};
+
 struct CMessage
 {
 public:
@@ -404,7 +414,8 @@ public:
 	CMessage( CPing const & _ping, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationBlock const & _synchronizationBlock, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CBalance, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CBalance const & _balance, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
 
 	IMPLEMENT_SERIALIZE
 	(

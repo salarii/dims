@@ -105,4 +105,14 @@ CTrackerNodeMedium::add( CRegisterProofRequest const * _request )
 	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
 }
 
+void
+CTrackerNodeMedium::add( CTransactionAsClientRequest const * _request )
+{
+	common::CMessage message( common::CAdmitProof(), _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
+}
+
 }

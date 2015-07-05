@@ -75,6 +75,7 @@ class CDeliverInfoRequest;
 class CGetBalanceRequest;
 class CAskForRegistrationRequest;
 class CRegisterProofRequest;
+class CTransactionAsClientRequest;
 
 }
 
@@ -166,6 +167,7 @@ public:
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual void add( tracker::CAskForRegistrationRequest const * _request ){};
 	virtual void add( tracker::CRegisterProofRequest const * _request ){};
+	virtual void add( tracker::CTransactionAsClientRequest const * _request ){};
 
 	virtual ~CTrackerBaseMedium(){};
 };

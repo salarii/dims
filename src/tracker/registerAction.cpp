@@ -43,6 +43,7 @@ get  conditions of registration
 
 //milisec
 unsigned int const WaitTime = 20000;
+unsigned int const MoneyWaitTime = 20000;
 
 struct CFreeRegistration;
 
@@ -193,7 +194,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 				// wait  till  money  available
 				context< CRegisterAction >().addRequest(
 							new common::CTimeEventRequest< common::CTrackerTypes >(
-								WaitTime
+								MoneyWaitTime
 								, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 			}
 

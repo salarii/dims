@@ -37,6 +37,8 @@ public:
 	void add( CAskForRegistrationRequest const * _request );
 
 	void add( CRegisterProofRequest const * _request );
+
+	void add( CTransactionAsClientRequest const * _request );
 private:
 };
 
