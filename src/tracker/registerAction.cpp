@@ -12,6 +12,7 @@
 #include "common/commonRequests.h"
 #include "common/setResponseVisitor.h"
 
+#include "tracker/passTransactionAction.h"
 #include "tracker/trackerRequests.h"
 #include "tracker/selfWallet.h"
 #include "tracker/getSelfBalanceAction.h"
@@ -186,8 +187,10 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 			tracker.m_price = 0; // this  will produce transaction with no tracker output
 			if ( pwalletMain->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
 			{
-
-
+				context< CRegisterAction >().addRequest(
+							new common::CScheduleActionRequest< common::CTrackerTypes >(
+								new CPassTransactionAction( tx )
+								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
 			else
 			{

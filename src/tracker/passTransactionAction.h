@@ -17,9 +17,13 @@ struct CInitial;
 class CPassTransactionAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CPassTransactionAction, CInitial >
 {
 public:
-	CPassTransactionAction();
+	CPassTransactionAction( CTransaction const & _transaction );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+
+	CTransaction const & getTransaction() const{ return m_transaction; }
+private:
+	CTransaction m_transaction;
 };
 
 }

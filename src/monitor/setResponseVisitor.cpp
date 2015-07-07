@@ -101,6 +101,9 @@ public:
 			m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_nodeSelfInfo, _networkInfoResult.m_role, _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
 		}
 
+		void operator()( CTransaction const & ) const
+		{
+		}
 	private:
 		monitor::CRecognizeNetworkAction * m_action;
 	};

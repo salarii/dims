@@ -39,7 +39,7 @@ public:
 			CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTransactionStatusResponse( common::TransactionsStatus::Unconfirmed, _transactionStatus.m_hash ) );
 	}
 
-	void operator()( CTrackerStatsReq const & _transactionStatus ) const
+	void operator()( CTrackerStatsReq const & _trackerStatsReq ) const
 	{
 		CTrackerController * trackerController = CTrackerController::getInstance();
 		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTrackerSpecificStats( trackerController->getPrice() ) );
@@ -48,7 +48,6 @@ public:
 	void operator()( CTransactionMessage const & _transactionMessage ) const
 	{
 		CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
-
 	}
 
 	void operator()( CAddressBalanceReq const & _addressBalanceReq ) const
