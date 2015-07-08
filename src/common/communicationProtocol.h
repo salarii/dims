@@ -47,7 +47,8 @@ struct CPayloadKind
 		Ping,
 		Pong,
 		Balance,
-		ClientTransaction
+		ClientTransaction,
+		ClientStatusTransaction
 	};
 };
 
@@ -389,6 +390,15 @@ struct CClientTransaction
 	CTransaction m_transaction;
 };
 
+struct CClientTransactionStatus
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_status );
+	)
+	unsigned int m_status;
+};
+
 struct CMessage
 {
 public:
@@ -416,6 +426,8 @@ public:
 	CMessage( CSynchronizationSegmentHeader const & _synchronizationSegmentHeader, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CBalance const & _balance, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
+
 
 	IMPLEMENT_SERIALIZE
 	(

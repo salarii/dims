@@ -249,6 +249,14 @@ CMessage::CMessage( CClientTransaction const & _clientTransaction, uint256 const
 	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)common::CPayloadKind::ClientStatusTransaction, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
+{
+	common::createPayload( _clientTransactionStatus, m_payload );
+
+	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 CNetworkActionRegister * CNetworkActionRegister::ms_instance = NULL;
 
 CNetworkActionRegister*

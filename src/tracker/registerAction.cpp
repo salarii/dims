@@ -264,6 +264,15 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
+
+		/*
+			context< CNetworkAlive >().dropRequests();
+			context< CNetworkAlive >().addRequest(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CConnectNodeAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+*/
 		return discard_event();
 	}
 

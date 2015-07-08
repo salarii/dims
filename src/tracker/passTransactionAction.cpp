@@ -56,6 +56,8 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 		{
 			context< CPassTransactionAction >().setResult( transaction );
 		}
+		context< CPassTransactionAction >().setExit();
+
 		return discard_event();
 	}
 
@@ -70,20 +72,43 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 {
 	CProcessAsClient()
 	{
+		transaction = context< CPassTransactionAction >().getTransaction();
+
 		context< CPassTransactionAction >().addRequest(
 					new CTransactionAsClientRequest(
-						  context< CPassTransactionAction >().getTransaction()
+						transaction
 						, context< CPassTransactionAction >().getActionKey()
 						, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CPassTransactionAction >().setExit();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		common::CClientTransactionStatus clientTransactionStatus;
+		common::convertPayload( orginalMessage, clientTransactionStatus );
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CPassTransactionAction >().getActionKey()
+						, _messageResult.m_id
+						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
+		if ( (common::TransactionsStatus::Enum)clientTransactionStatus != common::TransactionsStatus::Confirmed )
+		{
+			transaction.SetNull();
+		}
+
+		context< CPassTransactionAction >().setResult( transaction );
+
 		return discard_event();
 	}
 
@@ -97,6 +122,8 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
+
+	CTransaction transaction;
 };
 
 CPassTransactionAction::CPassTransactionAction( CTransaction const & _transaction )
