@@ -479,7 +479,7 @@ bool AppInit(boost::thread_group& threadGroup)
 			fReindex = true;
 		}
 	}
-/*
+
 	bool fLoaded = false;
 	while (!fLoaded) {
 		bool fReset = fReindex;
@@ -491,12 +491,12 @@ bool AppInit(boost::thread_group& threadGroup)
 		do {
 			try {
 				UnloadBlockIndex();
-
+/*
 				 if (!LoadBlockIndex()) {
 					strLoadError = _("Error loading block database");
 					break;
 				}
-
+*/
 				// If the loaded chain has a wrong genesis, bail out immediately
 				// (we're likely using a testnet datadir, or the other way around).
 				if (!mapBlockIndex.empty() && chainActive.Genesis() == NULL)
@@ -547,7 +547,7 @@ bool AppInit(boost::thread_group& threadGroup)
 			}
 		}
 	}
-*/
+
 	// As LoadBlockIndex can take several minutes, it's possible the user
 	// requested to kill the GUI during the last operation. If so, exit.
 	// As the program has not fully started yet, Shutdown() is possibly overkill.

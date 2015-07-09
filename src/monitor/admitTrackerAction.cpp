@@ -107,7 +107,10 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 	CFreeRegistration( my_context ctx )
 		: my_base( ctx )
 	{
+
 		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
+
+		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
@@ -122,7 +125,13 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 		common::convertPayload( orginalMessage, admitMessage );
 
 		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
-		context< CAdmitTrackerAction >().dropRequests();
+
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CAckRequest< common::CMonitorTypes >(
+						context< CAdmitTrackerAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CResultRequest< common::CMonitorTypes >(
 						  context< CAdmitTrackerAction >().getActionKey()
