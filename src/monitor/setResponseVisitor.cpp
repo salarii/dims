@@ -94,6 +94,7 @@ public:
 	{
 	public:
 		CResolveNetworkResult( monitor::CRecognizeNetworkAction * const _action)
+			: m_action( _action )
 		{}
 
 		void operator()( CNetworkInfoResult const & _networkInfoResult ) const
