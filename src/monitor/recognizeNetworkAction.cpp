@@ -54,7 +54,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfoEvent )
 	{
-		//return transit< CDetermineRoleConnecting >();
+		context< CRecognizeNetworkAction >().setExit();
 		return discard_event();
 	}
 
