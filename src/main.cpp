@@ -1482,12 +1482,7 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
         pindexNew->pprev = (*miPrev).second;
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
     }
-	else
-	{
-		//taken out of  thin air to prevent crash, while  I am working on some other  functionality
-		// one day  fix  it  for  real
-		return  false;
-	}
+
     pindexNew->nTx = block.vtx.size();
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + pindexNew->GetBlockWork().getuint256();
     pindexNew->nChainTx = (pindexNew->pprev ? pindexNew->pprev->nChainTx : 0) + pindexNew->nTx;
@@ -1509,6 +1504,8 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 		}while( chainActive.Genesis()->GetBlockHash() != indexNew->GetBlockHash() );
 	}
 
+	if ( chainActive.Height() != -1 && !pindexNew->pprev )// this I put  without  thinking, most likely  not  correct
+		return false;
 	// set height properly
 	if ( chainActive.Height() != -1 && chainActive.Tip()->GetBlockHash() != pindexNew->pprev->GetBlockHash() )
 	{
