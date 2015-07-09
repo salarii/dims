@@ -356,11 +356,9 @@ struct CResult
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_result );
-		READWRITE( m_id );
 	)
 
 	unsigned int m_result;
-	uint256 m_id;
 };
 
 struct CAdmitProof

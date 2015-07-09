@@ -74,15 +74,14 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 
 		common::convertPayload( orginalMessage, connectCondition );
 
+		context< CRegisterAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						context< CRegisterAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+
 		if ( !connectCondition.m_price )
 		{
-			context< CRegisterAction >().dropRequests();
-
-			context< CRegisterAction >().addRequest(
-						new common::CAckRequest< common::CTrackerTypes >(
-							  context< CRegisterAction >().getActionKey()
-							, connectCondition.m_id
-							, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 
 			return transit< CFreeRegistration >();
 		}
@@ -117,6 +116,8 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	{
 		LogPrintf("register action: %p free registration \n", &context< CRegisterAction >() );
 
+		context< CRegisterAction >().dropRequests();
+
 		context< CRegisterAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
 						WaitTime
@@ -143,7 +144,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 		context< CRegisterAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
 						  context< CRegisterAction >().getActionKey()
-						, result.m_id
+						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 		return discard_event();
 	}
@@ -224,7 +225,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		context< CRegisterAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
 						  context< CRegisterAction >().getActionKey()
-						, result.m_id
+						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 		return discard_event();
 	}
