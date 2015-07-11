@@ -379,7 +379,7 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CResultRequest( uint256 const & _actionKey, unsigned int _result, FilterType * _mediumFilter );
+	CResultRequest( uint256 const & _actionKey, uint256 const & _id, unsigned int _result, FilterType * _mediumFilter );
 
 	virtual void accept( MediumType * _medium ) const;
 
@@ -393,8 +393,8 @@ private:
 };
 
 template < class _Types >
-CResultRequest< _Types >::CResultRequest( uint256 const & _actionKey, unsigned int _result, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _mediumFilter )
+CResultRequest< _Types >::CResultRequest( uint256 const & _actionKey, uint256 const & _id, unsigned int _result, FilterType * _mediumFilter )
+	: common::CRequest< _Types >( _id, _mediumFilter )
 	, m_result( _result )
 	, m_actionKey( _actionKey )
 {

@@ -135,6 +135,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CResultRequest< common::CMonitorTypes >(
 						  context< CAdmitTrackerAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
 						, 1
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
@@ -188,6 +189,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( m_checkPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
+		m_messageId = _messageResult.m_message.m_header.m_id;
+
 		return discard_event();
 	}
 
@@ -210,6 +213,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
+							, m_messageId
 							, 1
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
@@ -220,6 +224,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
+							, m_messageId
 							, 0
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
@@ -233,6 +238,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	> reactions;
 
 	uint256 m_proofHash;
+
+	uint256 m_messageId;
 
 	int64_t const m_checkPeriod;
 };
