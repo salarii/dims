@@ -19,6 +19,7 @@
 #include "monitor/filters.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/monitorRequests.h"
+#include "monitor/rankingDatabase.h"
 
 namespace monitor
 {
@@ -217,10 +218,20 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 							, 1
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
+			CPubKey pubKey;
+
+			CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey );
+
+			CTrackerData trackerData( pubKey, 0, GetTime(), CMonitorController::getInstance()->getPeriod() );
+
+			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+
+			CReputationTracker::getInstance()->addTracker( trackerData );
 		}
 		else
 		{
 			context< CAdmitTrackerAction >().dropRequests();
+
 			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()

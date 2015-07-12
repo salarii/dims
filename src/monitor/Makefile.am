@@ -22,6 +22,7 @@ MONITOR_H = \
 	noMediumHandling.h \
 	pingAction.h \
 	processNetwork.h \
+	provideInfoAction.h \
 	rankingDatabase.h \
 	recognizeNetworkAction.h \
 	registerRpcHooks.h \
@@ -46,6 +47,7 @@ MONITOR_CPP = \
 	noMediumHandling.cpp \
 	pingAction.cpp \
 	processNetwork.cpp \
+	provideInfoAction.cpp \
 	rankingDatabase.cpp \
 	recognizeNetworkAction.cpp \
 	registerRpcHooks.cpp \

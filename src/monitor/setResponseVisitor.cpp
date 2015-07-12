@@ -13,6 +13,7 @@
 #include "monitor/pingAction.h"
 #include "monitor/recognizeNetworkAction.h"
 #include "monitor/trackOriginAddressAction.h"
+#include "monitor/provideInfoAction.h"
 
 namespace common
 {
@@ -175,6 +176,31 @@ public:
 		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
+
+};
+
+class CSetProvideInfoActionResult : public CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList >
+{
+public:
+	CSetProvideInfoActionResult( monitor::CProvideInfoAction * const _action ):CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
+		this->m_action->process_event( common::CAckEvent() );
+	}
 };
 
 CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
@@ -221,6 +247,12 @@ void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CTrackOriginAddressAction & _action )
 {
 	boost::apply_visitor( ( CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList > const & )CSetTrackOriginAddressResult( &_action ), m_requestResponse );
+}
+
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CProvideInfoAction & _action )
+{
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList > const & )( &_action ), m_requestResponse );
 }
 
 }

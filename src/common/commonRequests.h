@@ -739,6 +739,56 @@ CBalanceRequest< _Types >::getKey() const
 	return m_key;
 }
 
+
+template < class _Types >
+class CValidRegistrationRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CValidRegistrationRequest( CPubKey const & _key, uint64_t const _period,FilterType * _filterType );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	CPubKey const & getKey() const;
+
+	uint64_t getPeriod() const;
+private:
+	CPubKey const m_key;
+
+	uint64_t const m_period;
+};
+
+template < class _Types >
+CValidRegistrationRequest< _Types >::CValidRegistrationRequest( CPubKey const & _key, uint64_t const _period, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_key( _key )
+	, m_period( _period )
+{
+}
+
+template < class _Types >
+void
+CValidRegistrationRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+CPubKey const &
+CValidRegistrationRequest< _Types >::getKey() const
+{
+	return m_key;
+}
+
+template < class _Types >
+uint64_t
+CValidRegistrationRequest< _Types >::getPeriod() const
+{
+	return m_period;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

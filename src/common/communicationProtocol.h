@@ -58,7 +58,7 @@ struct CInfoKind
 	{
 		  NetworkInfoAsk
 		, RoleInfoAsk
-		,
+		, IsRegistered
 	};
 };
 

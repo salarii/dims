@@ -25,6 +25,17 @@ uint64_t const CReputationTracker::m_recalculateTime = 10000;// this  time is  v
 
 CReputationTracker::CReputationTracker()
 {
+	std::map< uint160, CTrackerData > trackers;
+	CRankingDatabase::getInstance()->loadIdentificationDatabase( trackers );
+
+	std::map< uint160, CTrackerData >::const_iterator iterator = trackers.begin();
+
+	while( iterator != trackers.end() )
+	{
+		addTracker( iterator->second );
+
+		iterator++;
+	}
 }
 
 CReputationTracker*
