@@ -34,8 +34,6 @@ public:
 		m_pingedNodes.erase( m_nodeIndicator );
 	};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	uintptr_t m_nodeIndicator;
 
 	static std::set< uintptr_t > m_pingedNodes; //a bit ugly

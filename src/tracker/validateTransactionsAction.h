@@ -42,8 +42,6 @@ public:
 
 	common::CMessage getMessage() const;
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	uintptr_t m_initiatingNode;
 
 	common::CMessage m_message;

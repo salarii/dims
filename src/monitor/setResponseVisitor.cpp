@@ -106,6 +106,10 @@ public:
 		void operator()( CTransaction const & ) const
 		{
 		}
+
+		void operator()( CValidRegistration const & ) const
+		{
+		}
 	private:
 		monitor::CRecognizeNetworkAction * m_action;
 	};

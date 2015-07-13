@@ -57,8 +57,6 @@ public:
 
 	~CConnectNodeAction(){};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	std::string const m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;

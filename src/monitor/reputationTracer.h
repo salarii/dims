@@ -87,6 +87,8 @@ public:
 	}
 
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
+
+	bool checkForTracker( CPubKey const & _pubKey, CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
 private:
 	CReputationTracker();
 

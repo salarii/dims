@@ -290,15 +290,4 @@ CNetworkActionRegister::registerServicedByAction( uint256 const & _actionKey )
 	m_actionsInProgress.insert( _actionKey );
 }
 
-CCommunicationRegisterObject::CCommunicationRegisterObject( uint256 const & _actionKey )
-	: m_actionKey( _actionKey )
-{
-	CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );
-}
-
-CCommunicationRegisterObject::~CCommunicationRegisterObject()
-{
-	CNetworkActionRegister::getInstance()->unregisterServicedByAction( m_actionKey );
-}
-
 }

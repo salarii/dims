@@ -209,6 +209,10 @@ public:
 		void operator()( CTransaction const & ) const
 		{
 		}
+
+		void operator()( CValidRegistration const & ) const
+		{
+		}
 	private:
 		tracker::CRecognizeNetworkAction * m_action;
 	};

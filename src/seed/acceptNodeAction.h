@@ -55,8 +55,6 @@ public:
 
 	~CAcceptNodeAction(){};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	CAddress m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;

@@ -31,8 +31,6 @@ public:
 
 	bool isRequestInitialized() const;
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	uint256 m_currentHash;
 
 	uint64_t m_timeStamp;

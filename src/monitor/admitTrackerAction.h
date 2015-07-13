@@ -26,8 +26,6 @@ public:
 
 	~CAdmitTrackerAction(){};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	uintptr_t m_nodePtr;
 };
 

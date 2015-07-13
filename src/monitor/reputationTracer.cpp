@@ -265,6 +265,13 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 	return nodesInfo;
 }
 
+bool
+CReputationTracker::checkForTracker( CPubKey const & _pubKey, CTrackerData & _trackerData, CPubKey & _controllingMonitor )const
+{
+
+}
+
+
 void
 CReputationTracker::addTracker( CTrackerData const & _trackerData )
 {

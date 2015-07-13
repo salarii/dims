@@ -40,8 +40,6 @@ public:
 
 	~CProvideInfoAction(){};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	uint256 m_infoRequestKey;
 
 	uintptr_t m_nodeIndicator;

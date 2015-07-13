@@ -25,7 +25,6 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 {
 	CProvideInfo( my_context ctx ) : my_base( ctx )
 	{
-		m_enterStateTime = GetTime();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
@@ -49,7 +48,6 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		return discard_event();
 	}
-	int64_t m_enterStateTime;
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
@@ -57,20 +55,65 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	> reactions;
 };
 
-struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction >
+struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
-	CMonitorStop( my_context ctx ) : my_base( ctx )
+	CAskForInfo( my_context ctx ) : my_base( ctx )
 	{
+		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest< common::CTrackerTypes >(
+														  context< CProvideInfoAction >().getInfo()
+														, context< CProvideInfoAction >().getActionKey()
+														, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		context< CProvideInfoAction >().dropRequests();
+
+		context< CProvideInfoAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CProvideInfoAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+
+		if ( ( common::CPayloadKind::Enum )orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration )
+		{
+			common::CValidRegistration validRegistration;
+
+			common::convertPayload( orginalMessage, validRegistration );
+
+			context< CProvideInfoAction >().setResult( validRegistration );
+		}
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
 };
 
+
 CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
-	: common::CAction< common::CTrackerTypes >( _actionKey )
-	, m_registerObject( _actionKey )
+	: common::CScheduleAbleAction< common::CTrackerTypes >( _actionKey )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
-	process_event( common::CSwitchToConnectedEvent() );
+}
+
+CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, uintptr_t _nodeIndicator )
+	: m_infoKind( _infoKind )
+	, m_nodeIndicator( _nodeIndicator )
+{
+	initiate();
 }
 
 void

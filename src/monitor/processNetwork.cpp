@@ -15,6 +15,7 @@
 #include "monitor/admitTrackerAction.h"
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/pingAction.h"
+#include "monitor/provideInfoAction.h"
 
 namespace monitor
 {
@@ -86,6 +87,17 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					CAdmitProofTransactionBundle * admitTransactionBundle = new CAdmitProofTransactionBundle;
 					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTransactionBundle );
+				}
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+				{
+					CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
+								message.m_header.m_actionKey
+								, convertToInt( nodeMedium->getNode() )
+								);
+
+					provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+
+					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( provideInfoAction );
 				}
 			}
 		}

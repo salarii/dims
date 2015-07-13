@@ -30,7 +30,6 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitProofTra
 
 CAdmitProofTransactionBundle::CAdmitProofTransactionBundle()
 	: common::CAction< common::CMonitorTypes >( false )
-	, m_registerObject( getActionKey() )
 {
 	initiate();
 }

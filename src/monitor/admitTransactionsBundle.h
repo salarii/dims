@@ -50,7 +50,6 @@ public:
 
 	~CAdmitProofTransactionBundle(){};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
 };
 
 

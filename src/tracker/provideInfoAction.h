@@ -5,7 +5,7 @@
 #ifndef PROVIDE_INFO_ACTION_H
 #define PROVIDE_INFO_ACTION_H
 
-#include "common/action.h"
+#include "common/scheduleAbleAction.h"
 #include "common/filters.h"
 
 #include "configureTrackerActionHandler.h"
@@ -26,18 +26,22 @@ namespace tracker
 struct CProvideInfo;
 // rework  this  sooner  or later
 
-class CProvideInfoAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >
+class CProvideInfoAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >
 {
 public:
 	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
+
+	CProvideInfoAction( common::CInfoKind::Enum _infoKind, uintptr_t _nodeIndicator );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	uintptr_t getNodeIndicator()const;
 
+	common::CInfoKind::Enum getInfo() const{ return m_infoKind; }
+
 	~CProvideInfoAction(){};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
+	common::CInfoKind::Enum m_infoKind;
 
 	uintptr_t m_nodeIndicator;
 };

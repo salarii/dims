@@ -32,8 +32,6 @@ public:
 
 	CPubKey getPublicKey() const;
 private:
-	common::CCommunicationRegisterObject m_registerObject;
-
 	int64_t m_registerPayment;
 
 	uintptr_t m_nodePtr;

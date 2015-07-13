@@ -32,7 +32,6 @@ public:
 
 	~CUpdateDataAction(){};
 private:
-	common::CCommunicationRegisterObject m_registerObject;
 };
 
 

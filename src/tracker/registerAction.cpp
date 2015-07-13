@@ -295,8 +295,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 };
 
 CRegisterAction::CRegisterAction( uintptr_t _nodePtr )
-	: m_registerObject( getActionKey() )
-	, m_nodePtr( _nodePtr )
+	: m_nodePtr( _nodePtr )
 {
 	initiate();
 }

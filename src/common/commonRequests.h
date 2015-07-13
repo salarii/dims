@@ -747,7 +747,7 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CValidRegistrationRequest( CPubKey const & _key, uint64_t const _period,FilterType * _filterType );
+	CValidRegistrationRequest( CPubKey const & _key, uint64_t const _contractTime, uint64_t const _period,FilterType * _filterType );
 
 	virtual void accept( MediumType * _medium ) const;
 
@@ -757,13 +757,16 @@ public:
 private:
 	CPubKey const m_key;
 
+	uint64_t const m_contractTime;
+
 	uint64_t const m_period;
 };
 
 template < class _Types >
-CValidRegistrationRequest< _Types >::CValidRegistrationRequest( CPubKey const & _key, uint64_t const _period, FilterType * _filterType )
+CValidRegistrationRequest< _Types >::CValidRegistrationRequest( CPubKey const & _key, uint64_t const _contractTime, uint64_t const _period, FilterType * _filterType )
 	: common::CRequest< _Types >( _filterType )
 	, m_key( _key )
+	, m_contractTime( _contractTime )
 	, m_period( _period )
 {
 }

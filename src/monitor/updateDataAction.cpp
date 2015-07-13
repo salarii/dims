@@ -77,7 +77,6 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 
 CUpdateDataAction::CUpdateDataAction( bool _autoDelete )
 : common::CAction< common::CMonitorTypes >( _autoDelete )
-, m_registerObject( getActionKey() )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );

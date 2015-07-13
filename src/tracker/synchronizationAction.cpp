@@ -313,14 +313,12 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 };
 
 CSynchronizationAction::CSynchronizationAction()
-	: m_registerObject( getActionKey() )
 {
 	initiate();
 }
 
 CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp )
-	: m_registerObject( _actionKey )
-	, m_timeStamp( _timeStamp )
+	: m_timeStamp( _timeStamp )
 	, m_nodeIdentifier( _nodeIndicator )
 {
 	initiate();

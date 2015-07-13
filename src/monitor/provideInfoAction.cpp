@@ -17,6 +17,7 @@
 #include "monitor/provideInfoAction.h"
 #include "monitor/monitorRequests.h"
 #include "monitor/filters.h"
+#include "monitor/reputationTracer.h"
 
 namespace monitor
 {
@@ -72,8 +73,27 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 	{
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >(
-						LoopTime
+						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+/* get  motherfucker
+
+
+
+*/
+		CPubKey pubKey;
+		CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+
+		CTrackerData trackerData;
+		CPubKey monitorPubKey;
+		CReputationTracker::getInstance()->checkForTracker( pubKey, trackerData, monitorPubKey );
+
+		context< CProvideInfoAction >().addRequest(
+					new common::CValidRegistrationRequest< common::CMonitorTypes >(
+						  monitorPubKey
+						, trackerData.m_contractTime
+						, trackerData.m_networkTime
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
@@ -104,11 +124,9 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 
 CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
-	, m_registerObject( _actionKey )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
-	process_event( common::CSwitchToConnectedEvent() );
 }
 
 void
