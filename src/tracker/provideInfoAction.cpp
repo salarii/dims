@@ -62,7 +62,8 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest< common::CTrackerTypes >(
 														  context< CProvideInfoAction >().getInfo()
 														, context< CProvideInfoAction >().getActionKey()
-														, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+														, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
+
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
@@ -83,7 +84,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					new common::CAckRequest< common::CTrackerTypes >(
 						  context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
 		if ( ( common::CPayloadKind::Enum )orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration )
 		{
@@ -109,9 +110,8 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _n
 	initiate();
 }
 
-CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, uintptr_t _nodeIndicator )
+CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind )
 	: m_infoKind( _infoKind )
-	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
 }

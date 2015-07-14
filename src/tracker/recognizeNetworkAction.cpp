@@ -9,6 +9,7 @@
 #include "tracker/connectNodeAction.h"
 #include "tracker/trackerFilters.h"
 #include "tracker/trackerController.h"
+#include "tracker/provideInfoAction.h"
 
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
@@ -116,6 +117,27 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 	std::set< common::CValidNodeInfo > m_trackers;
 	std::set< common::CValidNodeInfo > m_monitors;
 
+};
+
+struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationStatus, CRecognizeNetworkAction >
+{
+	CCheckRegistrationStatus( my_context ctx ) : my_base( ctx )
+	{
+		context< CRecognizeNetworkAction >().dropRequests();
+		context< CRecognizeNetworkAction >().addRequest(
+					new common::CScheduleActionRequest< common::CTrackerTypes >(
+						  new CProvideInfoAction( common::CInfoKind::IsRegistered )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+	}
+
+	boost::statechart::result react( common::CRegistrationDataEvent const & _registerData )
+	{
+
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CRegistrationDataEvent >
+	> reactions;
 };
 
 

@@ -76,6 +76,19 @@ struct CTrackerStatsEvent : boost::statechart::event< CTrackerStatsEvent >
 	uintptr_t m_nodeIndicator;
 };
 
+struct CRegistrationDataEvent : boost::statechart::event< CRegistrationDataEvent >
+{
+	CRegistrationDataEvent( CPubKey const & _key, uint64_t _registrationTime, uint64_t const & _period )
+		: m_key( _key )
+		, m_registrationTime( _registrationTime )
+		, m_period( _period )
+	{}
+
+	CPubKey m_key;
+	uint64_t m_registrationTime;
+	uint64_t m_period;
+};
+
 struct CMonitorStatsEvent : boost::statechart::event< CMonitorStatsEvent >
 {
 	CMonitorStatsEvent( common::CMonitorData const & _monitorData, std::string _ip, uintptr_t _nodeIndicator )

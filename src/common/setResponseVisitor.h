@@ -61,6 +61,8 @@ class CRecognizeNetworkAction;
 class CTrackOriginAddressAction;
 
 class CProvideInfoAction;
+
+class CCopyTransactionStorageAction;
 }
 
 namespace seed
@@ -157,6 +159,8 @@ public:
 	virtual void visit( monitor::CTrackOriginAddressAction & _action );
 
 	virtual void visit( monitor::CProvideInfoAction & _action );
+
+	virtual void visit( monitor::CCopyTransactionStorageAction & _action );
 private:
 
 	monitor::MonitorResponses m_requestResponse;

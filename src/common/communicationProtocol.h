@@ -309,13 +309,16 @@ struct CValidRegistration
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE( m_key );
+		READWRITE( m_registrationTime );
 		READWRITE( m_period );
 	)
 
-	CValidRegistration():m_key(),m_period( 0 ){}
-	CValidRegistration( CPubKey const & _key, uint64_t const & _period ):m_key( _key ), m_period( _period ){}
+	CValidRegistration():m_key(), m_registrationTime( 0 ), m_period( 0 ){}
+
+	CValidRegistration( CPubKey const & _key, uint64_t _registrationTime, uint64_t const & _period ):m_key( _key ), m_registrationTime( _registrationTime ),m_period( _period ){}
 
 	CPubKey m_key;
+	uint64_t m_registrationTime;
 	uint64_t m_period;
 };
 

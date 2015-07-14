@@ -31,7 +31,7 @@ class CProvideInfoAction : public common::CScheduleAbleAction< common::CTrackerT
 public:
 	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
-	CProvideInfoAction( common::CInfoKind::Enum _infoKind, uintptr_t _nodeIndicator );
+	CProvideInfoAction( common::CInfoKind::Enum _infoKind );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 

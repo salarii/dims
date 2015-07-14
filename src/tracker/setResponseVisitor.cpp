@@ -210,8 +210,9 @@ public:
 		{
 		}
 
-		void operator()( CValidRegistration const & ) const
+		void operator()( CValidRegistration const & _validRegistration ) const
 		{
+			this->m_action->process_event( common::CRegistrationDataEvent( _validRegistration.m_key, _validRegistration.m_registrationTime, _validRegistration.m_period ) );
 		}
 	private:
 		tracker::CRecognizeNetworkAction * m_action;

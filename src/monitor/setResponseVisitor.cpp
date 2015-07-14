@@ -259,5 +259,9 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CProvideInfoAction
 	boost::apply_visitor( ( CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList > const & )( &_action ), m_requestResponse );
 }
 
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CCopyTransactionStorageAction & _action )
+{}
+
 }
 
