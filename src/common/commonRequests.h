@@ -792,6 +792,65 @@ CValidRegistrationRequest< _Types >::getPeriod() const
 	return m_period;
 }
 
+template < class _Types >
+class CStorageInfoRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _id, FilterType * _filterType );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint64_t getTime() const;
+
+	uint64_t getSize() const;
+
+	uint64_t getId() const;
+private:
+	uint64_t const m_time;
+	uint64_t const m_size;
+	uint256 const m_id;
+};
+
+template < class _Types >
+CStorageInfoRequest< _Types >::CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _id, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_time( _time )
+	, m_size( _size )
+	, m_id( _id )
+{
+}
+
+template < class _Types >
+void
+CStorageInfoRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint64_t
+CStorageInfoRequest< _Types >::getSize() const
+{
+	return m_time;
+}
+
+template < class _Types >
+uint64_t
+CStorageInfoRequest< _Types >::getTime() const
+{
+	return m_size;
+}
+
+template < class _Types >
+uint64_t
+CStorageInfoRequest< _Types >::getId() const
+{
+	return m_id;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

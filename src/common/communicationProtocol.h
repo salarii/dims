@@ -48,7 +48,8 @@ struct CPayloadKind
 		Pong,
 		Balance,
 		ClientTransaction,
-		ClientStatusTransaction
+		ClientStatusTransaction,
+		StorageInfo
 	};
 };
 
@@ -148,6 +149,21 @@ struct CNetworkRole
 	)
 
 	int m_role;
+};
+
+struct CTransactionStorageInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_size );
+		READWRITE( m_time );
+	)
+
+	CTransactionStorageInfo(){}
+
+	CTransactionStorageInfo( uint64_t _size, uint64_t _time ): m_size( _size ), m_time( _time ){}
+	uint64_t m_size;
+	uint64_t m_time;
 };
 
 struct CTransactionBundle
@@ -428,7 +444,7 @@ public:
 	CMessage( CBalance const & _balance, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
-
+	CMessage( CTransactionStorageInfo const & _transactionStorageInfo, uint256 const & _actionKey, uint256 const & _id );
 
 	IMPLEMENT_SERIALIZE
 	(

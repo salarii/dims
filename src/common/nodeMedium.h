@@ -57,6 +57,8 @@ public:
 
 	void add( CInfoAskRequest< Type > const * _request );
 
+	void add( CStorageInfoRequest< Type > const * _request );
+
 	void add( CSetNextBlockRequest< CSegmentHeader, Type > const * _request );
 
 	void add( CSetNextBlockRequest< CDiskBlock, Type > const * _request );
@@ -364,6 +366,19 @@ CNodeMedium< _Medium >::add( CInfoAskRequest< Type > const * _request )
 	CInfoRequestData infoReqData( ( int ) _request->getInfoKind() );
 
 	common::CMessage message( infoReqData, _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CStorageInfoRequest< Type > const * _request )
+{
+	CTransactionStorageInfo transactionStorageInfo( _request->getSize(), _request->getTime() );
+
+	common::CMessage message( transactionStorageInfo, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 

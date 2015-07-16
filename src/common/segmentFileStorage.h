@@ -27,6 +27,8 @@ class CCoins;
 namespace common
 {
 
+// fix  synchronization
+
 #define BLOCK_SIZE ( 1 << 10 )
 #define TRANSACTION_MAX_SIZE ( 1 << 8 )
 #define MAX_BUCKET ( 0x10 ) // not more than 0xff
@@ -266,6 +268,12 @@ private:
 	void addToRecentlyUsed( CTransaction const & _transaction );
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
+
+	void copyFile( boost::filesystem::path _targetPath, std::string _fileName ) const;
+
+	void copyHeader( boost::filesystem::path _targetPath ) const;
+
+	void copyStorage( boost::filesystem::path _targetPath ) const;
 private:
 	mutable boost::mutex m_headerCacheLock;
 

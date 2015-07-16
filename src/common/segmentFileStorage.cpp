@@ -797,6 +797,31 @@ CSegmentFileStorage::setDiscBlock( CSegmentHeader const & _segmentHeader, unsign
 	return true;
 }
 
+// should  be  synchronized  in  some  way
+void
+CSegmentFileStorage::copyFile( boost::filesystem::path _targetPath, std::string _fileName ) const
+{
+
+	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	path += m_baseDirectory + _fileName;
+
+	boost::filesystem::create_directory( _targetPath );
+	boost::filesystem::path file( path );
+	boost::filesystem::copy_file( file, _targetPath );
+
+}
+
+void
+CSegmentFileStorage::copyHeader( boost::filesystem::path _targetPath ) const
+{
+	copyFile( _targetPath, ms_headerFileName );
+}
+
+void
+CSegmentFileStorage::copyStorage( boost::filesystem::path _targetPath ) const
+{
+	copyFile( _targetPath, ms_segmentFileName );
+}
 /*
 
 check merkle ?? set  merkle hash in  headers??
