@@ -172,22 +172,6 @@ private:
 	uint64_t const m_timeStamp;
 };
 
-class CGetNextBlockRequest : public common::CRequest< common::CTrackerTypes >
-{
-public:
-	CGetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, int _blockKind );
-
-	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
-
-	uint256 getActionKey() const;
-
-	int getBlockKind() const;
-private:
-	uint256 const m_actionKey;
-
-	int m_blockKind;
-};
-
 class CGetBalanceRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:

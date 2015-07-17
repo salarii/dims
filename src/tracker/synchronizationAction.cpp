@@ -13,6 +13,7 @@
 #include "common/segmentFileStorage.h"
 #include "common/mediumKinds.h"
 #include "common/supportTransactionsDatabase.h"
+#include "common/commonEvents.h"
 
 #include "tracker/transactionRecordManager.h"
 #include "tracker/synchronizationAction.h"
@@ -24,15 +25,6 @@
 
 namespace tracker
 {
-
-struct CBlockKind
-{
-	enum Enum
-	{
-		Segment
-		, Header
-	};
-};
 
 unsigned const SynchronisingGetInfoTime = 10000;//milisec
 
@@ -142,10 +134,10 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest(
-					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
+					new common::CGetNextBlockRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)common::CBlockKind::Segment ) );
 	}
 
-	boost::statechart::result react( CTransactionBlockEvent< common::CDiskBlock > const & _transactionBlockEvent )
+	boost::statechart::result react( common::CTransactionBlockEvent< common::CDiskBlock > const & _transactionBlockEvent )
 	{
 		std::vector< CTransaction > transactions;
 
@@ -153,7 +145,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest(
-					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Segment ) );
+					new common::CGetNextBlockRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)common::CBlockKind::Segment ) );
 
 		BOOST_FOREACH( CTransaction const & transaction, transactions )
 		{
@@ -185,7 +177,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CTransactionBlockEvent< common::CDiskBlock > >,
+	boost::statechart::custom_reaction< common::CTransactionBlockEvent< common::CDiskBlock > >,
 	boost::statechart::custom_reaction< common::CEndEvent >
 	> reactions;
 };
@@ -199,22 +191,22 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest(
-					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Header ) );
+					new common::CGetNextBlockRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)common::CBlockKind::Header ) );
 	}
 
-	boost::statechart::result react( CTransactionBlockEvent< common::CSegmentHeader > const & _transactionBlockEvent )
+	boost::statechart::result react( common::CTransactionBlockEvent< common::CSegmentHeader > const & _transactionBlockEvent )
 	{
 		common::CSegmentFileStorage::getInstance()->setDiscBlock( *_transactionBlockEvent.m_discBlock, _transactionBlockEvent.m_blockIndex );
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest(
-					new CGetNextBlockRequest( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)CBlockKind::Header ) );
+					new common::CGetNextBlockRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ), (int)common::CBlockKind::Header ) );
 
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CTransactionBlockEvent< common::CSegmentHeader > >,
+	boost::statechart::custom_reaction< common::CTransactionBlockEvent< common::CSegmentHeader > >,
 	boost::statechart::transition< common::CEndEvent, CSynchronizingBlocks >
 	> reactions;
 };
@@ -264,11 +256,11 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	boost::statechart::result react( common::CGetEvent const & _getEvent )
 	{
-		if ( m_currentBlock < m_storedBlocks && _getEvent.m_type == CBlockKind::Segment )
+		if ( m_currentBlock < m_storedBlocks && _getEvent.m_type == common::CBlockKind::Segment )
 		{
 			setBlock();
 		}
-		else if ( m_currentHeader < m_storedHeaders && _getEvent.m_type == CBlockKind::Header )
+		else if ( m_currentHeader < m_storedHeaders && _getEvent.m_type == common::CBlockKind::Header )
 		{
 			setHeaders();
 		}

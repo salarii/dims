@@ -28,7 +28,10 @@ public:
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
 	void clear(){};
+
+	uintptr_t getNodeIdentifier() const{ return m_ptr; }
 private:
+	uintptr_t m_ptr;
 };
 
 }

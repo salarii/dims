@@ -28,20 +28,6 @@ CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
 }
 
 void
-CTrackerNodeMedium::add( CGetNextBlockRequest const * _request )
-{
-	common::CGet get;
-
-	get.m_type = _request->getBlockKind();
-
-	common::CMessage message( get, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
-}
-
-void
 CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 {
 	common::CTransactionBundle transactionBundle;

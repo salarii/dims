@@ -25,16 +25,6 @@ struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInf
 	unsigned int m_nodeIdentifier;
 };
 
-template < class Block >
-struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent<Block> >
-{
-	CTransactionBlockEvent( Block * _discBlock, unsigned int _blockIndex ):m_discBlock( _discBlock ),m_blockIndex( _blockIndex )
-	{
-	}
-	Block * m_discBlock;
-	unsigned int m_blockIndex;
-};
-
 struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
 {
 };

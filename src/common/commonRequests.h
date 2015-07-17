@@ -17,6 +17,15 @@
 namespace common
 {
 
+struct CBlockKind
+{
+	enum Enum
+	{
+		Segment
+		, Header
+	};
+};
+
 template < class _Types >
 class CSendIdentifyDataRequest : public common::CRequest< _Types >
 {
@@ -799,7 +808,7 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _id, FilterType * _filterType );
+	CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType );
 
 	virtual void accept( MediumType * _medium ) const;
 
@@ -807,18 +816,25 @@ public:
 
 	uint64_t getSize() const;
 
-	uint64_t getId() const;
+	uint256 getId() const;
+
+	uint256 getActionKey() const;
 private:
 	uint64_t const m_time;
+
 	uint64_t const m_size;
+
+	uint256 const m_actionKey;
+
 	uint256 const m_id;
 };
 
 template < class _Types >
-CStorageInfoRequest< _Types >::CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _id, FilterType * _filterType )
+CStorageInfoRequest< _Types >::CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
 	: common::CRequest< _Types >( _filterType )
 	, m_time( _time )
 	, m_size( _size )
+	, m_actionKey( _actionKey )
 	, m_id( _id )
 {
 }
@@ -845,10 +861,66 @@ CStorageInfoRequest< _Types >::getTime() const
 }
 
 template < class _Types >
-uint64_t
+uint256
 CStorageInfoRequest< _Types >::getId() const
 {
 	return m_id;
+}
+
+template < class _Types >
+uint256
+CStorageInfoRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class _Types >
+class CGetNextBlockRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CGetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, int _blockKind );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	int getBlockKind() const;
+private:
+	uint256 const m_actionKey;
+
+	int m_blockKind;
+};
+
+template < class _Types >
+CGetNextBlockRequest< _Types >::CGetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, int _blockKind  )
+	: common::CRequest< _Types >( _mediumFilter )
+	, m_actionKey( _actionKey )
+	, m_blockKind( _blockKind )
+{
+}
+
+template < class _Types >
+void
+CGetNextBlockRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CGetNextBlockRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class _Types >
+int
+CGetNextBlockRequest< _Types >::getBlockKind() const
+{
+	return m_blockKind;
 }
 
 }

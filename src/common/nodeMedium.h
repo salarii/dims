@@ -63,6 +63,8 @@ public:
 
 	void add( CSetNextBlockRequest< CDiskBlock, Type > const * _request );
 
+	void add( CGetNextBlockRequest< Type > const * _request );
+
 	void setResponse( uint256 const & _id, Response const & _responses );
 
 	void deleteRequest( CRequest< Type >const* _request );
@@ -252,6 +254,21 @@ CNodeMedium< _Medium >::add( CSendIdentifyDataRequest< Type > const * _request )
 	m_messages.push_back( message );
 
 	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CGetNextBlockRequest< Type > const * _request )
+{
+	common::CGet get;
+
+	get.m_type = _request->getBlockKind();
+
+	common::CMessage message( get, _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< Type >*)_request );
 }
 
 template < class _Medium >

@@ -24,8 +24,6 @@ public:
 
 	void add( CGetSynchronizationInfoRequest const * _request );
 
-	void add( CGetNextBlockRequest const * _request );
-
 	void add( CTransactionsPropagationRequest const * _request );
 
 	void add( CTransactionsStatusRequest const * _request );

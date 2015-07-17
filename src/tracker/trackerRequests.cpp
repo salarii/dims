@@ -215,32 +215,6 @@ CGetSynchronizationInfoRequest::getTimeStamp() const
 	return m_timeStamp;
 }
 
-CGetNextBlockRequest::CGetNextBlockRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter, int _blockKind  )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
-	, m_actionKey( _actionKey )
-	, m_blockKind( _blockKind )
-{
-}
-
-void
-CGetNextBlockRequest::accept( common::CTrackerBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-uint256
-CGetNextBlockRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-int
-CGetNextBlockRequest::getBlockKind() const
-{
-	return m_blockKind;
-}
-
-
 CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
 	: common::CRequest< common::CTrackerTypes >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_key( _key )

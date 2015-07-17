@@ -180,6 +180,17 @@ struct CBitcoinNetworkConnection : boost::statechart::event< CBitcoinNetworkConn
 	int m_nodesNumber;
 };
 
+
+template < class Block >
+struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent<Block> >
+{
+	CTransactionBlockEvent( Block * _discBlock, unsigned int _blockIndex ):m_discBlock( _discBlock ),m_blockIndex( _blockIndex )
+	{
+	}
+	Block * m_discBlock;
+	unsigned int m_blockIndex;
+};
+
 }
 
 #endif // COMMON_EVENTS_H
