@@ -209,6 +209,18 @@ private:
 	uint256 const m_actionKey;
 };
 
+class CTransactionConditionRequest : public common::CRequest< common::CTrackerTypes >
+{
+public:
+	CTransactionConditionRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter );
+
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+};
+
 class CTransactionAsClientRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:

@@ -47,14 +47,17 @@ NotPresent:
 	return "monitor with specified number not present";
 }
 
-void connectNetwork()
-{}
+void aconnectNetwork()
+{
+	// synchronizatin  action
+
+}
 
 void registerHooks()
 {
 	SatusHook.connect( &getStatus );
 	RegisterInNetworkHook.connect( &registerInNetwork );
-	ConnectNetworkHook.connect( &connectNetwork );
+//	ConnectNetworkHook.connect( &connectNetwork );
 }
 
 }

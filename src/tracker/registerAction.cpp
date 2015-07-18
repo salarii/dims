@@ -195,7 +195,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 			}
 			else
 			{
-				// wait  till  money  available
+				// revert  this   print  out  lack  of  funds
 				context< CRegisterAction >().addRequest(
 							new common::CTimeEventRequest< common::CTrackerTypes >(
 								MoneyWaitTime
@@ -263,17 +263,35 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )// not this
 	{
+		std::vector< std::pair< CKeyID, int64_t > > outputs;
 
-		/*
-			context< CNetworkAlive >().dropRequests();
-			context< CNetworkAlive >().addRequest(
-						new common::CAckRequest< common::CTrackerTypes >(
-							  context< CConnectNodeAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
-*/
+		outputs.push_back(
+					std::pair< CKeyID, int64_t >(
+						context< CRegisterAction >().getPublicKey().GetID()
+						, context< CRegisterAction >().getRegisterPayment() ) );
+
+			CWalletTx tx;
+			std::string failReason;
+
+			common::CTrackerStats tracker;
+			tracker.m_price = 0; // this  will produce transaction with no tracker output
+			if ( pwalletMain->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
+			{
+				context< CRegisterAction >().addRequest(
+							new common::CScheduleActionRequest< common::CTrackerTypes >(
+								new CPassTransactionAction( tx )
+								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+			}
+
+			context< CRegisterAction >().dropRequests();
+
+			context< CRegisterAction >().addRequest(
+			new common::CScheduleActionRequest< common::CTrackerTypes >(
+				  new CPassTransactionAction( tx )
+				, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+
 		return discard_event();
 	}
 

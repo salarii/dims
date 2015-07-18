@@ -12,6 +12,23 @@
 
 namespace tracker
 {
+/*
+		std::vector< std::pair< CKeyID, int64_t > > outputs;
+
+		outputs.push_back(
+					std::pair< CKeyID, int64_t >(
+						context< CRegisterAction >().getPublicKey().GetID()
+						, context< CRegisterAction >().getRegisterPayment() ) );
+
+			CWalletTx tx;
+			std::string failReason;
+
+			common::CTrackerStats tracker;
+			tracker.m_price = 0; // this  will produce transaction with no tracker output
+
+
+*/
+
 
 struct CProcessAsClient;
 struct CValidInNetwork;
@@ -75,6 +92,63 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 		transaction = context< CPassTransactionAction >().getTransaction();
 
 		context< CPassTransactionAction >().addRequest(
+					new CTransactionConditionRequest(
+						context< CPassTransactionAction >().getActionKey()
+						, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CPassTransactionAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		common::CClientTransactionStatus clientTransactionStatus;
+		common::convertPayload( orginalMessage, clientTransactionStatus );
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CPassTransactionAction >().getActionKey()
+						, _messageResult.m_id
+						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
+		if ( (common::TransactionsStatus::Enum)clientTransactionStatus != common::TransactionsStatus::Confirmed )
+		{
+			transaction.SetNull();
+		}
+
+		context< CPassTransactionAction >().setResult( transaction );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+
+	CTransaction transaction;
+};
+
+struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPassTransactionAction >
+{
+	CProcessTransaction()
+	{
+		transaction = context< CPassTransactionAction >().getTransaction();
+
+		context< CPassTransactionAction >().addRequest(
 					new CTransactionAsClientRequest(
 						transaction
 						, context< CPassTransactionAction >().getActionKey()
@@ -128,6 +202,13 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 
 CPassTransactionAction::CPassTransactionAction( CTransaction const & _transaction )
 	: m_transaction( _transaction )
+{
+	initiate();
+}
+
+CPassTransactionAction::CPassTransactionAction( CKeyID const & _keyId, int64_t _amount )
+	: m_keyId( _keyId )
+	, m_amount( _amount )
 {
 	initiate();
 }

@@ -269,6 +269,24 @@ CRegisterProofRequest::getActionKey() const
 	return m_actionKey;
 }
 
+CTransactionConditionRequest::CTransactionConditionRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
+: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+, m_actionKey( _actionKey )
+{
+}
+
+void
+CTransactionConditionRequest::accept( common::CTrackerBaseMedium * _medium ) const
+{
+	_medium->add( this );
+}
+
+uint256
+CTransactionConditionRequest::getActionKey() const
+{
+	return m_actionKey;
+}
+
 CTransactionAsClientRequest::CTransactionAsClientRequest( CTransaction const & _transaction, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
 	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
 	, m_transaction( _transaction )

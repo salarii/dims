@@ -19,11 +19,17 @@ class CPassTransactionAction : public common::CScheduleAbleAction< common::CTrac
 public:
 	CPassTransactionAction( CTransaction const & _transaction );
 
+	CPassTransactionAction( CKeyID const & _keyId, int64_t _amount );
+
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	CTransaction const & getTransaction() const{ return m_transaction; }
 private:
 	CTransaction m_transaction;
+
+	CKeyID const m_keyId;
+
+	int64_t m_amount;
 };
 
 }

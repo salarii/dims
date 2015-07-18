@@ -84,6 +84,7 @@ class CGetBalanceRequest;
 class CAskForRegistrationRequest;
 class CRegisterProofRequest;
 class CTransactionAsClientRequest;
+class CTransactionConditionRequest;
 
 }
 
@@ -177,6 +178,7 @@ public:
 	virtual void add( tracker::CAskForRegistrationRequest const * _request ){};
 	virtual void add( tracker::CRegisterProofRequest const * _request ){};
 	virtual void add( tracker::CTransactionAsClientRequest const * _request ){};
+	virtual void add( tracker::CTransactionConditionRequest const * _request ){};
 
 	virtual ~CTrackerBaseMedium(){};
 };

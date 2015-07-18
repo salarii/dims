@@ -58,6 +58,16 @@ extern json_spirit::Value registerInNetwork(const json_spirit::Array& params, bo
 
 extern json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
 {
+	if (fHelp || params.size() != 1)
+		throw runtime_error(
+			"connectNetwork will cause syncronization with current transaction storage \n" \
+			"\n If successful node  will start opertions in network\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("registerInNetwork", "")
+		);
+
+	std::string result = *RegisterInNetworkHook( params[0].get_str() );
+
 	return Value::null;
 }
 
