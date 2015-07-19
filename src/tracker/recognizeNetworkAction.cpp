@@ -18,6 +18,8 @@
 namespace tracker
 {
 
+struct CCheckRegistrationStatus;
+
 struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAction >
 {
 	CGetDnsInfo( my_context ctx ) : my_base( ctx )
@@ -45,7 +47,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			if ( vAdd.empty() )
 			{
 				context< CRecognizeNetworkAction >().setExit();
-				return;
 			}
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
@@ -90,7 +91,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		if ( nodesToAsk.empty() )
 		{
-			context< CRecognizeNetworkAction >().setExit();
+			return transit< CCheckRegistrationStatus >();
 		}
 		else
 		{
@@ -133,6 +134,8 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 	boost::statechart::result react( common::CRegistrationDataEvent const & _registerData )
 	{
 		CTrackerController::getInstance()->process_event( _registerData );
+		context< CRecognizeNetworkAction >().setExit();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<

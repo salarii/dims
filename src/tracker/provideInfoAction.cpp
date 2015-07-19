@@ -21,6 +21,29 @@ namespace tracker
 
 unsigned int const LoopTime = 20000;//milisec
 
+struct CProvideInfo;
+struct CAskForInfo;
+
+struct CAskForInfoEvent : boost::statechart::event< CAskForInfoEvent >
+{
+};
+
+struct CProvideInfoEvent : boost::statechart::event< CProvideInfoEvent >
+{
+};
+
+struct CInit : boost::statechart::state< CInit, CProvideInfoAction >
+{
+	CInit( my_context ctx ) : my_base( ctx )
+	{}
+
+	typedef boost::mpl::list<
+	boost::statechart::transition< CProvideInfoEvent, CProvideInfo >,
+	boost::statechart::transition< CAskForInfoEvent, CAskForInfo >
+	> reactions;
+
+};
+
 struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction >
 {
 	CProvideInfo( my_context ctx ) : my_base( ctx )
@@ -108,12 +131,14 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _n
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
+	process_event( CProvideInfoEvent() );
 }
 
 CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind )
 	: m_infoKind( _infoKind )
 {
 	initiate();
+	process_event( CAskForInfoEvent() );
 }
 
 void

@@ -96,40 +96,43 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 {
 	//  code  repeated  3 times ,fix it??
 
-		uintptr_t nodeIndicator;
-		std::list< common::CTrackerBaseMedium *> mediums;
+	uintptr_t nodeIndicator;
+	std::list< common::CTrackerBaseMedium *> mediums;
 
-	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
+	if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers || _nodesClass == common::CMediumKinds::Monitors )
 	{
-		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_trackers )
+		if ( _nodesClass != common::CMediumKinds::Monitors )
 		{
+			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_trackers )
+			{
 
-			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
-				assert(!"something went wrong");
+				if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+					assert(!"something went wrong");
 
-			common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
-			if (!medium)
-				assert(!"something went wrong");
+				common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
+				if (!medium)
+					assert(!"something went wrong");
 
-			mediums.push_back( medium );
+				mediums.push_back( medium );
+			}
+		}
+		if ( _nodesClass != common::CMediumKinds::Trackers )
+		{
+			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_monitors )
+			{
+
+				if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+					assert(!"something went wrong");
+
+				common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
+				if (!medium)
+					assert(!"something went wrong");
+
+				mediums.push_back( medium );
+			}
 		}
 	}
-	else if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Monitors )
-	{
-		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_monitors )
-		{
-
-			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
-				assert(!"something went wrong");
-
-			common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
-			if (!medium)
-				assert(!"something went wrong");
-
-			mediums.push_back( medium );
-		}
-	}
-	else if ( common::CMediumKinds::Seeds )
+	else if ( _nodesClass == common::CMediumKinds::Seeds )
 	{
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_seeds )
 		{
