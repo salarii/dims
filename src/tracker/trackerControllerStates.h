@@ -51,8 +51,11 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CTrackerController >
 
 	boost::statechart::result react( common::CNetworkRecognizedEvent const & _event );
 
+	boost::statechart::result react( common::CRegistrationDataEvent const & _event );
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CNetworkRecognizedEvent > > reactions;
+	boost::statechart::custom_reaction< common::CNetworkRecognizedEvent >,
+	boost::statechart::custom_reaction< common::CRegistrationDataEvent > > reactions;
 };
 
 struct CSynchronizing : boost::statechart::state< CSynchronizing, CTrackerController >

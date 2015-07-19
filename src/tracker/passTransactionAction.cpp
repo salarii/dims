@@ -10,25 +10,10 @@
 #include "tracker/passTransactionAction.h"
 #include "tracker/trackerFilters.h"
 
+extern CWallet* pwalletMain;
+
 namespace tracker
 {
-/*
-		std::vector< std::pair< CKeyID, int64_t > > outputs;
-
-		outputs.push_back(
-					std::pair< CKeyID, int64_t >(
-						context< CRegisterAction >().getPublicKey().GetID()
-						, context< CRegisterAction >().getRegisterPayment() ) );
-
-			CWalletTx tx;
-			std::string failReason;
-
-			common::CTrackerStats tracker;
-			tracker.m_price = 0; // this  will produce transaction with no tracker output
-
-
-*/
-
 
 struct CProcessAsClient;
 struct CValidInNetwork;
@@ -50,18 +35,30 @@ struct CInitial : boost::statechart::simple_state< CInitial, CPassTransactionAct
 	boost::statechart::transition< CInvalidInNetworkEvent, CProcessAsClient >
 	> reactions;
 };
-
+extern CWallet* pwalletMain;
 struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransactionAction >
 {
 	CValidInNetwork( my_context ctx ) : my_base( ctx )
 	{
-		transaction = context< CPassTransactionAction >().getTransaction();
-		CTransactionRecordManager::getInstance()->addClientTransaction( transaction );
+		std::vector< std::pair< CKeyID, int64_t > > outputs;
 
-				context< CPassTransactionAction >().addRequest(
-							new common::CTimeEventRequest< common::CTrackerTypes >(
-								  LoopTime
-								, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		outputs.push_back(
+					std::pair< CKeyID, int64_t >(
+						  context< CPassTransactionAction >().getKeyId()
+						, context< CPassTransactionAction >().getAmount() ) );
+
+		CWalletTx tx;
+		std::string failReason;
+
+		common::CTrackerStats tracker;
+		tracker.m_price = 0; // this  will produce transaction with no tracker output
+
+		CTransactionRecordManager::getInstance()->addClientTransaction( tx );
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						  LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	// pool if  given  transaction  executed ????
@@ -109,8 +106,8 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
 			assert( !"service it somehow" );
 
-		common::CClientTransactionStatus clientTransactionStatus;
-		common::convertPayload( orginalMessage, clientTransactionStatus );
+		common::CTrackerInfo trackerInfo;
+		common::convertPayload( orginalMessage, trackerInfo );
 
 		context< CPassTransactionAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
@@ -118,12 +115,28 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 						, _messageResult.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
-		if ( (common::TransactionsStatus::Enum)clientTransactionStatus != common::TransactionsStatus::Confirmed )
+		CKeyID keyId;
+		CTrackerNodesManager::getInstance()->getKeyToNode( keyId, _messageResult.m_nodeIndicator );
+
+		std::vector< std::pair< CKeyID, int64_t > > outputs;
+
+		outputs.push_back(
+					std::pair< CKeyID, int64_t >(
+						  context< CPassTransactionAction >().getKeyId()
+						, context< CPassTransactionAction >().getAmount() ) );
+
+		CWalletTx tx;
+		std::string failReason;
+
+		common::CTrackerStats tracker;
+
+		tracker.m_price = trackerInfo.m_price; // this  will produce transaction with no tracker output
+
+		if ( pwalletMain->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
 		{
-			transaction.SetNull();
+			CTransactionRecordManager::getInstance()->addClientTransaction( tx );
 		}
 
-		context< CPassTransactionAction >().setResult( transaction );
 
 		return discard_event();
 	}

@@ -132,7 +132,7 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 
 	boost::statechart::result react( common::CRegistrationDataEvent const & _registerData )
 	{
-
+		CTrackerController::getInstance()->process_event( _registerData );
 	}
 
 	typedef boost::mpl::list<

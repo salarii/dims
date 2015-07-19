@@ -17,8 +17,6 @@
 #include "tracker/selfWallet.h"
 #include "tracker/getSelfBalanceAction.h"
 
-extern CWallet* pwalletMain;
-
 namespace tracker
 {
 
@@ -174,33 +172,12 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		: my_base( ctx )
 	{
 
-		std::vector< std::pair< CKeyID, int64_t > > outputs;
-
-		outputs.push_back(
-					std::pair< CKeyID, int64_t >(
-						context< CRegisterAction >().getPublicKey().GetID()
-						, context< CRegisterAction >().getRegisterPayment() ) );
-
-			CWalletTx tx;
-			std::string failReason;
-
-			common::CTrackerStats tracker;
-			tracker.m_price = 0; // this  will produce transaction with no tracker output
-			if ( pwalletMain->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
-			{
 				context< CRegisterAction >().addRequest(
 							new common::CScheduleActionRequest< common::CTrackerTypes >(
-								new CPassTransactionAction( tx )
+								new CPassTransactionAction(
+									  context< CRegisterAction >().getPublicKey().GetID()
+									, context< CRegisterAction >().getRegisterPayment() )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-			}
-			else
-			{
-				// revert  this   print  out  lack  of  funds
-				context< CRegisterAction >().addRequest(
-							new common::CTimeEventRequest< common::CTrackerTypes >(
-								MoneyWaitTime
-								, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-			}
 
 		//	CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
 		context< CRegisterAction >().addRequest(
@@ -265,31 +242,20 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )// not this
 	{
-		std::vector< std::pair< CKeyID, int64_t > > outputs;
-
-		outputs.push_back(
-					std::pair< CKeyID, int64_t >(
-						context< CRegisterAction >().getPublicKey().GetID()
-						, context< CRegisterAction >().getRegisterPayment() ) );
-
-			CWalletTx tx;
-			std::string failReason;
-
-			common::CTrackerStats tracker;
-			tracker.m_price = 0; // this  will produce transaction with no tracker output
-			if ( pwalletMain->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
-			{
 				context< CRegisterAction >().addRequest(
 							new common::CScheduleActionRequest< common::CTrackerTypes >(
-								new CPassTransactionAction( tx )
+								new CPassTransactionAction(
+									  context< CRegisterAction >().getPublicKey().GetID()
+									, context< CRegisterAction >().getRegisterPayment() )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-			}
 
 			context< CRegisterAction >().dropRequests();
 
 			context< CRegisterAction >().addRequest(
 			new common::CScheduleActionRequest< common::CTrackerTypes >(
-				  new CPassTransactionAction( tx )
+							new CPassTransactionAction(
+								  context< CRegisterAction >().getPublicKey().GetID()
+								, context< CRegisterAction >().getRegisterPayment() )
 				, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
 		return discard_event();

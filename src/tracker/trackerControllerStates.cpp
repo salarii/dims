@@ -121,6 +121,36 @@ CStandAlone::react( common::CNetworkRecognizedEvent const & _event )
 	return discard_event();
 }
 
+boost::statechart::result
+CStandAlone::react( common::CRegistrationDataEvent const & _event )
+{
+	std::string status = context< CTrackerController >().getStatusMessage();
+
+	if ( !_event.m_registrationTime )
+	{
+		status += "\n not registered \n";
+	}
+	else
+	{
+		CNodeAddress monitor;
+		monitor.Set( _event.m_key.GetID(), common::NodePrefix::Monitor );
+		status += "\n registered in monitor: " + monitor.ToString() +"\n";
+
+		int64_t timeLeft = _event.m_registrationTime + _event.m_period - GetTime();
+
+		std::ostringstream convert;
+
+		convert << timeLeft;
+
+		status += "\nleft: " + convert.str() + " second of registration time \n";
+	}
+
+	context< CTrackerController >().setStatusMessage( status );
+
+	return discard_event();
+}
+
+
 CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )
 {
 	CSynchronizationAction * synchronizationAction = new CSynchronizationAction();

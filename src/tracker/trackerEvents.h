@@ -33,7 +33,6 @@ struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
 {
 };
 
-
 }
 
 
