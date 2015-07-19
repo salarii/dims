@@ -230,7 +230,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			}
 		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Ack )
 		{
 			common::CAck ack;
 

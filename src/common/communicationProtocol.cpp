@@ -273,37 +273,4 @@ CMessage::CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKe
 	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CNetworkActionRegister * CNetworkActionRegister::ms_instance = NULL;
-
-CNetworkActionRegister*
-CNetworkActionRegister::getInstance()
-{
-	if ( !ms_instance )
-	{
-		ms_instance = new CNetworkActionRegister();
-	};
-	return ms_instance;
-}
-
-bool
-CNetworkActionRegister::isServicedByAction( uint256 const & _actionKey ) const
-{
-	std::set< uint256 >::const_iterator iterator = m_actionsInProgress.find( _actionKey );
-
-	return iterator != m_actionsInProgress.end();
-}
-
-void
-CNetworkActionRegister::unregisterServicedByAction( uint256 const & _actionKey )
-{
-	m_actionsInProgress.erase( _actionKey );
-}
-
-
-void
-CNetworkActionRegister::registerServicedByAction( uint256 const & _actionKey )
-{
-	m_actionsInProgress.insert( _actionKey );
-}
-
 }

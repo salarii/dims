@@ -9,6 +9,7 @@
 #include <boost/foreach.hpp>
 
 #include "common/support.h"
+#include "common/networkActionRegister.h"
 
 namespace common
 {
@@ -26,11 +27,15 @@ public:
 	CAction( bool _autoDelete = true ): m_inProgress( false ), m_executed( false ), m_autoDelete( _autoDelete ), m_exit( false )
 	{
 		m_actionKey = getRandNumber();
+
+		CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );// this  shouldn't be  here in reality
 	};
 
 	CAction( uint256 const & _actionKey, bool _autoDelete = true ): m_inProgress( false ), m_executed( false ), m_autoDelete( _autoDelete ), m_exit( false )
 	{
 		m_actionKey = _actionKey;
+
+		CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );// this  shouldn't be  here in reality
 	};
 
 	virtual void accept( CSetResponseVisitor< _Type > & _visitor ) = 0;
@@ -77,6 +82,8 @@ public:
 		{
 			delete request;
 		}
+
+		CNetworkActionRegister::getInstance()->unregisterServicedByAction( m_actionKey );
 	};
 protected:
 	bool m_inProgress;

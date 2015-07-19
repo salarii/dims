@@ -37,6 +37,7 @@ COMMON_H = \
   common/filters.h \
   common/identifyRequest.h \
   common/manageNetwork.h \
+  common/networkActionRegister.h \
   common/nodeMedium.h \
   common/nodeMessages.h \
   common/nodesManager.h \
@@ -69,6 +70,7 @@ COMMON_CPP = \
   common/databaseManager.cpp \
   common/dimsParams.cpp \
   common/manageNetwork.cpp \
+  common/networkActionRegister.cpp \
   common/originAddressScanner.cpp \
   common/originTransactionsDatabase.cpp \
   common/segmentFileStorage.cpp \

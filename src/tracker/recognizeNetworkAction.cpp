@@ -42,7 +42,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			common::CManageNetwork::getInstance()->getSeedIps( vAdd );
 
-			if ( !vAdd.empty() )
+			if ( vAdd.empty() )
 			{
 				context< CRecognizeNetworkAction >().setExit();
 				return;

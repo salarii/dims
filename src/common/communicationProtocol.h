@@ -487,22 +487,6 @@ convertPayload( CMessage const & _message,T & _outMessage )
 uint256
 getRandNumber();
 
-class CNetworkActionRegister
-{
-public:
-	static CNetworkActionRegister* getInstance( );
-
-	void registerServicedByAction( uint256 const & _actionKey );
-
-	void unregisterServicedByAction( uint256 const & _actionKey );
-
-	bool isServicedByAction( uint256 const & _actionKey ) const;
-private:
-	static CNetworkActionRegister * ms_instance;
-
-	std::set< uint256 > m_actionsInProgress;
-};
-
 template < class T >
 void
 createPayload( T const & message, std::vector< unsigned char > & _payload )
