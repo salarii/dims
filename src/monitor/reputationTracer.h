@@ -19,7 +19,13 @@ namespace monitor
 
 struct CTrackerData
 {
-	CTrackerData(){}
+	CTrackerData()
+		: m_publicKey( CPubKey() )
+		, m_reputation( 0 )
+		, m_networkTime( 0 )
+		, m_contractTime( 0 )
+	{}
+
 	CTrackerData( CPubKey _publicKey, unsigned int _reputation, uint64_t _networkTime, uint64_t _contractTime ): m_publicKey( _publicKey ),m_reputation( _reputation ), m_networkTime( _networkTime ), m_contractTime( _contractTime ){}
 
 	IMPLEMENT_SERIALIZE
@@ -115,6 +121,8 @@ private:
 	std::map< uint160, common::CValidNodeInfo > m_candidates;
 
 	std::map< uint160, CAllyMonitorData > m_monitors;
+
+	std::map< uint160, uint160 > m_trackerToMonitor;
 
 	RegisteredTrackers m_registeredTrackers;
 

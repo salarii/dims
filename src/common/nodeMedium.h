@@ -65,6 +65,8 @@ public:
 
 	void add( CGetNextBlockRequest< Type > const * _request );
 
+	void add( CValidRegistrationRequest< Type > const * _request );
+
 	void setResponse( uint256 const & _id, Response const & _responses );
 
 	void deleteRequest( CRequest< Type >const* _request );
@@ -265,6 +267,23 @@ CNodeMedium< _Medium >::add( CGetNextBlockRequest< Type > const * _request )
 	get.m_type = _request->getBlockKind();
 
 	common::CMessage message( get, _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< Type >*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CValidRegistrationRequest< Type > const * _request )
+{
+	common::CValidRegistration validRegistration;
+
+	validRegistration.m_registrationTime = _request->getContractTime();
+	validRegistration.m_period = _request->getPeriod();
+	validRegistration.m_key = _request->getKey();
+
+	common::CMessage message( validRegistration, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 

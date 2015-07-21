@@ -268,6 +268,17 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 bool
 CReputationTracker::checkForTracker( CPubKey const & _pubKey, CTrackerData & _trackerData, CPubKey & _controllingMonitor )const
 {
+	RegisteredTrackers::const_iterator iterator = m_registeredTrackers.find( _pubKey.GetID() );
+
+	if ( iterator == m_registeredTrackers.end() )
+		return false;
+
+	_trackerData = iterator->second;
+
+	std::map< uint160, uint160 >::const_iterator monitorIterator = m_trackerToMonitor.find( _pubKey.GetID() );
+	assert( m_trackerToMonitor.end() != monitorIterator );
+
+	_controllingMonitor = m_monitors.find( monitorIterator->second )->second.m_publicKey;
 
 }
 
