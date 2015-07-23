@@ -93,6 +93,7 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 						, trackerData.m_contractTime
 						, trackerData.m_networkTime
 						, context< CProvideInfoAction >().getActionKey()
+						, context< CProvideInfoAction >().getInfoRequestKey()
 						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
 
 	}
