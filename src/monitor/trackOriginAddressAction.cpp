@@ -78,7 +78,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 
 	boost::statechart::result react( common::CMerkleBlocksEvent const & _merkleblockEvent )
 	{
-		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
+		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_nodePtr, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
 		return discard_event();
 	}
 

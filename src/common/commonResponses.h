@@ -391,11 +391,11 @@ typedef boost::variant< CNetworkInfoResult, CTransaction, CValidRegistration > S
 
 struct CRequestedMerkles
 {
-	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, long long _merkleId ):m_merkles( _merkles ),m_transactions( _transactions ), m_merkleId( _merkleId ){};
+	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, uintptr_t _nodePtr ):m_merkles( _merkles ),m_transactions( _transactions ), m_nodePtr( _nodePtr ){};
 
 	std::vector< CMerkleBlock > m_merkles;
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
-	long long m_merkleId;
+	uintptr_t m_nodePtr;
 };
 
 }

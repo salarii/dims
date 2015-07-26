@@ -35,6 +35,8 @@ public:
 	static CInternalMediumProvider* getInstance( );
 
 	void registerRemoveCallback( CNodeSignals& nodeSignals );
+
+	void stopCommunicationWithNode( uintptr_t _nodePtr );
 private:
 	void removeNodeCallback( CNode * node );
 

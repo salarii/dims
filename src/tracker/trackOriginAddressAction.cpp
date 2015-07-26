@@ -44,10 +44,9 @@ use  at  least  three node  and  compare  results, in case of inconsistency of d
 */
 struct CReadingData;
 
-
 struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackAction, CTrackOriginAddressAction >
 {
-	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
+	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
 	{
 		context< CTrackOriginAddressAction >().dropRequests();
 		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -73,15 +72,14 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
-
-	uint m_time;
 };
 
 struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddressAction >
 {
-	CReadingData( my_context ctx ) : my_base( ctx ), m_time( GetTime() )
+	CReadingData( my_context ctx ) : my_base( ctx )
 	{
-		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >( ( uint )context< CTrackOriginAddressAction >().getTimeModifier() * WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -91,24 +89,31 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 
 	boost::statechart::result react( common::CMerkleBlocksEvent const & _merkleblockEvent )
 	{
-		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
+		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_nodePtr, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
 		return discard_event();
 	}
 
 	~CReadingData()
 	{
+		context< CTrackOriginAddressAction >().adjustTracking();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMerkleBlocksEvent >
 	> reactions;
-
-	uint m_time;
 };
 
+struct CEvaluateProgress : boost::statechart::state< CEvaluateProgress, CTrackOriginAddressAction >
+{
+	CEvaluateProgress( my_context ctx ) : my_base( ctx )
+	{
+	}
+};
 
 CTrackOriginAddressAction::CTrackOriginAddressAction()
+	: m_timeModifier( 1 )
+	, m_updated( -1 )
 {
 	initiate();
 
@@ -172,7 +177,7 @@ CTrackOriginAddressAction::requestFiltered()
 		CTrackerController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
 	dropRequests();
-	addRequest( new CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
+	addRequest( new common::CAskForTransactionsRequest< common::CTrackerTypes >( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
 
 }
 
@@ -274,8 +279,11 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			size = nodeResults.second.size();
 	}
 
+	m_updated = size;
+
 	if ( size == (uint)-1 || size == 0 )
 		return;
+
 	// go  through transaction  queue analyse  if  the  same  content
 
 	std::vector< uint256 > blocksToAccept;
@@ -415,6 +423,28 @@ CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock 
 	else
 	{
 		iterator->second.insert( iterator->second.end(), accepted.begin(), accepted.end() );
+	}
+}
+
+void
+CTrackOriginAddressAction::adjustTracking()
+{
+	if ( m_updated < MaxMerkleNumber * 0.1 )
+	{
+		unsigned int size;
+		BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
+		{
+			size = nodeResults.second.size();
+
+			if ( size < MaxMerkleNumber * 0.1 )
+			{
+				CInternalMediumProvider::getInstance()->stopCommunicationWithNode( nodeResults.first );
+			}
+		}
+	}
+	else if ( m_updated < MaxMerkleNumber / 2 )
+	{
+		increaseModifier();
 	}
 }
 

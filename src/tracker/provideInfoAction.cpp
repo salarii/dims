@@ -87,10 +87,23 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 														, context< CProvideInfoAction >().getActionKey()
 														, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
 
+		context< CProvideInfoAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						  LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CProvideInfoAction >().dropRequests();
+		context< CProvideInfoAction >().setExit();
+
 		return discard_event();
 	}
 
@@ -100,8 +113,6 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 		common::CMessage orginalMessage;
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
-
-		context< CProvideInfoAction >().dropRequests();
 
 		context< CProvideInfoAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
@@ -120,6 +131,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;

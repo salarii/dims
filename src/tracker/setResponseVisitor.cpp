@@ -127,7 +127,7 @@ public:
 	virtual void operator()( common::CRequestedMerkles & _param ) const
 	{
 		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_merkleId ) );
+		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_nodePtr ) );
 	}
 
 	virtual void operator()( common::CTimeEvent & _param ) const
@@ -145,7 +145,7 @@ public:
 	virtual void operator()( common::CRequestedMerkles & _param ) const
 	{
 		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_merkleId ) );
+		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_nodePtr ) );
 	}
 
 	virtual void operator()( tracker::CSynchronizationInfoResult & _param ) const

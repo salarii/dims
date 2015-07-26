@@ -120,24 +120,6 @@ CTransactionsStatusRequest::getBundleStatus() const
 	return m_bundleStatus;
 }
 
-//common::CMediumKinds::BitcoinsNodes;
-CAskForTransactionsRequest::CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
-	, m_blockHashes( _blockHashes )
-{
-}
-
-void
-CAskForTransactionsRequest::accept( common::CTrackerBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-std::vector< uint256 > const &
-CAskForTransactionsRequest::getBlockHashes() const
-{
-	return m_blockHashes;
-}
 
 CSetBloomFilterRequest::CSetBloomFilterRequest( CBloomFilter const & _bloomFilter )
 	: common::CRequest< common::CTrackerTypes >( new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) )

@@ -45,9 +45,15 @@ CInternalMediumProvider::removeNodeCallback( CNode * node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_nodeToMedium.erase( node );
-
 }
 
+void
+CInternalMediumProvider::stopCommunicationWithNode( uintptr_t _nodePtr )
+{
+	CNode * node = reinterpret_cast< CNode * >( _nodePtr );
+	node->fDisconnect = true;
+	m_nodeToMedium.erase( node );
+}
 
 std::list< common::CTrackerBaseMedium *>
 CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )

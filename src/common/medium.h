@@ -73,7 +73,6 @@ namespace tracker
 {
 class CValidateTransactionsRequest;
 class CConnectToTrackerRequest;
-class CAskForTransactionsRequest;
 class CSetBloomFilterRequest;
 class CGetSynchronizationInfoRequest;
 class CTransactionsStatusRequest;
@@ -165,10 +164,10 @@ public:
 	virtual void add( common::CBalanceRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CValidRegistrationRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CGetNextBlockRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CAskForTransactionsRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
-	virtual void add( tracker::CAskForTransactionsRequest const * _request ){};
 	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
 	virtual void add( tracker::CGetSynchronizationInfoRequest const * _request ){};
 	virtual void add( tracker::CTransactionsStatusRequest const * _request ){};

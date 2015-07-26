@@ -154,10 +154,11 @@ struct CInitialSynchronizationDoneEvent : boost::statechart::event< CInitialSync
 
 struct CMerkleBlocksEvent : boost::statechart::event< CMerkleBlocksEvent >
 {
-	CMerkleBlocksEvent( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions,long long _id ):m_merkles( _merkles ), m_transactions( _transactions ),m_id( _id ){};
+	CMerkleBlocksEvent( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, uintptr_t _nodePtr )
+		: m_merkles( _merkles ), m_transactions( _transactions ), m_nodePtr( _nodePtr ){};
 	std::vector< CMerkleBlock > m_merkles;
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
-	long long const m_id;
+	uintptr_t const m_nodePtr;
 };
 
 struct CUpdateStatus : boost::statechart::event< CUpdateStatus >

@@ -109,21 +109,6 @@ private:
 	CBundleStatus::Enum m_bundleStatus;
 };
 
-
-class CAskForTransactionsRequest : public common::CRequest< common::CTrackerTypes >
-{
-public:
-	CAskForTransactionsRequest( std::vector< uint256 > const & _blockHashes, common::CTrackerMediumFilter * _mediumFilter );
-
-	virtual void accept( common::CTrackerBaseMedium * m_mediumNumber ) const;
-
-	std::vector< uint256 > const & getBlockHashes() const;
-private:
-	std::vector< uint256 > const m_blockHashes;
-
-};
-
-
 class CSetBloomFilterRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:
