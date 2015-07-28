@@ -71,7 +71,7 @@ template < class _Type >
 bool
 CBitcoinNodeMedium< _Type >::serviced() const
 {
-	return !m_transactions.empty() || !m_merkles.empty();
+	return !m_responses.empty();//!m_transactions.empty() || !m_merkles.empty();
 }
 
 template < class _Type >
@@ -117,6 +117,8 @@ CBitcoinNodeMedium< _Type >::add( CAskForTransactionsRequest< _Type > const * _r
 
 	m_node->m_filterSendQueue.push_back( bloomFilter );
 	m_node->m_blockQueue.insert( m_node->m_blockQueue.end(), _request->getBlockHashes().begin(), _request->getBlockHashes().end() );
+
+	reloadResponses();
 }
 
 template < class _Type >
