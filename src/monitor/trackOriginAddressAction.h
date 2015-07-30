@@ -30,6 +30,12 @@ public:
 	void clear();
 
 	void clearAccepted( uint const _number );
+
+	double getTimeModifier() const{ return m_timeModifier; }
+
+	void increaseModifier(){ m_timeModifier += 0.5; }
+
+	void adjustTracking();
 private:
 	void validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected );
 private:
@@ -41,6 +47,10 @@ private:
 	std::map< long long, std::map< uint256 , std::vector< CTransaction > > > m_transactions;
 
 	uint256 m_currentHash;
+
+	double m_timeModifier;
+
+	uint m_updated;
 };
 
 }

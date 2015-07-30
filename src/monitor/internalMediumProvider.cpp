@@ -40,6 +40,14 @@ CInternalMediumProvider::registerRemoveCallback( CNodeSignals& nodeSignals )
 }
 
 void
+CInternalMediumProvider::stopCommunicationWithNode( uintptr_t _nodePtr )
+{
+	CNode * node = reinterpret_cast< CNode * >( _nodePtr );
+	node->fDisconnect = true;
+	m_nodeToMedium.erase( node );
+}
+
+void
 CInternalMediumProvider::removeNodeCallback( CNode * node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );

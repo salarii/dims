@@ -72,7 +72,7 @@ CTransactionRecordManager::~CTransactionRecordManager()
 }
 
 void
-CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  )
+CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, CKeyID const & _keyId  )
 {
 	CCoins coins(_tx);
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );

@@ -4,7 +4,7 @@
 
 #include "core.h"
 #include "coins.h"
-#include "analyseTransaction.h"
+#include "common/analyseTransaction.h"
 
 namespace common
 {

@@ -31,6 +31,7 @@ MONITOR_H = \
 	reputationTracer.h \
 	server.h \
 	trackOriginAddressAction.h \
+	transactionRecordManager.h \
 	updateDataAction.h
 
 MONITOR_CPP = \
@@ -59,6 +60,7 @@ MONITOR_CPP = \
 	server.cpp \
 	setResponseVisitor.cpp \
 	trackOriginAddressAction.cpp \
+	transactionRecordManager.cpp \
 	updateDataAction.cpp
 
 libmonitor_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) 

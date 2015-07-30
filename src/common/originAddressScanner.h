@@ -18,6 +18,14 @@ class CTxMemPool;
 namespace common
 {
 
+class CStorageBase
+{
+public:
+	virtual void addCoinbaseTransaction( CTransaction const & _tx, CKeyID const & _keyId ) = 0;
+
+	virtual void addTransactionToStorage( CTransaction const & _tx ) = 0;
+};
+
 class COriginAddressScanner
 {
 public:
@@ -39,6 +47,8 @@ protected:
 	bool createBaseTransaction( CTransaction const & _tx, CTransaction & _baseTx, CKeyID & _baseKey );
 
 	void getHeightOfLastScanedBlock();
+
+	void setStorage( CStorageBase * _storage ){ m_storage = _storage; };
 private:
 	static COriginAddressScanner * ms_instance;
 
@@ -57,7 +67,10 @@ private:
 
 	std::vector< std::vector< unsigned char > > m_keys;
 	std::vector< uint64_t > m_balances;
+
+	CStorageBase * m_storage;
 };
+
 
 }
 

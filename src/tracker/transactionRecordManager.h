@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include "common/originAddressScanner.h"
+
 #include "checkqueue.h"
 
 #include "main.h"
@@ -37,7 +39,7 @@ struct CAllowedTypes
 	std::set< txnouttype > m_allowed;
 };
 
-class CTransactionRecordManager
+class CTransactionRecordManager : public common::CStorageBase
 {
 public:
 	~CTransactionRecordManager();
@@ -49,7 +51,7 @@ public:
 	//
 	bool validateTransactionBundle( std::vector< CTransaction > const & _transactions, std::vector< unsigned int > & _invalidTransactions );
 
-	void addCoinbaseTransaction( CTransaction const & _tx, uint160 const & _keyId  );
+	void addCoinbaseTransaction( CTransaction const & _tx, CKeyID const & _keyId  );
 
 	bool addValidatedTransactionBundle( std::vector< CTransaction > const & _transaction );
 

@@ -4,11 +4,13 @@
 
 #include "common/originAddressScanner.h"
 #include "common/originTransactionsDatabase.h"
+#include "common/authenticationProvider.h"
+#include "common/analyseTransaction.h"
 
 #include "chainparams.h"
 #include "base58.h"
 #include "core.h"
-
+#include "wallet.h"
 #include "hash.h"
 
 #include <vector>
@@ -73,7 +75,25 @@ COriginAddressScanner::loop()
 				std::map< long long, CTransaction >::iterator it = m_transactionToProcess.begin();
 				while( it != m_transactionToProcess.end() )
 				{
-//					createBaseTransaction( it->second );
+					CKeyID keyId = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
+
+					std::vector< CAvailableCoin > availableCoins
+							= common::getAvailableCoins(
+								  it->second
+								, keyId
+								, it->second.GetHash() );
+
+					CWallet::getInstance()->replaceAvailableCoins( keyId, availableCoins );
+
+					CTransaction tx;
+					CKeyID id;
+
+					createBaseTransaction( it->second, tx, id );
+
+					// ugly
+					m_storage->addCoinbaseTransaction( tx, id );
+					m_storage->addTransactionToStorage( tx );
+
 					it++;
 				}
 				m_transactionToProcess.clear();
@@ -178,7 +198,7 @@ COriginAddressScanner::createBaseTransaction( CTransaction const & _tx, CTransac
 	}
 	return false;
 }
-/*
+/*  don't remember  what is the purpose of this  logic
 void
 COriginAddressScanner::updateTransactionRecord( uint64_t const _timeStamp )
 {
@@ -209,5 +229,5 @@ COriginAddressScanner::updateTransactionRecord( uint64_t const _timeStamp )
 		CTransactionRecordManager::getInstance()->addTransactionToStorage( txNew );
 	}
 }
- * */
+*/
 }
