@@ -2379,6 +2379,16 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
 }
 
 void
+CWallet::addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins )
+{
+	AssertLockHeld(cs_wallet);
+
+	addCoins( _keyId, _availableCoins );
+
+	NotifyAddressBookChanged(this, _keyId, "", true, "", CT_BALANCE);
+}
+
+void
 CWallet::replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins )
 {
 	AssertLockHeld(cs_wallet);

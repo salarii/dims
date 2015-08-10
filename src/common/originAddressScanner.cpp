@@ -83,7 +83,7 @@ COriginAddressScanner::loop()
 								, keyId
 								, it->second.GetHash() );
 
-					CWallet::getInstance()->replaceAvailableCoins( keyId, availableCoins );
+					CWallet::getInstance()->addAvailableCoins( keyId, availableCoins );
 
 					CTransaction tx;
 					CKeyID id;

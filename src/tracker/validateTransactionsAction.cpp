@@ -1,4 +1,6 @@
-#include "validateTransactionsAction.h"
+// Copyright (c) 2014-2015 Dims dev-team
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <boost/statechart/custom_reaction.hpp>
 #include <boost/statechart/simple_state.hpp>
@@ -10,6 +12,7 @@
 #include "common/commonResponses.h"
 #include "common/analyseTransaction.h"
 
+#include "tracker/validateTransactionsAction.h"
 #include "tracker/trackerEvents.h"
 #include "tracker/transactionRecordManager.h"
 #include "tracker/clientRequestsManager.h"
@@ -18,6 +21,7 @@
 #include "tracker/trackerNodesManager.h"
 #include "tracker/trackerRequests.h"
 
+#include "wallet.h"
 /*
 when  transaction  bundle  is  approaching
 generate request  to inform  every  node about it
@@ -339,6 +343,23 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 		CTransactionRecordManager::getInstance()->addTransactionsToStorage(
 					context< CValidateTransactionsAction >().getTransactions() );
 
+		std::vector< CTransaction > transactions = context< CValidateTransactionsAction >().getTransactions();
+
+		BOOST_FOREACH( CTransaction const & transaction, transactions )
+		{
+			CKeyID keyId = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
+
+			std::vector< CAvailableCoin > availableCoins
+					= common::getAvailableCoins(
+						transaction
+						, keyId
+						, transaction.GetHash() );
+
+			CWallet::getInstance()->addAvailableCoins( keyId, availableCoins );
+
+		}
+
+		context< CValidateTransactionsAction >().setExit();
 		context< CValidateTransactionsAction >().dropRequests();
 	}
 

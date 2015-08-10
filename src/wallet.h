@@ -208,6 +208,9 @@ public:
     void UnlockAllCoins();
     void ListLockedCoins(std::vector<COutPoint>& vOutpts);
 
+	void addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
+
+
 	void replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
 
 	void removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins );
