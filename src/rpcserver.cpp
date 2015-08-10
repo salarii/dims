@@ -227,6 +227,7 @@ static const CRPCCommand vRPCCommands[] =
 	{ "status",                   &status,                   true,      true,       false },
   { "registerInNetwork",                   &registerInNetwork,                   true,      true,       false },
 	{ "connectNetwork",                   &connectNetwork,                   true,      true,       false },
+	{ "selfAddress",                   &connectNetwork,                   true,      true,       false },
   /*
   { "getconnectioncount",     &getconnectioncount,     true,      false,      false },
     { "getpeerinfo",            &getpeerinfo,            true,      false,      false },

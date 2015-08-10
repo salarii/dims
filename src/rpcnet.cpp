@@ -22,6 +22,7 @@ using namespace std;
 
 boost::signals2::signal< std::string () > SatusHook;
 boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
+boost::signals2::signal< std::string () > SelfAddress;
 boost::signals2::signal< void () > ConnectNetworkHook;
 
 extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
@@ -56,6 +57,20 @@ extern json_spirit::Value registerInNetwork(const json_spirit::Array& params, bo
 	return result;
 }
 
+extern json_spirit::Value selfAddress(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 1)
+		throw runtime_error(
+			"selfAddress will print node payment address \n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("selfAddress", "")
+		);
+
+	std::string result = *SelfAddress();
+
+	return result;
+}
+
 extern json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
 {
 	if (fHelp || params.size() != 1)
@@ -68,7 +83,7 @@ extern json_spirit::Value connectNetwork(const json_spirit::Array& params, bool 
 
 	std::string result = *RegisterInNetworkHook( params[0].get_str() );
 
-	return Value::null;
+	return result;
 }
 
 Value getconnectioncount(const Array& params, bool fHelp)

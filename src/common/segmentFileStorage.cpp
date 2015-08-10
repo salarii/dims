@@ -195,15 +195,21 @@ CSegmentFileStorage::includeTransaction( CTransaction const & _transaction, uint
 void
 CSegmentFileStorage::addToRecentlyUsed( CTransaction const & _transaction )
 {
+	boost::lock_guard<boost::mutex> lock(m_locationTobuddy);
+
 	m_locationUsedFromLastUpdate.insert( _transaction.m_location );
 
 	BOOST_FOREACH( CTxIn const & txIn, _transaction.vin )
 	{
 		uint64_t location;
-		if ( !CSupportTransactionsDatabase::getInstance()->getTransactionLocation( txIn.prevout.hash, location ) )
-			assert( !"serious problem" );
 
-		m_locationUsedFromLastUpdate.insert( CLocation(location) );
+		if ( !txIn.prevout.IsNull() )
+		{
+			if ( !CSupportTransactionsDatabase::getInstance()->getTransactionLocation( txIn.prevout.hash, location ) )
+				assert( !"serious problem" );
+
+			m_locationUsedFromLastUpdate.insert( CLocation( location ) );
+		}
 	}
 }
 
@@ -336,13 +342,16 @@ CSegmentFileStorage::assignPosition( CTransaction const & _transaction )
 	if ( last )
 	{
 		m_usedBuddy.at( bucket )= ++last;
-		m_transactionLocationToBuddy.insert( std::make_pair( CLocation( bucket, last - 1 ), simpleBuddy ) );
+		location = CLocation( bucket, last - 1 );
 	}
 	else
 	{
 		m_usedBuddy.insert( std::make_pair( bucket, 1 ) );
-		m_transactionLocationToBuddy.insert( std::make_pair( CLocation( bucket, 0 ), simpleBuddy ) );
+		location = CLocation( bucket, 0 );
 	}
+
+	m_transactionLocationToBuddy.insert( std::make_pair( location, simpleBuddy ) );
+
 	m_locationUsedFromLastUpdate.insert( location );
 
 	return createFullPosition( last ? last - 1: 0, index, reqLevel, bucket );
@@ -501,7 +510,7 @@ CSegmentFileStorage::flushLoop()
 				}
 			}
 			{
-				boost::lock_guard<boost::mutex> lock(m_cachelock);
+				boost::lock_guard<boost::mutex> storeLock(m_storeTransLock);
 				m_processedTransactionQueue = m_transactionQueue;
 
 				m_transactionQueue = new TransactionQueue;
@@ -599,10 +608,12 @@ CSegmentFileStorage::flushLoop()
 
 			m_usedBlocks.clear();
 
-			processedLocationToBuddy.clear();
+			{
+				boost::lock_guard<boost::mutex> lock(m_locationTobuddy);
+				processedLocationToBuddy.clear();
 
-			m_locationUsedFromLastUpdate.clear();
-
+				m_locationUsedFromLastUpdate.clear();
+			}
 			delete m_processedTransactionQueue;
 
 			boost::this_thread::interruption_point();

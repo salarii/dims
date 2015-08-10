@@ -37,6 +37,8 @@ public:
 // probably wrong, scanner needs to remember balances for  sanity checks, but also has to remember
 // when a given transacion was  added this  is  needed because, those  may be included  latter to  downloaded storage
 	void addTransaction( uint64_t const _timeStamp, CTransaction const&  _tx);
+
+	void setStorage( CStorageBase * _storage ){ m_storage = _storage; };
 protected:
 	COriginAddressScanner();
 
@@ -47,8 +49,6 @@ protected:
 	bool createBaseTransaction( CTransaction const & _tx, CTransaction & _baseTx, CKeyID & _baseKey );
 
 	void getHeightOfLastScanedBlock();
-
-	void setStorage( CStorageBase * _storage ){ m_storage = _storage; };
 private:
 	static COriginAddressScanner * ms_instance;
 

@@ -90,7 +90,12 @@ BOOST_AUTO_TEST_CASE( basics )
 	{
 	std::transform( transactions.begin(), transactions.end(), transactions.begin(), CSetLocation() );
 
+
+
+	// right now  it  will not  work, because transactions have  to  rely on  each  other
+	//	m_supportTransactionsDatabase->setTransactionLocation( _tx.GetHash(), tx.m_location );
 	fileStorage->includeTransactions( transactions, 0 );
+
 	MilliSleep( 1000 );
 
 	}

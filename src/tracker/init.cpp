@@ -52,6 +52,7 @@
 #include "tracker/trackOriginAddressAction.h"
 #include "tracker/trackerController.h"
 #include "tracker/registerRpcHooks.h"
+#include "tracker/transactionRecordManager.h"
 
 #include "client/settingsConnectionProvider.h"
 
@@ -958,6 +959,7 @@ seed_insecure_rand();
             vImportFiles.push_back(strFile);
     }
 
+	common::COriginAddressScanner::getInstance()->setStorage( tracker::CTransactionRecordManager::getInstance() );
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CTrackerTypes >::loop, common::CActionHandler< common::CTrackerTypes >::getInstance() ) );

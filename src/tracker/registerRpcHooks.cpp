@@ -7,6 +7,7 @@
 
 #include "common/commonEvents.h"
 #include "common/actionHandler.h"
+#include "common/authenticationProvider.h"
 
 #include "tracker/trackerControllerEvents.h"
 #include "tracker/trackerController.h"
@@ -53,10 +54,21 @@ void aconnectNetwork()
 
 }
 
+std::string
+selfAddress()
+{
+	CMnemonicAddress address;
+
+	address.Set( common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
+
+	return address.ToString();
+}
+
 void registerHooks()
 {
 	SatusHook.connect( &getStatus );
 	RegisterInNetworkHook.connect( &registerInNetwork );
+	SelfAddress.connect( &selfAddress );
 //	ConnectNetworkHook.connect( &connectNetwork );
 }
 
