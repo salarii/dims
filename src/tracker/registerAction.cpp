@@ -165,6 +165,13 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	> reactions;
 };
 
+/*
+- montor  allowes  him to work
+- send synchronization request
+- start  synchronization  action
+- after conclusion try to create transaction
+
+*/
 struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 {
 	// send  ready  to  monitor      ??????
@@ -172,12 +179,12 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		: my_base( ctx )
 	{
 
-				context< CRegisterAction >().addRequest(
-							new common::CScheduleActionRequest< common::CTrackerTypes >(
-								new CPassTransactionAction(
-									  context< CRegisterAction >().getPublicKey().GetID()
-									, context< CRegisterAction >().getRegisterPayment() )
-								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+		context< CRegisterAction >().addRequest(
+					new common::CScheduleActionRequest< common::CTrackerTypes >(
+						new CPassTransactionAction(
+							context< CRegisterAction >().getPublicKey().GetID()
+							, context< CRegisterAction >().getRegisterPayment() )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
 		//	CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
 		context< CRegisterAction >().addRequest(

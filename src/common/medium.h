@@ -67,6 +67,9 @@ class CValidRegistrationRequest;
 
 template < class _Types >
 class CStorageInfoRequest;
+
+template < class _Types >
+class CGetSynchronizationInfoRequest;
 }
 
 namespace tracker
@@ -74,7 +77,6 @@ namespace tracker
 class CValidateTransactionsRequest;
 class CConnectToTrackerRequest;
 class CSetBloomFilterRequest;
-class CGetSynchronizationInfoRequest;
 class CTransactionsStatusRequest;
 class CTransactionsPropagationRequest;
 class CPassMessageRequest;
@@ -165,11 +167,11 @@ public:
 	virtual void add( common::CValidRegistrationRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CGetNextBlockRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CAskForTransactionsRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CGetSynchronizationInfoRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
 	virtual void add( tracker::CSetBloomFilterRequest const * _request ){};
-	virtual void add( tracker::CGetSynchronizationInfoRequest const * _request ){};
 	virtual void add( tracker::CTransactionsStatusRequest const * _request ){};
 	virtual void add( tracker::CTransactionsPropagationRequest const * _request ){};
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
@@ -188,6 +190,7 @@ public:
 	using CMedium::types;
 public:
 	virtual void add( common::CSendIdentifyDataRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CEndRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CPingRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CPongRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< CMonitorTypes > const * _request ){};
@@ -203,6 +206,7 @@ public:
 	virtual void add( common::CGetNextBlockRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CMonitorTypes > const * _request ){};
+	virtual void add( common::CGetSynchronizationInfoRequest< CMonitorTypes > const * _request ){};
 	virtual void add( monitor::CRegistrationTerms const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};

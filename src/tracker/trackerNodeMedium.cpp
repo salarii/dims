@@ -14,7 +14,7 @@ namespace tracker
 {
 
 void
-CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
+CTrackerNodeMedium::add( common::CGetSynchronizationInfoRequest< common::CMonitorTypes > const * _request )
 {
 	common::CSynchronizationInfo synchronizationInfo;
 

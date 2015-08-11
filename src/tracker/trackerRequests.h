@@ -139,24 +139,6 @@ private:
 
 struct CSpecificMediumFilter;
 
-class CGetSynchronizationInfoRequest : public common::CRequest< common::CTrackerTypes >
-{
-public:
-	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp );
-
-	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, common::CTrackerMediumFilter * _mediumFilter );
-
-	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
-
-	uint256 getActionKey() const;
-
-	uint64_t getTimeStamp() const;
-private:
-	uint256 const m_actionKey;
-
-	uint64_t const m_timeStamp;
-};
-
 class CGetBalanceRequest : public common::CRequest< common::CTrackerTypes >
 {
 public:

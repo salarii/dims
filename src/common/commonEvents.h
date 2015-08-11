@@ -192,6 +192,43 @@ struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent
 	unsigned int m_blockIndex;
 };
 
+struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInfoEvent >
+{
+	CSynchronizationInfoEvent( uint64_t _timeStamp, unsigned int _nodeIdentifier ):m_timeStamp( _timeStamp ),m_nodeIdentifier(_nodeIdentifier){}
+
+	uint64_t const m_timeStamp;
+	unsigned int m_nodeIdentifier;
+};
+
+template < class Action >
+class CResolveScheduledResult : public boost::static_visitor< void >
+{
+public:
+	CResolveScheduledResult( Action * const _action)
+		: m_action( _action )
+	{}
+
+	void operator()( CNetworkInfoResult const & _networkInfoResult ) const
+	{
+		m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_nodeSelfInfo, _networkInfoResult.m_role, _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
+	}
+
+	void operator()( CTransaction const & ) const
+	{
+	}
+
+	void operator()( CStorageInfo const & ) const
+	{}
+
+	void operator()( CValidRegistration const & _validRegistration ) const
+	{
+		this->m_action->process_event( common::CRegistrationDataEvent( _validRegistration.m_key, _validRegistration.m_registrationTime, _validRegistration.m_period ) );
+	}
+private:
+	Action * m_action;
+};
+
+
 }
 
 #endif // COMMON_EVENTS_H

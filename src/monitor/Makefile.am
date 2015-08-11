@@ -30,6 +30,7 @@ MONITOR_H = \
 	registerRpcHooks.h \
 	reputationTracer.h \
 	server.h \
+	synchronizationAction.h \
 	trackOriginAddressAction.h \
 	transactionRecordManager.h \
 	updateDataAction.h
@@ -59,6 +60,7 @@ MONITOR_CPP = \
 	reputationTracer.cpp \
 	server.cpp \
 	setResponseVisitor.cpp \
+	synchronizationAction.cpp \
 	trackOriginAddressAction.cpp \
 	transactionRecordManager.cpp \
 	updateDataAction.cpp

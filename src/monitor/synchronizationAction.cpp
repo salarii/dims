@@ -15,15 +15,10 @@
 #include "common/supportTransactionsDatabase.h"
 #include "common/commonEvents.h"
 
-#include "tracker/transactionRecordManager.h"
-#include "tracker/synchronizationAction.h"
-#include "tracker/trackerRequests.h"
-#include "tracker/trackerFilters.h"
-#include "tracker/trackerEvents.h"
-#include "tracker/trackerController.h"
-#include "tracker/trackerControllerEvents.h"
+#include "monitor/synchronizationAction.h"
+#include "monitor/filters.h"
 
-namespace tracker
+namespace monitor
 {
 
 unsigned const SynchronisingGetInfoTime = 10000;//milisec
@@ -32,6 +27,14 @@ unsigned const SynchronisingWaitTime = 15000;
 
 struct CSynchronizingGetInfo;
 struct CSynchronizedGetInfo;
+
+struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
+{
+};
+
+struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
+{
+};
 
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
 {
@@ -48,7 +51,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().dropRequests();
-		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), 0, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		context< CSynchronizationAction >().addRequest( new CGetSynchronizationInfoRequest( context< CSynchronizationAction >().getActionKey(), 0 ) );
 		context< CSynchronizationAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( SynchronisingGetInfoTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		m_bestTimeStamp = 0;
 	}
@@ -96,7 +99,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().dropRequests();
-		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >(
+		context< CSynchronizationAction >().addRequest( new CGetSynchronizationInfoRequest(
 															context< CSynchronizationAction >().getActionKey()
 															, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) )

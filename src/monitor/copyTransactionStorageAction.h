@@ -5,7 +5,7 @@
 #ifndef COPY_TRANSACTION_STORAGE_ACTION_H
 #define COPY_TRANSACTION_STORAGE_ACTION_H
 
-#include "common/action.h"
+#include "common/scheduleAbleAction.h"
 #include "common/types.h"
 
 #include "configureMonitorActionHandler.h"
@@ -20,7 +20,7 @@ struct CUninitiated;
 provide  about  stored  copy
 initiate  new  copy or  provide  info  about  next  time
 */
-class CCopyTransactionStorageAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CCopyTransactionStorageAction, CUninitiated >
+class CCopyTransactionStorageAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CCopyTransactionStorageAction, CUninitiated >
 {
 public:
 	CCopyTransactionStorageAction();

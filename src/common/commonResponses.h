@@ -347,6 +347,12 @@ struct CMonitorData
 	// recognized  monitors and trackers
 };
 
+struct CStorageInfo
+{
+	// storage  time
+	uint64_t m_time;
+};
+
 struct CPayApplicationData
 {
 	CPayApplicationData(
@@ -387,7 +393,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< CNetworkInfoResult, CTransaction, CValidRegistration > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult, CTransaction, CValidRegistration/*, CStorageInfo*/ > ScheduledResult;
 
 struct CRequestedMerkles
 {

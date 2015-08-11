@@ -164,39 +164,6 @@ CConnectToTrackerRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-
-CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp )
-	: common::CRequest< common::CTrackerTypes >( new CMediumClassFilter( common::CMediumKinds::Trackers ) )
-	, m_actionKey( _actionKey )
-	, m_timeStamp( _timeStamp )
-{
-}
-
-CGetSynchronizationInfoRequest::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
-	, m_actionKey( _actionKey )
-	, m_timeStamp( _timeStamp )
-{
-}
-
-void
-CGetSynchronizationInfoRequest::accept( common::CTrackerBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-uint256
-CGetSynchronizationInfoRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-uint64_t
-CGetSynchronizationInfoRequest::getTimeStamp() const
-{
-	return m_timeStamp;
-}
-
 CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
 	: common::CRequest< common::CTrackerTypes >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_key( _key )

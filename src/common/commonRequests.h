@@ -944,6 +944,55 @@ CGetNextBlockRequest< _Types >::getBlockKind() const
 	return m_blockKind;
 }
 
+template < class _Types >
+class CGetSynchronizationInfoRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, FilterType * _filterType );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	uint64_t getTimeStamp() const;
+private:
+	uint256 const m_actionKey;
+
+	uint64_t const m_timeStamp;
+};
+
+template < class _Types >
+CGetSynchronizationInfoRequest< _Types >::CGetSynchronizationInfoRequest( uint256 const & _actionKey, uint64_t _timeStamp, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_actionKey( _actionKey )
+	, m_timeStamp( _timeStamp )
+{
+}
+
+template < class _Types >
+void
+CGetSynchronizationInfoRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CGetSynchronizationInfoRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class _Types >
+uint64_t
+CGetSynchronizationInfoRequest< _Types >::getTimeStamp() const
+{
+	return m_timeStamp;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

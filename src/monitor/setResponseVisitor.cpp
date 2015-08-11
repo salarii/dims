@@ -91,35 +91,11 @@ public:
 class CSetRecognizeNetworkResult : public CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList >
 {
 public:
-	class CResolveNetworkResult : public boost::static_visitor< void >
-	{
-	public:
-		CResolveNetworkResult( monitor::CRecognizeNetworkAction * const _action)
-			: m_action( _action )
-		{}
-
-		void operator()( CNetworkInfoResult const & _networkInfoResult ) const
-		{
-			m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_nodeSelfInfo, _networkInfoResult.m_role, _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
-		}
-
-		void operator()( CTransaction const & ) const
-		{
-		}
-
-		void operator()( CValidRegistration const & ) const
-		{
-		}
-	private:
-		monitor::CRecognizeNetworkAction * m_action;
-	};
-
-public:
 	CSetRecognizeNetworkResult( monitor::CRecognizeNetworkAction * const _action ):CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList >( _action ){};
 
 	virtual void operator()( common::ScheduledResult & _param ) const
 	{
-		boost::apply_visitor( CResolveNetworkResult( this->m_action ), _param );
+		boost::apply_visitor( common::CResolveScheduledResult< monitor::CRecognizeNetworkAction >( this->m_action ), _param );
 	}
 };
 
@@ -261,6 +237,10 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CProvideInfoAction
 
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CCopyTransactionStorageAction & _action )
+{}
+
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CSynchronizationAction & _action )
 {}
 
 }
