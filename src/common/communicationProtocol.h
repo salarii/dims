@@ -156,14 +156,16 @@ struct CTransactionStorageInfo
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE( m_size );
+		READWRITE( m_storageSize );
+		READWRITE( m_headerSize );
 		READWRITE( m_time );
 	)
 
 	CTransactionStorageInfo(){}
 
-	CTransactionStorageInfo( uint64_t _size, uint64_t _time ): m_size( _size ), m_time( _time ){}
-	uint64_t m_size;
+	CTransactionStorageInfo( uint64_t _storageSize, uint64_t _headerSize, uint64_t _time ): m_storageSize( _storageSize ), m_headerSize( _headerSize ), m_time( _time ){}
+	uint64_t m_storageSize;
+	uint64_t m_headerSize;
 	uint64_t m_time;
 };
 

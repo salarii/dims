@@ -412,7 +412,7 @@ template < class _Medium >
 void
 CNodeMedium< _Medium >::add( CStorageInfoRequest< Type > const * _request )
 {
-	CTransactionStorageInfo transactionStorageInfo( _request->getSize(), _request->getTime() );
+	CTransactionStorageInfo transactionStorageInfo( _request->getStorageSize(), _request->getHeaderSize(), _request->getTime() );
 
 	common::CMessage message( transactionStorageInfo, _request->getActionKey(), _request->getId() );
 

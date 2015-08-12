@@ -829,13 +829,15 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType );
+	CStorageInfoRequest( uint64_t const _time, uint64_t const _storageSize, uint64_t const _headerSize, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType );
 
 	virtual void accept( MediumType * _medium ) const;
 
 	uint64_t getTime() const;
 
-	uint64_t getSize() const;
+	uint64_t getStorageSize() const;
+
+	uint64_t getHeaderSize() const;
 
 	uint256 getId() const;
 
@@ -843,7 +845,9 @@ public:
 private:
 	uint64_t const m_time;
 
-	uint64_t const m_size;
+	uint64_t const m_storageSize;
+
+	uint64_t const m_headerSize;
 
 	uint256 const m_actionKey;
 
@@ -851,10 +855,11 @@ private:
 };
 
 template < class _Types >
-CStorageInfoRequest< _Types >::CStorageInfoRequest( uint64_t const _time, uint64_t const _size, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
+CStorageInfoRequest< _Types >::CStorageInfoRequest( uint64_t const _time, uint64_t const _storageSize, uint64_t const _headerSize, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
 	: common::CRequest< _Types >( _filterType )
 	, m_time( _time )
-	, m_size( _size )
+	, m_storageSize( _storageSize )
+	, m_headerSize( _headerSize )
 	, m_actionKey( _actionKey )
 	, m_id( _id )
 {
@@ -869,16 +874,23 @@ CStorageInfoRequest< _Types >::accept( MediumType * _medium ) const
 
 template < class _Types >
 uint64_t
-CStorageInfoRequest< _Types >::getSize() const
+CStorageInfoRequest< _Types >::getStorageSize() const
 {
-	return m_time;
+	return m_storageSize;
+}
+
+template < class _Types >
+uint64_t
+CStorageInfoRequest< _Types >::getHeaderSize() const
+{
+	return m_headerSize;
 }
 
 template < class _Types >
 uint64_t
 CStorageInfoRequest< _Types >::getTime() const
 {
-	return m_size;
+	return m_time;
 }
 
 template < class _Types >

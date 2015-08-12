@@ -23,7 +23,7 @@ public:
 
 	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
 	void clear();
 
@@ -32,8 +32,12 @@ public:
 	unsigned long long getNodeIdentifier() const;
 
 	bool isRequestInitialized() const;
+
+	uint256 getRequestKey() const { return m_requestKey; }
+
+	void setRequestKey( uint256 const & _requestKey ) { m_requestKey = _requestKey; }
 private:
-	uint256 m_currentHash;
+	uint256 m_requestKey;
 
 	uint64_t m_timeStamp;
 

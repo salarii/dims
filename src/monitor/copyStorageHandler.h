@@ -27,10 +27,22 @@ public:
 
 	void loop();
 
+	bool createCopyRequest();
+
+	bool copyCreated();
 private:
 	CCopyStorageHandler();
 
 private:
+	mutable boost::mutex m_requestLock;
+	bool m_copyRequest;
+
+	uint m_storageSize;
+
+	uint m_headerSize;
+
+	bool m_copyCreated;
+
 	static CCopyStorageHandler * ms_instance;
 };
 

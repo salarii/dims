@@ -217,8 +217,10 @@ public:
 	{
 	}
 
-	void operator()( CStorageInfo const & ) const
-	{}
+	void operator()( CStorageInfo const & _storageInfo ) const
+	{
+		this->m_action->process_event( _storageInfo );
+	}
 
 	void operator()( CValidRegistration const & _validRegistration ) const
 	{

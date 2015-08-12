@@ -243,6 +243,10 @@ public:
 	void retriveState();
 
 	void resetState();
+
+	void copyHeader() const;
+
+	void copyStorage() const;
 private:
 	CBufferAsStream
 	createStreamForGivenLocation( uint64_t const _location, std::pair< CLocation, CDiskBlock* > & _usedBlock );
@@ -269,11 +273,7 @@ private:
 //risky what _location really is??
 	CDiskBlock* getDiscBlock( uint64_t const _location );
 
-	void copyFile( boost::filesystem::path _targetPath, std::string _fileName ) const;
-
-	void copyHeader( boost::filesystem::path _targetPath ) const;
-
-	void copyStorage( boost::filesystem::path _targetPath ) const;
+	void copyFile( std::string _fileName ) const;
 private:
 	mutable boost::mutex m_headerCacheLock;
 
@@ -327,6 +327,8 @@ private:
 	uint64_t m_lastFlushTime;
 
 	static std::string const m_baseDirectory;
+
+	static std::string const m_copyDirectory;
 
 	static size_t m_lastSegmentIndex;
 	// most probably there is  some logic error if  I  have to use this

@@ -51,13 +51,7 @@ struct CProvideInfoAboutStorage : boost::statechart::state< CProvideInfoAboutSto
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
-		context< CCopyTransactionStorageAction >().addRequest(
-					new common::CStorageInfoRequest< common::CMonitorTypes >(
-						  CCopyStorageHandler::getInstance()->getTimeStamp()
-						, CCopyStorageHandler::getInstance()->getDiscBlockSize()
-						, context< CCopyTransactionStorageAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
 
 		CCopyStorageHandler::getInstance()->getSegmentHeaderSize();
 

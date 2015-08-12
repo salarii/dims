@@ -20,6 +20,9 @@ namespace common
 std::string const
 CSegmentFileStorage::m_baseDirectory = "//network//";
 
+std::string const
+CSegmentFileStorage::m_copyDirectory = "//networkCopy//";
+
 size_t CSegmentFileStorage::m_lastSegmentIndex = 0;
 
 const std::string
@@ -242,23 +245,23 @@ CSegmentFileStorage::getBlock( unsigned int _index, CDiskBlock & _discBlock )
 	if ( m_alreadyStoredSegments <= _index )
 		return false;
 
-	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
-	path += m_baseDirectory + ms_segmentFileName;
+	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
+	path += m_copyDirectory + ms_segmentFileName;
 	return m_accessFile.loadSegmentFromFile< CDiskBlock >( _index, path.string(), _discBlock );
 }
 
 bool
 CSegmentFileStorage::getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader )
 {
-	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
-	path += m_baseDirectory + ms_headerFileName;
+	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
+	path += m_copyDirectory + ms_headerFileName;
 	return m_accessFile.loadSegmentFromFile< CSegmentHeader >( _index, path.string(), _segmentHeader );
 }
 
 void
 CSegmentFileStorage::saveBlock( unsigned int _index, CSegmentHeader const & _header )
 {
-	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
 	path += m_baseDirectory + ms_headerFileName;
 	m_accessFile.saveSegmentToFile( _index, path.string(), _header );
 }
@@ -268,7 +271,7 @@ CSegmentFileStorage::saveBlock( unsigned int _index, CDiskBlock const & _block )
 {
 	if ( _index >= m_alreadyStoredSegments )
 		m_alreadyStoredSegments = _index + 1;
-	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
 	path += m_baseDirectory + ms_segmentFileName;
 	m_accessFile.saveSegmentToFile( _index, path.string(), _block );
 }
@@ -810,31 +813,32 @@ CSegmentFileStorage::setDiscBlock( CSegmentHeader const & _segmentHeader, unsign
 
 // should  be  synchronized  in  some  way
 void
-CSegmentFileStorage::copyFile( boost::filesystem::path _targetPath, std::string _fileName ) const
+CSegmentFileStorage::copyFile( std::string _fileName ) const
 {
-
-	boost::filesystem::path path = GetDataDir( common::AppType::Tracker );
+	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
 	path += m_baseDirectory + _fileName;
 
-	boost::filesystem::create_directory( _targetPath );
+	boost::filesystem::path targetPath = GetDataDir( common::CDimsParams::getAppType() );
+	path += m_copyDirectory;
+
+	boost::filesystem::create_directory( targetPath );
 	boost::filesystem::path file( path );
-	boost::filesystem::copy_file( file, _targetPath );
-
+	boost::filesystem::copy_file( file, targetPath );
 }
 
 void
-CSegmentFileStorage::copyHeader( boost::filesystem::path _targetPath ) const
+CSegmentFileStorage::copyHeader() const
 {
-	copyFile( _targetPath, ms_headerFileName );
+	copyFile( ms_headerFileName );
 }
 
 void
-CSegmentFileStorage::copyStorage( boost::filesystem::path _targetPath ) const
+CSegmentFileStorage::copyStorage() const
 {
-	copyFile( _targetPath, ms_segmentFileName );
+	copyFile( ms_segmentFileName );
 }
+
 /*
-
 check merkle ?? set  merkle hash in  headers??
  get all transactions by  level from  down  to  top
  count  hases
