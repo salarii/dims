@@ -232,7 +232,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
@@ -251,7 +251,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 							new common::CAckRequest< common::CMonitorTypes >(
 								context< CSynchronizationAction >().getActionKey()
 								, _messageResult.m_message.m_header.m_id
-								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodePtr() ) ) );
+								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 			}
 
 		}
@@ -261,11 +261,11 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 };
 
