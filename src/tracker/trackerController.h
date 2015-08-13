@@ -21,7 +21,7 @@ struct CMonitorData
 	double m_accepableRatio;// price / period
 };
 
-class CTrackerController : public boost::statechart::state_machine< CTrackerController, CInitialSynchronization >
+class CTrackerController : public boost::statechart::state_machine< CTrackerController, CStandAlone >
 {
 public:
 	static CTrackerController* getInstance();

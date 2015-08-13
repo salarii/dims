@@ -45,6 +45,7 @@ unsigned int const WaitTime = 20000;
 unsigned int const MoneyWaitTime = 20000;
 
 struct CFreeRegistration;
+struct CSynchronize;
 
 struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, CRegisterAction >
 {
@@ -80,12 +81,12 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 
 		if ( !connectCondition.m_price )
 		{
-
 			return transit< CFreeRegistration >();
 		}
 		else
-			//do something later
-			return discard_event();
+		{
+			return transit< CSynchronize >();
+		}
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -172,6 +173,37 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 - after conclusion try to create transaction
 
 */
+struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
+{
+	CSynchronize( my_context ctx )
+		: my_base( ctx )
+	{
+		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().addRequest(
+		 new common::CTimeEventRequest< common::CTrackerTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		context< CRegisterAction >().addRequest(
+					new CAskForRegistrationRequest(
+						context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
 struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 {
 	// send  ready  to  monitor      ??????

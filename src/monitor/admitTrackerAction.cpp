@@ -25,6 +25,7 @@ namespace monitor
 {
 struct CPaidRegistration;
 struct CFreeRegistration;
+struct CPaidRegistrationEmptyNetwork;
 //milisec
 unsigned int const WaitTime = 20000;
 
@@ -85,7 +86,10 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		if ( CMonitorController::getInstance()->getPrice() )
-			return transit< CPaidRegistration >();
+		{
+			if ( CReputationTracker::getInstance()->getTrackers().empty() )
+				return transit< CPaidRegistrationEmptyNetwork >();
+		}
 		else
 			return transit< CFreeRegistration >();
 	}
@@ -161,6 +165,60 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 
+};
+
+struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistration, CAdmitTrackerAction >
+{
+	CPaidRegistrationEmptyNetwork( my_context ctx )
+		: my_base( ctx )
+	{
+		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( _messageResult.m_message.m_header.m_payloadKind== common::CPayloadKind::AdmitAsk )
+		{
+			context< CAdmitTrackerAction >().addRequest(
+						new common::CAckRequest< common::CMonitorTypes >(
+							context< CAdmitTrackerAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+
+			context< CAdmitTrackerAction >().addRequest(
+						new common::CResultRequest< common::CMonitorTypes >(
+							context< CAdmitTrackerAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, 1
+							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+		}
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAdmitTrackerAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return transit< CFreeRegistration >();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
 };
 
 struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTrackerAction >
