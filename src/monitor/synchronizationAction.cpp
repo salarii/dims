@@ -223,13 +223,43 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 {
 	CSynchronizedUninitialized( my_context ctx ) : my_base( ctx )
 	{
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						SynchronisingWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CConnectNodeAction >().getPublicKey() ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+		{
+			common::CInfoRequestData infoRequest;
+
+			common::convertPayload( orginalMessage, infoRequest );
+
+			if ( infoRequest.m_kind == common::CInfoKind::StorageInfoAsk )
+			{
+				context< CSynchronizationAction >().dropRequests();
+
+				context< CSynchronizationAction >().setRequestKey( _messageResult.m_message.m_header.m_id );
+
+				context< CSynchronizationAction >().addRequest(
+							new common::CAckRequest< common::CMonitorTypes >(
+								context< CSynchronizationAction >().getActionKey()
+								, _messageResult.m_message.m_header.m_id
+								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodePtr() ) ) );
+			}
+
+		}
+
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 	}
 

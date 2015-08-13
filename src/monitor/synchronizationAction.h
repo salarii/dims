@@ -35,7 +35,7 @@ public:
 
 	uint256 getRequestKey() const { return m_requestKey; }
 
-	void setRequestKey( uint256 const & _requestKey ) { m_requestKey = _requestKey; }
+	void setRequestKey( uint256 const & _requestKey ){ m_requestKey = _requestKey; }
 private:
 	uint256 m_requestKey;
 

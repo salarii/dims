@@ -61,6 +61,7 @@ struct CInfoKind
 		  NetworkInfoAsk
 		, RoleInfoAsk
 		, IsRegistered
+		, StorageInfoAsk
 	};
 };
 
