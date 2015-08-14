@@ -68,6 +68,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				if (
 							  message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
 						|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitProof
+						|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
 					)
 					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 				else
@@ -77,16 +78,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				if ( message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk )
 				{
-					if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-					{
-						nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
-					}
-					else
-					{
 						CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
 						admitTrackerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 						common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTrackerAction );
-					}
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions )
 				{
