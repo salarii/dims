@@ -58,17 +58,6 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 		m_bestTimeStamp = 0;
 	}
 
-	boost::statechart::result react( common::CSynchronizationInfoEvent const & _synchronizationInfoEvent )
-	{
-		if ( m_bestTimeStamp < _synchronizationInfoEvent.m_timeStamp )
-		{
-			m_bestTimeStamp = _synchronizationInfoEvent.m_timeStamp;
-			context< CSynchronizationAction >().setNodeIdentifier( _synchronizationInfoEvent.m_nodeIdentifier );
-		}
-		context< CSynchronizationAction >().dropRequests();
-		return discard_event();
-	}
-
 boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 {
 	if ( m_bestTimeStamp > 0 )
@@ -84,8 +73,7 @@ boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 }
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CSynchronizationInfoEvent >
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 
 	// best synchronising option

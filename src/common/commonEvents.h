@@ -192,14 +192,6 @@ struct CTransactionBlockEvent : boost::statechart::event< CTransactionBlockEvent
 	unsigned int m_blockIndex;
 };
 
-struct CSynchronizationInfoEvent : boost::statechart::event< CSynchronizationInfoEvent >
-{
-	CSynchronizationInfoEvent( uint64_t _timeStamp, unsigned int _nodeIdentifier ):m_timeStamp( _timeStamp ),m_nodeIdentifier(_nodeIdentifier){}
-
-	uint64_t const m_timeStamp;
-	unsigned int m_nodeIdentifier;
-};
-
 template < class Action >
 class CResolveScheduledResult : public boost::static_visitor< void >
 {

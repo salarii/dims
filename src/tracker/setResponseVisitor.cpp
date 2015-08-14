@@ -142,39 +142,9 @@ class CSetSynchronizationResult : public CResponseVisitorBase< tracker::CSynchro
 public:
 	CSetSynchronizationResult( tracker::CSynchronizationAction * const _action ):CResponseVisitorBase< tracker::CSynchronizationAction, tracker::TrackerResponseList >( _action ){};
 
-	virtual void operator()( common::CRequestedMerkles & _param ) const
+	virtual void operator()( common::CMessageResult & _param ) const
 	{
-		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_nodePtr ) );
-	}
-
-	virtual void operator()( tracker::CSynchronizationInfoResult & _param ) const
-	{
-		LogPrintf("set response \"synchronization result\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CSynchronizationInfoEvent( _param.m_timeStamp, _param.m_nodeIndicator ) );
-	}
-
-	virtual void operator()( tracker::CSynchronizationBlockResult<common::CDiskBlock> & _param ) const
-	{
-		LogPrintf("set response \"synchronization block, disc block\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CTransactionBlockEvent<common::CDiskBlock>( _param.m_discBlock, _param.m_blockIndex ) );
-	}
-
-	virtual void operator()( tracker::CSynchronizationBlockResult<common::CSegmentHeader> & _param ) const
-	{
-		LogPrintf("set response \"synchronization block, segment header\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CTransactionBlockEvent<common::CSegmentHeader>( _param.m_discBlock, _param.m_blockIndex ) );
-	}
-
-	virtual void operator()( common::CGetPrompt & _param ) const
-	{
-		LogPrintf("set response \"get prompt\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CGetEvent( _param.m_type ) );
-	}
-
-	virtual void operator()( common::CEndEvent & _param ) const
-	{
-		LogPrintf("set response \"end event\" to action: %p \n", this->m_action );
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
 

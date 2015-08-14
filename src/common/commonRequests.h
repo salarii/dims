@@ -1005,6 +1005,43 @@ CGetSynchronizationInfoRequest< _Types >::getTimeStamp() const
 	return m_timeStamp;
 }
 
+template < class _Types >
+class CSynchronizationRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CSynchronizationRequest( uint256 const & _actionKey, FilterType * _filterType );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+private:
+	uint256 const m_actionKey;
+};
+
+template < class _Types >
+CSynchronizationRequest< _Types >::CSynchronizationRequest( uint256 const & _actionKey, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_actionKey( _actionKey )
+{
+}
+
+template < class _Types >
+void
+CSynchronizationRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CSynchronizationRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

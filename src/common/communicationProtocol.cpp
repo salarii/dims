@@ -139,6 +139,14 @@ CMessage::CMessage( CInfoRequestData const & _infoRequest, uint256 const & _acti
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
+CMessage::CMessage( CSynchronizationAsk const & _synchronizationAsk, uint256 const & _actionKey, uint256 const & _id )
+	: m_header( (int)CPayloadKind::SynchronizationAsk, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
+{
+	createPayload( _synchronizationAsk, m_payload );
+
+	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
+}
+
 CMessage::CMessage( CAck const & _ack, uint256 const & _actionKey, uint256 const & _id )
 	: m_header( (int)CPayloadKind::Ack, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {

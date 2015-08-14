@@ -153,10 +153,6 @@ CStandAlone::react( common::CRegistrationDataEvent const & _event )
 
 CSynchronizing::CSynchronizing( my_context ctx ) : my_base( ctx )
 {
-	CSynchronizationAction * synchronizationAction = new CSynchronizationAction();
-
-	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( synchronizationAction );
-	synchronizationAction->process_event( CSwitchToSynchronizing() );
 
 }
 

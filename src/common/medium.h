@@ -70,6 +70,10 @@ class CStorageInfoRequest;
 
 template < class _Types >
 class CGetSynchronizationInfoRequest;
+
+template < class _Types >
+class CSynchronizationRequest;
+
 }
 
 namespace tracker
@@ -168,6 +172,7 @@ public:
 	virtual void add( common::CGetNextBlockRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CAskForTransactionsRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CGetSynchronizationInfoRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CSynchronizationRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
@@ -206,6 +211,7 @@ public:
 	virtual void add( common::CGetNextBlockRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CMonitorTypes > const * _request ){};
+	virtual void add( common::CSynchronizationRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CGetSynchronizationInfoRequest< CMonitorTypes > const * _request ){};
 	virtual void add( monitor::CRegistrationTerms const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};

@@ -5,7 +5,7 @@
 #ifndef SYNCHRONIZATION_ACTION_H
 #define SYNCHRONIZATION_ACTION_H
 
-#include "common/action.h"
+#include "common/scheduleAbleAction.h"
 #include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 
@@ -14,10 +14,10 @@ namespace tracker
 
 struct CUninitiated;
 
-class CSynchronizationAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
+class CSynchronizationAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
 {
 public:
-	CSynchronizationAction();
+	CSynchronizationAction( uintptr_t _nodeIndicator );
 
 	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
 
@@ -30,12 +30,24 @@ public:
 	unsigned long long getNodeIdentifier() const;
 
 	bool isRequestInitialized() const;
+
+	unsigned int getStorageSize() const { return m_storageSize; }
+
+	void setStorageSize( unsigned int _storageSize ){ m_storageSize = _storageSize; }
+
+	unsigned int getHeaderSize() const { return m_headerSize; }
+
+	void setHeaderSize( unsigned int _headerSize ){ m_headerSize = _headerSize; }
 private:
 	uint256 m_currentHash;
 
 	uint64_t m_timeStamp;
 
 	uintptr_t m_nodeIdentifier;
+
+	unsigned int m_storageSize;
+
+	unsigned int m_headerSize;
 };
 
 }

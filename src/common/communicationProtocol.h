@@ -29,6 +29,7 @@ struct CPayloadKind
 		RoleInfo,
 		NetworkInfo,
 		SynchronizationInfo,
+		SynchronizationAsk,
 		SynchronizationGet,
 		SynchronizationBlock,
 		SynchronizationHeader,
@@ -151,6 +152,16 @@ struct CNetworkRole
 	)
 
 	int m_role;
+};
+
+struct CSynchronizationAsk
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+
+	int m_dummy;
 };
 
 struct CTransactionStorageInfo
@@ -373,9 +384,17 @@ struct CSynchronizationInfo
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_timeStamp);
+		READWRITE(m_headerSize);
+		READWRITE(m_strageSize);
 	)
 
+	CSynchronizationInfo(){}
+
+	CSynchronizationInfo( uint64_t _timeStamp, unsigned int _headerSize, unsigned int _strageSize):m_timeStamp( _timeStamp ), m_headerSize( _headerSize ), m_strageSize( _strageSize ){}
+
 	uint64_t m_timeStamp;
+	unsigned int m_headerSize;
+	unsigned int m_strageSize;
 };
 
 
@@ -463,6 +482,7 @@ public:
 	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTransactionStorageInfo const & _transactionStorageInfo, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CSynchronizationAsk const & _synchronizationAsk, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id );
 
 	IMPLEMENT_SERIALIZE

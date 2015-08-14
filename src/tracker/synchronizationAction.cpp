@@ -43,50 +43,81 @@ struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchroniz
 
 struct CSynchronizingHeaders;
 
+struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingGetInfo, CSynchronizationAction >
+{
+	CSynchronizingRegistrationAsk( my_context ctx ) : my_base( ctx )
+	{
+		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().addRequest(
+					new common::CSynchronizationRequest< common::CTrackerTypes >(
+						context< CSynchronizationAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						SynchronisingGetInfoTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		return transit< CSynchronizingGetInfo >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
+
 struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, CSynchronizationAction >
 {
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().dropRequests();
-		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), 0, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-		context< CSynchronizationAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( SynchronisingGetInfoTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-		m_bestTimeStamp = 0;
+
+		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >(
+															context< CSynchronizationAction >().getActionKey()
+															, 0
+															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 	}
 
-	boost::statechart::result react( common::CSynchronizationInfoEvent const & _synchronizationInfoEvent )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		if ( m_bestTimeStamp < _synchronizationInfoEvent.m_timeStamp )
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
 		{
-			m_bestTimeStamp = _synchronizationInfoEvent.m_timeStamp;
-			context< CSynchronizationAction >().setNodeIdentifier( _synchronizationInfoEvent.m_nodeIdentifier );
+			common::CSynchronizationInfo synchronizationInfo;
+
+			common::convertPayload( orginalMessage, synchronizationInfo );
+
+			context< CSynchronizationAction >().setStorageSize( synchronizationInfo.m_strageSize );
+			context< CSynchronizationAction >().setHeaderSize( synchronizationInfo.m_headerSize );
+
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
 		}
-		context< CSynchronizationAction >().dropRequests();
-		return discard_event();
-	}
-
-
-
-boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-{
-	if ( m_bestTimeStamp > 0 )
-	{
-		context< CSynchronizationAction >().dropRequests();
 		return transit< CSynchronizingHeaders >();
 	}
-	else
-	{
-		context< CSynchronizationAction >().dropRequests();
-		return discard_event();
-	}
-}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CSynchronizationInfoEvent >
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
-
-	// best synchronising option
-	uint64_t m_bestTimeStamp;
 };
 
 struct CSynchronized;
@@ -304,7 +335,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	common::CSegmentHeader * m_segmentHeader;
 };
 
-CSynchronizationAction::CSynchronizationAction()
+CSynchronizationAction::CSynchronizationAction( uintptr_t _nodeIndicator )
+	: m_nodeIdentifier( _nodeIndicator )
 {
 	initiate();
 }

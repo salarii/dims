@@ -67,6 +67,8 @@ public:
 
 	void add( CValidRegistrationRequest< Type > const * _request );
 
+	void add( CSynchronizationRequest< Type > const * _request );
+
 	void setResponse( uint256 const & _id, Response const & _responses );
 
 	void deleteRequest( CRequest< Type >const* _request );
@@ -299,6 +301,17 @@ CNodeMedium< _Medium >::add( CNetworkRoleRequest< Type > const * _request )
 	networkRole.m_role = _request->getRole();
 
 	common::CMessage message( networkRole, _request->getActionKey(), _request->getId() );
+
+	m_messages.push_back( message );
+
+	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
+}
+
+template < class _Medium >
+void
+CNodeMedium< _Medium >::add( CSynchronizationRequest< Type > const * _request )
+{
+	common::CMessage message( CSynchronizationAsk(), _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 

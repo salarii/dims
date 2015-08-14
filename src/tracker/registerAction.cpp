@@ -16,6 +16,7 @@
 #include "tracker/trackerRequests.h"
 #include "tracker/selfWallet.h"
 #include "tracker/getSelfBalanceAction.h"
+#include "tracker/synchronizationAction.h"
 
 namespace tracker
 {
@@ -195,6 +196,12 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
+		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().addRequest(
+					new common::CScheduleActionRequest< common::CTrackerTypes >(
+						new CSynchronizationAction( context< CRegisterAction >().getNodePtr() )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+
 		return discard_event();
 	}
 
