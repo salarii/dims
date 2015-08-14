@@ -167,7 +167,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 };
 
-struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistration, CAdmitTrackerAction >
+struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrationEmptyNetwork, CAdmitTrackerAction >
 {
 	CPaidRegistrationEmptyNetwork( my_context ctx )
 		: my_base( ctx )
