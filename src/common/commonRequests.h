@@ -908,52 +908,64 @@ CStorageInfoRequest< _Types >::getActionKey() const
 }
 
 template < class _Types >
-class CGetNextBlockRequest : public common::CRequest< _Types >
+class CGetBlockRequest : public common::CRequest< _Types >
 {
 public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CGetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, int _blockKind );
+	CGetBlockRequest( unsigned int _blockNumber, int _blockKind, uint256 const & _actionKey, FilterType * _mediumFilter );
 
 	virtual void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
 
 	int getBlockKind() const;
+
+	int getBlockNumber() const;
 private:
-	uint256 const m_actionKey;
+	unsigned int m_blockNumber;
 
 	int m_blockKind;
+
+	uint256 const m_actionKey;
 };
 
 template < class _Types >
-CGetNextBlockRequest< _Types >::CGetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, int _blockKind  )
+CGetBlockRequest< _Types >::CGetBlockRequest( unsigned int _blockNumber, int _blockKind, uint256 const & _actionKey, FilterType * _mediumFilter )
 	: common::CRequest< _Types >( _mediumFilter )
-	, m_actionKey( _actionKey )
+	, m_blockNumber( _blockNumber )
 	, m_blockKind( _blockKind )
+	, m_actionKey( _actionKey )
 {
 }
 
 template < class _Types >
 void
-CGetNextBlockRequest< _Types >::accept( MediumType * _medium ) const
+CGetBlockRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }
 
 template < class _Types >
 uint256
-CGetNextBlockRequest< _Types >::getActionKey() const
+CGetBlockRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
 
 template < class _Types >
 int
-CGetNextBlockRequest< _Types >::getBlockKind() const
+CGetBlockRequest< _Types >::getBlockKind() const
 {
 	return m_blockKind;
+}
+
+template < class _Types >
+int
+CGetBlockRequest< _Types >::getBlockNumber() const
+{
+	return m_blockNumber;
 }
 
 template < class _Types >

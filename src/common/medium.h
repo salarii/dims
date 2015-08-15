@@ -15,7 +15,7 @@ namespace common
 {
 
 template < class _Types >
-class CGetNextBlockRequest;
+class CGetBlockRequest;
 
 template < class _Types >
 class CSendIdentifyDataRequest;
@@ -169,7 +169,7 @@ public:
 	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CTrackerTypes > const * _request ){};
 	virtual void add( common::CBalanceRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CValidRegistrationRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CGetNextBlockRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CGetBlockRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CAskForTransactionsRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CGetSynchronizationInfoRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CSynchronizationRequest< CTrackerTypes > const * _request ){};
@@ -208,7 +208,7 @@ public:
 	virtual void add( common::CAskForTransactionsRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CValidRegistrationRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CStorageInfoRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CGetNextBlockRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CGetBlockRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CMonitorTypes > const * _request ){};
 	virtual void add( common::CSynchronizationRequest< CTrackerTypes > const * _request ){};

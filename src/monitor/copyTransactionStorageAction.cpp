@@ -68,45 +68,12 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CC
 {
 	CSynchronizingBlocks( my_context ctx ) : my_base( ctx )
 	{
-		context< CCopyTransactionStorageAction >().dropRequests();
 
-		context< CCopyTransactionStorageAction >().addRequest(
-					new common::CGetNextBlockRequest< common::CMonitorTypes >(
-						  context< CCopyTransactionStorageAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CCopyTransactionStorageAction >().getNodeIdentifier() )
-						, (int)common::CBlockKind::Segment ) );
 	}
 
-	boost::statechart::result react( common::CTransactionBlockEvent< common::CDiskBlock > const & _transactionBlockEvent )
-	{
-		std::vector< CTransaction > transactions;
-
-		common::CSegmentFileStorage::getInstance()->setDiscBlock( *_transactionBlockEvent.m_discBlock, _transactionBlockEvent.m_blockIndex, transactions );
-
-		context< CCopyTransactionStorageAction >().dropRequests();
-		context< CCopyTransactionStorageAction >().addRequest(
-					new common::CGetNextBlockRequest< common::CMonitorTypes >(
-						  context< CCopyTransactionStorageAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CCopyTransactionStorageAction >().getNodeIdentifier() )
-						, (int)common::CBlockKind::Segment ) );
-
-		BOOST_FOREACH( CTransaction const & transaction, transactions )
-		{
-			common::CSupportTransactionsDatabase::getInstance()->setTransactionLocation( transaction.GetHash(), transaction.m_location );
-		}
-
-		common::CSupportTransactionsDatabase::getInstance()->flush();
-
-		return discard_event();
-	}
 
 	boost::statechart::result react( common::CEndEvent const & )
 	{
-		context< CCopyTransactionStorageAction >().dropRequests();
-		//context< CSynchronizationAction >().addRequest( new common::CAckRequest< common::CTrackerTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-		//generate  time  and  quit??
-		common::CSegmentFileStorage::getInstance()->resetState();
-		common::CSegmentFileStorage::getInstance()->retriveState();
 
 		return discard_event();
 	}
@@ -116,45 +83,12 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CC
 		common::CSegmentFileStorage::getInstance()->releaseSynchronizationInProgress();
 	}
 
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTransactionBlockEvent< common::CDiskBlock > >,
-	boost::statechart::custom_reaction< common::CEndEvent >
-	> reactions;
 };
 
 
 struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, CCopyTransactionStorageAction >
 {
-	CSynchronizingHeaders( my_context ctx ) : my_base( ctx )
-	{
-		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
 
-		context< CCopyTransactionStorageAction >().dropRequests();
-		context< CCopyTransactionStorageAction >().addRequest(
-					new common::CGetNextBlockRequest< common::CMonitorTypes >(
-						  context< CCopyTransactionStorageAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CCopyTransactionStorageAction >().getNodeIdentifier() )
-						, (int)common::CBlockKind::Header ) );
-	}
-
-	boost::statechart::result react( common::CTransactionBlockEvent< common::CSegmentHeader > const & _transactionBlockEvent )
-	{
-		common::CSegmentFileStorage::getInstance()->setDiscBlock( *_transactionBlockEvent.m_discBlock, _transactionBlockEvent.m_blockIndex );
-
-		context< CCopyTransactionStorageAction >().dropRequests();
-		context< CCopyTransactionStorageAction >().addRequest(
-					new common::CGetNextBlockRequest< common::CMonitorTypes >(
-						  context< CCopyTransactionStorageAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CCopyTransactionStorageAction >().getNodeIdentifier() )
-						, (int)common::CBlockKind::Header ) );
-
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTransactionBlockEvent< common::CSegmentHeader > >,
-	boost::statechart::transition< common::CEndEvent, CSynchronizingBlocks >
-	> reactions;
 };
 
 struct CSynchronized : boost::statechart::state< CSynchronized, CCopyTransactionStorageAction >

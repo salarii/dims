@@ -207,6 +207,7 @@ struct CTransactionBundle
 
 struct CSynchronizationBlock
 {
+	CSynchronizationBlock(){}
 	CSynchronizationBlock( CDiskBlock * _diskBlock, unsigned int _blockIndex ):m_diskBlock( _diskBlock ), m_blockIndex(_blockIndex){}
 
 	IMPLEMENT_SERIALIZE
@@ -221,6 +222,8 @@ struct CSynchronizationBlock
 
 struct CSynchronizationSegmentHeader
 {
+	CSynchronizationSegmentHeader(){}
+
 	CSynchronizationSegmentHeader( CSegmentHeader * _segmentHeader, unsigned int _blockIndex ):m_segmentHeader( _segmentHeader ), m_blockIndex(_blockIndex){}
 
 	IMPLEMENT_SERIALIZE

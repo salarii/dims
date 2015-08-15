@@ -63,7 +63,7 @@ public:
 
 	void add( CSetNextBlockRequest< CDiskBlock, Type > const * _request );
 
-	void add( CGetNextBlockRequest< Type > const * _request );
+	void add( CGetBlockRequest< Type > const * _request );
 
 	void add( CValidRegistrationRequest< Type > const * _request );
 
@@ -262,7 +262,7 @@ CNodeMedium< _Medium >::add( CSendIdentifyDataRequest< Type > const * _request )
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CGetNextBlockRequest< Type > const * _request )
+CNodeMedium< _Medium >::add( CGetBlockRequest< Type > const * _request )
 {
 	common::CGet get;
 
