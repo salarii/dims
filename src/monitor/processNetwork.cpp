@@ -58,6 +58,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationAsk
+				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 			)
 		{
 			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
@@ -71,6 +72,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 							  message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
 						|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitProof
 						|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
+						|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 					)
 					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 				else

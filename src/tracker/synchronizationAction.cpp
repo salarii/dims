@@ -455,6 +455,7 @@ CSynchronizationAction::CSynchronizationAction( uintptr_t _nodeIndicator )
 	: m_nodeIdentifier( _nodeIndicator )
 {
 	initiate();
+	process_event( CSwitchToSynchronizing() );
 }
 
 CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp )
