@@ -34,10 +34,6 @@ struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing
 {
 };
 
-struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
-{
-};
-
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
 {
 	typedef boost::mpl::list<
@@ -306,8 +302,8 @@ CSynchronizationAction::CSynchronizationAction()
 	initiate();
 }
 
-CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp )
-	: m_timeStamp( _timeStamp )
+CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
+	: common::CAction< common::CMonitorTypes >( _actionKey )
 	, m_nodeIdentifier( _nodeIndicator )
 {
 	initiate();

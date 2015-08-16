@@ -16,6 +16,7 @@
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/pingAction.h"
 #include "monitor/provideInfoAction.h"
+#include "monitor/synchronizationAction.h"
 
 namespace monitor
 {
@@ -56,7 +57,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitProof
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions
-				)
+				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationAsk
+			)
 		{
 			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 			// not necessarily have to pass this
@@ -98,6 +100,17 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 
 					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( provideInfoAction );
+				}
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationAsk )
+				{
+					CSynchronizationAction * synchronizationAction= new CSynchronizationAction(
+								message.m_header.m_actionKey
+								, convertToInt( nodeMedium->getNode() )
+								);
+
+					synchronizationAction->process_event( CSwitchToSynchronized() );
+
+					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( synchronizationAction );
 				}
 			}
 		}

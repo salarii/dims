@@ -16,12 +16,16 @@ namespace monitor
 
 struct CUninitiated;
 
+struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
+{
+};
+
 class CSynchronizationAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
 {
 public:
 	CSynchronizationAction();
 
-	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
+	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 
@@ -38,8 +42,6 @@ public:
 	void setRequestKey( uint256 const & _requestKey ){ m_requestKey = _requestKey; }
 private:
 	uint256 m_requestKey;
-
-	uint64_t m_timeStamp;
 
 	uintptr_t m_nodeIdentifier;
 };
