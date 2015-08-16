@@ -29,7 +29,6 @@ struct CPayloadKind
 		RoleInfo,
 		NetworkInfo,
 		SynchronizationInfo,
-		SynchronizationAsk,
 		SynchronizationGet,
 		SynchronizationBlock,
 		SynchronizationHeader,
@@ -51,7 +50,8 @@ struct CPayloadKind
 		ClientTransaction,
 		ClientStatusTransaction,
 		StorageInfo,
-		TrackerInfo
+		TrackerInfo,
+		SynchronizationAsk
 	};
 };
 
