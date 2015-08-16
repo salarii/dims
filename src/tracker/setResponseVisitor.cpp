@@ -100,12 +100,6 @@ public:
 		this->m_action->process_event( common::CAckEvent() );
 	}
 
-	virtual void operator()( common::CGetPrompt & _param ) const
-	{
-		LogPrintf("set response \"get prompt\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CGetEvent(_param.m_type) );
-	}
-
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
 		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );

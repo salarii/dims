@@ -28,7 +28,7 @@ struct CProvideInfo;
 class CProvideInfoAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >
 {
 public:
-	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
+	CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 

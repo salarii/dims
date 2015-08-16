@@ -236,6 +236,22 @@ struct CSynchronizationSegmentHeader
 	unsigned int m_blockIndex;
 };
 
+struct CSynchronizationGet
+{
+	CSynchronizationGet(){}
+
+	CSynchronizationGet( unsigned int _kind, unsigned int _number ):m_kind( _kind ), m_number( _number ){}
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_kind);
+		READWRITE(m_number);
+	)
+
+	unsigned int m_kind;
+	unsigned int m_number;
+};
+
 struct CPing
 {
 	IMPLEMENT_SERIALIZE
@@ -486,6 +502,7 @@ public:
 	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTransactionStorageInfo const & _transactionStorageInfo, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationAsk const & _synchronizationAsk, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CSynchronizationGet const & _synchronizationGet, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id );
 
 	IMPLEMENT_SERIALIZE

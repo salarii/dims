@@ -28,7 +28,9 @@ unsigned const SynchronisingGetInfoTime = 10000;//milisec
 unsigned const SynchronisingWaitTime = 15000;
 
 struct CSynchronizingGetInfo;
-struct CSynchronizedGetInfo;
+struct CSynchronizingHeaders;
+struct CSynchronizedUninitialized;
+struct CSynchronizedProvideCopy;
 
 struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
 {
@@ -38,11 +40,9 @@ struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchroniz
 {
 	typedef boost::mpl::list<
 	boost::statechart::transition< CSwitchToSynchronizing, CSynchronizingGetInfo >,
-	boost::statechart::transition< CSwitchToSynchronized, CSynchronizedGetInfo >
+	boost::statechart::transition< CSwitchToSynchronized, CSynchronizedUninitialized >
 	> reactions;
 };
-
-struct CSynchronizingHeaders;
 
 struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, CSynchronizationAction >
 {
@@ -52,43 +52,6 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 };
 
 struct CSynchronized;
-
-struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CSynchronizationAction >
-{
-	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
-	{
-		context< CSynchronizationAction >().dropRequests();
-		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CMonitorTypes >(
-															context< CSynchronizationAction >().getActionKey()
-															, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
-															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) )
-														);
-
-		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
-						  SynchronisingWaitTime * 2
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
-
-	boost::statechart::result react( common::CGetEvent const & _getEvent )
-	{
-		return transit< CSynchronized >();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CSynchronizationAction >().dropRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CGetEvent >
-	> reactions;
-
-	// best synchronising option
-	uint64_t m_bestTimeStamp;
-};
 
 struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CSynchronizationAction >
 {
@@ -113,6 +76,13 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 					new common::CTimeEventRequest< common::CMonitorTypes >(
 						SynchronisingWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CAckRequest< common::CMonitorTypes >(
+						context< CSynchronizationAction >().getActionKey()
+						, context< CSynchronizationAction >().getRequestKey()
+						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -139,7 +109,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 								, _messageResult.m_message.m_header.m_id
 								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 			}
-
+			return transit< CSynchronizedProvideCopy >();
 		}
 
 		return discard_event();
@@ -147,10 +117,12 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CSynchronizationAction >().setExit();
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 };
@@ -206,7 +178,7 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronized, CSync
 
 struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronizationAction >
 {
-	CSynchronized( my_context ctx ) : my_base( ctx ),m_currentBlock( 0 ),m_currentHeader( 0 )
+	CSynchronized( my_context ctx ) : my_base( ctx )
 	{
 		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
 
@@ -219,51 +191,60 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		m_diskBlock = new common::CDiskBlock;
 
 		m_segmentHeader = new common::CSegmentHeader;
-		setHeaders();
 	}
 
-	void setBlock()
+	void setBlock( unsigned int _blockNumber )
 	{
-		common::CSegmentFileStorage::getInstance()->getBlock( m_currentBlock, *m_diskBlock );
+		common::CSegmentFileStorage::getInstance()->getBlock( _blockNumber, *m_diskBlock );
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CDiskBlock, common::CMonitorTypes >(
 															context< CSynchronizationAction >().getActionKey()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
 															, m_diskBlock
-															, m_currentBlock++) );
+															, _blockNumber) );
 	}
 
 
-	void setHeaders()
+	void setHeaders( unsigned int _headerNumber )
 	{
-		common::CSegmentFileStorage::getInstance()->getSegmentHeader( m_currentHeader, *m_segmentHeader );
+		common::CSegmentFileStorage::getInstance()->getSegmentHeader( _headerNumber, *m_segmentHeader );
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CSegmentHeader, common::CMonitorTypes >(
 															context< CSynchronizationAction >().getActionKey()
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
 															, m_segmentHeader
-															, m_currentHeader++) );
+															, _headerNumber) );
 	}
 
-	boost::statechart::result react( common::CGetEvent const & _getEvent )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		if ( m_currentBlock < m_storedBlocks && _getEvent.m_type == common::CBlockKind::Segment )
-		{
-			setBlock();
-		}
-		else if ( m_currentHeader < m_storedHeaders && _getEvent.m_type == common::CBlockKind::Header )
-		{
-			setHeaders();
-		}
-		else
-		{
-			context< CSynchronizationAction >().dropRequests();
-			context< CSynchronizationAction >().addRequest(
-						new common::CEndRequest< common::CMonitorTypes >( context< CSynchronizationAction >().getActionKey(), new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
-		}
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
 
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet )
+		{
+			common::CSynchronizationGet synchronizationGet;
+
+			common::convertPayload( orginalMessage, synchronizationGet );
+
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest< common::CMonitorTypes >(
+							context< CSynchronizationAction >().getActionKey()
+							, context< CSynchronizationAction >().getRequestKey()
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+			if ( synchronizationGet.m_number < m_storedBlocks && synchronizationGet.m_kind == common::CBlockKind::Segment )
+			{
+				setBlock( synchronizationGet.m_number );
+			}
+			else if ( synchronizationGet.m_number < m_storedHeaders && synchronizationGet.m_kind == common::CBlockKind::Header )
+			{
+				setHeaders( synchronizationGet.m_number );
+			}
+		}
 		return discard_event();
 	}
 
@@ -283,15 +264,13 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CGetEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 
 	unsigned int m_storedBlocks;
-	unsigned int m_currentBlock;
 
 	unsigned int m_storedHeaders;
-	unsigned int m_currentHeader;
 
 	common::CDiskBlock * m_diskBlock;
 	common::CSegmentHeader * m_segmentHeader;

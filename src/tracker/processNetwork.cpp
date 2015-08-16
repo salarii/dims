@@ -158,30 +158,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		{
 
 		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Get )
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-			{}
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CGet get;
-			common::convertPayload( orginalMessage, get );
-
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_id, common::CGetPrompt( get.m_type ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-			}
-		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock )
 		{
 			CPubKey pubKey;

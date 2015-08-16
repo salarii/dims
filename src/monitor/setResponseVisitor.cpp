@@ -14,6 +14,7 @@
 #include "monitor/recognizeNetworkAction.h"
 #include "monitor/trackOriginAddressAction.h"
 #include "monitor/provideInfoAction.h"
+#include "monitor/synchronizationAction.h"
 
 namespace common
 {
@@ -61,12 +62,6 @@ public:
 	{
 		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
-	}
-
-	virtual void operator()( common::CGetPrompt & _param ) const
-	{
-		LogPrintf("set response \"get prompt\" to action: %p \n", this->m_action );
-		this->m_action->process_event( common::CGetEvent(_param.m_type) );
 	}
 };
 
@@ -183,6 +178,30 @@ public:
 	}
 };
 
+class SetSynchronizationActionResult : public CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >
+{
+public:
+	SetSynchronizationActionResult( monitor::CSynchronizationAction * const _action ):CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
+		this->m_action->process_event( common::CAckEvent() );
+	}
+};
+
 CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
 	: m_requestResponse( _requestResponse )
 {
@@ -232,7 +251,7 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CTrackOriginAddres
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CProvideInfoAction & _action )
 {
-	boost::apply_visitor( ( CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList > const & )( &_action ), m_requestResponse );
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList > const & )CSetProvideInfoActionResult( &_action ), m_requestResponse );
 }
 
 void
@@ -241,7 +260,9 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CCopyTransactionSt
 
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CSynchronizationAction & _action )
-{}
+{
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList > const & )SetSynchronizationActionResult( &_action ), m_requestResponse );
+}
 
 }
 

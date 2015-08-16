@@ -124,8 +124,9 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 	}
 };
 
-CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
+CProvideInfoAction::CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
+	, m_infoRequestKey( _id )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();

@@ -41,15 +41,20 @@ CCopyStorageHandler::copyCreated()
 
 CCopyStorageHandler::CCopyStorageHandler()
 	: m_copyRequest( false )
-{}
+{
+}
 
 uint64_t
 CCopyStorageHandler::getDiscBlockSize() const
-{}
+{
+	return common::CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
+}
 
 uint64_t
 CCopyStorageHandler::getSegmentHeaderSize() const
-{}
+{
+	return common::CSegmentFileStorage::getInstance()->getStoredHeaderCount();
+}
 
 
 void

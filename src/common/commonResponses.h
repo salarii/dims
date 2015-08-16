@@ -61,12 +61,6 @@ struct CIdentificationResult : boost::statechart::event< CIdentificationResult >
 	uint256 m_id;
 };
 
-struct CGetPrompt
-{
-	CGetPrompt( int _type ):m_type( _type ){}
-	int m_type;
-};
-
 struct CExceptionInfo;
 struct CNodeExceptionInfo;
 
