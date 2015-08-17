@@ -14,13 +14,17 @@ namespace tracker
 {
 
 void
-CTrackerNodeMedium::add( common::CGetSynchronizationInfoRequest< common::CMonitorTypes > const * _request )
+CTrackerNodeMedium::add( common::CGetSynchronizationInfoRequest< common::CTrackerTypes > const * _request )
 {
-	common::CSynchronizationInfo synchronizationInfo;
+	common::CInfoRequestData infoRequestData;
 
-	synchronizationInfo.m_timeStamp = _request->getTimeStamp();
+	unsigned int timeStamp = _request->getTimeStamp();
 
-	common::CMessage message( synchronizationInfo, _request->getActionKey(), _request->getId() );
+	infoRequestData.m_kind = common::CInfoKind::StorageInfoAsk;
+
+	common::castTypeToCharVector( &timeStamp, infoRequestData.m_payload );
+
+	common::CMessage message( infoRequestData, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 

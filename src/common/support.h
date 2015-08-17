@@ -46,6 +46,21 @@ uintptr_t convertToInt( T * _t )
 	return reinterpret_cast< uintptr_t >( _t );
 }
 
+template < class T >
+void
+castCharVectorToType( std::vector< unsigned char > const & _input, T * _t )
+{
+	std::copy( _input.begin(), _input.end(), (unsigned char*)_t );
+}
+
+template < class T >
+void
+castTypeToCharVector( T const * _t, std::vector< unsigned char > & _output )
+{
+	_output.resize( sizeof( T ) );
+	memcpy( &_output[ 0 ], _t, sizeof( T ) );
+}
+
 inline
 uint256
 getRandNumber()

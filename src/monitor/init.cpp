@@ -48,6 +48,7 @@
 #include "common/periodicActionExecutor.h"
 #include "common/timeMedium.h"
 #include "common/commandLine.h"
+#include "common/originAddressScanner.h"
 
 #include "monitor/processNetwork.h"
 #include "monitor/monitorController.h"
@@ -57,6 +58,7 @@
 #include "monitor/reputationTracer.h"
 #include "monitor/noMediumHandling.h"
 #include "monitor/registerRpcHooks.h"
+#include "monitor/transactionRecordManager.h"
 
 using namespace std;
 using namespace boost;
@@ -645,7 +647,13 @@ bool AppInit(boost::thread_group& threadGroup)
 	LogPrintf("No wallet compiled in!\n");
 #endif // !ENABLE_WALLET
 	// ********************************************************* Step 9: import blocks
+
+	common::COriginAddressScanner::getInstance()->setStorage( monitor::CTransactionRecordManager::getInstance() );
 /* create  threads of  action  handler */
+	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CSegmentFileStorage::flushLoop, common::CSegmentFileStorage::getInstance() ) );
+
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CMonitorTypes >::loop, common::CActionHandler< common::CMonitorTypes >::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CMonitorBaseMedium >::workLoop, common::CTimeMedium< common::CMonitorBaseMedium >::getInstance() ) );

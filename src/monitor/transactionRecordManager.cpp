@@ -12,6 +12,9 @@ namespace monitor
 
 CTransactionRecordManager * CTransactionRecordManager::ms_instance = NULL;
 
+CTransactionRecordManager::CTransactionRecordManager()
+{}
+
 CTransactionRecordManager*
 CTransactionRecordManager::getInstance( )
 {

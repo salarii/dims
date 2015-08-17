@@ -20,7 +20,7 @@ class CTrackerNodeMedium : public common::CNodeMedium< common::CTrackerBaseMediu
 public:
 	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< common::CTrackerBaseMedium >( _selfNode ){};
 
-	void add( common::CGetSynchronizationInfoRequest< common::CMonitorTypes > const * _request );
+	void add( common::CGetSynchronizationInfoRequest< common::CTrackerTypes > const * _request );
 
 	void add( CTransactionsPropagationRequest const * _request );
 
