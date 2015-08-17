@@ -21,6 +21,9 @@ public:
 
 	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
 
+	~CSynchronizationAction()
+	{}
+
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
 	void clear();

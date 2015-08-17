@@ -281,12 +281,12 @@ CSynchronizationAction::CSynchronizationAction()
 	initiate();
 }
 
-CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
+CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: common::CAction< common::CMonitorTypes >( _actionKey )
+	, m_requestKey( _id )
 	, m_nodeIdentifier( _nodeIndicator )
 {
 	initiate();
-	process_event( CSwitchToSynchronized() );
 }
 
 void

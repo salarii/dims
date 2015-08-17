@@ -25,7 +25,7 @@ class CSynchronizationAction : public common::CAction< common::CMonitorTypes >, 
 public:
 	CSynchronizationAction();
 
-	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
+	CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
 

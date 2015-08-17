@@ -32,18 +32,19 @@ unsigned const SynchronisingWaitTime = 15000;
 
 struct CSynchronizingGetInfo;
 struct CSynchronizedGetInfo;
+struct CSynchronizingRegistrationAsk;
 
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
 {
 	typedef boost::mpl::list<
-	boost::statechart::transition< CSwitchToSynchronizing, CSynchronizingGetInfo >,
+	boost::statechart::transition< CSwitchToSynchronizing, CSynchronizingRegistrationAsk >,
 	boost::statechart::transition< CSwitchToSynchronized, CSynchronizedGetInfo >
 	> reactions;
 };
 
 struct CSynchronizingHeaders;
 
-struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingGetInfo, CSynchronizationAction >
+struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingRegistrationAsk, CSynchronizationAction >
 {
 	CSynchronizingRegistrationAsk( my_context ctx ) : my_base( ctx )
 	{
@@ -55,7 +56,7 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingG
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
-						SynchronisingGetInfoTime
+						 SynchronisingGetInfoTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
