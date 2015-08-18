@@ -45,6 +45,12 @@ CCopyStorageHandler::CCopyStorageHandler()
 }
 
 uint64_t
+CCopyStorageHandler::getTimeStamp()
+{
+	return m_timeStamp;
+}
+
+uint64_t
 CCopyStorageHandler::getDiscBlockSize() const
 {
 	return common::CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
@@ -63,20 +69,24 @@ CCopyStorageHandler::loop()
 
 	while(1)
 	{
-		if ( m_copyRequest )
 		{
-			m_copyCreated = false;
+			boost::lock_guard<boost::mutex> lock( m_requestLock );
+			if ( m_copyRequest )
+			{
+				m_timeStamp = GetTime();
 
-			m_storageSize = common::CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
-			m_headerSize = common::CSegmentFileStorage::getInstance()->getStoredHeaderCount();
+				m_copyCreated = false;
 
-			common::CSegmentFileStorage::getInstance()->copyHeader();
-			common::CSegmentFileStorage::getInstance()->copyStorage();
+				m_storageSize = common::CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
+				m_headerSize = common::CSegmentFileStorage::getInstance()->getStoredHeaderCount();
 
-			m_copyCreated = true;
-			m_copyRequest = false;
+				common::CSegmentFileStorage::getInstance()->copyHeader();
+				common::CSegmentFileStorage::getInstance()->copyStorage();
+
+				m_copyCreated = true;
+				m_copyRequest = false;
+			}
 		}
-
 		MilliSleep(1000);
 	}
 }

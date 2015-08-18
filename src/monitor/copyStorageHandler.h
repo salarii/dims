@@ -41,6 +41,8 @@ private:
 
 	uint m_headerSize;
 
+	uint64_t m_timeStamp;
+
 	bool m_copyCreated;
 
 	static CCopyStorageHandler * ms_instance;

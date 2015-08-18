@@ -127,7 +127,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 	> reactions;
 };
 
-struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronized, CSynchronizationAction >
+struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvideCopy, CSynchronizationAction >
 {
 	CSynchronizedProvideCopy( my_context ctx ) : my_base( ctx ), m_copyRequestDone( false )
 	{
