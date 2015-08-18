@@ -838,7 +838,7 @@ CSegmentFileStorage::copyFile( std::string _fileName ) const
 	path += m_baseDirectory + _fileName;
 
 	boost::filesystem::path targetPath = GetDataDir( common::CDimsParams::getAppType() );
-	path += m_copyDirectory;
+	targetPath += m_copyDirectory;
 
 	boost::filesystem::create_directory( targetPath );
 	boost::filesystem::path file( path );
