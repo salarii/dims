@@ -156,15 +156,14 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 										, context< CSynchronizationAction >().getRequestKey()
 										, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 			}
-
-			context< CSynchronizationAction >().addRequest(
-						new common::CTimeEventRequest< common::CMonitorTypes >(
-							SynchronisingWaitTime
-							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
 		}
 
-			return discard_event();
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						SynchronisingWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
