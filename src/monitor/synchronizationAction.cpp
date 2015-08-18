@@ -133,13 +133,13 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 	{
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >(
-						SynchronisingWaitTime
+						 100
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		if ( m_copyRequestDone )
+		if ( !m_copyRequestDone )
 		{
 			m_copyRequestDone = CCopyStorageHandler::getInstance()->createCopyRequest();
 		}
