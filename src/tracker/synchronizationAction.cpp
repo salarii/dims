@@ -379,7 +379,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	void setBlock()
 	{
-		common::CSegmentFileStorage::getInstance()->getBlock( m_currentBlock, *m_diskBlock );
+		common::CSegmentFileStorage::getInstance()->getCopyBlock( m_currentBlock, *m_diskBlock );
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CDiskBlock, common::CTrackerTypes >(
@@ -392,7 +392,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	void setHeaders()
 	{
-		common::CSegmentFileStorage::getInstance()->getSegmentHeader( m_currentHeader, *m_segmentHeader );
+		common::CSegmentFileStorage::getInstance()->getCopySegmentHeader( m_currentHeader, *m_segmentHeader );
 
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CSegmentHeader, common::CTrackerTypes >(

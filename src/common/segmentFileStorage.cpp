@@ -246,12 +246,31 @@ CSegmentFileStorage::getBlock( unsigned int _index, CDiskBlock & _discBlock )
 		return false;
 
 	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
+	path += m_baseDirectory + ms_segmentFileName;
+	return m_accessFile.loadSegmentFromFile< CDiskBlock >( _index, path.string(), _discBlock );
+}
+
+bool
+CSegmentFileStorage::getCopyBlock( unsigned int _index, CDiskBlock & _discBlock )
+{
+	if ( m_alreadyStoredSegments <= _index )
+		return false;
+
+	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
 	path += m_copyDirectory + ms_segmentFileName;
 	return m_accessFile.loadSegmentFromFile< CDiskBlock >( _index, path.string(), _discBlock );
 }
 
 bool
 CSegmentFileStorage::getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader )
+{
+	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
+	path += m_baseDirectory + ms_headerFileName;
+	return m_accessFile.loadSegmentFromFile< CSegmentHeader >( _index, path.string(), _segmentHeader );
+}
+
+bool
+CSegmentFileStorage::getCopySegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader )
 {
 	boost::filesystem::path path = GetDataDir( common::CDimsParams::getAppType() );
 	path += m_copyDirectory + ms_headerFileName;

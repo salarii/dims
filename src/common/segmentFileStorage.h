@@ -230,6 +230,8 @@ public:
 
 	bool getBlock( unsigned int _index, CDiskBlock & _diskBlock );
 
+	bool getCopyBlock( unsigned int _index, CDiskBlock & _diskBlock );
+
 	void saveBlock( unsigned int _index, CDiskBlock const & _block );
 
 	unsigned int calculateStoredBlockNumber() const;
@@ -237,6 +239,8 @@ public:
 	unsigned int getStoredHeaderCount() const;
 
 	bool getSegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader );
+
+	bool getCopySegmentHeader( unsigned int _index, CSegmentHeader & _segmentHeader );
 
 	void saveBlock( unsigned int _index, CSegmentHeader const & _header );
 
