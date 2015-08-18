@@ -108,6 +108,8 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 								context< CSynchronizationAction >().getActionKey()
 								, _messageResult.m_message.m_header.m_id
 								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+				context< CSynchronizationAction >().setRequestKey( _messageResult.m_message.m_header.m_id );
 			}
 			return transit< CSynchronizedProvideCopy >();
 		}
