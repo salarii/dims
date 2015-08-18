@@ -59,6 +59,7 @@
 #include "monitor/noMediumHandling.h"
 #include "monitor/registerRpcHooks.h"
 #include "monitor/transactionRecordManager.h"
+#include "monitor/copyStorageHandler.h"
 
 using namespace std;
 using namespace boost;
@@ -661,6 +662,8 @@ bool AppInit(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &CCopyStorageHandler::loop, CCopyStorageHandler::getInstance() ) );
 
 	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)monitor::CInternalMediumProvider::getInstance() );
 
