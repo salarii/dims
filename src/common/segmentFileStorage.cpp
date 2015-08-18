@@ -844,7 +844,7 @@ CSegmentFileStorage::copyFile( std::string _fileName ) const
 	boost::filesystem::path file( path );
 
 	targetPath += _fileName;
-	boost::filesystem::copy_file( file, targetPath );
+	boost::filesystem::copy_file( file, targetPath, boost::filesystem::copy_option::overwrite_if_exists );
 }
 
 void
