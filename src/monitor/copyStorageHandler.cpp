@@ -41,6 +41,7 @@ CCopyStorageHandler::copyCreated()
 
 CCopyStorageHandler::CCopyStorageHandler()
 	: m_copyRequest( false )
+	, m_copyCreated( false )
 {
 }
 
