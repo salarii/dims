@@ -49,7 +49,6 @@ struct CPayloadKind
 		Balance,
 		ClientTransaction,
 		ClientStatusTransaction,
-		StorageInfo,
 		TrackerInfo,
 		SynchronizationAsk
 	};
@@ -162,23 +161,6 @@ struct CSynchronizationAsk
 	)
 
 	int m_dummy;
-};
-
-struct CTransactionStorageInfo
-{
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE( m_storageSize );
-		READWRITE( m_headerSize );
-		READWRITE( m_time );
-	)
-
-	CTransactionStorageInfo(){}
-
-	CTransactionStorageInfo( uint64_t _storageSize, uint64_t _headerSize, uint64_t _time ): m_storageSize( _storageSize ), m_headerSize( _headerSize ), m_time( _time ){}
-	uint64_t m_storageSize;
-	uint64_t m_headerSize;
-	uint64_t m_time;
 };
 
 struct CTrackerInfo
@@ -500,7 +482,6 @@ public:
 	CMessage( CBalance const & _balance, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CTransactionStorageInfo const & _transactionStorageInfo, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationAsk const & _synchronizationAsk, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationGet const & _synchronizationGet, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id );

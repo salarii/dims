@@ -273,14 +273,6 @@ CMessage::CMessage( CClientTransactionStatus const & _clientTransactionStatus, u
 	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CTransactionStorageInfo const & _transactionStorageInfo, uint256 const & _actionKey, uint256 const & _id )
-	: m_header( (int)common::CPayloadKind::StorageInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
-{
-	common::createPayload( _transactionStorageInfo, m_payload );
-
-	common::CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
-}
-
 CMessage::CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id )
 	: m_header( (int)common::CPayloadKind::TrackerInfo, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {

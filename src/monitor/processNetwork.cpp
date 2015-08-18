@@ -60,7 +60,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet
-				|| message.m_header.m_payloadKind == common::CPayloadKind::StorageInfo
 			)
 		{
 			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );

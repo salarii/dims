@@ -76,6 +76,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration
+				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 				 )
 		{
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
@@ -128,31 +129,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( connectNodeAction );
 			}
 
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-			{}
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CSynchronizationInfo synchronizationInfo;
-			convertPayload( message, synchronizationInfo );
-
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_id, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp, convertToInt( nodeMedium->getNode() ), message.m_header.m_id ) );
-			}
-			else
-			{
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction(
-							new CSynchronizationAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ), synchronizationInfo.m_timeStamp ) );
-			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{
