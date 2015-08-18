@@ -842,6 +842,8 @@ CSegmentFileStorage::copyFile( std::string _fileName ) const
 
 	boost::filesystem::create_directory( targetPath );
 	boost::filesystem::path file( path );
+
+	targetPath += _fileName;
 	boost::filesystem::copy_file( file, targetPath );
 }
 
