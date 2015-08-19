@@ -78,7 +78,7 @@ dims_monitor_CPPFLAGS = $(AM_CPPFLAGS)
 
 dims_monitor_SOURCES = monitor.cpp
 
-dims_monitor_LDADD =  libmonitor.a $(LIBDIMS_TRACKER) $(LIBBITCOIN_SERVER) $(LIBDIMS_TRACKER) 
+dims_monitor_LDADD =  libmonitor.a $(LIBBITCOIN_COMMON) $(LIBBITCOIN_SERVER) 
 
 dims_monitor_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBLEVELDB) $(LIBMEMENV) $(PROTOBUF_LIBS) \
   $(BOOST_LIBS)  $(BDB_LIBS) 

@@ -13,6 +13,8 @@
 
 namespace common
 {
+std::vector< uint256 > deleteList;
+
 template<> CNodesManager< common::CMonitorTypes > * common::CNodesManager< common::CMonitorTypes >::ms_instance = 0;
 }
 

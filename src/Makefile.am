@@ -110,9 +110,8 @@ TRACKER_CORE_H = \
   tracker/trackerRequests.h \
   tracker/trackOriginAddressAction.h \
   tracker/validateTransactionsAction.h \
-  tracker/validateTransactionActionEvents.h \
-  leveldbwrapper.h \
-  txdb.h 
+  tracker/validateTransactionActionEvents.h
+  
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -156,7 +155,9 @@ BITCOIN_CORE_H = \
   version.h \
   walletdb.h \
   networksParameters.h \
-  wallet.h
+  wallet.h \
+  leveldbwrapper.h \
+  txdb.h 
 
 JSON_H = \
   json/json_spirit.h \
@@ -205,9 +206,8 @@ TRACKER_CORE_CPP = \
   tracker/trackerRequests.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/trackOriginAddressAction.cpp \
-  tracker/validateTransactionsAction.cpp \
-  leveldbwrapper.cpp \
-  txdb.cpp
+  tracker/validateTransactionsAction.cpp
+
   
 libbitcoin_server_a_SOURCES = \
   db.cpp \
@@ -231,6 +231,8 @@ libbitcoin_server_a_SOURCES = \
   rpcwallet.cpp \
   wallet.cpp \
   walletdb.cpp \
+  leveldbwrapper.cpp \
+  txdb.cpp \
   $(JSON_H) \
   $(BITCOIN_CORE_H)
 

@@ -61,6 +61,12 @@
 #include "monitor/transactionRecordManager.h"
 #include "monitor/copyStorageHandler.h"
 
+
+#ifdef ENABLE_WALLET
+std::string strWalletFile;
+CWallet* pwalletMain;
+#endif
+
 using namespace std;
 using namespace boost;
 
