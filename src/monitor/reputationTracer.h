@@ -92,6 +92,8 @@ public:
 			m_presentTrackers = _presentTrackers;
 	}
 
+	void eraseMedium( uintptr_t _nodePtr );
+
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 
 	bool checkForTracker( CPubKey const & _pubKey, CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
@@ -131,8 +133,6 @@ private:
 	TransactionsAddmited m_transactionsAddmited;
 
 	std::set< uint160 > m_presentTrackers;
-
-	static CReputationTracker * ms_instance;
 
 	static uint64_t const m_recalculateTime;
 

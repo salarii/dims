@@ -11,6 +11,11 @@
 
 #include "monitor/rankingDatabase.h"
 
+namespace common
+{
+template<> CNodesManager< common::CMonitorTypes > * common::CNodesManager< common::CMonitorTypes >::ms_instance = 0;
+}
+
 namespace monitor
 {
 double const PreviousReptationRatio = 0.95;// I want  to preserve  a lot
@@ -18,8 +23,6 @@ double const RelativeToMax = 0.3;
 unsigned int const OneTransactionGain = 10;
 
 // allow some  deviation for  other monitors
-
-CReputationTracker * CReputationTracker::ms_instance = NULL;
 
 uint64_t const CReputationTracker::m_recalculateTime = 10000;// this  time is  vital how frequent it should be???
 
@@ -45,7 +48,7 @@ CReputationTracker::getInstance()
 	{
 		ms_instance = new CReputationTracker();
 	};
-	return ms_instance;
+	return dynamic_cast<CReputationTracker *>( ms_instance );
 }
 
 unsigned int
@@ -93,19 +96,21 @@ CReputationTracker::loop()
 {
 	while( 1 )
 	{
-		boost::lock_guard<boost::mutex> lock( m_lock );
-		BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
 		{
-			if ( tracker.second.m_networkTime <= m_recalculateTime )
+			boost::lock_guard<boost::mutex> lock( m_lock );
+			BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
 			{
-				// tracker need to pay again
-				// create new  pay  action
+				if ( tracker.second.m_networkTime <= m_recalculateTime )
+				{
+					// tracker need to pay again
+					// create new  pay  action
+				}
+				else
+				{
+					tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
+				}
+				//	tracker.second.m_networkTime += m_recalculateTime;
 			}
-			else
-			{
-				tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
-			}
-		//	tracker.second.m_networkTime += m_recalculateTime;
 		}
 /*
 		BOOST_FOREACH( AllyMonitors::value_type & monitor, m_allyMonitorsRankings )
@@ -230,6 +235,36 @@ CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )c
 	}
 
 	return false;
+}
+
+void
+CReputationTracker::eraseMedium( uintptr_t _nodePtr )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	common::CNodesManager< common::CMonitorTypes >::eraseMedium( _nodePtr );
+
+	CPubKey pubKey;
+
+	getNodeToKey( _nodePtr, pubKey );
+
+	uint160 keyId = pubKey.GetID();
+
+	m_candidates.erase( keyId );
+
+	m_monitors.erase( keyId );
+
+	m_trackerToMonitor.erase( keyId );
+
+	m_registeredTrackers.erase( keyId );
+
+	m_allyMonitorsRankings.erase( keyId );
+
+	m_transactionsAddmited.erase( keyId );
+
+	m_presentTrackers.erase( keyId );
+
+	m_pubKeyToNodeIndicator.erase( pubKey );
 }
 
 std::set< common::CValidNodeInfo > const

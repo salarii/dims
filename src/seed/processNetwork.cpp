@@ -158,3 +158,13 @@ CProcessNetwork::sendMessages(common::CSelfNode* pto, bool fSendTrickle)
 }
 
 }
+
+
+namespace common
+{
+void
+CSelfNode::clearManager()
+{
+	common::CNodesManager< CSeedTypes >::getInstance()->eraseMedium( convertToInt( this ) );
+}
+}

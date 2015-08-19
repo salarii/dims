@@ -25,7 +25,7 @@ CTrackerNodesManager::getInstance( )
 	{
 		ms_instance = new CTrackerNodesManager();
 	};
-	return static_cast<CTrackerNodesManager *>( ms_instance );
+	return dynamic_cast<CTrackerNodesManager *>( ms_instance );
 }
 
 
@@ -177,6 +177,28 @@ CTrackerNodesManager::getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndi
 		_nodeIndicator = iterator->second;
 
 	return iterator != m_pubKeyToNodeIndicator.end();
+}
+
+void
+CTrackerNodesManager::eraseMedium( uintptr_t _nodePtr )
+{
+	CAddress address;
+
+	getAddress( _nodePtr, address );
+
+	CPubKey pubKey;
+
+	getPublicKey( address, pubKey );
+
+	m_keyStore.erase( address );
+
+	m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
+
+	m_trackers.erase( common::CValidNodeInfo( pubKey, address ) );
+
+	m_monitors.erase( common::CValidNodeInfo( pubKey, address ) );
+
+	m_seeds.erase( common::CValidNodeInfo( pubKey, address ) );
 }
 
 }

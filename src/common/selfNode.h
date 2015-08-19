@@ -22,6 +22,10 @@ public:
 	void setMessagesToSend( std::vector< CMessage > const & _messages );
 
 	void sendMessages();
+
+	~CSelfNode();
+
+	void clearManager();//ugly
 private:
 	mutable boost::mutex m_mutex;
 	std::vector< CMessage > m_messagesToSend;

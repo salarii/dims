@@ -191,9 +191,9 @@ void
 CPingAction::cleanup() const
 {
 	CSeedNodesManager::getInstance()->clearPublicKey( m_nodeIndicator );
-	common::CSeedBaseMedium * medium =
+	/*common::CSeedBaseMedium * medium =
 			CSeedNodesManager::getInstance()->eraseMedium( m_nodeIndicator );
-
+			*/
 	if ( medium )
 		delete medium;
 }

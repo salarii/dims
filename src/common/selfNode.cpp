@@ -2,7 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "selfNode.h"
+#include "common/selfNode.h"
+#include "common/nodesManager.h"
 
 namespace common
 {
@@ -30,6 +31,11 @@ CSelfNode::sendMessages()
 		PushMessage("dims", m_messagesToSend);
 
 	m_messagesToSend.clear();
+}
+
+CSelfNode::~CSelfNode()
+{
+	clearManager();
 }
 
 }

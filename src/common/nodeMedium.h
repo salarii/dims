@@ -176,7 +176,7 @@ CNodeMedium< _Medium >::clearResponses()
 	BOOST_FOREACH( uint256 const & id, deleteList )
 	{
 		m_responses.erase( m_responses.lower_bound( id ) );
-		m_idToRequest.erase( id );//doubt if this is ok
+		//m_idToRequest.erase( id );//doubt if this is ok
 			m_indexes.erase( id );
 	}
 	deleteList.clear();

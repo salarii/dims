@@ -5,16 +5,11 @@
 #ifndef NODES_MANAGER_H
 #define NODES_MANAGER_H
 
-/*
-very probable that this  should be in common
-*/
-#include "connectionProvider.h"
-#include "selfNode.h"
-#include "nodeMedium.h"
-
-#include "manageNetwork.h"
-
-#include "mediumKinds.h"
+#include "common/connectionProvider.h"
+#include "common/selfNode.h"
+#include "common/nodeMedium.h"
+#include "common/manageNetwork.h"
+#include "common/mediumKinds.h"
 
 namespace common
 {
@@ -38,11 +33,16 @@ public:
 
 	Medium * findNodeMedium( uintptr_t _ptr ) const;
 
-	Medium * eraseMedium( uintptr_t _nodePtr );
+		virtual void eraseMedium( uintptr_t _nodePtr );
 
 	virtual std::list< Medium *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
 
 	bool getAddress( uintptr_t _nodePtr, CAddress & _address ) const;
+
+	static CNodesManager * getInstance()
+	{
+		return ms_instance;
+	}
 protected:
 	CNodesManager();
 
@@ -97,19 +97,10 @@ CNodesManager< _Type >::findNodeMedium( uintptr_t _ptr ) const
 }
 
 template < class _Type >
-typename _Type::Medium *
+void
 CNodesManager< _Type >::eraseMedium( uintptr_t _nodePtr )
 {
-	typename std::map< uintptr_t, CNodeMedium< Medium >* >::iterator iterator = m_ptrToNodes.find( _nodePtr );
-
-	if ( iterator == m_ptrToNodes.end() )
-		return 0;
-
-	Medium * medium = iterator->second;
-
-	m_ptrToNodes.erase( iterator );
-
-	return medium;
+	m_ptrToNodes.erase( _nodePtr );
 }
 
 template < class _Type >

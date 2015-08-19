@@ -41,6 +41,8 @@ public:
 	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator)const;
 
 	bool getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndicator)const;
+
+	void eraseMedium( uintptr_t _nodePtr );
 private:
 	CTrackerNodesManager();
 private:
