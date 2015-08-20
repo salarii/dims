@@ -67,7 +67,10 @@ struct CSpecificMediumFilter : public common::CMonitorMediumFilter
 	{
 		std::list< common::CMonitorBaseMedium *> mediums;
 
-		mediums.push_back( _nodesManager->findNodeMedium( m_ptr ) );
+		common::CMonitorBaseMedium * medium = _nodesManager->findNodeMedium( m_ptr );
+
+		if ( medium )
+			mediums.push_back( medium );
 
 		return mediums;
 	}
@@ -87,6 +90,7 @@ struct CComplexMediumFilter : public common::CMonitorMediumFilter
 		BOOST_FOREACH( uintptr_t nodePtr , m_nodes )
 		{
 			common::CMonitorBaseMedium * medium = _nodesManager->findNodeMedium( nodePtr );
+
 			if ( medium )
 				mediums.push_back( medium );
 		}
