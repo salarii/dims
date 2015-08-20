@@ -301,15 +301,15 @@ CActionHandler< _Types >::loop()
 			{
 				if ( it->second->isProcessed( reqAction.first ) )
 				{
-					std::vector< ResponseType > responses = it->second->getResponses( reqAction.first );
+					ResponseType response;
 
-					BOOST_FOREACH( ResponseType const & response, responses )
+					if ( it->second->getLastResponse( reqAction.first, response ) )
 					{
-						CSetResponseVisitor< _Types > visitor( response );
-						reqAction.second->accept( visitor );
-					}
+							CSetResponseVisitor< _Types > visitor( response );
+							reqAction.second->accept( visitor );
 
-					it->second->deleteRequest( reqAction.first );
+							it->second->clearLastResponse( reqAction.first );
+					}
 				}
 				else
 				{

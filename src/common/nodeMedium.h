@@ -177,7 +177,7 @@ CNodeMedium< _Medium >::clearResponses()
 	{
 		m_responses.erase( m_responses.lower_bound( id ) );
 		//m_idToRequest.erase( id );//doubt if this is ok
-			m_indexes.erase( id );
+		//	m_indexes.erase( id );
 	}
 	deleteList.clear();
 }

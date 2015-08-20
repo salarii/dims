@@ -31,7 +31,7 @@ public:
 public:
 	CRequestHandler( Medium * _medium );
 
-	std::vector< Response > getResponses( CRequest< _Type >* _request ) const;
+	bool getLastResponse( CRequest< _Type >* _request, CRequestHandler< _Type >::Response & _response ) const;
 
 	bool isProcessed( CRequest< _Type >* _request ) const;
 
@@ -40,6 +40,8 @@ public:
 	void processMediumResponses();
 
 	void deleteRequest( CRequest< _Type >* );
+
+	void clearLastResponse( CRequest< _Type >* _request );
 
 	bool operator==( Medium const * _medium ) const;
 
@@ -73,24 +75,35 @@ CRequestHandler< _Type >::CRequestHandler( Medium * _medium )
 }
 
 template < class _Type >
-std::vector< typename CRequestHandler< _Type >::Response >
-CRequestHandler< _Type >::getResponses( CRequest< _Type >* _request ) const
+bool
+CRequestHandler< _Type >::getLastResponse( CRequest< _Type >* _request, CRequestHandler< _Type >::Response & _response ) const
 {
 	typename std::multimap<CRequest< _Type >const*,Response >::const_iterator iterator;
 
-	std::vector< Response > responses;
+	iterator = m_processedRequests.lower_bound( _request );
+	if ( iterator == m_processedRequests.upper_bound( _request ) )
+		return false;
 
-	for ( iterator = m_processedRequests.lower_bound( _request ); iterator != m_processedRequests.upper_bound( _request ); ++iterator )
-	{
-		responses.push_back( iterator->second );
-	}
-
-	return responses;
+	_response = iterator->second;
+	return true;
 }
 
 template < class _Type >
 void
- CRequestHandler< _Type >::deleteRequest( CRequest< _Type >* _request )
+CRequestHandler< _Type >::clearLastResponse( CRequest< _Type >* _request )
+{
+	typename std::multimap<CRequest< _Type >const*,Response >::iterator iterator;
+
+	iterator = m_processedRequests.lower_bound( _request );
+	if ( iterator == m_processedRequests.upper_bound( _request ) )
+		return;
+
+	m_processedRequests.erase( iterator );
+}
+
+template < class _Type >
+void
+CRequestHandler< _Type >::deleteRequest( CRequest< _Type >* _request )
 {
 	m_processedRequests.erase( _request );
 

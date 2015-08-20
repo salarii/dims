@@ -76,6 +76,8 @@ CScheduledActionManager< _Type >::deleteRequest( CRequest< _Type >const* _reques
 			m_actionToRequest.erase( iterator );
 			break;
 		}
+
+		++iterator;
 	}
 }
 
