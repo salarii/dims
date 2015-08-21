@@ -14,6 +14,7 @@
 #include "common/mediumKinds.h"
 #include "common/supportTransactionsDatabase.h"
 #include "common/commonEvents.h"
+#include "common/actionHandler.h"
 
 #include "tracker/transactionRecordManager.h"
 #include "tracker/synchronizationAction.h"
@@ -22,6 +23,7 @@
 #include "tracker/trackerEvents.h"
 #include "tracker/trackerController.h"
 #include "tracker/trackerControllerEvents.h"
+#include "tracker/trackOriginAddressAction.h"
 
 namespace tracker
 {
@@ -33,6 +35,7 @@ unsigned const SynchronisingWaitTime = 15000;
 struct CSynchronizingGetInfo;
 struct CSynchronizedGetInfo;
 struct CSynchronizingRegistrationAsk;
+struct CGetBitcoinHeader;
 
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
 {
@@ -75,7 +78,7 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 
 		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
 
-		return transit< CSynchronizingGetInfo >();
+		return transit< CGetBitcoinHeader >();
 	}
 
 	typedef boost::mpl::list<
@@ -125,6 +128,8 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+			common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
 
 		}
 		return transit< CSynchronizingGetInfo >();

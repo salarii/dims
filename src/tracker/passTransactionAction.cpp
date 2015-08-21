@@ -69,8 +69,9 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 		if ( CTransactionRecordManager::getInstance()->getTransaction( _transactionStatus.m_hash, transaction ) )
 		{
 			context< CPassTransactionAction >().setResult( transaction );
+			context< CPassTransactionAction >().setExit();
 		}
-		context< CPassTransactionAction >().setExit();
+
 
 		return discard_event();
 	}
