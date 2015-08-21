@@ -110,8 +110,29 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
 				context< CSynchronizationAction >().setRequestKey( _messageResult.m_message.m_header.m_id );
+
+				return transit< CSynchronizedProvideCopy >();
 			}
-			return transit< CSynchronizedProvideCopy >();
+			else if ( infoRequest.m_kind == common::CInfoKind::BitcoinHeaderAsk )
+			{
+				context< CSynchronizationAction >().addRequest(
+							new common::CAckRequest< common::CMonitorTypes >(
+								context< CSynchronizationAction >().getActionKey()
+								, _messageResult.m_message.m_header.m_id
+								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+				CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
+				CBlockHeader header;
+				file >> header;
+
+				context< CSynchronizationAction >().addRequest(
+							new common::CBitcoinHeaderRequest< common::CMonitorTypes >(
+								  header
+								, context< CSynchronizationAction >().getActionKey()
+								, _messageResult.m_message.m_header.m_id
+								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+			}
 		}
 
 		return discard_event();

@@ -77,6 +77,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
+				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBitcoinHeader
 				 )
 		{
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );

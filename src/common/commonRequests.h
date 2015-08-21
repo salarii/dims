@@ -1054,6 +1054,61 @@ CSynchronizationRequest< _Types >::getActionKey() const
 	return m_actionKey;
 }
 
+template < class _Types >
+class CBitcoinHeaderRequest : public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CBitcoinHeaderRequest( CBlockHeader const & _blockHeader, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType );
+
+	virtual void accept( MediumType * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	uint256 getId() const;
+
+	CBlockHeader const & getBlockHeader() const
+	{
+		return m_blockHeader;
+	}
+private:
+	CBlockHeader m_blockHeader;
+	uint256 const m_actionKey;
+	uint256 const m_id;
+};
+
+template < class _Types >
+CBitcoinHeaderRequest< _Types >::CBitcoinHeaderRequest( CBlockHeader const & _blockHeader, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_blockHeader( _blockHeader )
+	, m_actionKey( _actionKey )
+	, m_id( _id )
+{
+}
+
+template < class _Types >
+void
+CBitcoinHeaderRequest< _Types >::accept( MediumType * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CBitcoinHeaderRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class _Types >
+uint256
+CBitcoinHeaderRequest< _Types >::getId() const
+{
+	return m_id;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

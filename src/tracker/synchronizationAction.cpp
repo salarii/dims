@@ -84,6 +84,70 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 	> reactions;
 };
 
+struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchronizationAction >
+{
+	CGetBitcoinHeader( my_context ctx ) : my_base( ctx )
+	{
+		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().addRequest(
+					new common::CInfoAskRequest< common::CTrackerTypes >(
+						common::CInfoKind::BitcoinHeaderAsk
+						, context< CSynchronizationAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						 SynchronisingGetInfoTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBitcoinHeader )
+		{
+			common::CBitcoinHeader bitcoinHeader;
+
+			common::convertPayload( orginalMessage, bitcoinHeader );
+
+			CAutoFile file( OpenHeadFile(false), SER_DISK, CLIENT_VERSION );
+
+			file << bitcoinHeader.m_bitcoinHeader;
+			fflush(file);
+			FileCommit(file);
+
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+		}
+		return transit< CSynchronizingGetInfo >();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
 
 struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, CSynchronizationAction >
 {

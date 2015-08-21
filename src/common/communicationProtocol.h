@@ -50,7 +50,8 @@ struct CPayloadKind
 		ClientTransaction,
 		ClientStatusTransaction,
 		TrackerInfo,
-		SynchronizationAsk
+		SynchronizationAsk,
+		SynchronizationBitcoinHeader
 	};
 };
 
@@ -62,6 +63,7 @@ struct CInfoKind
 		, RoleInfoAsk
 		, IsRegistered
 		, StorageInfoAsk
+		, BitcoinHeaderAsk
 	};
 };
 
@@ -161,6 +163,16 @@ struct CSynchronizationAsk
 	)
 
 	int m_dummy;
+};
+
+struct CBitcoinHeader
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_bitcoinHeader);
+	)
+
+	CBlockHeader m_bitcoinHeader;
 };
 
 struct CTrackerInfo
@@ -483,6 +495,7 @@ public:
 	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationAsk const & _synchronizationAsk, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( CBitcoinHeader const & _bitcoinHeader, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationGet const & _synchronizationGet, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id );
 
