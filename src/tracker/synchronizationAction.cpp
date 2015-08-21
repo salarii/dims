@@ -371,6 +371,8 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 			common::convertPayload( orginalMessage, synchronizationHeader );
 			context< CSynchronizationAction >().dropRequests();
 
+			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationHeader.m_segmentHeader, synchronizationHeader.m_blockIndex );
+
 			if ( context< CSynchronizationAction >().getStorageSize() > ++m_currentBlock )
 			{
 				context< CSynchronizationAction >().addRequest(
@@ -382,14 +384,10 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 			}
 			else
 			{
-				CTrackerController::getInstance()->process_event( CSynchronizedWithNetworkEvent() );
-				common::CSegmentFileStorage::getInstance()->resetState();
-				common::CSegmentFileStorage::getInstance()->retriveState();
+				return transit< CSynchronizingBlocks >();
 			}
 
 			assert( synchronizationHeader.m_blockIndex == m_currentBlock - 1 );
-
-			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationHeader.m_segmentHeader, synchronizationHeader.m_blockIndex );
 		}
 		return discard_event();
 	}

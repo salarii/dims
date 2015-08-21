@@ -201,11 +201,10 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 {
 	CSynchronized( my_context ctx ) : my_base( ctx )
 	{
-		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
 
-		m_storedBlocks = common::CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
+		m_storedBlocks = CCopyStorageHandler::getInstance()->getDiscBlockSize();
 
-		m_storedHeaders = common::CSegmentFileStorage::getInstance()->getStoredHeaderCount();
+		m_storedHeaders = CCopyStorageHandler::getInstance()->getSegmentHeaderSize();
 
 		assert( m_storedBlocks );
 
@@ -280,8 +279,6 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	{
 		delete m_diskBlock;
 		delete m_segmentHeader;
-
-		common::CSegmentFileStorage::getInstance()->releaseSynchronizationInProgress();
 	}
 
 	typedef boost::mpl::list<

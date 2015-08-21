@@ -266,9 +266,10 @@ template < class _Medium >
 void
 CNodeMedium< _Medium >::add( CGetBlockRequest< Type > const * _request )
 {
-	common::CGet get;
+	common::CSynchronizationGet get;
 
-	get.m_type = _request->getBlockKind();
+	get.m_number = _request->getBlockNumber();
+	get.m_kind = _request->getBlockKind();
 
 	common::CMessage message( get, _request->getActionKey(), _request->getId() );
 
