@@ -17,7 +17,6 @@
 
 #include "monitor/synchronizationAction.h"
 #include "monitor/filters.h"
-#include "monitor/copyTransactionStorageAction.h"
 #include "monitor/copyStorageHandler.h"
 
 namespace monitor
@@ -220,6 +219,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CDiskBlock, common::CMonitorTypes >(
 															context< CSynchronizationAction >().getActionKey()
+															, m_id
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
 															, m_diskBlock
 															, _blockNumber) );
@@ -233,6 +233,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		context< CSynchronizationAction >().dropRequests();
 		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CSegmentHeader, common::CMonitorTypes >(
 															context< CSynchronizationAction >().getActionKey()
+															, m_id
 															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
 															, m_segmentHeader
 															, _headerNumber) );
@@ -246,6 +247,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet )
 		{
+			m_id = orginalMessage.m_header.m_id;
+
 			common::CSynchronizationGet synchronizationGet;
 
 			common::convertPayload( orginalMessage, synchronizationGet );
@@ -253,7 +256,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 			context< CSynchronizationAction >().addRequest(
 						new common::CAckRequest< common::CMonitorTypes >(
 							context< CSynchronizationAction >().getActionKey()
-							, context< CSynchronizationAction >().getRequestKey()
+							, m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
 			if ( synchronizationGet.m_number < m_storedBlocks && synchronizationGet.m_kind == common::CBlockKind::Segment )
@@ -292,6 +295,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	common::CDiskBlock * m_diskBlock;
 	common::CSegmentHeader * m_segmentHeader;
+
+	uint256 m_id;
 };
 
 CSynchronizationAction::CSynchronizationAction()

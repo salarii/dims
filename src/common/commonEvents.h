@@ -133,13 +133,6 @@ struct CEndEvent : boost::statechart::event< CEndEvent >
 {
 };
 
-
-struct CGetEvent : boost::statechart::event< CGetEvent >
-{
-	CGetEvent( int _type ):m_type(_type){}
-	int m_type;
-};
-
 struct CStartPingEvent : boost::statechart::event< CStartPingEvent >
 {
 };
@@ -198,9 +191,9 @@ public:
 	{
 	}
 
-	void operator()( CStorageInfo const & _storageInfo ) const
+	void operator()( CSynchronizationResult const & _synchronizationResult ) const
 	{
-		this->m_action->process_event( _storageInfo );
+		this->m_action->process_event( _synchronizationResult );
 	}
 
 	void operator()( CValidRegistration const & _validRegistration ) const

@@ -13,7 +13,6 @@ MONITOR_H = \
 	clientRequestsManager.h \
 	connectNodeAction.h \
 	copyStorageHandler.h \
-	copyTransactionStorageAction.h \
 	filters.h \
 	init.h \
 	internalMediumProvider.h \
@@ -42,7 +41,6 @@ MONITOR_CPP = \
 	clientRequestsManager.cpp \
 	connectNodeAction.cpp \
 	copyStorageHandler.cpp \
-	copyTransactionStorageAction.cpp \
 	init.cpp \
 	internalMediumProvider.cpp \
 	internalOperationsMedium.cpp \

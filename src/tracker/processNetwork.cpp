@@ -78,6 +78,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBitcoinHeader
+				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader
+				 || message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock
 				 )
 		{
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
@@ -134,55 +136,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{
 
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock )
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-			{}
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CSynchronizationBlock synchronizationBlock( new common::CDiskBlock, -1 );
-			common::convertPayload( orginalMessage, synchronizationBlock );
-
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_id, CSynchronizationBlockResult< common::CDiskBlock >( synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-			}
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader )
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-			{}
-
-			common::CMessage orginalMessage;
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-				assert( !"service it somehow" );
-
-			common::CSynchronizationSegmentHeader synchronizationSegmentHeader( new common::CSegmentHeader, -1 );
-			common::convertPayload( orginalMessage, synchronizationSegmentHeader );
-
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_id, CSynchronizationBlockResult< common::CSegmentHeader >( synchronizationSegmentHeader.m_segmentHeader, synchronizationSegmentHeader.m_blockIndex ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Ack )
 		{

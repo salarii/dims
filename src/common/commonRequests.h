@@ -583,11 +583,13 @@ public:
 	using typename CRequest< _Types >::MediumType;
 	using typename CRequest< _Types >::FilterType;
 public:
-	CSetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
+	CSetNextBlockRequest( uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter, Block * _discBlock, unsigned int _blockIndex );
 
 	virtual void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
+
+	uint256 getId() const;
 
 	Block * getBlock() const;
 
@@ -595,15 +597,18 @@ public:
 private:
 	uint256 const m_actionKey;
 
+	uint256 const m_id;
+
 	Block * m_discBlock;
 
 	unsigned int m_blockIndex;
 };
 
 template < class Block, class _Types >
-CSetNextBlockRequest< Block, _Types >::CSetNextBlockRequest( uint256 const & _actionKey, FilterType * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
+CSetNextBlockRequest< Block, _Types >::CSetNextBlockRequest( uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
 	: common::CRequest< _Types >( _mediumFilter )
 	, m_actionKey( _actionKey )
+	, m_id( _id )
 	, m_discBlock( _discBlock )
 	, m_blockIndex( _blockIndex )
 {
@@ -614,6 +619,13 @@ void
 CSetNextBlockRequest< Block, _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
+}
+
+template < class Block, class _Types >
+uint256
+CSetNextBlockRequest< Block, _Types >::getId() const
+{
+	return m_id;
 }
 
 template < class Block, class _Types >
