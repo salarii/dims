@@ -253,14 +253,14 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock )
 		{
-			common::CSynchronizationBlock synchronizationBlock;
+			common::CSynchronizationBlock synchronizationBlock( new common::CDiskBlock(), -1 );
 
 			common::convertPayload( orginalMessage, synchronizationBlock );
 			context< CSynchronizationAction >().dropRequests();
 
 			std::vector< CTransaction > transactions;
 
-			assert( synchronizationBlock.m_blockIndex == m_currentBlock - 1 );
+			assert( synchronizationBlock.m_blockIndex == m_currentBlock );
 
 			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex, transactions );
 
@@ -366,12 +366,18 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader )
 		{
-			common::CSynchronizationSegmentHeader synchronizationHeader;
+			common::CSynchronizationSegmentHeader synchronizationHeader( new common::CSegmentHeader(), -1 );
 
 			common::convertPayload( orginalMessage, synchronizationHeader );
 			context< CSynchronizationAction >().dropRequests();
 
 			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationHeader.m_segmentHeader, synchronizationHeader.m_blockIndex );
+
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest< common::CTrackerTypes >(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
 			if ( context< CSynchronizationAction >().getStorageSize() > ++m_currentBlock )
 			{

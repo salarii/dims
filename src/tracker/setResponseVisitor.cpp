@@ -230,6 +230,11 @@ public:
 		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
+
+	virtual void operator()( common::ScheduledResult & _param ) const
+	{
+		boost::apply_visitor( common::CResolveScheduledResult< tracker::CRegisterAction >( this->m_action ), _param );
+	}
 };
 
 
