@@ -153,7 +153,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 			return transit< CRejected >();
 		else
 		{
-			return CTrackerController::getInstance()->isConnected() ? transit< CPropagateBundle >() : transit< CApproved >();
+			return CTrackerNodesManager::getInstance()->getNumberOfTrackers() > 0 ? transit< CPropagateBundle >() : transit< CApproved >();
 		}
 	}
 
@@ -359,9 +359,27 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 
 		}
 
+		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().addRequest(
+					new CTransactionsPropagationRequest(
+								context< CValidateTransactionsAction >().getTransactions(),
+								context< CValidateTransactionsAction >().getActionKey(),
+								new CMediumClassFilter( common::CMediumKinds::Monitors )
+								)
+					);
+
 		context< CValidateTransactionsAction >().setExit();
 		context< CValidateTransactionsAction >().dropRequests();
 	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
 
 };
 

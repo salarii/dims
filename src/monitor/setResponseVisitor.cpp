@@ -226,7 +226,7 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTrackerActio
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitProofTransactionBundle & _action )
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTransactionBundle & _action )
 {
 }
 

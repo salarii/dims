@@ -43,6 +43,11 @@ public:
 	bool getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndicator)const;
 
 	void eraseMedium( uintptr_t _nodePtr );
+
+	unsigned int getNumberOfTrackers() const
+	{
+		return m_trackers.size();
+	}
 private:
 	CTrackerNodesManager();
 private:

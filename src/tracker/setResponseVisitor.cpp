@@ -16,6 +16,7 @@
 #include "tracker/pingAction.h"
 #include "tracker/registerAction.h"
 #include "tracker/recognizeNetworkAction.h"
+#include "tracker/passTransactionAction.h"
 
 namespace common
 {
@@ -208,6 +209,9 @@ public:
 	}
 };
 
+class CSetPassTransactionResult : public CResponseVisitorBase< tracker::CPassTransactionAction, tracker::TrackerResponseList >
+{};
+
 class CSetRegisterAction : public CResponseVisitorBase< tracker::CRegisterAction, tracker::TrackerResponseList >
 {
 public:
@@ -300,6 +304,12 @@ void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CRecognizeNetworkAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CRecognizeNetworkAction, tracker::TrackerResponseList > const &)CSetRecognizeNetworkResult( &_action ), m_trackerResponses );
+}
+
+void
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CPassTransactionAction & _action )
+{
+//	boost::apply_visitor( (CResponseVisitorBase< tracker::CPassTransactionAction, tracker::TrackerResponseList > const &)CSetPassTransactionResult( &_action ), m_trackerResponses );
 }
 
 }

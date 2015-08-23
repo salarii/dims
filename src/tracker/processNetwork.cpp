@@ -45,7 +45,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
 		if (
-			   message.m_header.m_payloadKind == common::CPayloadKind::Transactions
+				message.m_header.m_payloadKind == common::CPayloadKind::Transactions
 			|| message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions
 			)
 		{

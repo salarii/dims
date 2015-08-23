@@ -91,6 +91,7 @@ TRACKER_CORE_H = \
   tracker/init.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
+  tracker/passTransactionAction.h \
   tracker/pingAction.h \
   tracker/processNetwork.h \
   tracker/provideInfoAction.h \
@@ -187,6 +188,7 @@ TRACKER_CORE_CPP = \
   tracker/init.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
+  tracker/passTransactionAction.cpp \
   tracker/pingAction.cpp \
   tracker/processNetwork.cpp \
   tracker/provideInfoAction.cpp \

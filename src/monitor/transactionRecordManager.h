@@ -21,6 +21,7 @@ public:
 
 	void addTransactionToStorage( CTransaction const & _tx );
 
+	bool addTransactionsToStorage( std::vector< CTransaction > const & _transaction );
 private:
 	CTransactionRecordManager();
 private:

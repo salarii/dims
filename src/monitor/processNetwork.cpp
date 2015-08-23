@@ -17,6 +17,7 @@
 #include "monitor/pingAction.h"
 #include "monitor/provideInfoAction.h"
 #include "monitor/synchronizationAction.h"
+#include "monitor/admitTransactionsBundle.h"
 
 namespace monitor
 {
@@ -60,6 +61,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
 			)
 		{
 			common::CNodeMedium< common::CMonitorBaseMedium > * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
@@ -75,6 +77,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 						|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
 						|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 						|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet
+						|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
 					)
 					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 				else
@@ -90,7 +93,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions )
 				{
-					CAdmitProofTransactionBundle * admitTransactionBundle = new CAdmitProofTransactionBundle;
+					CAdmitTransactionBundle * admitTransactionBundle = new CAdmitTransactionBundle( message.m_header.m_actionKey );
 					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTransactionBundle );
 				}
@@ -117,6 +120,12 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					synchronizationAction->process_event( CSwitchToSynchronized() );
 
 					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( synchronizationAction );
+				}
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+				{
+					CAdmitTransactionBundle * admitTransactionBundle = new CAdmitTransactionBundle( message.m_header.m_actionKey );
+					common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( admitTransactionBundle );
+					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 				}
 			}
 		}

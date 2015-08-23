@@ -5,9 +5,12 @@
 #ifndef PASS_TRANSACTION_ACTION_H
 #define PASS_TRANSACTION_ACTION_H
 
-#include "common/scheduleAbleAction.h"
+#include <boost/statechart/state_machine.hpp>
 
-#include "configureTrackerActionHandler.h"
+#include "common/scheduleAbleAction.h"
+#include "common/types.h"
+
+#include "tracker/configureTrackerActionHandler.h"
 
 namespace tracker
 {

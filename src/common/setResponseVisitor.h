@@ -28,6 +28,8 @@ class CPingAction;
 class CRegisterAction;
 
 class CRecognizeNetworkAction;
+
+class CPassTransactionAction;
 }
 
 namespace client
@@ -52,7 +54,7 @@ class CUpdateDataAction;
 
 class CAdmitTrackerAction;
 
-class CAdmitProofTransactionBundle;
+class CAdmitTransactionBundle;
 
 class CPingAction;
 
@@ -113,6 +115,8 @@ public:
 	virtual void visit( tracker::CRegisterAction & _action );
 
 	virtual void visit( tracker::CRecognizeNetworkAction & _action );
+
+	virtual void visit( tracker::CPassTransactionAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };
@@ -152,7 +156,7 @@ public:
 
 	virtual void visit( monitor::CAdmitTrackerAction & _action );
 
-	virtual void visit( monitor::CAdmitProofTransactionBundle & _action );
+	virtual void visit( monitor::CAdmitTransactionBundle & _action );
 
 	virtual void visit( monitor::CPingAction & _action );
 

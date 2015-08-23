@@ -42,5 +42,20 @@ CTransactionRecordManager::addTransactionToStorage( CTransaction const & _tx )
 	common::CSupportTransactionsDatabase::getInstance()->flush();
 }
 
+bool
+CTransactionRecordManager::addTransactionsToStorage( std::vector< CTransaction > const & _transaction )
+{
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	{
+		CTransaction tx( transaction );
+		tx.m_location = common::CSegmentFileStorage::getInstance()->assignPosition( tx );
+
+		common::CSupportTransactionsDatabase::getInstance()->setTransactionLocation( tx.GetHash(), tx.m_location );
+		common::CSegmentFileStorage::getInstance()->includeTransaction( tx, GetTime() );
+	}
+	common::CSupportTransactionsDatabase::getInstance()->flush();
+	return true;
+}
+
 }
 

@@ -9,33 +9,82 @@
 #include "common/setResponseVisitor.h"
 
 #include "monitor/admitTransactionsBundle.h"
+#include "monitor/reputationTracer.h"
+#include "monitor/transactionRecordManager.h"
+#include "monitor/filters.h"
 
 namespace monitor
 {
 
-struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitProofTransactionBundle >
+unsigned const InvestigationStartTime = 60000;
+
+struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransactionBundle >
 {
 	CWaitForBundle( my_context ctx ) : my_base( ctx )
 	{
+		context< CAdmitTransactionBundle >().addRequest(
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						InvestigationStartTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+		{
+			context< CAdmitTransactionBundle >().addRequest(
+						new common::CAckRequest< common::CMonitorTypes >(
+							context< CAdmitTransactionBundle >().getActionKey()
+							, orginalMessage.m_header.m_id
+							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
+			common::CTransactionBundle transactionBundle;
+
+			common::convertPayload( orginalMessage, transactionBundle );
+
+			m_trackers.insert( _messageResult.m_nodeIndicator );
+
+			// this  condition  is wrong  but  for now,  better  this  than nothing
+			if ( m_trackers.size() == CReputationTracker::getInstance()->getTrackers().size() )
+			{
+				// if  registration  in  progress  those  should  be  stored
+				if ( CPaymentTracking::getInstance()->getStoreTransactions() )
+				{
+					CPaymentTracking::getInstance()->storeTransactions( transactionBundle.m_transactions );
+				}
+
+				CTransactionRecordManager::getInstance()->addTransactionsToStorage( transactionBundle.m_transactions );
+			}
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		assert( !"do  something with it" );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
+
+	std::set< uintptr_t > m_trackers;
 };
 
-CAdmitProofTransactionBundle::CAdmitProofTransactionBundle()
-	: common::CAction< common::CMonitorTypes >( false )
+CAdmitTransactionBundle::CAdmitTransactionBundle( uint256 const & _actionKey )
+	: common::CAction< common::CMonitorTypes >( _actionKey )
 {
 	initiate();
 }
 
 void
-CAdmitProofTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CAdmitTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

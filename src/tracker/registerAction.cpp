@@ -47,6 +47,8 @@ unsigned int const MoneyWaitTime = 20000;
 
 struct CFreeRegistration;
 struct CSynchronize;
+struct CNoTrackers;
+
 
 struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, CRegisterAction >
 {
@@ -205,12 +207,23 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CSynchronizationResult const & _synchronizationResult )
+	{
+		if ( _synchronizationResult.m_result )
+		{
+			return transit< CNoTrackers >();
+		}
+
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CSynchronizationResult >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
-
+//stupid  name
 struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 {
 	// send  ready  to  monitor      ??????
@@ -226,15 +239,10 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
 		//	CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
-		context< CRegisterAction >().addRequest(
-					new CRegisterProofRequest(
-						context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	}
 
-
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
+	{/*
 		common::CMessage orginalMessage;
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
@@ -250,7 +258,17 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 						  context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
-		return discard_event();
+	*/	return discard_event();
+	}
+
+
+	boost::statechart::result react( common::CTransactionAckEvent const & _transactionAckEvent )
+	{
+		context< CRegisterAction >().addRequest(
+							new CRegisterProofRequest(
+								context< CRegisterAction >().getActionKey()
+								, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+	//	_transactionAckEvent.m_transactionSend
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -265,6 +283,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >

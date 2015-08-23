@@ -174,6 +174,13 @@ struct CBitcoinNetworkConnection : boost::statechart::event< CBitcoinNetworkConn
 	int m_nodesNumber;
 };
 
+struct CTransactionAckEvent : boost::statechart::event< CTransactionAckEvent >
+{
+	CTransactionAckEvent( common::TransactionsStatus::Enum _status, CTransaction _transactionSend ): m_status( _status ), m_transactionSend( _transactionSend ){}
+	common::TransactionsStatus::Enum m_status;
+	CTransaction m_transactionSend;
+};
+
 template < class Action >
 class CResolveScheduledResult : public boost::static_visitor< void >
 {
@@ -187,8 +194,9 @@ public:
 		m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_nodeSelfInfo, _networkInfoResult.m_role, _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
 	}
 
-	void operator()( CTransaction const & ) const
+	void operator()( CTransactionAck const & _transactionAck ) const
 	{
+		m_action->process_event( common::CTransactionAckEvent( ( common::TransactionsStatus::Enum )_transactionAck.m_status, _transactionAck.m_transaction ) );
 	}
 
 	void operator()( CSynchronizationResult const & _synchronizationResult ) const
@@ -203,7 +211,6 @@ public:
 private:
 	Action * m_action;
 };
-
 
 }
 
