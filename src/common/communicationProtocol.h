@@ -64,6 +64,7 @@ struct CInfoKind
 		, IsRegistered
 		, StorageInfoAsk
 		, BitcoinHeaderAsk
+		, BalanceAsk
 	};
 };
 
@@ -307,7 +308,7 @@ struct CInfoRequestData
 	)
 	CInfoRequestData(){};
 
-	CInfoRequestData( int _kind ): m_kind( _kind ){};
+	CInfoRequestData( int _kind, std::vector<unsigned char> const & _payload ): m_kind( _kind ), m_payload( _payload ){};
 
 	int m_kind;
 

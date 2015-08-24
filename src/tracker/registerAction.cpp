@@ -303,7 +303,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		context< CRegisterAction >().dropRequests();
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
-						new CGetSelfBalanceAction()
+						new CGetBalanceFromNetworkAction()
 						, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
 
 	}

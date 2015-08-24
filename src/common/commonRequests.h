@@ -223,17 +223,27 @@ public:
 	uint256 getActionKey() const;
 
 	common::CInfoKind::Enum getInfoKind() const;
+
+	std::vector<unsigned char> getPayload() const;
+
+	template < class T >
+	void setPayload( T const & _payload )
+	{
+		common::castTypeToCharVector( &_payload, m_payLoad );
+	}
 private:
 	uint256 const m_actionKey;
 
 	common::CInfoKind::Enum m_infoKind;
+
+	std::vector<unsigned char> m_payLoad;
 };
 
 template < class _Types >
 CInfoAskRequest< _Types >::CInfoAskRequest( common::CInfoKind::Enum _infoKind, uint256 const & _actionKey, FilterType * _mediumFilter )
 	: common::CRequest< _Types >( _mediumFilter )
-	, m_actionKey( _actionKey )
 	, m_infoKind( _infoKind )
+	, m_actionKey( _actionKey )
 {
 }
 
@@ -256,6 +266,13 @@ common::CInfoKind::Enum
 CInfoAskRequest< _Types >::getInfoKind() const
 {
 	return m_infoKind;
+}
+
+template < class _Types >
+std::vector<unsigned char>
+CInfoAskRequest< _Types >::getPayload() const
+{
+	return m_payLoad;
 }
 
 template < class _Types >
@@ -1119,6 +1136,65 @@ uint256
 CBitcoinHeaderRequest< _Types >::getId() const
 {
 	return m_id;
+}
+
+template < class _Types >
+class CGetBalanceRequest: public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CGetBalanceRequest( uint160 const & _key, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType );
+
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	uint256 getId() const;
+
+	uint160 getKey() const;
+private:
+	uint160 m_key;
+	uint256 const m_actionKey;
+	uint256 const m_id;
+};
+
+template < class _Types >
+CGetBalanceRequest< _Types >::CGetBalanceRequest( uint160 const & _key, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_key( _key )
+	, m_actionKey( _actionKey )
+	, m_id( _id )
+{
+}
+
+template < class _Types >
+void
+CGetBalanceRequest< _Types >::accept( common::CTrackerBaseMedium * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CGetBalanceRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class _Types >
+uint256
+CGetBalanceRequest< _Types >::getId() const
+{
+	return m_id;
+}
+
+template < class _Types >
+uint160
+CGetBalanceRequest< _Types >::getKey() const
+{
+	return m_key;
 }
 
 }

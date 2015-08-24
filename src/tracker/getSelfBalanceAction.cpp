@@ -15,18 +15,32 @@
 namespace tracker
 {
 
-struct CInitialState : boost::statechart::state< CInitialState, CGetSelfBalanceAction >
+unsigned int const LoopTime = 10000;
+
+struct CInitialState : boost::statechart::state< CInitialState, CGetBalanceFromNetworkAction >
 {
 	CInitialState( my_context ctx ) : my_base( ctx )
 	{
-// check  status ???
-		context< CGetSelfBalanceAction >().addRequest(
-					new common::CBalanceRequest< common::CTrackerTypes >(
-						new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
+		common::CInfoAskRequest< common::CTrackerTypes > * request =
+				new common::CInfoAskRequest< common::CTrackerTypes >(
+					common::CInfoKind::BalanceAsk
+					, context< CGetBalanceFromNetworkAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
+
+//		request->setPayload( context< CGetBalanceFromNetworkAction >().getKeyId() );
+
+		context< CGetBalanceFromNetworkAction >().addRequest( request );
+
+		context< CGetBalanceFromNetworkAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CGetBalanceFromNetworkAction >().setExecuted();
 		return discard_event();
 	}
 
@@ -48,32 +62,32 @@ struct CInitialState : boost::statechart::state< CInitialState, CGetSelfBalanceA
 };
 
 // will be neeeded at some point ??
-struct CGetProveMessage : boost::statechart::state< CGetProveMessage, CGetSelfBalanceAction >
+struct CGetProveMessage : boost::statechart::state< CGetProveMessage, CGetBalanceFromNetworkAction >
 {
 	CGetProveMessage( my_context ctx ) : my_base( ctx )
 	{}
 };
 
 
-struct CRetriveBalance : boost::statechart::state< CRetriveBalance, CGetSelfBalanceAction >
+struct CRetriveBalance : boost::statechart::state< CRetriveBalance, CGetBalanceFromNetworkAction >
 {
 	CRetriveBalance( my_context ctx ) : my_base( ctx )
 	{}
 };
 // needed ??
-struct CBalanceFromInternal : boost::statechart::state< CBalanceFromInternal, CGetSelfBalanceAction >
+struct CBalanceFromInternal : boost::statechart::state< CBalanceFromInternal, CGetBalanceFromNetworkAction >
 {
 	CBalanceFromInternal( my_context ctx ) : my_base( ctx )
 	{}
 };
 
-CGetSelfBalanceAction::CGetSelfBalanceAction()
+CGetBalanceFromNetworkAction::CGetBalanceFromNetworkAction()
 {
 	initiate();
 }
 
 void
-CGetSelfBalanceAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CGetBalanceFromNetworkAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
 {
 	_visitor.visit( *this );
 }

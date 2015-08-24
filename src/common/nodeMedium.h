@@ -429,7 +429,7 @@ template < class _Medium >
 void
 CNodeMedium< _Medium >::add( CInfoAskRequest< Type > const * _request )
 {
-	CInfoRequestData infoReqData( ( int ) _request->getInfoKind() );
+	CInfoRequestData infoReqData( ( int ) _request->getInfoKind(), _request->getPayload() );
 
 	common::CMessage message( infoReqData, _request->getActionKey(), _request->getId() );
 

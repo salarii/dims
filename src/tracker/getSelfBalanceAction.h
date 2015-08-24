@@ -16,10 +16,10 @@ namespace tracker
 
 struct CInitialState;
 
-class CGetSelfBalanceAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CGetSelfBalanceAction, CInitialState >
+class CGetBalanceFromNetworkAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CGetBalanceFromNetworkAction, CInitialState >
 {
 public:
-	CGetSelfBalanceAction();
+	CGetBalanceFromNetworkAction();
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
 
