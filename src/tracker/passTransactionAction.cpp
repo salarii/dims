@@ -59,7 +59,14 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 		common::CTrackerStats tracker;
 		tracker.m_price = 0; // this  will produce transaction with no tracker output
 
+		if ( !CWallet::getInstance()->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
+		{
+			context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Invalid, CTransaction() ) );
+			context< CPassTransactionAction >().setExit();
+		}
+
 		CTransactionRecordManager::getInstance()->addClientTransaction( tx );
+		m_transactionHash = tx.GetHash();
 
 		context< CPassTransactionAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
@@ -72,12 +79,17 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-/*		if ( CTransactionRecordManager::getInstance()->getTransaction( _transactionStatus.m_hash, transaction ) )
+		CTransaction transaction;
+		if ( CTransactionRecordManager::getInstance()->getTransaction( m_transactionHash, transaction ) )
 		{
-			context< CPassTransactionAction >().setResult( transaction );
+			context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Confirmed, transaction ) );
 			context< CPassTransactionAction >().setExit();
 		}
-*/
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						  LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		return discard_event();
 	}
@@ -86,7 +98,7 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 
-	CTransaction transaction;
+	uint256 m_transactionHash;
 };
 
 struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTransactionAction >

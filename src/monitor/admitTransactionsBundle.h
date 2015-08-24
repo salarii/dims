@@ -23,11 +23,13 @@ class CPaymentTracking
 public:
 	static CPaymentTracking* getInstance();
 
-	void addTransactionToSearch( uint256 const & _hash );
+	void addTransactionToSearch( uint256 const & _hash, CKeyID const & _keyId );
 
-	bool transactionPresent( uint256 const & _transactionId, CTransaction & _transaction );
+	void removeTransactionfromSearch( uint256 const & _hash );
 
-	void analyseIncommingBundle( std::vector< CTransaction > const & _transactionBundle );
+	bool isTransactionPresent( uint256 const & _hash );
+
+	void loop();
 
 	void storeTransactions( std::vector< CTransaction > & _transactions )
 	{
@@ -39,7 +41,12 @@ public:
 	{
 		boost::lock_guard<boost::mutex> lock( m_mutex );
 		if ( !_store )
-
+		{
+			m_counter--;
+			if ( m_counter < 1 )
+				m_toSearch.clear();
+		}
+		m_counter++;
 		m_storeTransactions = _store;
 	}
 
@@ -49,19 +56,23 @@ public:
 		return m_storeTransactions;
 	}
 private:
-	CPaymentTracking(){};
+	CPaymentTracking():m_counter( 0 ){};
 private:
 	mutable boost::mutex m_mutex;
 
-	std::map< uint256, CTransaction > m_foundTransactions;
+//	std::map< uint256, CTransaction > m_foundTransactions;
 
-	std::set< uint256 > m_searchTransaction;
+	std::map< uint256, CKeyID > m_searchTransaction;
+
+	std::set< uint256 > m_acceptedTransactons;
 
 	std::vector< CTransaction > m_toSearch;
 
 	static CPaymentTracking * ms_instance;
 
 	bool m_storeTransactions;
+
+	int m_counter;
 };
 
 // I base on fact  that  various  nodes  handling the  same transaction  bundle  should  use  the  sema  action  number

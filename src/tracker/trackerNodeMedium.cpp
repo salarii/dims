@@ -88,7 +88,11 @@ CTrackerNodeMedium::add( CAskForRegistrationRequest const * _request )
 void
 CTrackerNodeMedium::add( CRegisterProofRequest const * _request )
 {
-	common::CMessage message( common::CAdmitProof(), _request->getActionKey(), _request->getId() );
+	common::CAdmitProof admitProof;
+
+	admitProof.m_proofTransactionHash = _request->getTransactionHash();
+
+	common::CMessage message( admitProof, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 

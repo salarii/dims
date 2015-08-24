@@ -127,7 +127,8 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 
 		context< CRegisterAction >().addRequest(
 					new CRegisterProofRequest(
-						context< CRegisterAction >().getActionKey()
+						uint256()
+						, context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	}
 
@@ -264,10 +265,12 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 	boost::statechart::result react( common::CTransactionAckEvent const & _transactionAckEvent )
 	{
+
 		context< CRegisterAction >().addRequest(
 							new CRegisterProofRequest(
-								context< CRegisterAction >().getActionKey()
-								, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+						_transactionAckEvent.m_transactionSend.GetHash()
+						, context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
 	//	_transactionAckEvent.m_transactionSend
 	}
 

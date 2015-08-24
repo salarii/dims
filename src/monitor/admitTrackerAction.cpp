@@ -174,11 +174,12 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 	CPaidRegistrationEmptyNetwork( my_context ctx )
 		: my_base( ctx )
 	{
+		/*
 		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >(
 						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );*/
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -187,21 +188,28 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
-		if ( _messageResult.m_message.m_header.m_payloadKind== common::CPayloadKind::AdmitAsk )
-		{
-			context< CAdmitTrackerAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
-							context< CAdmitTrackerAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+		common::CAdmitProof admitMessage;
 
-			context< CAdmitTrackerAction >().addRequest(
-						new common::CResultRequest< common::CMonitorTypes >(
-							context< CAdmitTrackerAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, 1
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
-		}
+		common::convertPayload( orginalMessage, admitMessage );
+
+		CPaymentTracking::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
+/*
+		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CAckRequest< common::CMonitorTypes >(
+						context< CAdmitTrackerAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CResultRequest< common::CMonitorTypes >(
+						context< CAdmitTrackerAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, 1
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+*/
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -243,7 +251,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CPaymentTracking::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash );
+		CPaymentTracking::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
@@ -252,6 +260,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		m_messageId = _messageResult.m_message.m_header.m_id;
 
+		m_pubKey = _messageResult.m_pubKey;
+
 		return discard_event();
 	}
 
@@ -259,17 +269,10 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	{
 		CTransaction transaction;
 
-		if ( CPaymentTracking::getInstance()->transactionPresent( m_proofHash, transaction ) )
-			return discard_event();
-
-		CPubKey pubKey;
-		CReputationTracker::getInstance()->getNodeToKey(
-					  context< CAdmitTrackerAction >().getNodePtr()
-					, pubKey );
-
-		if ( analyseTransaction( transaction, m_proofHash, pubKey.GetID() ) )
+		if ( CPaymentTracking::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
-			CReputationTracker::getInstance()->addTracker( CTrackerData( pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+			CReputationTracker::getInstance()->addTracker( CTrackerData( m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+
 			context< CAdmitTrackerAction >().dropRequests();
 			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
@@ -313,6 +316,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	uint256 m_messageId;
 
 	int64_t const m_checkPeriod;
+
+	CPubKey m_pubKey;
 };
 
 CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
