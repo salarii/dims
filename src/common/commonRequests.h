@@ -162,22 +162,17 @@ public:
 	int getRole() const;
 
 	uint256 getActionKey() const;
-
-	uint256 getId() const;
 private:
 	int m_role;
 
 	uint256 const m_actionKey;
-
-	uint256 m_id;
 };
 
 template < class _Types >
 CNetworkRoleRequest< _Types >::CNetworkRoleRequest( int _role, uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _mediumFilter )
+	: common::CRequest< _Types >( _id, _mediumFilter )
 	, m_role( _role )
 	, m_actionKey( _actionKey )
-	, m_id( _id )
 {
 }
 
@@ -200,13 +195,6 @@ uint256
 CNetworkRoleRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
-}
-
-template < class _Types >
-uint256
-CNetworkRoleRequest< _Types >::getId() const
-{
-	return m_id;
 }
 
 template < class _Types >
@@ -606,15 +594,11 @@ public:
 
 	uint256 getActionKey() const;
 
-	uint256 getId() const;
-
 	Block * getBlock() const;
 
 	unsigned int getBlockIndex() const;
 private:
 	uint256 const m_actionKey;
-
-	uint256 const m_id;
 
 	Block * m_discBlock;
 
@@ -623,9 +607,8 @@ private:
 
 template < class Block, class _Types >
 CSetNextBlockRequest< Block, _Types >::CSetNextBlockRequest( uint256 const & _actionKey, uint256 const & _id, FilterType * _mediumFilter, Block * _discBlock, unsigned int _blockIndex )
-	: common::CRequest< _Types >( _mediumFilter )
+	: common::CRequest< _Types >( _id, _mediumFilter )
 	, m_actionKey( _actionKey )
-	, m_id( _id )
 	, m_discBlock( _discBlock )
 	, m_blockIndex( _blockIndex )
 {
@@ -636,13 +619,6 @@ void
 CSetNextBlockRequest< Block, _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
-}
-
-template < class Block, class _Types >
-uint256
-CSetNextBlockRequest< Block, _Types >::getId() const
-{
-	return m_id;
 }
 
 template < class Block, class _Types >
@@ -868,8 +844,6 @@ public:
 
 	uint64_t getHeaderSize() const;
 
-	uint256 getId() const;
-
 	uint256 getActionKey() const;
 private:
 	uint64_t const m_time;
@@ -879,18 +853,15 @@ private:
 	uint64_t const m_headerSize;
 
 	uint256 const m_actionKey;
-
-	uint256 const m_id;
 };
 
 template < class _Types >
 CStorageInfoRequest< _Types >::CStorageInfoRequest( uint64_t const _time, uint64_t const _storageSize, uint64_t const _headerSize, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
-	: common::CRequest< _Types >( _filterType )
+	: common::CRequest< _Types >( _id, _filterType )
 	, m_time( _time )
 	, m_storageSize( _storageSize )
 	, m_headerSize( _headerSize )
 	, m_actionKey( _actionKey )
-	, m_id( _id )
 {
 }
 
@@ -920,13 +891,6 @@ uint64_t
 CStorageInfoRequest< _Types >::getTime() const
 {
 	return m_time;
-}
-
-template < class _Types >
-uint256
-CStorageInfoRequest< _Types >::getId() const
-{
-	return m_id;
 }
 
 template < class _Types >
@@ -1096,8 +1060,6 @@ public:
 
 	uint256 getActionKey() const;
 
-	uint256 getId() const;
-
 	CBlockHeader const & getBlockHeader() const
 	{
 		return m_blockHeader;
@@ -1105,15 +1067,13 @@ public:
 private:
 	CBlockHeader m_blockHeader;
 	uint256 const m_actionKey;
-	uint256 const m_id;
 };
 
 template < class _Types >
 CBitcoinHeaderRequest< _Types >::CBitcoinHeaderRequest( CBlockHeader const & _blockHeader, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
-	: common::CRequest< _Types >( _filterType )
+	: common::CRequest< _Types >( _id, _filterType )
 	, m_blockHeader( _blockHeader )
 	, m_actionKey( _actionKey )
-	, m_id( _id )
 {
 }
 
@@ -1132,13 +1092,6 @@ CBitcoinHeaderRequest< _Types >::getActionKey() const
 }
 
 template < class _Types >
-uint256
-CBitcoinHeaderRequest< _Types >::getId() const
-{
-	return m_id;
-}
-
-template < class _Types >
 class CGetBalanceRequest: public common::CRequest< _Types >
 {
 public:
@@ -1151,21 +1104,17 @@ public:
 
 	uint256 getActionKey() const;
 
-	uint256 getId() const;
-
 	uint160 getKey() const;
 private:
 	uint160 m_key;
 	uint256 const m_actionKey;
-	uint256 const m_id;
 };
 
 template < class _Types >
 CGetBalanceRequest< _Types >::CGetBalanceRequest( uint160 const & _key, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
-	: common::CRequest< _Types >( _filterType )
+	: common::CRequest< _Types >( _id, _filterType )
 	, m_key( _key )
 	, m_actionKey( _actionKey )
-	, m_id( _id )
 {
 }
 
@@ -1181,13 +1130,6 @@ uint256
 CGetBalanceRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
-}
-
-template < class _Types >
-uint256
-CGetBalanceRequest< _Types >::getId() const
-{
-	return m_id;
 }
 
 template < class _Types >

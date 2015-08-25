@@ -292,7 +292,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 				synchronizationResult.m_result = 1;
 
 				context< CSynchronizationAction >().setResult( synchronizationResult );
-				context< CSynchronizationAction >().setExecuted();
+				context< CSynchronizationAction >().setExit();
 			}
 		}
 		return discard_event();

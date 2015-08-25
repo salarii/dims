@@ -82,6 +82,12 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				 || message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock
 				 )
 		{
+			if ( message.m_header.m_payloadKind == common::CPayloadKind::Result )
+			{
+				int  k = 0;
+				k++;
+
+			}
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			CPubKey pubKey;
