@@ -169,6 +169,12 @@ elif cmd == "help":
 	except:
 		print "\n---An error occurred---\n"
 
+elif cmd == "selfaddress":
+	try:
+		print access.selfAddress()
+	except:
+		print "\n---An error occurred---\n"
+
 elif cmd == "listaccounts":
 	try:
 		mc = raw_input("Minimum confirmations (optional): ")

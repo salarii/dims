@@ -47,7 +47,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CMonitorTypes >(
 								new CConnectNodeAction( address )
-								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+								, new CMediumClassFilter( common::CMediumKinds::Schedule ) ) );
 			}
 		}
 	}

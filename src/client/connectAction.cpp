@@ -42,8 +42,6 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		context< CConnectAction >().addRequest( new CDnsInfoRequest() );
 	}
 
-	//		context< CConnectAction >().addRequest( new CDnsInfoRequest() );
-
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
 		if ( _dnsInfo.m_addresses.empty() )

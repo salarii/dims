@@ -8,7 +8,7 @@
 #include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 
-#include "common/action.h"
+#include "common/scheduleAbleAction.h"
 #include "common/types.h"
 
 namespace tracker
@@ -16,9 +16,11 @@ namespace tracker
 
 struct CFindBalance;
 
-class CGetBalanceAction : public common::CAction< common::CTrackerTypes >, public boost::statechart::state_machine< CGetBalanceAction, CFindBalance >
+class CGetBalanceAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public boost::statechart::state_machine< CGetBalanceAction, CFindBalance >
 {
 public:
+	CGetBalanceAction();
+
 	CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );

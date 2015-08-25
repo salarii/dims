@@ -52,8 +52,8 @@ void
 CDefaultMedium::add( CDnsInfoRequest const * _request )
 {
 	vector< CAddress > addresses;
-	getSeedIps( addresses );
-
+	//getSeedIps( addresses );
+	addresses.push_back( CAddress( CService("127.0.0.1", 0x1400) ) );
 	CDnsInfo dnsInfo( addresses );
 
 	m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, dnsInfo ) );

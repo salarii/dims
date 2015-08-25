@@ -126,6 +126,7 @@ struct CNetworkInfoResult
 	std::set< CValidNodeInfo > m_monitorsInfo;
 };
 
+
 struct CClientNetworkInfoResult
 {
 
@@ -346,6 +347,9 @@ struct CSynchronizationResult : boost::statechart::event< CSynchronizationResult
 	unsigned int m_result;
 };
 
+struct CExecutedIndicator : boost::statechart::event< CExecutedIndicator >
+{};
+
 struct CPayApplicationData
 {
 	CPayApplicationData(
@@ -386,7 +390,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator > ScheduledResult;
 
 struct CRequestedMerkles
 {

@@ -25,7 +25,7 @@ boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetwork
 boost::signals2::signal< std::string () > SelfAddress;
 boost::signals2::signal< void () > ConnectNetworkHook;
 
-extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
+json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 {
 	if (fHelp || params.size() != 0)
 		throw runtime_error(
@@ -41,7 +41,7 @@ extern json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 	return status;
 }
 
-extern json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp)
+json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp)
 {
 	if (fHelp || params.size() != 1)
 		throw runtime_error(
@@ -57,11 +57,12 @@ extern json_spirit::Value registerInNetwork(const json_spirit::Array& params, bo
 	return result;
 }
 
-extern json_spirit::Value selfAddress(const json_spirit::Array& params, bool fHelp)
+json_spirit::Value selfAddress(const json_spirit::Array& params, bool fHelp)
 {
-	if (fHelp || params.size() != 1)
+	if (fHelp || params.size() != 0)
 		throw runtime_error(
-			"selfAddress will print node payment address \n" \
+			"selfAddress \n" \
+				"\nwill print node payment address \n" \
 				"\nExamples:\n"
 				+ HelpExampleRpc("selfAddress", "")
 		);
@@ -71,11 +72,12 @@ extern json_spirit::Value selfAddress(const json_spirit::Array& params, bool fHe
 	return result;
 }
 
-extern json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
+json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
 {
 	if (fHelp || params.size() != 1)
 		throw runtime_error(
-			"connectNetwork will cause syncronization with current transaction storage \n" \
+			"connectNetwork \n" \
+				"\nwill cause syncronization with current transaction storage \n" \
 			"\n If successful node  will start opertions in network\n" \
 				"\nExamples:\n"
 				+ HelpExampleRpc("registerInNetwork", "")

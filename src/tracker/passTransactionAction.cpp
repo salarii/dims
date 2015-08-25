@@ -122,7 +122,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		common::CMessage orginalMessage;
-//		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CPassTransactionAction >().getPublicKey() ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
 		common::CTrackerInfo trackerInfo;
@@ -151,11 +151,10 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 
 		tracker.m_price = trackerInfo.m_price; // this  will produce transaction with no tracker output
 
-		if ( pwalletMain->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
+		if ( CWallet::getInstance()->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
 		{
 			CTransactionRecordManager::getInstance()->addClientTransaction( tx );
 		}
-
 
 		return discard_event();
 	}

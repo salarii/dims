@@ -86,8 +86,7 @@ TRACKER_CORE_H = \
   tracker/configureTrackerActionHandler.h \
   tracker/connectNodeAction.h \
   tracker/databaseManager.h \
-  tracker/getBalanceAction.h \
-  tracker/getSelfBalanceAction.h \	
+  tracker/getBalanceAction.h \	
   tracker/init.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
@@ -184,7 +183,6 @@ TRACKER_CORE_CPP = \
   tracker/connectNodeAction.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
-  tracker/getSelfBalanceAction.cpp \
   tracker/init.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
