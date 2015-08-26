@@ -76,6 +76,11 @@ public:
 
 	bool needToExit()const{ return m_exit; }
 
+	bool requestToProcess()const
+	{
+		return !( m_requests.empty() && m_droppedRequests.empty() );
+	}
+
 	virtual ~CAction()
 	{
 		BOOST_FOREACH( CRequest< _Type >*request, m_droppedRequests )

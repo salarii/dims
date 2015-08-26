@@ -116,6 +116,47 @@ CTransactionRecordManager::addTransactionsToStorage( std::vector< CTransaction >
 }
 
 bool
+CTransactionRecordManager::addRetrivedTransactionBundle( std::vector< CTransaction > const & _transaction )
+{
+	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );
+
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	{
+		CCoins coins(transaction);
+
+		m_coinsViewCache->SetCoins( transaction.GetHash(), coins);
+		std::vector< uint160 > keyIds;
+
+		CAllowedTypes allowedTypes;
+		allowedTypes.m_allowed.insert( TX_PUBKEY );
+		allowedTypes.m_allowed.insert( TX_PUBKEYHASH );
+		for (unsigned int i = 0; i < coins.vout.size(); i++)
+		{
+			uint160 keyId;
+
+			if ( !retrieveKeyIds( coins.vout[i], keyId, allowedTypes ) )
+				return false;
+
+			keyIds.push_back( keyId );
+		}
+
+		BOOST_FOREACH( uint160 const & keyId, keyIds )
+		{
+			m_addressToCoinsViewCache->setCoins( keyId, transaction.GetHash() );
+		}
+	}
+	m_addressToCoinsViewCache->flush();
+	m_coinsViewCache->Flush();
+
+	BOOST_FOREACH( CTransaction const & transaction, _transaction )
+	{
+		setTransactionToTemporary( transaction );
+	}
+
+	return true;
+}
+
+bool
 CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransaction > const & _transaction )
 {
 	boost::lock_guard<boost::mutex> lock( m_coinsViewLock );

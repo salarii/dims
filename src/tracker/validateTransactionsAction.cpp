@@ -368,12 +368,11 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 								)
 					);
 
-		context< CValidateTransactionsAction >().setExit();
-		context< CValidateTransactionsAction >().dropRequests();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
+		context< CValidateTransactionsAction >().setExit();
 		return discard_event();
 	}
 

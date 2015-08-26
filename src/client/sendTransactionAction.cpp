@@ -89,7 +89,7 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 	{
 		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
 		{
-			context< CSendTransactionAction >().dropRequests();
+			context< CSendTransactionAction >().setExit();
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
 		{

@@ -15,6 +15,7 @@
 #include "tracker/trackerFilters.h"
 #include "tracker/transactionRecordManager.h"
 #include "tracker/trackerRequests.h"
+#include "tracker/trackerController.h"
 
 extern CWallet* pwalletMain;
 
@@ -34,7 +35,7 @@ struct CInvalidInNetworkEvent : boost::statechart::event< CInvalidInNetworkEvent
 {
 };
 
-struct CInitial : boost::statechart::simple_state< CInitial, CPassTransactionAction >
+struct CPassTransactionInitial : boost::statechart::simple_state< CPassTransactionInitial, CPassTransactionAction >
 {
 	typedef boost::mpl::list<
 	boost::statechart::transition< CValidInNetworkEvent, CValidInNetwork >,
@@ -236,6 +237,10 @@ CPassTransactionAction::CPassTransactionAction( CKeyID const & _keyId, int64_t _
 	, m_amount( _amount )
 {
 	initiate();
+	if ( CTrackerController::getInstance()->isConnected() )
+		process_event( CValidInNetworkEvent() );
+	else
+		process_event( CInvalidInNetworkEvent() );
 }
 
 void

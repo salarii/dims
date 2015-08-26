@@ -213,8 +213,10 @@ CActionHandler< _Types >::loop()
 
 					if ( action->autoDelete() )
 					{
-						std::vector< CRequest< _Types >* > dropped = action->getDroppedRequests();
-						BOOST_FOREACH( CRequest< _Types >* request,dropped )
+						std::vector< CRequest< _Types >* > combined = action->getDroppedRequests();
+
+											combined.insert( combined.end(), requests.begin(), requests.end() );
+						BOOST_FOREACH( CRequest< _Types >* request,combined )
 						{
 							typename RequestToHandlers::iterator lower = m_currentlyUsedHandlers.lower_bound ( request );
 							typename RequestToHandlers::iterator upper = m_currentlyUsedHandlers.upper_bound ( request );
@@ -231,7 +233,7 @@ CActionHandler< _Types >::loop()
 					else
 						action->setExecuted();
 				}
-				else if ( !requests.empty() )
+				else if ( action->requestToProcess() )
 				{
 					std::vector< CRequest< _Types >* > combined;
 

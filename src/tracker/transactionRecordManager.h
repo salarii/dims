@@ -55,6 +55,8 @@ public:
 
 	bool addValidatedTransactionBundle( std::vector< CTransaction > const & _transaction );
 
+	bool addRetrivedTransactionBundle( std::vector< CTransaction > const & _transaction );
+
 	void addTransactionToStorage( CTransaction const & _tx );
 
 	bool addTransactionsToStorage( std::vector< CTransaction > const & _transaction );

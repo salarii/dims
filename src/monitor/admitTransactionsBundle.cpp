@@ -17,7 +17,7 @@
 
 namespace monitor
 {
-
+// TODO: bundle  should  be  propagated to synchronizing  at  the moment  nodes
 unsigned const InvestigationStartTime = 60000;
 
 struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransactionBundle >
@@ -62,12 +62,15 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 				CTransactionRecordManager::getInstance()->addTransactionsToStorage( transactionBundle.m_transactions );
 			}
 		}
+
+		context< CAdmitTransactionBundle >().setExit();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		assert( !"do  something with it" );
+		context< CAdmitTransactionBundle >().setExit();
 		return discard_event();
 	}
 

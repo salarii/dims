@@ -15,9 +15,9 @@
 namespace tracker
 {
 
-struct CInitial;
+struct CPassTransactionInitial;
 
-class CPassTransactionAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CPassTransactionAction, CInitial >
+class CPassTransactionAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CPassTransactionAction, CPassTransactionInitial >
 {
 public:
 	CPassTransactionAction( CKeyID const & _keyId, int64_t _amount );

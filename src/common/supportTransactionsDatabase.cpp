@@ -113,7 +113,7 @@ CSupportTransactionsDatabase::flush()
 
 	typedef std::pair<uint256,uint64_t> Element;
 
-	BOOST_FOREACH( Element const & element, m_transactionToLocationCache )
+	BOOST_FOREACH( Element const & element, m_transactionToLocationCacheInsert )
 	{
 		locations.insert( element.first, element.second );
 	}

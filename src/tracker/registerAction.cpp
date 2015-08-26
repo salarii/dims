@@ -17,6 +17,7 @@
 #include "tracker/selfWallet.h"
 #include "tracker/synchronizationAction.h"
 #include "tracker/getBalanceAction.h"
+#include "tracker/trackerController.h"
 
 namespace tracker
 {
@@ -88,6 +89,7 @@ struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, 
 		}
 		else
 		{
+			context< CRegisterAction >().setRegisterPayment( connectCondition.m_price );
 			return transit< CSynchronize >();
 		}
 	}
@@ -201,7 +203,6 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CRegisterAction >().dropRequests();
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
 						new CSynchronizationAction( context< CRegisterAction >().getNodePtr() )
@@ -221,6 +222,8 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 		common::convertPayload( orginalMessage, result );
 
 		assert( result.m_result );// for debug only, do something here
+
+		CTrackerController::getInstance()->setConnected( true );
 
 		context< CRegisterAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
@@ -288,16 +291,21 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 	boost::statechart::result react( common::CTransactionAckEvent const & _transactionAckEvent )
 	{
-		context< CRegisterAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
-						MoneyWaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-/*		context< CRegisterAction >().addRequest(
+		if ( _transactionAckEvent.m_status == common::TransactionsStatus::Invalid )
+		{
+			context< CRegisterAction >().addRequest(
+						new common::CTimeEventRequest< common::CTrackerTypes >(
+							MoneyWaitTime
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		}
+
+		/*		context< CRegisterAction >().addRequest(
 							new CRegisterProofRequest(
 						_transactionAckEvent.m_transactionSend.GetHash()
 						, context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );*/
 	//	_transactionAckEvent.m_transactionSend
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

@@ -271,7 +271,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 			common::CSupportTransactionsDatabase::getInstance()->flush();
 
-			CTransactionRecordManager::getInstance()->addValidatedTransactionBundle( transactions );
+			CTransactionRecordManager::getInstance()->addRetrivedTransactionBundle( transactions );
 
 			if ( context< CSynchronizationAction >().getStorageSize() > ++m_currentBlock )
 			{
