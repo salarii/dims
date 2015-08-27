@@ -268,27 +268,6 @@ QVariant AddressTableModel::data(const QModelIndex &index, int role) const
 
 bool AddressTableModel::serviceOutputAmountByAddress( qint64 & _outputSum, CCoinControl & _coinControl, CKeyID const & keyId ) const
 {
-	LOCK(wallet->cs_wallet); 
-
-	std::vector<COutput> outputs;
-	wallet->AvailableCoins(outputs, keyId);
-
-	std::vector<COutput>::iterator iterator = outputs.begin();
-
-	while( _outputSum > 0 && iterator != outputs.end() )
-	{
-		assert( std::find (iterator->tx->vfSpent.begin(),iterator->tx->vfSpent.end(),iterator->i) != iterator->tx->vfSpent.end() );
-
-		_outputSum -= iterator->tx->vout[ iterator->i ].nValue;
-
-		if ( _outputSum <= 0 )
-			return true;
-		
-		COutPoint outpt(iterator->tx->GetHash() , iterator->i);
-		_coinControl.Select(outpt);
-		iterator++;
-	}
-
 	return false;
 }
 

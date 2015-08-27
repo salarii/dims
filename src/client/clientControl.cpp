@@ -103,12 +103,6 @@ CClientControl::createTransaction( std::vector< std::pair< CKeyID, int64_t > > c
 	return m_clientSignals.m_createTransaction( _outputs, _coinsToUse, _trackerStats, _wtxNew, _strFailReason );
 }
 
-CClientSignals &
-CClientControl::acquireClientSignals()
-{
-	return m_clientSignals;
-}
-
 bool
 CClientControl::executePaymentMessageBox()
 {
@@ -119,6 +113,12 @@ void
 CClientControl::transactionAddmited( uint256 const & _hash, CTransaction const & _transaction )
 {
 	m_clientSignals.m_transactionAddmited( _hash, _transaction );
+}
+
+CClientSignals &
+CClientControl::acquireClientSignals()
+{
+	return m_clientSignals;
 }
 
 CClientControl::CClientControl()

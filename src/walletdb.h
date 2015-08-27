@@ -107,9 +107,6 @@ public:
 
     bool WriteCScript(const uint160& hash, const CScript& redeemScript);
 
-    bool WriteBestBlock(const CBlockLocator& locator);
-    bool ReadBestBlock(CBlockLocator& locator);
-
     bool WriteOrderPosNext(int64_t nOrderPosNext);
 
     bool WriteDefaultKey(const CPubKey& vchPubKey);
@@ -134,7 +131,6 @@ public:
     int64_t GetAccountCreditDebit(const std::string& strAccount);
     void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& acentries);
 
-    DBErrors ReorderTransactions(CWallet*);
     DBErrors LoadWallet(CWallet* pwallet);
     DBErrors FindWalletTx(CWallet* pwallet, std::vector<uint256>& vTxHash);
     DBErrors ZapWalletTx(CWallet* pwallet);

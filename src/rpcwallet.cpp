@@ -201,36 +201,6 @@ static void MaybePushAddress(Object & entry, const CTxDestination &dest)
         entry.push_back(Pair("address", addr.ToString()));
 }
 
-void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, Array& ret)
-{
-    int64_t nFee;
-    string strSentAccount;
-    list<pair<CTxDestination, int64_t> > listReceived;
-    list<pair<CTxDestination, int64_t> > listSent;
-
-    wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount);
-
-    bool fAllAccounts = (strAccount == string("*"));
-
-    // Sent
-    if ((!listSent.empty() || nFee != 0) && (fAllAccounts || strAccount == strSentAccount))
-    {
-        BOOST_FOREACH(const PAIRTYPE(CTxDestination, int64_t)& s, listSent)
-        {
-            Object entry;
-            entry.push_back(Pair("account", strSentAccount));
-            MaybePushAddress(entry, s.first);
-
-            entry.push_back(Pair("amount", ValueFromAmount(-s.second)));
-            entry.push_back(Pair("fee", ValueFromAmount(-nFee)));
-            if (fLong)
-                WalletTxToJSON(wtx, entry);
-            ret.push_back(entry);
-        }
-    }
-
-}
-
 void AcentryToJSON(const CAccountingEntry& acentry, const string& strAccount, Array& ret)
 {
     bool fAllAccounts = (strAccount == string("*"));

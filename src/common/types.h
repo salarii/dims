@@ -8,6 +8,14 @@
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"
 
+// this  all  is  most likely  crap
+// 99%  of  templates  in  this program is unnecessary and derive  from  this.
+// Initialy I wanted to  keep  separate request's  results  lists
+// only existing advantage of this approach is that it is  easier to  keep  boost variant  below default limit 20
+// some may  argue that  it is  also easier  to  keep  separate  list  for  every  executable
+// it  still could be  nice  but the  cost  of  mantaining  all  those tempates  is  huge with  near to  nothing  reward  for the effort
+// if  I switch  client  to  use  communication  protocol, than  I could get rid of separate results  lists
+// it  would  be  nice unification and simplification  of  entire  code  base
 namespace common
 {
 

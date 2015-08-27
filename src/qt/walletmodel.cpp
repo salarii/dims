@@ -72,7 +72,7 @@ qint64 WalletModel::getUnconfirmedBalance() const
 
 qint64 WalletModel::getImmatureBalance() const
 {
-    return wallet->GetImmatureBalance();
+	return 0;
 }
 
 int WalletModel::getNumTransactions() const
@@ -82,7 +82,7 @@ int WalletModel::getNumTransactions() const
         LOCK(wallet->cs_wallet);
         // the size of mapWallet contains the number of unique transaction IDs
         // (e.g. payments to yourself generate 2 transactions, but both share the same transaction ID)
-        numTransactions = wallet->mapWallet.size();
+		//numTransactions = wallet->mapWallet.size();
     }
     return numTransactions;
 }
@@ -282,13 +282,6 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
             else if (!rcp.message.isEmpty()) // Message from normal bitcoin:URI (bitcoin:123...?message=example)
                 newTx->vOrderForm.push_back(make_pair("Message", rcp.message.toStdString()));
         }
-
-	 //   CReserveKey *keyChange = transaction.getPossibleKeyChange();
-
-		// disable this  for time beeing
-		/*  if(!wallet->CommitTransaction(*newTx, *keyChange))
-            return TransactionCommitFailed;
-*/
         CTransaction* t = (CTransaction*)newTx;
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << *t;
@@ -512,7 +505,7 @@ void WalletModel::getOutputs(const std::vector<COutPoint>& vOutpoints, std::vect
     LOCK(wallet->cs_wallet);
     BOOST_FOREACH(const COutPoint& outpoint, vOutpoints)
     {
-        if (!wallet->mapWallet.count(outpoint.hash)) continue;
+		//if (!wallet->mapWallet.count(outpoint.hash)) continue;
 
     }
 }
@@ -521,7 +514,7 @@ void WalletModel::getOutputs(const std::vector<COutPoint>& vOutpoints, std::vect
 void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) const
 {
     std::vector<COutput> vCoins;
-    wallet->AvailableCoins(vCoins);
+	//wallet->AvailableCoins(vCoins);
 
     LOCK(wallet->cs_wallet); // ListLockedCoins, mapWallet
     std::vector<COutPoint> vLockedCoins;
@@ -530,18 +523,18 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
     // add locked coins
     BOOST_FOREACH(const COutPoint& outpoint, vLockedCoins)
     {
-        if (!wallet->mapWallet.count(outpoint.hash)) continue;
+		//if (!wallet->mapWallet.count(outpoint.hash)) continue;
     }
 
     BOOST_FOREACH(const COutput& out, vCoins)
     {
         COutput cout = out;
 
-        while (wallet->IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && wallet->IsMine(cout.tx->vin[0]))
+		/*while (wallet->IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && wallet->IsMine(cout.tx->vin[0]))
         {
             if (!wallet->mapWallet.count(cout.tx->vin[0].prevout.hash)) break;
             cout = COutput(&wallet->mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0);
-        }
+		}*/
 
         CTxDestination address;
         if(!ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address)) continue;

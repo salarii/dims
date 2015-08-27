@@ -641,7 +641,6 @@ bool AppInit(boost::thread_group& threadGroup)
 					strErrors << _("Cannot write default address") << "\n";
 			}
 
-			pwalletMain->SetBestChain(chainActive.GetLocator());
 		}
 
 		LogPrintf("%s", strErrors.str());
@@ -717,7 +716,6 @@ bool AppInit(boost::thread_group& threadGroup)
 	LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
 #ifdef ENABLE_WALLET
 	LogPrintf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
-	LogPrintf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
 	LogPrintf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 	// InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
@@ -767,10 +765,6 @@ void Shutdown()
 	UnregisterNodeSignals(GetNodeSignals());
 	{
 		LOCK(cs_main);
-#ifdef ENABLE_WALLET
-		if (pwalletMain)
-			pwalletMain->SetBestChain(chainActive.GetLocator());
-#endif
 
 	}
 #ifdef ENABLE_WALLET

@@ -80,7 +80,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		else
 		{
 			CClientControl::getInstance()->updateTotalBalance( m_total );
-			context< CSendBalanceInfoAction >().dropRequests();
+			context< CSendBalanceInfoAction >().setExit();
 		}
 		return discard_event();
 	}

@@ -45,7 +45,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 		if ( _transactionSendAck.m_status == common::TransactionsStatus::Validated )
 		{
 			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
-			context< CSendTransactionAction >().setValidatedTransactionHash( _transactionSendAck.m_transactionSend.GetHash() );
+			context< CSendTransactionAction >().setTransaction( _transactionSendAck.m_transactionSend );
 			return transit< CTransactionStatus >();
 		}
 		else
@@ -74,7 +74,7 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 		context< CSendTransactionAction >().dropRequests();
 		context< CSendTransactionAction >().addRequest(
 					new CTransactionStatusRequest(
-						  context< CSendTransactionAction >().getValidatedTransactionHash()
+						  context< CSendTransactionAction >().getTransaction().GetHash()
 						, filter
 						) );
 	}
@@ -89,6 +89,10 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 	{
 		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
 		{
+			CClientControl::getInstance()->transactionAddmited(
+						context< CSendTransactionAction >().getInitialTransactionHash()
+						, context< CSendTransactionAction >().getTransaction() );
+
 			context< CSendTransactionAction >().setExit();
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
@@ -96,7 +100,7 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 			context< CSendTransactionAction >().dropRequests();
 			context< CSendTransactionAction >().addRequest(
 						new CTransactionStatusRequest(
-							  context< CSendTransactionAction >().getValidatedTransactionHash()
+							  context< CSendTransactionAction >().getTransaction().GetHash()
 							, new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
 		}
 		return discard_event();
@@ -112,6 +116,7 @@ CSendTransactionAction::CSendTransactionAction( const CTransaction & _transactio
 	: CAction()
 	, m_transaction( _transaction )
 {
+	m_initialTransactionHash = m_transaction.GetHash();
 	initiate();
 }
 
@@ -128,6 +133,12 @@ CSendTransactionAction::getTransaction() const
 }
 
 void
+CSendTransactionAction::setTransaction( CTransaction const & _tx )
+{
+	m_transaction = _tx;
+}
+
+void
 CSendTransactionAction::setProcessingTrackerPtr( uintptr_t _ptr )
 {
 	m_processingTrackerPtr = _ptr;
@@ -138,18 +149,5 @@ CSendTransactionAction::getProcessingTrackerPtr() const
 {
 	return m_processingTrackerPtr;
 }
-
-void
-CSendTransactionAction::setValidatedTransactionHash( uint256 _hash )
-{
-	m_validatedTransactionHash = _hash;
-}
-
-uint256
-CSendTransactionAction::getValidatedTransactionHash() const
-{
-	return m_validatedTransactionHash;
-}
-
 
 }

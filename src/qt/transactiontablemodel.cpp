@@ -72,21 +72,21 @@ public:
      */
     QList<TransactionRecord> cachedWallet;
 
-    /* Query entire wallet anew from core.
-     */
-    void refreshWallet()
-    {
-        qDebug() << "TransactionTablePriv::refreshWallet";
-        cachedWallet.clear();
-        {
-            LOCK(wallet->cs_wallet);
-            for(std::map<uint256, CWalletTx>::iterator it = wallet->mapWallet.begin(); it != wallet->mapWallet.end(); ++it)
-            {
-                if(TransactionRecord::showTransaction(it->second))
-                    cachedWallet.append(TransactionRecord::decomposeTransaction(wallet, it->second));
-            }
-        }
-    }
+	/* Query entire wallet anew from core.
+	 */
+	void refreshWallet()
+	{
+		qDebug() << "TransactionTablePriv::refreshWallet";
+		cachedWallet.clear();
+		{
+			LOCK(wallet->cs_wallet);
+	/*		for(std::map<uint256, CWalletTx>::iterator it = wallet->mapWallet.begin(); it != wallet->mapWallet.end(); ++it)
+			{
+				if(TransactionRecord::showTransaction(it->second))
+					cachedWallet.append(TransactionRecord::decomposeTransaction(wallet, it->second));
+			}*/
+		}
+	}
 
 
 	void includeTransaction( CTransaction const & _transaction )
@@ -120,8 +120,8 @@ public:
             LOCK(wallet->cs_wallet);
 
             // Find transaction in wallet
-            std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(hash);
-            bool inWallet = mi != wallet->mapWallet.end();
+			//std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(hash);
+			//bool inWallet = mi != wallet->mapWallet.end();
 
 			// Find bounds of this transaction in model
 			QList<TransactionRecord>::iterator lower = qLowerBound(
@@ -133,7 +133,7 @@ public:
 			bool inModel = (lower != upper);
 
             // Determine whether to show transaction or not
-            bool showTransaction = (inWallet && TransactionRecord::showTransaction(mi->second));
+			bool showTransaction = true;//(TransactionRecord::showTransaction(mi->second));
 
             if(status == CT_UPDATED)
             {
@@ -143,10 +143,10 @@ public:
                     status = CT_DELETED; /* In model, but want to hide, treat as deleted */
             }
 
-            qDebug() << "   inWallet=" + QString::number(inWallet) + " inModel=" + QString::number(inModel) +
+			/*qDebug() << "   inWallet=" + QString::number(inWallet) + " inModel=" + QString::number(inModel) +
                         " Index=" + QString::number(lowerIndex) + "-" + QString::number(upperIndex) +
                         " showTransaction=" + QString::number(showTransaction) + " derivedStatus=" + QString::number(status);
-
+*/
             switch(status)
             {
             case CT_NEW:
@@ -155,16 +155,16 @@ public:
                     qDebug() << "TransactionTablePriv::updateWallet : Warning: Got CT_NEW, but transaction is already in model";
                     break;
                 }
-                if(!inWallet)
+				/*if(!inWallet)
                 {
                     qDebug() << "TransactionTablePriv::updateWallet : Warning: Got CT_NEW, but transaction is not in wallet";
                     break;
-                }
+				}*/
                 if(showTransaction)
                 {
                     // Added -- insert at the right position
-                    QList<TransactionRecord> toInsert =
-                            TransactionRecord::decomposeTransaction(wallet, mi->second);
+					QList<TransactionRecord> toInsert;// =
+							//TransactionRecord::decomposeTransaction(wallet, mi->second);
                     if(!toInsert.isEmpty()) /* only if something to insert */
                     {
                         parent->beginInsertRows(QModelIndex(), lowerIndex, lowerIndex+toInsert.size()-1);
@@ -215,11 +215,11 @@ public:
             {
                 {
                     LOCK(wallet->cs_wallet);
-                    std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->hash);
+				//    std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->hash);
 
-                    if(mi != wallet->mapWallet.end())
+			  //      if(mi != wallet->mapWallet.end())
                     {
-                        rec->updateStatus(mi->second);
+		  //              rec->updateStatus(mi->second);
                     }
                 }
             }
@@ -235,10 +235,10 @@ public:
     {
         {
             LOCK(wallet->cs_wallet);
-            std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->hash);
-			if(mi != wallet->mapWallet.end())
+			//std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->hash);
+			//if(mi != wallet->mapWallet.end())
 			{
-				return TransactionDesc::toHTML(wallet, mi->second, rec->idx, unit);
+				//return TransactionDesc::toHTML(wallet, mi->second, rec->idx, unit);
 			}
         }
         return QString("");

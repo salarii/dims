@@ -85,7 +85,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		assert( !"for now  asser this" );
-		context< CGetBalanceAction >().setExecuted();
+		context< CGetBalanceAction >().setExit();
 		return discard_event();
 	}
 

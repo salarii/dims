@@ -48,11 +48,11 @@ public:
 
 	bool createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
 
-	CClientSignals & acquireClientSignals();
-
 	bool executePaymentMessageBox();
 
 	void transactionAddmited( uint256 const & _hash, CTransaction const & _transaction );
+
+	CClientSignals & acquireClientSignals();
 private:
 	CClientControl();
 private:

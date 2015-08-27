@@ -45,8 +45,7 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
 
         int64_t nTime = wtx.GetTxTime();
         int64_t nCredit = wtx.GetCredit();
-        int64_t nDebit = wtx.GetDebit();
-        int64_t nNet = nCredit - nDebit;
+		int64_t nNet = nCredit;
 
         strHTML += "<b>" + tr("Status") + ":</b> " + FormatTxStatus(wtx);
         int nRequests = wtx.GetRequestCount();
@@ -143,8 +142,6 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
         else
         {
             bool fAllFromMe = true;
-            BOOST_FOREACH(const CTxIn& txin, wtx.vin)
-                fAllFromMe = fAllFromMe && wallet->IsMine(txin);
 
             bool fAllToMe = true;
             BOOST_FOREACH(const CTxOut& txout, wtx.vout)
@@ -186,7 +183,7 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
                     strHTML += "<b>" + tr("Credit") + ":</b> " + CDimsUnits::formatWithUnit(unit, nValue) + "<br>";
                 }
 
-                int64_t nTxFee = nDebit - wtx.GetValueOut();
+				int64_t nTxFee = wtx.GetValueOut();
                 if (nTxFee > 0)
                     strHTML += "<b>" + tr("Transaction fee") + ":</b> " + CDimsUnits::formatWithUnit(unit, -nTxFee) + "<br>";
             }
@@ -195,9 +192,6 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
                 //
                 // Mixed debit transaction
                 //
-                BOOST_FOREACH(const CTxIn& txin, wtx.vin)
-                    if (wallet->IsMine(txin))
-                        strHTML += "<b>" + tr("Debit") + ":</b> " + CDimsUnits::formatWithUnit(unit, -wallet->GetDebit(txin)) + "<br>";
                 BOOST_FOREACH(const CTxOut& txout, wtx.vout)
                     if (wallet->IsMine(txout))
                         strHTML += "<b>" + tr("Credit") + ":</b> " + CDimsUnits::formatWithUnit(unit, wallet->GetCredit(txout)) + "<br>";
@@ -248,10 +242,7 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
         if (fDebug)
         {
             strHTML += "<hr><br>" + tr("Debug information") + "<br><br>";
-            BOOST_FOREACH(const CTxIn& txin, wtx.vin)
-                if(wallet->IsMine(txin))
-                    strHTML += "<b>" + tr("Debit") + ":</b> " + CDimsUnits::formatWithUnit(unit, -wallet->GetDebit(txin)) + "<br>";
-            BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+			BOOST_FOREACH(const CTxOut& txout, wtx.vout)
                 if(wallet->IsMine(txout))
                     strHTML += "<b>" + tr("Credit") + ":</b> " + CDimsUnits::formatWithUnit(unit, wallet->GetCredit(txout)) + "<br>";
 

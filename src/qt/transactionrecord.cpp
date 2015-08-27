@@ -22,8 +22,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction( CWallet const 
 	QList<TransactionRecord> parts;
 	int64_t nTime = GetTime();
 	int64_t nCredit = _wallet->GetCredit( _transaction );
-	int64_t nDebit = _wallet->GetDebit( _transaction );
-	int64_t nNet = nCredit - nDebit;
+	int64_t nNet = nCredit;
 	uint256 hash = _transaction.GetHash();
 //	std::map<std::string, std::string> mapValue = wtx.mapValue;
 
@@ -66,7 +65,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction( CWallet const 
 	{
 		bool fAllFromMe = true;
 		BOOST_FOREACH(const CTxIn& txin, _transaction.vin)
-				fAllFromMe = fAllFromMe && _wallet->IsMine(txin);
+				fAllFromMe = fAllFromMe;
 
 		bool fAllToMe = true;
 		BOOST_FOREACH(const CTxOut& txout, _transaction.vout)
@@ -78,14 +77,14 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction( CWallet const 
 			int64_t nChange = _wallet->GetChange(_transaction);
 
 			parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
-										   -(nDebit - nChange), nCredit - nChange));
+										   -( - nChange), nCredit - nChange));
 		}
 		else if (fAllFromMe)
 		{
 			//
 			// Debit
 			//
-			int64_t nTxFee = nDebit - _transaction.GetValueOut();
+			int64_t nTxFee = _transaction.GetValueOut();
 
 			for (unsigned int nOut = 0; nOut < _transaction.vout.size(); nOut++)
 			{
@@ -146,8 +145,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     QList<TransactionRecord> parts;
     int64_t nTime = wtx.GetTxTime();
     int64_t nCredit = wtx.GetCredit(true);
-    int64_t nDebit = wtx.GetDebit();
-    int64_t nNet = nCredit - nDebit;
+	int64_t nNet = nCredit;
     uint256 hash = wtx.GetHash();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
 
@@ -190,7 +188,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     {
         bool fAllFromMe = true;
         BOOST_FOREACH(const CTxIn& txin, wtx.vin)
-            fAllFromMe = fAllFromMe && wallet->IsMine(txin);
+			fAllFromMe = fAllFromMe;
 
         bool fAllToMe = true;
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
@@ -202,14 +200,14 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             int64_t nChange = wtx.GetChange();
 
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
-                            -(nDebit - nChange), nCredit - nChange));
+							-( nChange), nCredit - nChange));
         }
         else if (fAllFromMe)
         {
             //
             // Debit
             //
-            int64_t nTxFee = nDebit - wtx.GetValueOut();
+			int64_t nTxFee = wtx.GetValueOut();
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -275,7 +273,6 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
         (wtx.IsCoinBase() ? 1 : 0),
         wtx.nTimeReceived,
         idx);
-    status.confirmed = wtx.IsTrusted();
 
     status.cur_num_blocks = chainActive.Height();
 

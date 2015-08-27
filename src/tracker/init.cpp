@@ -142,10 +142,6 @@ void Shutdown()
     UnregisterNodeSignals(GetNodeSignals());
     {
         LOCK(cs_main);
-#ifdef ENABLE_WALLET
-        if (pwalletMain)
-            pwalletMain->SetBestChain(chainActive.GetLocator());
-#endif
         delete pcoinsdbview; pcoinsdbview = NULL;
     }
 #ifdef ENABLE_WALLET
@@ -911,7 +907,6 @@ seed_insecure_rand();
                     strErrors << _("Cannot write default address") << "\n";
             }
 
-            pwalletMain->SetBestChain(chainActive.GetLocator());
         }
 
         LogPrintf("%s", strErrors.str());
@@ -938,7 +933,6 @@ seed_insecure_rand();
             nStart = GetTimeMillis();
             pwalletMain->ScanForWalletTransactions(pindexRescan, true);
             LogPrintf(" rescan      %15"PRId64"ms\n", GetTimeMillis() - nStart);
-            pwalletMain->SetBestChain(chainActive.GetLocator());
             nWalletDBUpdated++;
         }
     } // (!fDisableWallet)
@@ -1008,7 +1002,6 @@ seed_insecure_rand();
     LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
 #ifdef ENABLE_WALLET
     LogPrintf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
-    LogPrintf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
     LogPrintf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 	// run this in main thread ??
@@ -1033,9 +1026,6 @@ seed_insecure_rand();
 
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
-        // Add wallet transactions that aren't already in a block to mapTransactions
-        pwalletMain->ReacceptWalletTransactions();
-
         // Run a thread to flush wallet periodically
         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
     }

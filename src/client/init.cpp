@@ -360,7 +360,7 @@ bool AppInit1(boost::thread_group& threadGroup)
 
 #ifdef ENABLE_WALLET
 	LogPrintf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
-	LogPrintf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
+//	LogPrintf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
 	LogPrintf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 
@@ -375,7 +375,7 @@ bool AppInit1(boost::thread_group& threadGroup)
 #ifdef ENABLE_WALLET
 	if (pwalletMain) {
 		// Add wallet transactions that aren't already in a block to mapTransactions
-		pwalletMain->ReacceptWalletTransactions();
+//		pwalletMain->ReacceptWalletTransactions();
 
 		// Run a thread to flush wallet periodically
  }
@@ -400,10 +400,6 @@ void Shutdown()
 	UnregisterNodeSignals(GetNodeSignals());
 	{
 		LOCK(cs_main);
-#ifdef ENABLE_WALLET
-		if (pwalletMain)
-			pwalletMain->SetBestChain(chainActive.GetLocator());
-#endif
 
 	}
 #ifdef ENABLE_WALLET
