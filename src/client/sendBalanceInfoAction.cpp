@@ -46,7 +46,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			context< CSendBalanceInfoAction >().addRequest( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
 		}
 		else
-			context< CSendBalanceInfoAction >().dropRequests();
+			context< CSendBalanceInfoAction >().setExit();
 	}
 	// imporant  how  many trackers  service  this
 	// here I assume  that  one. ??? is this correct ???

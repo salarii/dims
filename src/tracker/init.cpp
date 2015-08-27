@@ -921,10 +921,6 @@ seed_insecure_rand();
         {
             CWalletDB walletdb(strWalletFile);
             CBlockLocator locator;
-            if (walletdb.ReadBestBlock(locator))
-                pindexRescan = chainActive.FindFork(locator);
-            else
-                pindexRescan = chainActive.Genesis();
         }
         if (chainActive.Tip() && chainActive.Tip() != pindexRescan)
         {

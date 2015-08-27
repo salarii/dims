@@ -203,12 +203,11 @@ public:
 
 	void addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
 
-
 	void replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
 
 	void removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins );
 
-	void addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins );
+	void addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins, bool _store = true );
 
 	// keystore implementation
     // Generate a new key

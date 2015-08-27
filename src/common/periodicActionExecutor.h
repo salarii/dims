@@ -39,13 +39,19 @@ bool
 CDefferedAction< _Type >::isReady()
 {
 
+	bool readyToRun = true;
 	if ( m_action->isExecuted() )
 	{
-		reset();
+		readyToRun = GetTimeMillis() - m_time < m_deffer ? false : true;
+
+		if ( readyToRun )
+			reset();
+	}
+	else
+	{
 		m_time = GetTimeMillis();
 	}
-
-	return GetTimeMillis() - m_time < m_deffer ? false : true;
+	return readyToRun;
 }
 
 template < class _Type >

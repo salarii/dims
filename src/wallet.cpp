@@ -1436,6 +1436,9 @@ CWallet::replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCo
 
 	m_availableCoins.erase(_keyId);
 
+	if ( !CWalletDB(this->strWalletFile).EraseCoin( _keyId ) )
+		assert( !"fail to erase coin" );
+
 	addCoins( _keyId, _availableCoins );
 
 	NotifyAddressBookChanged(this, _keyId, "", true, "", CT_BALANCE);
@@ -1444,6 +1447,7 @@ CWallet::replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCo
 void
 CWallet::removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins )
 {
+	std::vector< CAvailableCoin > left;
 
 	for ( std::multimap< uint160, CAvailableCoin >::iterator iterator = m_availableCoins.lower_bound( _keyId ), previous = iterator; iterator != m_availableCoins.upper_bound( _keyId ); previous = iterator )
 	{
@@ -1451,12 +1455,29 @@ CWallet::removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const
 		iterator++;
 
 		if ( remove )
+		{
 			m_availableCoins.erase( previous );
+		}
+		else
+		{
+			left.push_back( previous->second );
+		}
 	}
+
+	if ( !CWalletDB(this->strWalletFile).EraseCoin( _keyId ) )
+		assert( !"fail to erase coin" );
+	if ( !CWalletDB(this->strWalletFile).WriteCoin( _keyId, left ) )
+		assert( !"fail to write coin" );
 }
 
-void CWallet::addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins )
+void CWallet::addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins, bool _store )
 {
+	if ( _store )
+	{
+		if ( !CWalletDB(this->strWalletFile).WriteCoin( _keyId, _coins ) )
+			assert( !"fail to write coin" );
+	}
+
 	BOOST_FOREACH( CAvailableCoin const & availableCoin, _coins )
 	{
 		m_availableCoins.insert( std::make_pair( _keyId, availableCoin ) );

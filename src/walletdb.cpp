@@ -64,6 +64,18 @@ bool CWalletDB::EraseTx(uint256 hash)
     return Erase(std::make_pair(std::string("tx"), hash));
 }
 
+bool CWalletDB::WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins)
+{
+	nWalletDBUpdated++;
+	return Write(std::make_pair(std::string("coins"), _keyId), _availableCoins);
+}
+
+bool CWalletDB::EraseCoin(CKeyID const & _keyId)
+{
+	nWalletDBUpdated++;
+	return Erase(std::make_pair(std::string("coins"), _keyId));
+}
+
 bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata& keyMeta)
 {
     nWalletDBUpdated++;
@@ -275,6 +287,16 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             ssKey >> strAddress;
             ssValue >> pwallet->mapAddressBook[CMnemonicAddress(strAddress).Get()].purpose;
         }
+		else if (strType == "coins")
+		{
+			CKeyID keyId;
+			ssKey >> keyId;
+
+			std::vector< CAvailableCoin > coins;
+			ssValue >> coins;
+
+			pwallet->addCoins( keyId, coins, false );
+		}
         else if (strType == "tx")
         {
             uint256 hash;
@@ -887,4 +909,23 @@ bool CWalletDB::EraseDestData(const std::string &address, const std::string &key
 {
     nWalletDBUpdated++;
     return Erase(boost::make_tuple(string("destdata"), address, key));
+}
+
+void resetDatabase( std::string const & _strWalletFile, common::AppType::Enum _appType )
+{
+	LOCK(bitdb.cs_db);
+	while (1)
+	{
+		if (!bitdb.mapFileUseCount.count(_strWalletFile) || bitdb.mapFileUseCount[_strWalletFile] == 0)
+		{
+			// Flush log data to the dat file
+			bitdb.CloseDb(_strWalletFile);
+			bitdb.CheckpointLSN(_strWalletFile);
+			bitdb.mapFileUseCount.erase(_strWalletFile);
+			bitdb.RemoveDb(_strWalletFile);
+			CWalletDB(_strWalletFile,"cr+");
+			break;
+		}
+		MilliSleep(100);
+	}
 }

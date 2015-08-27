@@ -360,7 +360,15 @@ private:
 
 struct CAvailableCoin
 {
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_coin);
+		READWRITE(m_position);
+		READWRITE(m_hash);
+	)
+
 	CAvailableCoin(){}; // risky??
+
 	CAvailableCoin( CTxOut const & _coin, unsigned int _position,uint256 const & _hash ):m_coin( _coin ), m_position(_position),m_hash( _hash ){};
 
 	bool operator==( CAvailableCoin const & _availableCoin ) const

@@ -25,6 +25,8 @@ namespace client
 {
 CClientControl * CClientControl::ms_instance = 0;
 
+unsigned int const CheckBalancePeriod = 30000;
+
 struct CClientConnected;
 
 struct CUninitiatedClient : boost::statechart::simple_state< CUninitiatedClient, CClientControl >
@@ -50,7 +52,7 @@ struct CClientConnected : boost::statechart::state< CClientConnected, CClientCon
 
 		uiInterface.NotifyNumConnectionsChanged( discoveredEvent->m_trackers, discoveredEvent->m_monitors );
 
-		common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( new CSendBalanceInfoAction( false ), 15000 );
+		common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( new CSendBalanceInfoAction( false ), CheckBalancePeriod );
 	}
 };
 

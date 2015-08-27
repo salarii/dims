@@ -7,6 +7,7 @@
 
 #include "db.h"
 #include "key.h"
+#include "coins.h"
 
 #include <list>
 #include <stdint.h>
@@ -100,6 +101,9 @@ public:
     bool WriteTx(uint256 hash, const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
+	bool WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
+	bool EraseCoin(CKeyID const & _keyId);
+
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
 	bool EraseKey(const CPubKey& vchPubKey);
 	bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
@@ -139,5 +143,7 @@ public:
 };
 
 bool BackupWallet(const CWallet& wallet, const std::string& strDest);
+
+void resetDatabase( std::string const & _strWalletFile, common::AppType::Enum _appType );
 
 #endif // BITCOIN_WALLETDB_H
