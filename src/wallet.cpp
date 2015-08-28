@@ -1556,3 +1556,28 @@ bool CWallet::GetDestData(const CTxDestination &dest, const std::string &key, st
     }
     return false;
 }
+
+void CWallet::resetDatabase()
+{
+	LOCK(bitdb.cs_db);
+	while (1)
+	{
+		if (!bitdb.mapFileUseCount.count(strWalletFile) || bitdb.mapFileUseCount[strWalletFile] == 0)
+		{
+			// Flush log data to the dat file
+			bitdb.CloseDb(strWalletFile);
+			bitdb.CheckpointLSN(strWalletFile);
+			bitdb.mapFileUseCount.erase(strWalletFile);
+			bitdb.RemoveDb(strWalletFile);
+			CWalletDB(strWalletFile,"cr+");
+
+			mapMasterKeys.clear();
+			mapKeys.clear();
+			mapScripts.clear();
+			m_availableCoins.clear();
+
+			break;
+		}
+		MilliSleep(100);
+	}
+}

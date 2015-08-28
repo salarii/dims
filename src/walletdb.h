@@ -144,6 +144,5 @@ public:
 
 bool BackupWallet(const CWallet& wallet, const std::string& strDest);
 
-void resetDatabase( std::string const & _strWalletFile, common::AppType::Enum _appType );
 
 #endif // BITCOIN_WALLETDB_H

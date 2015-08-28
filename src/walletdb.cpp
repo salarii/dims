@@ -911,21 +911,3 @@ bool CWalletDB::EraseDestData(const std::string &address, const std::string &key
     return Erase(boost::make_tuple(string("destdata"), address, key));
 }
 
-void resetDatabase( std::string const & _strWalletFile, common::AppType::Enum _appType )
-{
-	LOCK(bitdb.cs_db);
-	while (1)
-	{
-		if (!bitdb.mapFileUseCount.count(_strWalletFile) || bitdb.mapFileUseCount[_strWalletFile] == 0)
-		{
-			// Flush log data to the dat file
-			bitdb.CloseDb(_strWalletFile);
-			bitdb.CheckpointLSN(_strWalletFile);
-			bitdb.mapFileUseCount.erase(_strWalletFile);
-			bitdb.RemoveDb(_strWalletFile);
-			CWalletDB(_strWalletFile,"cr+");
-			break;
-		}
-		MilliSleep(100);
-	}
-}
