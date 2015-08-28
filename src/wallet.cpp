@@ -879,11 +879,40 @@ CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const 
 	std::vector< CAvailableCoin > add;
 
 	CKeyID keyId = CKeyID( 0 );
+
+	BOOST_FOREACH( PAIRTYPE( CKeyID, CAvailableCoin ) const & coins, iterator->second.m_toRemove )
+	{
+		if ( keyId != coins.first )
+		{
+			if ( !remove.empty() )
+			{
+				removeCoins( keyId, remove );
+				NotifyAddressBookChanged(this, keyId, "", true, "", CT_BALANCE);
+			}
+			remove.clear();
+			keyId = coins.first;
+		}
+
+		remove.push_back( coins.second );
+	}
+
+	if ( !remove.empty() )
+	{
+		removeCoins( keyId, remove );
+		NotifyAddressBookChanged(this, keyId, "", true, "", CT_BALANCE);
+	}
+
+
+	keyId = CKeyID( 0 );
 	BOOST_FOREACH( PAIRTYPE( CKeyID const, CAvailableCoin ) & coins, iterator->second.m_toAdd )
 	{
 		if ( keyId != coins.first )
 		{
-			addCoins( keyId, add );
+			if ( !add.empty() )
+			{
+				addAvailableCoins( keyId, add );
+				NotifyAddressBookChanged(this, keyId, "", true, "", CT_BALANCE);
+			}
 			add.clear();
 			keyId = coins.first;
 		}
@@ -904,145 +933,12 @@ CWallet::addmitNewTransaction( uint256 const & _initialHash, CTransaction const 
 
 	if ( !add.empty() )
 	{
-		addCoins( keyId, add );
-		NotifyAddressBookChanged(this, keyId, "", true, "", CT_BALANCE);
-	}
-
-	keyId = CKeyID( 0 );
-
-	BOOST_FOREACH( PAIRTYPE( CKeyID, CAvailableCoin ) const & coins, iterator->second.m_toRemove )
-	{
-		if ( keyId != coins.first )
-		{
-			removeCoins( keyId, remove );
-			remove.clear();
-			keyId = coins.first;
-		}
-
-		remove.push_back( coins.second );
-	}
-
-	if ( !remove.empty() )
-	{
-		removeCoins( keyId, remove );
+		addAvailableCoins( keyId, add );
 		NotifyAddressBookChanged(this, keyId, "", true, "", CT_BALANCE);
 	}
 
 }
-/*
-bool
-CWallet::CreateTransaction(const std::vector<std::pair<CScript, int64_t> >& vecSend,
-					   CWalletTx& wtxNew, std::string& strFailReason, const CCoinControl *coinControl )
-{
-	int64_t nValue = 0;
-	BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
-	{
-		if (nValue < 0)
-		{
-			strFailReason = _("Transaction amounts must be positive");
-			return false;
-		}
-		nValue += s.second;
-	}
-	if (vecSend.empty() || nValue < 0)
-	{
-		strFailReason = _("Transaction amounts must be positive");
-		return false;
-	}
 
-
-	{
-		LOCK2(cs_main, cs_wallet);
-		{
-			while (true)
-			{
-				wtxNew.vin.clear();
-				wtxNew.vout.clear();
-				wtxNew.fFromMe = true;
-
-				int64_t nTotalValue = nValue;
-				// vouts to the payees
-				BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
-				{
-					CTxOut txout(s.second, s.first);
-					wtxNew.vout.push_back(txout);
-				}
-
-				// Choose coins to use
-				std::vector< CAvailableCoin > setCoins;
-				int64_t nValueIn = 0;
-				if (!SelectCoins(nTotalValue, setCoins, nValueIn, coinControl))
-				{
-					strFailReason = _("Insufficient funds");
-					return false;
-				}
-
-
-				int64_t nChange = nValueIn - nValue;
-//this  I will fix later
-				if (nChange > 0)
-				{
-					// Fill a vout to ourself
-					// TODO: pass in scriptChange instead of reservekey so
-					// change transaction isn't always pay-to-bitcoin-address
-					CScript scriptChange;
-
-					// coin control: send change to custom address
-					if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange))
-					{
-						scriptChange.SetDestination(coinControl->destChange);
-					}
-					else
-					{
-						CKeyID keyId;
-						if ( !determineChangeAddress( setCoins, keyId ) )
-							return false;
-						scriptChange.SetDestination(keyId);
-					}
-
-
-					CTxOut newTxOut(nChange, scriptChange);
-
-				  // Insert change txn at random position:
-				  vector<CTxOut>::iterator position = wtxNew.vout.begin()+GetRandInt(wtxNew.vout.size()+1);
-				  wtxNew.vout.insert(position, newTxOut);
-
-				}
-
-				// Fill vin
-				BOOST_FOREACH( CAvailableCoin const & coin, setCoins)
-					wtxNew.vin.push_back(CTxIn(coin.m_hash,coin.m_position));
-
-				// Sign
-				int nIn = 0;
-				BOOST_FOREACH(CAvailableCoin const & coin, setCoins)
-				if (!SignSignature(*this, coin.m_coin.scriptPubKey, wtxNew, nIn++) )
-				{
-						strFailReason = _("Signing transaction failed");
-						return false;
-				}
-
-				// Limit size
-				unsigned int nBytes = ::GetSerializeSize(*(CTransaction*)&wtxNew, SER_NETWORK, PROTOCOL_VERSION);
-				if (nBytes >= MAX_STANDARD_TX_SIZE)
-				{
-					strFailReason = _("Transaction too large");
-					return false;
-				}
-
-			// don't know  what for is logic below
-
-			//	wtxNew.AddSupportingTransactions();
-			//	wtxNew.fTimeReceivedIsTxTime = true;
-
-				break;
-			}
-		}
-	}
-	return true;
-}
-
-*/
 bool CWallet::determineChangeAddress( std::vector< CAvailableCoin > const & _coinsForTransaction, CKeyID & _keyId )
 {
 	std::multimap< uint160, CAvailableCoin >::const_iterator iterator = m_availableCoins.begin();
@@ -1420,12 +1316,17 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
 }
 
 void
-CWallet::addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins )
+CWallet::addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins, bool _writeToDatabase )
 {
 	AssertLockHeld(cs_wallet);
 
 	addCoins( _keyId, _availableCoins );
 
+	if ( _writeToDatabase )
+	{
+		if ( !CWalletDB(this->strWalletFile).addCoins( _keyId, _availableCoins ) )
+			assert( !"fail to write coin" );
+	}
 	NotifyAddressBookChanged(this, _keyId, "", true, "", CT_BALANCE);
 }
 
@@ -1436,7 +1337,7 @@ CWallet::replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCo
 
 	m_availableCoins.erase(_keyId);
 
-	if ( !CWalletDB(this->strWalletFile).EraseCoin( _keyId ) )
+	if ( !CWalletDB(this->strWalletFile).replaceCoins( _keyId, _availableCoins ) )
 		assert( !"fail to erase coin" );
 
 	addCoins( _keyId, _availableCoins );
@@ -1464,20 +1365,12 @@ CWallet::removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const
 		}
 	}
 
-	if ( !CWalletDB(this->strWalletFile).EraseCoin( _keyId ) )
-		assert( !"fail to erase coin" );
-	if ( !CWalletDB(this->strWalletFile).WriteCoin( _keyId, left ) )
+	if ( !CWalletDB(this->strWalletFile).replaceCoins( _keyId, left ) )
 		assert( !"fail to write coin" );
 }
 
-void CWallet::addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins, bool _store )
+void CWallet::addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins )
 {
-	if ( _store )
-	{
-		if ( !CWalletDB(this->strWalletFile).WriteCoin( _keyId, _coins ) )
-			assert( !"fail to write coin" );
-	}
-
 	BOOST_FOREACH( CAvailableCoin const & availableCoin, _coins )
 	{
 		m_availableCoins.insert( std::make_pair( _keyId, availableCoin ) );

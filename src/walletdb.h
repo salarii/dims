@@ -101,9 +101,6 @@ public:
     bool WriteTx(uint256 hash, const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
-	bool WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
-	bool EraseCoin(CKeyID const & _keyId);
-
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
 	bool EraseKey(const CPubKey& vchPubKey);
 	bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
@@ -114,6 +111,9 @@ public:
     bool WriteOrderPosNext(int64_t nOrderPosNext);
 
     bool WriteDefaultKey(const CPubKey& vchPubKey);
+
+	bool addCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
+	bool replaceCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
 
     bool ReadPool(int64_t nPool, CKeyPool& keypool);
     bool WritePool(int64_t nPool, const CKeyPool& keypool);
@@ -129,6 +129,8 @@ public:
     /// Erase destination data tuple from wallet database
     bool EraseDestData(const std::string &address, const std::string &key);
 private:
+	bool WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
+	bool EraseCoin(CKeyID const & _keyId);
     bool WriteAccountingEntry(const uint64_t nAccEntryNum, const CAccountingEntry& acentry);
 public:
     bool WriteAccountingEntry(const CAccountingEntry& acentry);

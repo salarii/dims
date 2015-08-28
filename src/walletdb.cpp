@@ -64,6 +64,26 @@ bool CWalletDB::EraseTx(uint256 hash)
     return Erase(std::make_pair(std::string("tx"), hash));
 }
 
+bool CWalletDB::addCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins)
+{
+	std::vector< CAvailableCoin > combine;
+
+	Read(_keyId, combine);
+
+	EraseCoin(_keyId);
+
+	combine.insert( combine.end(), _availableCoins.begin(), _availableCoins.end() );
+
+	return WriteCoin(_keyId, combine);
+}
+
+bool CWalletDB::replaceCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins)
+{
+	EraseCoin(_keyId);
+
+	return WriteCoin(_keyId, _availableCoins);
+}
+
 bool CWalletDB::WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins)
 {
 	nWalletDBUpdated++;
@@ -295,7 +315,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 			std::vector< CAvailableCoin > coins;
 			ssValue >> coins;
 
-			pwallet->addCoins( keyId, coins, false );
+			pwallet->addAvailableCoins( keyId, coins, false );
 		}
         else if (strType == "tx")
         {

@@ -119,6 +119,7 @@ private:
 	void AddToConflicts(const uint256& wtxhash);
 	void SyncMetaData(std::pair<TxConflicts::iterator, TxConflicts::iterator>);
 
+	void addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins );
 
 	CWallet()
 	{
@@ -191,6 +192,7 @@ public:
 	bool CanSupportFeature(enum WalletFeature wf) { AssertLockHeld(cs_wallet); return nWalletMaxVersion >= wf; }
 
 	// slow and inefficient but  easy  to use  and  debug
+
 	bool getKeyForCoin(CAvailableCoin const & _availableCoin, CKeyID & _keyID) const;
 	//this is new high level function
 	//I have to  consider proper  form and place for it
@@ -203,13 +205,11 @@ public:
 	void UnlockAllCoins();
 	void ListLockedCoins(std::vector<COutPoint>& vOutpts);
 
-	void addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
+	void addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins, bool _writeToDatabase = true );
 
 	void replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
 
 	void removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins );
-
-	void addCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _coins, bool _store = true );
 
 	// keystore implementation
     // Generate a new key
