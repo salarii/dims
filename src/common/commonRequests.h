@@ -350,43 +350,6 @@ CAckRequest< _Types >::getActionKey() const
 }
 
 template < class _Types >
-class CEndRequest : public common::CRequest< _Types >
-{
-public:
-	using typename CRequest< _Types >::MediumType;
-	using typename CRequest< _Types >::FilterType;
-public:
-	CEndRequest( uint256 const & _actionKey, FilterType * _mediumFilter );
-
-	void accept( MediumType * _medium ) const;
-
-	uint256 getActionKey() const;
-private:
-	uint256 const m_actionKey;
-};
-
-template < class _Types >
-CEndRequest< _Types >::CEndRequest( uint256 const & _actionKey, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _mediumFilter )
-	, m_actionKey( _actionKey )
-{
-}
-
-template < class _Types >
-void
-CEndRequest< _Types >::accept( MediumType * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class _Types >
-uint256
-CEndRequest< _Types >::getActionKey() const
-{
-	return m_actionKey;
-}
-
-template < class _Types >
 class CResultRequest : public common::CRequest< _Types >
 {
 public:

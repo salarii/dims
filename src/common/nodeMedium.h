@@ -47,8 +47,6 @@ public:
 
 	void add( CAckRequest< Type > const * _request );
 
-	void add( CEndRequest< Type > const * _request );
-
 	void add( CResultRequest< Type > const * _request );
 
 	void add( CPingRequest< Type > const * _request );
@@ -357,20 +355,6 @@ CNodeMedium< _Medium >::add( CAckRequest< Type > const * _request )
 	m_messages.push_back( message );
 
 		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( CEndRequest< Type > const * _request )
-{
-	common::CEnd end;
-
-	common::CMessage message( end, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );//most likely wrong, but handy for time being
 }
 
 template < class _Medium >

@@ -9,9 +9,14 @@
 namespace seed
 {
 
-struct CDummyResponse{};
-
-typedef boost::mpl::list< common::CAckResult, common::CMessageResult, common::CPingPongResult, common::CMediumException, common::CIdentificationResult, common::CConnectedNode, common::CEndEvent, common::CTimeEvent > SeedResponseList;
+typedef boost::mpl::list<
+common::CAckResult
+, common::CMessageResult
+, common::CPingPongResult,
+common::CMediumException
+, common::CIdentificationResult
+, common::CConnectedNode
+, common::CTimeEvent > SeedResponseList;
 
 typedef boost::make_variant_over< SeedResponseList >::type SeedResponses;
 

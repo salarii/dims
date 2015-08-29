@@ -103,19 +103,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
 			}
 		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::End )
-		{
-			common::CEnd end;
-
-			common::convertPayload( message, end );
-
-			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_id, common::CEndEvent() );
-			}
-		}
 		else if (
 					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )

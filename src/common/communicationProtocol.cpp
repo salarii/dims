@@ -115,14 +115,6 @@ CMessage::CMessage( CGet const & _get, uint256 const & _actionKey, uint256 const
 	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
 }
 
-CMessage::CMessage( CEnd const & _end, uint256 const & _actionKey, uint256 const & _id )
-	: m_header( (int)CPayloadKind::End, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
-{
-	createPayload( _end, m_payload );
-
-	CommunicationProtocol::signPayload( m_payload, m_header.m_signedHash );
-}
-
 CMessage::CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey, uint256 const & _id )
 	: m_header( (int)CPayloadKind::InfoRes, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {

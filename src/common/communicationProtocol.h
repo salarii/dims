@@ -38,7 +38,6 @@ struct CPayloadKind
 		AckTransactions,
 		StatusTransactions,
 		Message,
-		End,
 		ConnectCondition,
 		Result,
 		AdmitProof,
@@ -278,15 +277,6 @@ struct CAck
 	int m_dummy;
 };
 
-struct CEnd
-{
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_dummy);
-	)
-	int m_dummy;
-};
-
 struct CBalance
 {
 	CBalance( std::map< uint256, CCoins > const & _availableCoins );
@@ -481,7 +471,6 @@ public:
 	CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CAck const & _ack, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CGet const & _get, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CEnd const & _end, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey, uint256 const & _id );

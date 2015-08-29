@@ -129,10 +129,6 @@ struct CAckEvent : boost::statechart::event< CAckEvent >
 	uintptr_t m_nodePtr;
 };
 
-struct CEndEvent : boost::statechart::event< CEndEvent >
-{
-};
-
 struct CStartPingEvent : boost::statechart::event< CStartPingEvent >
 {
 };

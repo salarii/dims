@@ -35,7 +35,21 @@ namespace client
 {
 
 // list all desired types
-typedef boost::mpl::list< common::CNoMedium, common::CTimeEvent,common::CMediumException, common::CTransactionStatus, common::CTransactionAck, common::CAccountBalance, common::CTrackerStats, common::CMonitorInfo, common::CPending, common::CAvailableCoins, CDnsInfo, common::CNodeSpecific< common::CClientNetworkInfoResult >, common::CNodeSpecific< common::CTrackerSpecificStats >, common::CNodeSpecific< common::CMonitorData > > ClientResponseList;
+typedef boost::mpl::list<
+common::CNoMedium
+, common::CTimeEvent
+,common::CMediumException
+, common::CTransactionStatus
+, common::CTransactionAck
+, common::CAccountBalance
+, common::CTrackerStats
+, common::CMonitorInfo
+, common::CPending
+, common::CAvailableCoins
+, CDnsInfo
+, common::CNodeSpecific< common::CClientNetworkInfoResult >
+, common::CNodeSpecific< common::CTrackerSpecificStats >
+, common::CNodeSpecific< common::CMonitorData > > ClientResponseList;
 
 typedef boost::make_variant_over< ClientResponseList >::type ClientResponses;
 }
