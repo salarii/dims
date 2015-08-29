@@ -1102,6 +1102,110 @@ CGetBalanceRequest< _Types >::getKey() const
 	return m_key;
 }
 
+template < class _Types >
+class CSendMessageRequest: public common::CRequest< _Types >
+{
+public:
+	using typename CRequest< _Types >::MediumType;
+	using typename CRequest< _Types >::FilterType;
+public:
+	CSendMessageRequest(
+			CPayloadKind::Enum _messageKind
+			, uint256 const & _actionKey
+			, uint256 const & _id
+			, FilterType * _filterType );
+
+	CSendMessageRequest(
+			CPayloadKind::Enum _messageKind
+			, uint256 const & _actionKey
+			, FilterType * _filterType );
+
+	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
+
+	uint256 getActionKey() const;
+
+	int getMessageKind() const;
+
+	std::vector< unsigned char > const & getPayLoad() const;
+
+	//better  define it  here
+	template < class T >
+	void addPayload( T const & _t )
+	{
+		unsigned int initiaSize = m_payload.size();
+		unsigned int size = ::GetSerializeSize( _t, SER_NETWORK, PROTOCOL_VERSION );
+		m_payload.resize( size + initiaSize );
+		CBufferAsStream stream( (char*)&m_payload[ initiaSize ], size, SER_NETWORK, PROTOCOL_VERSION );
+		stream << _t;
+	}
+
+	template < class T1, class T2 >
+	void addPayload( T1 const & _t1, T2 const & _t2 )
+	{
+		addPayload( _t1 );
+		addPayload( _t2 );
+	}
+
+	template < class T1, class T2, class T3 >
+	void createPayload( T1 const & _t1, T2 const & _t2, T3 const & _t3 )
+	{
+		addPayload( _t1, _t2 );
+		addPayload( _t3 );
+	}
+private:
+	int m_messageKind;
+
+	uint256 const m_actionKey;
+
+	std::vector< unsigned char > m_payload;
+};
+
+template < class _Types >
+CSendMessageRequest< _Types >::CSendMessageRequest( CPayloadKind::Enum _messageKind, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
+	: common::CRequest< _Types >( _id, _filterType )
+	, m_messageKind( (int)_messageKind )
+	, m_actionKey( _actionKey )
+{
+	addPayload( m_messageKind );// dummy be  carful !!
+}
+
+template < class _Types >
+CSendMessageRequest< _Types >::CSendMessageRequest( CPayloadKind::Enum _messageKind, uint256 const & _actionKey, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_messageKind( (int)_messageKind )
+	, m_actionKey( _actionKey )
+{
+	addPayload( m_messageKind );// dummy be  carful !!
+}
+
+template < class _Types >
+void
+CSendMessageRequest< _Types >::accept( common::CTrackerBaseMedium * _medium ) const
+{
+	_medium->add( this );
+}
+
+template < class _Types >
+uint256
+CSendMessageRequest< _Types >::getActionKey() const
+{
+	return m_actionKey;
+}
+
+template < class _Types >
+int
+CSendMessageRequest< _Types >::getMessageKind() const
+{
+	return m_messageKind;
+}
+
+template < class _Types >
+std::vector< unsigned char > const &
+CSendMessageRequest< _Types >::getPayLoad() const
+{
+	return m_payload;
+}
+
 }
 
 #endif // COMMON_REQUESTS_H

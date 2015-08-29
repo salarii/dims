@@ -120,6 +120,8 @@ struct CSwitchToConnectingEvent : boost::statechart::event< CSwitchToConnectingE
 {
 };
 
+
+// there  will be  negative  and  positive  ack,  because  ack  acts  as  approval  sometimes
 struct CAckEvent : boost::statechart::event< CAckEvent >
 {
 	CAckEvent(){};

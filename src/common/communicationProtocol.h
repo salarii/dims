@@ -50,7 +50,9 @@ struct CPayloadKind
 		ClientStatusTransaction,
 		TrackerInfo,
 		SynchronizationAsk,
-		SynchronizationBitcoinHeader
+		SynchronizationBitcoinHeader,
+		EnterNetworkAsk,
+		RankingInfo
 	};
 };
 
@@ -64,6 +66,7 @@ struct CInfoKind
 		, StorageInfoAsk
 		, BitcoinHeaderAsk
 		, BalanceAsk
+		, RankingAsk
 	};
 };
 
@@ -131,6 +134,11 @@ struct CIdentifyMessage
 	CPubKey m_key;
 	std::vector<unsigned char> m_signed;
 };
+//simple  messages
+
+
+// complex Message
+
 
 struct CTransactionsBundleStatus
 {
@@ -492,6 +500,7 @@ public:
 	CMessage( CBitcoinHeader const & _bitcoinHeader, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationGet const & _synchronizationGet, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id );
+	CMessage( int _messageKind, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, uint256 const & _id );
 
 	IMPLEMENT_SERIALIZE
 	(

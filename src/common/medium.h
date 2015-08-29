@@ -77,6 +77,8 @@ class CSynchronizationRequest;
 template < class _Types >
 class CBitcoinHeaderRequest;
 
+template < class _Types >
+class CSendMessageRequest;
 }
 
 namespace tracker
@@ -177,6 +179,7 @@ public:
 	virtual void add( common::CGetSynchronizationInfoRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CSynchronizationRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CBitcoinHeaderRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CSendMessageRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
@@ -213,6 +216,7 @@ public:
 	virtual void add( common::CValidRegistrationRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CStorageInfoRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CGetBlockRequest< CMonitorTypes > const * _request ){};
+	virtual void add( common::CSendMessageRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CMonitorTypes > const * _request ){};
 	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CMonitorTypes > const * _request ){};
 	virtual void add( common::CSynchronizationRequest< CMonitorTypes > const * _request ){};
@@ -251,6 +255,7 @@ public:
 	virtual void add( common::CConnectToNodeRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CNetworkRoleRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CAckRequest< CSeedTypes > const * _request ){};
+	virtual void add( common::CSendMessageRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CKnownNetworkInfoRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CInfoAskRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CTimeEventRequest< CSeedTypes > const * _request ){};
