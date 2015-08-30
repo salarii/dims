@@ -39,7 +39,7 @@ CRankingDatabase::getInstance()
 // CRankingDatabase
 //
 bool
-CRankingDatabase::writeTrackerData( CTrackerData const& _trackerData )
+CRankingDatabase::writeTrackerData( common::CTrackerData const& _trackerData )
 {
 	bool result = Write( std::make_pair( std::string("tracker"), _trackerData.m_publicKey.GetID() ), _trackerData, false );
 	Flush();
@@ -54,7 +54,7 @@ CRankingDatabase::eraseTrackerData( CPubKey const & _publicKey )
 
 
 bool
-ReadTrackerData( std::map< uint160, CTrackerData > & _trackerData, CDataStream& _stream, CDataStream& _ssValue, string& _strErr)
+ReadTrackerData( std::map< uint160, common::CTrackerData > & _trackerData, CDataStream& _stream, CDataStream& _ssValue, string& _strErr)
 {
 	try {
 		// Unserialize
@@ -69,7 +69,7 @@ ReadTrackerData( std::map< uint160, CTrackerData > & _trackerData, CDataStream& 
 			CKeyID keyId;
 			_stream >> keyId;
 
-			CTrackerData trackerData;
+			common::CTrackerData trackerData;
 
 			_ssValue >> trackerData;
 
@@ -86,7 +86,7 @@ ReadTrackerData( std::map< uint160, CTrackerData > & _trackerData, CDataStream& 
 	return true;
 }
 
-DBErrors CRankingDatabase::loadIdentificationDatabase( std::map< uint160, CTrackerData > & _trackers )
+DBErrors CRankingDatabase::loadIdentificationDatabase( std::map< uint160, common::CTrackerData > & _trackers )
 {
 	bool fNoncriticalErrors = false;
 	DBErrors result = DB_LOAD_OK;

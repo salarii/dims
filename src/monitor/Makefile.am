@@ -13,6 +13,7 @@ MONITOR_H = \
 	clientRequestsManager.h \
 	connectNodeAction.h \
 	copyStorageHandler.h \
+	enterNetworkAction.h \
 	filters.h \
 	init.h \
 	internalMediumProvider.h \
@@ -41,6 +42,7 @@ MONITOR_CPP = \
 	clientRequestsManager.cpp \
 	connectNodeAction.cpp \
 	copyStorageHandler.cpp \
+	enterNetworkAction.cpp \
 	init.cpp \
 	internalMediumProvider.cpp \
 	internalOperationsMedium.cpp \

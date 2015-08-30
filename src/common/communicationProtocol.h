@@ -12,6 +12,7 @@
 #include "net.h"
 #include "coins.h"
 
+#include "common/commonStruct.h"
 #include "common/segmentFileStorage.h"
 
 namespace common
@@ -134,11 +135,20 @@ struct CIdentifyMessage
 	CPubKey m_key;
 	std::vector<unsigned char> m_signed;
 };
-//simple  messages
 
+struct CRankingInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_allyTrackers);
+		READWRITE(m_allyMonitors);
+		READWRITE(m_trackers);
+	)
 
-// complex Message
-
+	std::vector< CAllyTrackerData > m_allyTrackers;
+	std::vector< CAllyMonitorData > m_allyMonitors;
+	std::vector< CTrackerData > m_trackers;
+};
 
 struct CTransactionsBundleStatus
 {
@@ -320,31 +330,6 @@ struct CInfoResponseData
 		READWRITE(m_dummy);
 	)
 	int m_dummy;
-};
-
-struct CValidNodeInfo
-{
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_key);
-		READWRITE(m_address);
-	)
-
-	CValidNodeInfo()
-	{
-	}
-
-	CValidNodeInfo( CPubKey _key, CAddress _address ):m_key( _key ), m_address( _address )
-	{
-	}
-
-	bool operator<( CValidNodeInfo const & _validNodeInfo ) const
-	{
-		return m_key < _validNodeInfo.m_key;
-	}
-
-	CPubKey m_key;
-	CAddress m_address;
 };
 
 struct CRegistrationTerms

@@ -53,6 +53,7 @@ COMMON_H = \
   common/segmentFileStorage.h \
   common/selfNode.h \
   common/simpleBuddy.h \
+  common/commonStruct.h \
   common/supportTransactionsDatabase.h \
   common/timeMedium.h \
   common/transactionStatus.h \

@@ -22,8 +22,6 @@ enum DBErrors
 	DB_NEED_REWRITE
 };
 
-struct CTrackerData;
-
 class CRankingDatabase : public CDB
 {
 public:
@@ -33,11 +31,11 @@ public:
 		Self
 	};
 public:
-	bool writeTrackerData( CTrackerData const& _trackerData );
+	bool writeTrackerData( common::CTrackerData const& _trackerData );
 
 	bool eraseTrackerData( CPubKey const & _publicKey );
 
-	DBErrors loadIdentificationDatabase( std::map< uint160, CTrackerData > & _trackers );
+	DBErrors loadIdentificationDatabase( std::map< uint160, common::CTrackerData > & _trackers );
 
 	static CRankingDatabase * getInstance();
 private:

@@ -131,7 +131,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+		CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CAckRequest< common::CMonitorTypes >(
@@ -278,7 +278,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		if ( CPaymentTracking::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
-			CReputationTracker::getInstance()->addTracker( CTrackerData( m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+			CReputationTracker::getInstance()->addTracker( common::CTrackerData( m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
 			context< CAdmitTrackerAction >().dropRequests();
 			context< CAdmitTrackerAction >().addRequest(
@@ -292,7 +292,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 			CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey );
 
-			CTrackerData trackerData( pubKey, 0, GetTime(), CMonitorController::getInstance()->getPeriod() );
+			common::CTrackerData trackerData( pubKey, 0, GetTime(), CMonitorController::getInstance()->getPeriod() );
 
 			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 

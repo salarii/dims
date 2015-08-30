@@ -264,5 +264,10 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CSynchronizationAc
 	boost::apply_visitor( ( CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList > const & )SetSynchronizationActionResult( &_action ), m_requestResponse );
 }
 
+void
+CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CEnterNetworkAction & _action )
+{
+}
+
 }
 

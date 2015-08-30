@@ -5,7 +5,7 @@
 #ifndef SYNCHRONIZATION_ACTION_H
 #define SYNCHRONIZATION_ACTION_H
 
-#include "common/action.h"
+#include "common/scheduleAbleAction.h"
 
 #include <boost/statechart/state_machine.hpp>
 
@@ -20,10 +20,10 @@ struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
 {
 };
 
-class CSynchronizationAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
+class CSynchronizationAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
 {
 public:
-	CSynchronizationAction();
+	CSynchronizationAction( uintptr_t _nodeIndicator );
 
 	CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
 

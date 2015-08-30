@@ -13,70 +13,29 @@
 
 #include "common/nodesManager.h"
 #include "common/types.h"
+#include "common/commonStruct.h"
 
 namespace monitor
 {
 
-struct CTrackerData
-{
-	CTrackerData()
-		: m_publicKey( CPubKey() )
-		, m_reputation( 0 )
-		, m_networkTime( 0 )
-		, m_contractTime( 0 )
-	{}
-
-	CTrackerData( CPubKey _publicKey, unsigned int _reputation, uint64_t _networkTime, uint64_t _contractTime ): m_publicKey( _publicKey ),m_reputation( _reputation ), m_networkTime( _networkTime ), m_contractTime( _contractTime ){}
-
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_publicKey);
-		READWRITE(m_reputation);
-		READWRITE(m_networkTime);
-		READWRITE(m_contractTime);
-	)
-
-	CPubKey m_publicKey;
-	unsigned int m_reputation;
-	uint64_t m_networkTime;
-	uint64_t m_contractTime;
-};
-
-
-struct CAllyMonitorData : public common::CValidNodeInfo
-{
-	CAllyMonitorData(){}
-	CAllyMonitorData( CPubKey const &_publicKey ): m_publicKey( _publicKey ){}
-
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_publicKey);
-	)
-
-	CPubKey m_publicKey;
-};
-
-struct CAllyTrackerData
-{
-	unsigned int m_reputation;
-	uint64_t m_networkTime;
-	uint64_t m_previousNetworkTime;
-	unsigned int m_countedTime;
-};
 // for now  don't track other trackers registered in other monitors
 class CReputationTracker : public common::CNodesManager< common::CMonitorTypes >
 {
 public:
 	static CReputationTracker * getInstance();
 
-	void addTracker( CTrackerData const & _trackerData );
+	void addTracker( common::CTrackerData const & _trackerData );
+
+	void addAllyTracker( common::CAllyTrackerData const & _trackerData );
+
+	void addAllyMonitor( common::CAllyMonitorData const & _monitorData );
 
 	void deleteTracker( CPubKey const & _pubKey );
 
 	// both function, not finall form
-	std::vector< CTrackerData > getTrackers() const;
+	std::vector< common::CTrackerData > getTrackers() const;
 
-	std::vector< CAllyMonitorData > getAllyMonitors() const;
+	std::vector< common::CAllyMonitorData > getAllyMonitors() const;
 
 	std::list< common::CMonitorBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
@@ -96,13 +55,13 @@ public:
 
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 
-	bool checkForTracker( CPubKey const & _pubKey, CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
+	bool checkForTracker( CPubKey const & _pubKey, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
 private:
 	CReputationTracker();
 
 	unsigned int calculateReputation( uint64_t _passedTime );
 
-	void checkValidity( CAllyTrackerData const & _allyTrackerData );
+	void checkValidity( common::CAllyTrackerData const & _allyTrackerData );
 
 	void storeCurrentRanking();
 
@@ -112,23 +71,23 @@ private:
 private:
 	mutable boost::mutex m_lock;
 
-	typedef std::map< uint160, CTrackerData > RegisteredTrackers;
+	typedef std::map< uint160, common::CTrackerData > RegisteredTrackers;
 
-	typedef std::map< uint160, std::vector< CAllyTrackerData > > AllyMonitors;
+	typedef std::map< uint160, std::vector< common::CAllyTrackerData > > AllyTrackers;
 
 	typedef std::map< uint160, unsigned int > TransactionsAddmited;
 
-	typedef std::map< uint160, CAllyMonitorData > Monitor;
+	typedef std::map< uint160, common::CAllyMonitorData > Monitor;
 
 	std::map< uint160, common::CValidNodeInfo > m_candidates;
-
-	std::map< uint160, CAllyMonitorData > m_monitors;
 
 	std::map< uint160, uint160 > m_trackerToMonitor;
 
 	RegisteredTrackers m_registeredTrackers;
 
-	AllyMonitors m_allyMonitorsRankings;
+	AllyTrackers m_allyTrackersRankings;
+
+	std::map< uint160, common::CAllyMonitorData > m_allyMonitors;
 
 	TransactionsAddmited m_transactionsAddmited;
 

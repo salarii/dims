@@ -83,7 +83,7 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 		CPubKey pubKey;
 		CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
 
-		CTrackerData trackerData;
+		common::CTrackerData trackerData;
 		CPubKey monitorPubKey;
 		CReputationTracker::getInstance()->checkForTracker( pubKey, trackerData, monitorPubKey );
 

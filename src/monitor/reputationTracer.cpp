@@ -30,10 +30,10 @@ uint64_t const CReputationTracker::m_recalculateTime = 10000;// this  time is  v
 
 CReputationTracker::CReputationTracker()
 {
-	std::map< uint160, CTrackerData > trackers;
+	std::map< uint160, common::CTrackerData > trackers;
 	CRankingDatabase::getInstance()->loadIdentificationDatabase( trackers );
 
-	std::map< uint160, CTrackerData >::const_iterator iterator = trackers.begin();
+	std::map< uint160, common::CTrackerData >::const_iterator iterator = trackers.begin();
 
 	while( iterator != trackers.end() )
 	{
@@ -144,28 +144,28 @@ CReputationTracker::loadCurrentRanking()
 
 
 void
-CReputationTracker::checkValidity( CAllyTrackerData const & _allyTrackerData )
+CReputationTracker::checkValidity( common::CAllyTrackerData const & _allyTrackerData )
 {
 
 }
 
-std::vector< CTrackerData >
+std::vector< common::CTrackerData >
 CReputationTracker::getTrackers() const
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	std::vector< CTrackerData >trackers;
+	std::vector< common::CTrackerData >trackers;
 
-	BOOST_FOREACH( PAIRTYPE( uint160, CTrackerData ) const & tracker, m_registeredTrackers )
+	BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & tracker, m_registeredTrackers )
 	{
 		trackers.push_back( tracker.second );
 	}
 	return trackers;
 }
 
-std::vector< CAllyMonitorData >
+std::vector< common::CAllyMonitorData >
 CReputationTracker::getAllyMonitors() const
 {
-	return std::vector< CAllyMonitorData >();
+	return std::vector< common::CAllyMonitorData >();
 }
 
 std::list< common::CMonitorBaseMedium *>
@@ -177,7 +177,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
 	{
 
-		BOOST_FOREACH( PAIRTYPE( uint160, CTrackerData ) const & trackerData, m_registeredTrackers )
+		BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
 		{
 				if ( !getKeyToNode( trackerData.second.m_publicKey, nodeIndicator) )
 					assert( !"something wrong" );
@@ -191,7 +191,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 	}
 	else if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Monitors )
 	{
-		BOOST_FOREACH( PAIRTYPE( uint160, CAllyMonitorData ) const & monitorData, m_monitors )
+		BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
 		{
 				if ( !getKeyToNode( monitorData.second.m_key, nodeIndicator) )
 					assert( !"something wrong" );
@@ -254,13 +254,11 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	m_candidates.erase( keyId );
 
-	m_monitors.erase( keyId );
+	m_allyMonitors.erase( keyId );
 
 	m_trackerToMonitor.erase( keyId );
 
 	m_registeredTrackers.erase( keyId );
-
-	m_allyMonitorsRankings.erase( keyId );
 
 	m_transactionsAddmited.erase( keyId );
 
@@ -288,7 +286,7 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 	}
 	else if ( _role == common::CRole::Monitor )
 	{
-		BOOST_FOREACH( Monitor::value_type const & monitor, m_monitors )
+		BOOST_FOREACH( Monitor::value_type const & monitor, m_allyMonitors )
 		{
 			uintptr_t nodePtr;
 			getKeyToNode( monitor.second.m_publicKey, nodePtr );
@@ -303,7 +301,7 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 }
 
 bool
-CReputationTracker::checkForTracker( CPubKey const & _pubKey, CTrackerData & _trackerData, CPubKey & _controllingMonitor )const
+CReputationTracker::checkForTracker( CPubKey const & _pubKey, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const
 {
 	RegisteredTrackers::const_iterator iterator = m_registeredTrackers.find( _pubKey.GetID() );
 
@@ -315,17 +313,29 @@ CReputationTracker::checkForTracker( CPubKey const & _pubKey, CTrackerData & _tr
 	std::map< uint160, uint160 >::const_iterator monitorIterator = m_trackerToMonitor.find( _pubKey.GetID() );
 	assert( m_trackerToMonitor.end() != monitorIterator );
 
-	_controllingMonitor = m_monitors.find( monitorIterator->second )->second.m_publicKey;
+	_controllingMonitor = m_allyMonitors.find( monitorIterator->second )->second.m_publicKey;
 
 }
 
-
 void
-CReputationTracker::addTracker( CTrackerData const & _trackerData )
+CReputationTracker::addTracker( common::CTrackerData const & _trackerData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_registeredTrackers.insert( std::make_pair( _trackerData.m_publicKey.GetID(), _trackerData ) );
 }
 
+void
+CReputationTracker::addAllyTracker( common::CAllyTrackerData const & _trackerData )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	//m_allyTrackersRankings.push_back( _trackerData );
+}
+
+void
+CReputationTracker::addAllyMonitor( common::CAllyMonitorData const & _monitorData )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_allyMonitors.insert( std::make_pair( _monitorData.m_key.GetID(), _monitorData ) );
+}
 
 }

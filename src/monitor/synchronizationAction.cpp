@@ -299,13 +299,13 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	uint256 m_id;
 };
 
-CSynchronizationAction::CSynchronizationAction()
+CSynchronizationAction::CSynchronizationAction( uintptr_t _nodeIndicator )
 {
 	initiate();
 }
 
 CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator )
-	: common::CAction< common::CMonitorTypes >( _actionKey )
+	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
 	, m_requestKey( _id )
 	, m_nodeIdentifier( _nodeIndicator )
 {

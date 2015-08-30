@@ -1120,7 +1120,7 @@ public:
 			, uint256 const & _actionKey
 			, FilterType * _filterType );
 
-	virtual void accept( common::CTrackerBaseMedium * _medium ) const;
+	void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
 
@@ -1180,7 +1180,7 @@ CSendMessageRequest< _Types >::CSendMessageRequest( CPayloadKind::Enum _messageK
 
 template < class _Types >
 void
-CSendMessageRequest< _Types >::accept( common::CTrackerBaseMedium * _medium ) const
+CSendMessageRequest< _Types >::accept( MediumType * _medium ) const
 {
 	_medium->add( this );
 }

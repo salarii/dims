@@ -67,6 +67,8 @@ class CProvideInfoAction;
 class CCopyTransactionStorageAction;
 
 class CSynchronizationAction;
+
+class CEnterNetworkAction;
 }
 
 namespace seed
@@ -165,6 +167,8 @@ public:
 	virtual void visit( monitor::CTrackOriginAddressAction & _action );
 
 	virtual void visit( monitor::CProvideInfoAction & _action );
+
+	virtual void visit( monitor::CEnterNetworkAction & _action );
 
 	virtual void visit( monitor::CCopyTransactionStorageAction & _action );
 
