@@ -170,10 +170,62 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 
 struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndInfo, CEnterNetworkAction >
 {
-	CSendRankingTimeAndInfo( my_context ctx ): my_base( ctx ){}
-	boost::statechart::result react( common::CMessageResult const & _messageResult ){}
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent ){}
-	boost::statechart::result react( common::CAckEvent const & _ackEvent ){}
+	CSendRankingTimeAndInfo( my_context ctx ): my_base( ctx )
+	{
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::RankingInfo
+					, context< CEnterNetworkAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+
+		common::CRankingInfo rankingInfo(
+					CReputationTracker::getInstance()->getAllyTrackers()
+					,CReputationTracker::getInstance()->getAllyMonitors()
+					,CReputationTracker::getInstance()->getTrackers() );
+
+		request->addPayload( rankingInfo );
+
+		context< CEnterNetworkAction >().addRequest( request );
+
+		context< CEnterNetworkAction >().addRequest(
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+	}
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+		{
+			common::CInfoRequestData infoRequest;
+
+			common::convertPayload( orginalMessage, infoRequest );
+
+			if ( infoRequest.m_kind == common::CInfoKind::RankingAsk )
+			{
+
+				common::CSendMessageRequest< common::CMonitorTypes > * request =
+						new common::CSendMessageRequest< common::CMonitorTypes >(
+							common::CPayloadKind::Ack
+							, context< CEnterNetworkAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+			}
+		}
+		return discard_event();
+	}
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CEnterNetworkAction >().setExit();
+	}
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CEnterNetworkAction >().setExit();
+	}
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,

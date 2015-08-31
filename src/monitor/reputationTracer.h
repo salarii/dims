@@ -37,6 +37,8 @@ public:
 
 	std::vector< common::CAllyMonitorData > getAllyMonitors() const;
 
+	std::vector< common::CAllyTrackerData > getAllyTrackers() const;
+
 	std::list< common::CMonitorBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);

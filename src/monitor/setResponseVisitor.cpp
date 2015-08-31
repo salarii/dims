@@ -15,6 +15,7 @@
 #include "monitor/trackOriginAddressAction.h"
 #include "monitor/provideInfoAction.h"
 #include "monitor/synchronizationAction.h"
+#include "monitor/enterNetworkAction.h"
 
 namespace common
 {
@@ -178,10 +179,34 @@ public:
 	}
 };
 
-class SetSynchronizationActionResult : public CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >
+class CSetSynchronizationActionResult : public CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >
 {
 public:
-	SetSynchronizationActionResult( monitor::CSynchronizationAction * const _action ):CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >( _action ){};
+	CSetSynchronizationActionResult( monitor::CSynchronizationAction * const _action ):CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
+		this->m_action->process_event( common::CAckEvent() );
+	}
+};
+
+class CSetEnterNetworkActionResult : public CResponseVisitorBase< monitor::CEnterNetworkAction, monitor::MonitorResponseList >
+{
+public:
+	CSetEnterNetworkActionResult( monitor::CEnterNetworkAction * const _action ):CResponseVisitorBase< monitor::CEnterNetworkAction, monitor::MonitorResponseList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -261,12 +286,13 @@ CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CCopyTransactionSt
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CSynchronizationAction & _action )
 {
-	boost::apply_visitor( ( CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList > const & )SetSynchronizationActionResult( &_action ), m_requestResponse );
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList > const & )CSetSynchronizationActionResult( &_action ), m_requestResponse );
 }
 
 void
 CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CEnterNetworkAction & _action )
 {
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CEnterNetworkAction, monitor::MonitorResponseList > const & )CSetEnterNetworkActionResult( &_action ), m_requestResponse );
 }
 
 }

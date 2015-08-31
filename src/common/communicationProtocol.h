@@ -145,6 +145,17 @@ struct CRankingInfo
 		READWRITE(m_trackers);
 	)
 
+	CRankingInfo();
+
+	CRankingInfo(
+			std::vector< CAllyTrackerData > const & _allyTrackers
+			, std::vector< CAllyMonitorData > const & _allyMonitors
+			, std::vector< CTrackerData > const & _trackers )
+		: m_allyTrackers( _allyTrackers )
+		, m_allyMonitors( _allyMonitors )
+		, m_trackers( _trackers )
+	{}
+
 	std::vector< CAllyTrackerData > m_allyTrackers;
 	std::vector< CAllyMonitorData > m_allyMonitors;
 	std::vector< CTrackerData > m_trackers;
