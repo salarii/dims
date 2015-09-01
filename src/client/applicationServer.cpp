@@ -191,14 +191,11 @@ CLocalServer::getSocked( uintptr_t _ptr, CLocalSocket *& _localSocket ) const
 CLocalServer::CLocalServer()
 {
 
-#ifndef WIN32
-
 	boost::filesystem::path path(dims::ServerName.toStdString());
 
 	if ( boost::filesystem::exists( path ) )
 		remove( path );
 
-#endif
 	if( m_server.listen( path.string().c_str() ))
 	{
 		connect(&m_server, SIGNAL(newConnection()), this, SLOT(newConnection()));

@@ -6,13 +6,17 @@
 
 #ifdef WIN32
 
-#include "machine_id.h"
+//#include "machine_id.h"
 
 #define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 #include <intrin.h>
 #include <iphlpapi.h>
+#include <stdint.h>
 
+typedef   uint16_t u16;
+typedef   uint32_t u32;
 #else
 
 #include <stdio.h>

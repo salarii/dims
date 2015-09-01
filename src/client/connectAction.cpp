@@ -44,14 +44,20 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
-		if ( _dnsInfo.m_addresses.empty() )
+        CAddress self(CService(CNetAddr("127.0.0.1"),common::dimsParams().getDefaultClientPort()));
+
+        vector<CAddress> addresses = _dnsInfo.m_addresses;
+
+        addresses.erase(std::find(addresses.begin(), addresses.end(), self));
+
+        if ( addresses.empty() )
 		{
-			context< CConnectAction >().dropRequests();
+            context< CConnectAction >().setExit();
 			return discard_event();
 		}
 		else
 		{
-			BOOST_FOREACH( CAddress const & address, _dnsInfo.m_addresses )
+            BOOST_FOREACH( CAddress const & address, addresses )
 			{
 				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
 			}

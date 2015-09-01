@@ -314,7 +314,7 @@ public:
         if (psz[0] == '0' && tolower(psz[1]) == 'x')
             psz += 2;
 
-        // hex string to uint
+        // hex string to unsigned int
         const char* pbegin = psz;
         while (::HexDigit(*psz) != -1)
             psz++;

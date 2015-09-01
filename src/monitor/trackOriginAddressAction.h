@@ -29,7 +29,7 @@ public:
 
 	void clear();
 
-	void clearAccepted( uint const _number );
+	void clearAccepted( unsigned int const _number );
 
 	double getTimeModifier() const{ return m_timeModifier; }
 
@@ -50,7 +50,7 @@ private:
 
 	double m_timeModifier;
 
-	uint m_updated;
+	unsigned int m_updated;
 };
 
 }

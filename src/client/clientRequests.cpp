@@ -5,7 +5,7 @@
 #include "clientRequests.h"
 
 #include "common/medium.h"
-
+#include "common/support.h"
 namespace client
 {
 

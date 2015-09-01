@@ -24,10 +24,10 @@
 namespace monitor
 {
 
-uint const MaxMerkleNumber = 1000;
-uint const WaitResultTime = 30000;
-uint const CleanTime = 2;
-uint const SynchronizedTreshold = 10;
+unsigned int const MaxMerkleNumber = 1000;
+unsigned int const WaitResultTime = 30000;
+unsigned int const CleanTime = 2;
+unsigned int const SynchronizedTreshold = 10;
 
 struct CReadingData;
 struct CEvaluateProgress;
@@ -94,7 +94,7 @@ struct CEvaluateProgress : boost::statechart::state< CEvaluateProgress, CTrackOr
 		context< CTrackOriginAddressAction >().adjustTracking();
 
 		context< CTrackOriginAddressAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >( ( uint )1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest< common::CMonitorTypes >( ( unsigned int )1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -276,7 +276,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 	if (m_acceptedBlocks.size() < common::dimsParams().getUsedBitcoinNodesNumber() )
 		return;
 
-	uint size = -1;
+	unsigned int size = -1;
 
 	BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
 	{
@@ -284,7 +284,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			size = nodeResults.second.size();
 	}
 
-	if ( size == (uint)-1 || size == 0 )
+	if ( size == (unsigned int)-1 || size == 0 )
 		return;
 	// go  through transaction  queue analyse  if  the  same  content
 
@@ -303,7 +303,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 	}
 
-	uint const serviced = size;
+	unsigned int const serviced = size;
 
 	while( size-- )
 	{
@@ -433,7 +433,7 @@ CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock 
 }
 
 void
-CTrackOriginAddressAction::clearAccepted( uint const _number )
+CTrackOriginAddressAction::clearAccepted( unsigned int const _number )
 {
 	BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
 	{

@@ -37,9 +37,9 @@ private:
 	mutable boost::mutex m_requestLock;
 	bool m_copyRequest;
 
-	uint m_storageSize;
+    unsigned int m_storageSize;
 
-	uint m_headerSize;
+    unsigned int m_headerSize;
 
 	uint64_t m_timeStamp;
 
