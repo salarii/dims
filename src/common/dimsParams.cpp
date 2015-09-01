@@ -225,7 +225,7 @@ convertAppType( AppType::Enum _appType )
 	case AppType::Monitor:
 		return TargetType::MonitorWindows;
 	case AppType::Seed:
-		return TargetType::SeedWindows
+        return TargetType::SeedWindows;
 	default:
 		break;
 	}
