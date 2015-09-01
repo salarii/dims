@@ -7,6 +7,8 @@
 
 #include <QLocalSocket>
 
+class QApplication;
+class QMainWindow;
 namespace dims
 {
 
@@ -22,6 +24,8 @@ public:
 	bool isOpen();
 
 	void send( QByteArray const & _message );
+
+	bool checkApp( QApplication * _application, QMainWindow *_window );
 private slots:
 	void what(QLocalSocket::LocalSocketError);
 	void readSocket();

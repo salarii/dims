@@ -8,23 +8,13 @@
 #include "key.h"
 #include "hardwareInfo.h"
 #include "paymentData.h"
-
+#include "authorData.h"
 #include <boost/signals2.hpp>
 
 // in theory slight changes in hardware are allowed
 namespace dims
 {
 class CAppClient;
-
-extern std::string const HardcodedSeed;
-
-extern std::vector< std::string > const PossibleMonitors;
-
-extern std::vector< std::string > const PossibleTrackers;
-
-extern std::string const AuthorId;
-
-extern int Value;
 
 //  singleton ??
 class CPaymentProcessing

@@ -5,6 +5,9 @@
 #include <boost/filesystem.hpp>
 
 #include <QDataStream>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QApplication>
 
 #include "appClient.h"
 #include "messageType.h"
@@ -79,6 +82,49 @@ void CAppClient::send( QByteArray const & _message )
 	else
 	{
 		//"Not connected!");
+	}
+}
+
+bool CAppClient::checkApp( QApplication * _application, QMainWindow *_window )
+{
+	dims::CPaymentProcessing * paymentProcessing = dims::CPaymentProcessing::getInstance();
+	if ( !paymentProcessing->isLicenseValid() )
+	{
+		QMessageBox::StandardButton reply;
+
+		reply = QMessageBox::question( _window, "License missing", "Do you want to pay it now?",
+									   QMessageBox::Yes|QMessageBox::No );
+
+		connectServer();
+		if (reply == QMessageBox::Yes)
+		{
+			while ( !isOpen() )
+			{
+				reply = QMessageBox::question( _window, "dims client not running", "Run dims client and press ok, or no to exit",
+											   QMessageBox::Yes|QMessageBox::No);
+				if (reply == QMessageBox::Yes)
+				{
+					continue;
+				}
+				else
+				{
+					_application->quit();
+					return false;
+				}
+			}
+			paymentProcessing->setEnableHook( boost::bind( &QMainWindow::setEnabled, _window, true ) );
+			paymentProcessing->executeDialog( *this );
+			return true;
+		}
+		else
+		{
+			_application->quit();
+			return false;
+		}
+	}
+	else
+	{
+		return true;
 	}
 }
 

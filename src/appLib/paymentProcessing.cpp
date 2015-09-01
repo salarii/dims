@@ -20,6 +20,16 @@
 namespace dims
 {
 
+std::string HardcodedSeed;
+
+std::vector< std::string > PossibleMonitors;
+
+std::vector< std::string > PossibleTrackers;
+
+std::string AuthorId;
+
+int Value;
+
 std::string const LicenseFilePath = ".license";
 
 CPaymentProcessing * CPaymentProcessing::ms_instance = NULL;
@@ -313,10 +323,13 @@ CPaymentProcessing::isLicenseValid()
 	if ( !readLicenseFileData() )
 		return false;
 
+	common::SelectDimsParams(CNetworkParams::TESTNET);
+
 	if ( !verifyData( m_licenseData ) )
 		return false;
 
-	return true;
+	common::SelectDimsParams(CNetworkParams::MAIN);
+	return verifyData( m_licenseData );
 }
 
 template < class Message >
@@ -366,7 +379,6 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 		m_licenseData.m_monitorPubKey = proofTransactionAndStatus.m_servicingMonitor;
 
 		signPrivateKey();
-		verifyData( m_licenseData );
 
 		m_enableHook();
 
