@@ -12,7 +12,7 @@ namespace common
 {
 
 bool
-findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId, CTxOut & _txout, unsigned int & _id )
+findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId, std::vector< CTxOut > & _txouts, std::vector< unsigned int > & _ids )
 {
 	for (unsigned int i = 0; i < _tx.vout.size(); i++)
 	{
@@ -44,18 +44,16 @@ findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId, CTxOu
 					// impossible  to be here ??
 					if ( _findId == Hash160( *it ) )
 					{
-						_txout = txout;
-						_id = i;
-						return true;
+						_txouts.push_back( txout );
+						_ids.push_back( i );
 					}
 				}
 				else
 				{
 					if ( _findId == uint160( *it ) )
 					{
-						_txout = txout;
-						_id = i;
-						return true;
+						_txouts.push_back( txout );
+						_ids.push_back( i );
 					}
 				}
 				it++;
@@ -63,7 +61,7 @@ findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId, CTxOu
 		}
 
 	}
-	return false;
+	return !_txouts.empty();
 }
 
 std::vector< CAvailableCoin >

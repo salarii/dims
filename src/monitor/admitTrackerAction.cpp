@@ -34,16 +34,21 @@ bool analyseTransaction( CTransaction & _transaction, uint256 const & _hash, CKe
 	if ( !common::findKeyInInputs( _transaction, _trackerId ) )
 		return false;
 
-	CTxOut txOut;
-	unsigned id;
+	std::vector < CTxOut > txOuts;
+	std::vector< unsigned int > ids;
 
 	common::findOutputInTransaction(
 				_transaction
 				, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
-				, txOut
-				, id );
+				, txOuts
+				, ids );
 
-	return txOut.nValue >= CMonitorController::getInstance()->getPrice();
+	unsigned int value = 0;
+	BOOST_FOREACH( CTxOut const & txOut, txOuts )
+	{
+		value += txOut.nValue;
+	}
+	return value >= CMonitorController::getInstance()->getPrice();
 }
 
 struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerAction >

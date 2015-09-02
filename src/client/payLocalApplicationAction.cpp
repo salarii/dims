@@ -268,14 +268,18 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 
 		CTransaction const & firstTransaction = context< CPayLocalApplicationAction >().getFirstTransaction();
 
-		CTxOut txOut;
-		unsigned int id;
-		if ( !common::findOutputInTransaction( firstTransaction, context< CPayLocalApplicationAction >().getPrivKey().GetPubKey().GetID(), txOut, id ) )
+		std::vector< CTxOut > txOuts;
+		std::vector< unsigned int > ids;
+		if ( !common::findOutputInTransaction( firstTransaction, context< CPayLocalApplicationAction >().getPrivKey().GetPubKey().GetID(), txOuts, ids ) )
 			assert( !"something went wrong" );
 
-		std::vector< CSpendCoins > coinsToUse;
-		coinsToUse.push_back( CSpendCoins( txOut, id, firstTransaction.GetHash(), context< CPayLocalApplicationAction >().getPrivKey() ) );
+		assert( txOuts.size() == ids.size() );
 
+		std::vector< CSpendCoins > coinsToUse;
+		for ( unsigned int i = 0; i < txOuts.size(); ++i)
+		{
+			coinsToUse.push_back( CSpendCoins( txOuts[i], ids[i], firstTransaction.GetHash(), context< CPayLocalApplicationAction >().getPrivKey() ) );
+		}
 		CClientControl::getInstance()->createTransaction( outputs, coinsToUse, context< CPayLocalApplicationAction >().getTrackerStats(), tx, failReason );
 
 		context< CPayLocalApplicationAction >().dropRequests();

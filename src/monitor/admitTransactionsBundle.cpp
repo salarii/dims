@@ -140,16 +140,22 @@ CPaymentTracking::loop()
 					{
 						if ( common::findKeyInInputs( transaction, iterator->second ) )
 						{
-							CTxOut txout;
-							unsigned int id;
+							std::vector < CTxOut > txOuts;
+							std::vector< unsigned int > ids;
 
 							common::findOutputInTransaction(
 										transaction
 										, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
-										, txout
-										, id );
+										, txOuts
+										, ids );
 
-							if ( CMonitorController::getInstance()->getPrice() <= txout.nValue )
+							unsigned int value = 0;
+							BOOST_FOREACH( CTxOut const & txOut, txOuts )
+							{
+								value += txOut.nValue;
+							}
+
+							if ( CMonitorController::getInstance()->getPrice() <= value )
 							{
 								remove.push_back( iterator->first );
 								m_acceptedTransactons.insert( iterator->first );

@@ -73,23 +73,26 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 		std::vector< CTransaction > validTransactions;
 		std::vector< CTransaction > invalidTransactions;
 
-		CTxOut txOut;
-		txOut.nValue = 0;
-		unsigned int id;
-
+		std::vector < CTxOut > txOuts;
+		std::vector< unsigned int > ids;
+		unsigned int value = 0;
 		BOOST_FOREACH( CTransaction const & transaction, context< CValidateTransactionsAction >().getTransactions() )
 		{
 
 			if ( !common::findOutputInTransaction(
-								 transaction
-								, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
-								, txOut
-								, id ) )
+					 transaction
+					 , common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
+					 , txOuts
+					 ,ids) )
 			{
 				invalidTransactions.push_back( transaction );
 			}
 
-			if ( tracker::CTrackerController::getInstance()->getPrice() <= txOut.nValue )
+			BOOST_FOREACH( CTxOut const & txOut, txOuts )
+			{
+				value += txOut.nValue;
+			}
+			if ( tracker::CTrackerController::getInstance()->getPrice() <= value )
 				validTransactions.push_back( transaction );
 			else
 				invalidTransactions.push_back( transaction );
