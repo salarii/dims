@@ -7,6 +7,8 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
+#include "wallet.h"
+
 #include "common/setResponseVisitor.h"
 #include "common/commonRequests.h"
 #include "common/commonEvents.h"
@@ -15,6 +17,7 @@
 #include "common/supportTransactionsDatabase.h"
 #include "common/commonEvents.h"
 #include "common/actionHandler.h"
+#include "common/analyseTransaction.h"
 
 #include "tracker/transactionRecordManager.h"
 #include "tracker/synchronizationAction.h"
@@ -75,6 +78,9 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 		CTransactionRecordManager::getInstance()->clearCoinViewDB();
 		CTransactionRecordManager::getInstance()->clearAddressToCoinsDatabase();
 		CTransactionRecordManager::getInstance()->clearSupportTransactionsDatabase();
+
+
+		CWallet::getInstance()->resetDatabase();
 
 		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
 
@@ -266,6 +272,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 			BOOST_FOREACH( CTransaction const & transaction, transactions )
 			{
+				common::findSelfCoinsAndAddToWallet( transaction );
 				common::CSupportTransactionsDatabase::getInstance()->setTransactionLocation( transaction.GetHash(), transaction.m_location );
 			}
 

@@ -201,7 +201,11 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 							, _messageResult.m_message.m_header.m_id
 							, 1
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+
+			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+
 		}
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -254,7 +258,6 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		m_pubKey = _messageResult.m_pubKey;
 		/*
-				CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
 				context< CAdmitTrackerAction >().addRequest(
 							new common::CAckRequest< common::CMonitorTypes >(

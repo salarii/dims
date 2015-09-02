@@ -4,7 +4,9 @@
 
 #include "core.h"
 #include "coins.h"
+#include "wallet.h"
 #include "common/analyseTransaction.h"
+#include "common/authenticationProvider.h"
 
 namespace common
 {
@@ -140,6 +142,20 @@ findKeyInInputs( CTransaction const & _tx, CKeyID const & _keyId )
 	}
 
 	return false;
+}
+
+void
+findSelfCoinsAndAddToWallet( CTransaction const & _tx )
+{
+	CKeyID keyId = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
+
+	std::vector< CAvailableCoin > availableCoins
+			= common::getAvailableCoins(
+				_tx
+				, keyId
+				, _tx.GetHash() );
+
+	CWallet::getInstance()->addAvailableCoins( keyId, availableCoins );
 }
 
 }

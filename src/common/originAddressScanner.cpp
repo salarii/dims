@@ -75,22 +75,13 @@ COriginAddressScanner::loop()
 				std::map< long long, CTransaction >::iterator it = m_transactionToProcess.begin();
 				while( it != m_transactionToProcess.end() )
 				{
-					CKeyID keyId = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
-
-					std::vector< CAvailableCoin > availableCoins
-							= common::getAvailableCoins(
-								  it->second
-								, keyId
-								, it->second.GetHash() );
-
-					CWallet::getInstance()->addAvailableCoins( keyId, availableCoins );
+					common::findSelfCoinsAndAddToWallet( it->second );
 
 					CTransaction tx;
 					CKeyID id;
 
 					createBaseTransaction( it->second, tx, id );
 
-					// ugly
 					m_storage->addCoinbaseTransaction( tx, id );
 					m_storage->addTransactionToStorage( tx );
 

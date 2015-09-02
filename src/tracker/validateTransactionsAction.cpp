@@ -347,16 +347,7 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 
 		BOOST_FOREACH( CTransaction const & transaction, transactions )
 		{
-			CKeyID keyId = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
-
-			std::vector< CAvailableCoin > availableCoins
-					= common::getAvailableCoins(
-						transaction
-						, keyId
-						, transaction.GetHash() );
-
-			CWallet::getInstance()->addAvailableCoins( keyId, availableCoins );
-
+			common::findSelfCoinsAndAddToWallet( transaction );
 		}
 
 		context< CValidateTransactionsAction >().dropRequests();

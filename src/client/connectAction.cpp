@@ -48,7 +48,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 
         vector<CAddress> addresses = _dnsInfo.m_addresses;
 
-        addresses.erase(std::find(addresses.begin(), addresses.end(), self));
+//        addresses.erase(std::find(addresses.begin(), addresses.end(), self));
 
         if ( addresses.empty() )
 		{
