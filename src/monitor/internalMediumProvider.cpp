@@ -36,7 +36,7 @@ CInternalMediumProvider::provideConnection( common::CMonitorMediumFilter const &
 void
 CInternalMediumProvider::registerRemoveCallback( CNodeSignals& nodeSignals )
 {
-	nodeSignals.NotifyTrackerNode.connect( bind( &CInternalMediumProvider::removeNodeCallback, this, _1) );
+	nodeSignals.NotifyAboutRemoval.connect( bind( &CInternalMediumProvider::removeNodeCallback, this, _1) );
 }
 
 void

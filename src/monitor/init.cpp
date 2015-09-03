@@ -122,6 +122,7 @@ bool static Bind(const CService &addr, unsigned int flags) {
 bool AppInit(boost::thread_group& threadGroup)
 {
 	seed_insecure_rand();
+
 	// ********************************************************* Step 1: setup
 #ifdef _MSC_VER
 	// Turn off Microsoft heap dump noise
@@ -654,6 +655,9 @@ bool AppInit(boost::thread_group& threadGroup)
 #endif // !ENABLE_WALLET
 	// ********************************************************* Step 9: import blocks
 
+	common::CDiskBlock * m_diskBlock = new common::CDiskBlock;
+	common::CSegmentFileStorage::getInstance()->getCopyBlock( 1, *m_diskBlock );
+
 	common::COriginAddressScanner::getInstance()->setStorage( monitor::CTransactionRecordManager::getInstance() );
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
@@ -684,6 +688,9 @@ bool AppInit(boost::thread_group& threadGroup)
 			= common::CPeriodicActionExecutor< common::CMonitorTypes >::getInstance();
 
 	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< common::CMonitorTypes >::processingLoop, periodicActionExecutor ));
+
+	monitor::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
+
 
 	// ********************************************************* Step 10: load peers
 

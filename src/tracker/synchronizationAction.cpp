@@ -386,7 +386,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
-			if ( context< CSynchronizationAction >().getStorageSize() > ++m_currentBlock )
+			if ( context< CSynchronizationAction >().getHeaderSize() > ++m_currentBlock )
 			{
 				context< CSynchronizationAction >().addRequest(
 							new common::CGetBlockRequest< common::CTrackerTypes >(

@@ -269,7 +269,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{/*
+	{
 		common::CMessage orginalMessage;
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
@@ -281,11 +281,13 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		assert( result.m_result );// for debug only, do something here
 
 		context< CRegisterAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
-						  context< CRegisterAction >().getActionKey()
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::Ack
+						, context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
-	*/	return discard_event();
+
+		return discard_event();
 	}
 
 
@@ -298,13 +300,21 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 							MoneyWaitTime
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
+		else
+		{
+			common::CAdmitProof admitProof;
+			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
 
-		/*		context< CRegisterAction >().addRequest(
-							new CRegisterProofRequest(
-						_transactionAckEvent.m_transactionSend.GetHash()
+			common::CSendMessageRequest< common::CTrackerTypes > * request =
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::AdmitProof
 						, context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );*/
-	//	_transactionAckEvent.m_transactionSend
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+
+			request->addPayload(admitProof);
+
+			context< CRegisterAction >().addRequest( request );
+		}
 		return discard_event();
 	}
 
@@ -317,7 +327,6 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 							, context< CRegisterAction >().getRegisterPayment() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
-		context< CRegisterAction >().dropRequests();
 		return discard_event();
 	}
 
