@@ -217,26 +217,40 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		common::CSegmentFileStorage::getInstance()->getCopyBlock( _blockNumber, *m_diskBlock );
 
 		context< CSynchronizationAction >().dropRequests();
-		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CDiskBlock, common::CMonitorTypes >(
-															context< CSynchronizationAction >().getActionKey()
-															, m_id
-															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
-															, m_diskBlock
-															, _blockNumber) );
-	}
 
+		common::CSynchronizationBlock synchronizationBlock( m_diskBlock, _blockNumber );
+
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::SynchronizationBlock,
+					context< CSynchronizationAction >().getActionKey()
+					, m_id
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload( synchronizationBlock );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+	}
 
 	void setHeaders( unsigned int _headerNumber )
 	{
 		common::CSegmentFileStorage::getInstance()->getCopySegmentHeader( _headerNumber, *m_segmentHeader );
 
+		common::CSynchronizationSegmentHeader synchronizationSegmentHeader( m_segmentHeader, _headerNumber );
+
 		context< CSynchronizationAction >().dropRequests();
-		context< CSynchronizationAction >().addRequest( new common::CSetNextBlockRequest< common::CSegmentHeader, common::CMonitorTypes >(
-															context< CSynchronizationAction >().getActionKey()
-															, m_id
-															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() )
-															, m_segmentHeader
-															, _headerNumber) );
+
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::SynchronizationHeader,
+					context< CSynchronizationAction >().getActionKey()
+					, m_id
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload( synchronizationSegmentHeader );
+
+		context< CSynchronizationAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )

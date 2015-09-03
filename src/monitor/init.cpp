@@ -654,10 +654,6 @@ bool AppInit(boost::thread_group& threadGroup)
 	LogPrintf("No wallet compiled in!\n");
 #endif // !ENABLE_WALLET
 	// ********************************************************* Step 9: import blocks
-
-	common::CDiskBlock * m_diskBlock = new common::CDiskBlock;
-	common::CSegmentFileStorage::getInstance()->getCopyBlock( 1, *m_diskBlock );
-
 	common::COriginAddressScanner::getInstance()->setStorage( monitor::CTransactionRecordManager::getInstance() );
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
