@@ -283,6 +283,7 @@ CMessage::CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKe
 
 CMessage::CMessage( int _messageKind, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, uint256 const & _id )
 	: m_header( _messageKind, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
+	, m_payload(_payload)
 {
 		common::CommunicationProtocol::signPayload( _payload, m_header.m_signedHash );
 }
