@@ -1166,7 +1166,6 @@ CSendMessageRequest< _Types >::CSendMessageRequest( CPayloadKind::Enum _messageK
 	, m_messageKind( (int)_messageKind )
 	, m_actionKey( _actionKey )
 {
-	addPayload( m_messageKind );// dummy be  carful !!
 }
 
 template < class _Types >
@@ -1175,7 +1174,6 @@ CSendMessageRequest< _Types >::CSendMessageRequest( CPayloadKind::Enum _messageK
 	, m_messageKind( (int)_messageKind )
 	, m_actionKey( _actionKey )
 {
-	addPayload( m_messageKind );// dummy be  carful !!
 }
 
 template < class _Types >

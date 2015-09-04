@@ -300,6 +300,23 @@ struct CAck
 	)
 	int m_dummy;
 };
+struct CInfoResponseData
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+	int m_dummy;
+};
+
+struct CAdmitAsk
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_dummy);
+	)
+	int m_dummy;
+};
 
 struct CBalance
 {
@@ -327,15 +344,6 @@ struct CInfoRequestData
 	int m_kind;
 
 	std::vector<unsigned char> m_payload;
-};
-
-struct CInfoResponseData
-{
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_dummy);
-	)
-	int m_dummy;
 };
 
 struct CRegistrationTerms
@@ -431,15 +439,6 @@ struct CAdmitProof
 		READWRITE( m_proofTransactionHash );
 	)
 	uint256 m_proofTransactionHash;
-};
-
-struct CAdmitAsk
-{
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_dummy);
-	)
-	int m_dummy;
 };
 
 struct CClientTransaction

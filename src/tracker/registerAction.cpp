@@ -280,12 +280,16 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 		assert( result.m_result );// for debug only, do something here
 
-		context< CRegisterAction >().addRequest(
-					new common::CSendMessageRequest< common::CTrackerTypes >(
-						common::CPayloadKind::Ack
-						, context< CRegisterAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::Ack
+					, context< CRegisterAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+
+		request->addPayload( common::CAck() );
+
+		context< CRegisterAction >().addRequest( request );
 
 		return discard_event();
 	}
