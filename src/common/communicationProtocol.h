@@ -230,11 +230,6 @@ struct CTransactionBundle
 
 struct CSynchronizationBlock
 {
-	~CSynchronizationBlock()
-	{
-		delete m_diskBlock;
-	}
-
 	CSynchronizationBlock( CDiskBlock * _diskBlock, unsigned int _blockIndex ):m_diskBlock( _diskBlock ), m_blockIndex(_blockIndex){}
 
 	IMPLEMENT_SERIALIZE
