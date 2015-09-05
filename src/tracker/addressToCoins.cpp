@@ -26,7 +26,7 @@ private:
 
 
 CAddressToCoinsDatabase::CAddressToCoinsDatabase(size_t nCacheSize, bool fMemory, bool fWipe)
-: db(GetDataDir(common::AppType::Tracker) / "addressTocoins",
+: db(GetDataDir(common::CDimsParams::getAppType()) / "addressTocoins",
 	nCacheSize,
 	fMemory,
 	fWipe)

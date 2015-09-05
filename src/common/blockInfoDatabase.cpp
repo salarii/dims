@@ -23,7 +23,7 @@ CBlockInfoDatabase::getInstance()
 }
 
 CBlockInfoDatabase::CBlockInfoDatabase( size_t _cacheSize, bool _memory, bool _wipe )
-	: db(GetDataDir(common::AppType::Tracker) / "blockInfoDatabase",
+	: db(GetDataDir(common::CDimsParams::getAppType()) / "blockInfoDatabase",
 		_cacheSize,
 		_memory,
 		_wipe)

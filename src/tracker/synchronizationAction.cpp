@@ -128,6 +128,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 			file << bitcoinHeader.m_bitcoinHeader;
 			fflush(file);
 			FileCommit(file);
+			InitBlockIndex();// not  entirely ok
 
 			context< CSynchronizationAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(

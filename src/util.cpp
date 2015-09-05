@@ -228,7 +228,7 @@ static void DebugPrintInit()
     assert(fileout == NULL);
     assert(mutexDebugLog == NULL);
 
-    boost::filesystem::path pathDebug = GetDataDir(common::AppType::Tracker) / "debug.log";
+	boost::filesystem::path pathDebug = GetDataDir(common::CDimsParams::getAppType()) / "debug.log";
     fileout = fopen(pathDebug.string().c_str(), "a");
     if (fileout) setbuf(fileout, NULL); // unbuffered
 

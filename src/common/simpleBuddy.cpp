@@ -161,11 +161,12 @@ CSimpleBuddy::combine( int _index)
 			}
 			return;
 		}
+
+		m_tree[_index] = NODE_UNUSED;
+
 		_index = (_index + 1) / 2 - 1;
 	}
 }
-
-
 
 void
 CSimpleBuddy::buddyFree(int offset)
