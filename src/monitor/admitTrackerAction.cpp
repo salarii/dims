@@ -268,7 +268,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		request->addPayload( common::CAck() );
 
-		context< CRegisterAction >().addRequest( request );
+		context< CAdmitTrackerAction >().addRequest( request );
 
 		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequest(
