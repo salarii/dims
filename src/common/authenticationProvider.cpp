@@ -59,6 +59,14 @@ CAuthenticationProvider::getMyKey() const
 	return m_selfKey;
 }
 
+CKey
+CAuthenticationProvider::getMyPrivKey() const
+{
+	CKey key;
+	m_keyStore->GetKey(m_selfKey.GetID(), key);
+	return  key;
+}
+
 /*
 bool
 CAuthenticationProvider::hasKeys( CKeyID const & _key ) const

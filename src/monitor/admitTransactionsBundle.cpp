@@ -14,6 +14,7 @@
 #include "monitor/transactionRecordManager.h"
 #include "monitor/filters.h"
 #include "monitor/monitorController.h"
+#include "monitor/chargeRegister.h"
 
 namespace monitor
 {
@@ -54,9 +55,9 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 			if ( m_trackers.size() == CReputationTracker::getInstance()->getTrackers().size() )
 			{
 				// if  registration  in  progress  those  should  be  stored
-				if ( CPaymentTracking::getInstance()->getStoreTransactions() )
+				if ( CChargeRegister::getInstance()->getStoreTransactions() )
 				{
-					CPaymentTracking::getInstance()->storeTransactions( transactionBundle.m_transactions );
+					CChargeRegister::getInstance()->storeTransactions( transactionBundle.m_transactions );
 				}
 
 				CTransactionRecordManager::getInstance()->addTransactionsToStorage( transactionBundle.m_transactions );
@@ -93,100 +94,5 @@ CAdmitTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTy
 {
 	_visitor.visit( *this );
 }
-
-CPaymentTracking * CPaymentTracking::ms_instance = NULL;
-
-CPaymentTracking*
-CPaymentTracking::getInstance()
-{
-	if ( !ms_instance )
-	{
-		ms_instance = new CPaymentTracking();
-	};
-	return ms_instance;
-}
-
-void
-CPaymentTracking::addTransactionToSearch( uint256 const & _hash, CKeyID const & _keyId )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_searchTransaction.insert( std::make_pair( _hash, _keyId ) );
-}
-
-void
-CPaymentTracking::removeTransactionfromSearch( uint256 const & _hash )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_searchTransaction.erase( _hash );
-}
-
-void
-CPaymentTracking::loop()
-{
-	while(1)
-	{
-		{
-			boost::lock_guard<boost::mutex> lock( m_mutex );
-
-			std::map< uint256, CKeyID >::const_iterator iterator = m_searchTransaction.begin();
-
-			std::list< uint256 > remove;
-			while( iterator != m_searchTransaction.end() )
-			{
-
-				BOOST_FOREACH( CTransaction const & transaction, m_toSearch )
-				{
-					if ( iterator->first == transaction.GetHash() )
-					{
-						if ( common::findKeyInInputs( transaction, iterator->second ) )
-						{
-							std::vector < CTxOut > txOuts;
-							std::vector< unsigned int > ids;
-
-							common::findOutputInTransaction(
-										transaction
-										, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
-										, txOuts
-										, ids );
-
-							unsigned int value = 0;
-							BOOST_FOREACH( CTxOut const & txOut, txOuts )
-							{
-								value += txOut.nValue;
-							}
-
-							if ( CMonitorController::getInstance()->getPrice() <= value )
-							{
-								remove.push_back( iterator->first );
-								m_acceptedTransactons.insert( iterator->first );
-							}
-
-						}
-
-					}
-				}
-
-				iterator++;
-			}
-
-			BOOST_FOREACH( uint256 const & hash, remove )
-			{
-				m_searchTransaction.erase( hash );
-			}
-		}
-		boost::this_thread::interruption_point();
-		MilliSleep(500);
-	}
-
-}
-
-bool
-CPaymentTracking::isTransactionPresent( uint256 const & _hash )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-
-	return m_acceptedTransactons.find( _hash ) != m_acceptedTransactons.end();
-}
-
 
 }

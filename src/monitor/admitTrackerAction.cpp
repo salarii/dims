@@ -20,6 +20,7 @@
 #include "monitor/reputationTracer.h"
 #include "monitor/monitorRequests.h"
 #include "monitor/rankingDatabase.h"
+#include "monitor/chargeRegister.h"
 
 namespace monitor
 {
@@ -240,6 +241,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	{
 		LogPrintf("admit tracker action: %p paid registration \n", &context< CAdmitTrackerAction >() );
 		context< CAdmitTrackerAction >().dropRequests();
+
+		CChargeRegister::getInstance()->setStoreTransactions( true );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -252,31 +255,20 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CPaymentTracking::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
+		CChargeRegister::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
 		context< CAdmitTrackerAction >().dropRequests();
-		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( m_checkPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						m_checkPeriod
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		m_messageId = _messageResult.m_message.m_header.m_id;
 
 		m_pubKey = _messageResult.m_pubKey;
-		/*
 
-				context< CAdmitTrackerAction >().addRequest(
-							new common::CAckRequest< common::CMonitorTypes >(
-								context< CAdmitTrackerAction >().getActionKey()
-								, _messageResult.m_message.m_header.m_id
-								, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
-
-				context< CAdmitTrackerAction >().addRequest(
-							new common::CResultRequest< common::CMonitorTypes >(
-								context< CAdmitTrackerAction >().getActionKey()
-								, _messageResult.m_message.m_header.m_id
-								, 1
-								, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
-		*/
 		return discard_event();
 	}
 
@@ -284,7 +276,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	{
 		CTransaction transaction;
 
-		if ( CPaymentTracking::getInstance()->isTransactionPresent( m_proofHash ) )
+		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
 			CReputationTracker::getInstance()->addTracker( common::CTrackerData( m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
@@ -298,13 +290,16 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 			CPubKey pubKey;
 
-			CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey );
+			if ( CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey ) )
+			{
+				common::CTrackerData trackerData( pubKey, 0, GetTime(), CMonitorController::getInstance()->getPeriod() );
 
-			common::CTrackerData trackerData( pubKey, 0, GetTime(), CMonitorController::getInstance()->getPeriod() );
+				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 
-			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+				CReputationTracker::getInstance()->addTracker( trackerData );
+			}
 
-			CReputationTracker::getInstance()->addTracker( trackerData );
+			context< CAdmitTrackerAction >().setExit();
 		}
 		else
 		{
@@ -319,6 +314,11 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		}
 		return discard_event();
+	}
+
+	~CPaidRegistration()
+	{
+		CChargeRegister::getInstance()->setStoreTransactions( true );
 	}
 
 	typedef boost::mpl::list<

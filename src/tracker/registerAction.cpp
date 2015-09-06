@@ -264,8 +264,6 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 							context< CRegisterAction >().getPublicKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-
-		//	CTransactionRecordManager::getInstance()->addClientTransaction( _transactionMessage.m_transaction );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )

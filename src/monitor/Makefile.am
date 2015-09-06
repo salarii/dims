@@ -10,6 +10,7 @@ noinst_LIBRARIES = libmonitor.a
 MONITOR_H = \
 	admitTrackerAction.h \
 	admitTransactionsBundle.h \
+	chargeRegister.h \
 	clientRequestsManager.h \
 	connectNodeAction.h \
 	copyStorageHandler.h \
@@ -39,6 +40,7 @@ MONITOR_CPP = \
 	actionHandlerDefinitions.cpp \
 	admitTrackerAction.cpp \
 	admitTransactionsBundle.cpp \
+	chargeRegister.cpp \
 	clientRequestsManager.cpp \
 	connectNodeAction.cpp \
 	copyStorageHandler.cpp \

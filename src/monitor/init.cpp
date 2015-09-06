@@ -60,7 +60,7 @@
 #include "monitor/registerRpcHooks.h"
 #include "monitor/transactionRecordManager.h"
 #include "monitor/copyStorageHandler.h"
-
+#include "monitor/chargeRegister.h"
 
 #ifdef ENABLE_WALLET
 std::string strWalletFile;
@@ -669,6 +669,8 @@ bool AppInit(boost::thread_group& threadGroup)
 	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &CCopyStorageHandler::loop, CCopyStorageHandler::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &CChargeRegister::loop, CChargeRegister::getInstance() ) );
 
 	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)monitor::CInternalMediumProvider::getInstance() );
 

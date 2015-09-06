@@ -210,7 +210,16 @@ public:
 };
 
 class CSetPassTransactionResult : public CResponseVisitorBase< tracker::CPassTransactionAction, tracker::TrackerResponseList >
-{};
+{
+public:
+	CSetPassTransactionResult( tracker::CPassTransactionAction * const _action ):CResponseVisitorBase< tracker::CPassTransactionAction, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+};
 
 class CSetRegisterAction : public CResponseVisitorBase< tracker::CRegisterAction, tracker::TrackerResponseList >
 {
@@ -309,7 +318,7 @@ CSetResponseVisitor< CTrackerTypes >::visit( tracker::CRecognizeNetworkAction & 
 void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CPassTransactionAction & _action )
 {
-//	boost::apply_visitor( (CResponseVisitorBase< tracker::CPassTransactionAction, tracker::TrackerResponseList > const &)CSetPassTransactionResult( &_action ), m_trackerResponses );
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CPassTransactionAction, tracker::TrackerResponseList > const &)CSetPassTransactionResult( &_action ), m_trackerResponses );
 }
 
 }

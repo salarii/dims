@@ -82,6 +82,10 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 
 		CWallet::getInstance()->resetDatabase();
 
+		CWallet::getInstance()->AddKeyPubKey(
+					common::CAuthenticationProvider::getInstance()->getMyPrivKey()
+					, common::CAuthenticationProvider::getInstance()->getMyKey());
+
 		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
 
 		return transit< CGetBitcoinHeader >();

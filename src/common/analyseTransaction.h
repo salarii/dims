@@ -10,7 +10,9 @@
 class CTransaction;
 class CTxOut;
 class CKeyID;
-
+class CCoins;
+class uint160;
+class uint256;
 struct CAvailableCoin;
 
 namespace common
