@@ -237,7 +237,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 {
 	CPaidRegistration( my_context ctx )
 		: my_base( ctx )
-		, m_checkPeriod( 3000 )
+		, m_checkPeriod( 30000 )
 	{
 		LogPrintf("admit tracker action: %p paid registration \n", &context< CAdmitTrackerAction >() );
 		context< CAdmitTrackerAction >().dropRequests();
@@ -258,6 +258,17 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		CChargeRegister::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
+
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::Ack
+					, context< CAdmitTrackerAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+
+		request->addPayload( common::CAck() );
+
+		context< CRegisterAction >().addRequest( request );
 
 		context< CAdmitTrackerAction >().dropRequests();
 		context< CAdmitTrackerAction >().addRequest(
@@ -306,19 +317,24 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 			context< CAdmitTrackerAction >().dropRequests();
 
 			context< CAdmitTrackerAction >().addRequest(
+						new common::CTimeEventRequest< common::CMonitorTypes >(
+							m_checkPeriod
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+/*
+			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
 							, m_messageId
 							, 0
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
-
+*/
 		}
 		return discard_event();
 	}
 
 	~CPaidRegistration()
 	{
-		CChargeRegister::getInstance()->setStoreTransactions( true );
+		CChargeRegister::getInstance()->setStoreTransactions( false );
 	}
 
 	typedef boost::mpl::list<

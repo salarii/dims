@@ -28,8 +28,7 @@ public:
 	{
 		boost::lock_guard<boost::mutex> lock( m_mutex );
 
-		if ( m_storeTransactions )
-			m_toSearch.insert( m_toSearch.end(), _transactions.begin(), _transactions.end() );
+		m_toSearch.insert( m_toSearch.end(), _transactions.begin(), _transactions.end() );
 	}
 
 	void setStoreTransactions( bool _store )
