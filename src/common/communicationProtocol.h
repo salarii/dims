@@ -53,7 +53,8 @@ struct CPayloadKind
 		SynchronizationAsk,
 		SynchronizationBitcoinHeader,
 		EnterNetworkAsk,
-		RankingInfo
+		RankingInfo,
+		ExtendRegistration
 	};
 };
 
@@ -352,7 +353,6 @@ struct CRegistrationTerms
 	(
 		READWRITE( m_price );
 		READWRITE( m_period );
-		READWRITE( m_id );
 	)
 
 	CRegistrationTerms():m_price( 0 ),m_period( 0 ){}
@@ -361,7 +361,6 @@ struct CRegistrationTerms
 
 	unsigned int m_price;
 	uint64_t m_period;
-	uint256 m_id;
 };
 
 struct CValidRegistration

@@ -309,7 +309,7 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< common::CC
 		}
 		else if ( messageType == common::CMainRequestType::BalanceInfoReq )
 		{
-			common::CAvailableCoins availableCoins;
+			common::CAvailableCoinsEvent availableCoins;
 			stream >> token;
 			stream >> availableCoins;
 			_requestResponse.insert( std::make_pair( takeMatching( token ), availableCoins ) );

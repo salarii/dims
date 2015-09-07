@@ -22,26 +22,6 @@
 namespace tracker
 {
 
-/*
-get information about registration status
-get  conditions of registration
-
------->> 1 <<-------
--no other trackes
--start operating
--prepare transaction emit it
--send hash to monitor
-- conclude
------->> 2 <<-------
-- other trackers
-- ask for balance ( send  proof of registration if refused )
-- prepare  transaction and emit
-- send hash to monitor
-- conclude
-*/
-
-
-
 //milisec
 unsigned int const WaitTime = 20000;
 unsigned int const MoneyWaitTime = 30000;
@@ -49,11 +29,89 @@ unsigned int const MoneyWaitTime = 30000;
 struct CFreeRegistration;
 struct CSynchronize;
 struct CNoTrackers;
+struct COriginateRegistration;
+struct CInitiateRegistration;
+struct CRegistrationExtension;
 
+struct CExtensionEvent : boost::statechart::event< CExtensionEvent >{};
+struct CNewEvent : boost::statechart::event< CNewEvent >{};
 
-struct CInitiateRegistration : boost::statechart::state< CInitiateRegistration, CRegisterAction >
+struct CInitiateRegistration : boost::statechart::simple_state< CInitiateRegistration, CRegisterAction >
 {
-	CInitiateRegistration( my_context ctx )
+	typedef boost::mpl::list<
+	boost::statechart::transition< CExtensionEvent, CRegistrationExtension >,
+	boost::statechart::transition< CNewEvent, COriginateRegistration >
+	> reactions;
+};
+
+struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension, CRegisterAction >
+{
+
+	CRegistrationExtension( my_context ctx )
+		: my_base( ctx )
+	{}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration )
+		{
+			common::CRegistrationTerms connectCondition;
+
+			common::convertPayload( orginalMessage, connectCondition );
+
+			common::CSendMessageRequest< common::CTrackerTypes > * request =
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::Ack
+						, context< CRegisterAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+
+			request->addPayload( common::CAck() );
+
+			context< CRegisterAction >().addRequest( request );
+
+			if ( CTrackerController::getInstance()->autoRenewRegistration() )
+			{
+				request = new common::CSendMessageRequest< common::CTrackerTypes >(
+							common::CPayloadKind::AdmitAsk
+							, context< CRegisterAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+
+				request->addPayload( common::CAdmitAsk() );
+				context< CRegisterAction >().addRequest( request );
+
+				m_price = connectCondition.m_price;
+			}
+		}
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return m_price ? transit< CNoTrackers >() : transit< CFreeRegistration >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+
+	unsigned int m_price;
+};
+
+struct COriginateRegistration : boost::statechart::state< COriginateRegistration, CRegisterAction >
+{
+	COriginateRegistration( my_context ctx )
 		: my_base( ctx )
 	{
 		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
@@ -172,13 +230,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	> reactions;
 };
 
-/*
-- montor  allowes  him to work
-- send synchronization request
-- start  synchronization  action
-- after conclusion try to create transaction
 
-*/
 struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 {
 	CSynchronize( my_context ctx )
@@ -390,6 +442,13 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	boost::statechart::custom_reaction< common::CExecutedIndicator >
 	> reactions;
 };
+
+CRegisterAction::CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr )
+	: common::CAction< common::CTrackerTypes >( _actionKey )
+	, m_nodePtr( _nodePtr )
+{
+	initiate();
+}
 
 CRegisterAction::CRegisterAction( uintptr_t _nodePtr )
 	: m_nodePtr( _nodePtr )

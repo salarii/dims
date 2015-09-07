@@ -26,7 +26,7 @@ class GetBalance : public CResponseVisitorBase< tracker::CGetBalanceAction, trac
 public:
 	GetBalance( tracker::CGetBalanceAction * const _action ):CResponseVisitorBase< tracker::CGetBalanceAction, tracker::TrackerResponseList >( _action ){};
 
-	virtual void operator()( common::CAvailableCoins & _param ) const
+	virtual void operator()( common::CAvailableCoinsEvent & _param ) const
 	{
 		LogPrintf("set response \"available coins\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );

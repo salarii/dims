@@ -9,7 +9,11 @@
 
 #include <boost/foreach.hpp>
 
+#include "common/actionHandler.h"
+
 #include "monitor/rankingDatabase.h"
+#include "monitor/monitorController.h"
+#include "monitor/admitTrackerAction.h"
 
 namespace common
 {
@@ -21,8 +25,12 @@ template<> CNodesManager< common::CMonitorTypes > * common::CNodesManager< commo
 namespace monitor
 {
 double const PreviousReptationRatio = 0.95;// I want  to preserve  a lot
+
+double const TriggerExtendRatio = 0.1;
 double const RelativeToMax = 0.3;
 unsigned int const OneTransactionGain = 10;
+
+
 
 // allow some  deviation for  other monitors
 
@@ -104,25 +112,30 @@ CReputationTracker::loop()
 			{
 				if ( tracker.second.m_networkTime <= m_recalculateTime )
 				{
-					// tracker need to pay again
-					// create new  pay  action
+					int64_t timePassed = GetTime() - tracker.second.m_contractTime;
+					int64_t timeLeft = tracker.second.m_networkTime - timePassed;
+
+					//	timeLeft < 0//  unregister
+
+					if ( timeLeft < CMonitorController::getInstance()->getPeriod() * TriggerExtendRatio )
+					{
+						uintptr_t nodeIndicator;
+						getKeyToNode( tracker.second.m_publicKey, nodeIndicator);
+						if ( isExtendInProgress( tracker.second.m_publicKey ) )
+						{
+							setExtendInProgress( tracker.second.m_publicKey );
+							common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CAdmitTrackerAction(nodeIndicator) );
+						}
+					}
+
+					{
+						tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
+					}
+					//	tracker.second.m_networkTime += m_recalculateTime;
 				}
-				else
-				{
-					tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
-				}
-				//	tracker.second.m_networkTime += m_recalculateTime;
 			}
 		}
-/*
-		BOOST_FOREACH( AllyMonitors::value_type & monitor, m_allyMonitorsRankings )
-		{
-			BOOST_FOREACH( CAllyTrackerData & tracker, monitor.second )
-			{
-				checkValidity( tracker );
-			}
-		}
-*/
+
 		MilliSleep( m_recalculateTime );
 	}
 }
@@ -248,6 +261,8 @@ CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )c
 void
 CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 {
+	//reconsider  what  needs  to  be cleared
+
 	boost::lock_guard<boost::mutex> lock( m_lock );
 
 	common::CNodesManager< common::CMonitorTypes >::eraseMedium( _nodePtr );
@@ -263,8 +278,6 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 	m_allyMonitors.erase( keyId );
 
 	m_trackerToMonitor.erase( keyId );
-
-	m_registeredTrackers.erase( keyId );
 
 	m_transactionsAddmited.erase( keyId );
 
@@ -329,6 +342,27 @@ CReputationTracker::checkForTracker( CPubKey const & _pubKey, common::CTrackerDa
 	_controllingMonitor = allyIterator->second.m_allyMonitorKey;
 
 	return true;
+}
+
+void
+CReputationTracker::setExtendInProgress( CPubKey const & _pubKey )
+{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		m_extendInProgress.insert( _pubKey );
+}
+
+bool
+CReputationTracker::isExtendInProgress( CPubKey const & _pubKey )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	return m_extendInProgress.find(_pubKey) != m_extendInProgress.end();
+}
+
+bool
+CReputationTracker::eraseExtendInProgress( CPubKey const & _pubKey )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_extendInProgress.erase(_pubKey);//m_extendInProgress.find(_pubKey)
 }
 
 void

@@ -14,6 +14,7 @@
 #include "tracker/validateTransactionsAction.h"
 #include "tracker/provideInfoAction.h"
 #include "tracker/pingAction.h"
+#include "tracker/registerAction.h"
 
 namespace tracker
 {
@@ -80,6 +81,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBitcoinHeader
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader
 				 || message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock
+				 || message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration
 				 )
 		{
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
@@ -109,6 +111,16 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( provideInfoAction );
 			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration )
+			{
+				CRegisterAction * registerAction
+						= new CRegisterAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
+
+				registerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( registerAction );
+
+			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
 		{
@@ -131,10 +143,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( connectNodeAction );
 			}
-
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
-		{
 
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Ack )

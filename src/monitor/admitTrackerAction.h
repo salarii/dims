@@ -13,11 +13,13 @@
 namespace monitor
 {
 
-struct CWaitForInfo;
+struct CAdmitInitial;
 
-class CAdmitTrackerAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTrackerAction, CWaitForInfo >
+class CAdmitTrackerAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTrackerAction, CAdmitInitial >
 {
 public:
+	CAdmitTrackerAction( uintptr_t _nodePtr );
+
 	CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
 	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );

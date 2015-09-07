@@ -27,10 +27,22 @@ public:
 	CKeyID getKeyId() const{ return m_keyId; }
 
 	int64_t getAmount() const{ return m_amount; }
+
+	void setTrackerStats( common::CTrackerStats const & _trackerStats )
+	{
+		m_servicingTracker = _trackerStats;
+	}
+
+	common::CTrackerStats const & getTrackerStats()
+	{
+		return m_servicingTracker;
+	}
 private:
 	CKeyID const m_keyId;
 
 	int64_t m_amount;
+
+	common::CTrackerStats m_servicingTracker;
 };
 
 }

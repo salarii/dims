@@ -73,7 +73,7 @@ public:
 		this->m_action->process_event( _noMedium );
 	}
 
-	void operator()( common::CAvailableCoins & _availableCoins ) const
+	void operator()( common::CAvailableCoinsEvent & _availableCoins ) const
 	{
 		LogPrintf("set response \"available coins\" to action: %p \n", this->m_action );
 		this->m_action->process_event( client::CCoinsEvent( _availableCoins.m_availableCoins ) );

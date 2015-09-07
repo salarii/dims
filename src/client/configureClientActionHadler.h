@@ -11,7 +11,7 @@
 
 namespace common
 {
-struct CAvailableCoins;
+struct CAvailableCoinsEvent;
 
 class CMediumException;
 
@@ -45,7 +45,7 @@ common::CNoMedium
 , common::CTrackerStats
 , common::CMonitorInfo
 , common::CPending
-, common::CAvailableCoins
+, common::CAvailableCoinsEvent
 , CDnsInfo
 , common::CNodeSpecific< common::CClientNetworkInfoResult >
 , common::CNodeSpecific< common::CTrackerSpecificStats >

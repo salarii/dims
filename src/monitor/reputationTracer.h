@@ -58,8 +58,14 @@ public:
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 
 	bool checkForTracker( CPubKey const & _pubKey, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
+
+	bool eraseExtendInProgress( CPubKey const & _pubKey );
 private:
 	CReputationTracker();
+
+	void setExtendInProgress( CPubKey const & _pubKey );
+
+	bool isExtendInProgress( CPubKey const & _pubKey );
 
 	unsigned int calculateReputation( uint64_t _passedTime );
 
@@ -98,6 +104,8 @@ private:
 	static uint64_t const m_recalculateTime;
 
 	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
+
+	std::set< CPubKey > m_extendInProgress;
 };
 
 }

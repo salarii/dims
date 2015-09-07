@@ -28,10 +28,10 @@ namespace common
 struct CNoMedium : boost::statechart::event< CNoMedium >
 {};
 
-struct CAvailableCoins : boost::statechart::event< CAvailableCoins >
+struct CAvailableCoinsEvent : boost::statechart::event< CAvailableCoinsEvent >
 {
-	CAvailableCoins( std::map< uint256, CCoins > const & _availableCoins, uint256 const & _hash );
-	CAvailableCoins();
+	CAvailableCoinsEvent( std::map< uint256, CCoins > const & _availableCoins, uint256 const & _hash );
+	CAvailableCoinsEvent();
 
 	IMPLEMENT_SERIALIZE
 	(
@@ -297,7 +297,10 @@ struct CSynchronizationResult : boost::statechart::event< CSynchronizationResult
 };
 
 struct CExecutedIndicator : boost::statechart::event< CExecutedIndicator >
-{};
+{
+	CExecutedIndicator( bool _correct ):m_correct(_correct){}
+	bool m_correct;
+};
 
 inline
 uint256
@@ -314,7 +317,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsEvent > ScheduledResult;
 
 struct CRequestedMerkles
 {

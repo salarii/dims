@@ -43,7 +43,7 @@ struct CFindBalance : boost::statechart::state< CFindBalance, CGetBalanceAction 
 					new CGetBalanceRequest( context< CGetBalanceAction >().getKeyId() ) );
 	}
 
-	boost::statechart::result react( common::CAvailableCoins const & _availableCoins )
+	boost::statechart::result react( common::CAvailableCoinsEvent const & _availableCoins )
 	{
 		CClientRequestsManager::getInstance()->setClientResponse(
 					  context< CGetBalanceAction >().getHash()
@@ -55,7 +55,7 @@ struct CFindBalance : boost::statechart::state< CFindBalance, CGetBalanceAction 
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAvailableCoins >
+	boost::statechart::custom_reaction< common::CAvailableCoinsEvent >
 	> reactions;
 };
 
@@ -119,7 +119,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 				CWallet::getInstance()->addAvailableCoins( m_self, availableCoins );
 				iterator++;
 			}
-			context< CGetBalanceAction >().setResult( common::CExecutedIndicator() );
+			context< CGetBalanceAction >().setResult( common::CExecutedIndicator(true) );
 			context< CGetBalanceAction >().setExit();
 		}
 

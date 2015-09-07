@@ -28,7 +28,7 @@ class CHandleResponseVisitor : public boost::static_visitor< void >
 public:
 	CHandleResponseVisitor( CBufferAsStream * _pushStream, uint256 const & _token ):m_pushStream( _pushStream ),m_token(_token){};
 
-	void operator()( CAvailableCoins const & _availableCoins ) const
+	void operator()( CAvailableCoinsEvent const & _availableCoins ) const
 	{
 		common::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
 		*m_pushStream << m_token;

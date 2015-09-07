@@ -27,30 +27,90 @@ namespace monitor
 struct CPaidRegistration;
 struct CFreeRegistration;
 struct CPaidRegistrationEmptyNetwork;
+struct CWaitForInfo;
+struct CExtendRegistration;
 //milisec
 unsigned int const WaitTime = 20000;
 
-bool analyseTransaction( CTransaction & _transaction, uint256 const & _hash, CKeyID const & _trackerId )
+struct CRegisterEvent : boost::statechart::event< CRegisterEvent >{};
+
+struct CExtendEvent : boost::statechart::event< CExtendEvent >{};
+
+struct CAdmitInitial : boost::statechart::simple_state< CAdmitInitial, CAdmitTrackerAction >
 {
-	if ( !common::findKeyInInputs( _transaction, _trackerId ) )
-		return false;
+	typedef boost::mpl::list<
+	boost::statechart::transition< CRegisterEvent, CWaitForInfo >,
+	boost::statechart::transition< CExtendEvent, CExtendRegistration >
+	> reactions;
+};
 
-	std::vector < CTxOut > txOuts;
-	std::vector< unsigned int > ids;
-
-	common::findOutputInTransaction(
-				_transaction
-				, common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
-				, txOuts
-				, ids );
-
-	unsigned int value = 0;
-	BOOST_FOREACH( CTxOut const & txOut, txOuts )
+struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdmitTrackerAction >
+{
+	CExtendRegistration( my_context ctx )
+		: my_base( ctx )
 	{
-		value += txOut.nValue;
+		LogPrintf("admit tracker action: %p extend registration \n", &context< CAdmitTrackerAction >() );
+
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::ExtendRegistration
+					, context< CAdmitTrackerAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+
+		common::CRegistrationTerms registrationTerms(
+					CMonitorController::getInstance()->getPrice()
+					, CMonitorController::getInstance()->getPeriod() );
+
+		request->addPayload( registrationTerms );
+
+		context< CAdmitTrackerAction >().addRequest( request );
+
 	}
-	return value >= CMonitorController::getInstance()->getPrice();
-}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk )
+		{
+			context< CAdmitTrackerAction >().dropRequests();
+
+			common::CSendMessageRequest< common::CMonitorTypes > * request =
+					new common::CSendMessageRequest< common::CMonitorTypes >(
+						common::CPayloadKind::Ack
+						, context< CAdmitTrackerAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+
+			request->addPayload( common::CAck() );
+
+			context< CAdmitTrackerAction >().addRequest( request );
+
+			return transit< CPaidRegistration >();
+		}
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAdmitTrackerAction >().setExit();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+};
 
 struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerAction >
 {
@@ -104,7 +164,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().setExit();
 		return discard_event();
 	}
 
@@ -223,7 +283,6 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		return transit< CPaidRegistration >();
-		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -350,6 +409,12 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 	CPubKey m_pubKey;
 };
+
+CAdmitTrackerAction::CAdmitTrackerAction( uintptr_t _nodePtr )
+	: m_nodePtr( _nodePtr )
+{
+	initiate();
+}
 
 CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: common::CAction< common::CMonitorTypes >( _actionKey )

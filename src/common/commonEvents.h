@@ -211,6 +211,11 @@ public:
 	{
 		this->m_action->process_event( _executedIndicator );
 	}
+
+	void operator()( CAvailableCoinsEvent const & _availableCoins ) const
+	{
+		this->m_action->process_event( _availableCoins );
+	}
 private:
 	Action * m_action;
 };

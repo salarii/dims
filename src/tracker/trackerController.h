@@ -48,6 +48,15 @@ public:
 		return m_statusMessage;
 	}
 
+	void autoRenewRegistration( bool _renewal )
+	{
+		m_autoRegistrationRenewal = _renewal;
+	}
+
+	bool autoRenewRegistration() const
+	{
+		return m_autoRegistrationRenewal;
+	}
 private:
 	CTrackerController();
 
@@ -63,6 +72,8 @@ private:
 	float const m_deviation;
 
 	std::string m_statusMessage;
+
+	bool m_autoRegistrationRenewal;
 };
 
 
