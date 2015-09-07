@@ -73,7 +73,7 @@ ReadTrackerData( std::map< uint160, common::CTrackerData > & _trackerData, CData
 
 			_ssValue >> trackerData;
 
-			if ( trackerData.m_publicKey.GetID() == keyId )
+			if ( trackerData.m_publicKey.GetID() != keyId )
 				return false;
 
 			_trackerData.insert( std::make_pair( keyId, trackerData ) );
