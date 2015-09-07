@@ -71,24 +71,15 @@ struct CAllyMonitorData : public common::CValidNodeInfo
 	CPubKey m_publicKey;
 };
 
-struct CAllyTrackerData
+struct CAllyTrackerData : public CTrackerData
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(m_trackerKey);
+		READWRITE(*this);
 		READWRITE(m_allyMonitorKey);
-		READWRITE(m_reputation);
-		READWRITE(m_networkTime);
-		READWRITE(m_previousNetworkTime);
-		READWRITE(m_countedTime);
 	)
 
-	CPubKey m_trackerKey;
 	CPubKey m_allyMonitorKey;
-	unsigned int m_reputation;
-	uint64_t m_networkTime;
-	uint64_t m_previousNetworkTime;
-	unsigned int m_countedTime;
 };
 
 struct CUnidentifiedNodeInfo

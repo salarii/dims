@@ -101,6 +101,7 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
 		context< CProvideInfoAction >().dropRequests();
+		context< CProvideInfoAction >().setExit();
 		return discard_event();
 	}
 

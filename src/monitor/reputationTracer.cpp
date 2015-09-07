@@ -311,16 +311,24 @@ CReputationTracker::checkForTracker( CPubKey const & _pubKey, common::CTrackerDa
 {
 	RegisteredTrackers::const_iterator iterator = m_registeredTrackers.find( _pubKey.GetID() );
 
-	if ( iterator == m_registeredTrackers.end() )
-		return false;
+	if ( iterator != m_registeredTrackers.end() )
+	{
+		_trackerData = iterator->second;
+		_controllingMonitor = common::CAuthenticationProvider::getInstance()->getMyKey();
 
-	_trackerData = iterator->second;
+		return true;
+	}
 
-	std::map< uint160, uint160 >::const_iterator monitorIterator = m_trackerToMonitor.find( _pubKey.GetID() );
-	assert( m_trackerToMonitor.end() != monitorIterator );
+	AllyTrackers::const_iterator allyIterator = m_allyTrackersRankings.find( _pubKey.GetID() );
 
-	_controllingMonitor = m_allyMonitors.find( monitorIterator->second )->second.m_publicKey;
+	if ( allyIterator == m_allyTrackersRankings.end() )
+		return  false;
 
+	_trackerData = dynamic_cast<common::CTrackerData const&>( allyIterator->second );
+
+	_controllingMonitor = allyIterator->second.m_allyMonitorKey;
+
+	return true;
 }
 
 void

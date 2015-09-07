@@ -75,7 +75,7 @@ private:
 
 	typedef std::map< uint160, common::CTrackerData > RegisteredTrackers;
 
-	typedef std::map< uint160, std::vector< common::CAllyTrackerData > > AllyTrackers;
+	typedef std::map< uint160, common::CAllyTrackerData > AllyTrackers;
 
 	typedef std::map< uint160, unsigned int > TransactionsAddmited;
 
