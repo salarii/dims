@@ -7,7 +7,7 @@
 #include "getBalanceAction.h"
 #include "base58.h"
 #include "trackerNodesManager.h"
-#include "trackerController.h"
+#include "controller.h"
 
 #include <boost/foreach.hpp>
 
@@ -41,8 +41,8 @@ public:
 
 	void operator()( CTrackerStatsReq const & _trackerStatsReq ) const
 	{
-		CTrackerController * trackerController = CTrackerController::getInstance();
-		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTrackerSpecificStats( trackerController->getPrice() ) );
+		CController * controller = CController::getInstance();
+		CClientRequestsManager::getInstance()->setClientResponse( m_hash, CTrackerSpecificStats( controller->getPrice() ) );
 	}
 
 	void operator()( CTransactionMessage const & _transactionMessage ) const

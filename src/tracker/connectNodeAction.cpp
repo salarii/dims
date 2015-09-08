@@ -9,12 +9,12 @@
 #include "common/actionHandler.h"
 
 #include "tracker/connectNodeAction.h"
+#include "tracker/filters.h"
+#include "tracker/controller.h"
+#include "tracker/controllerEvents.h"
+#include "tracker/requests.h"
 #include "tracker/trackerNodesManager.h"
-#include "tracker/trackerFilters.h"
-#include "tracker/trackerController.h"
-#include "tracker/trackerControllerEvents.h"
 #include "tracker/trackerNodeMedium.h"
-#include "tracker/trackerRequests.h"
 #include "tracker/registerAction.h"
 
 #include <boost/statechart/simple_state.hpp>
@@ -204,7 +204,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		{
 		case common::CRole::Tracker:
 			LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
-			CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
+			CController::getInstance()->process_event( CConnectedToTrackerEvent() );
 			return transit< CGetNetworkInfo >();
 		case common::CRole::Seed:
 			return transit< ConnectedToSeed >();
@@ -317,7 +317,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			{
 			case common::CRole::Tracker:
 				LogPrintf("connect node action: %p connected to tracker \n", &context< CConnectNodeAction >() );
-				CTrackerController::getInstance()->process_event( CConnectedToTrackerEvent() );
+				CController::getInstance()->process_event( CConnectedToTrackerEvent() );
 				return transit< CGetNetworkInfo >();
 			case common::CRole::Seed:
 				return transit< ConnectedToSeed >();

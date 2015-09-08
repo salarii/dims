@@ -14,7 +14,7 @@
 
 #include "tracker/clientRequestsManager.h"
 #include "tracker/getBalanceAction.h"
-#include "tracker/trackerRequests.h"
+#include "tracker/requests.h"
 
 namespace tracker
 {

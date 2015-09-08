@@ -8,7 +8,7 @@
 
 #include "tracker/getBalanceAction.h"
 #include "tracker/validateTransactionsAction.h"
-#include "tracker/trackerEvents.h"
+#include "tracker/events.h"
 #include "tracker/connectNodeAction.h"
 #include "tracker/trackOriginAddressAction.h"
 #include "tracker/synchronizationAction.h"

@@ -14,7 +14,7 @@
 #include <boost/statechart/custom_reaction.hpp>
 
 #include "tracker/provideInfoAction.h"
-#include "tracker/trackerRequests.h"
+#include "tracker/requests.h"
 
 namespace tracker
 {

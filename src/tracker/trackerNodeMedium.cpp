@@ -8,7 +8,7 @@
 #include "tracker/trackerNodeMedium.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/connectNodeAction.h"
-#include "tracker/trackerRequests.h"
+#include "tracker/requests.h"
 
 namespace tracker
 {

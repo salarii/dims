@@ -13,13 +13,13 @@
 #include "common/analyseTransaction.h"
 
 #include "tracker/validateTransactionsAction.h"
-#include "tracker/trackerEvents.h"
+#include "tracker/events.h"
 #include "tracker/transactionRecordManager.h"
 #include "tracker/clientRequestsManager.h"
-#include "tracker/trackerController.h"
-#include "tracker/trackerFilters.h"
+#include "tracker/controller.h"
+#include "tracker/filters.h"
 #include "tracker/trackerNodesManager.h"
-#include "tracker/trackerRequests.h"
+#include "tracker/requests.h"
 
 #include "wallet.h"
 /*
@@ -92,7 +92,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 			{
 				value += txOut.nValue;
 			}
-			if ( tracker::CTrackerController::getInstance()->getPrice() <= value )
+			if ( tracker::CController::getInstance()->getPrice() <= value )
 				validTransactions.push_back( transaction );
 			else
 				invalidTransactions.push_back( transaction );

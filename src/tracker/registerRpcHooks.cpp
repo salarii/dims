@@ -9,8 +9,8 @@
 #include "common/actionHandler.h"
 #include "common/authenticationProvider.h"
 
-#include "tracker/trackerControllerEvents.h"
-#include "tracker/trackerController.h"
+#include "tracker/controllerEvents.h"
+#include "tracker/controller.h"
 #include "tracker/registerRpcHooks.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/registerAction.h"
@@ -21,9 +21,9 @@ namespace tracker
 std::string
 getStatus()
 {
-	CTrackerController::getInstance()->process_event( common::CUpdateStatus() );
+	CController::getInstance()->process_event( common::CUpdateStatus() );
 
-	return CTrackerController::getInstance()->getStatusMessage();
+	return CController::getInstance()->getStatusMessage();
 }
 
 std::string registerInNetwork( std::string const & _key )

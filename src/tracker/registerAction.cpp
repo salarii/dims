@@ -13,11 +13,12 @@
 #include "common/setResponseVisitor.h"
 
 #include "tracker/passTransactionAction.h"
-#include "tracker/trackerRequests.h"
+#include "tracker/requests.h"
 #include "tracker/selfWallet.h"
 #include "tracker/synchronizationAction.h"
 #include "tracker/getBalanceAction.h"
-#include "tracker/trackerController.h"
+#include "tracker/controller.h"
+#include "tracker/controllerEvents.h"
 
 namespace tracker
 {
@@ -74,7 +75,7 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 
 			context< CRegisterAction >().addRequest( request );
 
-			if ( CTrackerController::getInstance()->autoRenewRegistration() )
+			if ( CController::getInstance()->autoRenewRegistration() )
 			{
 				request = new common::CSendMessageRequest< common::CTrackerTypes >(
 							common::CPayloadKind::AdmitAsk
@@ -275,7 +276,7 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 
 		assert( result.m_result );// for debug only, do something here
 
-		CTrackerController::getInstance()->setConnected( true );
+		CController::getInstance()->setConnected( true );
 
 		context< CRegisterAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
@@ -340,6 +341,9 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		request->addPayload( common::CAck() );
 
 		context< CRegisterAction >().addRequest( request );
+
+		// registration done
+		CController::getInstance()->process_event( CMonitorAcceptEvent( _messageResult.m_pubKey ) );
 
 		return discard_event();
 	}

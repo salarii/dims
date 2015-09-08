@@ -7,8 +7,8 @@
 
 #include "tracker/recognizeNetworkAction.h"
 #include "tracker/connectNodeAction.h"
-#include "tracker/trackerFilters.h"
-#include "tracker/trackerController.h"
+#include "tracker/filters.h"
+#include "tracker/controller.h"
 #include "tracker/provideInfoAction.h"
 
 #include <boost/statechart/state.hpp>
@@ -108,7 +108,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 	~CGetDnsInfo()
 	{
-		CTrackerController::getInstance()->process_event( common::CNetworkRecognizedEvent( m_trackers, m_monitors ) );
+		CController::getInstance()->process_event( common::CNetworkRecognizedEvent( m_trackers, m_monitors ) );
 	}
 
 	typedef boost::mpl::list<
@@ -133,7 +133,7 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 
 	boost::statechart::result react( common::CRegistrationDataEvent const & _registerData )
 	{
-		CTrackerController::getInstance()->process_event( _registerData );
+		CController::getInstance()->process_event( _registerData );
 		context< CRecognizeNetworkAction >().setExit();
 		return discard_event();
 	}

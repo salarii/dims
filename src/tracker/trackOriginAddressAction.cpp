@@ -18,12 +18,12 @@
 #include "main.h"
 #include "chainparams.h"
 
-#include "tracker/trackerEvents.h"
-#include "tracker/trackerController.h"
-#include "tracker/trackerControllerEvents.h"
-#include "tracker/trackerFilters.h"
+#include "tracker/events.h"
+#include "tracker/controller.h"
+#include "tracker/controllerEvents.h"
+#include "tracker/filters.h"
 #include "tracker/trackerNodeMedium.h"
-#include "tracker/trackerRequests.h"
+#include "tracker/requests.h"
 
 namespace tracker
 {
@@ -55,7 +55,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		CTrackerController::getInstance()->process_event( common::CBitcoinNetworkConnection( vNodes.size() ) );
+		CController::getInstance()->process_event( common::CBitcoinNetworkConnection( vNodes.size() ) );
 
 		if ( vNodes.size() >= common::dimsParams().getUsedBitcoinNodesNumber() )
 		{
@@ -163,7 +163,7 @@ CTrackOriginAddressAction::requestFiltered()
 	{
 		if ( index == 0 )
 		{
-			CTrackerController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
+			CController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 			return;
 		}
 		index = index->pprev;
@@ -178,13 +178,13 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
-	tracker::CTrackerController::getInstance()->process_event( common::CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
+	tracker::CController::getInstance()->process_event( common::CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
 
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );
 
 	if ( requestedBlocks.size() < SynchronizedTreshold )
-		CTrackerController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
+		CController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
 	dropRequests();
 	addRequest( new common::CAskForTransactionsRequest< common::CTrackerTypes >( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );

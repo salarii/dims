@@ -7,7 +7,7 @@
 #include "common/actionHandler.h"
 
 #include "tracker/pingAction.h"
-#include "tracker/trackerFilters.h"
+#include "tracker/filters.h"
 #include "tracker/connectNodeAction.h"
 
 #include <boost/statechart/state.hpp>

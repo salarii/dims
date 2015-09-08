@@ -12,10 +12,10 @@
 #include "common/setResponseVisitor.h"
 
 #include "tracker/passTransactionAction.h"
-#include "tracker/trackerFilters.h"
+#include "tracker/filters.h"
 #include "tracker/transactionRecordManager.h"
-#include "tracker/trackerRequests.h"
-#include "tracker/trackerController.h"
+#include "tracker/requests.h"
+#include "tracker/controller.h"
 #include "tracker/getBalanceAction.h"
 
 extern CWallet* pwalletMain;
@@ -265,7 +265,7 @@ CPassTransactionAction::CPassTransactionAction( CKeyID const & _keyId, int64_t _
 	, m_amount( _amount )
 {
 	initiate();
-	if ( CTrackerController::getInstance()->isConnected() )
+	if ( CController::getInstance()->isConnected() )
 		process_event( CValidInNetworkEvent() );
 	else
 		process_event( CInvalidInNetworkEvent() );

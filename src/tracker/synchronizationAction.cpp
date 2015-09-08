@@ -21,11 +21,11 @@
 
 #include "tracker/transactionRecordManager.h"
 #include "tracker/synchronizationAction.h"
-#include "tracker/trackerRequests.h"
-#include "tracker/trackerFilters.h"
-#include "tracker/trackerEvents.h"
-#include "tracker/trackerController.h"
-#include "tracker/trackerControllerEvents.h"
+#include "tracker/requests.h"
+#include "tracker/filters.h"
+#include "tracker/events.h"
+#include "tracker/controller.h"
+#include "tracker/controllerEvents.h"
 #include "tracker/trackOriginAddressAction.h"
 
 namespace tracker
@@ -296,7 +296,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 			}
 			else
 			{
-				CTrackerController::getInstance()->process_event( CSynchronizedWithNetworkEvent() );
+				CController::getInstance()->process_event( CSynchronizedWithNetworkEvent() );
 				common::CSegmentFileStorage::getInstance()->resetState();
 				common::CSegmentFileStorage::getInstance()->retriveState();
 

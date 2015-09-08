@@ -7,7 +7,7 @@
 
 #include "tracker/processNetwork.h"
 #include "tracker/trackerNodesManager.h"
-#include "tracker/trackerFilters.h"
+#include "tracker/filters.h"
 #include "tracker/trackerNodeMedium.h"
 #include "tracker/connectNodeAction.h"
 #include "tracker/synchronizationAction.h"

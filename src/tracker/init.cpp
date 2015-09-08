@@ -50,7 +50,7 @@
 #include "tracker/trackerNodesManager.h"
 #include "tracker/processNetwork.h"
 #include "tracker/trackOriginAddressAction.h"
-#include "tracker/trackerController.h"
+#include "tracker/controller.h"
 #include "tracker/registerRpcHooks.h"
 #include "tracker/transactionRecordManager.h"
 
@@ -968,7 +968,7 @@ common::CDimsParams::setAppType( common::AppType::Tracker );
 
 	tracker::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
 
-	tracker::CTrackerController::getInstance();
+	tracker::CController::getInstance();
 	// ********************************************************* Step 10: load peers
 
     uiInterface.InitMessage(_("Loading addresses..."));

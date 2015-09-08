@@ -34,7 +34,7 @@ unsigned int const OneTransactionGain = 10;
 
 // allow some  deviation for  other monitors
 
-uint64_t const CReputationTracker::m_recalculateTime = 10000;// this  time is  vital how frequent it should be???
+uint64_t const CReputationTracker::m_recalculateTime = 20000;// this  time is  vital how frequent it should be???
 
 CReputationTracker::CReputationTracker()
 {
@@ -108,31 +108,39 @@ CReputationTracker::loop()
 	{
 		{
 			boost::lock_guard<boost::mutex> lock( m_lock );
+
+			std::list< uint160 > toBeRemoved;
 			BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
 			{
-				if ( tracker.second.m_networkTime <= m_recalculateTime )
+				int64_t timePassed = GetTime() - tracker.second.m_contractTime;
+				int64_t timeLeft = tracker.second.m_networkTime - timePassed;
+
+				//	timeLeft < 0//  unregister
+				if ( timeLeft < 0 )
 				{
-					int64_t timePassed = GetTime() - tracker.second.m_contractTime;
-					int64_t timeLeft = tracker.second.m_networkTime - timePassed;
-
-					//	timeLeft < 0//  unregister
-
-					if ( timeLeft < CMonitorController::getInstance()->getPeriod() * TriggerExtendRatio )
-					{
-						uintptr_t nodeIndicator;
-						getKeyToNode( tracker.second.m_publicKey, nodeIndicator);
-						if ( isExtendInProgress( tracker.second.m_publicKey ) )
-						{
-							setExtendInProgress( tracker.second.m_publicKey );
-							common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CAdmitTrackerAction(nodeIndicator) );
-						}
-					}
-
-					{
-						tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
-					}
-					//	tracker.second.m_networkTime += m_recalculateTime;
+					toBeRemoved.push_back( tracker.first );
+					CRankingDatabase::getInstance()->eraseTrackerData( tracker.second.m_publicKey );
 				}
+				else if ( timeLeft < CMonitorController::getInstance()->getPeriod() * TriggerExtendRatio )
+				{
+					uintptr_t nodeIndicator;
+					getKeyToNode( tracker.second.m_publicKey, nodeIndicator);
+					if ( isExtendInProgress( tracker.second.m_publicKey ) )
+					{
+						setExtendInProgress( tracker.second.m_publicKey );
+						common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CAdmitTrackerAction(nodeIndicator) );
+					}
+				}
+
+				{
+					tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
+				}
+				//	tracker.second.m_networkTime += m_recalculateTime;
+			}
+
+			BOOST_FOREACH( uint160 const & id, toBeRemoved )
+			{
+				m_registeredTrackers.erase( id );
 			}
 		}
 
@@ -155,11 +163,9 @@ CReputationTracker::loadCurrentRanking()
 	CRankingDatabase::getInstance()->loadIdentificationDatabase( m_registeredTrackers );
 }
 
-
 void
 CReputationTracker::checkValidity( common::CAllyTrackerData const & _allyTrackerData )
 {
-
 }
 
 std::vector< common::CTrackerData >
@@ -363,6 +369,8 @@ CReputationTracker::eraseExtendInProgress( CPubKey const & _pubKey )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_extendInProgress.erase(_pubKey);//m_extendInProgress.find(_pubKey)
+
+	return true;
 }
 
 void

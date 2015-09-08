@@ -86,6 +86,7 @@ TRACKER_CORE_H = \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
   tracker/connectNodeAction.h \
+  tracker/controller.h \
   tracker/databaseManager.h \
   tracker/getBalanceAction.h \	
   tracker/init.h \
@@ -98,17 +99,15 @@ TRACKER_CORE_H = \
   tracker/recognizeNetworkAction.h \
   tracker/registerAction.h \
   tracker/registerRpcHooks.h \
+  tracker/requests.h \
   tracker/selfWallet.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/synchronizationAction.h \
-  tracker/trackerController.h \
-  tracker/trackerControllerStates.h \
-  tracker/trackerControllerEvents.h \
+  tracker/controllerEvents.h \
   tracker/trackerNodeMedium.h \
   tracker/trackerNodesManager.h \
   tracker/transactionRecordManager.h \
-  tracker/trackerRequests.h \
   tracker/trackOriginAddressAction.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h
@@ -182,6 +181,8 @@ TRACKER_CORE_CPP = \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
   tracker/connectNodeAction.cpp \
+  tracker/controller.cpp \
+  tracker/controllerEvents.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
   tracker/init.cpp \
@@ -194,17 +195,14 @@ TRACKER_CORE_CPP = \
   tracker/recognizeNetworkAction.cpp \
   tracker/registerAction.cpp \
   tracker/registerRpcHooks.cpp \
+  tracker/requests.cpp \
   tracker/rpcTracker.cpp \
   tracker/selfWallet.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/synchronizationAction.cpp \
-  tracker/trackerController.cpp \
-  tracker/trackerControllerEvents.cpp \
-  tracker/trackerControllerStates.cpp \
   tracker/trackerNodeMedium.cpp \
   tracker/trackerNodesManager.cpp \
-  tracker/trackerRequests.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/trackOriginAddressAction.cpp \
   tracker/validateTransactionsAction.cpp
