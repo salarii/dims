@@ -42,7 +42,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		if ( m_addressIndex < addresses.size() )
 		{
 			m_pubKey = addresses.at( m_addressIndex );
-			context< CSendBalanceInfoAction >().dropRequests();
+			context< CSendBalanceInfoAction >().forgetRequests();
 			context< CSendBalanceInfoAction >().addRequest( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
 		}
 		else
@@ -74,7 +74,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		if ( m_addressIndex < m_addresses.size() )
 		{
 			m_pubKey = m_addresses.at( m_addressIndex );
-			context< CSendBalanceInfoAction >().dropRequests();
+			context< CSendBalanceInfoAction >().forgetRequests();
 			context< CSendBalanceInfoAction >().addRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
 		}
 		else
@@ -92,7 +92,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
 	{
-		context< CSendBalanceInfoAction >().dropRequests();
+		context< CSendBalanceInfoAction >().forgetRequests();
 		return discard_event();
 	}
 

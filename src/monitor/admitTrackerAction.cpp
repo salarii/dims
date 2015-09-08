@@ -75,7 +75,7 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk )
 		{
-			context< CAdmitTrackerAction >().dropRequests();
+			context< CAdmitTrackerAction >().forgetRequests();
 
 			common::CSendMessageRequest< common::CMonitorTypes > * request =
 					new common::CSendMessageRequest< common::CMonitorTypes >(
@@ -118,7 +118,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		: my_base( ctx )
 	{
 		LogPrintf("admit tracker action: %p wait for info \n", &context< CAdmitTrackerAction >() );
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 	}
@@ -131,7 +131,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 
 		// todo create alredy registered logic _messageResult.m_pubKey
 
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CAckRequest< common::CMonitorTypes >(
@@ -183,7 +183,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
 
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
@@ -217,13 +217,13 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -240,7 +240,7 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 	CPaidRegistrationEmptyNetwork( my_context ctx )
 		: my_base( ctx )
 	{
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >(
 						WaitTime
@@ -299,7 +299,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		, m_checkPeriod( 30000 )
 	{
 		LogPrintf("admit tracker action: %p paid registration \n", &context< CAdmitTrackerAction >() );
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 
 		CChargeRegister::getInstance()->setStoreTransactions( true );
 	}
@@ -329,7 +329,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		context< CAdmitTrackerAction >().addRequest( request );
 
-		context< CAdmitTrackerAction >().dropRequests();
+		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >(
 						m_checkPeriod
@@ -350,7 +350,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		{
 			CReputationTracker::getInstance()->addTracker( common::CTrackerData( m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
-			context< CAdmitTrackerAction >().dropRequests();
+			context< CAdmitTrackerAction >().forgetRequests();
 			context< CAdmitTrackerAction >().addRequest(
 						new common::CResultRequest< common::CMonitorTypes >(
 							  context< CAdmitTrackerAction >().getActionKey()
@@ -373,7 +373,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		}
 		else
 		{
-			context< CAdmitTrackerAction >().dropRequests();
+			context< CAdmitTrackerAction >().forgetRequests();
 
 			context< CAdmitTrackerAction >().addRequest(
 						new common::CTimeEventRequest< common::CMonitorTypes >(

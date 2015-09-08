@@ -66,7 +66,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CConnectNodeAction
 	CUnconnected( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p unconnected \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					new CConnectToTrackerRequest( context< CConnectNodeAction >().getAddress(), context< CConnectNodeAction >().getServiceAddress() ) );
 	}
@@ -90,7 +90,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		CTrackerNodesManager::getInstance()->addNode( new CTrackerNodeMedium( connectedEvent->m_node ) );
 		context< CConnectNodeAction >().setServiceAddress( connectedEvent->m_node->addr );
 
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 
 		context< CConnectNodeAction >().addRequest(
 					createIdentifyResponse(
@@ -122,7 +122,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
 
 			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
@@ -133,7 +133,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		else
 		{
 			// something  is  wrong  with  pair react  somehow for  now put 0
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 		}
 		return transit< CDetermineRoleConnecting >();
 	}
@@ -148,7 +148,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 {
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CTrackerTypes >(
 						  common::CInfoKind::RoleInfoAsk
@@ -171,7 +171,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			common::convertPayload( orginalMessage, infoRequest );
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 
 			context< CConnectNodeAction >().addRequest(
 						new common::CNetworkRoleRequest< common::CTrackerTypes >(
@@ -185,7 +185,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			common::CNetworkRole networkRole;
 			common::convertPayload( orginalMessage, networkRole );
 
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
@@ -241,7 +241,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 			context< CConnectNodeAction >().setServiceAddress( _identificationResult.m_address );
 
 			CTrackerNodesManager::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
@@ -260,7 +260,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		else
 		{
 			// something  is  wrong  with  pair react  somehow for  now put 0
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 		}
 		return discard_event();
 	}
@@ -304,7 +304,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			common::CNetworkRole networkRole;
 			common::convertPayload( orginalMessage, networkRole );
 
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CConnectNodeAction >().getActionKey()
@@ -335,7 +335,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 
 		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CTrackerTypes >(
@@ -360,7 +360,16 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CConnectNodeAc
 	CCantReachNode( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p can't reach node \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().setResult(
+					common::CNetworkInfoResult(
+						common::CValidNodeInfo( CPubKey(), context< CConnectNodeAction >().getServiceAddress() ) //  not  nice
+						, common::CRole::Tracker
+						,std::set< common::CValidNodeInfo >()
+						, std::set< common::CValidNodeInfo >()
+						, false
+						) );
+
+		context< CConnectNodeAction >().setExit();
 	}
 };
 struct CStop;
@@ -384,7 +393,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().setExit();
 		return discard_event();
 	}
@@ -402,7 +411,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 			common::convertPayload( orginalMessage, infoRequest );
 
 			assert( infoRequest.m_kind == common::CInfoKind::NetworkInfoAsk );
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 
 			common::CKnownNetworkInfo knownNetworkInfo;
 			knownNetworkInfo.m_trackersInfo = CTrackerNodesManager::getInstance()->getNodesInfo( common::CRole::Tracker );
@@ -443,7 +452,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					, context< CConnectNodeAction >().getNodePtr()
 					);
 
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CTrackerTypes >(
 						  common::CInfoKind::NetworkInfoAsk
@@ -526,7 +535,7 @@ struct CStop : boost::statechart::state< CStop, CConnectNodeAction >
 	{
 		LogPrintf("connect node action: %p stop \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().setExit();
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 	}
 };
 

@@ -24,6 +24,8 @@ class CReputationTracker : public common::CNodesManager< common::CMonitorTypes >
 public:
 	static CReputationTracker * getInstance();
 
+		void loop();
+
 	void addTracker( common::CTrackerData const & _trackerData );
 
 	void addAllyTracker( common::CAllyTrackerData const & _trackerData );
@@ -75,7 +77,6 @@ private:
 
 	void loadCurrentRanking();
 // counting reputation is crucial, it will be  done  differently in separate  action, something I consider  to call "super  action"
-	void loop();
 private:
 	mutable boost::mutex m_lock;
 

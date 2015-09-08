@@ -44,7 +44,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		context< CProvideInfoAction >().setInfoRequestKey( _messageResult.m_message.m_header.m_id );
 
-		context< CProvideInfoAction >().dropRequests();
+		context< CProvideInfoAction >().forgetRequests();
 
 		context< CProvideInfoAction >().addRequest(
 					new common::CAckRequest< common::CMonitorTypes >(
@@ -100,14 +100,14 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		context< CProvideInfoAction >().dropRequests();
+		context< CProvideInfoAction >().forgetRequests();
 		context< CProvideInfoAction >().setExit();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CProvideInfoAction >().dropRequests();
+		context< CProvideInfoAction >().forgetRequests();
 		context< CProvideInfoAction >().setExit();
 		return discard_event();
 	}

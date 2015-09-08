@@ -38,7 +38,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	{
 		CTrackerLocalRanking::getInstance()->resetMonitors();
 		CTrackerLocalRanking::getInstance()->resetTrackers();
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		context< CConnectAction >().addRequest( new CDnsInfoRequest() );
 	}
 
@@ -74,7 +74,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 {
 	CRecognizeNetwork( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		context< CConnectAction >().addRequest( new CRecognizeNetworkRequest() );
 		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
@@ -96,7 +96,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		analyseData( moniorPresent );
 
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		return moniorPresent ? transit< CMonitorPresent >() : transit< CDetermineTrackers >();
 	}
 
@@ -140,7 +140,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 	boost::statechart::result react( common::CErrorEvent const & _networkInfo )
 	{
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -181,7 +181,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 {
 	CMonitorPresent( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		context< CConnectAction >().addRequest( new CMonitorInfoRequest( new CMediumClassFilter( common::RequestKind::Monitors ) ) );
 		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( MonitorAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
@@ -201,7 +201,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		m_checked.insert( m_pending.begin(), m_pending.end() );
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		context< CConnectAction >().addRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 
 		return discard_event();
@@ -284,7 +284,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 		if ( m_pending.empty() )
 		{
-			context< CConnectAction >().dropRequests();
+			context< CConnectAction >().forgetRequests();
 			context< CConnectAction >().addRequest( new CMonitorInfoRequest( new CMediumClassWithExceptionFilter( m_checked, common::RequestKind::Monitors ) ) );
 		}
 
@@ -463,7 +463,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 {
 	CDetermineTrackers( my_context ctx ) : my_base( ctx )
 	{
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		context< CConnectAction >().addRequest( new CTrackersInfoRequest( new CMediumClassFilter( common::RequestKind::UndeterminedTrackers ) ) );
 		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( common::RequestKind::Time ) ) );
 	}
@@ -475,7 +475,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 						  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
 						, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-		context< CConnectAction >().dropRequests();
+		context< CConnectAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -513,7 +513,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 			context< CConnectAction >().m_connected();
 
-			context< CConnectAction >().dropRequests();
+			context< CConnectAction >().forgetRequests();
 		}
 
 		return discard_event();
@@ -528,7 +528,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 			context< CConnectAction >().m_connected();
 
-			context< CConnectAction >().dropRequests();
+			context< CConnectAction >().forgetRequests();
 			return discard_event();
 	}
 

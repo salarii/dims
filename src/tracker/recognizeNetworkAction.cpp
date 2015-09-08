@@ -20,6 +20,8 @@ namespace tracker
 
 struct CCheckRegistrationStatus;
 
+int64_t const ConnectWaitTime = 60000;
+
 struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAction >
 {
 	CGetDnsInfo( my_context ctx ) : my_base( ctx )
@@ -29,11 +31,17 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
 
+		context< CRecognizeNetworkAction >().forgetRequests();
+		context< CRecognizeNetworkAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						  ConnectWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 		if ( !vAdd.empty() )
 		{
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				context< CRecognizeNetworkAction >().dropRequests();
+				m_alreadyAsked.insert( address );
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CTrackerTypes >(
 								new CConnectNodeAction( address )
@@ -48,10 +56,11 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				context< CRecognizeNetworkAction >().setExit();
 			}
+
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				context< CRecognizeNetworkAction >().dropRequests();
+				m_alreadyAsked.insert( address );
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CTrackerTypes >(
 								new CConnectNodeAction( address )
@@ -60,49 +69,68 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		}
 	}
 
-	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfoEvent )
+	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
 	{
-		std::set< common::CValidNodeInfo > nodesToAsk;
+		std::set< CAddress > nodesToAsk;
 
-		if ( _networkInfoEvent.m_role == common::CRole::Tracker )
-		{
-			m_trackers.insert( _networkInfoEvent.m_self );
-		}
-		else if ( _networkInfoEvent.m_role == common::CRole::Monitor )
-		{
-			m_monitors.insert( _networkInfoEvent.m_self );
-		}
+		m_received.insert( _networkInfoEvent.m_nodeSelfInfo.m_address );//  valid  even  if  invalid : )
 
-		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_monitorsInfo )
+		if ( _networkInfoEvent.m_valid )
 		{
-			if ( m_monitors.find( nodeInfo ) == m_monitors.end() )
+			if ( _networkInfoEvent.m_role == common::CRole::Tracker )
 			{
-				nodesToAsk.insert( nodeInfo );
+				m_trackers.insert( _networkInfoEvent.m_nodeSelfInfo );
+			}
+			else if ( _networkInfoEvent.m_role == common::CRole::Monitor )
+			{
+				m_monitors.insert( _networkInfoEvent.m_nodeSelfInfo );
+			}
+
+			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_monitorsInfo )
+			{
+				if ( m_monitors.find( nodeInfo ) == m_monitors.end() )
+				{
+					if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
+						nodesToAsk.insert( nodeInfo.m_address );
+				}
+			}
+
+			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_trackersInfo )
+			{
+				if ( m_trackers.find( nodeInfo ) == m_trackers.end() )
+				{
+					if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
+						nodesToAsk.insert( nodeInfo.m_address );
+				}
 			}
 		}
 
-		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_trackersInfo )
-		{
-			if ( m_trackers.find( nodeInfo ) == m_trackers.end() )
-			{
-				nodesToAsk.insert( nodeInfo );
-			}
-		}
-
-		if ( nodesToAsk.empty() )
+		if (
+			m_received.size() == m_alreadyAsked.size()
+			 && nodesToAsk.empty()
+			)
 		{
 			return transit< CCheckRegistrationStatus >();
 		}
-		else
+		else if ( !nodesToAsk.empty() )
 		{
-			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, nodesToAsk )
+			context< CRecognizeNetworkAction >().forgetRequests();
+
+			context< CRecognizeNetworkAction >().addRequest(
+						new common::CTimeEventRequest< common::CTrackerTypes >(
+							ConnectWaitTime
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+			BOOST_FOREACH( CAddress const & address, nodesToAsk )
 			{
+				m_alreadyAsked.insert( address );
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CTrackerTypes >(
-								new CConnectNodeAction( nodeInfo.m_address )
+								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
 		}
+
 		return discard_event();
 	}
 
@@ -111,20 +139,29 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		CController::getInstance()->process_event( common::CNetworkRecognizedEvent( m_trackers, m_monitors ) );
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CRecognizeNetworkAction >().forgetRequests();
+		return transit< CCheckRegistrationStatus >();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CNetworkInfoResult >
+
 	> reactions;
 
 	std::set< common::CValidNodeInfo > m_trackers;
 	std::set< common::CValidNodeInfo > m_monitors;
-
+	std::set< CAddress > m_received;
+	std::set< CAddress > m_alreadyAsked;
 };
 
 struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationStatus, CRecognizeNetworkAction >
 {
 	CCheckRegistrationStatus( my_context ctx ) : my_base( ctx )
 	{
-		context< CRecognizeNetworkAction >().dropRequests();
+		context< CRecognizeNetworkAction >().forgetRequests();
 		context< CRecognizeNetworkAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
 						  new CProvideInfoAction( common::CInfoKind::IsRegistered )

@@ -40,7 +40,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 {
 	CSendPing( my_context ctx ) : my_base( ctx ), m_received( true )
 	{
-		context< CPingAction >().dropRequests();
+		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest< common::CSeedTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -53,7 +53,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CPingAction >().dropRequests();
+		context< CPingAction >().forgetRequests();
 
 		if ( !m_received )
 		{
@@ -102,7 +102,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 {
 	CSendPong( my_context ctx ) : my_base( ctx )
 	{
-		context< CPingAction >().dropRequests();
+		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest< common::CSeedTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -115,7 +115,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CPingAction >().dropRequests();
+		context< CPingAction >().forgetRequests();
 
 		if ( !m_received )
 		{

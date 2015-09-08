@@ -78,7 +78,7 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 	CSynchronization( my_context ctx )
 		: my_base( ctx )
 	{
-		context< CEnterNetworkAction >().dropRequests();
+		context< CEnterNetworkAction >().forgetRequests();
 		context< CEnterNetworkAction >().addRequest(
 		 new common::CTimeEventRequest< common::CMonitorTypes >(
 						WaitTime

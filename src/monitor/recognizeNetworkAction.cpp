@@ -29,7 +29,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				context< CRecognizeNetworkAction >().dropRequests();
+				context< CRecognizeNetworkAction >().forgetRequests();
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CMonitorTypes >(
 								new CConnectNodeAction( address )
@@ -43,7 +43,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				context< CRecognizeNetworkAction >().dropRequests();
+				context< CRecognizeNetworkAction >().forgetRequests();
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest< common::CMonitorTypes >(
 								new CConnectNodeAction( address )
@@ -52,14 +52,14 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		}
 	}
 
-	boost::statechart::result react( common::CNetworkInfoEvent const & _networkInfoEvent )
+	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
 	{
 		context< CRecognizeNetworkAction >().setExit();
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CNetworkInfoEvent >
+	boost::statechart::custom_reaction< common::CNetworkInfoResult >
 	> reactions;
 
 };

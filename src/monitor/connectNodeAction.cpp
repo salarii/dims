@@ -59,7 +59,7 @@ struct CMonitorUnconnected : boost::statechart::state< CMonitorUnconnected, CCon
 	{
 		LogPrintf("connect node action: %p monitor unconnected \n", &context< CConnectNodeAction >() );
 
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					new CConnectToNodeRequest( "", context< CConnectNodeAction >().getServiceAddress() ) );
 	}
@@ -80,7 +80,7 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 		context< CConnectNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
 		CReputationTracker::getInstance()->addNode( new common::CNodeMedium< common::CMonitorBaseMedium >( connectedEvent->m_node ) );
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					createIdentifyResponse(
 						context< CConnectNodeAction >().getPayload(),
@@ -111,7 +111,7 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 		{
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
 
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CMonitorTypes >(
@@ -123,7 +123,7 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 		else
 		{
 			// something  is  wrong  with  pair react  somehow for  now put 0
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 		}
 		return transit< CMonitorDetermineRoleConnecting >();
 	}
@@ -173,7 +173,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 			common::CNetworkRole networkRole;
 			common::convertPayload( orginalMessage, networkRole );
 
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CMonitorTypes >(
 							context< CConnectNodeAction >().getActionKey()
@@ -225,7 +225,7 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 		{
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
 
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CMonitorTypes >(
@@ -244,7 +244,7 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 		else
 		{
 			// something  is  wrong  with  pair react  somehow for  now put 0
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 		}
 		return discard_event();
 	}
@@ -288,7 +288,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 			common::CNetworkRole networkRole;
 			common::convertPayload( orginalMessage, networkRole );
 
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 			context< CConnectNodeAction >().addRequest(
 						new common::CAckRequest< common::CMonitorTypes >(
 							  context< CConnectNodeAction >().getActionKey()
@@ -318,7 +318,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 
 		context< CConnectNodeAction >().addRequest(
 					new common::CInfoAskRequest< common::CMonitorTypes >(
@@ -343,7 +343,7 @@ struct CMonitorCantReachNode : boost::statechart::state< CMonitorCantReachNode, 
 	CMonitorCantReachNode( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p can't reach node' \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 	}
 };
 
@@ -359,7 +359,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().setExit();
 		return discard_event();
 	}
@@ -377,7 +377,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 			common::convertPayload( orginalMessage, infoRequest );
 
 			assert( infoRequest.m_kind == common::CInfoKind::NetworkInfoAsk );
-			context< CConnectNodeAction >().dropRequests();
+			context< CConnectNodeAction >().forgetRequests();
 
 			common::CKnownNetworkInfo knownNetworkInfo;
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
@@ -396,7 +396,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().setExit();
 		return transit< CMonitorStop >();
 	}
@@ -413,7 +413,7 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CConnectNodeAction
 	CMonitorStop( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectNodeAction >().setExit();
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 	}
 };
 
@@ -425,7 +425,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getNodePtr() );
 
-		context< CConnectNodeAction >().dropRequests();
+		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CMonitorTypes >(
 						  common::CInfoKind::NetworkInfoAsk

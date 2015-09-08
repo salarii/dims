@@ -151,6 +151,9 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 		if ( !_event.m_registrationTime )
 		{
 			status += "\n not registered \n";
+
+			status += "\n in order to perform any action within network you need to be registered";
+
 		}
 		else
 		{
@@ -165,6 +168,10 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 			convert << timeLeft;
 
 			status += "\nleft: " + convert.str() + " second of registration time \n";
+
+			status += "\nyou may connect to network now,";
+			status += "\nthis will cause synchronization";
+			status += "\nand start performing normal operation within network";
 		}
 
 		context< CController >().setStatusMessage( status );

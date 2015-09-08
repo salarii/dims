@@ -29,7 +29,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 {
 	CPrepareAndSendTransaction( my_context ctx ) : my_base( ctx )
 	{
-		context< CSendTransactionAction >().dropRequests();
+		context< CSendTransactionAction >().forgetRequests();
 		context< CSendTransactionAction >().addRequest( new CTransactionSendRequest( context< CSendTransactionAction >().getTransaction(), new CMediumClassFilter( RequestKind::Transaction, 1 ) ) );
 	}
 //  ack here
@@ -50,7 +50,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 		}
 		else
 		{
-			context< CSendTransactionAction >().dropRequests();
+			context< CSendTransactionAction >().forgetRequests();
 		}
 
 		return discard_event();
@@ -71,7 +71,7 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 											(common::CClientMediumFilter *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 )
 										  : (common::CClientMediumFilter *)new CMediumClassFilter( RequestKind::Transaction, 1 );
 
-		context< CSendTransactionAction >().dropRequests();
+		context< CSendTransactionAction >().forgetRequests();
 		context< CSendTransactionAction >().addRequest(
 					new CTransactionStatusRequest(
 						  context< CSendTransactionAction >().getTransaction().GetHash()
@@ -97,7 +97,7 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 		}
 		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
 		{
-			context< CSendTransactionAction >().dropRequests();
+			context< CSendTransactionAction >().forgetRequests();
 			context< CSendTransactionAction >().addRequest(
 						new CTransactionStatusRequest(
 							  context< CSendTransactionAction >().getTransaction().GetHash()

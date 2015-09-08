@@ -116,7 +116,7 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 		: my_base( ctx )
 	{
 		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
 		 new common::CTimeEventRequest< common::CTrackerTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -156,7 +156,7 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		assert( !"no response" );
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -179,7 +179,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	{
 		LogPrintf("register action: %p free registration \n", &context< CRegisterAction >() );
 
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 
 		context< CRegisterAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
@@ -215,7 +215,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -237,7 +237,7 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 	CSynchronize( my_context ctx )
 		: my_base( ctx )
 	{
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
 		 new common::CTimeEventRequest< common::CTrackerTypes >(
 						WaitTime
@@ -390,7 +390,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -409,7 +409,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	CNetworkAlive( my_context ctx )
 		: my_base( ctx )
 	{
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
 						new CGetBalanceAction()
@@ -418,7 +418,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 
 	boost::statechart::result react( common::CExecutedIndicator const & _executedIndicator )
 	{
-		context< CRegisterAction >().dropRequests();
+		context< CRegisterAction >().forgetRequests();
 
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
@@ -452,12 +452,14 @@ CRegisterAction::CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr
 	, m_nodePtr( _nodePtr )
 {
 	initiate();
+	process_event( CExtensionEvent() );
 }
 
 CRegisterAction::CRegisterAction( uintptr_t _nodePtr )
 	: m_nodePtr( _nodePtr )
 {
 	initiate();
+	process_event( CNewEvent() );
 }
 
 CPubKey

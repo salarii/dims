@@ -41,16 +41,6 @@ struct CNetworkRecognizedEvent : boost::statechart::event< CNetworkRecognizedEve
 	std::set< CValidNodeInfo > m_monitorsInfo;
 };
 
-struct CNetworkInfoEvent : boost::statechart::event< CNetworkInfoEvent >
-{
-	CNetworkInfoEvent(){};
-	CNetworkInfoEvent( CValidNodeInfo const & _self, common::CRole::Enum _role, std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ): m_self( _self ), m_role( _role ), m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
-	CValidNodeInfo m_self;
-	common::CRole::Enum m_role;
-	std::set< CValidNodeInfo > m_trackersInfo;
-	std::set< CValidNodeInfo > m_monitorsInfo;
-};
-
 struct CClientNetworkInfoEvent : boost::statechart::event< CClientNetworkInfoEvent >
 {
 	CClientNetworkInfoEvent( std::vector< CValidNodeInfo > const & _networkInfo, CPubKey const & _selfKey, int _selfRole ):m_networkInfo( _networkInfo ),m_selfKey( _selfKey ), m_selfRole( _selfRole ), m_ip(), m_nodeIndicator( 0 ){};
@@ -189,7 +179,7 @@ public:
 
 	void operator()( CNetworkInfoResult const & _networkInfoResult ) const
 	{
-		m_action->process_event( common::CNetworkInfoEvent( _networkInfoResult.m_nodeSelfInfo, _networkInfoResult.m_role, _networkInfoResult.m_trackersInfo, _networkInfoResult.m_monitorsInfo ) );
+		m_action->process_event( _networkInfoResult );
 	}
 
 	void operator()( CTransactionAck const & _transactionAck ) const

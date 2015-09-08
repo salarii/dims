@@ -98,7 +98,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 
 			if ( infoRequest.m_kind == common::CInfoKind::StorageInfoAsk )
 			{
-				context< CSynchronizationAction >().dropRequests();
+				context< CSynchronizationAction >().forgetRequests();
 
 				context< CSynchronizationAction >().setRequestKey( _messageResult.m_message.m_header.m_id );
 
@@ -216,7 +216,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	{
 		common::CSegmentFileStorage::getInstance()->getCopyBlock( _blockNumber, *m_diskBlock );
 
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		common::CSynchronizationBlock synchronizationBlock( m_diskBlock, _blockNumber );
 
@@ -239,7 +239,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 		common::CSynchronizationSegmentHeader synchronizationSegmentHeader( m_segmentHeader, _headerNumber );
 
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		common::CSendMessageRequest< common::CMonitorTypes > * request =
 				new common::CSendMessageRequest< common::CMonitorTypes >(
@@ -287,7 +287,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	boost::statechart::result react( common::CAckEvent const & )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		return discard_event();
 	}

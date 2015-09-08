@@ -105,7 +105,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 
 		context< CValidateTransactionsAction >().setTransactions( validTransactions );
 
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 		context< CValidateTransactionsAction >().addRequest(
 				new CValidateTransactionsRequest( validTransactions, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
@@ -167,7 +167,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 {
 	CPropagateBundle( my_context ctx ) : my_base( ctx ), m_totalWaitTime( 30 )
 	{
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 		context< CValidateTransactionsAction >().addRequest(
 					new CTransactionsPropagationRequest(
 								context< CValidateTransactionsAction >().getTransactions(),
@@ -183,7 +183,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 	{
 		//not needed for the time being
 		m_participating.insert( _event.m_nodePtr );
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -208,7 +208,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 			return transit< CApproved >();
 		}
 
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -228,7 +228,7 @@ struct CSendAcceptBudle : boost::statechart::state< CSendAcceptBudle, CValidateT
 {
 	CSendAcceptBudle( my_context ctx ) : my_base( ctx )
 	{
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 		context< CValidateTransactionsAction >().addRequest( new CTransactionsStatusRequest( CBundleStatus::Ack, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
 	}
 
@@ -281,7 +281,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
 
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
@@ -331,7 +331,7 @@ struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, 
 {
 	CPassBundleInvalidate( my_context ctx ) : my_base( ctx )
 	{
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 		context< CValidateTransactionsAction >().addRequest( new CTransactionsStatusRequest( CBundleStatus::NotValid, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
 	}
 };
@@ -353,7 +353,7 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 			common::findSelfCoinsAndAddToWallet( transaction );
 		}
 
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 		context< CValidateTransactionsAction >().addRequest(
 					new CTransactionsPropagationRequest(
 								context< CValidateTransactionsAction >().getTransactions(),
@@ -380,7 +380,7 @@ struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAct
 {
 	CRejected( my_context ctx ) : my_base( ctx )
 	{
-		context< CValidateTransactionsAction >().dropRequests();
+		context< CValidateTransactionsAction >().forgetRequests();
 	}
 };
 

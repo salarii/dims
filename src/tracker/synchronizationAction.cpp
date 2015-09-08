@@ -54,7 +54,7 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 {
 	CSynchronizingRegistrationAsk( my_context ctx ) : my_base( ctx )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 		context< CSynchronizationAction >().addRequest(
 					new common::CSynchronizationRequest< common::CTrackerTypes >(
 						context< CSynchronizationAction >().getActionKey()
@@ -68,7 +68,7 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 		context< CSynchronizationAction >().setExit();
 		return discard_event();
 	}
@@ -101,7 +101,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 {
 	CGetBitcoinHeader( my_context ctx ) : my_base( ctx )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 		context< CSynchronizationAction >().addRequest(
 					new common::CInfoAskRequest< common::CTrackerTypes >(
 						common::CInfoKind::BitcoinHeaderAsk
@@ -148,7 +148,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 		context< CSynchronizationAction >().setExit();
 		return discard_event();
 	}
@@ -169,7 +169,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 {
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >(
 															context< CSynchronizationAction >().getActionKey()
@@ -213,7 +213,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 {
 	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >(
 															context< CSynchronizationAction >().getActionKey()
 															, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
@@ -224,7 +224,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 		return discard_event();
 	}
 
@@ -240,7 +240,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 {
 	CSynchronizingBlocks( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CGetBlockRequest< common::CTrackerTypes >(
@@ -267,7 +267,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 			common::CSynchronizationBlock synchronizationBlock( new common::CDiskBlock(), -1 );
 
 			common::convertPayload( orginalMessage, synchronizationBlock );
-			context< CSynchronizationAction >().dropRequests();
+			context< CSynchronizationAction >().forgetRequests();
 
 			std::vector< CTransaction > transactions;
 
@@ -312,7 +312,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CGetBlockRequest< common::CTrackerTypes >(
@@ -354,7 +354,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 {
 	CSynchronizingHeaders( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CGetBlockRequest< common::CTrackerTypes >(
@@ -381,7 +381,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 			common::CSynchronizationSegmentHeader synchronizationHeader( new common::CSegmentHeader(), -1 );
 
 			common::convertPayload( orginalMessage, synchronizationHeader );
-			context< CSynchronizationAction >().dropRequests();
+			context< CSynchronizationAction >().forgetRequests();
 
 			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationHeader.m_segmentHeader, synchronizationHeader.m_blockIndex );
 
@@ -412,7 +412,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CGetBlockRequest< common::CTrackerTypes >(
@@ -453,7 +453,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 	boost::statechart::result react( common::CAckEvent const & )
 	{
-		context< CSynchronizationAction >().dropRequests();
+		context< CSynchronizationAction >().forgetRequests();
 
 		return discard_event();
 	}

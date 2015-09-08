@@ -115,7 +115,6 @@ CReputationTracker::loop()
 				int64_t timePassed = GetTime() - tracker.second.m_contractTime;
 				int64_t timeLeft = tracker.second.m_networkTime - timePassed;
 
-				//	timeLeft < 0//  unregister
 				if ( timeLeft < 0 )
 				{
 					toBeRemoved.push_back( tracker.first );

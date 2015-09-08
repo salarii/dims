@@ -51,7 +51,7 @@ public:
 		return m_actionKey;
 	}
 
-	virtual void dropRequests()
+	virtual void forgetRequests()
 	{
 		m_droppedRequests.insert( m_droppedRequests.end(), m_requests.begin(), m_requests.end() );
 		m_requests.clear();

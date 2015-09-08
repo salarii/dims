@@ -36,7 +36,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 {
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
 	{
-		context< CTrackOriginAddressAction >().dropRequests();
+		context< CTrackOriginAddressAction >().forgetRequests();
 		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
@@ -51,7 +51,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 		}
 		else
 		{
-			context< CTrackOriginAddressAction >().dropRequests();
+			context< CTrackOriginAddressAction >().forgetRequests();
 			context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
 
@@ -174,7 +174,7 @@ CTrackOriginAddressAction::requestFiltered()
 	if ( requestedBlocks.size() < SynchronizedTreshold )
 		CMonitorController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
-	dropRequests();
+	forgetRequests();
 	addRequest( new common::CAskForTransactionsRequest< common::CMonitorTypes >(
 					  requestedBlocks
 					, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes

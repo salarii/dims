@@ -163,7 +163,14 @@ public:
 
 	virtual void operator()( common::ScheduledResult & _param ) const
 	{
+		LogPrintf("set response \"schedule result\" to action: %p \n", this->m_action );
 		boost::apply_visitor( common::CResolveScheduledResult< tracker::CRecognizeNetworkAction >( this->m_action ), _param );
+	}
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
 	}
 };
 

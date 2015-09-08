@@ -37,7 +37,7 @@ struct CFindBalance : boost::statechart::state< CFindBalance, CGetBalanceAction 
 {
 	CFindBalance( my_context ctx ) : my_base( ctx )
 	{
-		context< CGetBalanceAction >().dropRequests();
+		context< CGetBalanceAction >().forgetRequests();
 
 		context< CGetBalanceAction >().addRequest(
 					new CGetBalanceRequest( context< CGetBalanceAction >().getKeyId() ) );

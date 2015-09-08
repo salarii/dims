@@ -658,6 +658,8 @@ bool AppInit(boost::thread_group& threadGroup)
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
 
+	threadGroup.create_thread( boost::bind( &monitor::CReputationTracker::loop, monitor::CReputationTracker::getInstance() ) );
+
 	threadGroup.create_thread( boost::bind( &common::CSegmentFileStorage::flushLoop, common::CSegmentFileStorage::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CMonitorTypes >::loop, common::CActionHandler< common::CMonitorTypes >::getInstance() ) );

@@ -89,7 +89,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 		LogPrintf("accept node action: %p unconnected state \n", &context< CAcceptNodeAction >() );
 		m_usedAddress = context< CAcceptNodeAction >().getAddress();
 
-		context< CAcceptNodeAction >().dropRequests();
+		context< CAcceptNodeAction >().forgetRequests();
 		context< CAcceptNodeAction >().addRequest(
 					new common::CConnectToNodeRequest< common::CSeedTypes >( std::string(""), m_usedAddress, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
@@ -104,7 +104,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 		{
 			m_default = true;
 			m_usedAddress.SetPort( common::dimsParams().GetDefaultPort() );
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 			context< CAcceptNodeAction >().addRequest(
 						new common::CConnectToNodeRequest< common::CSeedTypes >( std::string(""), m_usedAddress, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 		}
@@ -138,7 +138,7 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		}*/
 
 		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
-		context< CAcceptNodeAction >().dropRequests();
+		context< CAcceptNodeAction >().forgetRequests();
 
 		context< CAcceptNodeAction >().addRequest(
 					createIdentifyResponse(
@@ -180,7 +180,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		{
 			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
 
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
@@ -198,7 +198,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		{
 		// something  is  wrong  with  pair react  somehow for  now put 0
 			assert( !"message wrongly signed" );
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 		}
 		return transit< CDetermineRoleConnecting >();
 	}
@@ -254,7 +254,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			common::CNetworkRole networkRole;
 			common::convertPayload( orginalMessage, networkRole );
 
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
@@ -316,12 +316,12 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 			if ( CSeedNodesManager::getInstance()->isKnown( _identificationResult.m_key ) )
 			{
 				// drop it, already known
-				context< CAcceptNodeAction >().dropRequests();
+				context< CAcceptNodeAction >().forgetRequests();
 				return discard_event();
 			}
 
 			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
@@ -343,7 +343,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 		else
 		{
 			// something  is  wrong  with  pair react  somehow for  now put 0
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 		}
 		return discard_event();
 	}
@@ -365,7 +365,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	CDetermineRoleConnected( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("accept node action: %p determine role connected \n", &context< CAcceptNodeAction >() );
-		context< CAcceptNodeAction >().dropRequests();
+		context< CAcceptNodeAction >().forgetRequests();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -394,7 +394,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 			common::CNetworkRole networkRole;
 			common::convertPayload( orginalMessage, networkRole );
 
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
 							  context< CAcceptNodeAction >().getActionKey()
@@ -429,7 +429,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CAcceptNodeAction >().dropRequests();
+		context< CAcceptNodeAction >().forgetRequests();
 
 		context< CAcceptNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CSeedTypes >(
@@ -457,7 +457,7 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAct
 		LogPrintf("accept node action: %p can't reach node \n", &context< CAcceptNodeAction >() );
 
 		context< CAcceptNodeAction >().setValid( false );
-		context< CAcceptNodeAction >().dropRequests();
+		context< CAcceptNodeAction >().forgetRequests();
 	}
 };
 
@@ -467,7 +467,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 	{
 		context< CAcceptNodeAction >().setValid( true );
 
-		context< CAcceptNodeAction >().dropRequests();
+		context< CAcceptNodeAction >().forgetRequests();
 
 		context< CAcceptNodeAction >().addRequest(
 					  new common::CInfoAskRequest< common::CSeedTypes >(
@@ -490,7 +490,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 
 			common::convertPayload( orginalMessage, knownNetworkInfo );
 
-			context< CAcceptNodeAction >().dropRequests();
+			context< CAcceptNodeAction >().forgetRequests();
 
 			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest< common::CSeedTypes >(
