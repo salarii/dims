@@ -21,10 +21,10 @@ struct CMonitorData
 	double m_accepableRatio;// price / period
 };
 
-class CTrackerController : public boost::statechart::state_machine< CTrackerController, CStandAlone >
+class CController : public boost::statechart::state_machine< CController, CStandAlone >
 {
 public:
-	static CTrackerController* getInstance();
+	static CController* getInstance();
 
 	unsigned int getPrice() const;
 	void setPrice( unsigned int _price );
@@ -58,10 +58,10 @@ public:
 		return m_autoRegistrationRenewal;
 	}
 private:
-	CTrackerController();
+	CController();
 
 private:
-	static CTrackerController * ms_instance;
+	static CController * ms_instance;
 
 	unsigned int m_price;
 

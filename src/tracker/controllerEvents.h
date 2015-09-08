@@ -7,6 +7,8 @@
 
 #include <boost/statechart/event.hpp>
 
+#include "key.h"
+
 namespace tracker
 {
 
@@ -27,7 +29,15 @@ struct CTrackerConnectingEvent : boost::statechart::event< CTrackerConnectingEve
 {
 	CTrackerConnectingEvent(){}
 };
-
+// this indicate registration or accept in network
+struct CMonitorAcceptEvent : boost::statechart::event< CMonitorAcceptEvent >
+{
+	CMonitorAcceptEvent( CPubKey const & _monitorKey )
+		: m_monitorKey( _monitorKey )
+	{
+	}
+	CPubKey m_monitorKey;
+};
 // do I need this??
 struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTrackerRequest >
 {

@@ -6,7 +6,7 @@
 
 #include "configureTrackerActionHandler.h"
 
-#include "tracker/trackerFilters.h"
+#include "tracker/filters.h"
 
 #include "core.h"
 

@@ -2,9 +2,9 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "trackerRequests.h"
+#include "requests.h"
 #include "common/mediumKinds.h"
-#include "trackerFilters.h"
+#include "filters.h"
 
 namespace tracker
 {
