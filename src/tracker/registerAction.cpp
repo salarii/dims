@@ -118,7 +118,9 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
 		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
-		 new common::CTimeEventRequest< common::CTrackerTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		 new common::CTimeEventRequest< common::CTrackerTypes >(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		context< CRegisterAction >().addRequest(
 					new CAskForRegistrationRequest(

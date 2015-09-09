@@ -414,6 +414,7 @@ CAdmitTrackerAction::CAdmitTrackerAction( uintptr_t _nodePtr )
 	: m_nodePtr( _nodePtr )
 {
 	initiate();
+	process_event( CExtendEvent() );
 }
 
 CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
@@ -421,6 +422,7 @@ CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t 
 	, m_nodePtr( _nodePtr )
 {
 	initiate();
+	process_event( CRegisterEvent() );
 }
 
 void
