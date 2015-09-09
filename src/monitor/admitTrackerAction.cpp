@@ -348,7 +348,12 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
-			CReputationTracker::getInstance()->addTracker( common::CTrackerData( m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+			CReputationTracker::getInstance()->addTracker(
+						common::CTrackerData(
+							m_pubKey
+							, 0
+							, CMonitorController::getInstance()->getPeriod()
+							, GetTime() ) );
 
 			context< CAdmitTrackerAction >().forgetRequests();
 			context< CAdmitTrackerAction >().addRequest(
@@ -368,8 +373,6 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 				CReputationTracker::getInstance()->addTracker( trackerData );
 			}
-
-			context< CAdmitTrackerAction >().setExit();
 		}
 		else
 		{
@@ -389,7 +392,14 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		CChargeRegister::getInstance()->setStoreTransactions( false );
 	}
 
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CAdmitTrackerAction >().setExit();
+	}
+
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;

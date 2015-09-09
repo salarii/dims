@@ -131,7 +131,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 		}
 		else
 		{
-			status = "\nDetected following monitors \n";
+			status += "\nDetected following monitors \n";
 			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
 			{
 				CNodeAddress monitor;

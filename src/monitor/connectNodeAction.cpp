@@ -419,7 +419,10 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CConnectNodeAction
 
 struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNodeAction >
 {
-	CGetNetworkInfo( my_context ctx ) : my_base( ctx )
+	CGetNetworkInfo( my_context ctx )
+		: my_base( ctx )
+		, m_infoSend(false)
+		, m_infoReceive(false)
 	{
 		CReputationTracker::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
@@ -462,6 +465,8 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 							, knownNetworkInfo
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+			m_infoSend = true;
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
 		{
@@ -481,8 +486,13 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						, knownNetworkInfo.m_monitorsInfo
 						, knownNetworkInfo.m_trackersInfo );
 
+			m_infoReceive = true;
+
 			context< CConnectNodeAction >().setResult( networkRoleInfo );
 		}
+
+		if ( m_infoReceive && m_infoSend )
+			context< CConnectNodeAction >().setExit();
 
 		return discard_event();
 	}
@@ -503,6 +513,9 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
+
+	bool m_infoSend;
+	bool m_infoReceive;
 };
 
 
