@@ -168,7 +168,7 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
-	boost::statechart::result react( common::CRegistrationDataEvent const & _registerData )
+	boost::statechart::result react( common::CRegistrationData const & _registerData )
 	{
 		CController::getInstance()->process_event( _registerData );
 		context< CRecognizeNetworkAction >().setExit();
@@ -176,7 +176,7 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRegistrationDataEvent >
+	boost::statechart::custom_reaction< common::CRegistrationData >
 	> reactions;
 };
 

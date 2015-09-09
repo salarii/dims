@@ -14,6 +14,7 @@
 #include "tracker/registerRpcHooks.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/registerAction.h"
+#include "tracker/connectNetworkAction.h"
 
 namespace tracker
 {
@@ -48,10 +49,14 @@ NotPresent:
 	return "monitor with specified number not present";
 }
 
-void aconnectNetwork()
+std::string
+connectNetwork()
 {
-	// synchronizatin  action
+	if ( CController::getInstance()->isConnected() )
+			return "tracker already connected";
 
+	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CConnectNetworkAction() );
+	return "connection in progress";
 }
 
 std::string
@@ -69,7 +74,7 @@ void registerHooks()
 	SatusHook.connect( &getStatus );
 	RegisterInNetworkHook.connect( &registerInNetwork );
 	SelfAddress.connect( &selfAddress );
-//	ConnectNetworkHook.connect( &connectNetwork );
+	ConnectNetworkHook.connect( &connectNetwork );
 }
 
 }

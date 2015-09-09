@@ -23,7 +23,7 @@ using namespace std;
 boost::signals2::signal< std::string () > SatusHook;
 boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
 boost::signals2::signal< std::string () > SelfAddress;
-boost::signals2::signal< void () > ConnectNetworkHook;
+boost::signals2::signal< std::string () > ConnectNetworkHook;
 
 json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 {
@@ -74,16 +74,16 @@ json_spirit::Value selfAddress(const json_spirit::Array& params, bool fHelp)
 
 json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
 {
-	if (fHelp || params.size() != 1)
+	if (fHelp || params.size() != 0)
 		throw runtime_error(
 			"connectNetwork \n" \
-				"\nwill cause syncronization with current transaction storage \n" \
+				"\nwill cause syncronization with network \n" \
 			"\n If successful node  will start opertions in network\n" \
 				"\nExamples:\n"
-				+ HelpExampleRpc("registerInNetwork", "")
+				+ HelpExampleRpc("connectNetwork", "")
 		);
 
-	std::string result = *RegisterInNetworkHook( params[0].get_str() );
+	std::string result = *ConnectNetworkHook();
 
 	return result;
 }

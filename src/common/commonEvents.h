@@ -66,9 +66,11 @@ struct CTrackerStatsEvent : boost::statechart::event< CTrackerStatsEvent >
 	uintptr_t m_nodeIndicator;
 };
 
-struct CRegistrationDataEvent : boost::statechart::event< CRegistrationDataEvent >
+struct CRegistrationData : boost::statechart::event< CRegistrationData >
 {
-	CRegistrationDataEvent( CPubKey const & _key, uint64_t _registrationTime, uint64_t const & _period )
+	CRegistrationData(){}
+
+	CRegistrationData( CPubKey const & _key, uint64_t _registrationTime, uint64_t const & _period )
 		: m_key( _key )
 		, m_registrationTime( _registrationTime )
 		, m_period( _period )
@@ -194,7 +196,7 @@ public:
 
 	void operator()( CValidRegistration const & _validRegistration ) const
 	{
-		this->m_action->process_event( common::CRegistrationDataEvent( _validRegistration.m_key, _validRegistration.m_registrationTime, _validRegistration.m_period ) );
+		this->m_action->process_event( common::CRegistrationData( _validRegistration.m_key, _validRegistration.m_registrationTime, _validRegistration.m_period ) );
 	}
 
 	void operator()( CExecutedIndicator const & _executedIndicator ) const

@@ -392,7 +392,6 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		context< CRegisterAction >().forgetRequests();
 		return discard_event();
 	}
 

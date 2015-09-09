@@ -17,6 +17,7 @@
 #include "tracker/registerAction.h"
 #include "tracker/recognizeNetworkAction.h"
 #include "tracker/passTransactionAction.h"
+#include "tracker/connectNetworkAction.h"
 
 namespace common
 {
@@ -174,6 +175,18 @@ public:
 	}
 };
 
+class CSetConnectNetworkResult : public CResponseVisitorBase< tracker::CConnectNetworkAction, tracker::TrackerResponseList >
+{
+public:
+	CSetConnectNetworkResult( tracker::CConnectNetworkAction * const _action ):CResponseVisitorBase< tracker::CConnectNetworkAction, tracker::TrackerResponseList >( _action ){};
+
+	virtual void operator()( common::ScheduledResult & _param ) const
+	{
+		LogPrintf("set response \"schedule result\" to action: %p \n", this->m_action );
+		boost::apply_visitor( common::CResolveScheduledResult< tracker::CConnectNetworkAction >( this->m_action ), _param );
+	}
+};
+
 class CSetProvideInfoResult : public CResponseVisitorBase< tracker::CProvideInfoAction, tracker::TrackerResponseList >
 {
 public:
@@ -320,6 +333,12 @@ void
 CSetResponseVisitor< CTrackerTypes >::visit( tracker::CRecognizeNetworkAction & _action )
 {
 	boost::apply_visitor( (CResponseVisitorBase< tracker::CRecognizeNetworkAction, tracker::TrackerResponseList > const &)CSetRecognizeNetworkResult( &_action ), m_trackerResponses );
+}
+
+void
+CSetResponseVisitor< CTrackerTypes >::visit( tracker::CConnectNetworkAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< tracker::CConnectNetworkAction, tracker::TrackerResponseList > const &)CSetConnectNetworkResult( &_action ), m_trackerResponses );
 }
 
 void

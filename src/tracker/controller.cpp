@@ -144,7 +144,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CRegistrationDataEvent const & _event )
+	boost::statechart::result react( common::CRegistrationData const & _event )
 	{
 		std::string status = context< CController >().getStatusMessage();
 
@@ -176,12 +176,14 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 
 		context< CController >().setStatusMessage( status );
 
+		context< CController >().setRegistrationData( _event );
+
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CNetworkRecognizedEvent >,
-	boost::statechart::custom_reaction< common::CRegistrationDataEvent >,
+	boost::statechart::custom_reaction< common::CRegistrationData >,
 	boost::statechart::transition< CMonitorAcceptEvent, CConnected > > reactions;
 };
 
@@ -213,16 +215,6 @@ struct CConnected : boost::statechart::state< CConnected, CController >
 	typedef boost::mpl::list<
 	  boost::statechart::custom_reaction< CGetStateEvent > > reactions;
 };
-
-
-
-
-
-
-
-
-
-
 
 CController*
 CController::getInstance()

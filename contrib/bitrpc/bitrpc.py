@@ -305,6 +305,12 @@ elif cmd == "stop":
 		print access.stop()
 	except:
 		print "\n---An error occurred---\n"
+elif cmd == "connectnetwork":
+	try:
+		print access.connectNetwork()
+	except:
+		print "\n---An error occurred---\n"
+		
 elif cmd == "status":
 	try:
 		print access.status()

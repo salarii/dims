@@ -85,6 +85,7 @@ TRACKER_CORE_H = \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
+  tracker/connectNetworkAction.h \
   tracker/connectNodeAction.h \
   tracker/controller.h \
   tracker/databaseManager.h \
@@ -180,6 +181,7 @@ version.o: obj/build.h
 TRACKER_CORE_CPP = \
   tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
+  tracker/connectNetworkAction.cpp \
   tracker/connectNodeAction.cpp \
   tracker/controller.cpp \
   tracker/controllerEvents.cpp \

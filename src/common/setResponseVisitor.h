@@ -30,6 +30,8 @@ class CRegisterAction;
 class CRecognizeNetworkAction;
 
 class CPassTransactionAction;
+
+class CConnectNetworkAction;
 }
 
 namespace client
@@ -119,6 +121,8 @@ public:
 	virtual void visit( tracker::CRecognizeNetworkAction & _action );
 
 	virtual void visit( tracker::CPassTransactionAction & _action );
+
+	virtual void visit( tracker::CConnectNetworkAction & _action );
 private:
 	tracker::TrackerResponses m_trackerResponses;
 };

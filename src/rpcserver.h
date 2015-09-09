@@ -137,7 +137,7 @@ extern boost::signals2::signal< void () > StopHook;
 extern boost::signals2::signal< std::string () > SatusHook;
 extern boost::signals2::signal< std::string () > SelfAddress;
 extern boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
-extern boost::signals2::signal< void () > ConnectNetworkHook;
+extern boost::signals2::signal< std::string () > ConnectNetworkHook;
 
 namespace tracker
 {

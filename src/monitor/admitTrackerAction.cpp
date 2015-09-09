@@ -379,14 +379,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 						new common::CTimeEventRequest< common::CMonitorTypes >(
 							m_checkPeriod
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-/*
-			context< CAdmitTrackerAction >().addRequest(
-						new common::CResultRequest< common::CMonitorTypes >(
-							  context< CAdmitTrackerAction >().getActionKey()
-							, m_messageId
-							, 0
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
-*/
+
 		}
 		return discard_event();
 	}

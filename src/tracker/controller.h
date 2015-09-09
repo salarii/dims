@@ -6,7 +6,10 @@
 #define TRACKER_CONTROLLER_H
 
 #include <boost/statechart/state_machine.hpp>
+
 #include "key.h"
+
+#include "common/commonEvents.h"
 
 namespace tracker
 {
@@ -57,6 +60,16 @@ public:
 	{
 		return m_autoRegistrationRenewal;
 	}
+
+	void setRegistrationData( common::CRegistrationData const & _registrationData )
+	{
+		m_registrationData = _registrationData;
+	}
+
+	common::CRegistrationData getRegistrationData() const
+	{
+		return m_registrationData;
+	}
 private:
 	CController();
 
@@ -74,6 +87,8 @@ private:
 	std::string m_statusMessage;
 
 	bool m_autoRegistrationRenewal;
+
+	common::CRegistrationData m_registrationData;
 };
 
 
