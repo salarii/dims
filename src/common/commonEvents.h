@@ -33,10 +33,10 @@ struct CRoleEvent : boost::statechart::event< CRoleEvent >
 	int m_role;
 };
 
-struct CNetworkRecognizedEvent : boost::statechart::event< CNetworkRecognizedEvent >
+struct CNetworkRecognizedData : boost::statechart::event< CNetworkRecognizedData >
 {
-	CNetworkRecognizedEvent(){};
-	CNetworkRecognizedEvent( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
+	CNetworkRecognizedData(){};
+	CNetworkRecognizedData( std::set< CValidNodeInfo > const & _trackersInfo, std::set< CValidNodeInfo > const & _monitorsInfo ):m_trackersInfo( _trackersInfo ),m_monitorsInfo( _monitorsInfo ){};
 	std::set< CValidNodeInfo > m_trackersInfo;
 	std::set< CValidNodeInfo > m_monitorsInfo;
 };

@@ -128,7 +128,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 	}
 
 	boost::statechart::result
-	react( common::CNetworkRecognizedEvent const & _event )
+	react( common::CNetworkRecognizedData const & _event )
 	{
 		std::string status;
 
@@ -154,7 +154,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CNetworkRecognizedEvent > > reactions;
+	boost::statechart::custom_reaction< common::CNetworkRecognizedData > > reactions;
 };
 
 // not right, since  first connection will trigger synchronization( apply  wait  time to  allow  other connections to appear ??)

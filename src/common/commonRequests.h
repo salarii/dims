@@ -264,55 +264,6 @@ CInfoAskRequest< _Types >::getPayload() const
 }
 
 template < class _Types >
-class CKnownNetworkInfoRequest : public common::CRequest< _Types >
-{
-public:
-	using typename CRequest< _Types >::MediumType;
-	using typename CRequest< _Types >::FilterType;
-public:
-	CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, uint256 const & _id, FilterType * _mediumFilter );
-
-	virtual void accept( MediumType * _medium ) const;
-
-	CKnownNetworkInfo getNetworkInfo() const;
-
-	uint256 getActionKey() const;
-private:
-	uint256 const m_actionKey;
-
-	CKnownNetworkInfo m_networkInfo;
-};
-
-template < class _Types >
-CKnownNetworkInfoRequest< _Types >::CKnownNetworkInfoRequest( uint256 const & _actionKey, CKnownNetworkInfo const & _networkInfo, uint256 const & _id, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _id, _mediumFilter )
-	, m_actionKey( _actionKey )
-	, m_networkInfo( _networkInfo )
-{
-}
-
-template < class _Types >
-void
-CKnownNetworkInfoRequest< _Types >::accept( MediumType * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class _Types >
-CKnownNetworkInfo
-CKnownNetworkInfoRequest< _Types >::getNetworkInfo() const
-{
-	return m_networkInfo;
-}
-
-template < class _Types >
-uint256
-CKnownNetworkInfoRequest< _Types >::getActionKey() const
-{
-	return m_actionKey;
-}
-
-template < class _Types >
 class CAckRequest : public common::CRequest< _Types >
 {
 public:
@@ -345,48 +296,6 @@ CAckRequest< _Types >::accept( MediumType * _medium ) const
 template < class _Types >
 uint256
 CAckRequest< _Types >::getActionKey() const
-{
-	return m_actionKey;
-}
-
-template < class _Types >
-class CResultRequest : public common::CRequest< _Types >
-{
-public:
-	using typename CRequest< _Types >::MediumType;
-	using typename CRequest< _Types >::FilterType;
-public:
-	CResultRequest( uint256 const & _actionKey, uint256 const & _id, unsigned int _result, FilterType * _mediumFilter );
-
-	virtual void accept( MediumType * _medium ) const;
-
-	uint256 getActionKey() const;
-
-	unsigned int getResult() const{ return m_result; }
-private:
-	unsigned int m_result;
-
-	uint256 const m_actionKey;
-};
-
-template < class _Types >
-CResultRequest< _Types >::CResultRequest( uint256 const & _actionKey, uint256 const & _id, unsigned int _result, FilterType * _mediumFilter )
-	: common::CRequest< _Types >( _id, _mediumFilter )
-	, m_result( _result )
-	, m_actionKey( _actionKey )
-{
-}
-
-template < class _Types >
-void
-CResultRequest< _Types >::accept( MediumType * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class _Types >
-uint256
-CResultRequest< _Types >::getActionKey() const
 {
 	return m_actionKey;
 }
@@ -791,79 +700,6 @@ CValidRegistrationRequest< _Types >::getContractTime() const
 }
 
 template < class _Types >
-class CStorageInfoRequest : public common::CRequest< _Types >
-{
-public:
-	using typename CRequest< _Types >::MediumType;
-	using typename CRequest< _Types >::FilterType;
-public:
-	CStorageInfoRequest( uint64_t const _time, uint64_t const _storageSize, uint64_t const _headerSize, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType );
-
-	virtual void accept( MediumType * _medium ) const;
-
-	uint64_t getTime() const;
-
-	uint64_t getStorageSize() const;
-
-	uint64_t getHeaderSize() const;
-
-	uint256 getActionKey() const;
-private:
-	uint64_t const m_time;
-
-	uint64_t const m_storageSize;
-
-	uint64_t const m_headerSize;
-
-	uint256 const m_actionKey;
-};
-
-template < class _Types >
-CStorageInfoRequest< _Types >::CStorageInfoRequest( uint64_t const _time, uint64_t const _storageSize, uint64_t const _headerSize, uint256 const & _actionKey, uint256 const & _id, FilterType * _filterType )
-	: common::CRequest< _Types >( _id, _filterType )
-	, m_time( _time )
-	, m_storageSize( _storageSize )
-	, m_headerSize( _headerSize )
-	, m_actionKey( _actionKey )
-{
-}
-
-template < class _Types >
-void
-CStorageInfoRequest< _Types >::accept( MediumType * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class _Types >
-uint64_t
-CStorageInfoRequest< _Types >::getStorageSize() const
-{
-	return m_storageSize;
-}
-
-template < class _Types >
-uint64_t
-CStorageInfoRequest< _Types >::getHeaderSize() const
-{
-	return m_headerSize;
-}
-
-template < class _Types >
-uint64_t
-CStorageInfoRequest< _Types >::getTime() const
-{
-	return m_time;
-}
-
-template < class _Types >
-uint256
-CStorageInfoRequest< _Types >::getActionKey() const
-{
-	return m_actionKey;
-}
-
-template < class _Types >
 class CGetBlockRequest : public common::CRequest< _Types >
 {
 public:
@@ -971,43 +807,6 @@ uint64_t
 CGetSynchronizationInfoRequest< _Types >::getTimeStamp() const
 {
 	return m_timeStamp;
-}
-
-template < class _Types >
-class CSynchronizationRequest : public common::CRequest< _Types >
-{
-public:
-	using typename CRequest< _Types >::MediumType;
-	using typename CRequest< _Types >::FilterType;
-public:
-	CSynchronizationRequest( uint256 const & _actionKey, FilterType * _filterType );
-
-	virtual void accept( MediumType * _medium ) const;
-
-	uint256 getActionKey() const;
-private:
-	uint256 const m_actionKey;
-};
-
-template < class _Types >
-CSynchronizationRequest< _Types >::CSynchronizationRequest( uint256 const & _actionKey, FilterType * _filterType )
-	: common::CRequest< _Types >( _filterType )
-	, m_actionKey( _actionKey )
-{
-}
-
-template < class _Types >
-void
-CSynchronizationRequest< _Types >::accept( MediumType * _medium ) const
-{
-	_medium->add( this );
-}
-
-template < class _Types >
-uint256
-CSynchronizationRequest< _Types >::getActionKey() const
-{
-	return m_actionKey;
 }
 
 template < class _Types >

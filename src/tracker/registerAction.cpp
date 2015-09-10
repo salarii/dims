@@ -33,6 +33,7 @@ struct CNoTrackers;
 struct COriginateRegistration;
 struct CInitiateRegistration;
 struct CRegistrationExtension;
+struct CNetworkAlive;
 
 struct CExtensionEvent : boost::statechart::event< CExtensionEvent >{};
 struct CNewEvent : boost::statechart::event< CNewEvent >{};
@@ -150,8 +151,14 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 		}
 		else
 		{
+			common::CNetworkRecognizedData networkData =
+					CController::getInstance()->getNetworkData();
+
 			context< CRegisterAction >().setRegisterPayment( connectCondition.m_price );
-			return transit< CSynchronize >();
+
+			return networkData.m_trackersInfo.empty()
+					? transit< CSynchronize >()
+					: transit< CNetworkAlive >();
 		}
 	}
 
@@ -431,8 +438,70 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CResult result;
+
+		common::convertPayload( orginalMessage, result );
+
+		assert( result.m_result );// for debug only, do something here
+
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::Ack
+					, context< CRegisterAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+
+		request->addPayload( common::CAck() );
+
+		context< CRegisterAction >().addRequest( request );
+
+		// registration done
+		CController::getInstance()->process_event( CMonitorAcceptEvent( _messageResult.m_pubKey ) );
+
+		return discard_event();
+	}
+
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CRegisterAction >().forgetRequests();
+		context< CRegisterAction >().addRequest(
+					new common::CScheduleActionRequest< common::CTrackerTypes >(
+						new CGetBalanceAction()
+						, new CMediumClassFilter( common::CMediumKinds::Schedule ) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTransactionAckEvent const & _transactionAckEvent )
+	{
+		if ( _transactionAckEvent.m_status == common::TransactionsStatus::Invalid )
+		{
+			context< CRegisterAction >().addRequest(
+						new common::CTimeEventRequest< common::CTrackerTypes >(
+							MoneyWaitTime
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		}
+		else
+		{
+			common::CAdmitProof admitProof;
+			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
+
+			common::CSendMessageRequest< common::CTrackerTypes > * request =
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::AdmitProof
+						, context< CRegisterAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+
+			request->addPayload(admitProof);
+
+			context< CRegisterAction >().addRequest( request );
+		}
 		return discard_event();
 	}
 
@@ -444,6 +513,8 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CExecutedIndicator >
 	> reactions;
 };

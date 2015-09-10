@@ -70,6 +70,16 @@ public:
 	{
 		return m_registrationData;
 	}
+
+	void setNetworkData( common::CNetworkRecognizedData _networkData )
+	{
+		m_networkData = _networkData;
+	}
+
+	common::CNetworkRecognizedData const & getNetworkData() const
+	{
+		return m_networkData;
+	}
 private:
 	CController();
 
@@ -89,6 +99,8 @@ private:
 	bool m_autoRegistrationRenewal;
 
 	common::CRegistrationData m_registrationData;
+
+	common::CNetworkRecognizedData m_networkData;
 };
 
 

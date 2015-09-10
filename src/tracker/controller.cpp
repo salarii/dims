@@ -105,9 +105,11 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
 	}
 
-	boost::statechart::result react( common::CNetworkRecognizedEvent const & _event )
+	boost::statechart::result react( common::CNetworkRecognizedData const & _event )
 	{
 		std::string status;
+
+		context< CController >().setNetworkData( _event );
 
 		if ( _event.m_trackersInfo.empty() )
 		{
@@ -182,7 +184,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CNetworkRecognizedEvent >,
+	boost::statechart::custom_reaction< common::CNetworkRecognizedData >,
 	boost::statechart::custom_reaction< common::CRegistrationData >,
 	boost::statechart::transition< CMonitorAcceptEvent, CConnected > > reactions;
 };

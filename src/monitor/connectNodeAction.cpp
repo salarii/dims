@@ -383,12 +383,16 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			context< CConnectNodeAction >().addRequest(
-						new common::CKnownNetworkInfoRequest< common::CMonitorTypes >(
-							  context< CConnectNodeAction >().getActionKey()
-							, knownNetworkInfo
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CMonitorTypes > * request =
+					new common::CSendMessageRequest< common::CMonitorTypes >(
+						common::CPayloadKind::NetworkInfo
+						, context< CConnectNodeAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
+
+			request->addPayload( knownNetworkInfo );
+
+			context< CConnectNodeAction >().addRequest( request );
 		}
 
 		return discard_event();
@@ -459,12 +463,16 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			context< CConnectNodeAction >().addRequest(
-						new common::CKnownNetworkInfoRequest< common::CMonitorTypes >(
-							  context< CConnectNodeAction >().getActionKey()
-							, knownNetworkInfo
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CMonitorTypes > * request =
+					new common::CSendMessageRequest< common::CMonitorTypes >(
+						common::CPayloadKind::NetworkInfo
+						, context< CConnectNodeAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
+
+			request->addPayload( knownNetworkInfo );
+
+			context< CConnectNodeAction >().addRequest( request );
 
 			m_infoSend = true;
 		}

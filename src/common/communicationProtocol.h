@@ -428,6 +428,10 @@ struct CResult
 		READWRITE( m_result );
 	)
 
+	CResult(){}
+
+	CResult( unsigned int _result ){ m_result = _result; }
+
 	unsigned int m_result;
 };
 
@@ -464,8 +468,6 @@ public:
 	CMessage();
 	CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CNetworkRole const & _networkRole, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CKnownNetworkInfo const & _knownNetworkInfo, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CSynchronizationInfo const & _synchronizationInfo, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CAck const & _ack, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CGet const & _get, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey, uint256 const & _id );
@@ -473,7 +475,6 @@ public:
 	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CResult const & _result, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CAdmitProof const & _admit, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CValidRegistration const & _valid, uint256 const & _actionKey, uint256 const & _id );
@@ -485,7 +486,6 @@ public:
 	CMessage( CBalance const & _balance, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CSynchronizationAsk const & _synchronizationAsk, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CBitcoinHeader const & _bitcoinHeader, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CSynchronizationGet const & _synchronizationGet, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id );

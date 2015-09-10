@@ -108,6 +108,8 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 
 			std::map< uint256, CCoins >::const_iterator iterator = balance.m_availableCoins.begin();
 
+			CWallet::getInstance()->replaceAvailableCoins( m_self, std::vector< CAvailableCoin >() );
+
 			while( iterator != balance.m_availableCoins.end() )
 			{
 				std::vector< CAvailableCoin > availableCoins

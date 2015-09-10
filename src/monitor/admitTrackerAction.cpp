@@ -205,12 +205,16 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
-		context< CAdmitTrackerAction >().addRequest(
-					new common::CResultRequest< common::CMonitorTypes >(
-						  context< CAdmitTrackerAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, 1
-						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::Result
+					, context< CAdmitTrackerAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+
+		request->addPayload( common::CResult( 1 ) );
+
+		context< CAdmitTrackerAction >().addRequest( request );
 
 		return discard_event();
 	}
@@ -261,12 +265,16 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
-			context< CAdmitTrackerAction >().addRequest(
-						new common::CResultRequest< common::CMonitorTypes >(
-							context< CAdmitTrackerAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, 1
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CMonitorTypes > * request =
+					new common::CSendMessageRequest< common::CMonitorTypes >(
+						common::CPayloadKind::Result
+						, context< CAdmitTrackerAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+
+			request->addPayload( common::CResult( 1 ) );
+
+			context< CAdmitTrackerAction >().addRequest( request );
 
 			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
@@ -355,13 +363,16 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 							, CMonitorController::getInstance()->getPeriod()
 							, GetTime() ) );
 
-			context< CAdmitTrackerAction >().forgetRequests();
-			context< CAdmitTrackerAction >().addRequest(
-						new common::CResultRequest< common::CMonitorTypes >(
-							  context< CAdmitTrackerAction >().getActionKey()
-							, m_messageId
-							, 1
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CMonitorTypes > * request =
+					new common::CSendMessageRequest< common::CMonitorTypes >(
+						common::CPayloadKind::Result
+						, context< CAdmitTrackerAction >().getActionKey()
+						, m_messageId
+						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+
+			request->addPayload( common::CResult( 1 ) );
+
+			context< CAdmitTrackerAction >().addRequest( request );
 
 			CPubKey pubKey;
 
@@ -395,6 +406,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		context< CAdmitTrackerAction >().setExit();
+		return discard_event();
 	}
 
 

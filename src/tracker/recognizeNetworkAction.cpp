@@ -136,7 +136,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 	~CGetDnsInfo()
 	{
-		CController::getInstance()->process_event( common::CNetworkRecognizedEvent( m_trackers, m_monitors ) );
+		CController::getInstance()->process_event( common::CNetworkRecognizedData( m_trackers, m_monitors ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

@@ -43,11 +43,7 @@ public:
 
 	void add( CNetworkRoleRequest< Type > const * _request );
 
-	void add( CKnownNetworkInfoRequest< Type > const * _request );
-
 	void add( CAckRequest< Type > const * _request );
-
-	void add( CResultRequest< Type > const * _request );
 
 	void add( CPingRequest< Type > const * _request );
 
@@ -57,8 +53,6 @@ public:
 
 	void add( CSendMessageRequest< Type > const * _request );
 
-	void add( CStorageInfoRequest< Type > const * _request );
-
 	void add( CSetNextBlockRequest< CSegmentHeader, Type > const * _request );
 
 	void add( CSetNextBlockRequest< CDiskBlock, Type > const * _request );
@@ -66,8 +60,6 @@ public:
 	void add( CGetBlockRequest< Type > const * _request );
 
 	void add( CValidRegistrationRequest< Type > const * _request );
-
-	void add( CSynchronizationRequest< Type > const * _request );
 
 	void add( CBitcoinHeaderRequest< Type > const * _request );
 
@@ -312,17 +304,6 @@ CNodeMedium< _Medium >::add( CNetworkRoleRequest< Type > const * _request )
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CSynchronizationRequest< Type > const * _request )
-{
-	common::CMessage message( CSynchronizationAsk(), _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-template < class _Medium >
-void
 CNodeMedium< _Medium >::add( CBitcoinHeaderRequest< Type > const * _request )
 {
 	CBitcoinHeader bitcoinHeader;
@@ -337,17 +318,6 @@ CNodeMedium< _Medium >::add( CBitcoinHeaderRequest< Type > const * _request )
 
 template < class _Medium >
 void
-CNodeMedium< _Medium >::add( CKnownNetworkInfoRequest< Type > const * _request )
-{
-	common::CMessage message( _request->getNetworkInfo(), _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-template < class _Medium >
-void
 CNodeMedium< _Medium >::add( CAckRequest< Type > const * _request )
 {
 	common::CAck ack;
@@ -357,21 +327,6 @@ CNodeMedium< _Medium >::add( CAckRequest< Type > const * _request )
 	m_messages.push_back( message );
 
 		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( CResultRequest< Type > const * _request )
-{
-	common::CResult result;
-
-	result.m_result = _request->getResult();
-
-	common::CMessage message( result, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
 }
 
 template < class _Medium >
@@ -433,19 +388,6 @@ CNodeMedium< _Medium >::add( CSendMessageRequest< Type > const * _request )
 				, _request->getPayLoad()
 				, _request->getActionKey()
 				, _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( CStorageInfoRequest< Type > const * _request )
-{
-	CSynchronizationInfo synchronizationInfo( _request->getTime(), _request->getHeaderSize(), _request->getStorageSize() );
-
-	common::CMessage message( synchronizationInfo, _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 

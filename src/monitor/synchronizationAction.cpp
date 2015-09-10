@@ -169,14 +169,20 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 		{
 			if ( CCopyStorageHandler::getInstance()->copyCreated() )
 			{
-						context< CSynchronizationAction >().addRequest(
-									new common::CStorageInfoRequest< common::CMonitorTypes >(
-										  CCopyStorageHandler::getInstance()->getTimeStamp()
-										, CCopyStorageHandler::getInstance()->getDiscBlockSize()
-										, CCopyStorageHandler::getInstance()->getSegmentHeaderSize()
-										, context< CSynchronizationAction >().getActionKey()
-										, context< CSynchronizationAction >().getRequestKey()
-										, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+				common::CSendMessageRequest< common::CMonitorTypes > * request =
+						new common::CSendMessageRequest< common::CMonitorTypes >(
+							common::CPayloadKind::SynchronizationInfo
+							, context< CSynchronizationAction >().getActionKey()
+							, context< CSynchronizationAction >().getRequestKey()
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+				request->addPayload(
+							common::CSynchronizationInfo(
+										 CCopyStorageHandler::getInstance()->getTimeStamp()
+										 , CCopyStorageHandler::getInstance()->getSegmentHeaderSize()
+										 , CCopyStorageHandler::getInstance()->getDiscBlockSize() ) );
+
+				context< CSynchronizationAction >().addRequest( request );
 			}
 		}
 
