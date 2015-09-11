@@ -87,15 +87,20 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 		CPubKey monitorPubKey;
 		CReputationTracker::getInstance()->checkForTracker( pubKey, trackerData, monitorPubKey );
 
-		context< CProvideInfoAction >().addRequest(
-					new common::CValidRegistrationRequest< common::CMonitorTypes >(
-						  monitorPubKey
-						, trackerData.m_contractTime
-						, trackerData.m_networkTime
-						, context< CProvideInfoAction >().getActionKey()
-						, context< CProvideInfoAction >().getInfoRequestKey()
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::ValidRegistration
+					, context< CProvideInfoAction >().getActionKey()
+					, context< CProvideInfoAction >().getInfoRequestKey()
+					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
+		request->addPayload(
+					common::CValidRegistration(
+						monitorPubKey
+						, trackerData.m_contractTime
+						, trackerData.m_networkTime ) );
+
+		context< CProvideInfoAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )

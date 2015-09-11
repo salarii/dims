@@ -200,31 +200,6 @@ CAskForRegistrationRequest::getActionKey() const
 	return m_actionKey;
 }
 
-CRegisterProofRequest::CRegisterProofRequest( uint256 const & _transactionHash, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
-	, m_transactionHash( _transactionHash )
-	, m_actionKey( _actionKey )
-{
-}
-
-void
-CRegisterProofRequest::accept( common::CTrackerBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-uint256
-CRegisterProofRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-uint256
-CRegisterProofRequest::getTransactionHash() const
-{
-	return m_transactionHash;
-}
-
 CTransactionConditionRequest::CTransactionConditionRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
 : common::CRequest< common::CTrackerTypes >( _mediumFilter )
 , m_actionKey( _actionKey )

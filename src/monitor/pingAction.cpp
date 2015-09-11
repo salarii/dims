@@ -44,12 +44,19 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest< common::CMonitorTypes >(
+						PingPeriod
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CPingAction >().addRequest(
-					new common::CPingRequest< common::CMonitorTypes >(
-						context< CPingAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::Ping
+					, context< CPingAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+
+		request->addPayload( common::CPing() );
+
+		context< CPingAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -71,10 +78,16 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			context< CPingAction >().addRequest(
-						new common::CPongRequest< common::CMonitorTypes >(
-							context< CPingAction >().getActionKey()
-							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
+			common::CSendMessageRequest< common::CMonitorTypes > * request =
+					new common::CSendMessageRequest< common::CMonitorTypes >(
+						common::CPayloadKind::Ping
+						, context< CPingAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+
+			request->addPayload( common::CPing() );
+
+			context< CPingAction >().addRequest( request );
+
 		}
 		return discard_event();
 	}
@@ -106,10 +119,15 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CPingAction >().addRequest(
-					new common::CPongRequest< common::CMonitorTypes >(
-						context< CPingAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
+		common::CSendMessageRequest< common::CMonitorTypes > * request =
+				new common::CSendMessageRequest< common::CMonitorTypes >(
+					common::CPayloadKind::Pong
+					, context< CPingAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+
+		request->addPayload( common::CPong() );
+
+		context< CPingAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -131,10 +149,15 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			context< CPingAction >().addRequest(
-						new common::CPongRequest< common::CMonitorTypes >(
-							context< CPingAction >().getActionKey()
-							, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) ) );
+			common::CSendMessageRequest< common::CMonitorTypes > * request =
+					new common::CSendMessageRequest< common::CMonitorTypes >(
+						common::CPayloadKind::Pong
+						, context< CPingAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+
+			request->addPayload( common::CPong() );
+
+			context< CPingAction >().addRequest( request );
 		}
 		return discard_event();
 	}

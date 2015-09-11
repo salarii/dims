@@ -124,13 +124,16 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 				CBlockHeader header;
 				file >> header;
 
-				context< CSynchronizationAction >().addRequest(
-							new common::CBitcoinHeaderRequest< common::CMonitorTypes >(
-								  header
-								, context< CSynchronizationAction >().getActionKey()
-								, _messageResult.m_message.m_header.m_id
-								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+				common::CSendMessageRequest< common::CMonitorTypes > * request =
+						new common::CSendMessageRequest< common::CMonitorTypes >(
+							common::CPayloadKind::SynchronizationBitcoinHeader
+							, context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
 
+				request->addPayload( header );
+
+				context< CSynchronizationAction >().addRequest( request );
 			}
 		}
 

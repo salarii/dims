@@ -14,24 +14,6 @@ namespace tracker
 {
 
 void
-CTrackerNodeMedium::add( common::CGetSynchronizationInfoRequest< common::CTrackerTypes > const * _request )
-{
-	common::CInfoRequestData infoRequestData;
-
-	unsigned int timeStamp = _request->getTimeStamp();
-
-	infoRequestData.m_kind = common::CInfoKind::StorageInfoAsk;
-
-	common::castTypeToCharVector( &timeStamp, infoRequestData.m_payload );
-
-	common::CMessage message( infoRequestData, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
-}
-
-void
 CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 {
 	common::CTransactionBundle transactionBundle;
@@ -86,27 +68,13 @@ CTrackerNodeMedium::add( CAskForRegistrationRequest const * _request )
 }
 
 void
-CTrackerNodeMedium::add( CRegisterProofRequest const * _request )
-{
-	common::CAdmitProof admitProof;
-
-	admitProof.m_proofTransactionHash = _request->getTransactionHash();
-
-	common::CMessage message( admitProof, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
-}
-
-void
 CTrackerNodeMedium::add( CTransactionAsClientRequest const * _request )
 {
-	common::CMessage message( common::CAdmitProof(), _request->getActionKey(), _request->getId() );
+/*	common::CMessage message( common::CAdmitProof(), _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );*/
 }
 
 }

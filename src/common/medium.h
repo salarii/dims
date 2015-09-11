@@ -15,13 +15,7 @@ namespace common
 {
 
 template < class _Types >
-class CGetBlockRequest;
-
-template < class _Types >
 class CSendIdentifyDataRequest;
-
-template < class _Types >
-class CNetworkRoleRequest;
 
 template < class _Types >
 class CAckRequest;
@@ -33,12 +27,6 @@ template < class _Types >
 class CTimeEventRequest;
 
 template < class _Types >
-class CPingRequest;
-
-template < class _Types >
-class CPongRequest;
-
-template < class _Types >
 class CScheduleActionRequest;
 
 template < class _Types >
@@ -47,23 +35,11 @@ class CInfoAskRequest;
 template < class _Types >
 class CConnectToNodeRequest;
 
-template < class _Block, class _Types >
-class CSetNextBlockRequest;
-
 template < class _Types >
 class CAskForTransactionsRequest;
 
 template < class _Types >
 class CBalanceRequest;
-
-template < class _Types >
-class CValidRegistrationRequest;
-
-template < class _Types >
-class CGetSynchronizationInfoRequest;
-
-template < class _Types >
-class CBitcoinHeaderRequest;
 
 template < class _Types >
 class CSendMessageRequest;
@@ -80,7 +56,6 @@ class CPassMessageRequest;
 class CDeliverInfoRequest;
 class CGetBalanceRequest;
 class CAskForRegistrationRequest;
-class CRegisterProofRequest;
 class CTransactionAsClientRequest;
 class CTransactionConditionRequest;
 
@@ -147,23 +122,14 @@ class CTrackerBaseMedium : public CMedium< CTrackerTypes >
 public:
 	using CMedium::types;
 public:
-	virtual void add( common::CAckRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CPingRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CPongRequest< CTrackerTypes > const * _request ){};
+	virtual void add( common::CAckRequest< CTrackerTypes > const * _request ){}
 	virtual void add( common::CEndRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CSendIdentifyDataRequest<CTrackerTypes> const * _request ){};
-	virtual void add( common::CNetworkRoleRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CTimeEventRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CScheduleActionRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CInfoAskRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CTrackerTypes > const * _request ){};
-	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CTrackerTypes > const * _request ){};
 	virtual void add( common::CBalanceRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CValidRegistrationRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CGetBlockRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CAskForTransactionsRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CGetSynchronizationInfoRequest< CTrackerTypes > const * _request ){};
-	virtual void add( common::CBitcoinHeaderRequest< CTrackerTypes > const * _request ){};
 	virtual void add( common::CSendMessageRequest< CTrackerTypes > const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
@@ -174,7 +140,6 @@ public:
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual void add( tracker::CAskForRegistrationRequest const * _request ){};
-	virtual void add( tracker::CRegisterProofRequest const * _request ){};
 	virtual void add( tracker::CTransactionAsClientRequest const * _request ){};
 	virtual void add( tracker::CTransactionConditionRequest const * _request ){};
 
@@ -188,21 +153,12 @@ public:
 public:
 	virtual void add( common::CSendIdentifyDataRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CEndRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CPingRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CPongRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CAckRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CNetworkRoleRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CTimeEventRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CScheduleActionRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CInfoAskRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CAskForTransactionsRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CValidRegistrationRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CGetBlockRequest< CMonitorTypes > const * _request ){};
 	virtual void add( common::CSendMessageRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CSetNextBlockRequest< common::CDiskBlock, CMonitorTypes > const * _request ){};
-	virtual void add( common::CSetNextBlockRequest< common::CSegmentHeader, CMonitorTypes > const * _request ){};
-	virtual void add( common::CBitcoinHeaderRequest< CMonitorTypes > const * _request ){};
-	virtual void add( common::CGetSynchronizationInfoRequest< CMonitorTypes > const * _request ){};
 	virtual void add( monitor::CRegistrationTerms const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
@@ -231,10 +187,7 @@ public:
 	using CMedium::types;
 public:
 	virtual void add( common::CSendIdentifyDataRequest< CSeedTypes > const * _request ){};
-	virtual void add( common::CPingRequest< CSeedTypes > const * _request ){};
-	virtual void add( common::CPongRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CConnectToNodeRequest< CSeedTypes > const * _request ){};
-	virtual void add( common::CNetworkRoleRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CAckRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CSendMessageRequest< CSeedTypes > const * _request ){};
 	virtual void add( common::CInfoAskRequest< CSeedTypes > const * _request ){};

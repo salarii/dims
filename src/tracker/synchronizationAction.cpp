@@ -177,10 +177,15 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >(
-															context< CSynchronizationAction >().getActionKey()
-															, 0
-															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::InfoReq
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload( (int)common::CInfoKind::StorageInfoAsk, 0 );
+
+		context< CSynchronizationAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -220,12 +225,21 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().forgetRequests();
-		context< CSynchronizationAction >().addRequest( new common::CGetSynchronizationInfoRequest< common::CTrackerTypes >(
-															context< CSynchronizationAction >().getActionKey()
-															, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush()
-															, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) )
-														);
-		context< CSynchronizationAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( SynchronisingWaitTime * 2, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::InfoReq
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload( (int)common::CInfoKind::StorageInfoAsk, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						SynchronisingWaitTime * 2
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -248,13 +262,18 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		context< CSynchronizationAction >().addRequest(
-					new common::CGetBlockRequest< common::CTrackerTypes >(
-						  m_currentBlock
-						, (int)common::CBlockKind::Segment
-						, context< CSynchronizationAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
 
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Segment
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
@@ -293,12 +312,18 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 			if ( context< CSynchronizationAction >().getStorageSize() > ++m_currentBlock )
 			{
-				context< CSynchronizationAction >().addRequest(
-							new common::CGetBlockRequest< common::CTrackerTypes >(
-								m_currentBlock
-								, (int)common::CBlockKind::Segment
-								, context< CSynchronizationAction >().getActionKey()
-								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+				common::CSendMessageRequest< common::CTrackerTypes > * request =
+						new common::CSendMessageRequest< common::CTrackerTypes >(
+							common::CPayloadKind::SynchronizationGet
+							, context< CSynchronizationAction >().getActionKey()
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+				request->addPayload(
+							common::CSynchronizationGet(
+								(int)common::CBlockKind::Segment
+								, m_currentBlock ) );
+
+				context< CSynchronizationAction >().addRequest( request );
 			}
 			else
 			{
@@ -320,13 +345,18 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		context< CSynchronizationAction >().addRequest(
-					new common::CGetBlockRequest< common::CTrackerTypes >(
-						  m_currentBlock
-						, (int)common::CBlockKind::Segment
-						, context< CSynchronizationAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
 
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Segment
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
@@ -362,13 +392,18 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		context< CSynchronizationAction >().addRequest(
-					new common::CGetBlockRequest< common::CTrackerTypes >(
-						  m_currentBlock
-						, (int)common::CBlockKind::Header
-						, context< CSynchronizationAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
 
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Header
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(
@@ -399,12 +434,18 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 
 			if ( context< CSynchronizationAction >().getHeaderSize() > ++m_currentBlock )
 			{
-				context< CSynchronizationAction >().addRequest(
-							new common::CGetBlockRequest< common::CTrackerTypes >(
-								m_currentBlock
-								, (int)common::CBlockKind::Header
-								, context< CSynchronizationAction >().getActionKey()
-								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+				common::CSendMessageRequest< common::CTrackerTypes > * request =
+						new common::CSendMessageRequest< common::CTrackerTypes >(
+							common::CPayloadKind::SynchronizationGet
+							, context< CSynchronizationAction >().getActionKey()
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+				request->addPayload(
+							common::CSynchronizationGet(
+								(int)common::CBlockKind::Header
+								, m_currentBlock ) );
+
+				context< CSynchronizationAction >().addRequest( request );
 			}
 			else
 			{
@@ -420,13 +461,18 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		context< CSynchronizationAction >().addRequest(
-					new common::CGetBlockRequest< common::CTrackerTypes >(
-						  m_currentBlock
-						, (int)common::CBlockKind::Header
-						, context< CSynchronizationAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
 
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Header
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest< common::CTrackerTypes >(

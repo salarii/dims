@@ -173,12 +173,17 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 			context< CConnectNodeAction >().forgetRequests();
 
-			context< CConnectNodeAction >().addRequest(
-						new common::CNetworkRoleRequest< common::CTrackerTypes >(
-							  common::CRole::Tracker
-							, context< CConnectNodeAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CTrackerTypes > * request =
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::RoleInfo
+						, context< CConnectNodeAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
+
+			request->addPayload(
+						common::CNetworkRole( (int)common::CRole::Tracker ) );
+
+			context< CConnectNodeAction >().addRequest( request );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -292,12 +297,17 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			context< CConnectNodeAction >().addRequest(
-						new common::CNetworkRoleRequest< common::CTrackerTypes >(
-							  common::CRole::Tracker
-							, context< CConnectNodeAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CTrackerTypes > * request =
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::RoleInfo
+						, context< CConnectNodeAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
+
+			request->addPayload(
+						common::CNetworkRole( (int)common::CRole::Tracker ) );
+
+			context< CConnectNodeAction >().addRequest( request );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{

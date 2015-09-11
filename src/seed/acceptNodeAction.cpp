@@ -242,12 +242,17 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			context< CAcceptNodeAction >().addRequest(
-						new common::CNetworkRoleRequest< common::CSeedTypes >(
-							  common::CRole::Seed
-							, context< CAcceptNodeAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CSeedTypes > * request =
+					new common::CSendMessageRequest< common::CSeedTypes >(
+						common::CPayloadKind::RoleInfo
+						, context< CAcceptNodeAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
+
+			request->addPayload(
+						common::CNetworkRole( (int)common::CRole::Seed ) );
+
+			context< CAcceptNodeAction >().addRequest( request );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -382,12 +387,17 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			context< CAcceptNodeAction >().addRequest(
-						new common::CNetworkRoleRequest< common::CSeedTypes >(
-							  common::CRole::Seed
-							, context< CAcceptNodeAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+			common::CSendMessageRequest< common::CSeedTypes > * request =
+					new common::CSendMessageRequest< common::CSeedTypes >(
+						common::CPayloadKind::RoleInfo
+						, context< CAcceptNodeAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
+
+			request->addPayload(
+						common::CNetworkRole( (int)common::CRole::Seed ) );
+
+			context< CAcceptNodeAction >().addRequest( request );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{

@@ -195,11 +195,15 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CRegisterAction >().addRequest(
-					new CRegisterProofRequest(
-						uint256()
-						, context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::AdmitProof
+					, context< CRegisterAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+
+		request->addPayload( common::CAdmitProof( uint256() ) );
+
+		context< CRegisterAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
