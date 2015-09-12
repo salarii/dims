@@ -46,6 +46,8 @@ public:
 
 	void add( CMonitorInfoRequest const * _request );
 
+	void add( common::CSendMessageRequest< common::CClientTypes > const * _request );
+
 	bool flush();
 
 	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );

@@ -52,7 +52,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		context< CProvideInfoAction >().forgetRequests();
+		context< CProvideInfoAction >().setExit();
 		return discard_event();
 	}
 
@@ -67,15 +67,65 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		common::convertPayload( orginalMessage, requestedInfo );
 
 		context< CProvideInfoAction >().forgetRequests();
-		context< CProvideInfoAction >().addRequest( new CDeliverInfoRequest( context< CProvideInfoAction >().getActionKey(), new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
+
+		m_id = _messageResult.m_message.m_header.m_id;
+
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::Ack
+					, context< CProvideInfoAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+
+		request->addPayload( common::CAck() );
+
+		context< CProvideInfoAction >().addRequest( request );
+
+		if ( requestedInfo.m_kind == (int)common::CInfoKind::BalanceAsk )
+		{
+			CKeyID keyId;
+			common::castCharVectorToType( requestedInfo.m_payload, &keyId );
+
+			context< CProvideInfoAction >().addRequest(
+						new CGetBalanceRequest( keyId ) );
+		}
+
+		return discard_event();
+	}
+
+
+	boost::statechart::result react( common::CAvailableCoinsEvent const & _availableCoins )
+	{
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::Balance
+					, context< CProvideInfoAction >().getActionKey()
+					, m_id
+					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+
+		request->addPayload( common::CBalance( _availableCoins.m_availableCoins ) );
+
+		context< CProvideInfoAction >().addRequest( request );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CProvideInfoAction >().forgetRequests();
+		context< CProvideInfoAction >().setExit();
 
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CAvailableCoinsEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
+
+	uint256 m_id;
 };
 
 struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
@@ -91,7 +141,6 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					new common::CTimeEventRequest< common::CTrackerTypes >(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )

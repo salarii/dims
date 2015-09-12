@@ -325,8 +325,8 @@ struct CAdmitAsk
 
 struct CBalance
 {
-	CBalance( std::map< uint256, CCoins > const & _availableCoins );
-	CBalance();
+	CBalance( std::map< uint256, CCoins > const & _availableCoins ):m_availableCoins(_availableCoins){}
+	CBalance(){}
 
 	IMPLEMENT_SERIALIZE
 	(

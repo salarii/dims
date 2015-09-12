@@ -5,14 +5,15 @@
 #include "networkClient.h"
 #include "serialize.h"
 #include "version.h"
+#include "client/sendBalanceInfoAction.h"
+#include "client/sendTransactionAction.h"
+#include "client/sendInfoRequestAction.h"
+#include "client/clientRequests.h"
+
+#include "common/clientProtocol.h"
 #include "common/requestHandler.h"
-#include "sendBalanceInfoAction.h"
-#include "sendTransactionAction.h"
-#include "sendInfoRequestAction.h"
-#include "clientRequests.h"
-
 #include "common/support.h"
-
+#include "common/commonRequests.h"
 
 #include <QHostAddress>
 
@@ -200,6 +201,22 @@ CNetworkClient::add( CTransactionStatusRequest const * _request )
 	common::serializeEnum( *m_pushStream, common::CMainRequestType::TransactionStatusReq );
 
 	*m_pushStream << _request->m_transactionHash;
+	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
+}
+
+void
+CNetworkClient::add( common::CSendMessageRequest< common::CClientTypes > const * _request )
+{
+	QMutexLocker lock( &m_mutex );
+
+	*m_pushStream <<
+					 common::CClientMessage(
+						 _request->getMessageKind()
+						 , _request->getPayLoad()
+						 , _request->getId() );
+
+	m_matching.insert( std::make_pair( _request->getId(), ( common::CRequest< common::CClientTypes >* )_request ) );
+
 	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
 }
 

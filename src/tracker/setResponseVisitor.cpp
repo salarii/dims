@@ -209,6 +209,12 @@ public:
 		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _param );
 	}
+
+	virtual void operator()( common::CAvailableCoinsEvent & _param ) const
+	{
+		LogPrintf("set response \"available coins\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
 };
 
 class CSetPingResult : public CResponseVisitorBase< tracker::CPingAction, tracker::TrackerResponseList >

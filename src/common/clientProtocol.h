@@ -22,25 +22,24 @@ struct CClientHeader
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_payloadKind);
-		READWRITE(m_signedHash);
-		READWRITE(m_time);
-		READWRITE(m_prevKey);
-		READWRITE(m_actionKey);
 		READWRITE(m_id);
 	)
 
-	CClientHeader( int _payloadKind, int64_t _time, uint256 const & _actionKey, uint256 const & _id );
+	CClientHeader(){}
+
+	CClientHeader( int _payloadKind, uint256 const & _id )
+		: m_payloadKind( _payloadKind )
+		, m_id( _id )
+	{}
 
 	int m_payloadKind;
-	int64_t m_time;
-	uint256 m_actionKey;
 	uint256 m_id;
 };
 
 struct CClientMessage
 {
 public:
-	CClientMessage();
+	CClientMessage(){}
 
 	IMPLEMENT_SERIALIZE
 	(
@@ -50,7 +49,13 @@ public:
 
 	~CClientMessage(){};
 
-	CHeader m_header;
+	CClientMessage( int _messageKind, std::vector< unsigned char > const & _payload, uint256 const & _id )
+		: m_header( _messageKind, _id )
+		, m_payload(_payload)
+	{
+	}
+
+	CClientHeader m_header;
 	std::vector< unsigned char > m_payload;
 };
 

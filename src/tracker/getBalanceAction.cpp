@@ -5,6 +5,7 @@
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
+#include <boost/statechart/simple_state.hpp>
 
 #include "wallet.h"
 
@@ -25,7 +26,7 @@ struct CFindClient : boost::statechart::event< CFindClient >{};
 struct CFindBalance;
 struct CGetSelfBalance;
 
-struct CUninitiated : boost::statechart::state< CUninitiated, CGetBalanceAction >
+struct CUninitiatedBalance : boost::statechart::simple_state< CUninitiatedBalance, CGetBalanceAction >
 {
 	typedef boost::mpl::list<
 	boost::statechart::transition< CFindSelf, CGetSelfBalance >,

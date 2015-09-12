@@ -14,9 +14,9 @@
 namespace tracker
 {
 
-struct CFindBalance;
+struct CUninitiatedBalance;
 
-class CGetBalanceAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public boost::statechart::state_machine< CGetBalanceAction, CFindBalance >
+class CGetBalanceAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public boost::statechart::state_machine< CGetBalanceAction, CUninitiatedBalance >
 {
 public:
 	CGetBalanceAction();
