@@ -19,7 +19,7 @@
 
 namespace tracker
 {
-unsigned int const LoopTime = 10000;
+unsigned int const LoopTime = 20000;
 
 struct CFindSelf : boost::statechart::event< CFindSelf >{};
 struct CFindClient : boost::statechart::event< CFindClient >{};
@@ -85,7 +85,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		assert( !"for now  asser this" );
+		context< CGetBalanceAction >().setResult( common::CExecutedIndicator(false) );
 		context< CGetBalanceAction >().setExit();
 		return discard_event();
 	}

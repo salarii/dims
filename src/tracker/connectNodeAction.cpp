@@ -462,7 +462,10 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 	{
 
 		CTrackerNodesManager::getInstance()->setNodeInfo(
-					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Monitor );
+					common::CValidNodeInfo(
+						context< CConnectNodeAction >().getPublicKey()
+						, context< CConnectNodeAction >().getServiceAddress() )
+					, context< CConnectNodeAction >().getRole());
 
 		CTrackerNodesManager::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()

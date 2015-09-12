@@ -356,12 +356,6 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
-			CReputationTracker::getInstance()->addTracker(
-						common::CTrackerData(
-							m_pubKey
-							, 0
-							, CMonitorController::getInstance()->getPeriod()
-							, GetTime() ) );
 
 			common::CSendMessageRequest< common::CMonitorTypes > * request =
 					new common::CSendMessageRequest< common::CMonitorTypes >(
@@ -378,7 +372,11 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 			if ( CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey ) )
 			{
-				common::CTrackerData trackerData( pubKey, 0, GetTime(), CMonitorController::getInstance()->getPeriod() );
+							common::CTrackerData trackerData(
+								m_pubKey
+								, 0
+								, CMonitorController::getInstance()->getPeriod()
+								, GetTime() );
 
 				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 

@@ -74,6 +74,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					  message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition
 				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Balance
 				|| message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration

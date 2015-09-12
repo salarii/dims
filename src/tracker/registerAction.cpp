@@ -432,6 +432,9 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	{
 		context< CRegisterAction >().forgetRequests();
 
+		if ( !_executedIndicator.m_correct )
+			assert( !"couldn't get balance" );
+
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
 						new CPassTransactionAction(
