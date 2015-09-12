@@ -355,7 +355,16 @@ struct CMonitorCantReachNode : boost::statechart::state< CMonitorCantReachNode, 
 	CMonitorCantReachNode( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p can't reach node' \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().forgetRequests();
+		context< CConnectNodeAction >().setResult(
+					common::CNetworkInfoResult(
+						common::CValidNodeInfo( CPubKey(), context< CConnectNodeAction >().getServiceAddress() ) //  not  nice
+						, common::CRole::Monitor
+						,std::set< common::CValidNodeInfo >()
+						, std::set< common::CValidNodeInfo >()
+						, false
+						) );
+
+		context< CConnectNodeAction >().setExit();
 	}
 };
 

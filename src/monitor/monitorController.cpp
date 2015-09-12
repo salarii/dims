@@ -206,7 +206,7 @@ CMonitorController::getInstance()
 }
 
 CMonitorController::CMonitorController()
-	: m_price( 5000 )
+	: m_price( 3000 )
 	, m_period( 3600*4 )
 {
 	initiate();

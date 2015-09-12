@@ -364,14 +364,12 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 						, m_messageId
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
 
-			request->addPayload( common::CResult( 1 ) );
-
-			context< CAdmitTrackerAction >().addRequest( request );
-
 			CPubKey pubKey;
 
 			if ( CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey ) )
 			{
+				request->addPayload( common::CResult( 1 ) );
+
 							common::CTrackerData trackerData(
 								m_pubKey
 								, 0
@@ -382,6 +380,12 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 				CReputationTracker::getInstance()->addTracker( trackerData );
 			}
+			else
+			{
+				request->addPayload( common::CResult( 0 ) );
+			}
+
+			context< CAdmitTrackerAction >().addRequest( request );
 		}
 		else
 		{
