@@ -479,7 +479,10 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						, context< CConnectNodeAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
-		context< CConnectNodeAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( MonitorLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CConnectNodeAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						MonitorLoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -536,7 +539,12 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 		}
 
 		if ( m_infoReceive && m_infoSend )
-			context< CConnectNodeAction >().setExit();
+		{
+			context< CConnectNodeAction >().addRequest(
+						new common::CTimeEventRequest< common::CTrackerTypes >(
+							1000
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		}
 
 		return discard_event();
 	}

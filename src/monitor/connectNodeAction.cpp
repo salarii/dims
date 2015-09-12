@@ -249,6 +249,7 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 		}
 		else
 		{
+			assert( !"problem" );
 			// something  is  wrong  with  pair react  somehow for  now put 0
 			context< CConnectNodeAction >().forgetRequests();
 		}
@@ -521,7 +522,12 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 		}
 
 		if ( m_infoReceive && m_infoSend )
-			context< CConnectNodeAction >().setExit();
+		{
+			context< CConnectNodeAction >().addRequest(
+						new common::CTimeEventRequest< common::CMonitorTypes >(
+							  1000
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		}
 
 		return discard_event();
 	}
