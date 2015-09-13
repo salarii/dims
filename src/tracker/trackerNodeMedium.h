@@ -29,8 +29,6 @@ public:
 	void add( CDeliverInfoRequest const * _request );
 
 	void add( CAskForRegistrationRequest const * _request );
-
-	void add( CTransactionAsClientRequest const * _request );
 private:
 };
 

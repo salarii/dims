@@ -20,6 +20,8 @@ struct CPassTransactionInitial;
 class CPassTransactionAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CPassTransactionAction, CPassTransactionInitial >
 {
 public:
+	CPassTransactionAction( CTransaction const & _transaction, uint256 const & _actionKey );
+
 	CPassTransactionAction( CKeyID const & _keyId, int64_t _amount );
 
 	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
@@ -28,21 +30,10 @@ public:
 
 	int64_t getAmount() const{ return m_amount; }
 
-	void setTrackerStats( common::CTrackerStats const & _trackerStats )
-	{
-		m_servicingTracker = _trackerStats;
-	}
-
-	common::CTrackerStats const & getTrackerStats()
-	{
-		return m_servicingTracker;
-	}
 private:
 	CKeyID const m_keyId;
 
 	int64_t m_amount;
-
-	common::CTrackerStats m_servicingTracker;
 };
 
 }

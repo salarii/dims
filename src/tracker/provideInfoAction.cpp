@@ -15,6 +15,7 @@
 
 #include "tracker/provideInfoAction.h"
 #include "tracker/requests.h"
+#include "tracker/controller.h"
 
 namespace tracker
 {
@@ -88,6 +89,20 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 			context< CProvideInfoAction >().addRequest(
 						new CGetBalanceRequest( keyId ) );
+		}
+		if ( requestedInfo.m_kind == (int)common::CInfoKind::TrackerInfo )
+		{
+			common::CSendMessageRequest< common::CTrackerTypes > * request =
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::TrackerInfo
+						, context< CProvideInfoAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+
+			request->addPayload( common::CTrackerInfo( CController::getInstance()->getPrice() ) );
+
+			context< CProvideInfoAction >().addRequest( request );
+
 		}
 
 		return discard_event();

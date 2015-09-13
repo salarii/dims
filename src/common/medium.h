@@ -56,8 +56,6 @@ class CPassMessageRequest;
 class CDeliverInfoRequest;
 class CGetBalanceRequest;
 class CAskForRegistrationRequest;
-class CTransactionAsClientRequest;
-class CTransactionConditionRequest;
 
 }
 
@@ -140,8 +138,6 @@ public:
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual void add( tracker::CAskForRegistrationRequest const * _request ){};
-	virtual void add( tracker::CTransactionAsClientRequest const * _request ){};
-	virtual void add( tracker::CTransactionConditionRequest const * _request ){};
 
 	virtual ~CTrackerBaseMedium(){};
 };

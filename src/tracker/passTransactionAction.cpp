@@ -26,6 +26,8 @@ namespace tracker
 struct CProcessAsClient;
 struct CValidInNetwork;
 struct CProcessTransaction;
+struct CFetchBalance;
+struct CProvideStatusInfo;
 
 unsigned int const LoopTime = 10000;
 
@@ -37,11 +39,138 @@ struct CInvalidInNetworkEvent : boost::statechart::event< CInvalidInNetworkEvent
 {
 };
 
+// another  way of passing  parameters between states ?? good ?? bad
+namespace
+{
+uintptr_t NodeIndicator;
+uint256 Hash;
+common::CTrackerStats ServicingTracker;
+CTransaction Transaction;
+
+}
+
 struct CPassTransactionInitial : boost::statechart::simple_state< CPassTransactionInitial, CPassTransactionAction >
 {
 	typedef boost::mpl::list<
 	boost::statechart::transition< CValidInNetworkEvent, CValidInNetwork >,
 	boost::statechart::transition< CInvalidInNetworkEvent, CProcessAsClient >
+	> reactions;
+};
+
+struct CAcceptTransaction : boost::statechart::state< CAcceptTransaction, CPassTransactionAction >
+{
+	CAcceptTransaction( my_context ctx ) : my_base( ctx )
+	{
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CClientTransaction clientTransaction;
+		common::convertPayload( orginalMessage, clientTransaction );
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CPassTransactionAction >().getActionKey()
+						, orginalMessage.m_header.m_id
+						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
+		CTransactionRecordManager::getInstance()->addClientTransaction( clientTransaction.m_transaction );
+
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::Result
+					, context< CPassTransactionAction >().getActionKey()
+					, orginalMessage.m_header.m_id
+					, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) );
+
+		request->addPayload( common::CResult( 1 ) );
+
+		context< CPassTransactionAction >().addRequest( request );
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return transit< CProvideStatusInfo >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+
+};
+
+struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassTransactionAction >
+{
+	CProvideStatusInfo( my_context ctx ) : my_base( ctx )
+	{
+		context< CPassTransactionAction >().addRequest(
+					new common::CTimeEventRequest< common::CTrackerTypes >(
+						  LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CInfoRequestData infoRequestData;
+
+		common::convertPayload( orginalMessage, infoRequestData );
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CPassTransactionAction >().getActionKey()
+						, orginalMessage.m_header.m_id
+						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
+		if ( infoRequestData.m_kind == (int)common::CInfoKind::ClientTrasactionStatus )
+		{
+			uint256 hash;
+			common::castCharVectorToType( infoRequestData.m_payload, &hash );
+
+			int status;
+			CTransaction transaction;
+			if ( CTransactionRecordManager::getInstance()->getTransaction( hash, transaction ) )
+				status = common::TransactionsStatus::Unconfirmed;
+			else
+				status = common::TransactionsStatus::Validated	;
+
+			common::CSendMessageRequest< common::CTrackerTypes > * request =
+					new common::CSendMessageRequest< common::CTrackerTypes >(
+						common::CPayloadKind::ClientTransaction
+						, context< CPassTransactionAction >().getActionKey()
+						, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
+
+			request->addPayload( common::CClientTransactionStatus( status ) );
+
+			context< CPassTransactionAction >().addRequest( request );
+		}
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CPassTransactionAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
 
@@ -108,12 +237,15 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 {
 	CProcessAsClient( my_context ctx ) : my_base( ctx )
 	{
-	//	transaction = context< CPassTransactionAction >().getTransaction();
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::InfoReq
+					, context< CPassTransactionAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
 
-		context< CPassTransactionAction >().addRequest(
-					new CTransactionConditionRequest(
-						context< CPassTransactionAction >().getActionKey()
-						, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
+		request->addPayload( (int)common::CInfoKind::TrackerInfo );
+
+		context< CPassTransactionAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -137,9 +269,9 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
-		context< CPassTransactionAction >().setTrackerStats( common::CTrackerStats( _messageResult.m_pubKey, 0, trackerInfo.m_price ) );
+		ServicingTracker = common::CTrackerStats( _messageResult.m_pubKey, 0, trackerInfo.m_price );
 
-		return discard_event();
+		return transit< CFetchBalance >();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -169,7 +301,7 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 	boost::statechart::result react( common::CExecutedIndicator const & _executedIndicator )
 	{
 		if ( _executedIndicator.m_correct )
-			transit< CProcessTransaction >();
+			return transit< CProcessTransaction >();
 
 		context< CPassTransactionAction >().setExit();
 		return discard_event();
@@ -194,25 +326,35 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 		CWalletTx tx;
 		std::string failReason;
 
-
 		if (
 					!CWallet::getInstance()->CreateTransaction(
 						outputs
 						, std::vector< CSpendCoins >()
-						, context< CPassTransactionAction >().getTrackerStats()
+						, ServicingTracker
 						, tx
 						, failReason )
 				)
 		{
-			context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Invalid, CTransaction() ) );
+			context< CPassTransactionAction >().setResult(
+						common::CTransactionAck(
+							( int )common::TransactionsStatus::Invalid
+							, CTransaction() ) );
+
 			context< CPassTransactionAction >().setExit();
 		}
 
-		context< CPassTransactionAction >().addRequest(
-					new CTransactionAsClientRequest(
-						transaction
-						, context< CPassTransactionAction >().getActionKey()
-						, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::ClientTransaction
+					, context< CPassTransactionAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
+
+		request->addPayload( common::CClientTransaction( tx ) );
+
+		context< CPassTransactionAction >().addRequest( request );
+
+		Hash = tx.GetHash();
+		context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Validated, transaction ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -224,11 +366,11 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		common::CMessage orginalMessage;
-//		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), context< CPassTransactionAction >().getPublicKey() ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
-		common::CClientTransactionStatus clientTransactionStatus;
-		common::convertPayload( orginalMessage, clientTransactionStatus );
+		common::CResult result;
+		common::convertPayload( orginalMessage, result );
 
 		context< CPassTransactionAction >().addRequest(
 					new common::CAckRequest< common::CTrackerTypes >(
@@ -236,13 +378,16 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
-//		if ( (common::TransactionsStatus::Enum)clientTransactionStatus != common::TransactionsStatus::Confirmed )
+		if ( result.m_result )
 		{
-			transaction.SetNull();
+			NodeIndicator = _messageResult.m_nodeIndicator;
+		}
+		else
+		{
+			assert( !"handle problem" );
 		}
 
-//		context< CPassTransactionAction >().setResult( transaction );
-
+		// transaction.SetNull();
 		return discard_event();
 	}
 
@@ -259,6 +404,59 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 
 	CTransaction transaction;
 };
+
+struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAction >
+{
+	CCheckStatus( my_context ctx ) : my_base( ctx )
+	{
+
+		common::CSendMessageRequest< common::CTrackerTypes > * request =
+				new common::CSendMessageRequest< common::CTrackerTypes >(
+					common::CPayloadKind::InfoReq
+					, context< CPassTransactionAction >().getActionKey()
+					, new CSpecificMediumFilter( NodeIndicator ) );
+
+		request->addPayload( (int)common::CInfoKind::ClientTrasactionStatus, Hash );
+
+		context< CPassTransactionAction >().addRequest( request );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CPassTransactionAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+	if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+	common::CClientTransactionStatus clientTransactionStatus;
+	common::convertPayload( orginalMessage, clientTransactionStatus );
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CAckRequest< common::CTrackerTypes >(
+						  context< CPassTransactionAction >().getActionKey()
+						, orginalMessage.m_header.m_id
+						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+};
+
+CPassTransactionAction::CPassTransactionAction( CTransaction const & _transaction, uint256 const & _actionKey )
+	: common::CScheduleAbleAction< common::CTrackerTypes >( _actionKey )
+{
+	Transaction = _transaction;
+}
+
 
 CPassTransactionAction::CPassTransactionAction( CKeyID const & _keyId, int64_t _amount )
 	: m_keyId( _keyId )

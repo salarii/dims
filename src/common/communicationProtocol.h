@@ -69,6 +69,8 @@ struct CInfoKind
 		, BitcoinHeaderAsk
 		, BalanceAsk
 		, RankingAsk
+		, TrackerInfo  // good ???
+		, ClientTrasactionStatus
 	};
 };
 
@@ -450,6 +452,11 @@ struct CClientTransaction
 	(
 		READWRITE( m_transaction );
 	)
+
+	CClientTransaction(){}
+
+	CClientTransaction( CTransaction const & _transaction ): m_transaction(_transaction){}
+
 	CTransaction m_transaction;
 };
 
@@ -459,6 +466,11 @@ struct CClientTransactionStatus
 	(
 		READWRITE( m_status );
 	)
+
+	CClientTransactionStatus(){}
+
+	CClientTransactionStatus( int _status ):m_status(_status){}
+
 	unsigned int m_status;
 };
 

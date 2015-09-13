@@ -421,28 +421,12 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	CNetworkAlive( my_context ctx )
 		: my_base( ctx )
 	{
-		context< CRegisterAction >().forgetRequests();
-		context< CRegisterAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
-						new CGetBalanceAction()
-						, new CMediumClassFilter( common::CMediumKinds::Schedule ) ) );
-	}
-
-	boost::statechart::result react( common::CExecutedIndicator const & _executedIndicator )
-	{
-		context< CRegisterAction >().forgetRequests();
-
-		if ( !_executedIndicator.m_correct )
-			assert( !"couldn't get balance" );
-
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
 						new CPassTransactionAction(
 							context< CRegisterAction >().getPublicKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-
-		return discard_event();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -479,8 +463,10 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest< common::CTrackerTypes >(
-						new CGetBalanceAction()
-						, new CMediumClassFilter( common::CMediumKinds::Schedule ) ) );
+						new CPassTransactionAction(
+							context< CRegisterAction >().getPublicKey().GetID()
+							, context< CRegisterAction >().getRegisterPayment() )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
 		return discard_event();
 	}
@@ -521,8 +507,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CExecutedIndicator >
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 };
 
