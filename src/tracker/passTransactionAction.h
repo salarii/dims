@@ -20,7 +20,7 @@ struct CPassTransactionInitial;
 class CPassTransactionAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CPassTransactionAction, CPassTransactionInitial >
 {
 public:
-	CPassTransactionAction( CTransaction const & _transaction, uint256 const & _actionKey );
+	CPassTransactionAction( uint256 const & _actionKey );
 
 	CPassTransactionAction( CKeyID const & _keyId, int64_t _amount );
 

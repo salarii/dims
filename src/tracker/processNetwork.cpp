@@ -15,6 +15,7 @@
 #include "tracker/provideInfoAction.h"
 #include "tracker/pingAction.h"
 #include "tracker/registerAction.h"
+#include "tracker/passTransactionAction.h"
 
 namespace tracker
 {
@@ -46,31 +47,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
 		if (
-				message.m_header.m_payloadKind == common::CPayloadKind::Transactions
-			|| message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions
-			)
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-			{
-				assert( !"for now assert this" );
-				return true;
-			}
-
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-			}
-			else
-			{
-				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
-				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( validateTransactionsAction );
-			}
-		}
-		else if (
 					  message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition
 				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
@@ -81,8 +57,12 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBitcoinHeader
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader
-				 || message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock
-				 || message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration
+				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock
+				|| message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration
+				|| message.m_header.m_payloadKind == common::CPayloadKind::ClientTransaction
+				|| message.m_header.m_payloadKind == common::CPayloadKind::ClientStatusTransaction
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
+				|| message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions
 				 )
 		{
 			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
@@ -121,6 +101,23 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( registerAction );
 
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ClientTransaction )
+			{
+				CPassTransactionAction * passTransactionAction
+						= new CPassTransactionAction( message.m_header.m_actionKey );
+
+				passTransactionAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( passTransactionAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+			{
+				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
+
+				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( validateTransactionsAction );
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )

@@ -28,16 +28,13 @@ struct CValidInNetwork;
 struct CProcessTransaction;
 struct CFetchBalance;
 struct CProvideStatusInfo;
+struct CAcceptTransaction;
 
 unsigned int const LoopTime = 10000;
 
-struct CValidInNetworkEvent : boost::statechart::event< CValidInNetworkEvent >
-{
-};
-
-struct CInvalidInNetworkEvent : boost::statechart::event< CInvalidInNetworkEvent >
-{
-};
+struct CValidInNetworkEvent : boost::statechart::event< CValidInNetworkEvent >{};
+struct CInvalidInNetworkEvent : boost::statechart::event< CInvalidInNetworkEvent >{};
+struct CProcessTransactionEvent : boost::statechart::event< CProcessTransactionEvent >{};
 
 // another  way of passing  parameters between states ?? good ?? bad
 namespace
@@ -53,7 +50,8 @@ struct CPassTransactionInitial : boost::statechart::simple_state< CPassTransacti
 {
 	typedef boost::mpl::list<
 	boost::statechart::transition< CValidInNetworkEvent, CValidInNetwork >,
-	boost::statechart::transition< CInvalidInNetworkEvent, CProcessAsClient >
+	boost::statechart::transition< CInvalidInNetworkEvent, CProcessAsClient >,
+	boost::statechart::transition< CProcessTransactionEvent, CAcceptTransaction >
 	> reactions;
 };
 
@@ -451,10 +449,11 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 	}
 };
 
-CPassTransactionAction::CPassTransactionAction( CTransaction const & _transaction, uint256 const & _actionKey )
+CPassTransactionAction::CPassTransactionAction( uint256 const & _actionKey )
 	: common::CScheduleAbleAction< common::CTrackerTypes >( _actionKey )
 {
-	Transaction = _transaction;
+	initiate();
+	process_event( CProcessTransactionEvent() );
 }
 
 
