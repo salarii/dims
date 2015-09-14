@@ -272,6 +272,21 @@ CBlockIndex *CChain::SetTip(CBlockIndex *pindex) {
     return pindex;
 }
 
+void CChain::resetChain()
+{
+	vChain.clear();
+
+	if ( FileExist("head") )
+	{
+		CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
+		CBlockHeader header;
+		file >> header;
+
+		CBlockIndex * blockIndex = new CBlockIndex( header );
+		vChain.push_back(blockIndex);
+	}
+}
+
 CBlockLocator CChain::GetLocator(const CBlockIndex *pindex) const {
     int nStep = 1;
     std::vector<uint256> vHave;

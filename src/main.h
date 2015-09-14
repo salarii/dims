@@ -980,6 +980,8 @@ public:
     /** Set/initialize a chain with a given tip. Returns the forking point. */
     CBlockIndex *SetTip(CBlockIndex *pindex);
 
+	void resetChain();
+
     /** Return a CBlockLocator that refers to a block in this chain (by default the tip). */
     CBlockLocator GetLocator(const CBlockIndex *pindex = NULL) const;
 

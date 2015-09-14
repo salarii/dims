@@ -8,6 +8,7 @@
 #include <boost/statechart/custom_reaction.hpp>
 
 #include "wallet.h"
+#include "main.h"
 
 #include "common/setResponseVisitor.h"
 #include "common/commonRequests.h"
@@ -138,8 +139,9 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 			file << bitcoinHeader.m_bitcoinHeader;
 			fflush(file);
 			FileCommit(file);
-			InitBlockIndex();// not  entirely ok
 
+			chainActive.resetChain();
+			chainMostWork.resetChain();
 			context< CSynchronizationAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CSynchronizationAction >().getActionKey()
