@@ -569,7 +569,11 @@ CSegmentFileStorage::flushLoop()
 
 							stream >> inTransaction;
 
+							CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( txIn.prevout.hash );
+
 							inTransaction.vout[ txIn.prevout.n ].SetNull();
+
+							CSupportTransactionsDatabase::getInstance()->setTransactionLocation( inTransaction.GetHash(), location );
 
 							if ( boost::algorithm::any_of( inTransaction.vout.begin(), inTransaction.vout.end(), isValid ) )
 							{
