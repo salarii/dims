@@ -569,7 +569,7 @@ CSegmentFileStorage::flushLoop()
 
 							stream >> inTransaction;
 
-							if ( CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( txIn.prevout.hash ) )
+							if ( !CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( txIn.prevout.hash ) )
 								assert( !"problem" );
 
 							inTransaction.vout[ txIn.prevout.n ].SetNull();
