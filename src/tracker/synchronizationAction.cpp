@@ -140,8 +140,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 			fflush(file);
 			FileCommit(file);
 
-			chainActive.resetChain();
-			chainMostWork.resetChain();
+			resetChains();
 			context< CSynchronizationAction >().addRequest(
 						new common::CAckRequest< common::CTrackerTypes >(
 							  context< CSynchronizationAction >().getActionKey()

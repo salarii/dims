@@ -53,6 +53,7 @@ bool fImporting = false;
 bool fReindex = false;
 bool fBenchmark = false;
 bool fTxIndex = false;
+bool resetIndicator = false;
 unsigned int nCoinCacheSize = 5000;
 
 long long currentHeight = 0;
@@ -272,6 +273,14 @@ CBlockIndex *CChain::SetTip(CBlockIndex *pindex) {
     return pindex;
 }
 
+void
+resetChains()
+{
+	chainActive.resetChain();
+	chainMostWork.resetChain();
+	resetIndicator =true;//ugly
+}
+
 void CChain::resetChain()
 {
 	vChain.clear();
@@ -284,6 +293,10 @@ void CChain::resetChain()
 
 		CBlockIndex * blockIndex = new CBlockIndex( header );
 		vChain.push_back(blockIndex);
+
+		mapBlockIndex.clear();
+		blockIndex->phashBlock = &( mapBlockIndex.insert( std::make_pair( header.GetHash(), blockIndex ) ).first->first);
+
 	}
 }
 
@@ -3432,8 +3445,9 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
 
         // Start block sync
-        if (pto->fStartSync && !fImporting && !fReindex) {
+		if ((pto->fStartSync ||resetIndicator ) && !fImporting && !fReindex) {
             pto->fStartSync = false;
+			resetIndicator = false;
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 		{
