@@ -569,20 +569,20 @@ CSegmentFileStorage::flushLoop()
 
 							stream >> inTransaction;
 
-							CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( txIn.prevout.hash );
+							if ( CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( txIn.prevout.hash ) )
+								assert( !"problem" );
 
 							inTransaction.vout[ txIn.prevout.n ].SetNull();
 
-							CSupportTransactionsDatabase::getInstance()->setTransactionLocation( inTransaction.GetHash(), location );
-
 							if ( boost::algorithm::any_of( inTransaction.vout.begin(), inTransaction.vout.end(), isValid ) )
 							{
+								CSupportTransactionsDatabase::getInstance()->setTransactionLocation( inTransaction.GetHash(), location );
+
 								stream.SetPos(0);
 								stream << inTransaction;
 							}
 							else
 							{
-								CSupportTransactionsDatabase::getInstance()->eraseTransactionLocation( inTransaction.GetHash() );
 								usedBlock.second->buddyFree( getIndex( location ) );
 								processedLocationToBuddy.find( transaction.m_location )->second->buddyFree( getIndex( location ) );
 							}
@@ -591,6 +591,8 @@ CSegmentFileStorage::flushLoop()
 				}
 				iterator++;
 			}
+
+			CSupportTransactionsDatabase::getInstance()->flush();
 
 			unsigned int blockNumber = 0;
 

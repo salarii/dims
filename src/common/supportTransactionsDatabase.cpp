@@ -121,6 +121,8 @@ CSupportTransactionsDatabase::flush()
 	bool ok = m_transactionSpecificData.batchWrite(locations);
 	if (ok)
 		m_transactionToLocationCacheInsert.clear();
+	else
+		assert( !"problem" );
 	return ok;
 }
 
