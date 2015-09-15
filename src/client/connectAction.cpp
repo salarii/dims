@@ -44,11 +44,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 
 	boost::statechart::result react( CDnsInfo const & _dnsInfo )
 	{
-        CAddress self(CService(CNetAddr("127.0.0.1"),common::dimsParams().getDefaultClientPort()));
-
         vector<CAddress> addresses = _dnsInfo.m_addresses;
-
-//        addresses.erase(std::find(addresses.begin(), addresses.end(), self));
 
         if ( addresses.empty() )
 		{

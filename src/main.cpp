@@ -1374,7 +1374,9 @@ bool static DisconnectTip(CValidationState &state) {
         LogPrintf("- Disconnect: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
 
     // Update chainActive and related variables.
-    UpdateTip(pindexDelete->pprev);
+
+	if ( pindexDelete->pprev )
+		UpdateTip(pindexDelete->pprev);
     return true;
 }
 /*
