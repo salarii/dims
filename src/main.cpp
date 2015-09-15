@@ -1376,8 +1376,11 @@ bool static DisconnectTip(CValidationState &state) {
     // Update chainActive and related variables.
 
 	if ( pindexDelete->pprev )
+	{
 		UpdateTip(pindexDelete->pprev);
-    return true;
+		return true;
+	}
+	return false;
 }
 /*
 // Connect a new block to chainActive.
