@@ -145,6 +145,7 @@ struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassT
 					new common::CSendMessageRequest< common::CTrackerTypes >(
 						common::CPayloadKind::ClientStatusTransaction
 						, context< CPassTransactionAction >().getActionKey()
+						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) );
 
 			request->addPayload( common::CClientTransactionStatus( status ) );
