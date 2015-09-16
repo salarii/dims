@@ -29,6 +29,7 @@ struct CProcessTransaction;
 struct CFetchBalance;
 struct CProvideStatusInfo;
 struct CAcceptTransaction;
+struct CCheckStatus;
 
 unsigned int const LoopTime = 10000;
 
@@ -241,7 +242,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 					, context< CPassTransactionAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
 
-		request->addPayload( (int)common::CInfoKind::TrackerInfo );
+		request->addPayload( (int)common::CInfoKind::TrackerInfo, std::vector<unsigned char>() );
 
 		context< CPassTransactionAction >().addRequest( request );
 	}
@@ -379,13 +380,13 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 		if ( result.m_result )
 		{
 			NodeIndicator = _messageResult.m_nodeIndicator;
+			return transit< CCheckStatus >();
 		}
 		else
 		{
 			assert( !"handle problem" );
 		}
 
-		// transaction.SetNull();
 		return discard_event();
 	}
 
