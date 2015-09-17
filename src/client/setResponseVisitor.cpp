@@ -56,7 +56,7 @@ class CSetConnectAction : public CResponseVisitorBase< client::CConnectAction, c
 public:
 	CSetConnectAction( client::CConnectAction * const _action ):CResponseVisitorBase< client::CConnectAction, client::ClientResponseList >( _action ){};
 
-	void operator()(client::CDnsInfo & _dnsInfo ) const
+	void operator()(common::CDnsInfo & _dnsInfo ) const
 	{
 		LogPrintf("set response \"dns info\" to action: %p \n", this->m_action );
 		this->m_action->process_event( _dnsInfo );

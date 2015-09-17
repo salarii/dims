@@ -12,20 +12,8 @@
 
 namespace monitor
 {
-
-typedef boost::mpl::list<
-common::ScheduledResult
-, common::CPingPongResult
-, common::CMediumException
-, common::CIdentificationResult
-, common::CConnectedNode
-, common::CAckResult
-, common::CMessageResult
-, common::CNoMedium
-, common::CTimeEvent
-, common::CRequestedMerkles > MonitorResponseList;
-
-typedef boost::make_variant_over< MonitorResponseList >::type MonitorResponses;
+typedef common::DimsResponseList MonitorResponseList;
+typedef common::DimsResponses MonitorResponses;
 
 }
 

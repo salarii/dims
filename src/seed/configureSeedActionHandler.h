@@ -8,17 +8,8 @@
 
 namespace seed
 {
-
-typedef boost::mpl::list<
-common::CAckResult
-, common::CMessageResult
-, common::CPingPongResult,
-common::CMediumException
-, common::CIdentificationResult
-, common::CConnectedNode
-, common::CTimeEvent > SeedResponseList;
-
-typedef boost::make_variant_over< SeedResponseList >::type SeedResponses;
+typedef common::DimsResponseList SeedResponseList;
+typedef common::DimsResponses SeedResponses;
 
 }
 

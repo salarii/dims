@@ -13,16 +13,8 @@
 
 namespace client
 {
-
-// list all desired types
-typedef boost::mpl::list<
-common::CNoMedium
-, common::CTimeEvent
-, common::CMediumException
-, common::CClientMessageResponse
-, CDnsInfo > ClientResponseList;
-
-typedef boost::make_variant_over< ClientResponseList >::type ClientResponses;
+typedef common::DimsResponseList ClientResponseList;
+typedef common::DimsResponses ClientResponses;
 }
 
 #endif // CONFIGURE_CLIENT_ACTION_HADLER_H

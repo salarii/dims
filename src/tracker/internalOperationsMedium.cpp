@@ -76,7 +76,7 @@ CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 	std::vector< unsigned int > invalidTransactions;
 	CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions(), invalidTransactions );
 
-	m_trackerResponses.insert( std::make_pair( (common::CRequest< common::CTrackerTypes >*)_request, CValidationResult( invalidTransactions ) ) );
+	m_trackerResponses.insert( std::make_pair( (common::CRequest< common::CTrackerTypes >*)_request, common::CValidationResult( invalidTransactions ) ) );
 }
 
 

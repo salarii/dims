@@ -13,37 +13,10 @@
 
 #include "main.h"
 
-namespace common
-{
-struct CDiskBlock;
-
-class CSegmentHeader;
-}
-
 namespace tracker
 {
-
-struct CValidationResult
-{
-	CValidationResult( std::vector< unsigned int > const & _invalidTransactionIndexes ):m_invalidTransactionIndexes( _invalidTransactionIndexes ){};
-	std::vector< unsigned int > m_invalidTransactionIndexes;
-};
-
-// list all desired types
-typedef boost::mpl::list<
-common::ScheduledResult
-, common::CMediumException
-, common::CAvailableCoinsData
-, CValidationResult
-, common::CConnectedNode
-, common::CIdentificationResult
-, common::CRequestedMerkles
-, common::CMessageResult
-, common::CPingPongResult
-, common::CAckResult
-, common::CTimeEvent > TrackerResponseList;
-
-typedef boost::make_variant_over< TrackerResponseList >::type TrackerResponses;
+typedef common::DimsResponseList TrackerResponseList;
+typedef common::DimsResponses TrackerResponses;
 }
 
 #endif // CONFIGURE_TRACKER_ACTION_HANDLER_H

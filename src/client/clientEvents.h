@@ -5,10 +5,12 @@
 #ifndef CLIENTEVENTS_H
 #define CLIENTEVENTS_H
 
+#include "common/commonResponses.h"
+
 namespace client
 {
 
-struct CNetworkDiscoveredEvent : boost::statechart::event< CDnsInfo >
+struct CNetworkDiscoveredEvent : boost::statechart::event< common::CDnsInfo >
 {
 	CNetworkDiscoveredEvent( unsigned int _trackers, unsigned int _monitors ): m_trackers( _trackers ), m_monitors( _monitors ){}
 

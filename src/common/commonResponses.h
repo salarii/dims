@@ -15,6 +15,7 @@
 #include "common/transactionStatus.h"
 #include "common/errorResponse.h"
 #include "common/communicationProtocol.h"
+#include "common/clientProtocol.h"
 
 #include <boost/variant.hpp>
 #include <boost/statechart/event.hpp>
@@ -398,6 +399,38 @@ struct CRequestedMerkles
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
 	uintptr_t m_nodePtr;
 };
+
+struct CDnsInfo : boost::statechart::event< CDnsInfo >
+{
+	CDnsInfo( std::vector<CAddress> const & _addresses ):m_addresses( _addresses ){}
+	vector<CAddress> m_addresses;
+};
+
+struct CValidationResult
+{
+	CValidationResult( std::vector< unsigned int > const & _invalidTransactionIndexes ):m_invalidTransactionIndexes( _invalidTransactionIndexes ){};
+	std::vector< unsigned int > m_invalidTransactionIndexes;
+};
+
+typedef boost::mpl::list<
+common::ScheduledResult
+, common::CMediumException
+, common::CAvailableCoinsData
+, CValidationResult
+, common::CConnectedNode
+, common::CIdentificationResult
+, common::CRequestedMerkles
+, common::CMessageResult
+, common::CPingPongResult
+, common::CAckResult
+, common::CTimeEvent
+, common::CNoMedium
+, common::CClientMessageResponse
+, CDnsInfo > DimsResponseList;
+
+typedef boost::make_variant_over< DimsResponseList >::type DimsResponses;
+
+
 
 }
 

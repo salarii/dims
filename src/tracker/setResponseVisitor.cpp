@@ -57,7 +57,7 @@ class CSetValidationResult : public CResponseVisitorBase< tracker::CValidateTran
 public:
 	CSetValidationResult( tracker::CValidateTransactionsAction * const _action ):CResponseVisitorBase< tracker::CValidateTransactionsAction, tracker::TrackerResponseList >( _action ){};
 
-	virtual void operator()( tracker::CValidationResult & _param ) const
+	virtual void operator()( common::CValidationResult & _param ) const
 	{
 		LogPrintf("set response \"validation result\" to action: %p \n", this->m_action );
 		this->m_action->process_event( tracker::CValidationEvent( _param.m_invalidTransactionIndexes ) );

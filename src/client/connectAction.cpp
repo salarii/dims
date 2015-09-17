@@ -42,7 +42,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 		context< CConnectAction >().addRequest( new CDnsInfoRequest() );
 	}
 
-	boost::statechart::result react( CDnsInfo const & _dnsInfo )
+	boost::statechart::result react( common::CDnsInfo const & _dnsInfo )
 	{
         vector<CAddress> addresses = _dnsInfo.m_addresses;
 
@@ -62,7 +62,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CDnsInfo >
+	boost::statechart::custom_reaction< common::CDnsInfo >
 	> reactions;
 };
 
