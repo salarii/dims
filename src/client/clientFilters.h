@@ -5,21 +5,20 @@
 #ifndef CLIENT_FILTERS_H
 #define CLIENT_FILTERS_H
 
-#include "common/filters.h"
-
 #include "client/configureClientActionHadler.h"
 #include "client/settingsConnectionProvider.h"
 #include "client/trackerLocalRanking.h"
 #include "client/applicationServer.h"
 #include "client/errorMediumProvider.h"
 #include "client/settingsMedium.h"
+#include "client/struct.h"
 
-namespace  client
+namespace client
 {
 
 struct CMediumClassFilter : public common::CClientMediumFilter
 {
-	CMediumClassFilter( common::RequestKind::Enum _mediumClass, int _mediumNumber = ( unsigned int )-1 ):
+	CMediumClassFilter( ClientMediums::Enum _mediumClass, int _mediumNumber = ( unsigned int )-1 ):
 		m_mediumClass( _mediumClass ),
 		m_mediumNumber( _mediumNumber )
 	{}
@@ -54,7 +53,7 @@ struct CMediumClassFilter : public common::CClientMediumFilter
 		return _errorMediumProvider->getErrorMedium();
 	}
 
-	common::RequestKind::Enum m_mediumClass;
+	ClientMediums::Enum m_mediumClass;
 	unsigned int m_mediumNumber;
 };
 
@@ -135,14 +134,14 @@ struct CMediumByKeyFilter : public common::CClientMediumFilter
 
 struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 {
-	CMediumClassWithExceptionFilter( uintptr_t const & _exceptionPtr, int _mediumClass, int _mediumNumber = -1 )
+	CMediumClassWithExceptionFilter( uintptr_t const & _exceptionPtr, ClientMediums::Enum _mediumClass, int _mediumNumber = -1 )
 		: m_mediumClass( _mediumClass )
 		, m_mediumNumber( _mediumNumber )
 	{
 		m_exceptionPtrs.insert( _exceptionPtr );
 	}
 
-	CMediumClassWithExceptionFilter( std::set< uintptr_t > const & _exceptionPtrs, int _mediumClass, int _mediumNumber = -1 )
+	CMediumClassWithExceptionFilter( std::set< uintptr_t > const & _exceptionPtrs, ClientMediums::Enum _mediumClass, int _mediumNumber = -1 )
 		: m_mediumClass( _mediumClass )
 		, m_exceptionPtrs( _exceptionPtrs )
 		, m_mediumNumber( _mediumNumber )
@@ -152,7 +151,7 @@ struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 	std::list< common::CClientBaseMedium *> getMediums( client::CTrackerLocalRanking * _trackerLocalRanking )const
 	{
 		std::list< common::CClientBaseMedium *> mediums;
-		mediums = _trackerLocalRanking->getMediumByClass( ( common::RequestKind::Enum )m_mediumClass, (unsigned int)-1 );
+		mediums = _trackerLocalRanking->getMediumByClass( ( ClientMediums::Enum )m_mediumClass, (unsigned int)-1 );
 
 		BOOST_FOREACH( uintptr_t const & ptr, m_exceptionPtrs )
 		{
@@ -180,7 +179,7 @@ struct CMediumClassWithExceptionFilter : public common::CClientMediumFilter
 		return _errorMediumProvider->getErrorMedium();
 	}
 
-	int m_mediumClass;
+	ClientMediums::Enum m_mediumClass;
 	std::set< uintptr_t > m_exceptionPtrs;
 	unsigned int m_mediumNumber;
 };

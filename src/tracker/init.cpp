@@ -54,8 +54,6 @@
 #include "tracker/registerRpcHooks.h"
 #include "tracker/transactionRecordManager.h"
 
-#include "client/settingsConnectionProvider.h"
-
 using namespace std;
 using namespace boost;
 

@@ -24,9 +24,6 @@ class CContinueReqest;
 namespace client
 {
 
-class CTrackersInfoRequest;
-struct CMonitorInfoRequest;
-
 class CDefaultMedium : public common::CClientBaseMedium
 {
 public:

@@ -37,17 +37,6 @@ private:
 	std::vector< std::string > m_addresses;
 };
 
-struct CBalanceRequest : public common::CRequest< common::CClientTypes >
-{
-public:
-	CBalanceRequest( std::string _address );
-
-	void accept( common::CClientBaseMedium * _medium ) const;
-
-    std::string const m_address;
-
-};
-
 }
 
 #endif // SEND_BALANCE_INFO_ACTION_H

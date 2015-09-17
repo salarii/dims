@@ -28,7 +28,7 @@ class CHandleResponseVisitor : public boost::static_visitor< void >
 public:
 	CHandleResponseVisitor( CBufferAsStream * _pushStream, uint256 const & _token ):m_pushStream( _pushStream ),m_token(_token){};
 
-	void operator()( CAvailableCoinsEvent const & _availableCoins ) const
+	void operator()( CAvailableCoinsData const & _availableCoins ) const
 	{
 		common::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
 		*m_pushStream << m_token;
@@ -192,22 +192,17 @@ CTcpServerConnection::handleIncommingBuffor()
 		if( messageType == CMainRequestType::Transaction )
 		{
 			pullStream >> transaction;
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
-			uint256 token = transaction.GetHash();
-			CClientRequestsManager::getInstance()->addRequest( CTransactionMessage( transaction ), token );
-			pushStream << token;
-			m_tokens.insert( token );
+			CClientRequestsManager::getInstance()->addRequest( CTransactionMessage( transaction ), transaction.GetHash() );
+			m_tokens.insert( transaction.GetHash() );
 		}
 		else if ( messageType == CMainRequestType::TrackerInfoReq )
 		{
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token =CClientRequestsManager::getInstance()->addRequest( CTrackerStatsReq() );
 			pushStream << token;
 			m_tokens.insert( token );
 		}
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token = CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq() );
 			pushStream << token;
 			m_tokens.insert( token );
@@ -216,7 +211,6 @@ CTcpServerConnection::handleIncommingBuffor()
 		{
 			uint256 hash;
 			pullStream >> hash;
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			CClientRequestsManager::getInstance()->addRequest( CTransactionStatusReq( hash ), hash );
 			pushStream << hash;
 			m_tokens.insert( hash );
@@ -225,7 +219,6 @@ CTcpServerConnection::handleIncommingBuffor()
 		{
 			std::string address;
 			pullStream >> address;
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			uint256 token = CClientRequestsManager::getInstance()->addRequest( address );
 			pushStream << token;
 			m_tokens.insert( token );
@@ -234,7 +227,6 @@ CTcpServerConnection::handleIncommingBuffor()
 		{
 
 			uint256 token = CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq() );
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 			m_tokens.insert( token );
 		}

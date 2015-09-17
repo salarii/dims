@@ -19,17 +19,7 @@ public:
 
 	void add( common::CRequest< common::CClientTypes > const * _request ){};
 
-	void add( CMonitorInfoRequest const * _request )
-	{
-		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
-	}
-
-	void add( CTrackersInfoRequest const * _request )
-	{
-		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
-	}
-
-	void add( CBalanceRequest const * _request )
+	void add( common::CSendMessageRequest< common::CClientTypes > const * _request )
 	{
 		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
 	}

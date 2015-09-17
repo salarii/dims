@@ -49,12 +49,6 @@ struct CCheckMonitors : boost::statechart::state< CCheckMonitors, CSendTransacti
 	{
 	}
 
-	boost::statechart::result react( common::CPending const & _pending )
-	{
-		context< CSendTransactionAction >().setRequest( new CInfoRequestContinue( _pending.m_token, new CSpecificMediumFilter( _pending.m_networkPtr ) ) );
-		return discard_event();
-	}
-
 	typedef boost::mpl::list<
 	  boost::statechart::custom_reaction<  common::CPending >
 //	, boost::statechart::custom_reaction< common::CTransactionStatus >

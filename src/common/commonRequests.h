@@ -507,6 +507,10 @@ public:
 			, uint256 const & _actionKey
 			, FilterType * _filterType );
 
+	CSendMessageRequest(
+			common::CMainRequestType::Enum _messageKind
+			, FilterType * _filterType );// bit  overuse of  this
+
 	void accept( MediumType * _medium ) const;
 
 	uint256 getActionKey() const;
@@ -562,6 +566,14 @@ CSendMessageRequest< _Types >::CSendMessageRequest( CPayloadKind::Enum _messageK
 	, m_actionKey( _actionKey )
 {
 }
+
+template < class _Types >
+CSendMessageRequest< _Types >::CSendMessageRequest(
+		common::CMainRequestType::Enum _messageKind
+		, FilterType * _filterType )
+	: common::CRequest< _Types >( _filterType )
+	, m_messageKind( (int)_messageKind )
+{}
 
 template < class _Types >
 void

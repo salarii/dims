@@ -6,6 +6,8 @@
 #include "net.h"
 #include "coins.h"
 
+#include <boost/statechart/event.hpp>
+
 namespace common
 {
 
@@ -15,6 +17,50 @@ enum Enum
 {
 	Transactions,
 };
+};
+
+struct CClientBalanceAsk
+{
+	IMPLEMENT_SERIALIZE
+	(
+			READWRITE(m_address);
+	)
+
+	CClientBalanceAsk(){}
+
+	CClientBalanceAsk(std::string const & _address):m_address(_address){}
+
+	std::string m_address;
+};
+
+struct CClientTransactionStatusAsk
+{
+	IMPLEMENT_SERIALIZE
+	(
+			READWRITE(m_hash);
+	)
+
+	CClientTransactionStatusAsk(){}
+
+	CClientTransactionStatusAsk(uint256 const & _hash):m_hash(_hash){}
+
+	uint256 m_hash;
+};
+
+
+
+struct CClientTransactionSend
+{
+	IMPLEMENT_SERIALIZE
+	(
+			READWRITE(m_transaction);
+	)
+
+	CClientTransactionSend(){}
+
+	CClientTransactionSend(CTransaction const & _transaction):m_transaction(_transaction){}
+
+	CTransaction m_transaction;
 };
 
 struct CClientHeader
@@ -39,15 +85,13 @@ struct CClientHeader
 struct CClientMessage
 {
 public:
-	CClientMessage(){}
-
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_header);
 		READWRITE(m_payload);
 	)
 
-	~CClientMessage(){};
+	CClientMessage(){}
 
 	CClientMessage( int _messageKind, std::vector< unsigned char > const & _payload, uint256 const & _id )
 		: m_header( _messageKind, _id )
@@ -55,9 +99,31 @@ public:
 	{
 	}
 
+	~CClientMessage(){};
+
 	CClientHeader m_header;
 	std::vector< unsigned char > m_payload;
 };
+
+struct CClientMessageResponse : boost::statechart::event< CClientMessageResponse >
+{
+	CClientMessageResponse( CClientMessage const & _clientMessage, uintptr_t _nodePtr)
+		: m_clientMessage(_clientMessage)
+		, m_nodePtr(_nodePtr)
+	{}
+
+	CClientMessage m_clientMessage;
+
+	uintptr_t m_nodePtr;
+};
+
+template < class T >
+void
+convertClientPayload( CClientMessage const & _message,T & _outMessage )
+{
+	CBufferAsStream stream( (char*)&_message.m_payload.front(), _message.m_payload.size(), SER_NETWORK, PROTOCOL_VERSION );
+	stream >> _outMessage;
+}
 
 }
 

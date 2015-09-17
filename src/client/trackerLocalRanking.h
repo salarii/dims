@@ -17,6 +17,8 @@
 #include "common/commonResponses.h"
 #include "common/commonResponses.h"
 
+#include "client/struct.h"
+
 #include "configureClientActionHadler.h"
 
 namespace client
@@ -75,7 +77,7 @@ public:
 
 	void resetTrackers();
 
-	std::list< common::CClientBaseMedium *> getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber );
+	std::list< common::CClientBaseMedium *> getMediumByClass( ClientMediums::Enum _requestKind, unsigned int _mediumNumber );
 
 	common::CClientBaseMedium * getSpecificTracker( uintptr_t _trackerPtr ) const;
 

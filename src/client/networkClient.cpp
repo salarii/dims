@@ -175,36 +175,6 @@ CNetworkClient::add( common::CRequest< common::CClientTypes > const * _request )
 }
 
 void
-CNetworkClient::add( CBalanceRequest const * _request )
-{
-	QMutexLocker lock( &m_mutex );
-	serializeEnum(*m_pushStream, common::CMainRequestType::BalanceInfoReq );
-	*m_pushStream << _request->m_address;
-
-	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
-}
-
-void
-CNetworkClient::add( CTransactionSendRequest const * _request )
-{
-	QMutexLocker lock( &m_mutex );
-	serializeEnum(*m_pushStream, common::CMainRequestType::Transaction );
-	*m_pushStream  << _request->m_transaction;
-
-	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
-}
-
-void
-CNetworkClient::add( CTransactionStatusRequest const * _request )
-{
-	QMutexLocker lock( &m_mutex );
-	common::serializeEnum( *m_pushStream, common::CMainRequestType::TransactionStatusReq );
-
-	*m_pushStream << _request->m_transactionHash;
-	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
-}
-
-void
 CNetworkClient::add( common::CSendMessageRequest< common::CClientTypes > const * _request )
 {
 	QMutexLocker lock( &m_mutex );
@@ -217,30 +187,6 @@ CNetworkClient::add( common::CSendMessageRequest< common::CClientTypes > const *
 
 	m_matching.insert( std::make_pair( _request->getId(), ( common::CRequest< common::CClientTypes >* )_request ) );
 
-	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
-}
-
-void
-CNetworkClient::add( CRecognizeNetworkRequest const * _request )
-{
-	QMutexLocker lock( &m_mutex );
-	common::serializeEnum( *m_pushStream, common::CMainRequestType::NetworkInfoReq );
-	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
-}
-
-void
-CNetworkClient::add( CTrackersInfoRequest const * _request )
-{
-	QMutexLocker lock( &m_mutex );
-	common::serializeEnum( *m_pushStream, common::CMainRequestType::TrackerInfoReq );
-	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
-}
-
-void
-CNetworkClient::add( CMonitorInfoRequest const * _request )
-{
-	QMutexLocker lock( &m_mutex );
-	common::serializeEnum( *m_pushStream, common::CMainRequestType::MonitorInfoReq );
 	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
 }
 
@@ -279,80 +225,20 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< common::CC
 	{
 		int messageType;
 
-		stream >> messageType;
-
-		if ( messageType == common::CMainRequestType::TransactionStatusReq )
+		common::CClientMessage clientMessage;
+		try
 		{
-			common::CTransactionStatusResponse transactionStatus;
-			stream >> token;
-			stream >> transactionStatus;
+			stream >> clientMessage;
+
+			assert( takeMatching( clientMessage.m_header.m_id ) );
 
 			_requestResponse.insert(
 						std::make_pair(
-							takeMatching( token ),
-							common::CTransactionStatus( ( common::TransactionsStatus::Enum )transactionStatus.m_status, transactionStatus.m_transactionHash, transactionStatus.m_signedHash ) ) );
-
+							takeMatching( clientMessage.m_header.m_id )
+							, common::CClientMessageResponse( clientMessage, common::convertToInt(this) ) ) );
 		}
-		else if ( messageType == common::CMainRequestType::Transaction )
-		{
-			common::CTransactionAck transactionAck;
-			stream >> token;
-			stream >> transactionAck;
-
-			_requestResponse.insert( std::make_pair( takeMatching( token ), transactionAck ) );
-		}
-		else if ( messageType == common::CMainRequestType::MonitorInfoReq )
-		{
-			common::CMonitorData monitorData;
-			stream >> token;
-			stream >> monitorData;
-
-			common::CNodeSpecific< common::CMonitorData > stats( monitorData, m_ip.toStdString(), common::convertToInt(this));
-
-			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
-		}
-		else if ( messageType == common::CMainRequestType::TrackerInfoReq )
-		{
-			common::CTrackerSpecificStats trackerSpecificStats;
-			stream >> token;
-			stream >> trackerSpecificStats;
-
-			common::CNodeSpecific< common::CTrackerSpecificStats > stats( trackerSpecificStats, m_ip.toStdString(), common::convertToInt(this));
-
-			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
-		}
-		else if ( messageType == common::CMainRequestType::RequestSatatusReq )
-		{
-		}
-		else if ( messageType == common::CMainRequestType::BalanceInfoReq )
-		{
-			common::CAvailableCoinsEvent availableCoins;
-			stream >> token;
-			stream >> availableCoins;
-			_requestResponse.insert( std::make_pair( takeMatching( token ), availableCoins ) );
-		}
-		else if ( messageType == common::CMainRequestType::NetworkInfoReq )
-		{
-			common::CClientNetworkInfoResult networkResult;
-			stream >> token;
-			stream >> networkResult;
-
-			common::CNodeSpecific< common::CClientNetworkInfoResult > stats( networkResult, m_ip.toStdString(), common::convertToInt(this));
-
-			_requestResponse.insert( std::make_pair( takeMatching( token ), stats ) );
-		}
-		else if ( messageType == common::CMainRequestType::ContinueReq )
-		{
-			stream >> token;
-			_requestResponse.insert( std::make_pair( m_workingRequest.front(), common::CPending( token, common::convertToInt(this) ) ) );
-			m_matching.insert( std::make_pair( token, m_workingRequest.front() ) );
-			//ok only one  response  for one  request, right now
-			m_workingRequest.erase( m_workingRequest.begin() );
-		}
-		else
-		{
-			throw;
-		}
+		catch(...)
+		{}
 	}
 
 	clearResponses();

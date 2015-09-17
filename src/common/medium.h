@@ -61,13 +61,7 @@ class CAskForRegistrationRequest;
 
 namespace client
 {
-struct CBalanceRequest;
-struct CTransactionStatusRequest;
-struct CTransactionSendRequest;
-struct CTrackersInfoRequest;
-struct CMonitorInfoRequest;
 struct CDnsInfoRequest;
-struct CRecognizeNetworkRequest;
 struct CErrorForAppPaymentProcessing;
 struct CProofTransactionAndStatusRequest;
 }
@@ -166,15 +160,10 @@ public:
 	using CMedium::types;
 public:
 	virtual void add( common::CTimeEventRequest< CClientTypes > const * _request ){};
-	virtual void add(client::CBalanceRequest const * _request ){};
-	virtual void add( client::CTransactionStatusRequest const * _request ){};
-	virtual void add( client::CTransactionSendRequest const * _request ){};
-	virtual void add(client:: CTrackersInfoRequest const * _request ){};
-	virtual void add( client::CMonitorInfoRequest const * _request ){};
 	virtual void add( client::CDnsInfoRequest const * _request ){};
-	virtual void add( client::CRecognizeNetworkRequest const * _request ){};
 	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
 	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
+	virtual void add( common::CSendMessageRequest< CClientTypes > const * _request ){};
 };
 
 class CSeedBaseMedium : public CMedium< CSeedTypes >

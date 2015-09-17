@@ -109,7 +109,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	}
 
 
-	boost::statechart::result react( common::CAvailableCoinsEvent const & _availableCoins )
+	boost::statechart::result react( common::CAvailableCoinsData const & _availableCoins )
 	{
 		common::CSendMessageRequest< common::CTrackerTypes > * request =
 				new common::CSendMessageRequest< common::CTrackerTypes >(
@@ -136,7 +136,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CAvailableCoinsEvent >,
+	boost::statechart::custom_reaction< common::CAvailableCoinsData >,
 	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 

@@ -7,6 +7,8 @@
 
 #include "common/timeMedium.h"
 
+#include "client/clientFilters.h"
+
 namespace client
 {
 
@@ -39,14 +41,14 @@ CSettingsConnectionProvider::provideConnection( common::CClientMediumFilter cons
 }
 
 std::list< common::CClientBaseMedium *>
-CSettingsConnectionProvider::getMediumByClass( common::RequestKind::Enum _requestKind )
+CSettingsConnectionProvider::getMediumByClass( ClientMediums::Enum _requestKind )
 {
 	std::list< common::CClientBaseMedium *> mediums;
-	if( common::RequestKind::NetworkInfo == _requestKind || common::RequestKind::Seed == _requestKind )// temporary???
+	if( ClientMediums::NetworkInfo == _requestKind || ClientMediums::Seed == _requestKind )// temporary???
 	{
 		mediums.push_back( m_settingsMedium );
 	}
-	else if ( common::RequestKind::Time == _requestKind )
+	else if ( ClientMediums::Time == _requestKind )
 	{
 		mediums.push_back( common::CTimeMedium< common::CClientBaseMedium >::getInstance() );
 	}

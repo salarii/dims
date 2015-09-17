@@ -6,6 +6,9 @@
 #define SETTINGS_CONNECTION_PROVIDER_H
 
 #include "common/connectionProvider.h"
+
+#include "client/struct.h"
+
 #include "configureClientActionHadler.h"
 
 namespace client
@@ -17,7 +20,7 @@ class CSettingsConnectionProvider : public common::CConnectionProvider< common::
 public:
 	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
 
-	std::list< common::CClientBaseMedium *> getMediumByClass( common::RequestKind::Enum _requestKind );
+	std::list< common::CClientBaseMedium *> getMediumByClass( ClientMediums::Enum _requestKind );
 
 	static CSettingsConnectionProvider* getInstance();
 

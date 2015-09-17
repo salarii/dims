@@ -453,7 +453,9 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		context< CRegisterAction >().addRequest( request );
 
 		// registration done
-		CController::getInstance()->process_event( CMonitorAcceptEvent( _messageResult.m_pubKey ) );
+		CController::getInstance()->process_event( common::CRegistrationData( _messageResult.m_pubKey, GetTime(), 0 ) );
+
+		context< CRegisterAction >().setExit();
 
 		return discard_event();
 	}

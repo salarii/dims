@@ -6,14 +6,16 @@
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "sendTransactionAction.h"
 #include "common/nodeMessages.h"
 #include "common/setResponseVisitor.h"
 #include "common/medium.h"
-#include "clientFilters.h"
-#include "clientRequests.h"
-#include "clientEvents.h"
-#include "clientControl.h"
+#include "common/commonRequests.h"
+
+#include "client/sendTransactionAction.h"
+#include "client/clientFilters.h"
+#include "client/clientRequests.h"
+#include "client/clientEvents.h"
+#include "client/clientControl.h"
 
 #include "configureClientActionHadler.h"
 #include "serialize.h"
@@ -30,22 +32,26 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 	CPrepareAndSendTransaction( my_context ctx ) : my_base( ctx )
 	{
 		context< CSendTransactionAction >().forgetRequests();
-		context< CSendTransactionAction >().addRequest( new CTransactionSendRequest( context< CSendTransactionAction >().getTransaction(), new CMediumClassFilter( RequestKind::Transaction, 1 ) ) );
-	}
-//  ack here
-	boost::statechart::result react( common::CPending const & _pending )
-	{
-		context< CSendTransactionAction >().setProcessingTrackerPtr( _pending.m_networkPtr );
-		return discard_event();
+
+		common::CSendMessageRequest< common::CClientTypes > * request =
+				new common::CSendMessageRequest< common::CClientTypes >(
+					common::CMainRequestType::Transaction
+					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+
+		request->addPayload( common::CClientTransactionSend(context< CSendTransactionAction >().getTransaction()) );
+
+		context< CSendTransactionAction >().addRequest( request );
 	}
 
-	boost::statechart::result react( CTransactionAckEvent const & _transactionSendAck )
+	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-// todo, check status and validity of the transaction propagated
-		if ( _transactionSendAck.m_status == common::TransactionsStatus::Validated )
+		common::CTransactionAckData transactionAckData;
+		convertClientPayload( _message.m_clientMessage, transactionAckData );
+
+		if ( transactionAckData.m_status == (int)common::TransactionsStatus::Validated )
 		{
-			CClientControl::getInstance()->addTransactionToModel( _transactionSendAck.m_transactionSend );
-			context< CSendTransactionAction >().setTransaction( _transactionSendAck.m_transactionSend );
+			CClientControl::getInstance()->addTransactionToModel( transactionAckData.m_transactionSend );
+			context< CSendTransactionAction >().setTransaction( transactionAckData.m_transactionSend );
 			return transit< CTransactionStatus >();
 		}
 		else
@@ -57,8 +63,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 	}
 
 	typedef boost::mpl::list<
-	  boost::statechart::custom_reaction< common::CPending >
-	, boost::statechart::custom_reaction< CTransactionAckEvent >
+		boost::statechart::custom_reaction< common::CClientMessageResponse >
 	> reactions;
 };
 
@@ -68,26 +73,26 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 	{
 		common::CClientMediumFilter * filter =
 				CTrackerLocalRanking::getInstance()->determinedTrackersCount() > 1 ?
-											(common::CClientMediumFilter *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 )
-										  : (common::CClientMediumFilter *)new CMediumClassFilter( RequestKind::Transaction, 1 );
+											(common::CClientMediumFilter *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), ClientMediums::Trackers, 1 )
+										  : (common::CClientMediumFilter *)new CMediumClassFilter( ClientMediums::Trackers, 1 );
 
 		context< CSendTransactionAction >().forgetRequests();
-		context< CSendTransactionAction >().addRequest(
-					new CTransactionStatusRequest(
-						  context< CSendTransactionAction >().getTransaction().GetHash()
-						, filter
-						) );
+
+		common::CSendMessageRequest< common::CClientTypes > * request =
+				new common::CSendMessageRequest< common::CClientTypes >(
+					common::CMainRequestType::TransactionStatusReq
+					, filter );
+
+		request->addPayload( common::CClientTransactionStatusAsk(context< CSendTransactionAction >().getTransaction().GetHash()) );
+
+		context< CSendTransactionAction >().addRequest( request );
 	}
 
-
-	boost::statechart::result react( common::CPending const & _pending )
+	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTransactionStatus const & _transactionStats )
-	{
-		if ( _transactionStats.m_status == common::TransactionsStatus::Confirmed )
+		common::CTransactionStatus transactionStatus;
+		convertClientPayload( _message.m_clientMessage, transactionStatus );
+		if ( transactionStatus.m_status == (int)common::TransactionsStatus::Confirmed )
 		{
 			CClientControl::getInstance()->transactionAddmited(
 						context< CSendTransactionAction >().getInitialTransactionHash()
@@ -95,20 +100,24 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 
 			context< CSendTransactionAction >().setExit();
 		}
-		else if ( _transactionStats.m_status == common::TransactionsStatus::Unconfirmed )
+		else if ( transactionStatus.m_status == common::TransactionsStatus::Unconfirmed )
 		{
 			context< CSendTransactionAction >().forgetRequests();
-			context< CSendTransactionAction >().addRequest(
-						new CTransactionStatusRequest(
-							  context< CSendTransactionAction >().getTransaction().GetHash()
-							, new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), RequestKind::TransactionStatus, 1 ) ) );
+
+			common::CSendMessageRequest< common::CClientTypes > * request =
+					new common::CSendMessageRequest< common::CClientTypes >(
+						common::CMainRequestType::TransactionStatusReq
+						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::Trackers, 1 ) );
+
+			request->addPayload( common::CClientTransactionStatusAsk(context< CSendTransactionAction >().getTransaction().GetHash()) );
+
+			context< CSendTransactionAction >().addRequest( request );
 		}
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	  boost::statechart::custom_reaction<  common::CPending >
-	, boost::statechart::custom_reaction< common::CTransactionStatus >
+	boost::statechart::custom_reaction< common::CClientMessageResponse >
 	> reactions;
 };
 

@@ -446,6 +446,13 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
+		// send  and  kill
+		context< CPassTransactionAction >().addRequest(
+		 new common::CTimeEventRequest< common::CTrackerTypes >(
+						1000
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+
 		return discard_event();
 	}
 

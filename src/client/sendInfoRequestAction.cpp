@@ -26,39 +26,4 @@ CSendInfoRequestAction::accept( common::CSetResponseVisitor< common::CClientType
 	_visitor.visit( *this );
 }
 
-CTrackersInfoRequest::CTrackersInfoRequest( common::CClientMediumFilter * _mediumFilter )
-	: common::CRequest< common::CClientTypes >( _mediumFilter )
-{
-}
-
-void
-CTrackersInfoRequest::accept( common::CClientBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-/*
-void
-CTrackersInfoRequest::serialize( CBufferAsStream & _bufferStream ) const
-{
-	BOOST_FOREACH( TrackerInfo::Enum const info, m_reqInfo )
-	{
-		int infoCode = info;
-		_bufferStream << infoCode;
-	}
-	
-}
-*/
-
-CMonitorInfoRequest::CMonitorInfoRequest( common::CClientMediumFilter * _mediumFilter )
-	: common::CRequest< common::CClientTypes >( _mediumFilter )
-{
-}
-
-void
-CMonitorInfoRequest::accept( common::CClientBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
 }

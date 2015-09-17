@@ -11,7 +11,7 @@
 namespace tracker
 {
 
-typedef boost::variant< common::CAvailableCoinsEvent, common::CClientNetworkInfoResult, common::CTransactionAck, common::CTransactionStatusResponse, common::CTrackerSpecificStats > ClientResponse;
+typedef boost::variant< common::CAvailableCoinsData, common::CClientNetworkInfoResult, common::CTransactionAck, common::CTransactionStatusResponse, common::CTrackerSpecificStats > ClientResponse;
 
 class CClientRequestsManager
 {

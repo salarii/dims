@@ -9,14 +9,15 @@
 #include "common/setResponseVisitor.h"
 #include "common/commonEvents.h"
 #include "common/analyseTransaction.h"
+#include "common/commonRequests.h"
 
 #include "sendInfoRequestAction.h"
 #include "sendBalanceInfoAction.h"
 
-#include "clientFilters.h"
-#include "clientControl.h"
-#include "clientEvents.h"
-#include "clientRequests.h"
+#include "client/clientFilters.h"
+#include "client/clientControl.h"
+#include "client/clientEvents.h"
+#include "client/clientRequests.h"
 
 #include "serialize.h"
 #include "base58.h"
@@ -43,51 +44,18 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		{
 			m_pubKey = addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().forgetRequests();
-			context< CSendBalanceInfoAction >().addRequest( new CBalanceRequest( addresses.at( m_addressIndex++ ) ) );
+
+			common::CSendMessageRequest< common::CClientTypes > * request =
+					new common::CSendMessageRequest< common::CClientTypes >(
+						common::CMainRequestType::BalanceInfoReq
+						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+
+			request->addPayload( CClientBalanceAsk( addresses.at( m_addressIndex++ ) ) );
+
+			context< CSendBalanceInfoAction >().addRequest( request );
 		}
 		else
 			context< CSendBalanceInfoAction >().setExit();
-	}
-	// imporant  how  many trackers  service  this
-	// here I assume  that  one. ??? is this correct ???
-	boost::statechart::result react( CCoinsEvent const & _coinsEvent )
-	{
-
-		CMnemonicAddress address;
-		address.SetString( m_pubKey );
-
-		CKeyID keyId;
-		address.GetKeyID( keyId );
-
-		std::vector< CAvailableCoin > availableCoins;
-		BOOST_FOREACH( PAIRTYPE( uint256, CCoins ) const & coins, _coinsEvent.m_coins )
-		{
-			std::vector< CAvailableCoin > tempCoins = common::getAvailableCoins( coins.second, keyId, coins.first );
-			availableCoins.insert(availableCoins.end(), tempCoins.begin(), tempCoins.end());
-		}
-		CWallet::getInstance()->replaceAvailableCoins( keyId, availableCoins );
-
-		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
-
-		updateTotal( availableCoins );
-
-		if ( m_addressIndex < m_addresses.size() )
-		{
-			m_pubKey = m_addresses.at( m_addressIndex );
-			context< CSendBalanceInfoAction >().forgetRequests();
-			context< CSendBalanceInfoAction >().addRequest( new CBalanceRequest( m_addresses.at( m_addressIndex++ ) ) );
-		}
-		else
-		{
-			CClientControl::getInstance()->updateTotalBalance( m_total );
-			context< CSendBalanceInfoAction >().setExit();
-		}
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CPending const & _pending )
-	{
-		return discard_event();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
@@ -104,10 +72,55 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 		}
 	}
 
+	boost::statechart::result react( common::CClientMessageResponse const & _message )
+	{
+		common::CAvailableCoinsData availableCoinsData;
+		convertClientPayload( _message.m_clientMessage, availableCoinsData );
+
+		CMnemonicAddress address;
+		address.SetString( m_pubKey );
+
+		CKeyID keyId;
+		address.GetKeyID( keyId );
+
+		std::vector< CAvailableCoin > availableCoins;
+		BOOST_FOREACH( PAIRTYPE( uint256, CCoins ) const & coins, availableCoinsData.m_availableCoins )
+		{
+			std::vector< CAvailableCoin > tempCoins = common::getAvailableCoins( coins.second, keyId, coins.first );
+			availableCoins.insert(availableCoins.end(), tempCoins.begin(), tempCoins.end());
+		}
+		CWallet::getInstance()->replaceAvailableCoins( keyId, availableCoins );
+
+		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();
+
+		updateTotal( availableCoins );
+
+		if ( m_addressIndex < m_addresses.size() )
+		{
+			m_pubKey = m_addresses.at( m_addressIndex );
+			context< CSendBalanceInfoAction >().forgetRequests();
+
+			common::CSendMessageRequest< common::CClientTypes > * request =
+					new common::CSendMessageRequest< common::CClientTypes >(
+						common::CMainRequestType::BalanceInfoReq
+						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+
+			request->addPayload( CClientBalanceAsk( m_addresses.at( m_addressIndex++ ) ) );
+
+			context< CSendBalanceInfoAction >().addRequest( request );
+		}
+		else
+		{
+			CClientControl::getInstance()->updateTotalBalance( m_total );
+			context< CSendBalanceInfoAction >().setExit();
+		}
+		return discard_event();
+
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CPending >,
 	boost::statechart::custom_reaction< common::CNoMedium >,
-	boost::statechart::custom_reaction< CCoinsEvent >
+	boost::statechart::custom_reaction< common::CClientMessageResponse >
 	> reactions;
 
 	unsigned int m_addressIndex;
@@ -150,18 +163,6 @@ std::vector< std::string > const &
 CSendBalanceInfoAction::getAddresses() const
 {
 	return m_addresses;
-}
-
-CBalanceRequest::CBalanceRequest( std::string _address )
-	: common::CRequest< common::CClientTypes >( new CMediumClassFilter( RequestKind::Balance, 1 ) )
-	, m_address( _address )
-{
-}
-
-void
-CBalanceRequest::accept( common::CClientBaseMedium * _medium ) const
-{
-	_medium->add( this );
 }
 
 }

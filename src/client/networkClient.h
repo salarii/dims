@@ -34,18 +34,6 @@ public:
 
 	void add( common::CRequest< common::CClientTypes > const * _request );
 
-	void add( CBalanceRequest const * _request );
-
-	void add( CTransactionSendRequest const * _request );
-
-	void add( CTransactionStatusRequest const * _request );
-
-	void add( CRecognizeNetworkRequest const * _request );
-
-	void add( CTrackersInfoRequest const * _request );
-
-	void add( CMonitorInfoRequest const * _request );
-
 	void add( common::CSendMessageRequest< common::CClientTypes > const * _request );
 
 	bool flush();

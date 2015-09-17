@@ -13,24 +13,6 @@
 namespace client
 {
 
-struct CTransactionStatusRequest : public common::CRequest< common::CClientTypes >
-{
-public:
-	CTransactionStatusRequest( uint256 const & _transactionHash, common::CClientMediumFilter * _mediumFilter );
-	void accept( common::CClientBaseMedium * _medium ) const;
-	common::CClientMediumFilter * getMediumFilter() const;
-	uint256 m_transactionHash;
-};
-
-struct CTransactionSendRequest : public common::CRequest< common::CClientTypes >
-{
-public:
-	CTransactionSendRequest( CTransaction const & _transaction, common::CClientMediumFilter * _mediumFilter );
-	void accept( common::CClientBaseMedium * _medium ) const;
-	common::CClientMediumFilter * getMediumFilter() const;
-	CTransaction m_transaction;
-};
-
 struct CErrorForAppPaymentProcessing : public common::CRequest< common::CClientTypes >
 {
 public:

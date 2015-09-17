@@ -11,7 +11,7 @@
 namespace monitor
 {
 
-typedef boost::variant< common::CAvailableCoinsEvent, common::CClientNetworkInfoResult, common::CTransactionAck, common::CTransactionStatusResponse, common::CTrackerSpecificStats, common::CMonitorData > ClientResponse;
+typedef boost::variant< common::CAvailableCoinsData, common::CClientNetworkInfoResult, common::CTransactionAck, common::CTransactionStatusResponse, common::CTrackerSpecificStats, common::CMonitorData > ClientResponse;
 
 class CClientRequestsManager
 {

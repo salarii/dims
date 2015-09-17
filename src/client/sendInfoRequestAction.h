@@ -46,28 +46,6 @@ public:
 	virtual void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
 };
 
-struct CTrackersInfoRequest : public common::CRequest< common::CClientTypes >
-{
-public:
-	CTrackersInfoRequest( common::CClientMediumFilter * _mediumFilter );
-
-	~CTrackersInfoRequest(){};
-
-	void accept( common::CClientBaseMedium * _medium ) const;
-
-	int m_mediumKind;
-};
-
-struct CMonitorInfoRequest : public common::CRequest< common::CClientTypes >
-{
-public:
-	CMonitorInfoRequest( common::CClientMediumFilter * _mediumFilter );
-
-	void serialize( CBufferAsStream & _bufferStream ) const;
-
-	void accept( common::CClientBaseMedium * _medium ) const;
-};
-
 }
 
 #endif // SEND_INFO_REQUEST_ACTION_H

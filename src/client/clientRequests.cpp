@@ -9,42 +9,6 @@
 namespace client
 {
 
-CTransactionStatusRequest::CTransactionStatusRequest( uint256 const & _transactionHash, common::CClientMediumFilter * _medium )
-	: common::CRequest< common::CClientTypes >( _medium )
-	, m_transactionHash( _transactionHash )
-{
-}
-
-void
-CTransactionStatusRequest::accept( common::CClientBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-common::CClientMediumFilter *
-CTransactionStatusRequest::getMediumFilter() const
-{
-	return common::CRequest< common::CClientTypes >::m_mediumFilter;
-}
-
-void
-CTransactionSendRequest::accept( common::CClientBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-CTransactionSendRequest::CTransactionSendRequest( CTransaction const & _transaction, common::CClientMediumFilter * _medium )
-	: common::CRequest< common::CClientTypes >( _medium )
-	, m_transaction( _transaction )
-{
-}
-
-common::CClientMediumFilter *
-CTransactionSendRequest::getMediumFilter() const
-{
-	return common::CRequest< common::CClientTypes >::m_mediumFilter;
-}
-
 CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CClientMediumFilter * _mediumFilter )
 	: common::CRequest< common::CClientTypes >( _mediumFilter )
 	, m_error( _error )
@@ -70,6 +34,5 @@ CProofTransactionAndStatusRequest::accept( common::CClientBaseMedium * _medium )
 {
 	_medium->add( this );
 }
-
 
 }

@@ -36,10 +36,6 @@ public:
 
 	void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
 
-	void setProcessingTrackerPtr( 	uintptr_t _ptr );
-
-	uintptr_t getProcessingTrackerPtr() const;
-
 	CPrivKey getPrivAppKey() const;
 
 	std::vector<CKeyID> const & getTrackers() const;
@@ -116,8 +112,6 @@ private:
 	std::vector<CKeyID> m_trackers;
 
 	std::vector<CKeyID> m_monitors;
-
-	uintptr_t m_processingTrackerPtr;
 
 	uint256 m_validatedTransactionHash;
 

@@ -17,8 +17,7 @@ struct CMainRequestType
 {
 	enum Enum
 	{
-		  ContinueReq
-		, Transaction
+		  Transaction
 		, TransactionStatusReq
 		, MonitorInfoReq
 		, TrackerInfoReq

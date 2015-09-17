@@ -7,29 +7,9 @@
 
 #include "common/commonResponses.h"
 
+#include "common/clientProtocol.h"
+
 #include "clientResponses.h"
-
-namespace common
-{
-struct CAvailableCoinsEvent;
-
-class CMediumException;
-
-struct CClientNetworkInfoResult;
-
-struct CTrackerSpecificStats;
-
-template < class _Stats >
-struct CNodeSpecific;
-
-struct CTimeEvent;
-
-struct CTransactionAck;
-
-struct CMonitorData;
-
-struct CNoMedium;
-}
 
 namespace client
 {
@@ -38,18 +18,9 @@ namespace client
 typedef boost::mpl::list<
 common::CNoMedium
 , common::CTimeEvent
-,common::CMediumException
-, common::CTransactionStatus
-, common::CTransactionAck
-, common::CAccountBalance
-, common::CTrackerStats
-, common::CMonitorInfo
-, common::CPending
-, common::CAvailableCoinsEvent
-, CDnsInfo
-, common::CNodeSpecific< common::CClientNetworkInfoResult >
-, common::CNodeSpecific< common::CTrackerSpecificStats >
-, common::CNodeSpecific< common::CMonitorData > > ClientResponseList;
+, common::CMediumException
+, common::CClientMessageResponse
+, CDnsInfo > ClientResponseList;
 
 typedef boost::make_variant_over< ClientResponseList >::type ClientResponses;
 }

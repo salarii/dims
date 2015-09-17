@@ -33,7 +33,7 @@ struct CValidationResult
 typedef boost::mpl::list<
 common::ScheduledResult
 , common::CMediumException
-, common::CAvailableCoinsEvent
+, common::CAvailableCoinsData
 , CValidationResult
 , common::CConnectedNode
 , common::CIdentificationResult

@@ -19,14 +19,6 @@ public:
 	virtual void accept( common::CClientBaseMedium * _medium ) const;
 };
 
-class CRecognizeNetworkRequest : public common::CRequest< common::CClientTypes >
-{
-public:
-	CRecognizeNetworkRequest();
-
-	virtual void accept( common::CClientBaseMedium * _medium ) const;
-};
-
 }
 
 #endif // CONTROL_REQUESTS_H

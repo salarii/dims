@@ -39,7 +39,7 @@ CInternalOperationsMedium::serviced() const
 void
 CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 {
-	common::CAvailableCoinsEvent availableCoins;
+	common::CAvailableCoinsData availableCoins;
 
 	std::vector< uint256 > coinsHashes;
 

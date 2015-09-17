@@ -28,7 +28,7 @@ class CHandleResponseVisitor : public boost::static_visitor< void >
 public:
 	CHandleResponseVisitor( CBufferAsStream * _pushStream, uint256 const & _token ):m_pushStream( _pushStream ),m_token(_token){};
 
-	void operator()( CAvailableCoinsEvent const & _availableCoins ) const
+	void operator()( CAvailableCoinsData const & _availableCoins ) const
 	{
 		common::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
 		*m_pushStream << m_token;
@@ -203,7 +203,6 @@ CTcpServerConnection::handleIncommingBuffor()
 		else if ( messageType == CMainRequestType::MonitorInfoReq )
 		{
 			uint256 token = CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq() );
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 			m_tokens.insert( token );
 		}
@@ -211,7 +210,6 @@ CTcpServerConnection::handleIncommingBuffor()
 		{
 
 			uint256 token = CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq() );
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
 			pushStream << token;
 			m_tokens.insert( token );
 		}

@@ -52,20 +52,6 @@ struct CClientNetworkInfoEvent : boost::statechart::event< CClientNetworkInfoEve
 	uintptr_t m_nodeIndicator;
 };
 
-struct CTrackerStatsEvent : boost::statechart::event< CTrackerStatsEvent >
-{
-	CTrackerStatsEvent( unsigned int _reputation, float _price, std::string _ip, uintptr_t _nodeIndicator )
-		: m_reputation( _reputation )
-		, m_price( _price )
-		, m_ip( _ip )
-		, m_nodeIndicator( _nodeIndicator ){};
-
-	unsigned int  m_reputation;
-	unsigned int m_price;
-	std::string m_ip;
-	uintptr_t m_nodeIndicator;
-};
-
 struct CRegistrationData : boost::statechart::event< CRegistrationData >
 {
 	CRegistrationData(){}
@@ -79,18 +65,6 @@ struct CRegistrationData : boost::statechart::event< CRegistrationData >
 	CPubKey m_key;
 	uint64_t m_registrationTime;
 	uint64_t m_period;
-};
-
-struct CMonitorStatsEvent : boost::statechart::event< CMonitorStatsEvent >
-{
-	CMonitorStatsEvent( common::CMonitorData const & _monitorData, std::string _ip, uintptr_t _nodeIndicator )
-		: m_monitorData( _monitorData )
-		, m_ip( _ip )
-		, m_nodeIndicator( _nodeIndicator ){};
-
-	common::CMonitorData m_monitorData;
-	std::string m_ip;
-	uintptr_t m_nodeIndicator;
 };
 
 struct CResultEvent : boost::statechart::event< CResultEvent >
@@ -204,7 +178,7 @@ public:
 		this->m_action->process_event( _executedIndicator );
 	}
 
-	void operator()( CAvailableCoinsEvent const & _availableCoins ) const
+	void operator()( CAvailableCoinsData const & _availableCoins ) const
 	{
 		this->m_action->process_event( _availableCoins );
 	}

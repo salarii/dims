@@ -28,10 +28,10 @@ namespace common
 struct CNoMedium : boost::statechart::event< CNoMedium >
 {};
 
-struct CAvailableCoinsEvent : boost::statechart::event< CAvailableCoinsEvent >
+struct CAvailableCoinsData : boost::statechart::event< CAvailableCoinsData >
 {
-	CAvailableCoinsEvent( std::map< uint256, CCoins > const & _availableCoins, uint256 const & _hash );
-	CAvailableCoinsEvent();
+	CAvailableCoinsData( std::map< uint256, CCoins > const & _availableCoins, uint256 const & _hash );
+	CAvailableCoinsData();
 
 	IMPLEMENT_SERIALIZE
 	(
@@ -42,6 +42,32 @@ struct CAvailableCoinsEvent : boost::statechart::event< CAvailableCoinsEvent >
 	static CMainRequestType::Enum const  m_requestType;
 	uint256 m_hash;
 	std::map< uint256, CCoins > m_availableCoins;
+};
+
+
+struct CTrackerStatsData
+{
+
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_reputation);
+		READWRITE(m_price);
+		READWRITE(m_ip);
+		READWRITE(m_nodeIndicator);
+	)
+
+	CTrackerStatsData(){}
+
+	CTrackerStatsData( unsigned int _reputation, float _price, std::string _ip, uintptr_t _nodeIndicator )
+		: m_reputation( _reputation )
+		, m_price( _price )
+		, m_ip( _ip )
+		, m_nodeIndicator( _nodeIndicator ){};
+
+	unsigned int  m_reputation;
+	unsigned int m_price;
+	std::string m_ip;
+	uintptr_t m_nodeIndicator;
 };
 
 struct CIdentificationResult : boost::statechart::event< CIdentificationResult >
@@ -202,13 +228,60 @@ struct CTrackerSpecificStats
 	unsigned int m_price;
 };
 
-
-template < class _Stats >
-struct CNodeSpecific : public _Stats
+struct CTransactionAckData
 {
-	CNodeSpecific( _Stats const & _stats, std::string const & _ip, uintptr_t _nodeIndicator ):_Stats( _stats ), m_ip( _ip ), m_nodeIndicator( _nodeIndicator ){}
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_status);
+	READWRITE(m_transactionSend);
+	)
+
+	CTransactionAckData(){}
+
+	CTransactionAckData( int _status, CTransaction _transactionSend ): m_status( _status ), m_transactionSend( _transactionSend ){}
+
+	int m_status;
+	CTransaction m_transactionSend;
+};
+
+struct CMonitorStatsData : boost::statechart::event< CMonitorStatsData >
+{
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_monitorData);
+	READWRITE(m_ip);
+	READWRITE(m_nodeIndicator);
+	)
+
+	CMonitorStatsData()
+	{}
+
+	CMonitorStatsData( common::CMonitorData const & _monitorData, std::string _ip, uintptr_t _nodeIndicator )
+		: m_monitorData( _monitorData )
+		, m_ip( _ip )
+		, m_nodeIndicator( _nodeIndicator ){};
+
+	common::CMonitorData m_monitorData;
 	std::string m_ip;
 	uintptr_t m_nodeIndicator;
+};
+
+struct CTransactionStatus
+{
+	IMPLEMENT_SERIALIZE
+	(
+	READWRITE(m_status);
+	READWRITE(m_transactionHash);
+	READWRITE(m_signature);
+	)
+
+	CTransactionStatus(){}
+
+	CTransactionStatus(	int _status, uint256 const & _transactionHash, std::vector<unsigned char> const & _signature ):m_status( _status ), m_transactionHash( _transactionHash ), m_signature( _signature ){}
+
+	int m_status;
+	uint256 m_transactionHash;
+	std::vector<unsigned char> m_signature;
 };
 
 class CSelfNode;
@@ -252,14 +325,6 @@ struct CTimeEvent : boost::statechart::event< CTimeEvent >
 {
 };
 
-struct CTransactionStatus : boost::statechart::event< CTransactionStatus >
-{
-	CTransactionStatus(	common::TransactionsStatus::Enum _status, uint256 const & _transactionHash, std::vector<unsigned char> const & _signature ):m_status( _status ), m_transactionHash( _transactionHash ), m_signature( _signature ){}
-	common::TransactionsStatus::Enum m_status;
-	uint256 m_transactionHash;
-	std::vector<unsigned char> m_signature;
-};
-
 struct CAccountBalance
 {
 
@@ -289,13 +354,6 @@ struct CTrackerStats : public CNodeInfo
 		: CNodeInfo( _publicKey, _ip, _port, _role ), m_reputation( _reputation ), m_price( _price ){}
 	unsigned int  m_reputation;
 	unsigned int m_price;
-};
-
-struct CPending : boost::statechart::event< CPending >
-{
-	CPending( uint256 const & _token, uintptr_t _networkPtr ):m_token( _token ),m_networkPtr( _networkPtr ){};
-	uint256 m_token;
-	uintptr_t m_networkPtr;
 };
 
 struct CSystemError
@@ -330,7 +388,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsEvent > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsData > ScheduledResult;
 
 struct CRequestedMerkles
 {

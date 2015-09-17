@@ -146,7 +146,7 @@ CTrackerLocalRanking::provideConnection( common::CClientMediumFilter const & _me
 }
 
 std::list< common::CClientBaseMedium *>
-CTrackerLocalRanking::getMediumByClass( common::RequestKind::Enum _requestKind, unsigned int _mediumNumber )
+CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsigned int _mediumNumber )
 {
 	std::list< common::CClientBaseMedium *> mediums;
 
