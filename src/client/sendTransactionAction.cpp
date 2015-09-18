@@ -17,7 +17,6 @@
 #include "client/clientEvents.h"
 #include "client/clientControl.h"
 
-#include "configureClientActionHadler.h"
 #include "serialize.h"
 
 using namespace common;
@@ -33,8 +32,8 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 	{
 		context< CSendTransactionAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::Transaction
 					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
 
@@ -71,15 +70,15 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 {
 	CTransactionStatus( my_context ctx ) : my_base( ctx )
 	{
-		common::CClientMediumFilter * filter =
+		common::CMediumFilter * filter =
 				CTrackerLocalRanking::getInstance()->determinedTrackersCount() > 1 ?
-											(common::CClientMediumFilter *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), ClientMediums::Trackers, 1 )
-										  : (common::CClientMediumFilter *)new CMediumClassFilter( ClientMediums::Trackers, 1 );
+											(common::CMediumFilter *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), ClientMediums::Trackers, 1 )
+										  : (common::CMediumFilter *)new CMediumClassFilter( ClientMediums::Trackers, 1 );
 
 		context< CSendTransactionAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
 					, filter );
 
@@ -104,8 +103,8 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 		{
 			context< CSendTransactionAction >().forgetRequests();
 
-			common::CSendMessageRequest< common::CClientTypes > * request =
-					new common::CSendMessageRequest< common::CClientTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
 						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::Trackers, 1 ) );
 
@@ -130,7 +129,7 @@ CSendTransactionAction::CSendTransactionAction( const CTransaction & _transactio
 }
 
 void
-CSendTransactionAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
+CSendTransactionAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

@@ -19,17 +19,20 @@
 namespace common
 {
 
-bool operator() ( CRequestHandler * const & _handlerLhs, CRequestHandler * const & _handlerRhs) const
+bool
+LessHandlers::operator() ( CRequestHandler * const & _handlerLhs, CRequestHandler * const & _handlerRhs) const
 {
 	return *_handlerLhs < *_handlerRhs;
 }
 
-bool operator() ( CRequestHandler * const & _handlerLhs, CMedium* const & _medium) const
+bool
+LessHandlers::operator() ( CRequestHandler * const & _handlerLhs, CMedium* const & _medium) const
 {
 	return *_handlerLhs < _medium;
 }
 
-bool operator() ( CMedium* const & _medium, CRequestHandler * const & _handlerLhs ) const
+bool
+LessHandlers::operator() ( CMedium* const & _medium, CRequestHandler * const & _handlerLhs ) const
 {
 	if ( *_handlerLhs < _medium )
 		return false;
@@ -39,6 +42,9 @@ bool operator() ( CMedium* const & _medium, CRequestHandler * const & _handlerLh
 
 	return true;
 }
+
+unsigned int const common::CActionHandler::m_sleepTime = 100;
+common::CActionHandler * common::CActionHandler::ms_instance = NULL;
 
 CActionHandler::CActionHandler()
 {
@@ -202,10 +208,10 @@ CActionHandler::loop()
 		{
 			BOOST_FOREACH( CAction * action,m_actions )
 			{
-				std::list< ResponseType > responses = reqHandler->getDirectActionResponse( action );
-				BOOST_FOREACH( ResponseType const & response, responses )
+				std::list< DimsResponse > responses = reqHandler->getDirectActionResponse( action );
+				BOOST_FOREACH( DimsResponse const & response, responses )
 				{
-					CSetResponseVisitor  visitor( response );
+					CSetResponseVisitor visitor( response );
 					action->accept( visitor );
 					m_actions.insert( action );
 				}
@@ -227,11 +233,11 @@ CActionHandler::loop()
 			{
 				if ( it->second->isProcessed( reqAction.first ) )
 				{
-					ResponseType response;
+					DimsResponse response;
 
 					if ( it->second->getLastResponse( reqAction.first, response ) )
 					{
-							CSetResponseVisitor  visitor( response );
+							CSetResponseVisitor visitor( response );
 							reqAction.second->accept( visitor );
 
 							it->second->clearLastResponse( reqAction.first );

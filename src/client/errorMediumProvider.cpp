@@ -9,7 +9,7 @@
 namespace client
 {
 
-class CErrorMedium : public common::CClientBaseMedium
+class CErrorMedium : public common::CMedium
 {
 public:
 
@@ -17,16 +17,16 @@ public:
 
 	bool serviced() const;
 
-	void add( common::CRequest< common::CClientTypes > const * _request ){};
+	void add( common::CRequest const * _request ){};
 
-	void add( common::CSendMessageRequest< common::CClientTypes > const * _request )
+	void add( common::CSendMessageRequest const * _request )
 	{
-		m_requestResponse.insert( std::make_pair( ( common::CRequest< common::CClientTypes > * )_request, common::CNoMedium() ) );
+		m_requestResponse.insert( std::make_pair( ( common::CRequest * )_request, common::CNoMedium() ) );
 	}
 
 	bool flush(){ return true; };
 
-	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -36,7 +36,7 @@ private:
 private:
 	static CErrorMedium * ms_instance;
 
-	std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > m_requestResponse;
+	std::multimap< common::CRequest const*, common::DimsResponse > m_requestResponse;
 };
 
 
@@ -59,7 +59,7 @@ CErrorMedium::serviced() const
 }
 
 bool
-CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
+CErrorMedium::getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse )
 {
 	_requestResponse = m_requestResponse;
 
@@ -90,16 +90,16 @@ CErrorMediumProvider::CErrorMediumProvider()
 {
 }
 
-std::list< common::CClientBaseMedium *>
-CErrorMediumProvider::provideConnection( common::CClientMediumFilter const & _mediumFilter )
+std::list< common::CMedium *>
+CErrorMediumProvider::provideConnection( common::CMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-std::list< common::CClientBaseMedium *>
+std::list< common::CMedium *>
 CErrorMediumProvider::getErrorMedium()
 {
-	std::list< common::CClientBaseMedium *> mediums;
+	std::list< common::CMedium *> mediums;
 	mediums.push_back( CErrorMedium::getInstance() );
 	return mediums;
 }

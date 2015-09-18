@@ -88,31 +88,35 @@ class CAction;
 class CSetResponseVisitor
 {
 public:
-	CSetResponseVisitor( common::DimsResponse const & _response );
+	CSetResponseVisitor( common::DimsResponse const & _response ):m_responses(_response)
+	{}
 
-	virtual void visit( common::CAction & _action );
+	~CSetResponseVisitor()
+	{}
 
-	virtual void visit( tracker::CGetBalanceAction & _action );
+	void visit( common::CAction & _action ){};
 
-	virtual void visit( tracker::CValidateTransactionsAction & _action );
+	void visit( tracker::CGetBalanceAction & _action );
 
-	virtual void visit( tracker::CConnectNodeAction & _action );
+	void visit( tracker::CValidateTransactionsAction & _action );
 
-	virtual void visit( tracker::CTrackOriginAddressAction & _action );
+	void visit( tracker::CConnectNodeAction & _action );
 
-	virtual void visit( tracker::CSynchronizationAction & _action );
+	void visit( tracker::CTrackOriginAddressAction & _action );
 
-	virtual void visit( tracker::CProvideInfoAction & _action );
+	void visit( tracker::CSynchronizationAction & _action );
 
-	virtual void visit( tracker::CPingAction & _action );
+	void visit( tracker::CProvideInfoAction & _action );
 
-	virtual void visit( tracker::CRegisterAction & _action );
+	void visit( tracker::CPingAction & _action );
 
-	virtual void visit( tracker::CRecognizeNetworkAction & _action );
+	void visit( tracker::CRegisterAction & _action );
 
-	virtual void visit( tracker::CPassTransactionAction & _action );
+	void visit( tracker::CRecognizeNetworkAction & _action );
 
-	virtual void visit( tracker::CConnectNetworkAction & _action );
+	void visit( tracker::CPassTransactionAction & _action );
+
+	void visit( tracker::CConnectNetworkAction & _action );
 
 	void visit( client::CSendTransactionAction & _action );
 
@@ -122,29 +126,29 @@ public:
 
 	void visit( client::CPayLocalApplicationAction & _action );
 
-	void visit( client::CSendInfoRequestAction & _action ){};
+	void visit( client::CSendInfoRequestAction & _action );
 
 	void visit( monitor::CConnectNodeAction & _action );
 
-	virtual void visit( monitor::CUpdateDataAction & _action );
+	void visit( monitor::CUpdateDataAction & _action );
 
-	virtual void visit( monitor::CAdmitTrackerAction & _action );
+	void visit( monitor::CAdmitTrackerAction & _action );
 
-	virtual void visit( monitor::CAdmitTransactionBundle & _action );
+	void visit( monitor::CAdmitTransactionBundle & _action );
 
-	virtual void visit( monitor::CPingAction & _action );
+	void visit( monitor::CPingAction & _action );
 
-	virtual void visit( monitor::CRecognizeNetworkAction & _action );
+	void visit( monitor::CRecognizeNetworkAction & _action );
 
-	virtual void visit( monitor::CTrackOriginAddressAction & _action );
+	void visit( monitor::CTrackOriginAddressAction & _action );
 
-	virtual void visit( monitor::CProvideInfoAction & _action );
+	void visit( monitor::CProvideInfoAction & _action );
 
-	virtual void visit( monitor::CEnterNetworkAction & _action );
+	void visit( monitor::CEnterNetworkAction & _action );
 
-	virtual void visit( monitor::CCopyTransactionStorageAction & _action );
+	void visit( monitor::CCopyTransactionStorageAction & _action );
 
-	virtual void visit( monitor::CSynchronizationAction & _action );
+	void visit( monitor::CSynchronizationAction & _action );
 
 	void visit( seed::CAcceptNodeAction & _action );
 

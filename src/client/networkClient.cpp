@@ -95,13 +95,13 @@ CNetworkClient::write()
 	}
 }
 
-common::CRequest< common::CClientTypes >*
+common::CRequest*
 CNetworkClient::takeMatching( uint256 const & _token )
 {
-	std::map< uint256, common::CRequest< common::CClientTypes >* >::iterator iterator
+	std::map< uint256, common::CRequest* >::iterator iterator
 			= m_matching.find( _token );
 
-	common::CRequest< common::CClientTypes >* request;
+	common::CRequest* request;
 
 	if( iterator != m_matching.end() )
 	{
@@ -170,12 +170,12 @@ CNetworkClient::prepareMedium()
 }
 
 void 
-CNetworkClient::add( common::CRequest< common::CClientTypes > const * _request )
+CNetworkClient::add( common::CRequest const * _request )
 {
 }
 
 void
-CNetworkClient::add( common::CSendMessageRequest< common::CClientTypes > const * _request )
+CNetworkClient::add( common::CSendMessageRequest const * _request )
 {
 	QMutexLocker lock( &m_mutex );
 
@@ -185,9 +185,9 @@ CNetworkClient::add( common::CSendMessageRequest< common::CClientTypes > const *
 						 , _request->getPayLoad()
 						 , _request->getId() );
 
-	m_matching.insert( std::make_pair( _request->getId(), ( common::CRequest< common::CClientTypes >* )_request ) );
+	m_matching.insert( std::make_pair( _request->getId(), ( common::CRequest* )_request ) );
 
-	m_workingRequest.push_back( ( common::CRequest< common::CClientTypes >* )_request );
+	m_workingRequest.push_back( ( common::CRequest* )_request );
 }
 
 bool
@@ -210,7 +210,7 @@ CNetworkClient::clearResponses()
 }
 
 bool
-CNetworkClient::getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse )
+CNetworkClient::getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse )
 {
 	QMutexLocker lock( &m_mutex );
 	CBufferAsStream stream(

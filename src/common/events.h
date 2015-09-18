@@ -10,7 +10,7 @@
 #include "net.h"
 #include "main.h"
 
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 namespace common
 {

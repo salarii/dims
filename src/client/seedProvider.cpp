@@ -14,10 +14,10 @@ namespace client
 CSeedProvider * CSeedProvider::ms_instance = NULL;
 
 
-std::list< common::CClientBaseMedium *>
-CSeedProvider::provideConnection( common::CClientMediumFilter const & _mediumFilter )
+std::list< common::CMedium *>
+CSeedProvider::provideConnection( common::CMediumFilter const & _mediumFilter )
 {
-	return std::list< common::CClientBaseMedium *>();
+	return std::list< common::CMedium *>();
 }
 
 CSeedProvider::~CSeedProvider()

@@ -21,7 +21,7 @@ CSendInfoRequestAction::CSendInfoRequestAction( NetworkInfo::Enum const _network
 }
 
 void
-CSendInfoRequestAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
+CSendInfoRequestAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

@@ -9,18 +9,16 @@
 
 #include "client/struct.h"
 
-#include "configureClientActionHadler.h"
-
 namespace client
 {
 class CDefaultMedium;
 // stupid  name
-class CSettingsConnectionProvider : public common::CConnectionProvider< common::CClientTypes >
+class CSettingsConnectionProvider : public common::CConnectionProvider
 {
 public:
-	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
+	virtual std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
-	std::list< common::CClientBaseMedium *> getMediumByClass( ClientMediums::Enum _requestKind );
+	std::list< common::CMedium *> getMediumByClass( ClientMediums::Enum _requestKind );
 
 	static CSettingsConnectionProvider* getInstance();
 

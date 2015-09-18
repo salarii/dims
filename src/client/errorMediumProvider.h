@@ -8,17 +8,15 @@
 #include "common/medium.h"
 #include "common/connectionProvider.h"
 
-#include "configureClientActionHadler.h"
-
 namespace client
 {
 
-class CErrorMediumProvider : public common::CConnectionProvider< common::CClientTypes >
+class CErrorMediumProvider : public common::CConnectionProvider
 {
 public:
-	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
+	virtual std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
-	std::list< common::CClientBaseMedium *> getErrorMedium();
+	std::list< common::CMedium *> getErrorMedium();
 
 	static CErrorMediumProvider* getInstance();
 private:

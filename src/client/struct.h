@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef STRUCT_H
-#define STRUCT_H
+#ifndef CLIENT_STRUCT_H
+#define CLIENT_STRUCT_H
 
 namespace client
 {
@@ -25,4 +25,4 @@ struct ClientMediums
 
 }
 
-#endif // STRUCT_H
+#endif // CLIENT_STRUCT_H

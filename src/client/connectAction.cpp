@@ -72,14 +72,14 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::NetworkInfoReq
 					, new CMediumClassFilter( ClientMediums::Unknown ) );
 
 		context< CConnectAction >().addRequest( request );
 
-		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
+		context< CConnectAction >().addRequest( new common::CTimeEventRequest( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -178,14 +178,14 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::MonitorInfoReq
 					, new CMediumClassFilter( ClientMediums::Monitors ) );
 
 		context< CConnectAction >().addRequest( request );
 
-		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( MonitorAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
+		context< CConnectAction >().addRequest( new common::CTimeEventRequest( MonitorAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
 	}
 	// try  to  recognize  what  monitors  are  accepted by  which  node
 	// determine  network  of  valid monitors
@@ -198,8 +198,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_checked.insert( m_pending.begin(), m_pending.end() );
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::MonitorInfoReq
 					, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
 
@@ -303,8 +303,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		{
 			context< CConnectAction >().forgetRequests();
 
-			common::CSendMessageRequest< common::CClientTypes > * request =
-					new common::CSendMessageRequest< common::CClientTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CMainRequestType::MonitorInfoReq
 						, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
 
@@ -476,14 +476,14 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 	{
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::TrackerInfoReq
 					, new CMediumClassFilter( ClientMediums::UndeterminedTrackers ) );
 
 		context< CConnectAction >().addRequest( request );
 
-		context< CConnectAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
+		context< CConnectAction >().addRequest( new common::CTimeEventRequest( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -566,13 +566,13 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 };
 
 CConnectAction::CConnectAction( bool _autoDelete )
-	: common::CAction< common::CClientTypes >( _autoDelete )
+	: common::CAction( _autoDelete )
 {
 	initiate();
 }
 
 void
-CConnectAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
+CConnectAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -586,7 +586,7 @@ CConnectAction::isRequestReady() const
 void
 CConnectAction::reset()
 {
-	common::CAction< common::CClientTypes >::reset();
+	common::CAction::reset();
 	initiate();
 }
 }

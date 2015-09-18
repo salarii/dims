@@ -34,7 +34,7 @@ struct CUninitiatedClient : boost::statechart::simple_state< CUninitiatedClient,
 	CUninitiatedClient()
 	{
 		CLocalServer::getInstance();
-		common::CActionHandler< common::CClientTypes >::getInstance()->executeAction( new CConnectAction() );
+		common::CActionHandler::getInstance()->executeAction( new CConnectAction() );
 	}
 
 	typedef boost::mpl::list<
@@ -52,7 +52,7 @@ struct CClientConnected : boost::statechart::state< CClientConnected, CClientCon
 
 		uiInterface.NotifyNumConnectionsChanged( discoveredEvent->m_trackers, discoveredEvent->m_monitors );
 
-		common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( new CSendBalanceInfoAction( false ), CheckBalancePeriod );
+		common::CPeriodicActionExecutor::getInstance()->addAction( new CSendBalanceInfoAction( false ), CheckBalancePeriod );
 	}
 };
 

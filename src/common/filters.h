@@ -10,7 +10,6 @@
 
 #include "boost/foreach.hpp"
 
-#include "client/configureClientActionHadler.h"
 #include "monitor/configureMonitorActionHandler.h"
 #include "seed/configureSeedActionHandler.h"
 
@@ -46,11 +45,6 @@ class CInternalMediumProvider;
 
 namespace common
 {
-class CClientBaseMedium;
-
-class CMonitorBaseMedium;
-
-class CSeedBaseMedium;
 
 class CMedium;
 

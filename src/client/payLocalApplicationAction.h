@@ -9,17 +9,16 @@
 
 #include <boost/statechart/state_machine.hpp>
 
+#include "core.h"
+
 #include "common/action.h"
 #include "common/request.h"
-#include "configureClientActionHadler.h"
-#include "core.h"
 #include "common/transactionStatus.h"
 #include "common/responses.h"
 
 namespace common
 {
 
-template < class _RequestResponses >
 class CSetResponseVisitor;
 
 }
@@ -29,12 +28,12 @@ namespace client
 
 struct CCheckAppData;
 
-class CPayLocalApplicationAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CPayLocalApplicationAction, CCheckAppData >
+class CPayLocalApplicationAction : public common::CAction, public  boost::statechart::state_machine< CPayLocalApplicationAction, CCheckAppData >
 {
 public:
 	CPayLocalApplicationAction( uintptr_t _socket, CPrivKey const & _privateKey, CKeyID const & _targetKey, int64_t _value,std::vector<CKeyID> const & _trackers, std::vector<CKeyID> const & _monitors );
 
-	void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
+	void accept( common::CSetResponseVisitor & _visitor );
 
 	CPrivKey getPrivAppKey() const;
 

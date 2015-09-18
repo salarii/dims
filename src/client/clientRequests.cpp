@@ -9,28 +9,28 @@
 namespace client
 {
 
-CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CClientMediumFilter * _mediumFilter )
-	: common::CRequest< common::CClientTypes >( _mediumFilter )
+CErrorForAppPaymentProcessing::CErrorForAppPaymentProcessing( dims::CAppError::Enum _error, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_error( _error )
 {
 
 }
 
 void
-CErrorForAppPaymentProcessing::accept( common::CClientBaseMedium * _medium ) const
+CErrorForAppPaymentProcessing::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
 
 
-CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CClientMediumFilter * _mediumFilter )
-	: common::CRequest< common::CClientTypes >( _mediumFilter )
+CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_payApplicationData( _trasaction, _transactionStatusSignature, _servicingTracker, _monitorData, _servicingMonitor )
 {
 }
 
 void
-CProofTransactionAndStatusRequest::accept( common::CClientBaseMedium * _medium ) const
+CProofTransactionAndStatusRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }

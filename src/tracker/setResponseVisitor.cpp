@@ -305,17 +305,6 @@ public:
 	}
 };
 
-
-CSetResponseVisitor::CSetResponseVisitor( common::DimsResponse const & _trackerResponse )
-	: m_responses( _trackerResponse )
-{
-}
-
-void
-CSetResponseVisitor::visit( common::CAction & _action )
-{
-}
-
 void
 CSetResponseVisitor::visit( tracker::CGetBalanceAction & _action )
 {

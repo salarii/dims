@@ -5,18 +5,17 @@
 #ifndef CONTROL_REQUESTS_H
 #define CONTROL_REQUESTS_H
 
-#include "configureClientActionHadler.h"
 #include "common/request.h"
 
 namespace client
 {
 
-class CDnsInfoRequest : public common::CRequest< common::CClientTypes >
+class CDnsInfoRequest : public common::CRequest
 {
 public:
 	CDnsInfoRequest();
 
-	virtual void accept( common::CClientBaseMedium * _medium ) const;
+	virtual void accept( common::CMedium * _medium ) const;
 };
 
 }

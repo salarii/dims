@@ -18,7 +18,6 @@
 #include "clientEvents.h"
 #include "clientControl.h"
 #include "sendInfoRequestAction.h"
-#include "configureClientActionHadler.h"
 #include "serialize.h"
 #include "base58.h"
 
@@ -72,7 +71,7 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 		context< CPayLocalApplicationAction >().addRequest( new CErrorForAppPaymentProcessing( indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
-		context< CPayLocalApplicationAction >().addRequest( new common::CTimeEventRequest< common::CClientTypes >( 100, new CMediumClassFilter( ClientMediums::Time ) ) );
+		context< CPayLocalApplicationAction >().addRequest( new common::CTimeEventRequest( 100, new CMediumClassFilter( ClientMediums::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -96,8 +95,8 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::MonitorInfoReq
 					, new CMediumByKeyFilter( serviceByMonitorEvent->m_keyId ) );
 
@@ -181,8 +180,8 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::Transaction
 					, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) );
 
@@ -224,8 +223,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	{
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
 					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
 
@@ -249,8 +248,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 		{
 			context< CPayLocalApplicationAction >().forgetRequests();
 
-			common::CSendMessageRequest< common::CClientTypes > * request =
-					new common::CSendMessageRequest< common::CClientTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
 						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
 
@@ -298,8 +297,8 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::Transaction
 					, new CMediumByKeyFilter( context< CPayLocalApplicationAction >().getTrackerStats().m_key.GetID() ) );
 
@@ -341,8 +340,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 	{
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CClientTypes > * request =
-				new common::CSendMessageRequest< common::CClientTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
 					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
 
@@ -364,8 +363,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 		{
 			context< CPayLocalApplicationAction >().forgetRequests();
 
-			common::CSendMessageRequest< common::CClientTypes > * request =
-					new common::CSendMessageRequest< common::CClientTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
 						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::Trackers, 1 ) );
 
@@ -449,7 +448,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 }
 
 void
-CPayLocalApplicationAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
+CPayLocalApplicationAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

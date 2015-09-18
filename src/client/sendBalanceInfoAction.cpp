@@ -45,8 +45,8 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			m_pubKey = addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().forgetRequests();
 
-			common::CSendMessageRequest< common::CClientTypes > * request =
-					new common::CSendMessageRequest< common::CClientTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CMainRequestType::BalanceInfoReq
 						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
 
@@ -100,8 +100,8 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			m_pubKey = m_addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().forgetRequests();
 
-			common::CSendMessageRequest< common::CClientTypes > * request =
-					new common::CSendMessageRequest< common::CClientTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CMainRequestType::BalanceInfoReq
 						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
 
@@ -135,13 +135,13 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 };
 
 CSendBalanceInfoAction::CSendBalanceInfoAction( bool _autoDelete )
-	: common::CAction< common::CClientTypes >( _autoDelete )
+	: common::CAction( _autoDelete )
 {
 	initiate();
 }
 
 void
-CSendBalanceInfoAction::accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor )
+CSendBalanceInfoAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -149,7 +149,7 @@ CSendBalanceInfoAction::accept( common::CSetResponseVisitor< common::CClientType
 void
 CSendBalanceInfoAction::reset()
 {
-	common::CAction< common::CClientTypes >::reset();
+	common::CAction::reset();
 	initiate();
 }
 

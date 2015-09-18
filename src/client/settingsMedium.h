@@ -11,7 +11,6 @@
 #include "common/medium.h"
 #include "common/responses.h"
 #include "common/communicationBuffer.h"
-#include "configureClientActionHadler.h"
 
 namespace common
 {
@@ -24,7 +23,7 @@ class CContinueReqest;
 namespace client
 {
 
-class CDefaultMedium : public common::CClientBaseMedium
+class CDefaultMedium : public common::CMedium
 {
 public:
 
@@ -32,13 +31,13 @@ public:
 
 	bool serviced() const;
 
-	void add( common::CRequest< common::CClientTypes > const * _request );
+	void add( common::CRequest const * _request );
 
 	void add( CDnsInfoRequest const * _request );
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > & _requestResponse );
+	bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );
 private:
 	void clearResponses();
 
@@ -48,7 +47,7 @@ private:
 private:
 	static CDefaultMedium * ms_instance;
 
-	std::multimap< common::CRequest< common::CClientTypes >const*, ClientResponses > m_requestResponse;
+	std::multimap< common::CRequest const*, common::DimsResponse > m_requestResponse;
 };
 
 

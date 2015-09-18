@@ -14,7 +14,6 @@
 #include "sendInfoRequestAction.h"
 #include "common/responses.h"
 #include "errorRespond.h"
-#include "configureClientActionHadler.h"
 
 #include <boost/statechart/state_machine.hpp>
 
@@ -23,12 +22,12 @@ namespace client
 
 struct CClientUnconnected;
 
-class CConnectAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >
+class CConnectAction : public common::CAction, public  boost::statechart::state_machine< CConnectAction, CClientUnconnected >
 {
 public:
 	CConnectAction( bool _autoDelete = true );
 
-	virtual void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	void reset();
 

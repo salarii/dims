@@ -20,7 +20,6 @@
 #include "common/timeMedium.h"
 #include "common/periodicActionExecutor.h"
 
-#include "client/configureClientActionHadler.h"
 #include "client/trackerLocalRanking.h"
 #include "client/settingsConnectionProvider.h"
 #include "client/applicationServer.h"
@@ -37,7 +36,6 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "wallet.h"
-#include "client/configureClientActionHadler.h"
 
 #include <stdint.h>
 
@@ -246,23 +244,23 @@ void BitcoinCore::initialize()
 		LogPrintf("Running AppInit1 in thread\n");
 	  int rv = client::AppInit1(threadGroup);
 
-	common::CActionHandler< common::CClientTypes > * actionHandler = common::CActionHandler< common::CClientTypes >::getInstance();
+	common::CActionHandler* actionHandler = common::CActionHandler::getInstance();
 
-	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
-	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
 
-	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
 
-	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
 
-	threadGroup.create_thread(boost::bind(&common::CActionHandler< common::CClientTypes >::loop, actionHandler));
+	threadGroup.create_thread(boost::bind(&common::CActionHandler::loop, actionHandler));
 
-	common::CPeriodicActionExecutor< common::CClientTypes > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< common::CClientTypes >::getInstance();
-	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< common::CClientTypes >::processingLoop, periodicActionExecutor ));
+	common::CPeriodicActionExecutor * periodicActionExecutor
+			= common::CPeriodicActionExecutor::getInstance();
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor::processingLoop, periodicActionExecutor ));
 
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CClientBaseMedium >::workLoop, common::CTimeMedium< common::CClientBaseMedium >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
 
         if(rv)
         {

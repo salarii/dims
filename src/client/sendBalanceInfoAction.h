@@ -9,7 +9,6 @@
 
 #include "common/action.h"
 #include "common/request.h"
-#include "configureClientActionHadler.h"
 #include "common/setResponseVisitor.h"
 
 #include  <boost/optional.hpp>
@@ -21,12 +20,12 @@ namespace client
 
 struct CGetBalanceInfo;
 
-class CSendBalanceInfoAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetBalanceInfo >
+class CSendBalanceInfoAction : public common::CAction, public  boost::statechart::state_machine< CSendBalanceInfoAction, CGetBalanceInfo >
 {
 public:
 	CSendBalanceInfoAction( bool _autoDelete );
 
-	void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
+	void accept( common::CSetResponseVisitor & _visitor );
 
 	void reset();
 

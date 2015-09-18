@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef TRACKER_RESPONSES_H
-#define TRACKER_RESPONSES_H
+#ifndef RESPONSES_H
+#define RESPONSES_H
 
 #include "coins.h"
 #include "key.h"
@@ -426,12 +426,12 @@ common::ScheduledResult
 , common::CTimeEvent
 , common::CNoMedium
 , common::CClientMessageResponse
-, CDnsInfo > DimsResponseList;
+, CDnsInfo > DimsResponsesList;
 
-typedef boost::make_variant_over< DimsResponseList >::type DimsResponses;
+typedef boost::make_variant_over< DimsResponsesList >::type DimsResponse;
 
 
 
 }
 
-#endif // TRACKER_RESPONSES_H
+#endif // RESPONSES_H

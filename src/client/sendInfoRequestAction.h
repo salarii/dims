@@ -8,7 +8,6 @@
 #include "common/action.h"
 #include "tracker/validationManager.h"
 #include "common/requestHandler.h"
-#include "configureClientActionHadler.h"
 
 namespace client
 {
@@ -38,12 +37,12 @@ struct TrackerInfo
 
 extern std::vector< TrackerInfo::Enum > const TrackerDescription;
 
-class CSendInfoRequestAction : public common::CAction< common::CClientTypes >
+class CSendInfoRequestAction : public common::CAction
 {
 public:
 	CSendInfoRequestAction( NetworkInfo::Enum const _networkInfo );
 
-	virtual void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 };
 
 }

@@ -7,6 +7,8 @@
 #include "common/authenticationProvider.h"
 #include "common/action.h"
 
+#include "common/nodeMedium.h"
+
 namespace common
 {
 
@@ -110,7 +112,7 @@ CNodeMedium::addActionResponse( uint256 const & _actionId, DimsResponse const & 
 }
 
 bool
-CNodeMedium::getDirectActionResponseAndClear( CAction const * _action, std::list< typename Type::DimsResponse > & _responses )
+CNodeMedium::getDirectActionResponseAndClear( CAction const * _action, std::list< common::DimsResponse > & _responses )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 

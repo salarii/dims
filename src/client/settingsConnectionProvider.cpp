@@ -34,23 +34,23 @@ CSettingsConnectionProvider::CSettingsConnectionProvider()
 	m_settingsMedium = client::CDefaultMedium::getInstance();
 }
 
-std::list< common::CClientBaseMedium *>
-CSettingsConnectionProvider::provideConnection( common::CClientMediumFilter const & _mediumFilter )
+std::list< common::CMedium *>
+CSettingsConnectionProvider::provideConnection( common::CMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-std::list< common::CClientBaseMedium *>
+std::list< common::CMedium *>
 CSettingsConnectionProvider::getMediumByClass( ClientMediums::Enum _requestKind )
 {
-	std::list< common::CClientBaseMedium *> mediums;
+	std::list< common::CMedium *> mediums;
 	if( ClientMediums::NetworkInfo == _requestKind || ClientMediums::Seed == _requestKind )// temporary???
 	{
 		mediums.push_back( m_settingsMedium );
 	}
 	else if ( ClientMediums::Time == _requestKind )
 	{
-		mediums.push_back( common::CTimeMedium< common::CClientBaseMedium >::getInstance() );
+		mediums.push_back( common::CTimeMedium::getInstance() );
 	}
 
 	return mediums;

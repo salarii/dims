@@ -142,7 +142,6 @@ CLIENT_H = \
   ../client/clientControl.h \
   ../client/clientRequests.h \
   ../client/connectAction.h \
-  ../client/configureClientActionHadler.h \
   ../client/controlRequests.h \
   ../client/errorMediumProvider.h \
   ../client/init.h \
@@ -159,7 +158,6 @@ CLIENT_H = \
   ../client/trackerLocalRanking.h 
   
 CLIENT_CPP = \
-  ../client/actionHandlerDefinitions.cpp \
   ../client/applicationServer.cpp \
   ../client/clientControl.cpp \
   ../client/clientRequests.cpp \

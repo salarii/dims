@@ -11,12 +11,12 @@ namespace client
 {
 
 CDnsInfoRequest::CDnsInfoRequest()
-	:common::CRequest< common::CClientTypes >( new CMediumClassFilter( ClientMediums::Seed ) )
+	:common::CRequest( new CMediumClassFilter( ClientMediums::Seed ) )
 {
 }
 
 void
-CDnsInfoRequest::accept( common::CClientBaseMedium * _medium ) const
+CDnsInfoRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }

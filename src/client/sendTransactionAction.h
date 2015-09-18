@@ -6,19 +6,17 @@
 #define SEND_TRANSACTION_ACTION_H
 
 #include <boost/optional.hpp>
-
 #include <boost/statechart/state_machine.hpp>
+
+#include "core.h"
 
 #include "common/action.h"
 #include "common/request.h"
-#include "configureClientActionHadler.h"
-#include "core.h"
 #include "common/transactionStatus.h"
 
 namespace common
 {
 
-template < class _RequestResponses >
 class CSetResponseVisitor;
 
 }
@@ -28,12 +26,12 @@ namespace client
 
 struct CPrepareAndSendTransaction;
 
-class CSendTransactionAction : public common::CAction< common::CClientTypes >, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
+class CSendTransactionAction : public common::CAction, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
 {
 public:
 	CSendTransactionAction( CTransaction const & _Transaction );
 
-	void accept( common::CSetResponseVisitor< common::CClientTypes > & _visitor );
+	void accept( common::CSetResponseVisitor & _visitor );
 
 	void setProcessingTrackerPtr( 	uintptr_t _ptr );
 

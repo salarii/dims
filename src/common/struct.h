@@ -1,5 +1,5 @@
-#ifndef COMMON_STRUCT_H
-#define COMMON_STRUCT_H
+#ifndef STRUCT_H
+#define STRUCT_H
 
 #include "protocol.h"
 #include "key.h"
@@ -167,4 +167,4 @@ struct CPayApplicationData
 
 }
 
-#endif // COMMON_STRUCT_H
+#endif // STRUCT_H

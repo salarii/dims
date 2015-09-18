@@ -6,15 +6,14 @@
 #define SEED_PROVIDER_H
 
 #include "common/connectionProvider.h"
-#include "configureClientActionHadler.h"
 
 namespace client
 {
 
-class CSeedProvider : public common::CConnectionProvider< common::CClientTypes >
+class CSeedProvider : public common::CConnectionProvider
 {
 public:
-	std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
+	std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
 	~CSeedProvider();
 

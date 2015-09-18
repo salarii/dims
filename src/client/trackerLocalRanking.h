@@ -19,8 +19,6 @@
 
 #include "client/struct.h"
 
-#include "configureClientActionHadler.h"
-
 namespace client
 {
 /*
@@ -46,10 +44,10 @@ struct CompareReputationTracker : public std::binary_function< common::CTrackerS
 	}
 };
 
-class CTrackerLocalRanking : public common::CConnectionProvider< common::CClientTypes >
+class CTrackerLocalRanking : public common::CConnectionProvider
 {
 public:
-	virtual std::list< common::CClientBaseMedium *> provideConnection( common::CClientMediumFilter const & _mediumFilter );
+	virtual std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
 	~CTrackerLocalRanking();
 
@@ -77,9 +75,9 @@ public:
 
 	void resetTrackers();
 
-	std::list< common::CClientBaseMedium *> getMediumByClass( ClientMediums::Enum _requestKind, unsigned int _mediumNumber );
+	std::list< common::CMedium *> getMediumByClass( ClientMediums::Enum _requestKind, unsigned int _mediumNumber );
 
-	common::CClientBaseMedium * getSpecificTracker( uintptr_t _trackerPtr ) const;
+	common::CMedium * getSpecificTracker( uintptr_t _trackerPtr ) const;
 
 	bool isValidMonitorKnown( CKeyID const & _monitorId );
 
@@ -87,7 +85,7 @@ public:
 
 	bool getTrackerStats( CKeyID const & _trackerId, common::CTrackerStats & _trackerStats );
 
-	bool getSpecificMedium( CKeyID const & _trackerId, common::CClientBaseMedium *& _medium );
+	bool getSpecificMedium( CKeyID const & _trackerId, common::CMedium *& _medium );
 
 	bool getNodeKey( std::string const & _ip, CPubKey & _pubKey ) const;
 
@@ -113,7 +111,7 @@ private:
 	CTrackerLocalRanking();
 
 	template< typename Stats >
-	common::CClientBaseMedium * getNetworkConnection( Stats const & _stats );
+	common::CMedium * getNetworkConnection( Stats const & _stats );
 private:
 	static CTrackerLocalRanking * ms_instance;
 	// those  sets should be repeatedly rebuild
@@ -121,9 +119,9 @@ private:
 
 	std::set< common::CTrackerStats, CompareReputationTracker > m_reputationRanking;
 
-	std::map< std::string, common::CClientBaseMedium * > m_createdMediums;
+	std::map< std::string, common::CMedium * > m_createdMediums;
 
-	std::map< uintptr_t, common::CClientBaseMedium * > m_mediumRegister;
+	std::map< uintptr_t, common::CMedium * > m_mediumRegister;
 
 	std::map< std::string, common::CUnidentifiedNodeInfo > m_unidentifiedNodes;
 
@@ -142,14 +140,14 @@ private:
 
 
 template< typename Stats >
-common::CClientBaseMedium *
+common::CMedium *
 CTrackerLocalRanking::getNetworkConnection( Stats const & _stats )
 {
-	std::map< std::string, common::CClientBaseMedium * >::iterator iterator = m_createdMediums.find( _stats.m_ip );
+	std::map< std::string, common::CMedium * >::iterator iterator = m_createdMediums.find( _stats.m_ip );
 	if ( iterator != m_createdMediums.end() )
 		return iterator->second;
 
-	common::CClientBaseMedium * medium = static_cast<common::CClientBaseMedium *>( new CNetworkClient( QString::fromStdString( _stats.m_ip ), common::dimsParams().getDefaultClientPort() ) );
+	common::CMedium * medium = static_cast<common::CMedium *>( new CNetworkClient( QString::fromStdString( _stats.m_ip ), common::dimsParams().getDefaultClientPort() ) );
 	m_createdMediums.insert( std::make_pair( _stats.m_ip, medium ) );
 	m_mediumRegister.insert( std::make_pair( common::convertToInt( medium ), medium ) );
 

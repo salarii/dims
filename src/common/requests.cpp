@@ -197,6 +197,12 @@ CBalanceRequest::CBalanceRequest( CMediumFilter * _CMediumFilter )
 {
 }
 
+uint160
+CBalanceRequest::getKey() const
+{
+	return m_key;
+}
+
 void
 CBalanceRequest::accept( CMedium * _medium ) const
 {

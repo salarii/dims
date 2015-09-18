@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "commonResponses.h"
+#include "common/responses.h"
 
 namespace common
 {
@@ -17,7 +17,6 @@ CAvailableCoinsData::CAvailableCoinsData( std::map< uint256, CCoins > const & _a
 
 CAvailableCoinsData::CAvailableCoinsData()
 {
-
 }
 
 }

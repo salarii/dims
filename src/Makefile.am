@@ -61,6 +61,7 @@ COMMON_H = \
   
 COMMON_CPP = \
   common/accessFile.cpp \
+  common/actionHandler.cpp \
   common/analyseTransaction.cpp \
   common/authenticationProvider.cpp \
   common/blockInfoDatabase.cpp \
@@ -72,12 +73,19 @@ COMMON_CPP = \
   common/dimsParams.cpp \
   common/manageNetwork.cpp \
   common/networkActionRegister.cpp \
+  common/nodeMedium.cpp \
+  common/nodesManager.cpp \
   common/originAddressScanner.cpp \
   common/originTransactionsDatabase.cpp \
+  common/requestHandler.cpp \
+  common/periodicActionExecutor.cpp \
+  common/scheduledActionManager.cpp \
   common/segmentFileStorage.cpp \
   common/selfNode.cpp \
+  common/segmentFileStorage.cpp \
   common/simpleBuddy.cpp \
-  common/supportTransactionsDatabase.cpp
+  common/supportTransactionsDatabase.cpp \
+  common/timeMedium.cpp
   
 # tracker core #
 TRACKER_CORE_H = \
@@ -179,7 +187,6 @@ version.o: obj/build.h
 
 # tracker core #
 TRACKER_CORE_CPP = \
-  tracker/actionHandlerDefinitions.cpp \
   tracker/addressToCoins.cpp \
   tracker/connectNetworkAction.cpp \
   tracker/connectNodeAction.cpp \
