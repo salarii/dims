@@ -4,9 +4,9 @@
 
 #include "connectNodeAction.h"
 #include "common/setResponseVisitor.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 #include "common/authenticationProvider.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>

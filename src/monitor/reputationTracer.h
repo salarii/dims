@@ -12,8 +12,7 @@
 #include <boost/thread/mutex.hpp>
 
 #include "common/nodesManager.h"
-#include "common/types.h"
-#include "common/commonStruct.h"
+#include "common/struct.h"
 
 namespace monitor
 {

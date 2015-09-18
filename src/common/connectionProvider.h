@@ -7,18 +7,19 @@
 
 #include <list>
 
-#include "request.h"
-#include "filters.h"
-#include "types.h"
+#include "common/request.h"
+#include "common/filters.h"
 
 namespace common
 {
 
-template < class _Type >
+class CMedium;
+class CMediumFilter;
+
 class CConnectionProvider
 {
 public:
-	virtual std::list< typename _Type::Medium *> provideConnection( typename _Type::Filter const & ) = 0;
+	virtual std::list< CMedium *> provideConnection( CMediumFilter const & ) = 0;
 
 	virtual ~CConnectionProvider(){};
 };

@@ -3,8 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/setResponseVisitor.h"
-#include "common/commonResponses.h"
-#include "common/commonEvents.h"
+#include "common/responses.h"
+#include "common/events.h"
 #include "common/responseVisitorInternal.h"
 
 #include "sendTransactionAction.h"
@@ -125,7 +125,7 @@ CSetResponseVisitor< common::CClientTypes >::visit( client::CPayLocalApplication
 }
 
 void
-CSetResponseVisitor< common::CClientTypes >::visit( CAction< client::ClientResponses > & _action )
+CSetResponseVisitor< common::CClientTypes >::visit( CAction & _action )
 {
 }
 

@@ -6,7 +6,6 @@
 #define ENTER_NETWORK_ACTION_H
 
 #include "common/action.h"
-#include "common/types.h"
 
 #include <boost/statechart/state_machine.hpp>
 

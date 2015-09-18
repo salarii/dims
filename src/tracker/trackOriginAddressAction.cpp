@@ -6,8 +6,8 @@
 
 #include "common/originAddressScanner.h"
 #include "common/setResponseVisitor.h"
-#include "common/commonRequests.h"
-#include "common/commonEvents.h"
+#include "common/requests.h"
+#include "common/events.h"
 #include "common/mediumKinds.h"
 
 #include <boost/statechart/simple_state.hpp>
@@ -50,7 +50,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
 	{
 		context< CTrackOriginAddressAction >().forgetRequests();
-		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -65,7 +65,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 		else
 		{
 			context< CTrackOriginAddressAction >().forgetRequests();
-			context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CTrackerTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
 
 		return discard_event();
@@ -80,7 +80,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 	CReadingData( my_context ctx ) : my_base( ctx )
 	{
 		context< CTrackOriginAddressAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >( ( unsigned int )context< CTrackOriginAddressAction >().getTimeModifier() * WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( ( unsigned int )context< CTrackOriginAddressAction >().getTimeModifier() * WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -107,7 +107,7 @@ struct CEvaluateProgress : boost::statechart::state< CEvaluateProgress, CTrackOr
 		context< CTrackOriginAddressAction >().adjustTracking();
 
 		context< CTrackOriginAddressAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >( ( unsigned int )1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( ( unsigned int )1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -145,7 +145,7 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 }
 
 void
-CTrackOriginAddressAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CTrackOriginAddressAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -187,7 +187,7 @@ CTrackOriginAddressAction::requestFiltered()
 		CController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
 	forgetRequests();
-	addRequest( new common::CAskForTransactionsRequest< common::CTrackerTypes >( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
+	addRequest( new common::CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
 
 }
 

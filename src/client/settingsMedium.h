@@ -9,7 +9,7 @@
 #include <string>
 
 #include "common/medium.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
 #include "common/communicationBuffer.h"
 #include "configureClientActionHadler.h"
 

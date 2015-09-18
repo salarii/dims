@@ -13,7 +13,6 @@
 #include "common/nodeMessages.h"
 #include "common/medium.h"
 #include "common/support.h"
-#include "common/types.h"
 
 namespace common
 {
@@ -26,59 +25,59 @@ template < class _Type >
 class CRequestHandler
 {
 public:
-	typedef typename _Type::Response Response;
-	typedef typename _Type::Medium Medium;
+	typedef DimsResponse DimsResponse;
+	typedef  CMedium CMedium;
 public:
-	CRequestHandler( Medium * _medium );
+	CRequestHandler( CMedium * _medium );
 
-	bool getLastResponse( CRequest< _Type >* _request, CRequestHandler< _Type >::Response & _response ) const;
+	bool getLastResponse( CRequest * _request, CRequestHandler ::DimsResponse & _response ) const;
 
-	bool isProcessed( CRequest< _Type >* _request ) const;
+	bool isProcessed( CRequest * _request ) const;
 
 	void runRequests();
 
 	void processMediumResponses();
 
-	void deleteRequest( CRequest< _Type >* );
+	void deleteRequest( CRequest * );
 
-	void clearLastResponse( CRequest< _Type >* _request );
+	void clearLastResponse( CRequest * _request );
 
-	bool operator==( Medium const * _medium ) const;
+	bool operator==( CMedium const * _medium ) const;
 
-	bool operator<( Medium const * _medium ) const;
+	bool operator<( CMedium const * _medium ) const;
 
-	void setRequest( CRequest< _Type >* _request );
+	void setRequest( CRequest * _request );
 
-	bool operator<( CRequestHandler< _Type > const & _handler ) const;
+	bool operator<( CRequestHandler  const & _handler ) const;
 
-	std::list< typename _Type::Response > getDirectActionResponse( CAction< _Type >const * _action );// this is bad use but I don't know  what will really happen yet
+	std::list< DimsResponse > getDirectActionResponse( CAction const * _action );// this is bad use but I don't know  what will really happen yet
 
-	void deleteAction( CAction< _Type >const * _action );
+	void deleteAction( CAction const * _action );
 private:
 	void setInvalid(){ m_valid = false; }
 private:
 	bool m_valid;
 
-	std::vector<CRequest< _Type >*> m_newRequest;
+	std::vector<CRequest *> m_newRequest;
 
-	std::multimap<CRequest< _Type >const*,Response > m_processedRequests;
+	std::multimap<CRequest const*,DimsResponse > m_processedRequests;
 
-	Medium * m_usedMedium;
+	CMedium * m_usedMedium;
 };
 
 template < class _Type >
-CRequestHandler< _Type >::CRequestHandler( Medium * _medium )
+CRequestHandler ::CRequestHandler( CMedium * _medium )
 	: m_valid( true )
 	, m_usedMedium( _medium )
 {
-	_medium->registerDeleteHook( boost::bind( &CRequestHandler< _Type >::setInvalid, this ) );
+	_medium->registerDeleteHook( boost::bind( &CRequestHandler ::setInvalid, this ) );
 }
 
 template < class _Type >
 bool
-CRequestHandler< _Type >::getLastResponse( CRequest< _Type >* _request, CRequestHandler< _Type >::Response & _response ) const
+CRequestHandler ::getLastResponse( CRequest * _request, CRequestHandler ::DimsResponse & _response ) const
 {
-	typename std::multimap<CRequest< _Type >const*,Response >::const_iterator iterator;
+	typename std::multimap<CRequest const*,DimsResponse >::const_iterator iterator;
 
 	iterator = m_processedRequests.lower_bound( _request );
 	if ( iterator == m_processedRequests.upper_bound( _request ) )
@@ -90,9 +89,9 @@ CRequestHandler< _Type >::getLastResponse( CRequest< _Type >* _request, CRequest
 
 template < class _Type >
 void
-CRequestHandler< _Type >::clearLastResponse( CRequest< _Type >* _request )
+CRequestHandler ::clearLastResponse( CRequest * _request )
 {
-	typename std::multimap<CRequest< _Type >const*,Response >::iterator iterator;
+	typename std::multimap<CRequest const*,DimsResponse >::iterator iterator;
 
 	iterator = m_processedRequests.lower_bound( _request );
 	if ( iterator == m_processedRequests.upper_bound( _request ) )
@@ -103,7 +102,7 @@ CRequestHandler< _Type >::clearLastResponse( CRequest< _Type >* _request )
 
 template < class _Type >
 void
-CRequestHandler< _Type >::deleteRequest( CRequest< _Type >* _request )
+CRequestHandler ::deleteRequest( CRequest * _request )
 {
 	m_processedRequests.erase( _request );
 
@@ -113,28 +112,28 @@ CRequestHandler< _Type >::deleteRequest( CRequest< _Type >* _request )
 
 template < class _Type >
 bool
-CRequestHandler< _Type >::operator==( Medium const * _medium ) const
+CRequestHandler ::operator==( CMedium const * _medium ) const
 {
 	return m_usedMedium == _medium;
 }
 
 template < class _Type >
 bool
-CRequestHandler< _Type >::operator<( Medium const * _medium ) const
+CRequestHandler ::operator<( CMedium const * _medium ) const
 {
 	return (long long)m_usedMedium < (long long)_medium;
 }
 
 template < class _Type >
 bool
-CRequestHandler< _Type >::operator<( CRequestHandler< _Type > const & _handler ) const
+CRequestHandler ::operator<( CRequestHandler  const & _handler ) const
 {
 	return this->m_usedMedium < _handler.m_usedMedium;
 }
 
 template < class _Type >
 bool
-CRequestHandler< _Type >::isProcessed( CRequest< _Type >* _request ) const
+CRequestHandler ::isProcessed( CRequest * _request ) const
 {
 	if ( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return true;
@@ -144,20 +143,20 @@ CRequestHandler< _Type >::isProcessed( CRequest< _Type >* _request ) const
 
 template < class _Type >
 void
- CRequestHandler< _Type >::setRequest( CRequest< _Type >* _request )
+ CRequestHandler ::setRequest( CRequest * _request )
 {
 	m_newRequest.push_back( _request );
 }
 
 template < class _Type >
 void
- CRequestHandler< _Type >::runRequests()
+ CRequestHandler ::runRequests()
 {
 	if ( !m_valid )
 		return;
 
 	m_usedMedium->prepareMedium();
-	BOOST_FOREACH( CRequest< _Type >* request, m_newRequest )
+	BOOST_FOREACH( CRequest * request, m_newRequest )
 	{
 		request->accept( m_usedMedium );
 	}
@@ -166,10 +165,10 @@ void
 }
 
 template < class _Type >
-std::list< typename _Type::Response >
-CRequestHandler< _Type >::getDirectActionResponse( CAction< _Type >const * _action )
+std::list< DimsResponse >
+CRequestHandler ::getDirectActionResponse( CAction const * _action )
 {
-	std::list< typename _Type::Response > responses;
+	std::list< DimsResponse > responses;
 	m_usedMedium->getDirectActionResponseAndClear( _action, responses );
 
 	return responses;
@@ -177,14 +176,14 @@ CRequestHandler< _Type >::getDirectActionResponse( CAction< _Type >const * _acti
 
 template < class _Type >
 void
-CRequestHandler< _Type >::deleteAction( CAction< _Type >const * _action )
+CRequestHandler ::deleteAction( CAction const * _action )
 {
 	m_usedMedium->deleteAction( _action );
 }
 
 template < class _Type >
 void
-CRequestHandler< _Type >::processMediumResponses()
+CRequestHandler ::processMediumResponses()
 {
 	if ( !m_valid )
 		return;
@@ -194,11 +193,11 @@ CRequestHandler< _Type >::processMediumResponses()
 		if( !m_usedMedium->serviced() )
 			return;
 
-		std::multimap< CRequest< _Type >const*, Response > requestResponses;
+		std::multimap< CRequest const*, DimsResponse > requestResponses;
 
 		m_usedMedium->getResponseAndClear( requestResponses );
 
-		BOOST_FOREACH( PAIRTYPE( CRequest< _Type >const*, Response ) const & response, requestResponses )
+		BOOST_FOREACH( PAIRTYPE( CRequest const*, DimsResponse ) const & response, requestResponses )
 		{
 				m_processedRequests.insert( std::make_pair( response.first, response.second ) );
 		}
@@ -207,7 +206,7 @@ CRequestHandler< _Type >::processMediumResponses()
 	 catch (CMediumException & _mediumException)
 	{
 // do  something  here
-		BOOST_FOREACH( CRequest< _Type >const* request, m_newRequest )
+		BOOST_FOREACH( CRequest const* request, m_newRequest )
 		{
 		//	m_processedRequests.insert( std::make_pair( request, _mediumException ) );
 		}

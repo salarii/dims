@@ -8,8 +8,6 @@
 #include "common/scheduleAbleAction.h"
 #include "common/filters.h"
 
-#include "configureTrackerActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 #include "protocol.h"
@@ -25,14 +23,14 @@ namespace tracker
 struct CInit;
 // rework  this  sooner  or later
 
-class CProvideInfoAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CInit >
+class CProvideInfoAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CProvideInfoAction, CInit >
 {
 public:
 	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	CProvideInfoAction( common::CInfoKind::Enum _infoKind );
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	uintptr_t getNodeIndicator()const;
 

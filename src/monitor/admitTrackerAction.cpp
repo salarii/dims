@@ -11,7 +11,7 @@
 #include "common/authenticationProvider.h"
 #include "common/setResponseVisitor.h"
 #include "common/analyseTransaction.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 
 #include "monitor/admitTrackerAction.h"
 #include "monitor/monitorController.h"

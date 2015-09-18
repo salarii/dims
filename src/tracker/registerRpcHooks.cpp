@@ -5,7 +5,7 @@
 #include "rpcserver.h"
 #include "base58.h"
 
-#include "common/commonEvents.h"
+#include "common/events.h"
 #include "common/actionHandler.h"
 #include "common/authenticationProvider.h"
 
@@ -40,7 +40,7 @@ std::string registerInNetwork( std::string const & _key )
 	if ( !CTrackerNodesManager::getInstance()->getKeyToNode( keyId, nodeIndicator ) )
 		goto NotPresent;
 
-	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRegisterAction( nodeIndicator ) );
+	common::CActionHandler::getInstance()->executeAction( new CRegisterAction( nodeIndicator ) );
 	return "registration in progress";
 
 WrongKey:
@@ -55,7 +55,7 @@ connectNetwork()
 	if ( CController::getInstance()->isConnected() )
 			return "tracker already connected";
 
-	common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CConnectNetworkAction() );
+	common::CActionHandler::getInstance()->executeAction( new CConnectNetworkAction() );
 	return "connection in progress";
 }
 

@@ -3,8 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/setResponseVisitor.h"
-#include "common/commonRequests.h"
-#include "common/commonEvents.h"
+#include "common/requests.h"
+#include "common/events.h"
 #include "common/mediumKinds.h"
 #include "common/originAddressScanner.h"
 

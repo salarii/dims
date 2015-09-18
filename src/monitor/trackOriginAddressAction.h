@@ -6,7 +6,6 @@
 #define TRACK_ORIGIN_ADDRESS_ACTION_H
 
 #include "common/action.h"
-#include "common/types.h"
 #include "configureMonitorActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include "main.h"

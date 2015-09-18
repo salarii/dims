@@ -8,20 +8,18 @@
 #include "common/action.h"
 #include "common/filters.h"
 
-#include "configureTrackerActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 namespace tracker
 {
 struct CInitialConnect;
 
-class CConnectNetworkAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CConnectNetworkAction, CInitialConnect >
+class CConnectNetworkAction : public common::CAction, public  boost::statechart::state_machine< CConnectNetworkAction, CInitialConnect >
 {
 public:
 	CConnectNetworkAction();
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 };
 
 

@@ -12,7 +12,7 @@
 
 #include "trackerLocalRanking.h"
 #include "sendInfoRequestAction.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
 #include "errorRespond.h"
 #include "configureClientActionHadler.h"
 

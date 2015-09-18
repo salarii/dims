@@ -9,7 +9,7 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "common/commonRequests.h"
+#include "common/requests.h"
 #include "common/setResponseVisitor.h"
 
 #include "tracker/passTransactionAction.h"
@@ -65,8 +65,8 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 
 			common::convertPayload( orginalMessage, connectCondition );
 
-			common::CSendMessageRequest< common::CTrackerTypes > * request =
-					new common::CSendMessageRequest< common::CTrackerTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Ack
 						, context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -78,7 +78,7 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 
 			if ( CController::getInstance()->autoRenewRegistration() )
 			{
-				request = new common::CSendMessageRequest< common::CTrackerTypes >(
+				request = new common::CSendMessageRequest(
 							common::CPayloadKind::AdmitAsk
 							, context< CRegisterAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
@@ -119,7 +119,7 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
 		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
-		 new common::CTimeEventRequest< common::CTrackerTypes >(
+		 new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -140,7 +140,7 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 		common::convertPayload( orginalMessage, connectCondition );
 
 		context< CRegisterAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
@@ -191,12 +191,12 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 		context< CRegisterAction >().forgetRequests();
 
 		context< CRegisterAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::AdmitProof
 					, context< CRegisterAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
@@ -219,7 +219,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 		assert( result.m_result );// for debug only, do something here
 
 		context< CRegisterAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
@@ -252,7 +252,7 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 	{
 		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
-		 new common::CTimeEventRequest< common::CTrackerTypes >(
+		 new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -270,7 +270,7 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		context< CRegisterAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						new CSynchronizationAction( context< CRegisterAction >().getNodePtr() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
@@ -292,7 +292,7 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 		CController::getInstance()->setConnected( true );
 
 		context< CRegisterAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
@@ -325,7 +325,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 	{
 
 		context< CRegisterAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
 							context< CRegisterAction >().getPublicKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
@@ -344,8 +344,8 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 		assert( result.m_result );// for debug only, do something here
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
 					, context< CRegisterAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
@@ -367,7 +367,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		if ( _transactionAckEvent.m_status == common::TransactionsStatus::Invalid )
 		{
 			context< CRegisterAction >().addRequest(
-						new common::CTimeEventRequest< common::CTrackerTypes >(
+						new common::CTimeEventRequest(
 							MoneyWaitTime
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
@@ -376,8 +376,8 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 			common::CAdmitProof admitProof;
 			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
 
-			common::CSendMessageRequest< common::CTrackerTypes > * request =
-					new common::CSendMessageRequest< common::CTrackerTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitProof
 						, context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
@@ -392,7 +392,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CRegisterAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
 							context< CRegisterAction >().getPublicKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
@@ -422,7 +422,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		: my_base( ctx )
 	{
 		context< CRegisterAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
 							context< CRegisterAction >().getPublicKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
@@ -441,8 +441,8 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 
 		assert( result.m_result );// for debug only, do something here
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
 					, context< CRegisterAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
@@ -464,7 +464,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	{
 		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
 							context< CRegisterAction >().getPublicKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
@@ -478,7 +478,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		if ( _transactionAckEvent.m_status == common::TransactionsStatus::Invalid )
 		{
 			context< CRegisterAction >().addRequest(
-						new common::CTimeEventRequest< common::CTrackerTypes >(
+						new common::CTimeEventRequest(
 							MoneyWaitTime
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
@@ -487,8 +487,8 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 			common::CAdmitProof admitProof;
 			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
 
-			common::CSendMessageRequest< common::CTrackerTypes > * request =
-					new common::CSendMessageRequest< common::CTrackerTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitProof
 						, context< CRegisterAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
@@ -514,7 +514,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 };
 
 CRegisterAction::CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr )
-	: common::CAction< common::CTrackerTypes >( _actionKey )
+	: common::CAction( _actionKey )
 	, m_nodePtr( _nodePtr )
 {
 	initiate();
@@ -543,7 +543,7 @@ CRegisterAction::getPublicKey() const
 }
 
 void
-CRegisterAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CRegisterAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

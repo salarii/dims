@@ -6,19 +6,18 @@
 #define INTERNAL_OPERATIONS_MEDIUM_H
 
 #include "common/medium.h"
-#include "configureTrackerActionHandler.h"
 
 namespace tracker
 {
 /* for now  I am doing  everything in same  thread, do I need to  change  this behavior?? */
-class CInternalOperationsMedium : public common::CTrackerBaseMedium
+class CInternalOperationsMedium : public common::CMedium
 {
 public:
 	virtual bool serviced() const;
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );
 
 	virtual void add(CGetBalanceRequest const * _request );
 
@@ -33,7 +32,7 @@ private:
 
 	void clearResponses();
 
-	std::multimap< common::CRequest< common::CTrackerTypes >const*, TrackerResponses > m_trackerResponses;
+	std::multimap< common::CRequest const*, common::DimsResponse > m_responses;
 
 	static CInternalOperationsMedium * ms_instance;
 };

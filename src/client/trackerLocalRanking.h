@@ -14,8 +14,8 @@
 #include <functional> 
 
 #include "common/connectionProvider.h"
-#include "common/commonResponses.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
+#include "common/responses.h"
 
 #include "client/struct.h"
 

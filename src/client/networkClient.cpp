@@ -13,7 +13,7 @@
 #include "common/clientProtocol.h"
 #include "common/requestHandler.h"
 #include "common/support.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 
 #include <QHostAddress>
 
@@ -23,7 +23,7 @@ namespace client
 unsigned const
 CNetworkClient::m_timeout = 5000;
 
-CNetworkClient::CNetworkClient(QString const  &_ipAddr, ushort const _port )
+CNetworkClient::CNetworkClient(QString const &_ipAddr, ushort const _port )
 	: m_ip( _ipAddr )
 	, m_port( _port )
 	, m_sleepTime(100)

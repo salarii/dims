@@ -4,9 +4,9 @@
 
 #include "connectNodeAction.h"
 #include "common/setResponseVisitor.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 #include "common/authenticationProvider.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
@@ -71,8 +71,8 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		m_id = _messageResult.m_message.m_header.m_id;
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
 					, context< CProvideInfoAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
@@ -92,8 +92,8 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		}
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::TrackerInfo )
 		{
-			common::CSendMessageRequest< common::CTrackerTypes > * request =
-					new common::CSendMessageRequest< common::CTrackerTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::TrackerInfo
 						, context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -111,8 +111,8 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 	boost::statechart::result react( common::CAvailableCoinsData const & _availableCoins )
 	{
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Balance
 					, context< CProvideInfoAction >().getActionKey()
 					, m_id
@@ -147,13 +147,13 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
 	CAskForInfo( my_context ctx ) : my_base( ctx )
 	{
-		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest< common::CTrackerTypes >(
+		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest(
 														  context< CProvideInfoAction >().getInfo()
 														, context< CProvideInfoAction >().getActionKey()
 														, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
 
 		context< CProvideInfoAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -179,7 +179,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 			assert( !"service it somehow" );
 
 		context< CProvideInfoAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
@@ -203,7 +203,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 
 CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
-	: common::CScheduleAbleAction< common::CTrackerTypes >( _actionKey )
+	: common::CScheduleAbleAction( _actionKey )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
@@ -218,7 +218,7 @@ CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind )
 }
 
 void
-CProvideInfoAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CProvideInfoAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

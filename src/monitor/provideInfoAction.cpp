@@ -4,9 +4,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/setResponseVisitor.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 #include "common/authenticationProvider.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 #include "common/communicationProtocol.h"
 
 #include <boost/statechart/simple_state.hpp>

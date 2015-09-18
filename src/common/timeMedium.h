@@ -2,7 +2,7 @@
 #define TIME_MEDIUM_H
 
 #include "common/medium.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 #include "common/actionHandler.h"
 
 namespace common
@@ -10,24 +10,20 @@ namespace common
 
 // this  may be  not  so precise in terms of  time measure
 // more or less result is good enough
-template < class Medium >
-class CTimeMedium : public Medium
+class CTimeMedium : public CMedium
 {
-public:
-	typedef typename Medium::types Types;
-	typedef typename Types::Response Response;
 public:
 	bool serviced() const;
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< CRequest< Types > const*, Response > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest const*, DimsResponse > & _requestResponse );
 
-	void add( CTimeEventRequest< Types > const * _request );
+	void add( CTimeEventRequest const * _request );
 
-	void setResponse( Response const & _responses );
+	void setResponse( DimsResponse const & _responses );
 
-	void deleteRequest( CRequest< Types >const* _request );
+	void deleteRequest( CRequest const* _request );
 
 	void workLoop();
 
@@ -40,44 +36,39 @@ protected:
 protected:
 	mutable boost::mutex m_mutex;
 
-	std::multimap< common::CRequest< Types >const*, Response > m_responses;
+	std::multimap< common::CRequest const*, DimsResponse > m_responses;
 
-	std::map< CTimeEventRequest< Types > const *, int64_t > m_timeLeftToTrigger;
+	std::map< CTimeEventRequest const *, int64_t > m_timeLeftToTrigger;
 
 	static CTimeMedium* ms_instance;
 
 	int64_t const m_sleepTime;
 };
 
-template < class Medium >
-CTimeMedium< Medium >*
-CTimeMedium< Medium >::getInstance( )
+CTimeMedium*
+CTimeMedium::getInstance( )
 {
 	if ( !ms_instance )
 	{
-		ms_instance = new CTimeMedium< Medium >();
+		ms_instance = new CTimeMedium();
 	};
 	return ms_instance;
 }
 
-template < class Medium >
 bool
-CTimeMedium< Medium >::serviced() const
+CTimeMedium::serviced() const
 {
 	return !m_responses.empty();
 }
 
-
-template < class Medium >
 bool
-CTimeMedium< Medium >::flush()
+CTimeMedium::flush()
 {
 	return true;
 }
 
-template < class Medium >
 bool
-CTimeMedium< Medium >::getResponseAndClear( std::multimap< CRequest< Types >const*, Response > & _requestResponse )
+CTimeMedium::getResponseAndClear( std::multimap< CRequest const*, DimsResponse > & _requestResponse )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	_requestResponse = m_responses;
@@ -86,42 +77,38 @@ CTimeMedium< Medium >::getResponseAndClear( std::multimap< CRequest< Types >cons
 	return true;
 }
 
-template < class Medium >
 void
-CTimeMedium< Medium >::clearResponses()
+CTimeMedium::clearResponses()
 {
 	m_responses.clear();
 }
 
-template < class Medium >
 void
-CTimeMedium< Medium >::add( CTimeEventRequest< Types > const * _request )
+CTimeMedium::add( CTimeEventRequest const * _request )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_timeLeftToTrigger.insert( std::make_pair( _request, _request->getEventTime() ) );
 }
 
-template < class Medium >
 void
-CTimeMedium< Medium >::deleteRequest( CRequest< Types >const* _request )
+CTimeMedium::deleteRequest( CRequest const* _request )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_timeLeftToTrigger.erase( ( CTimeEventRequest< Types > const * )_request );// ugly  solution
+	m_timeLeftToTrigger.erase( ( CTimeEventRequest const * )_request );// ugly  solution
 		m_responses.erase( _request );
 }
 
-template < class Medium >
 void
-CTimeMedium< Medium >::workLoop()
+CTimeMedium::workLoop()
 {
 	while(1)
 	{
 		MilliSleep( m_sleepTime );
 		boost::lock_guard<boost::mutex> lock( m_mutex );
 
-		std::vector< CTimeEventRequest< Types > const * > toTrigger;
+		std::vector< CTimeEventRequest const * > toTrigger;
 
-		typename std::map< CTimeEventRequest< Types > const *, int64_t >::iterator iterator = m_timeLeftToTrigger.begin();
+		typename std::map< CTimeEventRequest const *, int64_t >::iterator iterator = m_timeLeftToTrigger.begin();
 		while( iterator != m_timeLeftToTrigger.end() )
 		{
 			if ( iterator->second - m_sleepTime <= 0 )
@@ -135,7 +122,7 @@ CTimeMedium< Medium >::workLoop()
 			iterator++;
 		}
 
-		BOOST_FOREACH( CTimeEventRequest< Types > const * timeEventReq, toTrigger )
+		BOOST_FOREACH( CTimeEventRequest const * timeEventReq, toTrigger )
 		{
 			m_timeLeftToTrigger.erase( timeEventReq );
 			m_responses.insert( std::make_pair( timeEventReq, CTimeEvent() ) );

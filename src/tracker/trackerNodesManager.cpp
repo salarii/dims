@@ -12,7 +12,7 @@ namespace common
 {
 std::vector< uint256 > deleteList;
 
-template<> CNodesManager< common::CTrackerTypes > * common::CNodesManager< common::CTrackerTypes >::ms_instance = 0;
+CNodesManager * common::CNodesManager::ms_instance = 0;
 }
 
 namespace tracker
@@ -91,13 +91,13 @@ CTrackerNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey
 	return true;
 }
 
-std::list< common::CTrackerBaseMedium *>
+std::list< common::CMedium *>
 CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {
 	//  code  repeated  3 times ,fix it??
 
 	uintptr_t nodeIndicator;
-	std::list< common::CTrackerBaseMedium *> mediums;
+	std::list< common::CMedium *> mediums;
 
 	if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers || _nodesClass == common::CMediumKinds::Monitors )
 	{
@@ -109,7 +109,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 				if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
 					assert(!"something went wrong");
 
-				common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
+				common::CMedium * medium = findNodeMedium( nodeIndicator );
 				if (!medium)
 					assert(!"something went wrong");
 
@@ -124,7 +124,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 				if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
 					assert(!"something went wrong");
 
-				common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
+				common::CMedium * medium = findNodeMedium( nodeIndicator );
 				if (!medium)
 					assert(!"something went wrong");
 
@@ -140,7 +140,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
 				assert(!"something went wrong");
 
-			common::CTrackerBaseMedium * medium = findNodeMedium( nodeIndicator );
+			common::CMedium * medium = findNodeMedium( nodeIndicator );
 			if (!medium)
 				assert(!"something went wrong");
 

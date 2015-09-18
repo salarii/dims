@@ -5,7 +5,7 @@
 #ifndef CLIENTEVENTS_H
 #define CLIENTEVENTS_H
 
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 namespace client
 {

@@ -24,7 +24,7 @@ CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
 void
@@ -34,7 +34,7 @@ CTrackerNodeMedium::add( CTransactionsStatusRequest const * _request )
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
 void
@@ -44,7 +44,7 @@ CTrackerNodeMedium::add( CPassMessageRequest const * _request )
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
 void
@@ -54,7 +54,7 @@ CTrackerNodeMedium::add( CDeliverInfoRequest const * _request )
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
 void
@@ -64,7 +64,7 @@ CTrackerNodeMedium::add( CAskForRegistrationRequest const * _request )
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CTrackerTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
 }

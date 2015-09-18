@@ -8,8 +8,6 @@
 #include "common/action.h"
 #include "common/filters.h"
 
-#include "configureTrackerActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 namespace tracker
@@ -17,12 +15,12 @@ namespace tracker
 
 struct CGetDnsInfo;
 
-class CRecognizeNetworkAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRecognizeNetworkAction, CGetDnsInfo >
+class CRecognizeNetworkAction : public common::CAction, public  boost::statechart::state_machine< CRecognizeNetworkAction, CGetDnsInfo >
 {
 public:
 	CRecognizeNetworkAction();
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 private:
 };

@@ -2,15 +2,6 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-/*
-Redesign it this way:
-		base managment
-		/				\
-ratcoin managment     bitcoin management
-
-*/
-
-
 #ifndef MANAGE_NETWORK_H
 #define MANAGE_NETWORK_H 
 
@@ -23,15 +14,6 @@ ratcoin managment     bitcoin management
 #include "addrman.h"
 
 class CSelfNode;
-
-/*
-overall this is  very very bad  design
-bitcoin  and  ratcoin networks  should be handled in uniform  way
-??I need to do following  steps??
-1 create  uniform code  for  both  networks ( maybe running in the same thereads ?? )
-2. create proper  inheritance tree
-
-*/
 
 namespace common
 {

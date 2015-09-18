@@ -8,8 +8,6 @@
 #include "common/filters.h"
 #include "common/scheduleAbleAction.h"
 
-#include "configureTrackerActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 #include "protocol.h"
@@ -24,7 +22,7 @@ namespace tracker
 
 struct CConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >
+class CConnectNodeAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CConnectNodeAction, CConnectNodeActionUninitiated >
 {
 public:
 	CConnectNodeAction( std::string const & _nodeAddress );
@@ -33,7 +31,7 @@ public:
 
 	CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	std::string getAddress() const;
 

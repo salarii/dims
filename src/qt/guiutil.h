@@ -64,7 +64,7 @@ namespace GUIUtil
       @param[in] parent  Parent window (or 0)
       @param[in] caption Window caption (or empty, for default)
       @param[in] dir     Starting directory (or empty, to default to documents directory)
-      @param[in] filter  Filter specification such as "Comma Separated Files (*.csv)"
+      @param[in] filter  CMediumFilter specification such as "Comma Separated Files (*.csv)"
       @param[out] selectedSuffixOut  Pointer to return the suffix (file type) that was selected (or 0).
                   Can be useful when choosing the save file format based on suffix.
      */
@@ -77,7 +77,7 @@ namespace GUIUtil
       @param[in] parent  Parent window (or 0)
       @param[in] caption Window caption (or empty, for default)
       @param[in] dir     Starting directory (or empty, to default to documents directory)
-      @param[in] filter  Filter specification such as "Comma Separated Files (*.csv)"
+      @param[in] filter  CMediumFilter specification such as "Comma Separated Files (*.csv)"
       @param[out] selectedSuffixOut  Pointer to return the suffix (file type) that was selected (or 0).
                   Can be useful when choosing the save file format based on suffix.
      */

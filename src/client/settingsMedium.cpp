@@ -9,10 +9,10 @@
 #include "sendInfoRequestAction.h"
 
 #include "common/nodeMessages.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 #include "common/dimsParams.h"
-#include "common/commonResponses.h"
-#include "common/commonRequests.h"
+#include "common/responses.h"
+#include "common/requests.h"
 
 #include "clientResponses.h"
 

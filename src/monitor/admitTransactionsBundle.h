@@ -10,7 +10,6 @@
 #include <boost/statechart/state_machine.hpp>
 
 #include "common/action.h"
-#include "common/types.h"
 
 namespace monitor
 {

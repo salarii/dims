@@ -30,8 +30,8 @@ COMMON_H = \
   common/commandLine.h \
   common/communicationProtocol.h \
   common/commonEvents.h \
-  common/commonResponses.h \
-  common/commonRequests.h \
+  common/responses.h \
+  common/requests.h \
   common/databaseManager.h \
   common/dimsParams.h \
   common/filters.h \
@@ -66,8 +66,8 @@ COMMON_CPP = \
   common/blockInfoDatabase.cpp \
   common/commandLine.cpp \
   common/communicationProtocol.cpp \
-  common/commonInstantiation.cpp \
-  common/commonResponses.cpp \
+  common/responses.cpp \
+  common/requests.cpp	 \	
   common/databaseManager.cpp \
   common/dimsParams.cpp \
   common/manageNetwork.cpp \

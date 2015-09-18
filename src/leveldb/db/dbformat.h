@@ -127,7 +127,7 @@ class InternalKeyComparator : public Comparator {
   int Compare(const InternalKey& a, const InternalKey& b) const;
 };
 
-// Filter policy wrapper that converts from internal keys to user keys
+// CMediumFilter policy wrapper that converts from internal keys to user keys
 class InternalFilterPolicy : public FilterPolicy {
  private:
   const FilterPolicy* const user_policy_;

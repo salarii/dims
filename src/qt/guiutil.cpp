@@ -340,10 +340,10 @@ bool checkPoint(const QPoint &p, const QWidget *w)
 bool isObscured(QWidget *w)
 {
     return !(checkPoint(QPoint(0, 0), w)
-        && checkPoint(QPoint(w->width() - 1, 0), w)
-        && checkPoint(QPoint(0, w->height() - 1), w)
-        && checkPoint(QPoint(w->width() - 1, w->height() - 1), w)
-        && checkPoint(QPoint(w->width() / 2, w->height() / 2), w));
+       && checkPoint(QPoint(w->width() - 1, 0), w)
+       && checkPoint(QPoint(0, w->height() - 1), w)
+       && checkPoint(QPoint(w->width() - 1, w->height() - 1), w)
+       && checkPoint(QPoint(w->width() / 2, w->height() / 2), w));
 }
 
 void openDebugLogfile()

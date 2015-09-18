@@ -511,13 +511,13 @@ class Benchmark {
 
     // Preparing sqlite3 statements
     status = sqlite3_prepare_v2(db_, replace_str.c_str(), -1,
-                                &replace_stmt, NULL);
+                               &replace_stmt, NULL);
     ErrorCheck(status);
     status = sqlite3_prepare_v2(db_, begin_trans_str.c_str(), -1,
-                                &begin_trans_stmt, NULL);
+                               &begin_trans_stmt, NULL);
     ErrorCheck(status);
     status = sqlite3_prepare_v2(db_, end_trans_str.c_str(), -1,
-                                &end_trans_stmt, NULL);
+                               &end_trans_stmt, NULL);
     ErrorCheck(status);
 
     bool transaction = (entries_per_batch > 1);
@@ -588,10 +588,10 @@ class Benchmark {
 
     // Preparing sqlite3 statements
     status = sqlite3_prepare_v2(db_, begin_trans_str.c_str(), -1,
-                                &begin_trans_stmt, NULL);
+                               &begin_trans_stmt, NULL);
     ErrorCheck(status);
     status = sqlite3_prepare_v2(db_, end_trans_str.c_str(), -1,
-                                &end_trans_stmt, NULL);
+                               &end_trans_stmt, NULL);
     ErrorCheck(status);
     status = sqlite3_prepare_v2(db_, read_str.c_str(), -1, &read_stmt, NULL);
     ErrorCheck(status);

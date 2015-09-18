@@ -4,7 +4,7 @@
 
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 
 #include "monitor/connectNodeAction.h"
 #include "monitor/updateDataAction.h"

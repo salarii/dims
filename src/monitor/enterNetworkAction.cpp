@@ -12,7 +12,7 @@
 #include "common/authenticationProvider.h"
 #include "common/setResponseVisitor.h"
 #include "common/analyseTransaction.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 
 #include "monitor/enterNetworkAction.h"
 #include "monitor/monitorController.h"

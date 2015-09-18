@@ -219,7 +219,7 @@ extern leveldb_comparator_t* leveldb_comparator_create(
     const char* (*name)(void*));
 extern void leveldb_comparator_destroy(leveldb_comparator_t*);
 
-/* Filter policy */
+/* CMediumFilter policy */
 
 extern leveldb_filterpolicy_t* leveldb_filterpolicy_create(
     void* state,

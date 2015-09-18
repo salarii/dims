@@ -192,7 +192,7 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 	case common::RequestKind::Balance:
 		if ( m_reputationRanking.begin() != m_reputationRanking.end() )
 		{
-			BOOST_FOREACH( common::CTrackerStats const  & stats, m_balancedRanking )
+			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
 			{
 				mediums.push_back( getNetworkConnection( stats ) );
 			}

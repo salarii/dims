@@ -2,9 +2,10 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "common/commonRequests.h"
+#include "common/requests.h"
 #include "common/support.h"
 #include "common/actionHandler.h"
+#include "common/setResponseVisitor.h"
 
 #include "tracker/pingAction.h"
 #include "tracker/filters.h"
@@ -46,10 +47,10 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ping
 					, context< CPingAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -71,15 +72,15 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 			connectNode->process_event( common::CSwitchToConnectingEvent() );
 
-			common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( connectNode );
+			common::CActionHandler::getInstance()->executeAction( connectNode );
 		}
 		else
 		{
 			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest< common::CTrackerTypes > * request =
-					new common::CSendMessageRequest< common::CTrackerTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Ping
 						, context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -117,10 +118,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Pong
 					, context< CPingAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -142,15 +143,15 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 			connectNode->process_event( common::CSwitchToConnectingEvent() );
 
-			common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( connectNode );
+			common::CActionHandler::getInstance()->executeAction( connectNode );
 		}
 		else
 		{
 			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest< common::CTrackerTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest< common::CTrackerTypes > * request =
-					new common::CSendMessageRequest< common::CTrackerTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Pong
 						, context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -195,7 +196,7 @@ CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 }
 
 void
-CPingAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CPingAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

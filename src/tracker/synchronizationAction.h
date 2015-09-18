@@ -5,16 +5,16 @@
 #ifndef SYNCHRONIZATION_ACTION_H
 #define SYNCHRONIZATION_ACTION_H
 
-#include "common/scheduleAbleAction.h"
-#include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
+
+#include "common/scheduleAbleAction.h"
 
 namespace tracker
 {
 
 struct CUninitiated;
 
-class CSynchronizationAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
+class CSynchronizationAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
 {
 public:
 	CSynchronizationAction( uintptr_t _nodeIndicator );
@@ -24,7 +24,7 @@ public:
 	~CSynchronizationAction()
 	{}
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	void clear();
 

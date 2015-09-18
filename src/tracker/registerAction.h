@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/action.h"
-#include "common/types.h"
 
 #include <boost/statechart/state_machine.hpp>
 
@@ -15,14 +14,14 @@ namespace tracker
 
 struct CInitiateRegistration;
 
-class CRegisterAction : public common::CAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >
+class CRegisterAction : public common::CAction, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >
 {
 public:
 	CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
 	CRegisterAction( uintptr_t _nodePtr );
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	uintptr_t getNodePtr() const { return m_nodePtr; }
 

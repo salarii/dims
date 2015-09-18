@@ -7,7 +7,6 @@
 
 #include "common/action.h"
 #include "common/communicationProtocol.h"
-#include "common/types.h"
 
 #include "configureSeedActionHandler.h"
 #include <boost/statechart/state_machine.hpp>

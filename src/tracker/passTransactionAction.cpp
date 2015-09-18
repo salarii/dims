@@ -72,15 +72,15 @@ struct CAcceptTransaction : boost::statechart::state< CAcceptTransaction, CPassT
 		common::convertPayload( orginalMessage, clientTransaction );
 
 		context< CPassTransactionAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
 		CTransactionRecordManager::getInstance()->addClientTransaction( clientTransaction.m_transaction );
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Result
 					, context< CPassTransactionAction >().getActionKey()
 					, orginalMessage.m_header.m_id
@@ -108,7 +108,7 @@ struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassT
 	CProvideStatusInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CPassTransactionAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -124,7 +124,7 @@ struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassT
 		common::convertPayload( orginalMessage, infoRequestData );
 
 		context< CPassTransactionAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
@@ -141,8 +141,8 @@ struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassT
 			else
 				status = common::TransactionsStatus::Validated	;
 
-			common::CSendMessageRequest< common::CTrackerTypes > * request =
-					new common::CSendMessageRequest< common::CTrackerTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::ClientStatusTransaction
 						, context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
@@ -201,7 +201,7 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 		m_transactionHash = tx.GetHash();
 
 		context< CPassTransactionAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -219,7 +219,7 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 		}
 
 		context< CPassTransactionAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -237,8 +237,8 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 {
 	CProcessAsClient( my_context ctx ) : my_base( ctx )
 	{
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CPassTransactionAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
@@ -264,7 +264,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 		common::convertPayload( orginalMessage, trackerInfo );
 
 		context< CPassTransactionAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
@@ -293,7 +293,7 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 	CFetchBalance( my_context ctx ) : my_base( ctx )
 	{
 		context< CPassTransactionAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						new CGetBalanceAction()
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
@@ -343,8 +343,8 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 			context< CPassTransactionAction >().setExit();
 		}
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::ClientTransaction
 					, context< CPassTransactionAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
@@ -373,7 +373,7 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 		common::convertPayload( orginalMessage, result );
 
 		context< CPassTransactionAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
@@ -410,8 +410,8 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 	CCheckStatus( my_context ctx ) : my_base( ctx )
 	{
 		context< CPassTransactionAction >().forgetRequests();
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CPassTransactionAction >().getActionKey()
 					, new CSpecificMediumFilter( NodeIndicator ) );
@@ -441,14 +441,14 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 	common::convertPayload( orginalMessage, clientTransactionStatus );
 
 		context< CPassTransactionAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
 		// send  and  kill
 		context< CPassTransactionAction >().addRequest(
-		 new common::CTimeEventRequest< common::CTrackerTypes >(
+		 new common::CTimeEventRequest(
 						1000
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -469,7 +469,7 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 };
 
 CPassTransactionAction::CPassTransactionAction( uint256 const & _actionKey )
-	: common::CScheduleAbleAction< common::CTrackerTypes >( _actionKey )
+	: common::CScheduleAbleAction( _actionKey )
 {
 	initiate();
 	process_event( CProcessTransactionEvent() );
@@ -488,7 +488,7 @@ CPassTransactionAction::CPassTransactionAction( CKeyID const & _keyId, int64_t _
 }
 
 void
-CPassTransactionAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CPassTransactionAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

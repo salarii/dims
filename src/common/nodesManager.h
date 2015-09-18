@@ -14,28 +14,25 @@
 namespace common
 {
 // class common::CConnectionProvider is problematic, may providers make  things confusing, sometimes it is not  clear which provider is responsible for  mediums of specific
-template < class _Type >
-class CNodesManager : public common::CConnectionProvider< _Type >
+
+class CNodesManager : public common::CConnectionProvider
 {
-public:
-	typedef typename _Type::Medium Medium;
-	typedef typename _Type::Filter Filter;
 public:
 	bool getMessagesForNode( common::CSelfNode * _node, std::vector< common::CMessage > & _messages );
 
 	bool processMessagesFromNode( common::CSelfNode * _node, std::vector< common::CMessage > const & _messages );
 
-	void addNode( CNodeMedium< Medium > * _medium );
+	void addNode( CNodeMedium * _medium );
 
-	std::list< Medium *> provideConnection( Filter const & _mediumFilter );
+	std::list< CMedium *> provideConnection( CMediumFilter const & _mediumFilter );
 
-	virtual CNodeMedium< Medium >* getMediumForNode( common::CSelfNode * _node ) const;
+	virtual CNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
 
-	Medium * findNodeMedium( uintptr_t _ptr ) const;
+	CMedium * findNodeMedium( uintptr_t _ptr ) const;
 
 		virtual void eraseMedium( uintptr_t _nodePtr );
 
-	virtual std::list< Medium *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
+	virtual std::list< CMedium *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
 
 	bool getAddress( uintptr_t _nodePtr, CAddress & _address ) const;
 
@@ -48,30 +45,27 @@ protected:
 
 	mutable boost::mutex m_nodesLock;
 
-	std::map< uintptr_t, CNodeMedium< Medium >* > m_ptrToNodes;
+	std::map< uintptr_t, CNodeMedium* > m_ptrToNodes;
 protected:
-	static CNodesManager< _Type > * ms_instance;
+	static CNodesManager * ms_instance;
 };
 
-template < class _Type >
-CNodesManager< _Type >::CNodesManager()
+CNodesManager ::CNodesManager()
 {
 }
 
-template < class _Type >
 void
-CNodesManager< _Type >::addNode( CNodeMedium< Medium > * _medium )
+CNodesManager ::addNode( CNodeMedium * _medium )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
 // create  and  run ping  action
 	m_ptrToNodes.insert( std::make_pair( convertToInt( _medium->getNode() ), _medium ) );
 }
 
-template < class _Type >
-CNodeMedium< typename _Type::Medium >*
-CNodesManager< _Type >::getMediumForNode( common::CSelfNode * _node ) const
+CNodeMedium*
+CNodesManager ::getMediumForNode( common::CSelfNode * _node ) const
 {
-	typename std::map< uintptr_t, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
+	typename std::map< uintptr_t, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
 	if ( iterator != m_ptrToNodes.end() )
 	{
 		return iterator->second;
@@ -80,34 +74,30 @@ CNodesManager< _Type >::getMediumForNode( common::CSelfNode * _node ) const
 	return 0;
 }
 
-template < class _Type >
-std::list< typename _Type::Medium*>
-CNodesManager< _Type >::provideConnection( Filter const & _mediumFilter )
+std::list< CMedium*>
+CNodesManager ::provideConnection( CMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
-template < class _Type >
-typename _Type::Medium *
-CNodesManager< _Type >::findNodeMedium( uintptr_t _ptr ) const
+ CMedium *
+CNodesManager ::findNodeMedium( uintptr_t _ptr ) const
 {
-	typename std::map< uintptr_t, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
+	typename std::map< uintptr_t, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
 
 	return iterator != m_ptrToNodes.end() ? iterator->second : 0;
 }
 
-template < class _Type >
 void
-CNodesManager< _Type >::eraseMedium( uintptr_t _nodePtr )
+CNodesManager ::eraseMedium( uintptr_t _nodePtr )
 {
 	m_ptrToNodes.erase( _nodePtr );
 }
 
-template < class _Type >
 bool
-CNodesManager< _Type >::getAddress( uintptr_t _nodePtr, CAddress & _address ) const
+CNodesManager ::getAddress( uintptr_t _nodePtr, CAddress & _address ) const
 {
-	typename std::map< uintptr_t, CNodeMedium< Medium >* >::const_iterator iterator = m_ptrToNodes.find( _nodePtr );
+	typename std::map< uintptr_t, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( _nodePtr );
 
 	if ( iterator == m_ptrToNodes.end() )
 		return false;

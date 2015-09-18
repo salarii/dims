@@ -8,7 +8,7 @@
 #include "configureClientActionHadler.h"
 
 #include "common/request.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
 #include "appLib/messageType.h"
 namespace client
 {

@@ -6,7 +6,7 @@
 
 #include <set>
 #include <QString>
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 namespace client
 {

@@ -8,23 +8,20 @@
 #include <boost/statechart/state_machine.hpp>
 
 #include "common/scheduleAbleAction.h"
-#include "common/types.h"
-
-#include "tracker/configureTrackerActionHandler.h"
 
 namespace tracker
 {
 
 struct CPassTransactionInitial;
 
-class CPassTransactionAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public  boost::statechart::state_machine< CPassTransactionAction, CPassTransactionInitial >
+class CPassTransactionAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CPassTransactionAction, CPassTransactionInitial >
 {
 public:
 	CPassTransactionAction( uint256 const & _actionKey );
 
 	CPassTransactionAction( CKeyID const & _keyId, int64_t _amount );
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	CKeyID getKeyId() const{ return m_keyId; }
 

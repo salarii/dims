@@ -8,7 +8,7 @@
 #include "common/nodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/connectionProvider.h"
-#include "configureTrackerActionHandler.h"
+
 #include "key.h"
 
 class CNode;
@@ -17,7 +17,7 @@ namespace tracker
 {
 class CTrackerNodeMedium;
 
-class CTrackerNodesManager : public common::CNodesManager< common::CTrackerTypes >
+class CTrackerNodesManager : public common::CNodesManager
 {
 public:
 	bool isNodeHonest();
@@ -34,7 +34,7 @@ public:
 
 	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 
-	std::list< common::CTrackerBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
+	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
 

@@ -222,33 +222,33 @@ Value stop(const Array& params, bool fHelp)
 static const CRPCCommand vRPCCommands[] =
 { //  name                      actor (function)         okSafeMode threadSafe reqWallet
   //  ------------------------  -----------------------  ---------- ---------- ---------
-    { "help",                   &help,                   true,      true,       false },
-    { "stop",                   &stop,                   true,      true,       false },
-	{ "status",                   &status,                   true,      true,       false },
-  { "registerInNetwork",                   &registerInNetwork,                   true,      true,       false },
-	{ "connectNetwork",                   &connectNetwork,                   true,      true,       false },
-	{ "selfAddress",                   &selfAddress,                   true,      true,       false },
+    { "help",                  &help,                   true,      true,       false },
+    { "stop",                  &stop,                   true,      true,       false },
+	{ "status",                  &status,                   true,      true,       false },
+  { "registerInNetwork",                  &registerInNetwork,                   true,      true,       false },
+	{ "connectNetwork",                  &connectNetwork,                   true,      true,       false },
+	{ "selfAddress",                  &selfAddress,                   true,      true,       false },
   /*
-  { "getconnectioncount",     &getconnectioncount,     true,      false,      false },
-    { "getpeerinfo",            &getpeerinfo,            true,      false,      false },
-    { "ping",                   &ping,                   true,      false,      false },
-    { "addnode",                &addnode,                true,      true,       false },
-    { "getaddednodeinfo",       &getaddednodeinfo,       true,      true,       false },
-    { "getrawtransaction",      &getrawtransaction,      false,     false,      false },
-    { "createrawtransaction",   &createrawtransaction,   false,     false,      false },
-    { "decoderawtransaction",   &decoderawtransaction,   false,     false,      false },
-	{ "decodescript",           &decodescript,           false,     false,      false },
-	{ "connecttotracker",     &tracker::connectToTracker,     false,     false,      false },
+  { "getconnectioncount",    &getconnectioncount,     true,      false,      false },
+    { "getpeerinfo",           &getpeerinfo,            true,      false,      false },
+    { "ping",                  &ping,                   true,      false,      false },
+    { "addnode",               &addnode,                true,      true,       false },
+    { "getaddednodeinfo",      &getaddednodeinfo,       true,      true,       false },
+    { "getrawtransaction",     &getrawtransaction,      false,     false,      false },
+    { "createrawtransaction",  &createrawtransaction,   false,     false,      false },
+    { "decoderawtransaction",  &decoderawtransaction,   false,     false,      false },
+	{ "decodescript",          &decodescript,           false,     false,      false },
+	{ "connecttotracker",    &tracker::connectToTracker,     false,     false,      false },
 */
 #ifdef ENABLE_WALLET
     /* Wallet */
 /*
-  { "getaccountaddress",      &getaccountaddress,      true,      false,      true },
-    { "sendtoaddress",          &sendtoaddress,          false,     false,      true },
-	{ "getbalance",             &getbalance,             false,     false,      true },
-	{ "gettransaction",         &gettransaction,         false,     false,      true },
-    { "dumpprivkey",            &dumpprivkey,            true,      false,      true },
-	{ "importprivkey",          &importprivkey,          false,     false,      true },
+  { "getaccountaddress",     &getaccountaddress,      true,      false,      true },
+    { "sendtoaddress",         &sendtoaddress,          false,     false,      true },
+	{ "getbalance",            &getbalance,             false,     false,      true },
+	{ "gettransaction",        &gettransaction,         false,     false,      true },
+    { "dumpprivkey",           &dumpprivkey,            true,      false,      true },
+	{ "importprivkey",         &importprivkey,          false,     false,      true },
 */
 #endif // ENABLE_WALLET
 };
@@ -299,7 +299,7 @@ bool ClientAllowed(const boost::asio::ip::address& address)
 {
     // Make sure that IPv4-compatible and IPv4-mapped IPv6 addresses are treated as IPv4 addresses
     if (address.is_v6()
-     && (address.to_v6().is_v4_compatible()
+    && (address.to_v6().is_v4_compatible()
       || address.to_v6().is_v4_mapped()))
         return ClientAllowed(address.to_v6().to_v4());
 
@@ -307,7 +307,7 @@ bool ClientAllowed(const boost::asio::ip::address& address)
      || address == asio::ip::address_v6::loopback()
      || (address.is_v4()
          // Check whether IPv4 addresses match 127.0.0.0/8 (loopback subnet)
-      && (address.to_v4().to_ulong() & 0xff000000) == 0x7f000000))
+     && (address.to_v4().to_ulong() & 0xff000000) == 0x7f000000))
         return true;
 
     const string strAddress = address.to_string();

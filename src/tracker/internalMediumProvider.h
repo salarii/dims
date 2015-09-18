@@ -12,7 +12,6 @@
 namespace common
 {
 
-template < class _Type >
 class CBitcoinNodeMedium;
 
 }
@@ -20,17 +19,17 @@ class CBitcoinNodeMedium;
 namespace tracker
 {
 
-class CInternalMediumProvider : public  common::CConnectionProvider< common::CTrackerTypes >
+class CInternalMediumProvider : public  common::CConnectionProvider
 {
 public:
-	virtual std::list< common::CTrackerBaseMedium *> provideConnection( common::CTrackerMediumFilter const & _mediumFilter );
+	virtual std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
 	// set response, merkle ?? transaction ??
 	void setTransaction( CTransaction const & _response, CNode * _node );
 
 	void setMerkleBlock( CMerkleBlock const & _merkle, CNode * _node );
 
-	std::list< common::CTrackerBaseMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
+	std::list< common::CMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
 	static CInternalMediumProvider* getInstance( );
 
@@ -46,7 +45,7 @@ private:
 
 	static CInternalMediumProvider * ms_instance;
 	// this is simplified approach
-	std::map< CNode *, common::CBitcoinNodeMedium< common::CTrackerTypes > * > m_nodeToMedium;
+	std::map< CNode *, common::CBitcoinNodeMedium * > m_nodeToMedium;
 };
 
 }

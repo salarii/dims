@@ -11,14 +11,15 @@
 #include "main.h"
 
 #include "common/setResponseVisitor.h"
-#include "common/commonRequests.h"
-#include "common/commonEvents.h"
+#include "common/requests.h"
+#include "common/events.h"
 #include "common/segmentFileStorage.h"
 #include "common/mediumKinds.h"
 #include "common/supportTransactionsDatabase.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 #include "common/actionHandler.h"
 #include "common/analyseTransaction.h"
+#include "common/authenticationProvider.h"
 
 #include "tracker/transactionRecordManager.h"
 #include "tracker/synchronizationAction.h"
@@ -57,8 +58,8 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationAsk
 					, context< CSynchronizationAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -68,7 +69,7 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						 SynchronisingGetInfoTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -110,13 +111,13 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 	{
 		context< CSynchronizationAction >().forgetRequests();
 		context< CSynchronizationAction >().addRequest(
-					new common::CInfoAskRequest< common::CTrackerTypes >(
+					new common::CInfoAskRequest(
 						common::CInfoKind::BitcoinHeaderAsk
 						, context< CSynchronizationAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						 SynchronisingGetInfoTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -142,12 +143,12 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 
 			resetChains();
 			context< CSynchronizationAction >().addRequest(
-						new common::CAckRequest< common::CTrackerTypes >(
+						new common::CAckRequest(
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
-			common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
+			common::CActionHandler::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
 
 		}
 		return transit< CSynchronizingGetInfo >();
@@ -178,8 +179,8 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CSynchronizationAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -205,7 +206,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 			context< CSynchronizationAction >().setHeaderSize( synchronizationInfo.m_headerSize );
 
 			context< CSynchronizationAction >().addRequest(
-						new common::CAckRequest< common::CTrackerTypes >(
+						new common::CAckRequest(
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
@@ -227,8 +228,8 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CSynchronizationAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -238,7 +239,7 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						SynchronisingWaitTime * 2
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -263,8 +264,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -277,7 +278,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  SynchronisingWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -313,8 +314,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 			if ( context< CSynchronizationAction >().getStorageSize() > ++m_currentBlock )
 			{
-				common::CSendMessageRequest< common::CTrackerTypes > * request =
-						new common::CSendMessageRequest< common::CTrackerTypes >(
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationGet
 							, context< CSynchronizationAction >().getActionKey()
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -346,8 +347,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -360,7 +361,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  SynchronisingWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -393,8 +394,8 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -407,7 +408,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  SynchronisingWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -428,15 +429,15 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationHeader.m_segmentHeader, synchronizationHeader.m_blockIndex );
 
 			context< CSynchronizationAction >().addRequest(
-						new common::CAckRequest< common::CTrackerTypes >(
+						new common::CAckRequest(
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
 			if ( context< CSynchronizationAction >().getHeaderSize() > ++m_currentBlock )
 			{
-				common::CSendMessageRequest< common::CTrackerTypes > * request =
-						new common::CSendMessageRequest< common::CTrackerTypes >(
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationGet
 							, context< CSynchronizationAction >().getActionKey()
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -462,8 +463,8 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CTrackerTypes > * request =
-				new common::CSendMessageRequest< common::CTrackerTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
@@ -476,7 +477,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  SynchronisingWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -549,7 +550,7 @@ CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, uint
 }
 
 void
-CSynchronizationAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CSynchronizationAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

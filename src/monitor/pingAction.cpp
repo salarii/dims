@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "common/commonRequests.h"
+#include "common/requests.h"
 #include "common/support.h"
 #include "common/actionHandler.h"
 

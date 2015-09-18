@@ -4,7 +4,7 @@
 
 #include "common/actionHandler.h"
 #include "common/communicationProtocol.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 
 #include "seed/processNetwork.h"
 #include "seed/seedNodeMedium.h"

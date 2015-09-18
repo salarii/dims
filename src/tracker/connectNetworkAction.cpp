@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/actionHandler.h"
+#include "common/setResponseVisitor.h"
 
 #include "tracker/connectNetworkAction.h"
 #include "tracker/filters.h"
@@ -43,7 +44,7 @@ struct CInitialConnect : public boost::statechart::state< CInitialConnect, CConn
 
 		m_key = registrationData.m_key;
 		context< CConnectNetworkAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						new CSynchronizationAction( nodeIndicator )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
@@ -72,7 +73,7 @@ CConnectNetworkAction::CConnectNetworkAction()
 }
 
 void
-CConnectNetworkAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CConnectNetworkAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

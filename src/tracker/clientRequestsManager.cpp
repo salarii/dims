@@ -2,16 +2,18 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "clientRequestsManager.h"
-#include "common/actionHandler.h"
-#include "getBalanceAction.h"
 #include "base58.h"
-#include "trackerNodesManager.h"
-#include "controller.h"
 
 #include <boost/foreach.hpp>
 
-#include "transactionRecordManager.h"
+#include "common/actionHandler.h"
+#include "common/authenticationProvider.h"
+
+#include "tracker/clientRequestsManager.h"
+#include "tracker/getBalanceAction.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/controller.h"
+#include "tracker/transactionRecordManager.h"
 
 using namespace common;
 
@@ -54,7 +56,7 @@ public:
 	{
 		CKeyID keyId;
 		CMnemonicAddress( _addressBalanceReq.m_address ).GetKeyID( keyId );
-		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( (common::CAction< common::CTrackerTypes >*)new CGetBalanceAction( keyId, m_hash ) );
+		common::CActionHandler::getInstance()->executeAction( (common::CAction*)new CGetBalanceAction( keyId, m_hash ) );
 	}
 
 	void operator()( CNetworkInfoReq const & _networkInfoReq ) const

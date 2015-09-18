@@ -12,7 +12,7 @@
 #include "net.h"
 #include "coins.h"
 
-#include "common/commonStruct.h"
+#include "common/struct.h"
 #include "common/segmentFileStorage.h"
 
 namespace common

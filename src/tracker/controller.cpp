@@ -35,7 +35,7 @@ struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchr
 	CInitialSynchronization()
 		:m_blockLeft( -1 )
 	{
-		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
+		common::CActionHandler::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
 	}
 
 	boost::statechart::result react( common::CSetScanBitcoinChainProgress const & _event )
@@ -102,7 +102,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 	CStandAlone( my_context ctx ) : my_base( ctx )
 	{
 		context< CController >().setStatusMessage( "detecting existing network" );
-		common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
+		common::CActionHandler::getInstance()->executeAction( new CRecognizeNetworkAction() );
 	}
 
 	boost::statechart::result react( common::CNetworkRecognizedData const & _event )

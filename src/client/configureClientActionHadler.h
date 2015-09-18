@@ -5,7 +5,7 @@
 #ifndef CONFIGURE_CLIENT_ACTION_HADLER_H
 #define CONFIGURE_CLIENT_ACTION_HADLER_H
 
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 #include "common/clientProtocol.h"
 
@@ -13,8 +13,8 @@
 
 namespace client
 {
-typedef common::DimsResponseList ClientResponseList;
-typedef common::DimsResponses ClientResponses;
+typedef common::DimsResponsesList ClientResponseList;
+typedef common::DimsResponse ClientResponses;
 }
 
 #endif // CONFIGURE_CLIENT_ACTION_HADLER_H

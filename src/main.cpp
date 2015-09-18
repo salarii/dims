@@ -1785,7 +1785,7 @@ void PushGetHeaders(CNode* pnode, CBlockIndex* pindexBegin, uint256 hashEnd)
 
 void PushGetBlocks(CNode* pnode, CBlockIndex* pindexBegin, uint256 hashEnd)
 {
-    // Filter out duplicate requests
+	// CMediumFilter out duplicate requests
     if (pindexBegin == pnode->pindexLastGetBlocksBegin && hashEnd == pnode->hashLastGetBlocksEnd)
         return;
     pnode->pindexLastGetBlocksBegin = pindexBegin;

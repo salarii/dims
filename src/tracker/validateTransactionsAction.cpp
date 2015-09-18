@@ -9,8 +9,9 @@
 #include <boost/statechart/event.hpp>
 
 #include "common/setResponseVisitor.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
 #include "common/analyseTransaction.h"
+#include "common/authenticationProvider.h"
 
 #include "tracker/validateTransactionsAction.h"
 #include "tracker/events.h"
@@ -284,7 +285,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		context< CValidateTransactionsAction >().forgetRequests();
 
 		context< CValidateTransactionsAction >().addRequest(
-					new common::CAckRequest< common::CTrackerTypes >(
+					new common::CAckRequest(
 						  context< CValidateTransactionsAction >().getActionKey()
 						, messageResult->m_message.m_header.m_id
 						, new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
@@ -301,7 +302,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 		if ( _event.m_invalidTransactionIndexes.empty() )
 		{
-			common::CTrackerMediumFilter * filter = new CNodeExceptionFilter( context< CValidateTransactionsAction >().getInitiatingNode() );
+			common::CMediumFilter * filter = new CNodeExceptionFilter( context< CValidateTransactionsAction >().getInitiatingNode() );
 			if ( CTrackerNodesManager::getInstance()->provideConnection( *filter ).empty() )
 			{
 				delete filter;
@@ -385,7 +386,7 @@ struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAct
 };
 
 CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransaction > const & _transactions )
-	: common::CAction< common::CTrackerTypes >()
+	: common::CAction()
 	, m_transactions( _transactions )
 {
 	initiate();
@@ -393,13 +394,13 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 }
 
 CValidateTransactionsAction::CValidateTransactionsAction( uint256 const & _actionKey )
-	: common::CAction< common::CTrackerTypes >( _actionKey )
+	: common::CAction( _actionKey )
 {
 	initiate();
 }
 
 void
-CValidateTransactionsAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CValidateTransactionsAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

@@ -8,12 +8,12 @@
 #include <boost/statechart/custom_reaction.hpp>
 
 #include "common/setResponseVisitor.h"
-#include "common/commonRequests.h"
-#include "common/commonEvents.h"
+#include "common/requests.h"
+#include "common/events.h"
 #include "common/segmentFileStorage.h"
 #include "common/mediumKinds.h"
 #include "common/supportTransactionsDatabase.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 
 #include "monitor/synchronizationAction.h"
 #include "monitor/filters.h"

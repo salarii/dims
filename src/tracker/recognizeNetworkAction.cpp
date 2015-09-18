@@ -4,6 +4,7 @@
 
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
+#include "common/setResponseVisitor.h"
 
 #include "tracker/recognizeNetworkAction.h"
 #include "tracker/connectNodeAction.h"
@@ -33,7 +34,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		context< CRecognizeNetworkAction >().forgetRequests();
 		context< CRecognizeNetworkAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						  ConnectWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -43,7 +44,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				m_alreadyAsked.insert( address );
 				context< CRecognizeNetworkAction >().addRequest(
-							new common::CScheduleActionRequest< common::CTrackerTypes >(
+							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
@@ -62,7 +63,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				m_alreadyAsked.insert( address );
 				context< CRecognizeNetworkAction >().addRequest(
-							new common::CScheduleActionRequest< common::CTrackerTypes >(
+							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
@@ -117,7 +118,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			context< CRecognizeNetworkAction >().forgetRequests();
 
 			context< CRecognizeNetworkAction >().addRequest(
-						new common::CTimeEventRequest< common::CTrackerTypes >(
+						new common::CTimeEventRequest(
 							ConnectWaitTime
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -125,7 +126,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				m_alreadyAsked.insert( address );
 				context< CRecognizeNetworkAction >().addRequest(
-							new common::CScheduleActionRequest< common::CTrackerTypes >(
+							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
@@ -163,7 +164,7 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 	{
 		context< CRecognizeNetworkAction >().forgetRequests();
 		context< CRecognizeNetworkAction >().addRequest(
-					new common::CScheduleActionRequest< common::CTrackerTypes >(
+					new common::CScheduleActionRequest(
 						  new CProvideInfoAction( common::CInfoKind::IsRegistered )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
@@ -187,7 +188,7 @@ CRecognizeNetworkAction::CRecognizeNetworkAction()
 }
 
 void
-CRecognizeNetworkAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CRecognizeNetworkAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

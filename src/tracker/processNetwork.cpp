@@ -66,7 +66,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::TrackerInfo
 				)
 		{
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			CPubKey pubKey;
 			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
@@ -91,7 +91,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( provideInfoAction );
+				common::CActionHandler::getInstance()->executeAction( provideInfoAction );
 			}
 			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration )
 			{
@@ -100,7 +100,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				registerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( registerAction );
+				common::CActionHandler::getInstance()->executeAction( registerAction );
 
 			}
 			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ClientTransaction )
@@ -110,7 +110,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				passTransactionAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( passTransactionAction );
+				common::CActionHandler::getInstance()->executeAction( passTransactionAction );
 			}
 			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
 			{
@@ -118,7 +118,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( validateTransactionsAction );
+				common::CActionHandler::getInstance()->executeAction( validateTransactionsAction );
 			}
 		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
@@ -126,7 +126,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -140,7 +140,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
 
-				common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( connectNodeAction );
+				common::CActionHandler::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}
@@ -150,7 +150,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( message, ack );
 
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -166,7 +166,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )
 		{
-			common::CNodeMedium< common::CTrackerBaseMedium > * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -183,7 +183,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 					pingAction->process_event( common::CStartPongEvent() );
 
-					common::CActionHandler< common::CTrackerTypes >::getInstance()->executeAction( pingAction );
+					common::CActionHandler::getInstance()->executeAction( pingAction );
 				}
 				else
 				{
@@ -212,6 +212,6 @@ namespace common
 void
 CSelfNode::clearManager()
 {
-	common::CNodesManager< CTrackerTypes >::getInstance()->eraseMedium( convertToInt( this ) );
+	common::CNodesManager::getInstance()->eraseMedium( convertToInt( this ) );
 }
 }

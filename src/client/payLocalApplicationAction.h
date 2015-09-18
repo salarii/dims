@@ -14,7 +14,7 @@
 #include "configureClientActionHadler.h"
 #include "core.h"
 #include "common/transactionStatus.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 namespace common
 {

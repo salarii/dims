@@ -289,7 +289,7 @@ int main(int argc, char** argv) {
       snprintf(keybuf, sizeof(keybuf), "k%020d", i);
       snprintf(valbuf, sizeof(valbuf), "v%020d", i);
       leveldb_put(db, woptions, keybuf, strlen(keybuf), valbuf, strlen(valbuf),
-                  &err);
+                 &err);
       CheckNoError(err);
     }
     leveldb_approximate_sizes(db, 2, start, start_len, limit, limit_len, sizes);

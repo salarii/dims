@@ -43,7 +43,6 @@
 #include "common/segmentFileStorage.h"
 
 #include "tracker/server.h"
-#include "tracker/configureTrackerActionHandler.h"
 #include "tracker/clientRequestsManager.h"
 #include "tracker/internalMediumProvider.h"
 #include "tracker/transactionRecordManager.h"
@@ -951,15 +950,15 @@ common::CDimsParams::setAppType( common::AppType::Tracker );
 	common::COriginAddressScanner::getInstance()->setStorage( tracker::CTransactionRecordManager::getInstance() );
 /* create  threads of  action  handler */
 	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CTrackerTypes >::loop, common::CActionHandler< common::CTrackerTypes >::getInstance() ) );
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CTrackerBaseMedium >::workLoop, common::CTimeMedium< common::CTrackerBaseMedium >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler::loop, common::CActionHandler::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CClientRequestsManager::processRequestLoop, tracker::CClientRequestsManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &tracker::CTransactionRecordManager::loop, tracker::CTransactionRecordManager::getInstance() ) );
 	threadGroup.create_thread( boost::bind( &common::CSegmentFileStorage::flushLoop, common::CSegmentFileStorage::getInstance() ) );
 
-	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerTypes >*)tracker::CInternalMediumProvider::getInstance() );
-	common::CActionHandler< common::CTrackerTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CTrackerTypes >*)tracker::CTrackerNodesManager::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)tracker::CInternalMediumProvider::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)tracker::CTrackerNodesManager::getInstance() );
 	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );

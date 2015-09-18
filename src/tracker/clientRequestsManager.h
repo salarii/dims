@@ -6,7 +6,7 @@
 #define TASK_QUEUE_H
 
 #include "common/nodeMessages.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 namespace tracker
 {

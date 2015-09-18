@@ -8,9 +8,7 @@
 #include <boost/statechart/state_machine.hpp>
 
 #include "common/action.h"
-#include "common/types.h"
-
-#include "configureTrackerActionHandler.h"
+#include "common/communicationProtocol.h"
 
 namespace tracker
 {
@@ -19,14 +17,14 @@ struct CInitial;
 // extremely simplified,  no  confirmation message
 // it was  working  once, but  right now  not  very likely  ! test it !
 // add ack  event where necessary
-class CValidateTransactionsAction : public common::CAction< common::CTrackerTypes >,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >
+class CValidateTransactionsAction : public common::CAction,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >
 {
 public:
 	CValidateTransactionsAction( std::vector< CTransaction > const & _transactions );
 
 	CValidateTransactionsAction( uint256 const & _actionKey );
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	std::vector< CTransaction > const & getTransactions() const;
 

@@ -6,7 +6,7 @@
 #define SET_RESPONSE_VISITOR_H
 
 #include <boost/variant.hpp> 
-#include "common/types.h"
+#include "common/responses.h"
 
 namespace tracker
 {
@@ -83,24 +83,14 @@ class CPingAction;
 namespace common
 {
 
-template < class _RequestResponses > class CAction;
+class CAction;
 
-template < class _Type >
 class CSetResponseVisitor
 {
 public:
-	CSetResponseVisitor( _Type const & _requestRespond );
-	virtual void visit( CAction< _Type > & _action );
-};
+	CSetResponseVisitor( common::DimsResponse const & _response );
 
-// weak spot because one have to remembar to add function for  every new action refactor it??
-template<>
-class CSetResponseVisitor< CTrackerTypes >
-{
-public:
-	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses );
-
-	virtual void visit( common::CAction< CTrackerTypes > & _action );
+	virtual void visit( common::CAction & _action );
 
 	virtual void visit( tracker::CGetBalanceAction & _action );
 
@@ -123,38 +113,16 @@ public:
 	virtual void visit( tracker::CPassTransactionAction & _action );
 
 	virtual void visit( tracker::CConnectNetworkAction & _action );
-private:
-	tracker::TrackerResponses m_trackerResponses;
-};
-
-template<>
-class CSetResponseVisitor< CClientTypes >
-{
-public:
-	CSetResponseVisitor( client::ClientResponses const & _requestRespond );
 
 	void visit( client::CSendTransactionAction & _action );
 
 	void visit( client::CConnectAction & _action );
-
-	void visit( CAction< client::ClientResponses > & _action );
 
 	void visit( client::CSendBalanceInfoAction & _action );
 
 	void visit( client::CPayLocalApplicationAction & _action );
 
 	void visit( client::CSendInfoRequestAction & _action ){};
-private:
-
-	client::ClientResponses m_requestResponse;
-};
-
-
-template<>
-class CSetResponseVisitor< CMonitorTypes>
-{
-public:
-	CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse );
 
 	void visit( monitor::CConnectNodeAction & _action );
 
@@ -177,22 +145,12 @@ public:
 	virtual void visit( monitor::CCopyTransactionStorageAction & _action );
 
 	virtual void visit( monitor::CSynchronizationAction & _action );
-private:
-
-	monitor::MonitorResponses m_requestResponse;
-};
-
-template<>
-class CSetResponseVisitor< CSeedTypes >
-{
-public:
-	CSetResponseVisitor( seed::SeedResponses const & _requestResponse );
 
 	void visit( seed::CAcceptNodeAction & _action );
 
 	void visit( seed::CPingAction & _action );
-private:
-	seed::SeedResponses m_requestResponse;
+protected:
+	common::DimsResponse m_responses;
 };
 
 

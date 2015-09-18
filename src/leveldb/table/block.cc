@@ -173,7 +173,7 @@ class Block::Iter : public Iterator {
       uint32_t shared, non_shared, value_length;
       const char* key_ptr = DecodeEntry(data_ + region_offset,
                                         data_ + restarts_,
-                                        &shared, &non_shared, &value_length);
+                                       &shared, &non_shared, &value_length);
       if (key_ptr == NULL || (shared != 0)) {
         CorruptionError();
         return;

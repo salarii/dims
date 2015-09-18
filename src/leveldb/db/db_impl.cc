@@ -118,7 +118,7 @@ DBImpl::DBImpl(const Options& raw_options, const std::string& dbname)
       internal_comparator_(raw_options.comparator),
       internal_filter_policy_(raw_options.filter_policy),
       options_(SanitizeOptions(dbname, &internal_comparator_,
-                               &internal_filter_policy_, raw_options)),
+                              &internal_filter_policy_, raw_options)),
       owns_info_log_(options_.info_log != raw_options.info_log),
       owns_cache_(options_.block_cache != raw_options.block_cache),
       dbname_(dbname),
@@ -142,7 +142,7 @@ DBImpl::DBImpl(const Options& raw_options, const std::string& dbname)
   table_cache_ = new TableCache(dbname_, &options_, table_cache_size);
 
   versions_ = new VersionSet(dbname_, &options_, table_cache_,
-                             &internal_comparator_);
+                            &internal_comparator_);
 }
 
 DBImpl::~DBImpl() {
@@ -1454,7 +1454,7 @@ Status DB::Open(const Options& options, const std::string& dbname,
     uint64_t new_log_number = impl->versions_->NewFileNumber();
     WritableFile* lfile;
     s = options.env->NewWritableFile(LogFileName(dbname, new_log_number),
-                                     &lfile);
+                                    &lfile);
     if (s.ok()) {
       edit.SetLogNumber(new_log_number);
       impl->logfile_ = lfile;

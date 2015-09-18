@@ -5,25 +5,23 @@
 #ifndef GET_BALANCE_ACTION_H
 #define GET_BALANCE_ACTION_H
 
-#include "configureTrackerActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 
 #include "common/scheduleAbleAction.h"
-#include "common/types.h"
 
 namespace tracker
 {
 
 struct CUninitiatedBalance;
 
-class CGetBalanceAction : public common::CScheduleAbleAction< common::CTrackerTypes >, public boost::statechart::state_machine< CGetBalanceAction, CUninitiatedBalance >
+class CGetBalanceAction : public common::CScheduleAbleAction, public boost::statechart::state_machine< CGetBalanceAction, CUninitiatedBalance >
 {
 public:
 	CGetBalanceAction();
 
 	CGetBalanceAction( uint160 const & _keyId, uint256 const & _hash );
 
-	virtual void accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	virtual void reset(){}
 

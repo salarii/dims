@@ -4,7 +4,7 @@
 
 #include "rpcserver.h"
 
-#include "common/commonEvents.h"
+#include "common/events.h"
 
 #include "monitor/monitorController.h"
 #include "monitor/registerRpcHooks.h"

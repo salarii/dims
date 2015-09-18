@@ -7,13 +7,8 @@
 
 #include <boost/variant.hpp>
 
-#include "common/medium.h"
-#include "common/communicationProtocol.h"
-#include "common/commonRequests.h"
-#include "common/authenticationProvider.h"
 #include "common/selfNode.h"
-#include "common/action.h"
-
+#include "common/requests.h"
 
 namespace common
 {
@@ -22,12 +17,8 @@ typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 class CSegmentHeader;
 struct CDiskBlock;
 
-template < class _Medium >
-class CNodeMedium : public _Medium
+class CNodeMedium : public CMedium
 {
-public:
-	typedef typename _Medium::types Type;
-	typedef typename Type::Response Response;
 public:
 	CNodeMedium( common::CSelfNode * _selfNode ):m_usedNode( _selfNode ){};
 
@@ -35,36 +26,36 @@ public:
 
 	bool flush();
 
-	bool getResponseAndClear( std::multimap< CRequest< Type >const*, Response > & _requestResponse );
+	bool getResponseAndClear( std::multimap< CRequest const*, DimsResponse > & _requestResponse );
 
-	void add( common::CRequest< Type >const * _request );
+	void add( common::CRequest const * _request );
 
-	void add( CSendIdentifyDataRequest< Type > const * _request );
+	void add( CSendIdentifyDataRequest const * _request );
 
-	void add( CAckRequest< Type > const * _request );
+	void add( CAckRequest const * _request );
 
-	void add( CInfoAskRequest< Type > const * _request );
+	void add( CInfoAskRequest const * _request );
 
-	void add( CSendMessageRequest< Type > const * _request );
+	void add( CSendMessageRequest const * _request );
 
-	void setResponse( uint256 const & _id, Response const & _responses );
+	void setResponse( uint256 const & _id, DimsResponse const & _responses );
 
-	void deleteRequest( CRequest< Type >const* _request );
+	void deleteRequest( CRequest const* _request );
 
 	common::CSelfNode * getNode() const;
 
-	bool getDirectActionResponseAndClear( CAction< Type >const * _action, std::list< typename Type::Response > & _responses );
+	bool getDirectActionResponseAndClear( CAction const * _action, std::list< DimsResponse > & _responses );
 
-	void addActionResponse( uint256 const & _actionId, Response const & _response );
+	void addActionResponse( uint256 const & _actionId, DimsResponse const & _response );
 protected:
 	void clearResponses();
 
-	void setLastRequest( uint256 const & _id, common::CRequest< Type >const* _request );
+	void setLastRequest( uint256 const & _id, common::CRequest const* _request );
 protected:
 	common::CSelfNode * m_usedNode;
 
 	mutable boost::mutex m_mutex;
-	std::multimap< uint256, Response > m_responses;
+	std::multimap< uint256, DimsResponse > m_responses;
 
 	static uint256 m_counter;
 
@@ -74,221 +65,11 @@ protected:
 
 	std::list< uint256 > m_synchronizeQueue;
 
-	std::map< uint256, common::CRequest< Type >const* > m_idToRequest;
+	std::map< uint256, common::CRequest const* > m_idToRequest;
 
-	std::multimap< uint256, Response > m_actionToResponse;
+	std::multimap< uint256, DimsResponse > m_actionToResponse;
 };
 
-template < class _Medium >
-bool
-CNodeMedium< _Medium >::serviced() const
-{
-	return !m_responses.empty();
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::setLastRequest( uint256 const & _id, common::CRequest< Type >const* _request )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-
-	if ( m_idToRequest.find( _id ) != m_idToRequest.end() )
-		m_idToRequest.erase( _id );
-
-	m_idToRequest.insert( std::make_pair( _id, _request ) );
-}
-
-template < class _Medium >
-bool
-CNodeMedium< _Medium >::flush()
-{
-	BOOST_FOREACH( common::CMessage const & message ,m_messages )
-	{
-		m_usedNode->setMessageToSend( message );
-	}
-	m_messages.clear();
-	return true;
-
-}
-
-extern std::vector< uint256 > deleteList;
-
-template < class _Medium >
-bool
-CNodeMedium< _Medium >::getResponseAndClear( std::multimap< CRequest< Type >const*, Response > & _requestResponse )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-
-	if ( m_synchronizeQueue.empty() )
-		return false;
-
-	std::set< uint256 >::const_iterator indexIterator = m_indexes.begin();
-	while( indexIterator != m_indexes.end() )
-	{
-		if ( *indexIterator != m_synchronizeQueue.front() )
-		{
-			indexIterator++;
-			continue;
-		}
-
-		m_synchronizeQueue.pop_front();
-
-		typename std::multimap< uint256, Response >::const_iterator iterator = m_responses.lower_bound( *indexIterator );
-		while ( iterator != m_responses.upper_bound( *indexIterator ) )
-		{
-			_requestResponse.insert( std::make_pair( m_idToRequest.find( *indexIterator )->second, iterator->second ) );
-			deleteList.push_back( *indexIterator );
-			++iterator;
-		}
-
-		indexIterator++;
-	}
-	clearResponses();
-	return true;
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::clearResponses()
-{
-	BOOST_FOREACH( uint256 const & id, deleteList )
-	{
-		m_responses.erase( m_responses.lower_bound( id ) );
-		//m_idToRequest.erase( id );//doubt if this is ok
-		//	m_indexes.erase( id );
-	}
-	deleteList.clear();
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::setResponse( uint256 const & _id, Response const & _response )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_responses.insert( std::make_pair( _id, _response ) );
-	m_indexes.insert( _id );
-	m_synchronizeQueue.push_back( _id );
-}
-
-template < class _Medium >
-common::CSelfNode *
-CNodeMedium< _Medium >::getNode() const
-{
-	return m_usedNode;
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::addActionResponse( uint256 const & _actionId, Response const & _response )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_actionToResponse.insert( std::make_pair( _actionId, _response ) );
-		m_synchronizeQueue.push_back( _actionId );
-}
-
-template < class _Medium >
-bool
-CNodeMedium< _Medium >::getDirectActionResponseAndClear( CAction< Type >const * _action, std::list< typename Type::Response > & _responses )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-
-	if ( m_synchronizeQueue.empty() )
-		return false;
-
-	if ( _action->getActionKey() != m_synchronizeQueue.front() )
-		return false;
-
-	m_synchronizeQueue.pop_front();
-
-	typename std::multimap< uint256, Response >::const_iterator iterator
-			= m_actionToResponse.lower_bound( _action->getActionKey() );
-
-	while ( iterator != m_actionToResponse.upper_bound( _action->getActionKey() ) )
-	{
-		_responses.push_back( iterator->second );
-		iterator++;
-	}
-
-	m_actionToResponse.erase( _action->getActionKey() );
-	return true;
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( common::CRequest< Type > const * _request )
-{
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( CSendIdentifyDataRequest< Type > const * _request )
-{
-	common::CIdentifyMessage identifyMessage;
-
-	identifyMessage.m_payload = _request->getPayload();
-
-	identifyMessage.m_signed = _request->getSigned();
-
-	identifyMessage.m_key = _request->getKey();
-
-	common::CMessage message( identifyMessage, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( CAckRequest< Type > const * _request )
-{
-	common::CAck ack;
-
-	common::CMessage message( ack, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-		setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::deleteRequest( CRequest< Type >const* _request )
-{
-	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_idToRequest.erase( _request->getId() );
-	m_responses.erase( _request->getId() );
-	m_indexes.erase( _request->getId() );
-	m_synchronizeQueue.remove( _request->getId() );
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( CInfoAskRequest< Type > const * _request )
-{
-	CInfoRequestData infoReqData( ( int ) _request->getInfoKind(), _request->getPayload() );
-
-	common::CMessage message( infoReqData, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
-
-template < class _Medium >
-void
-CNodeMedium< _Medium >::add( CSendMessageRequest< Type > const * _request )
-{
-	common::CMessage message(
-				_request->getMessageKind()
-				, _request->getPayLoad()
-				, _request->getActionKey()
-				, _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest< Type >const*)_request );
-}
 
 }
 

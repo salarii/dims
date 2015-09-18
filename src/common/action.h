@@ -14,13 +14,10 @@
 namespace common
 {
 
-template < class _Type >
 class CSetResponseVisitor;
 
-template < class _Type > class CRequest;
+class CRequest;
 
-
-template < class _Type >
 class CAction
 {
 public:
@@ -38,12 +35,12 @@ public:
 		CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );// this  shouldn't be  here in reality
 	};
 
-	virtual void accept( CSetResponseVisitor< _Type > & _visitor ) = 0;
+	virtual void accept( CSetResponseVisitor & _visitor ) = 0;
 
-	virtual std::vector< CRequest< _Type >* > getRequests() const{ return m_requests; }
+	virtual std::vector< CRequest * > getRequests() const{ return m_requests; }
 
 	// following two are  ugly
-	virtual void addRequest( CRequest< _Type >* _request ){ m_requests.push_back( _request ); }
+	virtual void addRequest( CRequest * _request ){ m_requests.push_back( _request ); }
 
 	uint256
 	getActionKey() const
@@ -56,7 +53,7 @@ public:
 		m_droppedRequests.insert( m_droppedRequests.end(), m_requests.begin(), m_requests.end() );
 		m_requests.clear();
 	}
-	std::vector< CRequest< _Type >* > const & getDroppedRequests() const
+	std::vector< CRequest * > const & getDroppedRequests() const
 	{
 		return m_droppedRequests;
 	}
@@ -83,7 +80,7 @@ public:
 
 	virtual ~CAction()
 	{
-		BOOST_FOREACH( CRequest< _Type >*request, m_droppedRequests )
+		BOOST_FOREACH( CRequest *request, m_droppedRequests )
 		{
 			delete request;
 		}
@@ -101,9 +98,9 @@ protected:
 
 	uint256 m_actionKey;
 
-	std::vector< CRequest< _Type >* > m_requests;
+	std::vector< CRequest * > m_requests;
 
-	std::vector< CRequest< _Type >* > m_droppedRequests;
+	std::vector< CRequest * > m_droppedRequests;
 };
 
 }

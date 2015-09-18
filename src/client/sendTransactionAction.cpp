@@ -9,7 +9,7 @@
 #include "common/nodeMessages.h"
 #include "common/setResponseVisitor.h"
 #include "common/medium.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 
 #include "client/sendTransactionAction.h"
 #include "client/clientFilters.h"

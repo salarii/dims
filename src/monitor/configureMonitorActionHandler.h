@@ -7,13 +7,13 @@
 
 #include <boost/mpl/list.hpp>
 #include <boost/variant/variant.hpp>
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 
 namespace monitor
 {
-typedef common::DimsResponseList MonitorResponseList;
-typedef common::DimsResponses MonitorResponses;
+typedef common::DimsResponsesList MonitorResponseList;
+typedef common::DimsResponse MonitorResponses;
 
 }
 

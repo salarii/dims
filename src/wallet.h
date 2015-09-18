@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 // Settings
 extern int64_t nTransactionFee;
@@ -373,7 +373,7 @@ public:
      * @note called with lock cs_wallet held.
      */
     boost::signals2::signal<void (CWallet *wallet, const CTxDestination
-            &address, const std::string &label, bool isMine,
+           &address, const std::string &label, bool isMine,
             const std::string &purpose,
             ChangeType status)> NotifyAddressBookChanged;
 

@@ -3,13 +3,13 @@
 
 #include <boost/mpl/list.hpp>
 #include <boost/variant/variant.hpp>
-#include "common/commonResponses.h"
-#include "common/commonEvents.h"
+#include "common/responses.h"
+#include "common/events.h"
 
 namespace seed
 {
-typedef common::DimsResponseList SeedResponseList;
-typedef common::DimsResponses SeedResponses;
+typedef common::DimsResponsesList SeedResponseList;
+typedef common::DimsResponse SeedResponses;
 
 }
 

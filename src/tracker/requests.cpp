@@ -9,25 +9,25 @@
 namespace tracker
 {
 
-CDeliverInfoRequest::CDeliverInfoRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+CDeliverInfoRequest::CDeliverInfoRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_actionKey( _actionKey )
 {
 }
 
 void
-CDeliverInfoRequest::accept( common::CTrackerBaseMedium * _medium ) const
+CDeliverInfoRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
 
-CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_transactions( _transactions )
 {
 }
 
-void CValidateTransactionsRequest::accept( common::CTrackerBaseMedium * _medium ) const
+void CValidateTransactionsRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -38,8 +38,8 @@ CValidateTransactionsRequest::getTransactions() const
 	return m_transactions;
 }
 
-CPassMessageRequest::CPassMessageRequest(  common::CMessage const & _message, uint256 const & _actionKey, CPubKey const & _prevKey, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+CPassMessageRequest::CPassMessageRequest(  common::CMessage const & _message, uint256 const & _actionKey, CPubKey const & _prevKey, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_message( _message )
 	, m_prevKey( _prevKey )
@@ -47,7 +47,7 @@ CPassMessageRequest::CPassMessageRequest(  common::CMessage const & _message, ui
 }
 
 void
-CPassMessageRequest::accept( common::CTrackerBaseMedium * _medium ) const
+CPassMessageRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -70,15 +70,15 @@ CPassMessageRequest::getPreviousKey() const
 	return m_prevKey;
 }
 
-CTransactionsPropagationRequest::CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+CTransactionsPropagationRequest::CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_transactions( _transactions )
 {
 }
 
 void
-CTransactionsPropagationRequest::accept( common::CTrackerBaseMedium * _medium ) const
+CTransactionsPropagationRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -95,15 +95,15 @@ CTransactionsPropagationRequest::getTransactions() const
 	return m_transactions;
 }
 
-CTransactionsStatusRequest::CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+CTransactionsStatusRequest::CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_actionKey( _actionKey )
 	,m_bundleStatus( _bundleStatus )
 {
 }
 
 void
-CTransactionsStatusRequest::accept( common::CTrackerBaseMedium * _medium ) const
+CTransactionsStatusRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -120,35 +120,15 @@ CTransactionsStatusRequest::getBundleStatus() const
 	return m_bundleStatus;
 }
 
-
-CSetBloomFilterRequest::CSetBloomFilterRequest( CBloomFilter const & _bloomFilter )
-	: common::CRequest< common::CTrackerTypes >( new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes ) )
-	, m_bloomFilter( _bloomFilter )
-{
-}
-
-void
-CSetBloomFilterRequest::accept( common::CTrackerBaseMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-CBloomFilter const &
-CSetBloomFilterRequest::getBloomFilter() const
-{
-	return m_bloomFilter;
-}
-
-
 CConnectToTrackerRequest::CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress )
-	: common::CRequest< common::CTrackerTypes >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+	: common::CRequest( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_trackerAddress( _trackerAddress )
 	, m_serviceAddress( _serviceAddress )
 {
 }
 
 void
-CConnectToTrackerRequest::accept( common::CTrackerBaseMedium * _medium ) const
+CConnectToTrackerRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -165,13 +145,13 @@ CConnectToTrackerRequest::getServiceAddress() const
 }
 
 CGetBalanceRequest::CGetBalanceRequest( uint160 const & _key )
-	: common::CRequest< common::CTrackerTypes >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+	: common::CRequest( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_key( _key )
 {
 }
 
 void
-CGetBalanceRequest::accept( common::CTrackerBaseMedium * _medium ) const
+CGetBalanceRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -182,14 +162,14 @@ CGetBalanceRequest::getKey() const
 	return m_key;
 }
 
-CAskForRegistrationRequest::CAskForRegistrationRequest( uint256 const & _actionKey, common::CTrackerMediumFilter * _mediumFilter )
-	: common::CRequest< common::CTrackerTypes >( _mediumFilter )
+CAskForRegistrationRequest::CAskForRegistrationRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_actionKey( _actionKey )
 {
 }
 
 void
-CAskForRegistrationRequest::accept( common::CTrackerBaseMedium * _medium ) const
+CAskForRegistrationRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }

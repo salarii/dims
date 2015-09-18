@@ -10,8 +10,9 @@
 #include "wallet.h"
 
 #include "common/setResponseVisitor.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 #include "common/analyseTransaction.h"
+#include "common/authenticationProvider.h"
 
 #include "tracker/clientRequestsManager.h"
 #include "tracker/getBalanceAction.h"
@@ -66,8 +67,8 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 	{
 		m_self = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
 
-		common::CInfoAskRequest< common::CTrackerTypes > * request =
-				new common::CInfoAskRequest< common::CTrackerTypes >(
+		common::CInfoAskRequest * request =
+				new common::CInfoAskRequest(
 					common::CInfoKind::BalanceAsk
 					, context< CGetBalanceAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
@@ -77,7 +78,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 		context< CGetBalanceAction >().addRequest( request );
 
 		context< CGetBalanceAction >().addRequest(
-					new common::CTimeEventRequest< common::CTrackerTypes >(
+					new common::CTimeEventRequest(
 						LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -102,7 +103,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 			common::convertPayload( orginalMessage, balance );
 
 			context< CGetBalanceAction >().addRequest(
-						new common::CAckRequest< common::CTrackerTypes >(
+						new common::CAckRequest(
 							context< CGetBalanceAction >().getActionKey()
 							, orginalMessage.m_header.m_id
 							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
@@ -158,7 +159,7 @@ CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _h
 }
 
 void
-CGetBalanceAction::accept( common::CSetResponseVisitor< common::CTrackerTypes > & _visitor )
+CGetBalanceAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

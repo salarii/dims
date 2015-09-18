@@ -7,9 +7,9 @@
 #include <boost/statechart/custom_reaction.hpp>
 
 #include "common/setResponseVisitor.h"
-#include "common/commonEvents.h"
+#include "common/events.h"
 #include "common/analyseTransaction.h"
-#include "common/commonRequests.h"
+#include "common/requests.h"
 
 #include "sendInfoRequestAction.h"
 #include "sendBalanceInfoAction.h"

@@ -12,7 +12,7 @@ template < class _Type >
 class CDefferedAction
 {
 public:
-	CDefferedAction( CAction< _Type >* _action, int64_t _deffer );
+	CDefferedAction( CAction * _action, int64_t _deffer );
 
 	bool isReady();
 
@@ -22,11 +22,11 @@ public:
 private:
 	int64_t const m_deffer;
 	int64_t m_time;
-	CAction< _Type >* m_action;
+	CAction * m_action;
 };
 
 template < class _Type >
-CDefferedAction< _Type >::CDefferedAction( CAction< _Type >* _action, int64_t _deffer )
+CDefferedAction ::CDefferedAction( CAction * _action, int64_t _deffer )
 	: m_deffer( _deffer )
 	, m_time( GetTimeMillis() - m_deffer )
 	, m_action( _action )
@@ -36,7 +36,7 @@ CDefferedAction< _Type >::CDefferedAction( CAction< _Type >* _action, int64_t _d
 
 template < class _Type >
 bool
-CDefferedAction< _Type >::isReady()
+CDefferedAction ::isReady()
 {
 
 	bool readyToRun = true;
@@ -56,7 +56,7 @@ CDefferedAction< _Type >::isReady()
 
 template < class _Type >
 void
-CDefferedAction< _Type >::reset()
+CDefferedAction ::reset()
 {
 	m_action->reset();
 }
@@ -64,9 +64,9 @@ CDefferedAction< _Type >::reset()
 
 template < class _Type >
 void
-CDefferedAction< _Type >::getRequest() const
+CDefferedAction ::getRequest() const
 {
-	CActionHandler< _Type >::getInstance()->executeAction( m_action );
+	CActionHandler ::getInstance()->executeAction( m_action );
 }
 
 
@@ -80,7 +80,7 @@ public:
 
 	void processingLoop();
 
-	void addAction( CAction< _Type > * _action, unsigned int _milisec );
+	void addAction( CAction * _action, unsigned int _milisec );
 private:
 	CPeriodicActionExecutor();
 private:
@@ -90,17 +90,17 @@ private:
 
 	mutable boost::mutex m_mutex;
 
-	std::list< CDefferedAction< _Type > > m_periodicActions;
+	std::list< CDefferedAction  > m_periodicActions;
 };
 
 template < class _Type >
-CPeriodicActionExecutor< _Type >::CPeriodicActionExecutor()
+CPeriodicActionExecutor ::CPeriodicActionExecutor()
 {
 }
 
 template < class _Type >
-CPeriodicActionExecutor< _Type >*
-CPeriodicActionExecutor< _Type >::getInstance()
+CPeriodicActionExecutor *
+CPeriodicActionExecutor ::getInstance()
 {
 	if ( !ms_instance )
 	{
@@ -111,22 +111,22 @@ CPeriodicActionExecutor< _Type >::getInstance()
 
 template < class _Type >
 void
-CPeriodicActionExecutor< _Type >::addAction( CAction< _Type > * _action, unsigned int _milisec )
+CPeriodicActionExecutor ::addAction( CAction * _action, unsigned int _milisec )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
-	m_periodicActions.push_back( CDefferedAction< _Type >( _action, _milisec ) );
+	m_periodicActions.push_back( CDefferedAction ( _action, _milisec ) );
 }
 
 template < class _Type >
 void
-CPeriodicActionExecutor< _Type >::processingLoop()
+CPeriodicActionExecutor ::processingLoop()
 {
 
 	while(1)
 	{
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
-			BOOST_FOREACH( CDefferedAction< _Type > & action, m_periodicActions)
+			BOOST_FOREACH( CDefferedAction & action, m_periodicActions)
 			{
 				if ( action.isReady() )
 				{

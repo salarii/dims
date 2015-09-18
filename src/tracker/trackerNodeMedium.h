@@ -15,10 +15,10 @@ namespace tracker
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
-class CTrackerNodeMedium : public common::CNodeMedium< common::CTrackerBaseMedium >
+class CTrackerNodeMedium : public common::CNodeMedium
 {
 public:
-	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< common::CTrackerBaseMedium >( _selfNode ){};
+	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 
 	void add( CTransactionsPropagationRequest const * _request );
 
