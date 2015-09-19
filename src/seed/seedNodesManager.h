@@ -9,19 +9,18 @@
 #include "common/nodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/connectionProvider.h"
-#include "configureSeedActionHandler.h"
 
 namespace seed
 {
 
 class CSeedNodeMedium;
 
-class CSeedNodesManager : public common::CNodesManager< common::CSeedTypes >
+class CSeedNodesManager : public common::CNodesManager
 {
 public:
 	static CSeedNodesManager * getInstance();
 
-	std::list< common::CSeedBaseMedium *> provideConnection( common::CSeedMediumFilter const & _mediumFilter );
+	std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
 	void setPublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey );
 
@@ -31,9 +30,9 @@ public:
 
 	bool isKnown( CPubKey const & _pubKey ) const;
 
-	std::list< common::CSeedBaseMedium *> getInternalMedium();
+	std::list< common::CMedium *> getInternalMedium();
 
-	std::list< common::CSeedBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const{ return std::list< common::CSeedBaseMedium *>(); }// not used  right now
+	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const{ return std::list< common::CMedium *>(); }// not used  right now
 private:
 	CSeedNodesManager();
 private:

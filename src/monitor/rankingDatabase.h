@@ -9,6 +9,8 @@
 
 #include "db.h"
 
+#include "common/struct.h"
+
 namespace monitor
 {
 

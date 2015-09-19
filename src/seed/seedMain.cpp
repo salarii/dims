@@ -18,6 +18,7 @@
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
 #include "common/timeMedium.h"
+#include "common/events.h"
 
 #include "seedNodesManager.h"
 #include "util.h"
@@ -411,7 +412,7 @@ void periodicCheck()
 			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
 			acceptNodeAction->process_event( common::CSwitchToConnectingEvent() );
 
-			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptNodeAction );
+			common::CActionHandler::getInstance()->executeAction( acceptNodeAction );
 		}
 
 		bool resultValid;
@@ -498,17 +499,17 @@ int main(int argc, char **argv) {
 		printf("done\n");
 	}
 
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CSeedTypes >::loop, common::CActionHandler< common::CSeedTypes >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler::loop, common::CActionHandler::getInstance() ) );
 
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CSeedBaseMedium >::workLoop, common::CTimeMedium< common::CSeedBaseMedium >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
 
-	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedTypes >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)CSeedNodesManager::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( seed::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CActionHandler< common::CSeedTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CSeedTypes >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)CSeedNodesManager::getInstance() );
 
 	if (fDNS) {
 		printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);

@@ -13,6 +13,7 @@
 #include "common/requests.h"
 #include "common/analyseTransaction.h"
 #include "common/authenticationProvider.h"
+#include "common/events.h"
 
 #include "tracker/clientRequestsManager.h"
 #include "tracker/getBalanceAction.h"

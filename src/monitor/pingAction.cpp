@@ -5,6 +5,8 @@
 #include "common/requests.h"
 #include "common/support.h"
 #include "common/actionHandler.h"
+#include "common/setResponseVisitor.h"
+#include "common/events.h"
 
 #include "monitor/pingAction.h"
 #include "monitor/filters.h"
@@ -44,12 +46,12 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						PingPeriod
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ping
 					, context< CPingAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -71,15 +73,15 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 			connectNode->process_event( common::CSwitchToConnectingEvent() );
 
-			common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( connectNode );
+			common::CActionHandler::getInstance()->executeAction( connectNode );
 		}
 		else
 		{
 			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Ping
 						, context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -117,10 +119,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Pong
 					, context< CPingAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -142,15 +144,15 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 			connectNode->process_event( common::CSwitchToConnectingEvent() );
 
-			common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( connectNode );
+			common::CActionHandler::getInstance()->executeAction( connectNode );
 		}
 		else
 		{
 			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest< common::CMonitorTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Pong
 						, context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -195,7 +197,7 @@ CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 }
 
 void
-CPingAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CPingAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

@@ -20,10 +20,10 @@
 namespace common
 {
 
-class CSetNodeConnectedResult : public CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList >
+class CSetNodeConnectedResult : public CResponseVisitorBase< monitor::CConnectNodeAction, common::DimsResponsesList >
 {
 public:
-	CSetNodeConnectedResult( monitor::CConnectNodeAction * const _action ):CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList >( _action ){};
+	CSetNodeConnectedResult( monitor::CConnectNodeAction * const _action ):CResponseVisitorBase< monitor::CConnectNodeAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
@@ -66,10 +66,10 @@ public:
 	}
 };
 
-class CSetUpdateDataResult : public CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList >
+class CSetUpdateDataResult : public CResponseVisitorBase< monitor::CUpdateDataAction, common::DimsResponsesList >
 {
 public:
-	CSetUpdateDataResult( monitor::CUpdateDataAction * const _action ):CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList >( _action ){};
+	CSetUpdateDataResult( monitor::CUpdateDataAction * const _action ):CResponseVisitorBase< monitor::CUpdateDataAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CMessageResult & _param ) const
 	{
@@ -84,10 +84,10 @@ public:
 	}
 };
 
-class CSetRecognizeNetworkResult : public CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList >
+class CSetRecognizeNetworkResult : public CResponseVisitorBase< monitor::CRecognizeNetworkAction, common::DimsResponsesList >
 {
 public:
-	CSetRecognizeNetworkResult( monitor::CRecognizeNetworkAction * const _action ):CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList >( _action ){};
+	CSetRecognizeNetworkResult( monitor::CRecognizeNetworkAction * const _action ):CResponseVisitorBase< monitor::CRecognizeNetworkAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::ScheduledResult & _param ) const
 	{
@@ -95,10 +95,10 @@ public:
 	}
 };
 
-class CSetPingResult : public CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList >
+class CSetPingResult : public CResponseVisitorBase< monitor::CPingAction, common::DimsResponsesList >
 {
 public:
-	CSetPingResult( monitor::CPingAction * const _action ):CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList >( _action ){};
+	CSetPingResult( monitor::CPingAction * const _action ):CResponseVisitorBase< monitor::CPingAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -113,10 +113,10 @@ public:
 	}
 };
 
-class CSetAdmitTrackerAction : public CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList >
+class CSetAdmitTrackerAction : public CResponseVisitorBase< monitor::CAdmitTrackerAction, common::DimsResponsesList >
 {
 public:
-	CSetAdmitTrackerAction( monitor::CAdmitTrackerAction * const _action ):CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList >( _action ){};
+	CSetAdmitTrackerAction( monitor::CAdmitTrackerAction * const _action ):CResponseVisitorBase< monitor::CAdmitTrackerAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -136,10 +136,10 @@ public:
 	}
 };
 
-class CSetTrackOriginAddressResult : public CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList >
+class CSetTrackOriginAddressResult : public CResponseVisitorBase< monitor::CTrackOriginAddressAction, common::DimsResponsesList >
 {
 public:
-	CSetTrackOriginAddressResult( monitor::CTrackOriginAddressAction * const _action ):CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList >( _action ){};
+	CSetTrackOriginAddressResult( monitor::CTrackOriginAddressAction * const _action ):CResponseVisitorBase< monitor::CTrackOriginAddressAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CRequestedMerkles & _param ) const
 	{
@@ -155,10 +155,10 @@ public:
 
 };
 
-class CSetProvideInfoActionResult : public CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList >
+class CSetProvideInfoActionResult : public CResponseVisitorBase< monitor::CProvideInfoAction, common::DimsResponsesList >
 {
 public:
-	CSetProvideInfoActionResult( monitor::CProvideInfoAction * const _action ):CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList >( _action ){};
+	CSetProvideInfoActionResult( monitor::CProvideInfoAction * const _action ):CResponseVisitorBase< monitor::CProvideInfoAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -179,10 +179,10 @@ public:
 	}
 };
 
-class CSetSynchronizationActionResult : public CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >
+class CSetSynchronizationActionResult : public CResponseVisitorBase< monitor::CSynchronizationAction, common::DimsResponsesList >
 {
 public:
-	CSetSynchronizationActionResult( monitor::CSynchronizationAction * const _action ):CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList >( _action ){};
+	CSetSynchronizationActionResult( monitor::CSynchronizationAction * const _action ):CResponseVisitorBase< monitor::CSynchronizationAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -203,10 +203,10 @@ public:
 	}
 };
 
-class CSetEnterNetworkActionResult : public CResponseVisitorBase< monitor::CEnterNetworkAction, monitor::MonitorResponseList >
+class CSetEnterNetworkActionResult : public CResponseVisitorBase< monitor::CEnterNetworkAction, common::DimsResponsesList >
 {
 public:
-	CSetEnterNetworkActionResult( monitor::CEnterNetworkAction * const _action ):CResponseVisitorBase< monitor::CEnterNetworkAction, monitor::MonitorResponseList >( _action ){};
+	CSetEnterNetworkActionResult( monitor::CEnterNetworkAction * const _action ):CResponseVisitorBase< monitor::CEnterNetworkAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -227,72 +227,67 @@ public:
 	}
 };
 
-CSetResponseVisitor< common::CMonitorTypes >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
-	: m_requestResponse( _requestResponse )
+void
+CSetResponseVisitor::visit( monitor::CConnectNodeAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CConnectNodeAction, common::DimsResponsesList > const &)CSetNodeConnectedResult( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CUpdateDataAction & _action )
+{
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CUpdateDataAction, common::DimsResponsesList > const &)CSetUpdateDataResult( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CAdmitTrackerAction & _action )
+{
+		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitTrackerAction, common::DimsResponsesList > const &)CSetAdmitTrackerAction( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CAdmitTransactionBundle & _action )
 {
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CConnectNodeAction & _action )
+CSetResponseVisitor::visit( monitor::CPingAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CConnectNodeAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< monitor::CPingAction, common::DimsResponsesList > const &)CSetPingResult( &_action ), m_responses );
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CUpdateDataAction & _action )
+CSetResponseVisitor::visit( monitor::CRecognizeNetworkAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CUpdateDataAction, monitor::MonitorResponseList > const &)CSetUpdateDataResult( &_action ), m_requestResponse );
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CRecognizeNetworkAction, common::DimsResponsesList > const & )CSetRecognizeNetworkResult( &_action ), m_responses );
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTrackerAction & _action )
+CSetResponseVisitor::visit( monitor::CTrackOriginAddressAction & _action )
 {
-		boost::apply_visitor( (CResponseVisitorBase< monitor::CAdmitTrackerAction, monitor::MonitorResponseList > const &)CSetAdmitTrackerAction( &_action ), m_requestResponse );
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CTrackOriginAddressAction, common::DimsResponsesList > const & )CSetTrackOriginAddressResult( &_action ), m_responses );
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CAdmitTransactionBundle & _action )
+CSetResponseVisitor::visit( monitor::CProvideInfoAction & _action )
 {
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CProvideInfoAction, common::DimsResponsesList > const & )CSetProvideInfoActionResult( &_action ), m_responses );
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CPingAction & _action )
-{
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CPingAction, monitor::MonitorResponseList > const &)CSetPingResult( &_action ), m_requestResponse );
-}
-
-void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CRecognizeNetworkAction & _action )
-{
-	boost::apply_visitor( ( CResponseVisitorBase< monitor::CRecognizeNetworkAction, monitor::MonitorResponseList > const & )CSetRecognizeNetworkResult( &_action ), m_requestResponse );
-}
-
-void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CTrackOriginAddressAction & _action )
-{
-	boost::apply_visitor( ( CResponseVisitorBase< monitor::CTrackOriginAddressAction, monitor::MonitorResponseList > const & )CSetTrackOriginAddressResult( &_action ), m_requestResponse );
-}
-
-void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CProvideInfoAction & _action )
-{
-	boost::apply_visitor( ( CResponseVisitorBase< monitor::CProvideInfoAction, monitor::MonitorResponseList > const & )CSetProvideInfoActionResult( &_action ), m_requestResponse );
-}
-
-void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CCopyTransactionStorageAction & _action )
+CSetResponseVisitor::visit( monitor::CCopyTransactionStorageAction & _action )
 {}
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CSynchronizationAction & _action )
+CSetResponseVisitor::visit( monitor::CSynchronizationAction & _action )
 {
-	boost::apply_visitor( ( CResponseVisitorBase< monitor::CSynchronizationAction, monitor::MonitorResponseList > const & )CSetSynchronizationActionResult( &_action ), m_requestResponse );
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CSynchronizationAction, common::DimsResponsesList > const & )CSetSynchronizationActionResult( &_action ), m_responses );
 }
 
 void
-CSetResponseVisitor< common::CMonitorTypes >::visit( monitor::CEnterNetworkAction & _action )
+CSetResponseVisitor::visit( monitor::CEnterNetworkAction & _action )
 {
-	boost::apply_visitor( ( CResponseVisitorBase< monitor::CEnterNetworkAction, monitor::MonitorResponseList > const & )CSetEnterNetworkActionResult( &_action ), m_requestResponse );
+	boost::apply_visitor( ( CResponseVisitorBase< monitor::CEnterNetworkAction, common::DimsResponsesList > const & )CSetEnterNetworkActionResult( &_action ), m_responses );
 }
 
 }

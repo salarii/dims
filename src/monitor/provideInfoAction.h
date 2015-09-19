@@ -8,8 +8,6 @@
 #include "common/scheduleAbleAction.h"
 #include "common/filters.h"
 
-#include "configureMonitorActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 #include "protocol.h"
@@ -25,12 +23,12 @@ namespace monitor
 struct CProvideInfo;
 // rework  this  sooner  or later
 
-class CProvideInfoAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >
+class CProvideInfoAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >
 {
 public:
 	CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	uintptr_t getNodeIndicator() const;
 

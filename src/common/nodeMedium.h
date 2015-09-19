@@ -7,6 +7,7 @@
 
 #include <boost/variant.hpp>
 
+#include "common/medium.h"
 #include "common/selfNode.h"
 #include "common/requests.h"
 

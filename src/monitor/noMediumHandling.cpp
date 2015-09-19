@@ -7,14 +7,14 @@
 namespace monitor
 {
 
-class CErrorMedium : public common::CMonitorBaseMedium
+class CErrorMedium : public common::CMedium
 {
 public:
 	virtual bool serviced() const;
 
 	virtual bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest< common::CMonitorTypes >const*, MonitorResponses > & _requestResponse );
+	virtual bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );
 
 	virtual void add( CInfoRequest const * _request );
 
@@ -24,7 +24,7 @@ private:
 	void clearResponses();
 private:
 
-	std::multimap< common::CRequest< common::CMonitorTypes >const*, MonitorResponses > m_responses;
+	std::multimap< common::CRequest const*, common::DimsResponse > m_responses;
 
 	static CErrorMedium * ms_instance;
 };
@@ -50,7 +50,7 @@ CErrorMedium::CErrorMedium()
 void
 CErrorMedium::add( CInfoRequest const *_request )
 {
-	m_responses.insert( std::make_pair( (common::CRequest< common::CMonitorTypes >*)_request, common::CNoMedium() ) );
+	m_responses.insert( std::make_pair( (common::CRequest*)_request, common::CNoMedium() ) );
 }
 
 bool
@@ -61,7 +61,7 @@ CErrorMedium::serviced() const
 
 
 bool
-CErrorMedium::getResponseAndClear( std::multimap< common::CRequest< common::CMonitorTypes >const*,  MonitorResponses > & _requestResponse )
+CErrorMedium::getResponseAndClear( std::multimap< common::CRequest const*,  common::DimsResponse > & _requestResponse )
 {
 	_requestResponse = m_responses;
 	clearResponses();
@@ -91,8 +91,8 @@ CErrorMediumProvider::CErrorMediumProvider()
 	m_mediums.push_back( CErrorMedium::getInstance() );
 }
 
-std::list< common::CMonitorBaseMedium *>
-CErrorMediumProvider::provideConnection( common::CMonitorMediumFilter const & _filter )
+std::list< common::CMedium *>
+CErrorMediumProvider::provideConnection( common::CMediumFilter const & _filter )
 {
 	return m_mediums;
 }

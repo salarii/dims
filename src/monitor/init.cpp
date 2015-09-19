@@ -662,9 +662,9 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	threadGroup.create_thread( boost::bind( &common::CSegmentFileStorage::flushLoop, common::CSegmentFileStorage::getInstance() ) );
 
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< common::CMonitorTypes >::loop, common::CActionHandler< common::CMonitorTypes >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler::loop, common::CActionHandler::getInstance() ) );
 
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium< common::CMonitorBaseMedium >::workLoop, common::CTimeMedium< common::CMonitorBaseMedium >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
 
 	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
 
@@ -674,20 +674,20 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	threadGroup.create_thread( boost::bind( &CChargeRegister::loop, CChargeRegister::getInstance() ) );
 
-	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)monitor::CInternalMediumProvider::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)monitor::CInternalMediumProvider::getInstance() );
 
-	common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)monitor::CReputationTracker::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)monitor::CReputationTracker::getInstance() );
 
-		common::CActionHandler< common::CMonitorTypes >::getInstance()->addConnectionProvider( (common::CConnectionProvider< common::CMonitorTypes >*)CErrorMediumProvider::getInstance() );
+		common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)CErrorMediumProvider::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CPeriodicActionExecutor< common::CMonitorTypes > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< common::CMonitorTypes >::getInstance();
+	common::CPeriodicActionExecutor * periodicActionExecutor
+			= common::CPeriodicActionExecutor::getInstance();
 
-	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< common::CMonitorTypes >::processingLoop, periodicActionExecutor ));
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor::processingLoop, periodicActionExecutor ));
 
 	monitor::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
 

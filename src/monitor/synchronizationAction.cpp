@@ -72,12 +72,12 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 	CSynchronizedUninitialized( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						SynchronisingWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CAckRequest< common::CMonitorTypes >(
+					new common::CAckRequest(
 						context< CSynchronizationAction >().getActionKey()
 						, context< CSynchronizationAction >().getRequestKey()
 						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
@@ -103,7 +103,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 				context< CSynchronizationAction >().setRequestKey( _messageResult.m_message.m_header.m_id );
 
 				context< CSynchronizationAction >().addRequest(
-							new common::CAckRequest< common::CMonitorTypes >(
+							new common::CAckRequest(
 								context< CSynchronizationAction >().getActionKey()
 								, _messageResult.m_message.m_header.m_id
 								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
@@ -115,7 +115,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 			else if ( infoRequest.m_kind == common::CInfoKind::BitcoinHeaderAsk )
 			{
 				context< CSynchronizationAction >().addRequest(
-							new common::CAckRequest< common::CMonitorTypes >(
+							new common::CAckRequest(
 								context< CSynchronizationAction >().getActionKey()
 								, _messageResult.m_message.m_header.m_id
 								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
@@ -124,8 +124,8 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 				CBlockHeader header;
 				file >> header;
 
-				common::CSendMessageRequest< common::CMonitorTypes > * request =
-						new common::CSendMessageRequest< common::CMonitorTypes >(
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationBitcoinHeader
 							, context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
@@ -157,7 +157,7 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 	CSynchronizedProvideCopy( my_context ctx ) : my_base( ctx ), m_copyRequestDone( false )
 	{
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						 100
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -172,8 +172,8 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 		{
 			if ( CCopyStorageHandler::getInstance()->copyCreated() )
 			{
-				common::CSendMessageRequest< common::CMonitorTypes > * request =
-						new common::CSendMessageRequest< common::CMonitorTypes >(
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationInfo
 							, context< CSynchronizationAction >().getActionKey()
 							, context< CSynchronizationAction >().getRequestKey()
@@ -190,7 +190,7 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 		}
 
 		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						SynchronisingWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -229,8 +229,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 		common::CSynchronizationBlock synchronizationBlock( m_diskBlock, _blockNumber );
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationBlock,
 					context< CSynchronizationAction >().getActionKey()
 					, m_id
@@ -250,8 +250,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationHeader,
 					context< CSynchronizationAction >().getActionKey()
 					, m_id
@@ -277,7 +277,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 			common::convertPayload( orginalMessage, synchronizationGet );
 
 			context< CSynchronizationAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							context< CSynchronizationAction >().getActionKey()
 							, m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
@@ -328,7 +328,7 @@ CSynchronizationAction::CSynchronizationAction( uintptr_t _nodeIndicator )
 }
 
 CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator )
-	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
+	: common::CScheduleAbleAction( _actionKey )
 	, m_requestKey( _id )
 	, m_nodeIdentifier( _nodeIndicator )
 {
@@ -336,7 +336,7 @@ CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 con
 }
 
 void
-CSynchronizationAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CSynchronizationAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

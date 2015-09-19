@@ -14,14 +14,14 @@ namespace monitor
 {
 struct CUninitialised;
 
-class CPingAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CPingAction, CUninitialised >
+class CPingAction : public common::CAction, public  boost::statechart::state_machine< CPingAction, CUninitialised >
 {
 public:
 	CPingAction( uintptr_t _nodeIndicator );
 
 	CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	uintptr_t getNodeIndicator() const;
 

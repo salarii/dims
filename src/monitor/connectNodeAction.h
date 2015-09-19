@@ -8,8 +8,6 @@
 #include "common/scheduleAbleAction.h"
 #include "common/filters.h"
 
-#include "configureMonitorActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 #include "protocol.h"
@@ -24,14 +22,14 @@ namespace monitor
 
 struct CMonitorConnectNodeActionUninitiated;
 
-class CConnectNodeAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >
+class CConnectNodeAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CConnectNodeAction, CMonitorConnectNodeActionUninitiated >
 {
 public:
 	CConnectNodeAction( CAddress const & _addrConnect );
 
 	CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	CAddress getServiceAddress() const;
 

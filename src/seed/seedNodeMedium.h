@@ -7,15 +7,13 @@
 
 #include "common/nodeMedium.h"
 
-#include "configureSeedActionHandler.h"
-
 namespace seed
 {
 
-class CSeedNodeMedium : public common::CNodeMedium< common::CSeedBaseMedium >
+class CSeedNodeMedium : public common::CNodeMedium
 {
 public:
-	CSeedNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< common::CSeedBaseMedium >( _selfNode ){};
+	CSeedNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 private:
 };
 

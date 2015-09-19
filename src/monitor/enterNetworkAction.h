@@ -14,12 +14,12 @@ namespace monitor
 
 struct CEnterNetworkInitial;
 
-class CEnterNetworkAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CEnterNetworkAction, CEnterNetworkInitial >
+class CEnterNetworkAction : public common::CAction, public  boost::statechart::state_machine< CEnterNetworkAction, CEnterNetworkInitial >
 {
 public:
 	CEnterNetworkAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	uintptr_t getNodePtr() const { return m_nodePtr; }
 private:

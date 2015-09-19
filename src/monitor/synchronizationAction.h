@@ -9,8 +9,6 @@
 
 #include <boost/statechart/state_machine.hpp>
 
-#include "monitor/configureMonitorActionHandler.h"
-
 namespace monitor
 {
 
@@ -20,14 +18,14 @@ struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
 {
 };
 
-class CSynchronizationAction : public common::CScheduleAbleAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
+class CSynchronizationAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
 {
 public:
 	CSynchronizationAction( uintptr_t _nodeIndicator );
 
 	CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	void clear();
 

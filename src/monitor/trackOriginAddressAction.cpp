@@ -37,7 +37,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
 	{
 		context< CTrackOriginAddressAction >().forgetRequests();
-		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -52,7 +52,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 		else
 		{
 			context< CTrackOriginAddressAction >().forgetRequests();
-			context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
 
 		return discard_event();
@@ -66,7 +66,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 {
 	CReadingData( my_context ctx ) : my_base( ctx )
 	{
-		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -94,7 +94,7 @@ struct CEvaluateProgress : boost::statechart::state< CEvaluateProgress, CTrackOr
 		context< CTrackOriginAddressAction >().adjustTracking();
 
 		context< CTrackOriginAddressAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >( ( unsigned int )1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( ( unsigned int )1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -133,7 +133,7 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 }
 
 void
-CTrackOriginAddressAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CTrackOriginAddressAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -175,7 +175,7 @@ CTrackOriginAddressAction::requestFiltered()
 		CMonitorController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
 	forgetRequests();
-	addRequest( new common::CAskForTransactionsRequest< common::CMonitorTypes >(
+	addRequest( new common::CAskForTransactionsRequest(
 					  requestedBlocks
 					, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes
 											  , common::dimsParams().getUsedBitcoinNodesNumber() ) ) );

@@ -33,15 +33,15 @@ struct CMonitorPairIdentifiedConnecting;
 struct CMonitorDetermineRoleConnecting;
 struct CMonitorDetermineRoleConnected;
 
-common::CRequest< common::CMonitorTypes > *
-createIdentifyResponse( 	std::vector<unsigned char> const &_payload, uint256 const & _actionKey,common::CMonitorMediumFilter* _medium )
+common::CRequest *
+createIdentifyResponse( 	std::vector<unsigned char> const &_payload, uint256 const & _actionKey,common::CMediumFilter* _medium )
 {
 	uint256 hash = Hash( &_payload.front(), &_payload.back() );
 
 	std::vector< unsigned char > signedHash;
 	common::CAuthenticationProvider::getInstance()->sign( hash, signedHash );
 
-	return new common::CSendIdentifyDataRequest< common::CMonitorTypes >( signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), _payload, _actionKey, _medium );
+	return new common::CSendIdentifyDataRequest( signedHash, common::CAuthenticationProvider::getInstance()->getMyKey(), _payload, _actionKey, _medium );
 }
 
 struct CMonitorConnectNodeActionUninitiated : boost::statechart::simple_state< CMonitorConnectNodeActionUninitiated, CConnectNodeAction >
@@ -79,7 +79,7 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CConnectNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
-		CReputationTracker::getInstance()->addNode( new common::CNodeMedium< common::CMonitorBaseMedium >( connectedEvent->m_node ) );
+		CReputationTracker::getInstance()->addNode( new common::CNodeMedium( connectedEvent->m_node ) );
 		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					createIdentifyResponse(
@@ -114,7 +114,7 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 			context< CConnectNodeAction >().forgetRequests();
 
 			context< CConnectNodeAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
@@ -140,7 +140,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 
 		context< CConnectNodeAction >().addRequest(
-					new common::CInfoAskRequest< common::CMonitorTypes >(
+					new common::CInfoAskRequest(
 						  common::CInfoKind::RoleInfoAsk
 						, context< CConnectNodeAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
@@ -161,8 +161,8 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::RoleInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -181,7 +181,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 
 			context< CConnectNodeAction >().forgetRequests();
 			context< CConnectNodeAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
@@ -234,7 +234,7 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 			context< CConnectNodeAction >().forgetRequests();
 
 			context< CConnectNodeAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
@@ -283,8 +283,8 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::RoleInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -303,7 +303,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 
 			context< CConnectNodeAction >().forgetRequests();
 			context< CConnectNodeAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
@@ -334,7 +334,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 		context< CConnectNodeAction >().forgetRequests();
 
 		context< CConnectNodeAction >().addRequest(
-					new common::CInfoAskRequest< common::CMonitorTypes >(
+					new common::CInfoAskRequest(
 						common::CInfoKind::RoleInfoAsk
 						, context< CConnectNodeAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
@@ -376,7 +376,7 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 	CMonitorConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p connected to seed \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CConnectNodeAction >().addRequest( new common::CTimeEventRequest( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -405,8 +405,8 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::NetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -456,13 +456,13 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
-					  new common::CInfoAskRequest< common::CMonitorTypes >(
+					  new common::CInfoAskRequest(
 						  common::CInfoKind::NetworkInfoAsk
 						, context< CConnectNodeAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		context< CConnectNodeAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -485,8 +485,8 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::NetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -505,7 +505,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 			common::convertPayload( orginalMessage, knownNetworkInfo );
 
 			context< CConnectNodeAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
@@ -524,7 +524,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 		if ( m_infoReceive && m_infoSend )
 		{
 			context< CConnectNodeAction >().addRequest(
-						new common::CTimeEventRequest< common::CMonitorTypes >(
+						new common::CTimeEventRequest(
 							  1000
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
@@ -555,7 +555,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 
 CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
-	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
+	: common::CScheduleAbleAction( _actionKey )
 	, m_passive( true )
 	, m_nodePtr( _nodePtr )
 {
@@ -576,7 +576,7 @@ CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
 }
 
 void
-CConnectNodeAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CConnectNodeAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

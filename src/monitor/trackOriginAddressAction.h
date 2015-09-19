@@ -6,7 +6,6 @@
 #define TRACK_ORIGIN_ADDRESS_ACTION_H
 
 #include "common/action.h"
-#include "configureMonitorActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include "main.h"
 
@@ -15,12 +14,12 @@ namespace monitor
 {
 struct CUninitiatedTrackAction;
 
-class CTrackOriginAddressAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
+class CTrackOriginAddressAction : public common::CAction, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
 {
 public:
 	CTrackOriginAddressAction();
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	void requestFiltered();
 

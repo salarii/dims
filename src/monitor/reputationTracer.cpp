@@ -2,24 +2,22 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "reputationTracer.h"
-
 #include <math.h>
 #include "util.h"
 
 #include <boost/foreach.hpp>
 
 #include "common/actionHandler.h"
+#include "common/authenticationProvider.h"
 
 #include "monitor/rankingDatabase.h"
 #include "monitor/monitorController.h"
 #include "monitor/admitTrackerAction.h"
+#include "monitor/reputationTracer.h"
 
 namespace common
 {
 std::vector< uint256 > deleteList;
-
-template<> CNodesManager< common::CMonitorTypes > * common::CNodesManager< common::CMonitorTypes >::ms_instance = 0;
 }
 
 namespace monitor
@@ -127,7 +125,7 @@ CReputationTracker::loop()
 					if ( isExtendInProgress( tracker.second.m_publicKey ) )
 					{
 						setExtendInProgress( tracker.second.m_publicKey );
-						common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CAdmitTrackerAction(nodeIndicator) );
+						common::CActionHandler::getInstance()->executeAction( new CAdmitTrackerAction(nodeIndicator) );
 					}
 				}
 
@@ -192,10 +190,10 @@ CReputationTracker::getAllyTrackers() const
 	return std::vector< common::CAllyTrackerData >();
 }
 
-std::list< common::CMonitorBaseMedium *>
+std::list< common::CMedium *>
 CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {
-	std::list< common::CMonitorBaseMedium *> mediums;
+	std::list< common::CMedium *> mediums;
 
 	uintptr_t nodeIndicator;
 	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
@@ -206,7 +204,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 				if ( !getKeyToNode( trackerData.second.m_publicKey, nodeIndicator) )
 					assert( !"something wrong" );
 
-				common::CMonitorBaseMedium * medium = findNodeMedium( nodeIndicator );
+				common::CMedium * medium = findNodeMedium( nodeIndicator );
 
 				if ( !medium )
 					assert( !"something wrong" );
@@ -220,7 +218,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 				if ( !getKeyToNode( monitorData.second.m_key, nodeIndicator) )
 					assert( !"something wrong" );
 
-				common::CMonitorBaseMedium * medium = findNodeMedium( nodeIndicator );
+				common::CMedium * medium = findNodeMedium( nodeIndicator );
 
 				if ( !medium )
 					assert( !"something wrong" );
@@ -270,7 +268,7 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	boost::lock_guard<boost::mutex> lock( m_lock );
 
-	common::CNodesManager< common::CMonitorTypes >::eraseMedium( _nodePtr );
+	common::CNodesManager::eraseMedium( _nodePtr );
 
 	CPubKey pubKey;
 

@@ -2,16 +2,15 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
 #ifndef PERIODIC_ACTION_EXECUTOR_H
 #define PERIODIC_ACTION_EXECUTOR_H
 
-#include "common/action.h"
-#include "common/actionHandler.h"
 #include "util.h"
 
 namespace common
 {
+
+class CAction;
 
 class CDefferedAction
 {

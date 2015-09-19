@@ -4,6 +4,8 @@
 
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
+#include "common/networkActionRegister.h"
+#include "common/events.h"
 
 #include "tracker/processNetwork.h"
 #include "tracker/trackerNodesManager.h"

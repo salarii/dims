@@ -11,14 +11,14 @@ namespace monitor
 {
 
 CConnectToNodeRequest::CConnectToNodeRequest( std::string const & _address, CAddress const & _serviceAddress )
-	: common::CRequest< common::CMonitorTypes >( new CMediumClassFilter( common::CMediumKinds::Internal ) )
+	: common::CRequest( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_address( _address )
 	, m_serviceAddress( _serviceAddress )
 {
 }
 
 void
-CConnectToNodeRequest::accept( common::CMonitorBaseMedium * _medium ) const
+CConnectToNodeRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
@@ -35,8 +35,8 @@ CConnectToNodeRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-CRegistrationTerms::CRegistrationTerms( unsigned int _price, int64_t const & _period, uint256 const & _actionKey, uint256 const & _id, common::CMonitorMediumFilter * _mediumFilter )
-	: common::CRequest< common::CMonitorTypes >( _id, _mediumFilter )
+CRegistrationTerms::CRegistrationTerms( unsigned int _price, int64_t const & _period, uint256 const & _actionKey, uint256 const & _id, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _id, _mediumFilter )
 	, m_actionKey( _actionKey )
 	, m_price( _price )
 	, m_period( _period )
@@ -44,19 +44,19 @@ CRegistrationTerms::CRegistrationTerms( unsigned int _price, int64_t const & _pe
 }
 
 void
-CRegistrationTerms::accept( common::CMonitorBaseMedium * _medium ) const
+CRegistrationTerms::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }
 
-CInfoRequest::CInfoRequest( uint256 const & _actionKey, common::CMonitorMediumFilter * _mediumFilter )
-	: common::CRequest< common::CMonitorTypes >( _mediumFilter )
+CInfoRequest::CInfoRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
 	, m_actionKey( _actionKey )
 {
 }
 
 void
-CInfoRequest::accept( common::CMonitorBaseMedium * _medium ) const
+CInfoRequest::accept( common::CMedium * _medium ) const
 {
 	_medium->add( this );
 }

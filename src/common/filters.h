@@ -10,9 +10,6 @@
 
 #include "boost/foreach.hpp"
 
-#include "monitor/configureMonitorActionHandler.h"
-#include "seed/configureSeedActionHandler.h"
-
 namespace tracker
 {
 

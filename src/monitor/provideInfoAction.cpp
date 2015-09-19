@@ -47,7 +47,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		context< CProvideInfoAction >().forgetRequests();
 
 		context< CProvideInfoAction >().addRequest(
-					new common::CAckRequest< common::CMonitorTypes >(
+					new common::CAckRequest(
 						  context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) ) );
@@ -72,7 +72,7 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 	CIsRegisteredInfo( my_context ctx ) : my_base( ctx )
 	{
 		context< CProvideInfoAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 /* get  motherfucker
@@ -87,8 +87,8 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 		CPubKey monitorPubKey;
 		CReputationTracker::getInstance()->checkForTracker( pubKey, trackerData, monitorPubKey );
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::ValidRegistration
 					, context< CProvideInfoAction >().getActionKey()
 					, context< CProvideInfoAction >().getInfoRequestKey()
@@ -131,7 +131,7 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 };
 
 CProvideInfoAction::CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator )
-	: common::CScheduleAbleAction< common::CMonitorTypes >( _actionKey )
+	: common::CScheduleAbleAction( _actionKey )
 	, m_infoRequestKey( _id )
 	, m_nodeIndicator( _nodeIndicator )
 {
@@ -139,7 +139,7 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _id, uint256 const & _ac
 }
 
 void
-CProvideInfoAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CProvideInfoAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

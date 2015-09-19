@@ -37,7 +37,6 @@ MONITOR_H = \
 	updateDataAction.h
 
 MONITOR_CPP = \
-	actionHandlerDefinitions.cpp \
 	admitTrackerAction.cpp \
 	admitTransactionsBundle.cpp \
 	chargeRegister.cpp \

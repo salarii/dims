@@ -8,8 +8,6 @@
 #include "common/action.h"
 #include "common/filters.h"
 
-#include "configureMonitorActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 namespace monitor
@@ -17,12 +15,12 @@ namespace monitor
 
 struct CGetDnsInfo;
 
-class CRecognizeNetworkAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CRecognizeNetworkAction, CGetDnsInfo >
+class CRecognizeNetworkAction : public common::CAction, public  boost::statechart::state_machine< CRecognizeNetworkAction, CGetDnsInfo >
 {
 public:
 	CRecognizeNetworkAction();
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 private:
 };
 

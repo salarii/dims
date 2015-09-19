@@ -6,10 +6,8 @@
 #define ACTION_H
 
 #include <vector>
-#include <boost/foreach.hpp>
 
-#include "common/support.h"
-#include "common/networkActionRegister.h"
+#include "uint256.h"
 
 namespace common
 {
@@ -21,72 +19,42 @@ class CRequest;
 class CAction
 {
 public:
-	CAction( bool _autoDelete = true ): m_inProgress( false ), m_executed( false ), m_autoDelete( _autoDelete ), m_exit( false )
-	{
-		m_actionKey = getRandNumber();
+	CAction( bool _autoDelete = true );
 
-		CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );// this  shouldn't be  here in reality
-	};
-
-	CAction( uint256 const & _actionKey, bool _autoDelete = true ): m_inProgress( false ), m_executed( false ), m_autoDelete( _autoDelete ), m_exit( false )
-	{
-		m_actionKey = _actionKey;
-
-		CNetworkActionRegister::getInstance()->registerServicedByAction( m_actionKey );// this  shouldn't be  here in reality
-	};
+	CAction( uint256 const & _actionKey, bool _autoDelete = true );
 
 	virtual void accept( CSetResponseVisitor & _visitor ) = 0;
 
-	virtual std::vector< CRequest * > getRequests() const{ return m_requests; }
+	virtual std::vector< CRequest * > getRequests() const;
 
-	// following two are  ugly
-	virtual void addRequest( CRequest * _request ){ m_requests.push_back( _request ); }
+	virtual void addRequest( CRequest * _request );
 
 	uint256
-	getActionKey() const
-	{
-		return m_actionKey;
-	}
+	getActionKey() const;
 
-	virtual void forgetRequests()
-	{
-		m_droppedRequests.insert( m_droppedRequests.end(), m_requests.begin(), m_requests.end() );
-		m_requests.clear();
-	}
-	std::vector< CRequest * > const & getDroppedRequests() const
-	{
-		return m_droppedRequests;
-	}
-	void setInProgress(){ m_inProgress = true; }
+	virtual void forgetRequests();
 
-	bool isInProgress()const{ return m_inProgress; }
+	std::vector< CRequest * > const & getDroppedRequests() const;
 
-	bool isExecuted()const{ return m_executed; }
+	void setInProgress();
 
-	void setExecuted(){ m_executed = true; }
+	bool isInProgress() const;
 
-	bool autoDelete(){ return m_autoDelete; }
+	bool isExecuted() const;
 
-	virtual void reset(){ m_executed = false; m_inProgress = false; m_exit =false; }
+	void setExecuted();
 
-	void setExit(){ m_exit = true; }
+	bool autoDelete();
 
-	bool needToExit()const{ return m_exit; }
+	virtual void reset();
 
-	bool requestToProcess()const
-	{
-		return !( m_requests.empty() && m_droppedRequests.empty() );
-	}
+	void setExit();
 
-	virtual ~CAction()
-	{
-		BOOST_FOREACH( CRequest *request, m_droppedRequests )
-		{
-			delete request;
-		}
+	bool needToExit() const;
 
-		CNetworkActionRegister::getInstance()->unregisterServicedByAction( m_actionKey );
-	};
+	bool requestToProcess() const;
+
+	virtual ~CAction();
 protected:
 	bool m_inProgress;
 

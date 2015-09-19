@@ -5,13 +5,14 @@
 #ifndef REQUESTS_H
 #define REQUESTS_H
 
+#include "uint256.h"
+#include "key.h"
+#include "protocol.h"
+
 #include "common/request.h"
-#include "common/medium.h"
-#include "common/filters.h"
-
-#include "net.h"
-#include "util.h"
-
+#include "common/communicationProtocol.h"
+#include "common/nodeMessages.h"
+#include "common/support.h"
 
 // rename to  common requests??
 namespace common

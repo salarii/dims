@@ -61,9 +61,11 @@ COMMON_H = \
   
 COMMON_CPP = \
   common/accessFile.cpp \
+  common/action.cpp \
   common/actionHandler.cpp \
   common/analyseTransaction.cpp \
   common/authenticationProvider.cpp \
+  common/bitcoinNodeMedium.cpp \
   common/blockInfoDatabase.cpp \
   common/commandLine.cpp \
   common/communicationProtocol.cpp \
@@ -77,8 +79,9 @@ COMMON_CPP = \
   common/nodesManager.cpp \
   common/originAddressScanner.cpp \
   common/originTransactionsDatabase.cpp \
-  common/requestHandler.cpp \
   common/periodicActionExecutor.cpp \
+  common/requestHandler.cpp \
+  common/request.cpp \
   common/scheduledActionManager.cpp \
   common/segmentFileStorage.cpp \
   common/selfNode.cpp \

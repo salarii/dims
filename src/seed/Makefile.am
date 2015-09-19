@@ -18,7 +18,6 @@ SEED_H = \
 	
 SEED_CPP = \
 	acceptNodeAction.cpp \
-	actionHandlerDefinitions.cpp \
 	internalMedium.cpp \
 	pingAction.cpp \
 	processNetwork.cpp \

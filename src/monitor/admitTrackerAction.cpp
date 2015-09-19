@@ -12,6 +12,7 @@
 #include "common/setResponseVisitor.h"
 #include "common/analyseTransaction.h"
 #include "common/requests.h"
+#include "common/events.h"
 
 #include "monitor/admitTrackerAction.h"
 #include "monitor/monitorController.h"
@@ -51,8 +52,8 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 	{
 		LogPrintf("admit tracker action: %p extend registration \n", &context< CAdmitTrackerAction >() );
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::ExtendRegistration
 					, context< CAdmitTrackerAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
@@ -77,8 +78,8 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 		{
 			context< CAdmitTrackerAction >().forgetRequests();
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Ack
 						, context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -119,7 +120,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 	{
 		LogPrintf("admit tracker action: %p wait for info \n", &context< CAdmitTrackerAction >() );
 		context< CAdmitTrackerAction >().forgetRequests();
-		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 	}
 
@@ -134,7 +135,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		context< CAdmitTrackerAction >().forgetRequests();
 
 		context< CAdmitTrackerAction >().addRequest(
-					new common::CAckRequest< common::CMonitorTypes >(
+					new common::CAckRequest(
 						context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
@@ -184,7 +185,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
 
 		context< CAdmitTrackerAction >().forgetRequests();
-		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -200,13 +201,13 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 		CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
 		context< CAdmitTrackerAction >().addRequest(
-					new common::CAckRequest< common::CMonitorTypes >(
+					new common::CAckRequest(
 						context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Result
 					, context< CAdmitTrackerAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
@@ -246,7 +247,7 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 	{
 		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -260,13 +261,13 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 		if ( _messageResult.m_message.m_header.m_payloadKind== common::CPayloadKind::AdmitAsk )
 		{
 			context< CAdmitTrackerAction >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							context< CAdmitTrackerAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
 						, context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
@@ -326,8 +327,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
 					, context< CAdmitTrackerAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
@@ -339,7 +340,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						m_checkPeriod
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -357,8 +358,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
 
-			common::CSendMessageRequest< common::CMonitorTypes > * request =
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
 						, context< CAdmitTrackerAction >().getActionKey()
 						, m_messageId
@@ -392,7 +393,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 			context< CAdmitTrackerAction >().forgetRequests();
 
 			context< CAdmitTrackerAction >().addRequest(
-						new common::CTimeEventRequest< common::CMonitorTypes >(
+						new common::CTimeEventRequest(
 							m_checkPeriod
 							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -435,7 +436,7 @@ CAdmitTrackerAction::CAdmitTrackerAction( uintptr_t _nodePtr )
 }
 
 CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
-	: common::CAction< common::CMonitorTypes >( _actionKey )
+	: common::CAction( _actionKey )
 	, m_nodePtr( _nodePtr )
 {
 	initiate();
@@ -443,7 +444,7 @@ CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t 
 }
 
 void
-CAdmitTrackerAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CAdmitTrackerAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

@@ -15,6 +15,7 @@
 #include "common/actionHandler.h"
 #include "common/manageNetwork.h"
 #include "common/periodicActionExecutor.h"
+#include "common/events.h"
 
 #include "monitor/filters.h"
 #include "monitor/connectNodeAction.h"
@@ -59,7 +60,7 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 {
 	CSynchronizeWithBitcoin( my_context ctx ) : my_base( ctx )
 	{
-		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CTrackOriginAddressAction() );
+		common::CActionHandler::getInstance()->executeAction( new CTrackOriginAddressAction() );
 	}
 
 	boost::statechart::result
@@ -124,7 +125,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 	CMonitorStandAlone( my_context ctx ) : my_base( ctx )
 	{
 		context< CMonitorController >().setStatusMessage( "detecting existing network" );
-		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( new CRecognizeNetworkAction() );
+		common::CActionHandler::getInstance()->executeAction( new CRecognizeNetworkAction() );
 	}
 
 	boost::statechart::result
@@ -168,7 +169,7 @@ struct CMonitorSynchronizing : boost::statechart::state< CMonitorSynchronizing, 
 	{
 	/*	CSynchronizationAction * synchronizationAction = new CSynchronizationAction();
 
-		common::CActionHandler< common::CMonitorTypes >::getInstance()->executeAction( synchronizationAction );
+		common::CActionHandler::getInstance()->executeAction( synchronizationAction );
 		synchronizationAction->process_event( CSwitchToSynchronizing() );
 */
 	}

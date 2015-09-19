@@ -152,7 +152,7 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 
 	switch ( _requestKind )
 	{
-	case common::RequestKind::Unknown:
+	case ClientMediums::Unknown:
 		if ( m_unidentifiedNodes.begin() != m_unidentifiedNodes.end() )
 		{
 			BOOST_FOREACH( Unidentified const & stats, m_unidentifiedNodes )
@@ -161,7 +161,7 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 			}
 		}
 		break;
-	case common::RequestKind::UndeterminedTrackers:
+	case ClientMediums::UndeterminedTrackers:
 		if ( m_undeterminedTrackers.begin() != m_undeterminedTrackers.end() )
 		{
 			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & stats, m_undeterminedTrackers )
@@ -170,7 +170,7 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 			}
 		}
 	break;
-	case common::RequestKind::Monitors:
+	case ClientMediums::Monitors:
 		if ( m_monitors.begin() != m_monitors.end() )
 		{
 			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & stats, m_monitors )
@@ -179,7 +179,7 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 			}
 		}
 	break;
-	case common::RequestKind::Transaction:
+	case ClientMediums::Trackers:
 		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
 		{
 			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
@@ -187,7 +187,7 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 				mediums.push_back( getNetworkConnection( stats) );
 			}
 		}
-		break;
+/*		break;
 	case common::RequestKind::TransactionStatus:
 	case common::RequestKind::Balance:
 		if ( m_reputationRanking.begin() != m_reputationRanking.end() )
@@ -196,8 +196,7 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 			{
 				mediums.push_back( getNetworkConnection( stats ) );
 			}
-		}
-		break;
+		}*/
 		break;
 	default:
 		;

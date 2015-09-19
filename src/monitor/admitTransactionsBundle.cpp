@@ -26,7 +26,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 	CWaitForBundle( my_context ctx ) : my_base( ctx )
 	{
 		context< CAdmitTransactionBundle >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						InvestigationStartTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -40,7 +40,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Transactions )
 		{
 			context< CAdmitTransactionBundle >().addRequest(
-						new common::CAckRequest< common::CMonitorTypes >(
+						new common::CAckRequest(
 							context< CAdmitTransactionBundle >().getActionKey()
 							, orginalMessage.m_header.m_id
 							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
@@ -84,13 +84,13 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 };
 
 CAdmitTransactionBundle::CAdmitTransactionBundle( uint256 const & _actionKey )
-	: common::CAction< common::CMonitorTypes >( _actionKey )
+	: common::CAction( _actionKey )
 {
 	initiate();
 }
 
 void
-CAdmitTransactionBundle::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CAdmitTransactionBundle::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

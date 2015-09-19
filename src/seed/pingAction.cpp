@@ -4,6 +4,8 @@
 
 #include "common/requests.h"
 #include "common/support.h"
+#include "common/events.h"
+#include "common/setResponseVisitor.h"
 
 #include "seed/pingAction.h"
 #include "seed/seedFilter.h"
@@ -43,10 +45,10 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest< common::CSeedTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest< common::CSeedTypes > * request =
-				new common::CSendMessageRequest< common::CSeedTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ping
 					, context< CPingAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -70,15 +72,15 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 			acceptAction->process_event( common::CSwitchToConnectingEvent() );
 
-			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptAction );
+			common::CActionHandler::getInstance()->executeAction( acceptAction );
 		}
 		else
 		{
 			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest< common::CSeedTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest< common::CSeedTypes > * request =
-					new common::CSendMessageRequest< common::CSeedTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Ping
 						, context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -115,10 +117,10 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest< common::CSeedTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest< common::CSeedTypes > * request =
-				new common::CSendMessageRequest< common::CSeedTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Pong
 					, context< CPingAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -142,15 +144,15 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 			acceptAction->process_event( common::CSwitchToConnectingEvent() );
 
-			common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( acceptAction );
+			common::CActionHandler::getInstance()->executeAction( acceptAction );
 		}
 		else
 		{
 			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest< common::CSeedTypes >( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest< common::CSeedTypes > * request =
-					new common::CSendMessageRequest< common::CSeedTypes >(
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
 						common::CPayloadKind::Pong
 						, context< CPingAction >().getActionKey()
 						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
@@ -188,7 +190,7 @@ CPingAction::CPingAction( uintptr_t _nodeIndicator )
 }
 
 CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
-	: common::CAction< common::CSeedTypes >( _actionKey )
+	: common::CAction( _actionKey )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	m_pingedNodes.insert( _nodeIndicator );
@@ -196,7 +198,7 @@ CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 }
 
 void
-CPingAction::accept( common::CSetResponseVisitor< common::CSeedTypes > & _visitor )
+CPingAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -211,7 +213,7 @@ void
 CPingAction::cleanup() const
 {
 	CSeedNodesManager::getInstance()->clearPublicKey( m_nodeIndicator );
-	/*common::CSeedBaseMedium * medium =
+	/*common::CMedium * medium =
 			CSeedNodesManager::getInstance()->eraseMedium( m_nodeIndicator );
 
 	if ( medium )

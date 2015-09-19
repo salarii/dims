@@ -502,12 +502,12 @@ bool WalletModel::addAddress( SecureString const & _privKey )
 // returns a list of COutputs from COutPoints
 void WalletModel::getOutputs(const std::vector<COutPoint>& vOutpoints, std::vector<COutput>& vOutputs)
 {
-    LOCK(wallet->cs_wallet);
+ /*   LOCK(wallet->cs_wallet);
     BOOST_FOREACH(const COutPoint& outpoint, vOutpoints)
     {
 		//if (!wallet->mapWallet.count(outpoint.hash)) continue;
 
-    }
+	}*/
 }
 
 // AvailableCoins + LockedCoins grouped by wallet address (put change in one group with wallet address)

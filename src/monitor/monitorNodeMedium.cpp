@@ -19,7 +19,7 @@ CMonitorNodeMedium::add( CRegistrationTerms const * _request )
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CMonitorTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
 void
@@ -29,7 +29,7 @@ CMonitorNodeMedium::add( CInfoRequest const * _request )
 
 	m_messages.push_back( message );
 
-	setLastRequest( _request->getId(), (common::CRequest< common::CMonitorTypes >*)_request );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
 }

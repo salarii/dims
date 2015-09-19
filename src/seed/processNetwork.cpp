@@ -5,6 +5,7 @@
 #include "common/actionHandler.h"
 #include "common/communicationProtocol.h"
 #include "common/events.h"
+#include "common/networkActionRegister.h"
 
 #include "seed/processNetwork.h"
 #include "seed/seedNodeMedium.h"
@@ -46,7 +47,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -64,7 +65,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				CAcceptNodeAction * connectNodeAction = new CAcceptNodeAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
 				connectNodeAction->process_event( common::CSwitchToConnectedEvent() );
 				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
-				common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( connectNodeAction );
+				common::CActionHandler::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}
@@ -75,7 +76,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				 )
 		{
 
-			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			CPubKey pubKey;
 
@@ -96,7 +97,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			common::convertPayload( message, ack );
 
-			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -107,7 +108,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )
 		{
-			common::CNodeMedium< common::CSeedBaseMedium > * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -124,7 +125,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 					pingAction->process_event( common::CStartPongEvent() );
 
-					common::CActionHandler< common::CSeedTypes >::getInstance()->executeAction( pingAction );
+					common::CActionHandler::getInstance()->executeAction( pingAction );
 				}
 				else
 				{
@@ -152,6 +153,6 @@ namespace common
 void
 CSelfNode::clearManager()
 {
-	common::CNodesManager< CSeedTypes >::getInstance()->eraseMedium( convertToInt( this ) );
+	common::CNodesManager::getInstance()->eraseMedium( convertToInt( this ) );
 }
 }

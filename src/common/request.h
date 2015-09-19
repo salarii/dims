@@ -5,9 +5,7 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include "common/support.h"
-
-struct CBufferAsStream;
+#include "uint256.h"
 
 namespace common
 {
@@ -38,30 +36,18 @@ class CRequestVisitor;
 class CRequest
 {
 public:
-	CRequest( CMediumFilter * _mediumFilter = 0 ):m_mediumFilter( _mediumFilter )
-	{
-		m_id = getRandNumber();
-	}
+	CRequest( CMediumFilter * _mediumFilter = 0 );
 
-	CRequest( uint256 const & _id, CMediumFilter * _mediumFilter = 0 ) : m_mediumFilter( _mediumFilter ), m_id( _id )
-	{
-	}
+	CRequest( uint256 const & _id, CMediumFilter * _mediumFilter = 0 );
 
 	virtual void accept( CMedium * _medium ) const = 0;
 
-	virtual CMediumFilter * getMediumFilter() const{ return m_mediumFilter; }
+	virtual CMediumFilter * getMediumFilter() const;
 
 	uint256
-	getId() const
-	{
-		return m_id;
-	}
+	getId() const;
 
-	virtual ~CRequest()
-	{
-		if ( m_mediumFilter )
-			delete m_mediumFilter;
-	};
+	virtual ~CRequest();
 
 protected:
 	CMediumFilter * m_mediumFilter;

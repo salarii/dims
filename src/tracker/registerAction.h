@@ -2,12 +2,14 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "common/action.h"
+#ifndef REGISTER_ACTION_H
+#define REGISTER_ACTION_H
 
 #include <boost/statechart/state_machine.hpp>
 
-#ifndef REGISTER_ACTION_H
-#define REGISTER_ACTION_H
+#include "key.h"
+
+#include "common/action.h"
 
 namespace tracker
 {

@@ -19,12 +19,12 @@ struct CWaitForBundle;
 // temporary solution
 
 // I base on fact  that  various  nodes  handling the  same transaction  bundle  should  use  the  sema  action  number
-class CAdmitTransactionBundle : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CAdmitTransactionBundle, CWaitForBundle >
+class CAdmitTransactionBundle : public common::CAction, public  boost::statechart::state_machine< CAdmitTransactionBundle, CWaitForBundle >
 {
 public:
 	CAdmitTransactionBundle( uint256 const & _actionKey );
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	~CAdmitTransactionBundle(){};
 private:

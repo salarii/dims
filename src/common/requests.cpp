@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/requests.h"
+#include "common/medium.h"
 
 namespace common
 {
@@ -73,8 +74,8 @@ CConnectToNodeRequest::getServiceAddress() const
 
 CInfoAskRequest::CInfoAskRequest( common::CInfoKind::Enum _infoKind, uint256 const & _actionKey, CMediumFilter * _mediumFilter )
 	: common::CRequest( _mediumFilter )
-	, m_infoKind( _infoKind )
 	, m_actionKey( _actionKey )
+	, m_infoKind( _infoKind )
 {
 }
 

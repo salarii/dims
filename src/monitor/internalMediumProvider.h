@@ -13,12 +13,12 @@
 namespace monitor
 {
 
-class CInternalMediumProvider : public  common::CConnectionProvider< common::CMonitorTypes >
+class CInternalMediumProvider : public  common::CConnectionProvider
 {
 public:
-	virtual std::list< common::CMonitorBaseMedium *> provideConnection( common::CMonitorMediumFilter const & _mediumFilter );
+	virtual std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
-	std::list< common::CMonitorBaseMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
+	std::list< common::CMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
 	void setTransaction( CTransaction const & _response, CNode * _node );
 
@@ -39,7 +39,7 @@ private:
 	static CInternalMediumProvider * ms_instance;
 
 	// this is simplified approach
-	std::map< CNode *, common::CBitcoinNodeMedium< common::CMonitorTypes > * > m_nodeToMedium;
+	std::map< CNode *, common::CBitcoinNodeMedium * > m_nodeToMedium;
 };
 
 }

@@ -5,18 +5,19 @@
 #ifndef MONITOR_REQUESTS_H
 #define MONITOR_REQUESTS_H
 
+#include "protocol.h"
+
 #include "common/request.h"
-#include "configureMonitorActionHandler.h"
 
 namespace monitor
 {
 
-class CConnectToNodeRequest : public common::CRequest< common::CMonitorTypes >
+class CConnectToNodeRequest : public common::CRequest
 {
 public:
 	CConnectToNodeRequest( std::string const & _address, CAddress const & _serviceAddress );
 
-	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
+	virtual void accept( common::CMedium * _medium ) const;
 
 	std::string getAddress() const;
 
@@ -27,12 +28,12 @@ private:
 	CAddress const m_serviceAddress;
 };
 
-class CRegistrationTerms : public common::CRequest< common::CMonitorTypes >
+class CRegistrationTerms : public common::CRequest
 {
 public:
-	CRegistrationTerms( unsigned int _price, int64_t const & _period, uint256 const & _actionKey, uint256 const & _id, common::CMonitorMediumFilter * _mediumFilter );
+	CRegistrationTerms( unsigned int _price, int64_t const & _period, uint256 const & _actionKey, uint256 const & _id, common::CMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
+	virtual void accept( common::CMedium * _medium ) const;
 
 	unsigned int getPrice() const
 	{
@@ -56,12 +57,12 @@ private:
 	int64_t m_period;
 };
 
-class CInfoRequest : public common::CRequest< common::CMonitorTypes >
+class CInfoRequest : public common::CRequest
 {
 public:
-	CInfoRequest( uint256 const & _actionKey, common::CMonitorMediumFilter * _mediumFilter );
+	CInfoRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter );
 
-	virtual void accept( common::CMonitorBaseMedium * _medium ) const;
+	virtual void accept( common::CMedium * _medium ) const;
 
 	uint256 const & getActionKey() const
 	{

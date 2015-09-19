@@ -7,6 +7,8 @@
 namespace common
 {
 
+CNodesManager * common::CNodesManager::ms_instance = 0;
+
 CNodesManager ::CNodesManager()
 {
 }

@@ -4,6 +4,7 @@
 
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
+#include "common/setResponseVisitor.h"
 
 #include "monitor/recognizeNetworkAction.h"
 #include "monitor/connectNodeAction.h"
@@ -31,7 +32,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				context< CRecognizeNetworkAction >().forgetRequests();
 				context< CRecognizeNetworkAction >().addRequest(
-							new common::CScheduleActionRequest< common::CMonitorTypes >(
+							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
@@ -45,7 +46,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				context< CRecognizeNetworkAction >().forgetRequests();
 				context< CRecognizeNetworkAction >().addRequest(
-							new common::CScheduleActionRequest< common::CMonitorTypes >(
+							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule ) ) );
 			}
@@ -71,7 +72,7 @@ CRecognizeNetworkAction::CRecognizeNetworkAction()
 }
 
 void
-CRecognizeNetworkAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CRecognizeNetworkAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

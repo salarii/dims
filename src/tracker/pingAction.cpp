@@ -6,6 +6,7 @@
 #include "common/support.h"
 #include "common/actionHandler.h"
 #include "common/setResponseVisitor.h"
+#include "common/events.h"
 
 #include "tracker/pingAction.h"
 #include "tracker/filters.h"

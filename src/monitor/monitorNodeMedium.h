@@ -17,10 +17,10 @@ class CRegistrationTerms;
 
 class CInfoRequest;
 
-class CMonitorNodeMedium : public common::CNodeMedium< common::CMonitorBaseMedium >
+class CMonitorNodeMedium : public common::CNodeMedium
 {
 public:
-	CMonitorNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< common::CMonitorBaseMedium >( _selfNode ){};
+	CMonitorNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 
 	void add( CRegistrationTerms const * _request );
 

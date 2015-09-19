@@ -12,10 +12,10 @@
 namespace common
 {
 
-class CSetNodeConnectedResult : public CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList >
+class CSetNodeConnectedResult : public CResponseVisitorBase< seed::CAcceptNodeAction, common::DimsResponsesList >
 {
 public:
-	CSetNodeConnectedResult( seed::CAcceptNodeAction * const _action ):CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList >( _action ){};
+	CSetNodeConnectedResult( seed::CAcceptNodeAction * const _action ):CResponseVisitorBase< seed::CAcceptNodeAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CConnectedNode & _param ) const
 	{
@@ -54,10 +54,10 @@ public:
 	}
 };
 
-class CSetPingResult : public CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList >
+class CSetPingResult : public CResponseVisitorBase< seed::CPingAction, common::DimsResponsesList >
 {
 public:
-	CSetPingResult( seed::CPingAction * const _action ):CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList >( _action ){};
+	CSetPingResult( seed::CPingAction * const _action ):CResponseVisitorBase< seed::CPingAction, common::DimsResponsesList >( _action ){};
 
 	virtual void operator()( common::CTimeEvent & _param ) const
 	{
@@ -70,22 +70,16 @@ public:
 	}
 };
 
-
-CSetResponseVisitor< common::CSeedTypes >::CSetResponseVisitor( seed::SeedResponses const & _requestResponse )
-	: m_requestResponse( _requestResponse )
+void
+CSetResponseVisitor::visit( seed::CAcceptNodeAction & _action )
 {
+	boost::apply_visitor( (CResponseVisitorBase< seed::CAcceptNodeAction, common::DimsResponsesList > const &)CSetNodeConnectedResult( &_action ), m_responses );
 }
 
 void
-CSetResponseVisitor< common::CSeedTypes >::visit( seed::CAcceptNodeAction & _action )
+CSetResponseVisitor::visit( seed::CPingAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< seed::CAcceptNodeAction, seed::SeedResponseList > const &)CSetNodeConnectedResult( &_action ), m_requestResponse );
-}
-
-void
-CSetResponseVisitor< common::CSeedTypes >::visit( seed::CPingAction & _action )
-{
-	boost::apply_visitor( (CResponseVisitorBase< seed::CPingAction, seed::SeedResponseList > const &)CSetPingResult( &_action ), m_requestResponse );
+	boost::apply_visitor( (CResponseVisitorBase< seed::CPingAction, common::DimsResponsesList > const &)CSetPingResult( &_action ), m_responses );
 }
 
 

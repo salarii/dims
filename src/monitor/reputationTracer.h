@@ -18,7 +18,7 @@ namespace monitor
 {
 
 // for now  don't track other trackers registered in other monitors
-class CReputationTracker : public common::CNodesManager< common::CMonitorTypes >
+class CReputationTracker : public common::CNodesManager
 {
 public:
 	static CReputationTracker * getInstance();
@@ -40,7 +40,7 @@ public:
 
 	std::vector< common::CAllyTrackerData > getAllyTrackers() const;
 
-	std::list< common::CMonitorBaseMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
+	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
 

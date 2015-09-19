@@ -8,7 +8,6 @@
 #include "common/action.h"
 #include "common/communicationProtocol.h"
 
-#include "configureSeedActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include <boost/optional.hpp>
 
@@ -25,14 +24,14 @@ getResult( std::string const & _key, bool & _value );
 
 struct CUninitiated;
 
-class CAcceptNodeAction : public common::CAction< common::CSeedTypes >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
+class CAcceptNodeAction : public common::CAction, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
 {
 public:
 	CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
 	CAcceptNodeAction( CAddress const & _nodeAddress );
 
-	virtual void accept( common::CSetResponseVisitor< common::CSeedTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	void setAddress( CAddress const & _address );
 

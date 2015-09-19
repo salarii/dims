@@ -8,8 +8,6 @@
 #include "common/action.h"
 #include "common/filters.h"
 
-#include "configureMonitorActionHandler.h"
-
 #include <boost/statechart/state_machine.hpp>
 
 #include "protocol.h"
@@ -21,12 +19,12 @@ struct CAskForUpdate;
 
 // rework  this  sooner  or later
 
-class CUpdateDataAction : public common::CAction< common::CMonitorTypes >, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >
+class CUpdateDataAction : public common::CAction, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >
 {
 public:
 	CUpdateDataAction( bool _autoDelete );
 
-	virtual void accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor );
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	void reset();
 

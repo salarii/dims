@@ -13,6 +13,7 @@
 #include "common/setResponseVisitor.h"
 #include "common/analyseTransaction.h"
 #include "common/requests.h"
+#include "common/events.h"
 
 #include "monitor/enterNetworkAction.h"
 #include "monitor/monitorController.h"
@@ -43,14 +44,14 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 	CAskForAddmision( my_context ctx ): my_base( ctx )
 	{
 		context< CEnterNetworkAction >().addRequest(
-					new common::CSendMessageRequest< common::CMonitorTypes >(
+					new common::CSendMessageRequest(
 						common::CPayloadKind::EnterNetworkAsk
 						, context< CEnterNetworkAction >().getActionKey()
 						, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
 
 
 		context< CEnterNetworkAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						 WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -80,12 +81,12 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 	{
 		context< CEnterNetworkAction >().forgetRequests();
 		context< CEnterNetworkAction >().addRequest(
-		 new common::CTimeEventRequest< common::CMonitorTypes >(
+		 new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		context< CEnterNetworkAction >().addRequest(
-					new common::CScheduleActionRequest< common::CMonitorTypes >(
+					new common::CScheduleActionRequest(
 						new CSynchronizationAction( context< CEnterNetworkAction >().getNodePtr() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
@@ -122,8 +123,8 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 {
 	CFetchRankingTimeAndInfo( my_context ctx ): my_base( ctx )
 	{
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CEnterNetworkAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
@@ -133,7 +134,7 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 				context< CEnterNetworkAction >().addRequest( request );
 
 		context< CEnterNetworkAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
@@ -147,8 +148,8 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 
 		common::convertPayload( orginalMessage, rankingInfo );
 
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
 					, context< CEnterNetworkAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
@@ -172,8 +173,8 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 {
 	CSendRankingTimeAndInfo( my_context ctx ): my_base( ctx )
 	{
-		common::CSendMessageRequest< common::CMonitorTypes > * request =
-				new common::CSendMessageRequest< common::CMonitorTypes >(
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
 					common::CPayloadKind::RankingInfo
 					, context< CEnterNetworkAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
@@ -188,7 +189,7 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 		context< CEnterNetworkAction >().addRequest( request );
 
 		context< CEnterNetworkAction >().addRequest(
-					new common::CTimeEventRequest< common::CMonitorTypes >(
+					new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
@@ -208,8 +209,8 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 			if ( infoRequest.m_kind == common::CInfoKind::RankingAsk )
 			{
 
-				common::CSendMessageRequest< common::CMonitorTypes > * request =
-						new common::CSendMessageRequest< common::CMonitorTypes >(
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
 							common::CPayloadKind::Ack
 							, context< CEnterNetworkAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
@@ -253,7 +254,7 @@ struct  : boost::statechart::state< , CEnterNetworkAction >
 		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
 
 		context< CEnterNetworkAction >().addRequest(
-					new common::CAckRequest< common::CMonitorTypes >(
+					new common::CAckRequest(
 						context< CEnterNetworkAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
@@ -288,14 +289,14 @@ struct  : boost::statechart::state< , CEnterNetworkAction >
 */
 
 CEnterNetworkAction::CEnterNetworkAction( uint256 const & _actionKey, uintptr_t _nodePtr )
-	: common::CAction< common::CMonitorTypes >( _actionKey )
+	: common::CAction( _actionKey )
 	, m_nodePtr( _nodePtr )
 {
 	initiate();
 }
 
 void
-CEnterNetworkAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CEnterNetworkAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }

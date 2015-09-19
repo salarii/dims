@@ -29,7 +29,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 	{
 		context< CUpdateDataAction >().forgetRequests();
 		context< CUpdateDataAction >().addRequest( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
-		context< CUpdateDataAction >().addRequest( new common::CTimeEventRequest< common::CMonitorTypes >( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CUpdateDataAction >().addRequest( new common::CTimeEventRequest( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _result )
@@ -45,7 +45,7 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		std::vector< common::CValidNodeInfo > validNodesInfo;
 		context< CUpdateDataAction >().forgetRequests();
 //		context< CUpdateDataAction >().addRequest(
-//					new common::CAckRequest< common::CMonitorTypes >( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+//					new common::CAckRequest( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
 		m_presentTrackers.insert( _result.m_pubKey.GetID() );
 
@@ -76,14 +76,14 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 };
 
 CUpdateDataAction::CUpdateDataAction( bool _autoDelete )
-: common::CAction< common::CMonitorTypes >( _autoDelete )
+: common::CAction( _autoDelete )
 {
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
 }
 
 void
-CUpdateDataAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > & _visitor )
+CUpdateDataAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
@@ -91,7 +91,7 @@ CUpdateDataAction::accept( common::CSetResponseVisitor< common::CMonitorTypes > 
 void
 CUpdateDataAction::reset()
 {
-	common::CAction< common::CMonitorTypes >::reset();
+	common::CAction::reset();
 	initiate();
 }
 

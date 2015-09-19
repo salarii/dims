@@ -11,8 +11,6 @@
 namespace common
 {
 std::vector< uint256 > deleteList;
-
-CNodesManager * common::CNodesManager::ms_instance = 0;
 }
 
 namespace tracker
