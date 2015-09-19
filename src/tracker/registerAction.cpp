@@ -417,7 +417,6 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction >
 {
-	// follow ------>> 2 <<-------
 	CNetworkAlive( my_context ctx )
 		: my_base( ctx )
 	{

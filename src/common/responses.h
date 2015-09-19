@@ -426,7 +426,7 @@ common::ScheduledResult
 , common::CTimeEvent
 , common::CNoMedium
 , common::CClientMessageResponse
-, CDnsInfo > DimsResponsesList;
+, CDnsInfo > DimsResponsesList; // if you reach 20 limit pack them like in ScheduledResult
 
 typedef boost::make_variant_over< DimsResponsesList >::type DimsResponse;
 

@@ -15,7 +15,7 @@
 #include "common/events.h"
 
 #include "monitor/admitTrackerAction.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/filters.h"
 #include "monitor/reputationTracer.h"
@@ -59,8 +59,8 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
 
 		common::CRegistrationTerms registrationTerms(
-					CMonitorController::getInstance()->getPrice()
-					, CMonitorController::getInstance()->getPeriod() );
+					CController::getInstance()->getPrice()
+					, CController::getInstance()->getPeriod() );
 
 		request->addPayload( registrationTerms );
 
@@ -141,8 +141,8 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
 
 		context< CAdmitTrackerAction >().addRequest( new CRegistrationTerms(
-														  CMonitorController::getInstance()->getPrice()
-														 , CMonitorController::getInstance()->getPeriod()
+														  CController::getInstance()->getPrice()
+														 , CController::getInstance()->getPeriod()
 														 , context< CAdmitTrackerAction >().getActionKey()
 														 , _messageResult.m_message.m_header.m_id
 														 , new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
@@ -152,7 +152,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		if ( CMonitorController::getInstance()->getPrice() )
+		if ( CController::getInstance()->getPrice() )
 		{
 			if ( CReputationTracker::getInstance()->getTrackers().empty() )
 				return transit< CPaidRegistrationEmptyNetwork >();
@@ -198,7 +198,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+		CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getPeriod(), GetTime() ) );
 
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CAckRequest(
@@ -277,7 +277,7 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 
 			context< CAdmitTrackerAction >().addRequest( request );
 
-			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getPeriod(), GetTime() ) );
 
 		}
 		return discard_event();
@@ -374,7 +374,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 							common::CTrackerData trackerData(
 								m_pubKey
 								, 0
-								, CMonitorController::getInstance()->getPeriod()
+								, CController::getInstance()->getPeriod()
 								, GetTime() );
 
 				CRankingDatabase::getInstance()->writeTrackerData( trackerData );

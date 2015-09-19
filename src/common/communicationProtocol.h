@@ -353,6 +353,25 @@ struct CInfoRequestData
 	std::vector<unsigned char> m_payload;
 };
 
+struct CEnteranceTerms
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_price );
+	)
+
+	CEnteranceTerms()
+		: m_price( 0 )
+	{}
+
+	CEnteranceTerms( unsigned int _price )
+		: m_price( _price )
+	{}
+
+	unsigned int m_price;
+};
+
+
 struct CRegistrationTerms
 {
 	IMPLEMENT_SERIALIZE

@@ -349,17 +349,17 @@ void BitcoinGUI::createMenuBar()
     QMenu *file = appMenuBar->addMenu(tr("&File"));
     if(walletFrame)
     {
-        file->addAction(openAction);
-        file->addAction(backupWalletAction);
-        file->addAction(signMessageAction);
-        file->addAction(verifyMessageAction);
-        file->addSeparator();
-        file->addAction(usedSendingAddressesAction);
-        file->addAction(usedReceivingAddressesAction);
+		//file->addAction(openAction);
+		//file->addAction(backupWalletAction);
+		//file->addAction(signMessageAction);
+		//file->addAction(verifyMessageAction);
+		//file->addSeparator();
+		//file->addAction(usedSendingAddressesAction);
+		//file->addAction(usedReceivingAddressesAction);
         file->addSeparator();
     }
     file->addAction(quitAction);
-
+/*
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     if(walletFrame)
     {
@@ -368,14 +368,14 @@ void BitcoinGUI::createMenuBar()
         settings->addSeparator();
     }
     settings->addAction(optionsAction);
-
+*/
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     if(walletFrame)
     {
-        help->addAction(openRPCConsoleAction);
+	  //  help->addAction(openRPCConsoleAction);
     }
-    help->addAction(showHelpMessageAction);
-    help->addSeparator();
+	//help->addAction(showHelpMessageAction);
+   // help->addSeparator();
     help->addAction(aboutAction);
     help->addAction(aboutQtAction);
 }

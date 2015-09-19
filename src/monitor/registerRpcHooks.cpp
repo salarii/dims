@@ -6,7 +6,7 @@
 
 #include "common/events.h"
 
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 #include "monitor/registerRpcHooks.h"
 
 namespace monitor
@@ -15,9 +15,9 @@ namespace monitor
 std::string
 getStatus()
 {
-	CMonitorController::getInstance()->process_event( common::CUpdateStatus() );
+	CController::getInstance()->process_event( common::CUpdateStatus() );
 
-	return CMonitorController::getInstance()->getStatusMessage();
+	return CController::getInstance()->getStatusMessage();
 }
 
 void registerHooks()

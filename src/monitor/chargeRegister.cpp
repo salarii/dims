@@ -6,7 +6,7 @@
 #include "common/authenticationProvider.h"
 
 #include "monitor/chargeRegister.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 
 namespace monitor
 {
@@ -73,7 +73,7 @@ CChargeRegister::loop()
 								value += txOut.nValue;
 							}
 
-							if ( CMonitorController::getInstance()->getPrice() <= value )
+							if ( CController::getInstance()->getPrice() <= value )
 							{
 								remove.push_back( iterator->first );
 								m_acceptedTransactons.insert( iterator->first );

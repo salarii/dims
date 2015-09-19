@@ -11,7 +11,7 @@
 #include "common/authenticationProvider.h"
 
 #include "monitor/rankingDatabase.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 #include "monitor/admitTrackerAction.h"
 #include "monitor/reputationTracer.h"
 
@@ -118,7 +118,7 @@ CReputationTracker::loop()
 					toBeRemoved.push_back( tracker.first );
 					CRankingDatabase::getInstance()->eraseTrackerData( tracker.second.m_publicKey );
 				}
-				else if ( timeLeft < CMonitorController::getInstance()->getPeriod() * TriggerExtendRatio )
+				else if ( timeLeft < CController::getInstance()->getPeriod() * TriggerExtendRatio )
 				{
 					uintptr_t nodeIndicator;
 					getKeyToNode( tracker.second.m_publicKey, nodeIndicator);

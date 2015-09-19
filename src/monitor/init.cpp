@@ -51,7 +51,7 @@
 #include "common/originAddressScanner.h"
 
 #include "monitor/processNetwork.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 #include "monitor/internalMediumProvider.h"
 #include "monitor/server.h"
 #include "monitor/clientRequestsManager.h"
@@ -694,7 +694,7 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	// ********************************************************* Step 10: load peers
 
-	CMonitorController::getInstance();
+	CController::getInstance();
 
 
 	nStart = GetTimeMillis();

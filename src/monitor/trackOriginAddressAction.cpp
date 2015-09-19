@@ -16,7 +16,7 @@
 #include "main.h"
 #include "chainparams.h"
 
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 #include "monitor/filters.h"
 #include "monitor/monitorNodeMedium.h"
 #include "monitor/trackOriginAddressAction.h"
@@ -42,7 +42,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		CMonitorController::getInstance()->process_event( common::CBitcoinNetworkConnection( vNodes.size() ) );
+		CController::getInstance()->process_event( common::CBitcoinNetworkConnection( vNodes.size() ) );
 
 		if ( vNodes.size() >= common::dimsParams().getUsedBitcoinNodesNumber() )
 		{
@@ -151,7 +151,7 @@ CTrackOriginAddressAction::requestFiltered()
 	{
 		if ( index == 0 )
 		{
-			CMonitorController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
+			CController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 			return;
 		}
 		index = index->pprev;
@@ -166,13 +166,13 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
-	CMonitorController::getInstance()->process_event( common::CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
+	CController::getInstance()->process_event( common::CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
 
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );
 
 	if ( requestedBlocks.size() < SynchronizedTreshold )
-		CMonitorController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
+		CController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
 	forgetRequests();
 	addRequest( new common::CAskForTransactionsRequest(

@@ -15,8 +15,9 @@
 #include "common/requests.h"
 #include "common/events.h"
 
+#include "monitor/passTransactionAction.h"
 #include "monitor/enterNetworkAction.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/filters.h"
 #include "monitor/reputationTracer.h"
@@ -29,6 +30,12 @@ namespace monitor
 struct CSynchronization;
 //milisec
 unsigned int const WaitTime = 10000;
+
+namespace // parameters  to  pass  between states
+{
+CPubKey monitorKey;
+unsigned int price;
+}
 
 
 struct CEnterNetworkInitial : boost::statechart::simple_state< CEnterNetworkInitial, CEnterNetworkAction >
@@ -55,6 +62,7 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 						 WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
+
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 
@@ -70,6 +78,96 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 	typedef boost::mpl::list<
 	boost::statechart::transition< common::CAckEvent, CSynchronization >,
 	boost::statechart::custom_reaction< common::CTimeEvent >
+	> reactions;
+};
+
+
+struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAction >
+{
+	CNetworkAlive( my_context ctx )
+		: my_base( ctx )
+	{
+		context< CEnterNetworkAction >().addRequest(
+					new common::CScheduleActionRequest(
+						new CPassTransactionAction(
+							monitorKey.GetID()
+							, price )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CResult result;
+
+		common::convertPayload( orginalMessage, result );
+
+		assert( result.m_result );// for debug only, do something here
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::Ack
+					, context< CEnterNetworkAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+
+		request->addPayload( common::CAck() );
+
+		context< CEnterNetworkAction >().addRequest( request );
+
+		// registration done
+	//	CController::getInstance()->process_event(
+	//				common::CRegistrationData( _messageResult.m_pubKey, GetTime(), 0 ) );
+
+		context< CEnterNetworkAction >().setExit();
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CEnterNetworkAction >().setExit();
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTransactionAckEvent const & _transactionAckEvent )
+	{
+		if ( _transactionAckEvent.m_status == common::TransactionsStatus::Invalid )
+		{
+			context< CEnterNetworkAction >().setExit();
+		}
+		else
+		{
+			common::CAdmitProof admitProof;
+			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
+
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::AdmitProof
+						, context< CEnterNetworkAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+
+			request->addPayload(admitProof);
+
+			context< CEnterNetworkAction >().addRequest( request );
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 };
 
@@ -251,7 +349,7 @@ struct  : boost::statechart::state< , CEnterNetworkAction >
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CMonitorController::getInstance()->getPeriod(), GetTime() ) );
+		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getPeriod(), GetTime() ) );
 
 		context< CEnterNetworkAction >().addRequest(
 					new common::CAckRequest(

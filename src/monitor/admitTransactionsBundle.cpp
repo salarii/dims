@@ -13,7 +13,7 @@
 #include "monitor/reputationTracer.h"
 #include "monitor/transactionRecordManager.h"
 #include "monitor/filters.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 #include "monitor/chargeRegister.h"
 
 namespace monitor

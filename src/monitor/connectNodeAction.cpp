@@ -16,7 +16,7 @@
 #include "monitor/filters.h"
 #include "monitor/monitorRequests.h"
 #include "monitor/reputationTracer.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 
 namespace monitor
 {

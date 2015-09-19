@@ -13,16 +13,17 @@ MONITOR_H = \
 	chargeRegister.h \
 	clientRequestsManager.h \
 	connectNodeAction.h \
+	controller.h \
 	copyStorageHandler.h \
 	enterNetworkAction.h \
 	filters.h \
 	init.h \
 	internalMediumProvider.h \
 	internalOperationsMedium.h \
-	monitorController.h \
 	monitorNodeMedium.h \
 	monitorRequests.h \
 	noMediumHandling.h \
+	passTransactionAction.h \
 	pingAction.h \
 	processNetwork.h \
 	provideInfoAction.h \
@@ -41,6 +42,7 @@ MONITOR_CPP = \
 	admitTransactionsBundle.cpp \
 	chargeRegister.cpp \
 	clientRequestsManager.cpp \
+	controller.cpp \
 	connectNodeAction.cpp \
 	copyStorageHandler.cpp \
 	enterNetworkAction.cpp \
@@ -48,10 +50,10 @@ MONITOR_CPP = \
 	internalMediumProvider.cpp \
 	internalOperationsMedium.cpp \
 	monitor.cpp \
-	monitorController.cpp \
 	monitorNodeMedium.cpp \
 	monitorRequests.cpp \
 	noMediumHandling.cpp \
+	passTransactionAction.cpp \
 	pingAction.cpp \
 	processNetwork.cpp \
 	provideInfoAction.cpp \
