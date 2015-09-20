@@ -12,6 +12,34 @@ namespace common
 {
 
 bool
+getTransactionInputs( CTransaction const & _tx, std::vector< CKeyID > & _inputs )
+{
+// first which apear gets all because  it is a little bit tricky to find out real contribution of each address
+	for (unsigned int i = 0; i < _tx.vin.size(); i++)
+	{
+		const CTxIn& txin = _tx.vin[i];
+
+		CScript::const_iterator pc = txin.scriptSig.begin();
+
+		opcodetype opcode;
+
+		std::vector<unsigned char> data;
+
+		while( pc < txin.scriptSig.end() )
+		{
+			if (!txin.scriptSig.GetOp(pc, opcode, data))
+				return false;
+
+			if ( data.size() == 33 || data.size() == 65 )
+			{
+				_inputs.push_back( CPubKey( data ).GetID() );
+			}
+		}
+	}
+	return true;
+}
+
+bool
 findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId, std::vector< CTxOut > & _txouts, std::vector< unsigned int > & _ids )
 {
 	for (unsigned int i = 0; i < _tx.vout.size(); i++)

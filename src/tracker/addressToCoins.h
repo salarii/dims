@@ -56,6 +56,9 @@ protected:
 	bool eraseCoin( uint256 const &_keyId, char unsigned _bucket );
 	bool haveCoin( CKeyType const &_keyId, char unsigned _bucket );
 	bool haveCoin(uint160 const &_keyId, char unsigned _bucket );
+	bool setTransactionInputs( uint256 const &_hash, std::vector< uint160 > const & _inputs );
+	bool getTransactionInputs( uint256 const &_hash, std::vector< uint160 > & _inputs );
+	bool eraseCoin( uint256 const &_keyId );
 	template< class Batch >
 	bool batchWrite( Batch& _batchWrite );
 	bool GetStats(CCoinsStats &stats);
@@ -99,6 +102,10 @@ public:
 	bool haveCoins( uint160 const &_keyId );
 	bool eraseCoins( uint160 const &_keyId, uint256 const & _coin  );
 	bool flush();
+
+	bool setTransactionInputs( uint256 const &_hash, std::vector< uint160 > const & _inputs );
+	bool getTransactionInputs( uint256 const &_hash, std::vector< uint160 > & _inputs );
+
 
 	static CAddressToCoinsViewCache* getInstance();
 

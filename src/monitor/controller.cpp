@@ -22,7 +22,7 @@
 #include "monitor/updateDataAction.h"
 #include "monitor/recognizeNetworkAction.h"
 #include "monitor/trackOriginAddressAction.h"
-#include "monitor/monitorController.h"
+#include "monitor/controller.h"
 
 namespace monitor
 {
@@ -56,7 +56,7 @@ struct CMonitorStandAlone;
 struct CMonitorConnected;
 struct CMonitorSynchronizing;
 
-struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitcoin, CMonitorController >
+struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitcoin, CController >
 {
 	CSynchronizeWithBitcoin( my_context ctx ) : my_base( ctx )
 	{
@@ -92,7 +92,7 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 
 			status += "left " + convert.str() + " blocks to  be checked..\n";
 		}
-		context< CMonitorController >().setStatusMessage( status );
+		context< CController >().setStatusMessage( status );
 		return discard_event();
 	}
 
@@ -120,11 +120,11 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 	unsigned int m_nodesNumber;
 };
 
-struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonitorController >
+struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CController >
 {
 	CMonitorStandAlone( my_context ctx ) : my_base( ctx )
 	{
-		context< CMonitorController >().setStatusMessage( "detecting existing network" );
+		context< CController >().setStatusMessage( "detecting existing network" );
 		common::CActionHandler::getInstance()->executeAction( new CRecognizeNetworkAction() );
 	}
 
@@ -150,7 +150,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 			status = "key " + monitor.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
 		}
 
-		context< CMonitorController >().setStatusMessage( status );
+		context< CController >().setStatusMessage( status );
 		return discard_event();
 	}
 
@@ -162,7 +162,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CMonit
 // this is outside action handler so I can't deffer this in "normal way"
 // is  this irrelevant ???????, when monitors will came this  will change anyway ??????
 
-struct CMonitorSynchronizing : boost::statechart::state< CMonitorSynchronizing, CMonitorController >
+struct CMonitorSynchronizing : boost::statechart::state< CMonitorSynchronizing, CController >
 {
 
 	CMonitorSynchronizing( my_context ctx ) : my_base( ctx )
@@ -178,11 +178,11 @@ struct CMonitorSynchronizing : boost::statechart::state< CMonitorSynchronizing, 
 	boost::statechart::transition< CSynchronizedWithNetworkEvent, CMonitorConnected > > reactions;
 };
 
-struct CMonitorConnected : boost::statechart::state< CMonitorConnected, CMonitorController >
+struct CMonitorConnected : boost::statechart::state< CMonitorConnected, CController >
 {
 	CMonitorConnected( my_context ctx ) : my_base( ctx )
 	{
-	//CMonitorController::getInstance()->setConnected( true );
+	//CController::getInstance()->setConnected( true );
 	}
 
 	boost::statechart::result react( CGetStateEvent const & _event )
@@ -194,19 +194,19 @@ struct CMonitorConnected : boost::statechart::state< CMonitorConnected, CMonitor
 	  boost::statechart::custom_reaction< CGetStateEvent > > reactions;
 };
 
-CMonitorController * CMonitorController::ms_instance = NULL;
+CController * CController::ms_instance = NULL;
 
-CMonitorController*
-CMonitorController::getInstance()
+CController*
+CController::getInstance()
 {
 	if ( !ms_instance )
 	{
-		ms_instance = new CMonitorController();
+		ms_instance = new CController();
 	};
 	return ms_instance;
 }
 
-CMonitorController::CMonitorController()
+CController::CController()
 	: m_price( 3000 )
 	, m_period( 3600*4 )
 {

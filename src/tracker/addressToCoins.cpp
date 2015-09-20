@@ -75,6 +75,24 @@ CAddressToCoinsDatabase::haveCoin( uint160 const &_keyId, char unsigned _bucket 
 	return db.Exists( std::make_pair( _bucket, _keyId ) );
 }
 
+bool
+CAddressToCoinsDatabase::setTransactionInputs( uint256 const &_hash, std::vector< uint160 > const & _inputs )
+{
+	return db.Write( _hash, _inputs );
+}
+
+bool
+CAddressToCoinsDatabase::getTransactionInputs( uint256 const &_hash, std::vector< uint160 > & _inputs )
+{
+		return db.Read( _hash, _inputs );
+}
+
+bool
+CAddressToCoinsDatabase::eraseCoin( uint256 const &_keyId )
+{
+	return db.Erase( _keyId );
+}
+
 void
 CAddressToCoinsDatabase::clearView()
 {

@@ -9,12 +9,12 @@
 
 #include "common/scheduleAbleAction.h"
 
-namespace tracker
+namespace monitor
 {
 
-struct CPassTransactionInitial;
+struct CProcessAsClient;
 
-class CPassTransactionAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CPassTransactionAction, CPassTransactionInitial >
+class CPassTransactionAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CPassTransactionAction, CProcessAsClient >
 {
 public:
 	CPassTransactionAction( uint256 const & _actionKey );

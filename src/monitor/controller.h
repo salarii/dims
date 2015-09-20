@@ -14,10 +14,10 @@ namespace monitor
 
 struct CSynchronizeWithBitcoin;
 
-class CMonitorController : public boost::statechart::state_machine< CMonitorController, CSynchronizeWithBitcoin >
+class CController : public boost::statechart::state_machine< CController, CSynchronizeWithBitcoin >
 {
 public:
-	static CMonitorController* getInstance();
+	static CController* getInstance();
 
 	uint64_t getPeriod() const
 	{
@@ -49,12 +49,12 @@ public:
 	}
 
 private:
-	CMonitorController();
+	CController();
 
 private:
 	std::string m_statusMessage;
 
-	static CMonitorController * ms_instance;
+	static CController * ms_instance;
 
 	unsigned int m_price;
 	uint64_t m_period;
