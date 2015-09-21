@@ -43,6 +43,10 @@ struct CKeyType : public uint256
 
 class CAddressToCoinsDatabase
 {
+public:
+	bool setTransactionInputs( uint256 const &_hash, std::vector< CKeyID > const & _inputs );
+	bool getTransactionInputs( uint256 const &_hash, std::vector< CKeyID > & _inputs );
+
 protected:
 	CLevelDBWrapper db;
 
@@ -56,8 +60,6 @@ protected:
 	bool eraseCoin( uint256 const &_keyId, char unsigned _bucket );
 	bool haveCoin( CKeyType const &_keyId, char unsigned _bucket );
 	bool haveCoin(uint160 const &_keyId, char unsigned _bucket );
-	bool setTransactionInputs( uint256 const &_hash, std::vector< uint160 > const & _inputs );
-	bool getTransactionInputs( uint256 const &_hash, std::vector< uint160 > & _inputs );
 	bool eraseCoin( uint256 const &_keyId );
 	template< class Batch >
 	bool batchWrite( Batch& _batchWrite );
@@ -92,7 +94,7 @@ private:
 class CAddressToCoinsViewCache
 {
 protected:
-    CAddressToCoins m_addressToCoins;
+	CAddressToCoins m_addressToCoins;
 // replace  this cache  multimap it is  inefficient
 	std::multimap<uint160,uint256> m_cacheCoins; //control numbers created??
 	std::multimap<uint160,uint256> m_insertCacheCoins;
@@ -103,8 +105,8 @@ public:
 	bool eraseCoins( uint160 const &_keyId, uint256 const & _coin  );
 	bool flush();
 
-	bool setTransactionInputs( uint256 const &_hash, std::vector< uint160 > const & _inputs );
-	bool getTransactionInputs( uint256 const &_hash, std::vector< uint160 > & _inputs );
+	bool setTransactionInputs( uint256 const &_hash, std::vector< CKeyID > const & _inputs );
+	bool getTransactionInputs( uint256 const &_hash, std::vector< CKeyID > & _inputs );
 
 
 	static CAddressToCoinsViewCache* getInstance();

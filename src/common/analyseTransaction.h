@@ -18,6 +18,8 @@ struct CAvailableCoin;
 namespace common
 {
 
+bool getTransactionInputs( CTransaction const & _tx, std::vector< CKeyID > & _inputs );
+
 bool findOutputInTransaction( CTransaction const & _tx, CKeyID const & _findId, std::vector< CTxOut > & _txouts, std::vector< unsigned int > & _ids );
 
 std::vector< CAvailableCoin > getAvailableCoins( CCoins const & _coins, uint160 const & _pubId, uint256 const & _hash );

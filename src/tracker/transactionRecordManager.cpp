@@ -10,6 +10,7 @@
 #include "common/actionHandler.h"
 #include "common/segmentFileStorage.h"
 #include "common/supportTransactionsDatabase.h"
+#include "common/analyseTransaction.h"
 
 #include "tracker/validateTransactionsAction.h"
 #include "tracker/addressToCoins.h"
@@ -80,6 +81,12 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, CKe
 	m_coinsViewCache->SetCoins(_tx.GetHash() , coins);
 	m_addressToCoinsViewCache->setCoins( _keyId, _tx.GetHash() );
 
+	std::vector< CKeyID > inputs;
+	if ( common::getTransactionInputs( _tx, inputs ) )
+		assert( !"problem" );
+
+	m_addressToCoinsViewCache->setTransactionInputs( _tx.GetHash(), inputs );
+
 	CValidationState state;
 
 	// this  is  needed  but does not work like it should, so I commented it out
@@ -139,6 +146,12 @@ CTransactionRecordManager::addRetrivedTransactionBundle( std::vector< CTransacti
 
 			keyIds.push_back( keyId );
 		}
+
+		std::vector< CKeyID > inputs;
+		if ( common::getTransactionInputs( transaction, inputs ) )
+			assert( !"problem" );
+
+		m_addressToCoinsViewCache->setTransactionInputs( transaction.GetHash(), inputs );
 
 		BOOST_FOREACH( uint160 const & keyId, keyIds )
 		{
@@ -200,6 +213,12 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 
 			keyIds.push_back( keyId );
 		}
+
+		std::vector< CKeyID > inputs;
+		if ( common::getTransactionInputs( transaction, inputs ) )
+			assert( !"problem" );
+
+		m_addressToCoinsViewCache->setTransactionInputs( transaction.GetHash(), inputs );
 
 		BOOST_FOREACH( uint160 const & keyId, keyIds )
 		{

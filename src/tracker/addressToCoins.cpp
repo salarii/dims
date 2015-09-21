@@ -76,13 +76,13 @@ CAddressToCoinsDatabase::haveCoin( uint160 const &_keyId, char unsigned _bucket 
 }
 
 bool
-CAddressToCoinsDatabase::setTransactionInputs( uint256 const &_hash, std::vector< uint160 > const & _inputs )
+CAddressToCoinsDatabase::setTransactionInputs( uint256 const &_hash, std::vector< CKeyID > const & _inputs )
 {
 	return db.Write( _hash, _inputs );
 }
 
 bool
-CAddressToCoinsDatabase::getTransactionInputs( uint256 const &_hash, std::vector< uint160 > & _inputs )
+CAddressToCoinsDatabase::getTransactionInputs( uint256 const &_hash, std::vector< CKeyID > & _inputs )
 {
 		return db.Read( _hash, _inputs );
 }
@@ -451,6 +451,7 @@ CAddressToCoinsViewCache::flush()
 
 		m_insertCacheCoins.clear();
 	}
+
 	return ok;
 }
 
@@ -462,6 +463,22 @@ CAddressToCoinsViewCache::clearView()
 	m_cacheCoins.clear();
 	m_insertCacheCoins.clear();
 	m_addressToCoins.clearView();
+}
+
+bool
+CAddressToCoinsViewCache::setTransactionInputs( uint256 const &_hash, std::vector< CKeyID > const & _inputs )
+{
+		boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
+		return m_addressToCoins.setTransactionInputs( _hash, _inputs );
+
+}
+bool
+CAddressToCoinsViewCache::getTransactionInputs( uint256 const &_hash, std::vector< CKeyID > & _inputs )
+{
+	boost::lock_guard<boost::mutex> lock( m_cacheLock );
+
+	return m_addressToCoins.getTransactionInputs( _hash, _inputs );
 }
 
 CAddressToCoinsViewCache::~CAddressToCoinsViewCache()
