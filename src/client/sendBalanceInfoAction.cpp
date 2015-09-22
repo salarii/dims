@@ -89,6 +89,9 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			std::vector< CAvailableCoin > tempCoins = common::getAvailableCoins( coins.second, keyId, coins.first );
 			availableCoins.insert(availableCoins.end(), tempCoins.begin(), tempCoins.end());
 		}
+
+		CWallet::getInstance()->addInputs( availableCoinsData.m_transactionInputs );
+
 		CWallet::getInstance()->replaceAvailableCoins( keyId, availableCoins );
 
 		std::vector< std::string > const & m_addresses = context< CSendBalanceInfoAction >().getAddresses();

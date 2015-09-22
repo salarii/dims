@@ -9,9 +9,14 @@ namespace common
 
 CMainRequestType::Enum const CAvailableCoinsData::m_requestType = CMainRequestType::BalanceInfoReq;
 
-CAvailableCoinsData::CAvailableCoinsData( std::map< uint256, CCoins > const & _availableCoins, uint256 const & _hash )
+CAvailableCoinsData::CAvailableCoinsData(
+		std::map< uint256
+		, CCoins > const & _availableCoins
+		, std::map< uint256, std::vector< CKeyID > > const &_transactionInputs
+		, uint256 const & _hash )
 	: m_hash(_hash)
 	, m_availableCoins( _availableCoins )
+	, m_transactionInputs( _transactionInputs )
 {
 }
 

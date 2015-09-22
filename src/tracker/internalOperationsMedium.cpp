@@ -58,6 +58,15 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 	std::transform( coinsHashes.begin(), coinsHashes.end(), coins.begin(),
 		   std::inserter(availableCoins.m_availableCoins, availableCoins.m_availableCoins.end() ), std::make_pair<uint256,CCoins> );
 
+	std::vector< CKeyID > inputs;
+
+	BOOST_FOREACH( PAIRTYPE( uint256, CCoins ) const & coin, availableCoins.m_availableCoins )
+	{
+		if ( CAddressToCoinsViewCache::getInstance()->getTransactionInputs( coin.first, inputs ) )
+			assert( !"problem" );
+			availableCoins.m_transactionInputs.insert( make_pair( coin.first, inputs ) );
+	}
+
 	m_responses.insert( std::make_pair( (common::CRequest*)_request, availableCoins ) );
 }
 

@@ -167,6 +167,8 @@ public:
 
 	std::multimap< uint160, CAvailableCoin > m_availableCoins;
 
+	 std::map< uint256, std::vector< CKeyID > > m_inputs;
+
 	struct CUpdateCoins
 	{
 		std::multimap< CKeyID, CAvailableCoin > m_toRemove;
@@ -208,6 +210,8 @@ public:
 	void addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins, bool _writeToDatabase = true );
 
 	void replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
+
+	void addInputs( std::map< uint256, std::vector< CKeyID > > const & _inputs );
 
 	void removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins );
 

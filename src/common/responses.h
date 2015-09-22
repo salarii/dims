@@ -31,18 +31,25 @@ struct CNoMedium : boost::statechart::event< CNoMedium >
 
 struct CAvailableCoinsData : boost::statechart::event< CAvailableCoinsData >
 {
-	CAvailableCoinsData( std::map< uint256, CCoins > const & _availableCoins, uint256 const & _hash );
+	CAvailableCoinsData(
+			std::map< uint256
+			, CCoins > const & _availableCoins
+			, std::map< uint256, std::vector< CKeyID > > const & m_transactionInputs
+			, uint256 const & _hash );
+
 	CAvailableCoinsData();
 
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_hash);
 		READWRITE(m_availableCoins);
+		READWRITE(m_transactionInputs);
 	)
 
 	static CMainRequestType::Enum const  m_requestType;
 	uint256 m_hash;
 	std::map< uint256, CCoins > m_availableCoins;
+	std::map< uint256, std::vector< CKeyID > > m_transactionInputs;
 };
 
 

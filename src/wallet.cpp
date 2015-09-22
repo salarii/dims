@@ -1316,6 +1316,14 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
 }
 
 void
+CWallet::addInputs( std::map< uint256, std::vector< CKeyID > > const & _inputs )
+{
+	AssertLockHeld(cs_wallet);
+	m_inputs.insert( _inputs.begin(), _inputs.end() );
+}
+
+
+void
 CWallet::addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins, bool _writeToDatabase )
 {
 	AssertLockHeld(cs_wallet);
