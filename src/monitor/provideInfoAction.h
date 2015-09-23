@@ -28,6 +28,8 @@ class CProvideInfoAction : public common::CScheduleAbleAction, public  boost::st
 public:
 	CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
+	CProvideInfoAction( common::CInfoKind::Enum _infoKind );
+
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	uintptr_t getNodeIndicator() const;
@@ -36,11 +38,15 @@ public:
 
 	void setInfoRequestKey( uint256 const & _key ){ m_infoRequestKey = _key; }
 
+		common::CInfoKind::Enum getInfo() const{ return m_infoKind; }
+
 	~CProvideInfoAction(){};
 private:
 	uint256 m_infoRequestKey;
 
 	uintptr_t m_nodeIndicator;
+
+	common::CInfoKind::Enum m_infoKind;
 };
 
 }

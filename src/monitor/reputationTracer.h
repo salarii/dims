@@ -61,6 +61,8 @@ public:
 	bool checkForTracker( CPubKey const & _pubKey, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
 
 	bool eraseExtendInProgress( CPubKey const & _pubKey );
+
+	bool isAddmitedMonitor( CPubKey const & _pubKey );
 private:
 	CReputationTracker();
 

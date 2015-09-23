@@ -71,6 +71,7 @@ struct CInfoKind
 		, RankingAsk
 		, TrackerInfo  // good ???
 		, ClientTrasactionStatus
+		, IsAddmited
 	};
 };
 

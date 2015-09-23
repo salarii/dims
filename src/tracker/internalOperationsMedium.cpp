@@ -2,12 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "internalOperationsMedium.h"
-#include "addressToCoins.h"
-#include "transactionRecordManager.h"
-#include "common/manageNetwork.h"
-
+#include "tracker/internalOperationsMedium.h"
+#include "tracker/addressToCoins.h"
+#include "tracker/transactionRecordManager.h"
 #include "tracker/requests.h"
+
+#include "common/manageNetwork.h"
 
 #include <algorithm>
 

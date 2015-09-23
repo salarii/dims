@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "internalMediumProvider.h"
-#include "internalOperationsMedium.h"
+#include "tracker/internalMediumProvider.h"
+#include "tracker/internalOperationsMedium.h"
 
 #include "common/bitcoinNodeMedium.h"
 #include "common/timeMedium.h"

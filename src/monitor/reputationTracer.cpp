@@ -370,6 +370,12 @@ CReputationTracker::eraseExtendInProgress( CPubKey const & _pubKey )
 	return true;
 }
 
+bool
+CReputationTracker::isAddmitedMonitor( CPubKey const & _pubKey )
+{
+	return m_allyMonitors.find( _pubKey.GetID() ) != m_allyMonitors.end();
+}
+
 void
 CReputationTracker::addTracker( common::CTrackerData const & _trackerData )
 {
