@@ -24,64 +24,27 @@ namespace monitor
 
 unsigned int const LoopTime = 20000;//milisec
 
-struct CIsRegisteredInfo;
+struct CProvideInfo;
+struct CAskForInfo;
 
-struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
+struct CAskForInfoEvent : boost::statechart::event< CAskForInfoEvent >
 {
-	CAskForInfo( my_context ctx ) : my_base( ctx )
-	{
-		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest(
-														  context< CProvideInfoAction >().getInfo()
-														, context< CProvideInfoAction >().getActionKey()
-														, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
+};
 
-		context< CProvideInfoAction >().addRequest(
-					new common::CTimeEventRequest(
-						  LoopTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
+struct CProvideInfoEvent : boost::statechart::event< CProvideInfoEvent >
+{
+};
 
-	boost::statechart::result react( common::CAckEvent const & _promptAck )
-	{
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CProvideInfoAction >().forgetRequests();
-		context< CProvideInfoAction >().setExit();
-
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		context< CProvideInfoAction >().addRequest(
-					new common::CAckRequest(
-						  context< CProvideInfoAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
-
-		if ( ( common::CPayloadKind::Enum )orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration )
-		{
-			common::CValidRegistration validRegistration;
-
-			common::convertPayload( orginalMessage, validRegistration );
-
-			context< CProvideInfoAction >().setResult( validRegistration );
-		}
-	}
+struct CInit : boost::statechart::state< CInit, CProvideInfoAction >
+{
+	CInit( my_context ctx ) : my_base( ctx )
+	{}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::transition< CProvideInfoEvent, CProvideInfo >,
+	boost::statechart::transition< CAskForInfoEvent, CAskForInfo >
 	> reactions;
+
 };
 
 struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction >
@@ -121,14 +84,52 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		context< CProvideInfoAction >().addRequest( request );
 
-		if ( requestedInfo.m_kind == (int)common::CInfoKind::TrackerInfo )
+		context< CProvideInfoAction >().addRequest(
+					new common::CTimeEventRequest(
+						  LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+
+		if ( requestedInfo.m_kind == (int)common::CInfoKind::IsAddmited )
 		{
+			CPubKey pubKey;
+			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
-						common::CPayloadKind::TrackerInfo
+						common::CPayloadKind::Result
 						, context< CProvideInfoAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
+						, context< CProvideInfoAction >().getInfoRequestKey()
 						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+
+			request->addPayload(
+						common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( pubKey ) ? 1 : 0 ) );
+
+			context< CProvideInfoAction >().addRequest( request );
+
+		}
+		else if ( requestedInfo.m_kind == (int)common::CInfoKind::IsRegistered )
+		{
+
+			CPubKey pubKey;
+			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+
+			common::CTrackerData trackerData;
+			CPubKey monitorPubKey;
+			CReputationTracker::getInstance()->checkForTracker( pubKey, trackerData, monitorPubKey );
+
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::ValidRegistration
+						, context< CProvideInfoAction >().getActionKey()
+						, context< CProvideInfoAction >().getInfoRequestKey()
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+
+			request->addPayload(
+						common::CValidRegistration(
+							monitorPubKey
+							, trackerData.m_contractTime
+							, trackerData.m_networkTime ) );
 
 			context< CProvideInfoAction >().addRequest( request );
 
@@ -172,46 +173,23 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	uint256 m_id;
 };
 
-struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvideInfoAction >
+struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
-	CIsRegisteredInfo( my_context ctx ) : my_base( ctx )
+	CAskForInfo( my_context ctx ) : my_base( ctx )
 	{
+		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest(
+														  context< CProvideInfoAction >().getInfo()
+														, context< CProvideInfoAction >().getActionKey()
+														, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
+
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest(
 						  LoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-/* get  motherfucker
-
-
-
-*/
-		CPubKey pubKey;
-		CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
-
-		common::CTrackerData trackerData;
-		CPubKey monitorPubKey;
-		CReputationTracker::getInstance()->checkForTracker( pubKey, trackerData, monitorPubKey );
-
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::ValidRegistration
-					, context< CProvideInfoAction >().getActionKey()
-					, context< CProvideInfoAction >().getInfoRequestKey()
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
-
-		request->addPayload(
-					common::CValidRegistration(
-						monitorPubKey
-						, trackerData.m_contractTime
-						, trackerData.m_networkTime ) );
-
-		context< CProvideInfoAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		context< CProvideInfoAction >().forgetRequests();
-		context< CProvideInfoAction >().setExit();
 		return discard_event();
 	}
 
@@ -219,55 +197,36 @@ struct CIsRegisteredInfo : boost::statechart::state< CIsRegisteredInfo, CProvide
 	{
 		context< CProvideInfoAction >().forgetRequests();
 		context< CProvideInfoAction >().setExit();
+
 		return discard_event();
 	}
 
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >
-	> reactions;
-};
-
-struct CIsAddmitedInfo : boost::statechart::state< CIsAddmitedInfo, CProvideInfoAction >
-{
-	CIsAddmitedInfo( my_context ctx ) : my_base( ctx )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
+
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
 		context< CProvideInfoAction >().addRequest(
-					new common::CTimeEventRequest(
-						  LoopTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-		CPubKey pubKey;
-		CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+					new common::CAckRequest(
+						  context< CProvideInfoAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::Result
-					, context< CProvideInfoAction >().getActionKey()
-					, context< CProvideInfoAction >().getInfoRequestKey()
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+		if ( ( common::CPayloadKind::Enum )orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Result )
+		{
+			common::CResult result;
 
-		request->addPayload(
-					common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( pubKey ) ? 1 : 0 ) );
+			common::convertPayload( orginalMessage, result );
 
-		context< CProvideInfoAction >().addRequest( request );
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _promptAck )
-	{
-		context< CProvideInfoAction >().forgetRequests();
-		context< CProvideInfoAction >().setExit();
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CProvideInfoAction >().forgetRequests();
-		context< CProvideInfoAction >().setExit();
-		return discard_event();
+			context< CProvideInfoAction >().setResult( result );
+		}
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };

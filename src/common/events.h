@@ -173,6 +173,11 @@ public:
 		this->m_action->process_event( common::CRegistrationData( _validRegistration.m_key, _validRegistration.m_registrationTime, _validRegistration.m_period ) );
 	}
 
+	void operator()( CResult const & _result ) const
+	{
+		this->m_action->process_event( CResultEvent( _result.m_result ) );
+	}
+
 	void operator()( CExecutedIndicator const & _executedIndicator ) const
 	{
 		this->m_action->process_event( _executedIndicator );

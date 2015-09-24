@@ -13,8 +13,9 @@ namespace monitor
 {
 
 struct CSynchronizeWithBitcoin;
+struct CMonitorStandAlone;
 
-class CController : public boost::statechart::state_machine< CController, CSynchronizeWithBitcoin >
+class CController : public boost::statechart::state_machine< CController, CMonitorStandAlone >
 {
 public:
 	static CController* getInstance();
