@@ -244,12 +244,14 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _id, uint256 const & _ac
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();
+	process_event( CProvideInfoEvent() );
 }
 
 CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind )
 	: m_infoKind( _infoKind )
 {
 	initiate();
+	process_event( CAskForInfoEvent() );
 }
 
 void
