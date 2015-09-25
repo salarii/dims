@@ -20,10 +20,10 @@ consider using ack  request after  every successful message  reception
 namespace monitor
 {
 
-struct CProvideInfo;
+struct CInit;
 // rework  this  sooner  or later
 
-class CProvideInfoAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CProvideInfoAction, CProvideInfo >
+class CProvideInfoAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CProvideInfoAction, CInit >
 {
 public:
 	CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
