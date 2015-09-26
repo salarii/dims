@@ -33,7 +33,7 @@ public:
 
 	void deleteTracker( CPubKey const & _pubKey );
 
-	// both function, not finall form
+	// both function, not final form
 	std::vector< common::CTrackerData > getTrackers() const;
 
 	std::vector< common::CAllyMonitorData > getAllyMonitors() const;
@@ -63,6 +63,8 @@ public:
 	bool eraseExtendInProgress( CPubKey const & _pubKey );
 
 	bool isAddmitedMonitor( CPubKey const & _pubKey );
+
+	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 private:
 	CReputationTracker();
 
@@ -77,6 +79,7 @@ private:
 	void storeCurrentRanking();
 
 	void loadCurrentRanking();
+
 // counting reputation is crucial, it will be  done  differently in separate  action, something I consider  to call "super  action"
 private:
 	mutable boost::mutex m_lock;
@@ -88,6 +91,8 @@ private:
 	typedef std::map< uint160, unsigned int > TransactionsAddmited;
 
 	typedef std::map< uint160, common::CAllyMonitorData > Monitor;
+
+	std::set< common::CValidNodeInfo > m_knownMonitors;
 
 	std::map< uint160, common::CValidNodeInfo > m_candidates;
 

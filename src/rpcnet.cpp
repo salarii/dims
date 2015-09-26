@@ -21,6 +21,7 @@ using namespace json_spirit;
 using namespace std;
 
 boost::signals2::signal< std::string () > SatusHook;
+boost::signals2::signal< std::string ( std::string const & ) > EnterNetworkHook;
 boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
 boost::signals2::signal< std::string () > SelfAddress;
 boost::signals2::signal< std::string () > ConnectNetworkHook;
@@ -40,6 +41,23 @@ json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 
 	return status;
 }
+
+json_spirit::Value enterNetwork(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 1)
+		throw runtime_error(
+			"enterNetwork\n" \
+			"\nRequest admission in specified monitor\n" \
+			"Monitor start normal operation within network\n"
+				"\nExamples:\n"
+				+ HelpExampleRpc("enterNetwork", "monitor_key")
+		);
+
+	std::string result = *EnterNetworkHook( params[0].get_str() );
+
+	return result;
+}
+
 
 json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp)
 {

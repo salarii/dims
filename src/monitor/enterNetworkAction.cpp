@@ -24,10 +24,12 @@
 #include "monitor/monitorRequests.h"
 #include "monitor/rankingDatabase.h"
 #include "monitor/synchronizationAction.h"
+#include "monitor/chargeRegister.h"
 
 namespace monitor
 {
 struct CSynchronization;
+struct CFreeRegistration;
 //milisec
 unsigned int const WaitTime = 10000;
 
@@ -37,6 +39,238 @@ CPubKey monitorKey;
 unsigned int price;
 }
 
+struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetworkAction >
+{
+	CAssistAdmission( my_context ctx )
+		: my_base( ctx )
+	{
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( _messageResult.m_message.m_header.m_id == common::CPayloadKind::AdmitAsk )
+		{
+			context< CEnterNetworkAction >().forgetRequests();
+
+			context< CEnterNetworkAction >().addRequest(
+						new common::CAckRequest(
+							context< CEnterNetworkAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
+
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::Result
+						, context< CEnterNetworkAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+
+			request->addPayload( common::CResult( 1 ) );
+
+			context< CEnterNetworkAction >().addRequest( request );
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		if ( CController::getInstance()->getEnterancePrice() )
+		{
+			if ( CReputationTracker::getInstance()->getTrackers().empty() );
+				//return transit< CPaidRegistrationEmptyNetwork >();
+		}
+		else
+			return transit< CFreeRegistration >();
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CEnterNetworkAction >().setExit();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+};
+
+struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CEnterNetworkAction >
+{
+	CFreeRegistration( my_context ctx )
+		: my_base( ctx )
+	{
+		context< CEnterNetworkAction >().forgetRequests();
+
+		context< CEnterNetworkAction >().addRequest(
+					new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+// do  something
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CEnterNetworkAction >().forgetRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CEnterNetworkAction >().forgetRequests();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+
+};
+
+struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CEnterNetworkAction >
+{
+	CPaidRegistration( my_context ctx )
+		: my_base( ctx )
+		, m_checkPeriod( 30000 )
+	{
+		context< CEnterNetworkAction >().forgetRequests();
+
+		CChargeRegister::getInstance()->setStoreTransactions( true );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		common::CAdmitProof admitMessage;
+
+		common::convertPayload( orginalMessage, admitMessage );
+
+		CChargeRegister::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
+
+		m_proofHash = admitMessage.m_proofTransactionHash;
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::Ack
+					, context< CEnterNetworkAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+
+		request->addPayload( common::CAck() );
+
+		context< CEnterNetworkAction >().addRequest( request );
+
+		context< CEnterNetworkAction >().forgetRequests();
+		context< CEnterNetworkAction >().addRequest(
+					new common::CTimeEventRequest(
+						m_checkPeriod
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		m_messageId = _messageResult.m_message.m_header.m_id;
+
+		m_pubKey = _messageResult.m_pubKey;
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		CTransaction transaction;
+
+		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
+		{
+
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::Result
+						, context< CEnterNetworkAction >().getActionKey()
+						, m_messageId
+						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+
+			CPubKey pubKey;
+
+			if ( CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), pubKey ) )
+			{
+				request->addPayload( common::CResult( 1 ) );
+
+							common::CTrackerData trackerData(
+								m_pubKey
+								, 0
+								, CController::getInstance()->getPeriod()
+								, GetTime() );
+
+				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+
+				CReputationTracker::getInstance()->addTracker( trackerData );
+			}
+			else
+			{
+				request->addPayload( common::CResult( 0 ) );
+			}
+
+			context< CEnterNetworkAction >().addRequest( request );
+		}
+		else
+		{
+			context< CEnterNetworkAction >().forgetRequests();
+
+			context< CEnterNetworkAction >().addRequest(
+						new common::CTimeEventRequest(
+							m_checkPeriod
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		}
+		return discard_event();
+	}
+
+	~CPaidRegistration()
+	{
+		CChargeRegister::getInstance()->setStoreTransactions( false );
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CEnterNetworkAction >().setExit();
+		return discard_event();
+	}
+
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+
+	uint256 m_proofHash;
+
+	uint256 m_messageId;
+
+	int64_t const m_checkPeriod;
+
+	CPubKey m_pubKey;
+};
+
 
 struct CEnterNetworkInitial : boost::statechart::simple_state< CEnterNetworkInitial, CEnterNetworkAction >
 {
@@ -45,6 +279,7 @@ struct CEnterNetworkInitial : boost::statechart::simple_state< CEnterNetworkInit
 	boost::statechart::transition< ,  >
 	> reactions;*/
 };
+
 
 struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetworkAction >
 {
@@ -331,60 +566,13 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 };
-/*
-struct  : boost::statechart::state< , CEnterNetworkAction >
+
+
+CEnterNetworkAction::CEnterNetworkAction( uintptr_t _nodePtr )
+	: m_nodePtr( _nodePtr )
 {
-	( my_context ctx )
-		: my_base( ctx )
-	{
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		common::CAdmitProof admitMessage;
-
-		common::convertPayload( orginalMessage, admitMessage );
-
-		CReputationTracker::getInstance()->addTracker( CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getPeriod(), GetTime() ) );
-
-		context< CEnterNetworkAction >().addRequest(
-					new common::CAckRequest(
-						context< CEnterNetworkAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
-
-		context< CEnterNetworkAction >().addRequest(
-					new common::CResultRequest< common::CMonitorTypes >(
-						  context< CEnterNetworkAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, 1
-						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
-
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
-	> reactions;
-
-};
-*/
+	initiate();
+}
 
 CEnterNetworkAction::CEnterNetworkAction( uint256 const & _actionKey, uintptr_t _nodePtr )
 	: common::CAction( _actionKey )

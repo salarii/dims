@@ -454,6 +454,13 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getNodePtr() );
 
+		CReputationTracker::getInstance()->setNodeInfo(
+					common::CValidNodeInfo(
+						context< CConnectNodeAction >().getPublicKey()
+						, context< CConnectNodeAction >().getServiceAddress() )
+					, context< CConnectNodeAction >().getRole());
+
+
 		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					  new common::CInfoAskRequest(

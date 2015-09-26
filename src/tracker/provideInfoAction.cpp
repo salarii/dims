@@ -192,6 +192,9 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 			context< CProvideInfoAction >().setResult( validRegistration );
 		}
+
+		context< CProvideInfoAction >().forgetRequests();
+		context< CProvideInfoAction >().setExit();
 	}
 
 	typedef boost::mpl::list<

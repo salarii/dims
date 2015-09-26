@@ -18,6 +18,7 @@
 #include "monitor/monitorRequests.h"
 #include "monitor/filters.h"
 #include "monitor/reputationTracer.h"
+#include "monitor/controller.h"
 
 namespace monitor
 {
@@ -134,10 +135,25 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 			context< CProvideInfoAction >().addRequest( request );
 
 		}
+		else if ( requestedInfo.m_kind == (int)common::CInfoKind::EnterConditionAsk )
+		{
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::EnterNetworkCondition
+						, context< CProvideInfoAction >().getActionKey()
+						, context< CProvideInfoAction >().getInfoRequestKey()
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
+			request->addPayload(
+						common::CEnteranceTerms( CController::getInstance()->getEnterancePrice() ) );
+
+			context< CProvideInfoAction >().addRequest( request );
+		}
+
+		context< CProvideInfoAction >().forgetRequests();
+		context< CProvideInfoAction >().setExit();
 		return discard_event();
 	}
-
 
 	boost::statechart::result react( common::CAvailableCoinsData const & _availableCoins )
 	{
@@ -222,6 +238,9 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 			context< CProvideInfoAction >().setResult( result );
 		}
+
+		context< CProvideInfoAction >().forgetRequests();
+		context< CProvideInfoAction >().setExit();
 	}
 
 	typedef boost::mpl::list<

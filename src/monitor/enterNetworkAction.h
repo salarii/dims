@@ -17,6 +17,8 @@ struct CEnterNetworkInitial;
 class CEnterNetworkAction : public common::CAction, public  boost::statechart::state_machine< CEnterNetworkAction, CEnterNetworkInitial >
 {
 public:
+	CEnterNetworkAction( uintptr_t _nodePtr );
+
 	CEnterNetworkAction( uint256 const & _actionKey, uintptr_t _nodePtr );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );

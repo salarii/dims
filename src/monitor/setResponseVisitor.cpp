@@ -134,6 +134,11 @@ public:
 		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
 		this->m_action->process_event( common::CAckEvent() );
 	}
+
+	virtual void operator()( common::ScheduledResult & _param ) const
+	{
+		boost::apply_visitor( common::CResolveScheduledResult< monitor::CAdmitTrackerAction >( this->m_action ), _param );
+	}
 };
 
 class CSetTrackOriginAddressResult : public CResponseVisitorBase< monitor::CTrackOriginAddressAction, common::DimsResponsesList >

@@ -161,6 +161,24 @@ CReputationTracker::loadCurrentRanking()
 }
 
 void
+CReputationTracker::setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role )
+{
+	switch( _role )
+	{
+	case common::CRole::Seed:
+		break;
+	case common::CRole::Tracker:
+		break;
+	case common::CRole::Monitor:
+		m_knownMonitors.insert( _validNodeInfo );
+		break;
+	default:
+		break;
+	}
+}
+
+
+void
 CReputationTracker::checkValidity( common::CAllyTrackerData const & _allyTrackerData )
 {
 }
@@ -196,7 +214,27 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 	std::list< common::CMedium *> mediums;
 
 	uintptr_t nodeIndicator;
-	if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Trackers )
+
+	if ( !CController::getInstance()->isAdmitted() )
+	{
+		if ( _nodesClass == common::CMediumKinds::Monitors )
+		{
+			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
+			{
+					if ( !getKeyToNode( validNode.m_key, nodeIndicator) )
+						assert( !"something wrong" );
+
+					common::CMedium * medium = findNodeMedium( nodeIndicator );
+
+					if ( !medium )
+						assert( !"something wrong" );
+					mediums.push_back( medium );
+			}
+		}
+		return mediums;
+	}
+
+	if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers )
 	{
 
 		BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
@@ -211,7 +249,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 				mediums.push_back( medium );
 		}
 	}
-	else if ( common::CMediumKinds::DimsNodes || common::CMediumKinds::Monitors )
+	else if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Monitors )
 	{
 		BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
 		{

@@ -29,6 +29,16 @@ public:
 		return m_price;
 	}
 
+	unsigned int getEnterancePrice() const
+	{
+		return m_enterancePrice;
+	}
+
+	void setEnterancePrice( unsigned int _price )
+	{
+		m_enterancePrice = _price;
+	}
+
 	void setPeriod( uint64_t const _period )
 	{
 		m_period = _period;
@@ -49,6 +59,16 @@ public:
 		return m_statusMessage;
 	}
 
+	bool isAdmitted() const
+	{
+		return m_admitted;
+	}
+
+	void setAdmitted( bool _admitted )
+	{
+		m_admitted = _admitted;
+	}
+
 private:
 	CController();
 
@@ -57,8 +77,13 @@ private:
 
 	static CController * ms_instance;
 
+	unsigned int m_enterancePrice;
+
 	unsigned int m_price;
+
 	uint64_t m_period;
+
+	bool m_admitted;
 };
 
 }

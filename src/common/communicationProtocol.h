@@ -53,6 +53,7 @@ struct CPayloadKind
 		SynchronizationAsk,
 		SynchronizationBitcoinHeader,
 		EnterNetworkAsk,
+		EnterNetworkCondition,
 		RankingInfo,
 		ExtendRegistration
 	};
@@ -70,6 +71,7 @@ struct CInfoKind
 		, BalanceAsk
 		, RankingAsk
 		, TrackerInfo  // good ???
+		, EnterConditionAsk
 		, ClientTrasactionStatus
 		, IsAddmited
 	};

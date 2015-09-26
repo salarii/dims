@@ -207,8 +207,10 @@ CController::getInstance()
 }
 
 CController::CController()
-	: m_price( 3000 )
+	: m_enterancePrice(2000)
+	, m_price( 3000 )
 	, m_period( 3600*4 )
+	, m_admitted( false )
 {
 	initiate();
 }

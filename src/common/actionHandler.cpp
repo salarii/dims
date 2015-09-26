@@ -137,7 +137,7 @@ CActionHandler::loop()
 			{
 				std::vector< CRequest* > requests = action->getRequests();
 
-				if ( action->needToExit() )
+				if ( action->needToExit() && ( action->getDroppedRequests().empty() && action->getRequests().empty() ) )
 				{
 					toErase.push_back( action );
 

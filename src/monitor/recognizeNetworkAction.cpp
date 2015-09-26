@@ -111,7 +111,10 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			 && nodesToAsk.empty()
 			)
 		{
-			return transit< CCheckAdmissionStatus >();
+			context< CRecognizeNetworkAction >().forgetRequests();
+			context< CRecognizeNetworkAction >().setExit();
+
+			return discard_event();
 		}
 		else if ( !nodesToAsk.empty() )
 		{
@@ -143,7 +146,8 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CRecognizeNetworkAction >().forgetRequests();
-		return transit< CCheckAdmissionStatus >();
+		context< CRecognizeNetworkAction >().setExit();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -156,29 +160,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 	std::set< common::CValidNodeInfo > m_monitors;
 	std::set< CAddress > m_received;
 	std::set< CAddress > m_alreadyAsked;
-};
-
-struct CCheckAdmissionStatus : boost::statechart::state< CCheckAdmissionStatus, CRecognizeNetworkAction >
-{
-	CCheckAdmissionStatus( my_context ctx ) : my_base( ctx )
-	{
-		context< CRecognizeNetworkAction >().forgetRequests();
-		context< CRecognizeNetworkAction >().addRequest(
-					new common::CScheduleActionRequest(
-						  new CProvideInfoAction( common::CInfoKind::IsAddmited )
-						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-	}
-
-	boost::statechart::result react( common::CRegistrationData const & _registerData )
-	{
-		CController::getInstance()->process_event( _registerData );
-		context< CRecognizeNetworkAction >().setExit();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRegistrationData >
-	> reactions;
 };
 
 CRecognizeNetworkAction::CRecognizeNetworkAction()

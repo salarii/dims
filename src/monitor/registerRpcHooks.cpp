@@ -4,10 +4,14 @@
 
 #include "rpcserver.h"
 
+#include "base58.h"
 #include "common/events.h"
+#include "common/actionHandler.h"
 
 #include "monitor/controller.h"
 #include "monitor/registerRpcHooks.h"
+#include "monitor/reputationTracer.h"
+#include "monitor/enterNetworkAction.h"
 
 namespace monitor
 {
@@ -18,6 +22,28 @@ getStatus()
 	CController::getInstance()->process_event( common::CUpdateStatus() );
 
 	return CController::getInstance()->getStatusMessage();
+}
+
+std::string enterNetwork( std::string const & _key )
+{
+	CKeyID keyId;
+
+	CNodeAddress nodeAddress(_key);
+
+	if ( !nodeAddress.GetKeyID( keyId ) )
+		goto WrongKey;
+
+	uintptr_t nodeIndicator;
+//	if ( !CReputationTracker::getInstance()->getKeyToNode( keyId, nodeIndicator ) )
+		goto NotPresent;
+
+	common::CActionHandler::getInstance()->executeAction( new CEnterNetworkAction( nodeIndicator ) );
+	return "registration in progress";
+
+WrongKey:
+		return "monitor with specified number not present";
+NotPresent:
+	return "monitor with specified number not present";
 }
 
 void registerHooks()
