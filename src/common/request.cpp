@@ -10,6 +10,7 @@ namespace common
 
 CRequest::CRequest( CMediumFilter * _mediumFilter )
 	: m_mediumFilter( _mediumFilter )
+	, m_processed( false )
 {
 	m_id = getRandNumber();
 }
@@ -17,6 +18,7 @@ CRequest::CRequest( CMediumFilter * _mediumFilter )
 CRequest::CRequest( uint256 const & _id, CMediumFilter * _mediumFilter )
 	: m_mediumFilter( _mediumFilter )
 	, m_id( _id )
+	, m_processed( false )
 {
 }
 

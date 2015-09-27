@@ -97,7 +97,26 @@ CAction::setExit()
 
 bool
 CAction::needToExit()const
-{ return m_exit; }
+{
+	if ( m_exit )
+	{
+		BOOST_FOREACH( CRequest *request, m_droppedRequests )
+		{
+			if ( !request->isProcessed() )
+				return false;
+		}
+
+		BOOST_FOREACH( CRequest *request, m_requests )
+		{
+			if ( !request->isProcessed() )
+				return false;
+		}
+
+		return true;
+	}
+
+	return false;
+}
 
 bool
 CAction::requestToProcess()const
@@ -108,6 +127,11 @@ CAction::requestToProcess()const
 CAction::~CAction()
 {
 	BOOST_FOREACH( CRequest *request, m_droppedRequests )
+	{
+		delete request;
+	}
+
+	BOOST_FOREACH( CRequest *request, m_requests )
 	{
 		delete request;
 	}

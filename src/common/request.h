@@ -49,10 +49,15 @@ public:
 
 	virtual ~CRequest();
 
+	bool isProcessed()const{ return m_processed; }
+
+	void setProcessed(){ m_processed = true; }
 protected:
 	CMediumFilter * m_mediumFilter;
 
 	uint256 m_id;
+
+	bool m_processed;
 };
 
 }

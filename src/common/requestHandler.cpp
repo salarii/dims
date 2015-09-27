@@ -95,6 +95,7 @@ void
 	m_usedMedium->prepareMedium();
 	BOOST_FOREACH( CRequest * request, m_newRequest )
 	{
+		request->setProcessed();
 		request->accept( m_usedMedium );
 	}
 	m_newRequest.clear();
