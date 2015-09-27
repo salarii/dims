@@ -79,7 +79,10 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CConnectNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
 		// looks funny that  I set it in this  state, but let  it  be
+		context< CConnectNodeAction >().setServiceAddress( connectedEvent->m_node->addr);
+
 		CReputationTracker::getInstance()->addNode( new common::CNodeMedium( connectedEvent->m_node ) );
+
 		context< CConnectNodeAction >().forgetRequests();
 		context< CConnectNodeAction >().addRequest(
 					createIdentifyResponse(
@@ -231,6 +234,8 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
 		{
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
+
+			context< CConnectNodeAction >().setServiceAddress( _identificationResult.m_address );
 
 			CReputationTracker::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 
@@ -621,6 +626,11 @@ CConnectNodeAction::setPublicKey( CPubKey const & _pubKey )
 	m_key = _pubKey;
 }
 
+void
+CConnectNodeAction::setServiceAddress( CAddress const & _addrConnect )
+{
+	m_addrConnect = _addrConnect;
+}
 
 void
 CConnectNodeAction::setNodePtr( uintptr_t _nodePtr )

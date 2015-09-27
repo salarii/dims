@@ -31,6 +31,8 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
+	void setServiceAddress( CAddress const & _addrConnect );
+
 	CAddress getServiceAddress() const;
 
 	std::vector< unsigned char > const & getPayload() const;
