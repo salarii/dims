@@ -225,9 +225,9 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CEnterNe
 						, m_messageId
 						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
 
-			CPubKey pubKey;
+			uint160 pubKeyId;
 
-			if ( CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), pubKey ) )
+			if ( CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), pubKeyId ) )
 			{
 				request->addPayload( common::CResult( 1 ) );
 
@@ -305,7 +305,7 @@ struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnt
 					, context< CEnterNetworkAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ); // bit  risky to ask  this way
 
-		request->addPayload( common::CInfoKind::EnterConditionAsk );
+		request->addPayload( common::CInfoKind::EnterConditionAsk, std::vector<unsigned char>() );
 
 		context< CEnterNetworkAction >().addRequest( request );
 	}

@@ -55,7 +55,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				   message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq// reconsider  this
+				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq// reconsider  this, info request has  hidden  risk  serviced  like  it  is now
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitProof
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions
@@ -68,7 +68,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 			// not necessarily have to pass this
 			CPubKey key;
-			CReputationTracker::getInstance()->getNodeToKey( convertToInt( nodeMedium->getNode() ), key );
+			CReputationTracker::getInstance()->getPublicKey( pfrom->addr, key );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
@@ -101,8 +101,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
 				{
 					CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
-								  message.m_header.m_id
-								, message.m_header.m_actionKey
+								 message.m_header.m_actionKey
 								, convertToInt( nodeMedium->getNode() )
 								);
 

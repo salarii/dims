@@ -317,6 +317,13 @@ elif cmd == "status":
 	except:
 		print "\n---An error occurred---\n"
 		
+elif cmd == "enternetwork":
+	try:
+		addr = raw_input("Address: ")
+		print access.enterNetwork(addr)
+	except:
+		print "\n---An error occurred---\n"
+		
 elif cmd == "registerinnetwork":
 	try:
 		addr = raw_input("Address: ")

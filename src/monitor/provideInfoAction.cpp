@@ -78,7 +78,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
 					, context< CProvideInfoAction >().getActionKey()
-					, _messageResult.m_message.m_header.m_id
+					, m_id
 					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
 		request->addPayload( common::CAck() );
@@ -93,18 +93,18 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::IsAddmited )
 		{
-			CPubKey pubKey;
-			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+			uint160 pubKeyId;
+			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKeyId );
 
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
 						, context< CProvideInfoAction >().getActionKey()
-						, context< CProvideInfoAction >().getInfoRequestKey()
+						, m_id
 						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
 			request->addPayload(
-						common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( pubKey ) ? 1 : 0 ) );
+						common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( pubKeyId ) ? 1 : 0 ) );
 
 			context< CProvideInfoAction >().addRequest( request );
 
@@ -112,18 +112,18 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::IsRegistered )
 		{
 
-			CPubKey pubKey;
-			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+			uint160 pubKeyId;
+			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKeyId );
 
 			common::CTrackerData trackerData;
 			CPubKey monitorPubKey;
-			CReputationTracker::getInstance()->checkForTracker( pubKey, trackerData, monitorPubKey );
+			CReputationTracker::getInstance()->checkForTracker( pubKeyId, trackerData, monitorPubKey );
 
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ValidRegistration
 						, context< CProvideInfoAction >().getActionKey()
-						, context< CProvideInfoAction >().getInfoRequestKey()
+						, m_id
 						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
 			request->addPayload(
@@ -141,7 +141,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					new common::CSendMessageRequest(
 						common::CPayloadKind::EnterNetworkCondition
 						, context< CProvideInfoAction >().getActionKey()
-						, context< CProvideInfoAction >().getInfoRequestKey()
+						, m_id
 						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
 			request->addPayload(
@@ -257,9 +257,8 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 	}
 };
 
-CProvideInfoAction::CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator )
+CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
 	: common::CScheduleAbleAction( _actionKey )
-	, m_infoRequestKey( _id )
 	, m_nodeIndicator( _nodeIndicator )
 {
 	initiate();

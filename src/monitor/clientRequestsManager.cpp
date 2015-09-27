@@ -51,7 +51,7 @@ public:
 		BOOST_FOREACH( CAllyMonitorData const & allyMonitorData, allyMonitors )
 		{
 
-			success = CReputationTracker::getInstance()->getKeyToNode( allyMonitorData.m_publicKey, nodeIndicator );
+			success = CReputationTracker::getInstance()->getKeyToNode( allyMonitorData.m_publicKey.GetID(), nodeIndicator );
 			assert( success );
 
 			success = CReputationTracker::getInstance()->getAddress( nodeIndicator, address );
@@ -70,7 +70,7 @@ public:
 		BOOST_FOREACH( CTrackerData const & trackerData, trackersData )
 		{
 
-			success = CReputationTracker::getInstance()->getKeyToNode( trackerData.m_publicKey, nodeIndicator );
+			success = CReputationTracker::getInstance()->getKeyToNode( trackerData.m_publicKey.GetID(), nodeIndicator );
 			assert( success );
 
 			success = CReputationTracker::getInstance()->getAddress( nodeIndicator, address );

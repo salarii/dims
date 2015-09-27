@@ -44,9 +44,9 @@ public:
 
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
 
-	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator)const;
+	bool getKeyToNode( uint160 const & _pubKeyId, uintptr_t & _nodeIndicator)const;
 
-	bool getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const;
+	bool getNodeToKey( uintptr_t _nodeIndicator, uint160 & _pubKey )const;
 
 	void setPresentTrackers( std::set< uint160 > const & _presentTrackers )
 	{
@@ -58,11 +58,11 @@ public:
 
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 
-	bool checkForTracker( CPubKey const & _pubKey, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
+	bool checkForTracker( uint160 const & _pubKeyId, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;
 
 	bool eraseExtendInProgress( CPubKey const & _pubKey );
 
-	bool isAddmitedMonitor( CPubKey const & _pubKey );
+	bool isAddmitedMonitor( uint160 const & _pubKeyId );
 
 	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 private:
@@ -110,7 +110,7 @@ private:
 
 	static uint64_t const m_recalculateTime;
 
-	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
+	std::map< uint160, uintptr_t > m_pubKeyToNodeIndicator;
 
 	std::set< CPubKey > m_extendInProgress;
 };

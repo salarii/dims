@@ -110,6 +110,7 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
 		{
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
+			CReputationTracker::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 
 			context< CConnectNodeAction >().forgetRequests();
 
@@ -230,6 +231,8 @@ struct CMonitorBothUnidentifiedConnected : boost::statechart::state< CMonitorBot
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
 		{
 			context< CConnectNodeAction >().setPublicKey( _identificationResult.m_key );
+
+			CReputationTracker::getInstance()->setPublicKey( context< CConnectNodeAction >().getServiceAddress(), _identificationResult.m_key );
 
 			context< CConnectNodeAction >().forgetRequests();
 

@@ -30,10 +30,6 @@ public:
 
 	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 
-	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
-
-	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
-
 	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
@@ -51,9 +47,6 @@ public:
 private:
 	CTrackerNodesManager();
 private:
-	// is this ok??? seems like temporary solution, move it  to  common???
-	std::map< CAddress, CPubKey > m_keyStore;
-
 	std::map< CKeyID, uintptr_t > m_pubKeyToNodeIndicator;
 
 	std::set< common::CValidNodeInfo > m_trackers;

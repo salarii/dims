@@ -121,7 +121,7 @@ CReputationTracker::loop()
 				else if ( timeLeft < CController::getInstance()->getPeriod() * TriggerExtendRatio )
 				{
 					uintptr_t nodeIndicator;
-					getKeyToNode( tracker.second.m_publicKey, nodeIndicator);
+					getKeyToNode( tracker.second.m_publicKey.GetID(), nodeIndicator);
 					if ( isExtendInProgress( tracker.second.m_publicKey ) )
 					{
 						setExtendInProgress( tracker.second.m_publicKey );
@@ -221,7 +221,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
 			{
-					if ( !getKeyToNode( validNode.m_key, nodeIndicator) )
+					if ( !getKeyToNode( validNode.m_key.GetID(), nodeIndicator) )
 						assert( !"something wrong" );
 
 					common::CMedium * medium = findNodeMedium( nodeIndicator );
@@ -239,7 +239,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 
 		BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
 		{
-				if ( !getKeyToNode( trackerData.second.m_publicKey, nodeIndicator) )
+				if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
 					assert( !"something wrong" );
 
 				common::CMedium * medium = findNodeMedium( nodeIndicator );
@@ -253,7 +253,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 	{
 		BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
 		{
-				if ( !getKeyToNode( monitorData.second.m_key, nodeIndicator) )
+				if ( !getKeyToNode( monitorData.second.m_key.GetID(), nodeIndicator) )
 					assert( !"something wrong" );
 
 				common::CMedium * medium = findNodeMedium( nodeIndicator );
@@ -270,13 +270,13 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 void
 CReputationTracker::setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator)
 {
-	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey, _nodeIndicator ) );
+	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey.GetID(), _nodeIndicator ) );
 }
 
 bool
-CReputationTracker::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator) const
+CReputationTracker::getKeyToNode( uint160 const & _pubKeyId, uintptr_t & _nodeIndicator) const
 {
-	std::map< CPubKey, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKey );
+	std::map< uint160, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKeyId );
 
 	if ( iterator != m_pubKeyToNodeIndicator.end() )
 		_nodeIndicator = iterator->second;
@@ -285,9 +285,9 @@ CReputationTracker::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndi
 }
 
 bool
-CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const
+CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, uint160 & _pubKey )const
 {
-	BOOST_FOREACH( PAIRTYPE(CPubKey, uintptr_t) const & keyToIndicator, m_pubKeyToNodeIndicator )
+	BOOST_FOREACH( PAIRTYPE(uint160, uintptr_t) const & keyToIndicator, m_pubKeyToNodeIndicator )
 	{
 		if ( keyToIndicator.second == _nodeIndicator )
 		{
@@ -308,11 +308,9 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	common::CNodesManager::eraseMedium( _nodePtr );
 
-	CPubKey pubKey;
+	uint160 keyId;
 
-	getNodeToKey( _nodePtr, pubKey );
-
-	uint160 keyId = pubKey.GetID();
+	getNodeToKey( _nodePtr, keyId );
 
 	m_candidates.erase( keyId );
 
@@ -324,7 +322,7 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	m_presentTrackers.erase( keyId );
 
-	m_pubKeyToNodeIndicator.erase( pubKey );
+	m_pubKeyToNodeIndicator.erase( keyId );
 }
 
 std::set< common::CValidNodeInfo > const
@@ -336,7 +334,7 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 		BOOST_FOREACH( RegisteredTrackers::value_type const & tracker, m_registeredTrackers )
 		{
 			uintptr_t nodePtr;
-			getKeyToNode( tracker.second.m_publicKey, nodePtr );
+			getKeyToNode( tracker.second.m_publicKey.GetID(), nodePtr );
 
 			CAddress address;
 			getAddress( nodePtr, address );
@@ -349,7 +347,7 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 		BOOST_FOREACH( Monitor::value_type const & monitor, m_allyMonitors )
 		{
 			uintptr_t nodePtr;
-			getKeyToNode( monitor.second.m_publicKey, nodePtr );
+			getKeyToNode( monitor.second.m_publicKey.GetID(), nodePtr );
 
 			CAddress address;
 			getAddress( nodePtr, address );
@@ -361,9 +359,9 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 }
 
 bool
-CReputationTracker::checkForTracker( CPubKey const & _pubKey, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const
+CReputationTracker::checkForTracker( uint160 const & _pubKeyId, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const
 {
-	RegisteredTrackers::const_iterator iterator = m_registeredTrackers.find( _pubKey.GetID() );
+	RegisteredTrackers::const_iterator iterator = m_registeredTrackers.find( _pubKeyId );
 
 	if ( iterator != m_registeredTrackers.end() )
 	{
@@ -373,7 +371,7 @@ CReputationTracker::checkForTracker( CPubKey const & _pubKey, common::CTrackerDa
 		return true;
 	}
 
-	AllyTrackers::const_iterator allyIterator = m_allyTrackersRankings.find( _pubKey.GetID() );
+	AllyTrackers::const_iterator allyIterator = m_allyTrackersRankings.find( _pubKeyId );
 
 	if ( allyIterator == m_allyTrackersRankings.end() )
 		return  false;
@@ -409,9 +407,9 @@ CReputationTracker::eraseExtendInProgress( CPubKey const & _pubKey )
 }
 
 bool
-CReputationTracker::isAddmitedMonitor( CPubKey const & _pubKey )
+CReputationTracker::isAddmitedMonitor( uint160 const & _pubKeyId )
 {
-	return m_allyMonitors.find( _pubKey.GetID() ) != m_allyMonitors.end();
+	return m_allyMonitors.find( _pubKeyId ) != m_allyMonitors.end();
 }
 
 void

@@ -34,7 +34,7 @@ std::string enterNetwork( std::string const & _key )
 		goto WrongKey;
 
 	uintptr_t nodeIndicator;
-//	if ( !CReputationTracker::getInstance()->getKeyToNode( keyId, nodeIndicator ) )
+	if ( !CReputationTracker::getInstance()->getKeyToNode( keyId, nodeIndicator ) )
 		goto NotPresent;
 
 	common::CActionHandler::getInstance()->executeAction( new CEnterNetworkAction( nodeIndicator ) );
@@ -49,6 +49,8 @@ NotPresent:
 void registerHooks()
 {
 	SatusHook.connect( &getStatus );
+
+	EnterNetworkHook.connect( &enterNetwork );
 }
 
 }

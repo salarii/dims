@@ -70,25 +70,6 @@ CTrackerNodesManager::setNodeInfo( common::CValidNodeInfo const & _validNodeInfo
 }
 
 
-void
-CTrackerNodesManager::setPublicKey( CAddress const & _address, CPubKey const & _pubKey )
-{
-	m_keyStore.insert( std::make_pair( _address, _pubKey ) );
-}
-
-bool
-CTrackerNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const
-{
-	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _address );
-
-	if ( iterator == m_keyStore.end() )
-		return false;
-
-	_pubKey = iterator->second;
-
-	return true;
-}
-
 std::list< common::CMedium *>
 CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {

@@ -9,12 +9,12 @@ namespace common
 
 CNodesManager * common::CNodesManager::ms_instance = 0;
 
-CNodesManager ::CNodesManager()
+CNodesManager::CNodesManager()
 {
 }
 
 void
-CNodesManager ::addNode( CNodeMedium * _medium )
+CNodesManager::addNode( CNodeMedium * _medium )
 {
 	boost::lock_guard<boost::mutex> lock( m_nodesLock );
 // create  and  run ping  action
@@ -22,7 +22,7 @@ CNodesManager ::addNode( CNodeMedium * _medium )
 }
 
 CNodeMedium*
-CNodesManager ::getMediumForNode( common::CSelfNode * _node ) const
+CNodesManager::getMediumForNode( common::CSelfNode * _node ) const
 {
 	typename std::map< uintptr_t, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( convertToInt( _node ) );
 	if ( iterator != m_ptrToNodes.end() )
@@ -34,13 +34,13 @@ CNodesManager ::getMediumForNode( common::CSelfNode * _node ) const
 }
 
 std::list< CMedium*>
-CNodesManager ::provideConnection( CMediumFilter const & _mediumFilter )
+CNodesManager::provideConnection( CMediumFilter const & _mediumFilter )
 {
 	return _mediumFilter.getMediums( this );
 }
 
  CMedium *
-CNodesManager ::findNodeMedium( uintptr_t _ptr ) const
+CNodesManager::findNodeMedium( uintptr_t _ptr ) const
 {
 	typename std::map< uintptr_t, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
 
@@ -48,13 +48,13 @@ CNodesManager ::findNodeMedium( uintptr_t _ptr ) const
 }
 
 void
-CNodesManager ::eraseMedium( uintptr_t _nodePtr )
+CNodesManager::eraseMedium( uintptr_t _nodePtr )
 {
 	m_ptrToNodes.erase( _nodePtr );
 }
 
 bool
-CNodesManager ::getAddress( uintptr_t _nodePtr, CAddress & _address ) const
+CNodesManager::getAddress( uintptr_t _nodePtr, CAddress & _address ) const
 {
 	typename std::map< uintptr_t, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( _nodePtr );
 
@@ -65,4 +65,24 @@ CNodesManager ::getAddress( uintptr_t _nodePtr, CAddress & _address ) const
 
 	return true;
 }
+
+void
+CNodesManager::setPublicKey( CAddress const & _address, CPubKey const & _pubKey )
+{
+	m_keyStore.insert( std::make_pair( _address, _pubKey ) );
+}
+
+bool
+CNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const
+{
+	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _address );
+
+	if ( iterator == m_keyStore.end() )
+		return false;
+
+	_pubKey = iterator->second;
+
+	return true;
+}
+
 }

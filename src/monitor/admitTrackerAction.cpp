@@ -365,9 +365,9 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 						, m_messageId
 						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
 
-			CPubKey pubKey;
+			uint160 pubKeyId;
 
-			if ( CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey ) )
+			if ( CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKeyId ) )
 			{
 				request->addPayload( common::CResult( 1 ) );
 

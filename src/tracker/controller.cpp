@@ -123,7 +123,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 			{
 				CNodeAddress tracker;
 				tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
-				status += "key " + tracker.ToString() + "ip " + nodeInfo.m_address.ToString() + "\n";
+				status += "key " + tracker.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
 			}
 		}
 

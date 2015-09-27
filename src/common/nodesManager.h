@@ -40,8 +40,15 @@ public:
 	{
 		return ms_instance;
 	}
+
+	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
+
+	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
+
 protected:
 	CNodesManager();
+
+	std::map< CAddress, CPubKey > m_keyStore;
 
 	mutable boost::mutex m_nodesLock;
 

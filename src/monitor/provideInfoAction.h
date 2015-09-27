@@ -26,7 +26,7 @@ struct CInit;
 class CProvideInfoAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CProvideInfoAction, CInit >
 {
 public:
-	CProvideInfoAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator );
+	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
 
 	CProvideInfoAction( common::CInfoKind::Enum _infoKind );
 
@@ -34,15 +34,10 @@ public:
 
 	uintptr_t getNodeIndicator() const;
 
-	uint256 getInfoRequestKey() const{ return m_infoRequestKey; }
-
-	void setInfoRequestKey( uint256 const & _key ){ m_infoRequestKey = _key; }
-
-		common::CInfoKind::Enum getInfo() const{ return m_infoKind; }
+	common::CInfoKind::Enum getInfo() const{ return m_infoKind; }
 
 	~CProvideInfoAction(){};
 private:
-	uint256 m_infoRequestKey;
 
 	uintptr_t m_nodeIndicator;
 
