@@ -10,6 +10,7 @@
 #include "base58.h"
 #include "wallet.h"
 #include "coincontrol.h"
+#include "dimsUnits.h"
 
 #include "common/periodicActionExecutor.h"
 #include "client/sendBalanceInfoAction.h"
@@ -103,7 +104,7 @@ public:
                 cachedAddressTable.append(AddressTableEntry(addressType,
                                   QString::fromStdString(strName),
                                   QString::fromStdString(address.ToString()),
-                                  QString::number ( wallet->AvailableCoinsAmount(keyID) ) ));
+								  CDimsUnits::format(0, wallet->AvailableCoinsAmount(keyID)) ));
             }
         }
         // qLowerBound() and qUpperBound() require our cachedAddressTable list to be sorted in asc order
@@ -158,7 +159,7 @@ public:
 				qDebug() << "AddressTablePriv::updateEntry : Warning: Got CT_UPDATED, but entry is not in model";
 				break;
 			}
-			lower->balance = QString::number ( wallet->AvailableCoinsAmount(keyID));
+			lower->balance = CDimsUnits::format(0, wallet->AvailableCoinsAmount(keyID));
 			parent->emitDataChanged(lowerIndex);
 			break;
         case CT_DELETED:

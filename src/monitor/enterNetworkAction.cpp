@@ -30,6 +30,11 @@ namespace monitor
 {
 struct CSynchronization;
 struct CFreeRegistration;
+struct CPaidRegistration;
+struct CNetworkAlive;
+struct CFreeRegistrationEnter;
+struct CAssistAdmission;
+struct CAdmissionCondition;
 //milisec
 unsigned int const WaitTime = 10000;
 
@@ -38,6 +43,18 @@ namespace // parameters  to  pass  between states
 CPubKey monitorKey;
 unsigned int price;
 }
+
+struct CSwitchToAdmit : boost::statechart::event< CSwitchToAdmit >{};
+
+struct CSwitchToEnter : boost::statechart::event< CSwitchToEnter >{};
+
+struct CEnterNetworkInitial : boost::statechart::simple_state< CEnterNetworkInitial, CEnterNetworkAction >
+{
+	typedef boost::mpl::list<
+	boost::statechart::transition< CSwitchToAdmit, CAssistAdmission >,
+	boost::statechart::transition< CSwitchToEnter, CAdmissionCondition >
+	> reactions;
+};
 
 struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetworkAction >
 {
@@ -52,7 +69,7 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
-		if ( _messageResult.m_message.m_header.m_id == common::CPayloadKind::AdmitAsk )
+		if ( _messageResult.m_message.m_header.m_id == common::CPayloadKind::EnterNetworkAsk )
 		{
 			context< CEnterNetworkAction >().forgetRequests();
 
@@ -271,13 +288,69 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CEnterNe
 	CPubKey m_pubKey;
 };
 
-
-struct CEnterNetworkInitial : boost::statechart::simple_state< CEnterNetworkInitial, CEnterNetworkAction >
+struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnterNetworkAction >
 {
-/*	typedef boost::mpl::list<
-	boost::statechart::transition< ,  >,
-	boost::statechart::transition< ,  >
-	> reactions;*/
+	CAdmissionCondition( my_context ctx )
+		: my_base( ctx )
+	{
+		context< CEnterNetworkAction >().forgetRequests();
+		context< CEnterNetworkAction >().addRequest(
+		 new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CEnterNetworkAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ); // bit  risky to ask  this way
+
+		request->addPayload( common::CInfoKind::EnterConditionAsk );
+
+		context< CEnterNetworkAction >().addRequest( request );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkCondition )
+		{	common::CEnteranceTerms enteranceTerms;
+
+			common::convertPayload( orginalMessage, enteranceTerms );
+
+			context< CEnterNetworkAction >().addRequest(
+						new common::CAckRequest(
+							context< CEnterNetworkAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
+
+			price = enteranceTerms.m_price;
+
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		assert( !"no response" );
+		context< CEnterNetworkAction >().forgetRequests();
+		context< CEnterNetworkAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
 };
 
 
@@ -300,7 +373,33 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
 
+		if ( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::Result )
+		{
+			common::CResult result;
+
+			common::convertPayload( orginalMessage, result );
+
+			context< CEnterNetworkAction >().addRequest(
+						new common::CAckRequest(
+							context< CEnterNetworkAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
+
+			if ( result.m_result )
+			{
+				return price ? transit< CNetworkAlive >() : transit< CFreeRegistration >();
+			}
+			else
+			{
+				assert(!"don't want cooperate");
+			}
+
+		}
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -310,12 +409,24 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::transition< common::CAckEvent, CSynchronization >,
-	boost::statechart::custom_reaction< common::CTimeEvent >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
 
+struct CFreeRegistrationEnter : boost::statechart::state< CFreeRegistrationEnter, CEnterNetworkAction >
+{
+	CFreeRegistrationEnter( my_context ctx )
+		: my_base( ctx )
+	{}
+};
 
 struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAction >
 {
@@ -567,11 +678,11 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 	> reactions;
 };
 
-
 CEnterNetworkAction::CEnterNetworkAction( uintptr_t _nodePtr )
 	: m_nodePtr( _nodePtr )
 {
 	initiate();
+	process_event( CSwitchToEnter() );
 }
 
 CEnterNetworkAction::CEnterNetworkAction( uint256 const & _actionKey, uintptr_t _nodePtr )
@@ -579,6 +690,7 @@ CEnterNetworkAction::CEnterNetworkAction( uint256 const & _actionKey, uintptr_t 
 	, m_nodePtr( _nodePtr )
 {
 	initiate();
+	process_event( CSwitchToAdmit() );
 }
 
 void

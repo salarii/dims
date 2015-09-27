@@ -55,7 +55,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				   message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
 				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
+				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq// reconsider  this
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitProof
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions

@@ -19,7 +19,6 @@ QList<CDimsUnits::Unit> CDimsUnits::availableUnits()
 	unitlist.append(Kdims);
 	unitlist.append(Mdims);
 	unitlist.append(Gdims);
-	unitlist.append(Tdims);
 	return unitlist;
 }
 
@@ -31,7 +30,6 @@ bool CDimsUnits::valid(int unit)
 	case Kdims:
 	case Mdims:
 	case Gdims:
-	case Tdims:
 		return true;
 	default:
 		return false;
@@ -46,7 +44,6 @@ QString CDimsUnits::name(int unit)
 	case Kdims: return QString("Kcoins");
 	case Mdims: return QString("Mcoins");
 	case Gdims: return QString("Gcoins");
-	case Tdims: return QString("Tcoins");
 	default: return QString("???");
 	}
 }
@@ -59,7 +56,6 @@ QString CDimsUnits::description(int unit)
 	case Kdims: return QString("Kilo-coins (1 * 10^3)");
 	case Mdims: return QString("Mega-coins (1 * 10^6");
 	case Gdims: return QString("Giga-coins (1 * 10^9");
-	case Tdims: return QString("Terra-coins (1 * 10^12)");
 	default: return QString("???");
 	}
 }
@@ -68,12 +64,11 @@ qint64 CDimsUnits::factor(int unit)
 {
 	switch(unit)
 	{
-	case dims:  return 1;
-	case Kdims: return 1000;
-	case Mdims: return 1000000;
-	case Gdims: return 1000000000;
-	case Tdims: return 1000000000000;
-	default:   return 100000000;
+	case dims:  return 100;
+	case Kdims: return 100000;
+	case Mdims: return 100000000;
+	case Gdims: return 100000000000;
+	default:   return 1;
 	}
 }
 
@@ -81,11 +76,10 @@ qint64 CDimsUnits::maxAmount(int unit)
 {
 	switch(unit)
 	{
-	case dims:  return Q_INT64_C(2100000000000000);
-	case Kdims: return Q_INT64_C(2100000000000);
-	case Mdims: return Q_INT64_C(2100000000);
-	case Gdims: return Q_INT64_C(2100000);
-	case Tdims: return Q_INT64_C(2100);
+	case dims:  return Q_INT64_C(21000000000000);
+	case Kdims: return Q_INT64_C(21000000000);
+	case Mdims: return Q_INT64_C(21000000);
+	case Gdims: return Q_INT64_C(21000);
 	default:   return 0;
 	}
 }
@@ -94,11 +88,10 @@ int CDimsUnits::amountDigits(int unit)
 {
 	switch(unit)
 	{
-	case dims:  return 16;
-	case Kdims: return 13;
-	case Mdims: return 10;
-	case Gdims: return 7;
-	case Tdims: return 4;
+	case dims:  return 14;
+	case Kdims: return 11;
+	case Mdims: return 8;
+	case Gdims: return 5;
 	default: return 0;
 	}
 }
@@ -107,11 +100,10 @@ int CDimsUnits::decimals(int unit)
 {
 	switch(unit)
 	{
-	case dims:  return 0;
-	case Kdims: return 3;
-	case Mdims: return 6;
-	case Gdims: return 9;
-	case Tdims: return 12;
+	case dims:  return 2;
+	case Kdims: return 5;
+	case Mdims: return 8;
+	case Gdims: return 11;
 	default: return 0;
 	}
 }
