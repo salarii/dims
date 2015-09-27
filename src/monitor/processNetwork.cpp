@@ -68,7 +68,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 			// not necessarily have to pass this
 			CPubKey key;
-			CReputationTracker::getInstance()->getPublicKey( pfrom->addr, key );
+			if ( CReputationTracker::getInstance()->getPublicKey( pfrom->addr, key ) )
+				assert( !"this  can't fail" );
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{

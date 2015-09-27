@@ -18,6 +18,14 @@ namespace common
 class CNodesManager : public common::CConnectionProvider
 {
 public:
+	struct CCustomAddressComparator // ugly but port may change
+	{
+		bool operator()( const CAddress& _lhs, const CAddress& _rhs) const
+		{
+			return _lhs.ToStringIP() < _rhs.ToStringIP();
+		}
+	};
+public:
 	bool getMessagesForNode( common::CSelfNode * _node, std::vector< common::CMessage > & _messages );
 
 	bool processMessagesFromNode( common::CSelfNode * _node, std::vector< common::CMessage > const & _messages );
@@ -48,7 +56,7 @@ public:
 protected:
 	CNodesManager();
 
-	std::map< CAddress, CPubKey > m_keyStore;
+	std::map< CAddress, CPubKey, CCustomAddressComparator > m_keyStore;
 
 	mutable boost::mutex m_nodesLock;
 

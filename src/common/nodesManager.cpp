@@ -75,7 +75,7 @@ CNodesManager::setPublicKey( CAddress const & _address, CPubKey const & _pubKey 
 bool
 CNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const
 {
-	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _address );
+	std::map< CAddress, CPubKey, CCustomAddressComparator >::const_iterator iterator = m_keyStore.find( _address );
 
 	if ( iterator == m_keyStore.end() )
 		return false;
