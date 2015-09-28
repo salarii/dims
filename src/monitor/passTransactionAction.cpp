@@ -52,6 +52,12 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 {
 	CProcessAsClient( my_context ctx ) : my_base( ctx )
 	{
+		context< CPassTransactionAction >().addRequest(
+					new common::CTimeEventRequest(
+						LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
@@ -65,6 +71,11 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CPassTransactionAction >().setResult(
+					common::CTransactionAck(
+						( int )common::TransactionsStatus::Invalid
+						, CTransaction() ) );
+
 		context< CPassTransactionAction >().setExit();
 		return discard_event();
 	}
@@ -128,7 +139,11 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CPassTransac
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CPassTransactionAction >().setResult( common::CExecutedIndicator(false) );
+		context< CPassTransactionAction >().setResult(
+					common::CTransactionAck(
+						( int )common::TransactionsStatus::Invalid
+						, CTransaction() ) );
+
 		context< CPassTransactionAction >().setExit();
 		return discard_event();
 	}
@@ -165,7 +180,11 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CPassTransac
 				CWallet::getInstance()->addAvailableCoins( m_self, availableCoins );
 				iterator++;
 			}
-			context< CPassTransactionAction >().setResult( common::CExecutedIndicator(true) );
+			context< CPassTransactionAction >().setResult(
+						common::CTransactionAck(
+							( int )common::TransactionsStatus::Invalid
+							, CTransaction() ) );
+
 			context< CPassTransactionAction >().setExit();
 		}
 
@@ -211,7 +230,11 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CPassTransactionAction >().setResult( common::CExecutedIndicator(false) );
+		context< CPassTransactionAction >().setResult(
+					common::CTransactionAck(
+						( int )common::TransactionsStatus::Invalid
+						, CTransaction() ) );
+
 		context< CPassTransactionAction >().setExit();
 		return discard_event();
 	}

@@ -442,6 +442,8 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAct
 	CNetworkAlive( my_context ctx )
 		: my_base( ctx )
 	{
+		context< CEnterNetworkAction >().forgetRequests();
+
 		context< CEnterNetworkAction >().addRequest(
 					new common::CScheduleActionRequest(
 						new CPassTransactionAction(

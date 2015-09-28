@@ -1,9 +1,11 @@
 #ifndef RESPONSE_VISITOR_INTERNAL_H
 #define RESPONSE_VISITOR_INTERNAL_H
 
-#include "visitorConfigurationUtilities.h"
-
 #include <boost/variant.hpp>
+
+#include "common/events.h"
+#include "common/visitorConfigurationUtilities.h"
+
 namespace common
 {
 
@@ -95,6 +97,71 @@ public:
 
 protected:
 	_Action * const m_action;
+};
+
+template < class _Action >
+class CSetResult : public CResponseVisitorBase< _Action, common::DimsResponsesList >
+{
+public:
+	CSetResult( _Action * const _action ):CResponseVisitorBase< _Action, common::DimsResponsesList >( _action ){};
+
+	virtual void operator()( common::CConnectedNode & _param ) const
+	{
+		LogPrintf("set response \"connected node\" to action: %p \n", this->m_action );
+
+		if ( _param.m_node )
+			this->m_action->process_event( common::CNodeConnectedEvent( _param.m_node ) );
+		else
+			this->m_action->process_event( common::CCantReachNode() );
+	}
+
+	virtual void operator()( common::CIdentificationResult & _param ) const
+	{
+		LogPrintf("set response \"identification result\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CRequestedMerkles & _param ) const
+	{
+		LogPrintf("set response \"requested merkles\" to action: %p \n", this->m_action );
+		this->m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_nodePtr ) );
+	}
+
+	virtual void operator()( common::CNetworkInfoResult & _param ) const
+	{
+		LogPrintf("set response \"network info result\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CTimeEvent & _param ) const
+	{
+		LogPrintf("set response \"time event\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CAckResult & _param ) const
+	{
+		LogPrintf("set response \"ack\" to action: %p \n", this->m_action );
+		this->m_action->process_event( common::CAckEvent() );
+	}
+
+	virtual void operator()( common::CMessageResult & _param ) const
+	{
+		LogPrintf("set response \"message result\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::CNoMedium & _param ) const
+	{
+		LogPrintf("set response \"no medium\" to action: %p \n", this->m_action );
+		this->m_action->process_event( _param );
+	}
+
+	virtual void operator()( common::ScheduledResult & _param ) const
+	{
+		LogPrintf("set response \"schedule result\" to action: %p \n", this->m_action );
+		boost::apply_visitor( common::CResolveScheduledResult< _Action >( this->m_action ), _param );
+	}
 };
 
 }

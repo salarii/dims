@@ -5,7 +5,8 @@
 #ifndef SET_RESPONSE_VISITOR_H
 #define SET_RESPONSE_VISITOR_H
 
-#include <boost/variant.hpp> 
+#include <boost/variant.hpp>
+
 #include "common/responses.h"
 
 namespace tracker
@@ -71,6 +72,8 @@ class CCopyTransactionStorageAction;
 class CSynchronizationAction;
 
 class CEnterNetworkAction;
+
+class CPassTransactionAction;
 }
 
 namespace seed
@@ -150,13 +153,14 @@ public:
 
 	void visit( monitor::CSynchronizationAction & _action );
 
+	void visit( monitor::CPassTransactionAction & _action );
+
 	void visit( seed::CAcceptNodeAction & _action );
 
 	void visit( seed::CPingAction & _action );
 protected:
 	common::DimsResponse m_responses;
 };
-
 
 }
 
