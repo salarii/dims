@@ -190,20 +190,83 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 {
 	CFetchBalance( my_context ctx ) : my_base( ctx )
 	{
+		m_self = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
+
+		common::CInfoAskRequest * request =
+				new common::CInfoAskRequest(
+					common::CInfoKind::BalanceAsk
+					, context< CPassTransactionAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
+
+		request->setPayload( m_self );
+
+		context< CPassTransactionAction >().addRequest( request );
+
+		context< CPassTransactionAction >().addRequest(
+					new common::CTimeEventRequest(
+						LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 	}
 
-	boost::statechart::result react( common::CExecutedIndicator const & _executedIndicator )
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		if ( _executedIndicator.m_correct )
-			return transit< CProcessTransaction >();
-
+		context< CPassTransactionAction >().setResult( common::CExecutedIndicator(false) );
 		context< CPassTransactionAction >().setExit();
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Balance )
+		{
+			common::CBalance balance;
+			common::convertPayload( orginalMessage, balance );
+
+			context< CPassTransactionAction >().addRequest(
+						new common::CAckRequest(
+							context< CPassTransactionAction >().getActionKey()
+							, orginalMessage.m_header.m_id
+							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+
+			std::map< uint256, CCoins >::const_iterator iterator = balance.m_availableCoins.begin();
+
+			CWallet::getInstance()->replaceAvailableCoins( m_self, std::vector< CAvailableCoin >() );
+
+			while( iterator != balance.m_availableCoins.end() )
+			{
+				std::vector< CAvailableCoin > availableCoins
+						= common::getAvailableCoins(
+							iterator->second
+							, m_self
+							, iterator->first );
+
+				CWallet::getInstance()->addAvailableCoins( m_self, availableCoins );
+				iterator++;
+			}
+
+			return transit< CProcessTransaction >();
+		}
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CExecutedIndicator >
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
+
+	CKeyID m_self;
 };
 
 struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPassTransactionAction >

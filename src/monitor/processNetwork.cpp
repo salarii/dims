@@ -19,6 +19,7 @@
 #include "monitor/provideInfoAction.h"
 #include "monitor/synchronizationAction.h"
 #include "monitor/admitTransactionsBundle.h"
+#include "monitor/enterNetworkAction.h"
 
 namespace monitor
 {
@@ -63,7 +64,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet
 				|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
-			)
+				|| message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkCondition
+				|| message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkAsk
+				)
 		{
 			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 			// not necessarily have to pass this
@@ -92,6 +95,12 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 						CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
 						admitTrackerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 						common::CActionHandler::getInstance()->executeAction( admitTrackerAction );
+				}
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkAsk )
+				{
+					CEnterNetworkAction * enterNetworkAction = new CEnterNetworkAction( message.m_header.m_actionKey );
+					enterNetworkAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					common::CActionHandler::getInstance()->executeAction( enterNetworkAction );
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions )
 				{

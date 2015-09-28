@@ -7,6 +7,7 @@
 #include "base58.h"
 #include "common/events.h"
 #include "common/actionHandler.h"
+#include "common/authenticationProvider.h"
 
 #include "monitor/controller.h"
 #include "monitor/registerRpcHooks.h"
@@ -46,9 +47,21 @@ NotPresent:
 	return "monitor with specified number not present";
 }
 
+std::string
+selfAddress()
+{
+	CMnemonicAddress address;
+
+	address.Set( common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
+
+	return address.ToString();
+}
+
 void registerHooks()
 {
 	SatusHook.connect( &getStatus );
+
+	SelfAddress.connect( &selfAddress );
 
 	EnterNetworkHook.connect( &enterNetwork );
 }

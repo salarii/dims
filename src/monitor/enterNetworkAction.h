@@ -19,7 +19,7 @@ class CEnterNetworkAction : public common::CAction, public  boost::statechart::s
 public:
 	CEnterNetworkAction( uintptr_t _nodePtr );
 
-	CEnterNetworkAction( uint256 const & _actionKey, uintptr_t _nodePtr );
+	CEnterNetworkAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
