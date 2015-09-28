@@ -70,7 +70,7 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
-		if ( _messageResult.m_message.m_header.m_id == common::CPayloadKind::EnterNetworkAsk )
+		if ( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkAsk )
 		{
 			context< CEnterNetworkAction >().forgetRequests();
 
