@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -111,7 +111,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 				new CValidateTransactionsRequest( validTransactions, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
-	boost::statechart::result react( CValidationEvent const & _event )
+	boost::statechart::result react( common::CValidationEvent const & _event )
 	{
 		std::vector< CTransaction > & transactions = context< CValidateTransactionsAction >().acquireTransactions();
 
@@ -161,7 +161,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 		}
 	}
 
-	typedef boost::statechart::custom_reaction< CValidationEvent > reactions;
+	typedef boost::statechart::custom_reaction< common::CValidationEvent > reactions;
 };
 
 struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
@@ -296,7 +296,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		m_pubKey = messageResult->m_pubKey;
 	}
 
-	boost::statechart::result react( CValidationEvent const & _event )
+	boost::statechart::result react( common::CValidationEvent const & _event )
 	{
 		// for  now  all or  nothing  philosophy
 
@@ -322,7 +322,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< CValidationEvent >
+	boost::statechart::custom_reaction< common::CValidationEvent >
 	> reactions;
 
 	CPubKey m_pubKey;

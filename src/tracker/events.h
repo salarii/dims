@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,12 +10,6 @@
 
 namespace tracker
 {
-
-struct CValidationEvent : boost::statechart::event< CValidationEvent >
-{
-	CValidationEvent( std::vector< unsigned int > const & _invalidTransactionIndexes ):m_invalidTransactionIndexes( _invalidTransactionIndexes ){};
-	std::vector< unsigned int > m_invalidTransactionIndexes;
-};
 
 struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
 {
