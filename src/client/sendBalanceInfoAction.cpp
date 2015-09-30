@@ -14,10 +14,10 @@
 #include "sendInfoRequestAction.h"
 #include "sendBalanceInfoAction.h"
 
-#include "client/clientFilters.h"
-#include "client/clientControl.h"
-#include "client/clientEvents.h"
-#include "client/clientRequests.h"
+#include "client/filters.h"
+#include "client/control.h"
+#include "client/events.h"
+#include "client/requests.h"
 
 #include "serialize.h"
 #include "base58.h"

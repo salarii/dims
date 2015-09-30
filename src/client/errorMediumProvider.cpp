@@ -4,7 +4,7 @@
 
 #include "errorMediumProvider.h"
 
-#include "clientFilters.h"
+#include "filters.h"
 
 namespace client
 {

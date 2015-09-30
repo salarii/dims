@@ -11,10 +11,10 @@
 #include "appLib/messageType.h"
 #include "appLib/paymentData.h"
 
-#include "payLocalApplicationAction.h"
-#include "applicationServer.h"
-#include "clientRequests.h"
-#include "clientFilters.h"
+#include "client/payLocalApplicationAction.h"
+#include "client/applicationServer.h"
+#include "client/requests.h"
+#include "client/filters.h"
 
 namespace client
 {

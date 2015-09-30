@@ -7,7 +7,7 @@
 
 #include "common/timeMedium.h"
 
-#include "client/clientFilters.h"
+#include "client/filters.h"
 
 namespace client
 {

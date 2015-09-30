@@ -12,7 +12,7 @@
 #include "transactiondesc.h"
 #include "transactionrecord.h"
 #include "walletmodel.h"
-#include "client/clientControl.h"
+#include "client/control.h"
 
 #include "main.h"
 #include "sync.h"

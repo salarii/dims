@@ -2,11 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "connectAction.h"
-#include "clientResponses.h"
-#include "controlRequests.h"
 #include "common/requests.h"
-
 #include "common/setResponseVisitor.h"
 #include "common/events.h"
 
@@ -18,16 +14,18 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "clientFilters.h"
-#include "clientControl.h"
-#include "clientEvents.h"
+#include "client/connectAction.h"
+#include "client/controlRequests.h"
+#include "client/filters.h"
+#include "client/control.h"
+#include "client/events.h"
 
 namespace client
 {
-const unsigned DnsAskLoopTime = 20;//seconds
-const unsigned NetworkAskLoopTime = 20;//seconds
-const unsigned MonitorAskLoopTime = 20;//seconds
-
+const unsigned DnsAskLoopTime = 20000;//
+const unsigned NetworkAskLoopTime = 20000;//
+const unsigned MonitorAskLoopTime = 20000;//
+//stupid logic here
 struct CMonitorPresent;
 struct CDetermineTrackers;
 struct CRecognizeNetwork;
@@ -44,11 +42,11 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 
 	boost::statechart::result react( common::CDnsInfo const & _dnsInfo )
 	{
-        vector<CAddress> addresses = _dnsInfo.m_addresses;
+		vector<CAddress> addresses = _dnsInfo.m_addresses;
 
-        if ( addresses.empty() )
+		if ( addresses.empty() )
 		{
-            context< CConnectAction >().setExit();
+			context< CConnectAction >().setExit();
 			return discard_event();
 		}
 		else
@@ -97,24 +95,27 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		return moniorPresent ? transit< CMonitorPresent >() : transit< CDetermineTrackers >();
 	}
 
-	boost::statechart::result react( common::CClientNetworkInfoEvent const & _networkInfo )
+	boost::statechart::result react( common::CClientMessageResponse const & _clientMessage )
 	{
-		m_pending.erase( _networkInfo.m_nodeIndicator );
+		common::CClientNetworkInfoResult clientNetworkInfo;
+		common::convertClientPayload( _clientMessage.m_clientMessage, clientNetworkInfo );
 
-		common::CNodeInfo nodeStats( _networkInfo.m_selfKey, _networkInfo.m_ip, common::dimsParams().getDefaultClientPort(), common::CRole::Tracker );
-		if ( _networkInfo.m_selfRole == common::CRole::Monitor )
+		m_pending.erase( _clientMessage.m_nodePtr );
+
+		common::CNodeInfo nodeStats( clientNetworkInfo.m_selfKey, _clientMessage.m_ip, common::dimsParams().getDefaultClientPort(), common::CRole::Tracker );
+		if ( clientNetworkInfo.m_selfRole == common::CRole::Monitor )
 		{
 			nodeStats.m_role = common::CRole::Monitor;
 			CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( nodeStats, std::set< CPubKey >()) );// not right
 			m_uniqueNodes.insert( nodeStats );
 		}
-		else if ( _networkInfo.m_selfRole == common::CRole::Tracker )
+		else if ( clientNetworkInfo.m_selfRole == common::CRole::Tracker )
 		{
 			CTrackerLocalRanking::getInstance()->addUndeterminedTracker( nodeStats );
 			m_uniqueNodes.insert( nodeStats );
 		}
 
-		BOOST_FOREACH( common::CValidNodeInfo const & validNode, _networkInfo.m_networkInfo )
+		BOOST_FOREACH( common::CValidNodeInfo const & validNode, clientNetworkInfo.m_networkInfo )
 		{
 			m_uniqueNodes.insert( common::CNodeInfo( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort() ) );
 		}
@@ -161,7 +162,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CClientNetworkInfoEvent >,
+	boost::statechart::custom_reaction< common::CClientMessageResponse >,
 	boost::statechart::custom_reaction< common::CErrorEvent >
 	> reactions;
 
@@ -263,12 +264,13 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-		common::CMonitorStatsData monitorStatsData;
-		convertClientPayload( _message.m_clientMessage, monitorStatsData );
+		common::CMonitorData monitorData;
+		convertClientPayload( _message.m_clientMessage, monitorData );
 		m_pending.erase( _message.m_nodePtr );
+		m_checked.insert( _message.m_nodePtr );
 //load  all  structures
 		std::vector< CPubKey > monitorKeys;
-		BOOST_FOREACH( common::CNodeInfo const & nodeInfo, monitorStatsData.m_monitorData.m_monitors )
+		BOOST_FOREACH( common::CNodeInfo const & nodeInfo, monitorData.m_monitors )
 		{
 			monitorKeys.push_back( nodeInfo.m_key );
 
@@ -284,18 +286,18 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 			CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( nodeInfo, dependentTrackers ) );
 		}
 		CPubKey monitorKey;
-		CTrackerLocalRanking::getInstance()->getNodeKey( monitorStatsData.m_ip, monitorKey );
+		CTrackerLocalRanking::getInstance()->getNodeKey( _message.m_ip, monitorKey );
 
 	// looks stupid but for sake of algorithm
 		monitorKeys.push_back( monitorKey );
-		std::vector< common::CNodeInfo > monitorNodeInfo = monitorStatsData.m_monitorData.m_monitors;
+		std::vector< common::CNodeInfo > monitorNodeInfo = monitorData.m_monitors;
 
 		common::CNodeInfo nodeInfo;
 		CTrackerLocalRanking::getInstance()->getNodeInfo( monitorKey, nodeInfo );
 		monitorNodeInfo.push_back( nodeInfo );
 
 		m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
-		m_trackersInfo.insert( std::make_pair( monitorKey, monitorStatsData.m_monitorData.m_trackers ) );
+		m_trackersInfo.insert( std::make_pair( monitorKey, monitorData.m_trackers ) );
 
 		m_monitorInputData.insert( std::make_pair( monitorKey, monitorKeys ) );
 
@@ -506,7 +508,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 			context< CConnectAction >().m_connected();
 
-			context< CConnectAction >().forgetRequests();
+			context< CConnectAction >().setExit();
 			return discard_event();
 	}
 
@@ -517,11 +519,11 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-		common::CTrackerStatsData trackerStatsData;
+		common::CTrackerSpecificStats trackerStatsData;
 		convertClientPayload( _message.m_clientMessage, trackerStatsData );
 
 		common::CNodeInfo undeterminedTracker;
-		CTrackerLocalRanking::getInstance()->getUndeterminedTracker( trackerStatsData.m_ip, undeterminedTracker );
+		CTrackerLocalRanking::getInstance()->getUndeterminedTracker( _message.m_ip, undeterminedTracker );
 
 		common::CTrackerStats trackerStats(
 			  undeterminedTracker.m_key
@@ -533,9 +535,9 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 		CTrackerLocalRanking::getInstance()->addTracker( trackerStats );
 
-		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( trackerStatsData.m_ip );
+		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( _message.m_ip );
 
-		m_pending.erase( trackerStatsData.m_nodeIndicator );
+		m_pending.erase( _message.m_nodePtr );
 
 		if ( !m_pending.size() )
 		{
@@ -546,7 +548,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 			context< CConnectAction >().m_connected();
 
-			context< CConnectAction >().forgetRequests();
+			context< CConnectAction >().setExit();
 		}
 
 		return discard_event();

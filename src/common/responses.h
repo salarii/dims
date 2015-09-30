@@ -16,6 +16,7 @@
 #include "common/errorResponse.h"
 #include "common/communicationProtocol.h"
 #include "common/clientProtocol.h"
+#include "common/support.h"
 
 #include <boost/variant.hpp>
 #include <boost/statechart/event.hpp>
@@ -50,32 +51,6 @@ struct CAvailableCoinsData : boost::statechart::event< CAvailableCoinsData >
 	uint256 m_hash;
 	std::map< uint256, CCoins > m_availableCoins;
 	std::map< uint256, std::vector< CKeyID > > m_transactionInputs;
-};
-
-
-struct CTrackerStatsData
-{
-
-	IMPLEMENT_SERIALIZE
-	(
-		READWRITE(m_reputation);
-		READWRITE(m_price);
-		READWRITE(m_ip);
-		READWRITE(m_nodeIndicator);
-	)
-
-	CTrackerStatsData(){}
-
-	CTrackerStatsData( unsigned int _reputation, float _price, std::string _ip, uintptr_t _nodeIndicator )
-		: m_reputation( _reputation )
-		, m_price( _price )
-		, m_ip( _ip )
-		, m_nodeIndicator( _nodeIndicator ){};
-
-	unsigned int  m_reputation;
-	unsigned int m_price;
-	std::string m_ip;
-	uintptr_t m_nodeIndicator;
 };
 
 struct CIdentificationResult : boost::statechart::event< CIdentificationResult >
@@ -234,44 +209,6 @@ struct CTrackerSpecificStats
 	CTrackerSpecificStats( float _price ):m_price( _price ){};
 
 	unsigned int m_price;
-};
-
-struct CTransactionAckData
-{
-	IMPLEMENT_SERIALIZE
-	(
-	READWRITE(m_status);
-	READWRITE(m_transactionSend);
-	)
-
-	CTransactionAckData(){}
-
-	CTransactionAckData( int _status, CTransaction _transactionSend ): m_status( _status ), m_transactionSend( _transactionSend ){}
-
-	int m_status;
-	CTransaction m_transactionSend;
-};
-
-struct CMonitorStatsData : boost::statechart::event< CMonitorStatsData >
-{
-	IMPLEMENT_SERIALIZE
-	(
-	READWRITE(m_monitorData);
-	READWRITE(m_ip);
-	READWRITE(m_nodeIndicator);
-	)
-
-	CMonitorStatsData()
-	{}
-
-	CMonitorStatsData( common::CMonitorData const & _monitorData, std::string _ip, uintptr_t _nodeIndicator )
-		: m_monitorData( _monitorData )
-		, m_ip( _ip )
-		, m_nodeIndicator( _nodeIndicator ){};
-
-	common::CMonitorData m_monitorData;
-	std::string m_ip;
-	uintptr_t m_nodeIndicator;
 };
 
 struct CTransactionStatus

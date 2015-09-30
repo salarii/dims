@@ -7,7 +7,7 @@
 #include "serialize.h"
 #include "common/support.h"
 #include "common/setResponseVisitor.h"
-#include "clientFilters.h"
+#include "filters.h"
 
 #include <boost/assign/list_of.hpp>
 

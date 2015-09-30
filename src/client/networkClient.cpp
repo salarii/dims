@@ -8,7 +8,7 @@
 #include "client/sendBalanceInfoAction.h"
 #include "client/sendTransactionAction.h"
 #include "client/sendInfoRequestAction.h"
-#include "client/clientRequests.h"
+#include "client/requests.h"
 
 #include "common/clientProtocol.h"
 #include "common/requestHandler.h"
@@ -106,7 +106,6 @@ CNetworkClient::takeMatching( uint256 const & _token )
 	if( iterator != m_matching.end() )
 	{
 		request = iterator->second;
-		m_matching.erase( iterator );
 	}
 	else
 	{
@@ -235,7 +234,9 @@ CNetworkClient::getResponseAndClear( std::multimap< common::CRequest const*, com
 			_requestResponse.insert(
 						std::make_pair(
 							takeMatching( clientMessage.m_header.m_id )
-							, common::CClientMessageResponse( clientMessage, common::convertToInt(this) ) ) );
+							, common::CClientMessageResponse( clientMessage, common::convertToInt(this), m_ip.toStdString() ) ) );
+			m_matching.erase( clientMessage.m_header.m_id );
+
 		}
 		catch(...)
 		{}

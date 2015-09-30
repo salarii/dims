@@ -13,10 +13,10 @@
 #include "common/analyseTransaction.h"
 #include "common/requests.h"
 
-#include "clientFilters.h"
-#include "clientRequests.h"
-#include "clientEvents.h"
-#include "clientControl.h"
+#include "filters.h"
+#include "requests.h"
+#include "events.h"
+#include "control.h"
 #include "sendInfoRequestAction.h"
 #include "serialize.h"
 #include "base58.h"
@@ -113,21 +113,21 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-		common::CMonitorStatsData monitorStatsData;
-		convertClientPayload( _message.m_clientMessage, monitorStatsData );
+		common::CMonitorData monitorData;
+		convertClientPayload( _message.m_clientMessage, monitorData );
 
-		context< CPayLocalApplicationAction >().setMonitorData( monitorStatsData.m_monitorData );
+		context< CPayLocalApplicationAction >().setMonitorData( monitorData );
 
 		common::CTrackerStats trackerStats, best;
 
 		CPubKey key;
-		CTrackerLocalRanking::getInstance()->getNodeKey( monitorStatsData.m_ip, key );
+		CTrackerLocalRanking::getInstance()->getNodeKey( _message.m_ip, key );
 
 		context< CPayLocalApplicationAction >().setServicingMonitor( key );
 
-		key.Verify( common::hashMonitorData( monitorStatsData.m_monitorData ), monitorStatsData.m_monitorData.m_signed );
+		key.Verify( common::hashMonitorData( monitorData ), monitorData.m_signed );
 		unsigned int bestFee = -1;
-		BOOST_FOREACH( common::CNodeInfo const & trackers, monitorStatsData.m_monitorData.m_trackers )
+		BOOST_FOREACH( common::CNodeInfo const & trackers, monitorData.m_trackers )
 		{
 			CTrackerLocalRanking::getInstance()->getTrackerStats( trackers.m_key.GetID(), trackerStats );
 
@@ -192,13 +192,13 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-		common::CTransactionAckData transactionAckData;
+		common::CTransactionAck transactionAckData;
 		convertClientPayload( _message.m_clientMessage, transactionAckData );
 
 		if ( transactionAckData.m_status == (int)common::TransactionsStatus::Validated )
 		{
-			CClientControl::getInstance()->addTransactionToModel( transactionAckData.m_transactionSend );
-			context< CPayLocalApplicationAction >().setFirstTransaction( transactionAckData.m_transactionSend );
+			CClientControl::getInstance()->addTransactionToModel( transactionAckData.m_transaction );
+			context< CPayLocalApplicationAction >().setFirstTransaction( transactionAckData.m_transaction );
 			return transit< CCheckTransactionStatus >();
 		}
 		else
@@ -309,13 +309,13 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-		common::CTransactionAckData transactionAckData;
+		common::CTransactionAck transactionAckData;
 		convertClientPayload( _message.m_clientMessage, transactionAckData );
 
 		if ( transactionAckData.m_status == (int)common::TransactionsStatus::Validated )
 		{
-			CClientControl::getInstance()->addTransactionToModel( transactionAckData.m_transactionSend );
-			context< CPayLocalApplicationAction >().setSecondTransaction( transactionAckData.m_transactionSend );
+			CClientControl::getInstance()->addTransactionToModel( transactionAckData.m_transaction );
+			context< CPayLocalApplicationAction >().setSecondTransaction( transactionAckData.m_transaction );
 			return transit< CSecondCheck >();
 		}
 		else

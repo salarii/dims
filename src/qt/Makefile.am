@@ -139,14 +139,14 @@ QT_MOC_CPP = \
 
 CLIENT_H = \
   ../client/applicationServer.h \
-  ../client/clientControl.h \
-  ../client/clientRequests.h \
   ../client/connectAction.h \
+  ../client/control.h \
   ../client/controlRequests.h \
   ../client/errorMediumProvider.h \
   ../client/init.h \
   ../client/networkClient.h \
   ../client/payLocalApplicationAction.h \
+  ../client/requests.h \
   ../client/requestRespond.h \
   ../client/seedProvider.h \
   ../client/sendInfoRequestAction.h \
@@ -159,14 +159,14 @@ CLIENT_H = \
   
 CLIENT_CPP = \
   ../client/applicationServer.cpp \
-  ../client/clientControl.cpp \
-  ../client/clientRequests.cpp \
   ../client/connectAction.cpp \
+  ../client/control.cpp \
   ../client/controlRequests.cpp \
   ../client/errorMediumProvider.cpp \
   ../client/init.cpp \
   ../client/networkClient.cpp \
   ../client/payLocalApplicationAction.cpp \
+  ../client/requests.cpp \
   ../client/sendTransactionAction.cpp \
   ../client/seedProvider.cpp \
   ../client/sendInfoRequestAction.cpp \

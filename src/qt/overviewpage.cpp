@@ -18,7 +18,7 @@
 #include <QPainter>
 #include <QHBoxLayout>
 
-#include "client/clientControl.h"
+#include "client/control.h"
 
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3

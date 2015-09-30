@@ -5,7 +5,7 @@
 #include "controlRequests.h"
 
 #include "common/medium.h"
-#include "clientFilters.h"
+#include "filters.h"
 
 namespace client
 {

@@ -5,16 +5,14 @@
 #include <boost/foreach.hpp>
 #include <exception> 
 
-#include "settingsMedium.h"
-#include "sendInfoRequestAction.h"
-
 #include "common/nodeMessages.h"
 #include "common/events.h"
 #include "common/dimsParams.h"
 #include "common/responses.h"
 #include "common/requests.h"
 
-#include "clientResponses.h"
+#include "client/settingsMedium.h"
+#include "client/sendInfoRequestAction.h"
 
 using namespace common;
 
@@ -52,8 +50,8 @@ void
 CDefaultMedium::add( CDnsInfoRequest const * _request )
 {
 	vector< CAddress > addresses;
-	getSeedIps( addresses );
-	//addresses.push_back( CAddress( CService("127.0.0.1", 0x1400) ) );
+	//getSeedIps( addresses );
+	addresses.push_back( CAddress( CService("127.0.0.1", 0x1400) ) );
 	CDnsInfo dnsInfo( addresses );
 
 	m_requestResponse.insert( std::make_pair( ( common::CRequest * )_request, dnsInfo ) );

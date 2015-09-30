@@ -112,14 +112,17 @@ public:
 
 struct CClientMessageResponse : boost::statechart::event< CClientMessageResponse >
 {
-	CClientMessageResponse( CClientMessage const & _clientMessage, uintptr_t _nodePtr)
+	CClientMessageResponse( CClientMessage const & _clientMessage, uintptr_t _nodePtr, std::string const & _ip )
 		: m_clientMessage(_clientMessage)
 		, m_nodePtr(_nodePtr)
+		, m_ip(_ip)
 	{}
 
 	CClientMessage m_clientMessage;
 
 	uintptr_t m_nodePtr;
+
+	std::string m_ip;
 };
 
 template < class T >

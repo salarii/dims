@@ -20,7 +20,7 @@
 #include "wallet.h"
 #include "walletdb.h" // for BackupWallet
 
-#include "client/clientControl.h"
+#include "client/control.h"
 //node
 #include "common/periodicActionExecutor.h"
 #include "client/sendBalanceInfoAction.h"

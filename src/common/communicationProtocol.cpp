@@ -5,6 +5,7 @@
 #include "util.h"
 #include "version.h"
 
+#include "common/support.h"
 #include "common/communicationProtocol.h"
 #include "common/authenticationProvider.h"
 

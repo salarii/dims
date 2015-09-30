@@ -540,16 +540,6 @@ convertPayload( CMessage const & _message,T & _outMessage )
 uint256
 getRandNumber();
 
-template < class T >
-void
-createPayload( T const & message, std::vector< unsigned char > & _payload )
-{
-	unsigned int size = ::GetSerializeSize( message, SER_NETWORK, PROTOCOL_VERSION );
-	_payload.resize( size );
-	CBufferAsStream stream( (char*)&_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
-	stream << message;
-}
-
 }
 
 #endif // COMMUNICATION_PROTOCOL_H

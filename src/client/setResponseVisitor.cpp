@@ -7,13 +7,11 @@
 #include "common/events.h"
 #include "common/responseVisitorInternal.h"
 
-#include "sendTransactionAction.h"
-#include "connectAction.h"
-#include "sendBalanceInfoAction.h"
-#include "payLocalApplicationAction.h"
-
-#include "clientResponses.h"
-#include "clientEvents.h"
+#include "client/sendTransactionAction.h"
+#include "client/connectAction.h"
+#include "client/sendBalanceInfoAction.h"
+#include "client/payLocalApplicationAction.h"
+#include "client/events.h"
 
 #include <boost/any.hpp>
 #include <boost/optional.hpp>

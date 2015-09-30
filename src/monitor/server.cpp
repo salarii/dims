@@ -30,44 +30,56 @@ public:
 
 	void operator()( CAvailableCoinsData const & _availableCoins ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _availableCoins;
+		std::vector< unsigned char > payload;
+		common::createPayload( _availableCoins, payload );
+
+		CClientMessage message( CMainRequestType::BalanceInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( CTrackerSpecificStats const & _trackerSpecificStats ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::TrackerInfoReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _trackerSpecificStats;
+		std::vector< unsigned char > payload;
+		common::createPayload( _trackerSpecificStats, payload );
+
+		CClientMessage message( CMainRequestType::TrackerInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( CMonitorData const & _monitorData ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::MonitorInfoReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _monitorData;
+		std::vector< unsigned char > payload;
+		common::createPayload( _monitorData, payload );
+
+		CClientMessage message( CMainRequestType::MonitorInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( common::CClientNetworkInfoResult const & _networkInfo ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _networkInfo;
+		std::vector< unsigned char > payload;
+		common::createPayload( _networkInfo, payload );
+
+		CClientMessage message( CMainRequestType::NetworkInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( common::CTransactionAck const & _transactionAck ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::Transaction );
-		*m_pushStream << m_token;
-		*m_pushStream << _transactionAck;
+		std::vector< unsigned char > payload;
+		common::createPayload( _transactionAck, payload );
+
+		CClientMessage message( CMainRequestType::Transaction, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( common::CTransactionStatusResponse const & _transactionStatus ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::TransactionStatusReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _transactionStatus;
+		std::vector< unsigned char > payload;
+		common::createPayload( _transactionStatus, payload );
+
+		CClientMessage message( CMainRequestType::TransactionStatusReq, payload, m_token );
+		*m_pushStream << message;
 	}
 private:
 	CBufferAsStream * const m_pushStream;
@@ -191,27 +203,24 @@ CTcpServerConnection::handleIncommingBuffor()
 
 	while( !pullStream.eof() )
 	{
-		int messageType;
+		common::CClientMessage clientMessage;
 
-		pullStream >> messageType;
+		pullStream >> clientMessage;
 
 		CTransaction transaction;
 
-		if ( messageType == CMainRequestType::TrackerInfoReq )
+		if ( clientMessage.m_header.m_payloadKind == CMainRequestType::TrackerInfoReq )
 		{
 		}
-		else if ( messageType == CMainRequestType::MonitorInfoReq )
+		else if ( clientMessage.m_header.m_payloadKind == CMainRequestType::MonitorInfoReq )
 		{
-			uint256 token = CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq() );
-			pushStream << token;
-			m_tokens.insert( token );
+			CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
-		else if ( messageType == CMainRequestType::NetworkInfoReq )
+		else if ( clientMessage.m_header.m_payloadKind == CMainRequestType::NetworkInfoReq )
 		{
-
-			uint256 token = CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq() );
-			pushStream << token;
-			m_tokens.insert( token );
+			CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
 		else
 		{
@@ -221,7 +230,7 @@ CTcpServerConnection::handleIncommingBuffor()
 
 	std::list< uint256 > toRemove;
 	ClientResponse clientResponse;
-	BOOST_FOREACH( uint256 const & token,m_tokens )
+	BOOST_FOREACH( uint256 const & token, m_tokens )
 	{
 		if ( CClientRequestsManager::getInstance()->getResponse( token, clientResponse ) )
 		{

@@ -12,10 +12,10 @@
 #include "common/requests.h"
 
 #include "client/sendTransactionAction.h"
-#include "client/clientFilters.h"
-#include "client/clientRequests.h"
-#include "client/clientEvents.h"
-#include "client/clientControl.h"
+#include "client/filters.h"
+#include "client/requests.h"
+#include "client/events.h"
+#include "client/control.h"
 
 #include "serialize.h"
 
@@ -44,13 +44,13 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
 	{
-		common::CTransactionAckData transactionAckData;
+		common::CTransactionAck transactionAckData;
 		convertClientPayload( _message.m_clientMessage, transactionAckData );
 
 		if ( transactionAckData.m_status == (int)common::TransactionsStatus::Validated )
 		{
-			CClientControl::getInstance()->addTransactionToModel( transactionAckData.m_transactionSend );
-			context< CSendTransactionAction >().setTransaction( transactionAckData.m_transactionSend );
+			CClientControl::getInstance()->addTransactionToModel( transactionAckData.m_transaction );
+			context< CSendTransactionAction >().setTransaction( transactionAckData.m_transaction );
 			return transit< CTransactionStatus >();
 		}
 		else

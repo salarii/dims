@@ -214,6 +214,7 @@ CSendMessageRequest::CSendMessageRequest( CPayloadKind::Enum _messageKind, uint2
 	: common::CRequest( _id, _CMediumFilter )
 	, m_messageKind( (int)_messageKind )
 	, m_actionKey( _actionKey )
+	, m_payload( std::vector< unsigned char >() )
 {
 }
 
@@ -221,6 +222,7 @@ CSendMessageRequest::CSendMessageRequest( CPayloadKind::Enum _messageKind, uint2
 	: common::CRequest( _CMediumFilter )
 	, m_messageKind( (int)_messageKind )
 	, m_actionKey( _actionKey )
+	, m_payload( std::vector< unsigned char >() )
 {
 }
 
@@ -229,6 +231,7 @@ CSendMessageRequest::CSendMessageRequest(
 		, CMediumFilter * _CMediumFilter )
 	: common::CRequest( _CMediumFilter )
 	, m_messageKind( (int)_messageKind )
+	, m_payload( std::vector< unsigned char >() )
 {}
 
 void
