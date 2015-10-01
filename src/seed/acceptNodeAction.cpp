@@ -23,27 +23,6 @@
 // ugly as hell, refactor as soon as possible
 namespace seed
 {
-boost::mutex mutex;
-std::map< std::string, bool > m_result;
-
-void addResult( std::string const & _key, bool _value )
-{
-	boost::lock_guard<boost::mutex> lock( mutex );
-	m_result.insert( std::make_pair( _key, _value ) );
-}
-
-bool
-getResult( std::string const & _key, bool & _value )
-{
-	boost::lock_guard<boost::mutex> lock( mutex );
-	std::map< std::string, bool >::const_iterator iterator = m_result.find( _key );
-
-	if ( iterator == m_result.end() )
-		return false;
-	_value = iterator->second;
-
-	return true;
-}
 
 extern CAddrDb db;
 
@@ -127,15 +106,6 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 		LogPrintf("accept node action: %p both unidentified connecting \n", &context< CAcceptNodeAction >() );
 		common::CNodeConnectedEvent const* connectedEvent = dynamic_cast< common::CNodeConnectedEvent const* >( simple_state::triggering_event() );
 		context< CAcceptNodeAction >().setNodePtr( convertToInt( connectedEvent->m_node ) );
-
-		/*if ( !CPingAction::isPinged( convertToInt( connectedEvent->m_node ) ) )
-		{
-			CPingAction * pingAction= new CPingAction( convertToInt( connectedEvent->m_node ) );
-
-			pingAction->process_event( common::CStartPingEvent() );
-
-			common::CActionHandler::getInstance()->executeAction( pingAction );
-		}*/
 
 		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( connectedEvent->m_node ) );
 		context< CAcceptNodeAction >().forgetRequests();
@@ -465,9 +435,9 @@ struct CCantReachNode : boost::statechart::state< CCantReachNode, CAcceptNodeAct
 	CCantReachNode( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("accept node action: %p can't reach node \n", &context< CAcceptNodeAction >() );
-
-		context< CAcceptNodeAction >().setValid( false );
 		context< CAcceptNodeAction >().forgetRequests();
+		context< CAcceptNodeAction >().setValid( false );
+		context< CAcceptNodeAction >().setExit();
 	}
 };
 
@@ -548,24 +518,30 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CAcceptNodeA
 	}
 };
 
-CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr )
+CAcceptNodeAction::CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr, CServiceResult & _service )
 	: common::CAction( _actionKey )
 	, m_nodePtr( _nodePtr )
 	, m_passive( true )
 	, m_valid( false )
+	, m_service( _service )
 {
 	initiate();
 }
 
-CAcceptNodeAction::CAcceptNodeAction( CAddress const & _nodeAddress )
-	: m_nodeAddress( _nodeAddress )
-	, m_passive( false )
+CAcceptNodeAction::CAcceptNodeAction( CServiceResult & _service )
+	: m_passive( false )
 	, m_valid( false )
+	, m_service( _service )
 {
 	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
 	{
 		m_payload.push_back( insecure_rand() % 256 );
 	}
+	m_nodeAddress = CAddress(m_service.service);
+	// !! use  default  no  matter  what  is  there
+	// it  warks   but  is  it acctually correct??
+	m_nodeAddress.SetPort( common::dimsParams().GetDefaultPort() );
+
 	initiate();
 }
 

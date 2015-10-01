@@ -5,17 +5,16 @@
 #ifndef ACCEPT_NODE_ACTION_H
 #define ACCEPT_NODE_ACTION_H
 
-#include "common/action.h"
-#include "common/communicationProtocol.h"
-
 #include <boost/statechart/state_machine.hpp>
 #include <boost/optional.hpp>
 
+#include "common/action.h"
+#include "common/communicationProtocol.h"
+
+#include "seedDb.h"
+
 namespace seed
 {
-
-extern boost::mutex mutex;
-extern std::map< std::string, bool > m_result;
 
 void addResult( std::string const & _key, bool _value );
 
@@ -27,9 +26,9 @@ struct CUninitiated;
 class CAcceptNodeAction : public common::CAction, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
 {
 public:
-	CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr );
+	CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr, CServiceResult & _service );// last  is  because  of  ugliness
 
-	CAcceptNodeAction( CAddress const & _nodeAddress );
+	CAcceptNodeAction( CServiceResult & _service );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
@@ -43,9 +42,12 @@ public:
 // not safe
 	uintptr_t getNodePtr() const;
 
-	bool getValid() const{ return m_valid; }
+	bool getValid() const{ return m_service.fGood; }
 
-	void setValid( bool _valid ){ addResult( m_nodeAddress.ToStringIP(), _valid ); }
+	void setValid( bool _valid )
+	{
+		m_service.fGood = _valid;
+	}
 
 	CPubKey getPublicKey() const;
 
@@ -66,6 +68,8 @@ private:
 	bool m_valid;
 
 	CPubKey m_key;
+
+	CServiceResult & m_service;
 };
 
 

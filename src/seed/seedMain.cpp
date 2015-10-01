@@ -397,10 +397,6 @@ void periodicCheck()
 		  continue;
 		}
 
-		vector<CAddress> addr;
-
-		m_result.clear();
-
 		for (unsigned int i=0; i<ips.size(); i++)
 		{
 			CServiceResult &res = ips[i];
@@ -408,45 +404,16 @@ void periodicCheck()
 			res.nClientV = 0;
 			res.nHeight = 0;
 			res.strClientV = "";
-			//ugly
-			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
+			// ugly but should be reliable
+			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( res );
 			acceptNodeAction->process_event( common::CSwitchToConnectingEvent() );
 
 			common::CActionHandler::getInstance()->executeAction( acceptNodeAction );
 		}
 
-		bool resultValid;
-		bool isNodeValid;
-		// this is  against action  handler  philosophy but here  we can live  with  that
-		while( 1 )
-		{
-			for (unsigned int i=0; i<ips.size(); i++)
-			{
-				std::string ipPort = ips[ i ].service.ToStringIP();
+		MilliSleep(30000);
+		db.ResultMany(ips); // believe it is  done
 
-				resultValid = getResult( ipPort, isNodeValid );
-				if ( !resultValid )
-					goto Wait;
-			}
-			break;
-Wait:
-			MilliSleep( 10 );
-		}
-
-		for (unsigned int i=0; i<ips.size(); i++)
-		{
-			std::string ipPort = ips[ i ].service.ToStringIP();
-
-			resultValid = getResult( ipPort, isNodeValid );
-
-			assert( resultValid );
-			ips[ i ].fGood = isNodeValid;
-		}
-
-		db.ResultMany(ips);
-		db.Add(addr);
-
-		MilliSleep(20000);
 	}
 
 

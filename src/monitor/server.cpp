@@ -109,7 +109,7 @@ CTcpServerConnection::CTcpServerConnection(Poco::Net::StreamSocket const & _serv
 void
 CTcpServerConnection::run()
 {
-	Poco::Timespan timeOut(10,0);
+	Poco::Timespan timeOut(1, 0);
 	while( 1 )
 	{
 		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ ))

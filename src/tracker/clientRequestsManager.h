@@ -42,7 +42,6 @@ private:
 
 	InfoRequestRecord m_getInfoRequest;
 	InfoResponseRecord m_infoResponseRecord;
-	static uint256 ms_currentToken;
 
 };
 

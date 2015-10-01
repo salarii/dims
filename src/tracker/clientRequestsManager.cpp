@@ -74,9 +74,6 @@ private:
 	uint256 const m_hash;
 };
 
-
-uint256 CClientRequestsManager::ms_currentToken = 0;
-
 CClientRequestsManager * CClientRequestsManager::ms_instance = NULL;
 
 CClientRequestsManager::CClientRequestsManager()
@@ -96,14 +93,6 @@ CClientRequestsManager::getInstance( )
 
 CClientRequestsManager::~CClientRequestsManager()
 {}
-
-uint256
-CClientRequestsManager::addRequest( NodeRequests const & _nodeRequest )
-{
-	boost::lock_guard<boost::mutex> lock( m_requestLock );
-	m_getInfoRequest.insert( std::make_pair( ms_currentToken, _nodeRequest ) );
-	return ms_currentToken++;
-}
 
 void
 CClientRequestsManager::addRequest( NodeRequests const & _nodeRequest, uint256 const & _hash )

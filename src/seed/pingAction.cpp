@@ -65,14 +65,6 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		if ( !m_received )
 		{
 			context< CPingAction >().cleanup();
-
-			CAcceptNodeAction * acceptAction = new CAcceptNodeAction(
-						context< CPingAction >().getActionKey()
-						, context< CPingAction >().getNodeIndicator() );
-
-			acceptAction->process_event( common::CSwitchToConnectingEvent() );
-
-			common::CActionHandler::getInstance()->executeAction( acceptAction );
 		}
 		else
 		{
@@ -137,14 +129,6 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		if ( !m_received )
 		{
 			context< CPingAction >().cleanup();
-
-			CAcceptNodeAction * acceptAction = new CAcceptNodeAction(
-						context< CPingAction >().getActionKey()
-						, context< CPingAction >().getNodeIndicator() );
-
-			acceptAction->process_event( common::CSwitchToConnectingEvent() );
-
-			common::CActionHandler::getInstance()->executeAction( acceptAction );
 		}
 		else
 		{

@@ -30,37 +30,47 @@ public:
 
 	void operator()( CAvailableCoinsData const & _availableCoins ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _availableCoins;
+		std::vector< unsigned char > payload;
+		common::createPayload( _availableCoins, payload );
+
+		CClientMessage message( CMainRequestType::BalanceInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( CTrackerSpecificStats const & _trackerSpecificStats ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::TrackerInfoReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _trackerSpecificStats;
+		std::vector< unsigned char > payload;
+		common::createPayload( _trackerSpecificStats, payload );
+
+		CClientMessage message( CMainRequestType::TrackerInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( common::CClientNetworkInfoResult const & _networkInfo ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _networkInfo;
+		std::vector< unsigned char > payload;
+		common::createPayload( _networkInfo, payload );
+
+		CClientMessage message( CMainRequestType::NetworkInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( common::CTransactionAck const & _transactionAck ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::Transaction );
-		*m_pushStream << m_token;
-		*m_pushStream << _transactionAck;
+		std::vector< unsigned char > payload;
+		common::createPayload( _transactionAck, payload );
+
+		CClientMessage message( CMainRequestType::Transaction, payload, m_token );
+		*m_pushStream << message;
 	}
 
 	void operator()( common::CTransactionStatusResponse const & _transactionStatus ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::TransactionStatusReq );
-		*m_pushStream << m_token;
-		*m_pushStream << _transactionStatus;
+		std::vector< unsigned char > payload;
+		common::createPayload( _transactionStatus, payload );
+
+		CClientMessage message( CMainRequestType::TransactionStatusReq, payload, m_token );
+		*m_pushStream << message;
 	}
 private:
 	CBufferAsStream * const m_pushStream;
@@ -184,51 +194,50 @@ CTcpServerConnection::handleIncommingBuffor()
 
 	while( !pullStream.eof() )
 	{
-		int messageType;
+		common::CClientMessage clientMessage;
 
-		pullStream >> messageType;
+		pullStream >> clientMessage;
 
 		CTransaction transaction;
-		if( messageType == CMainRequestType::Transaction )
+		if( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::Transaction )
 		{
-			pullStream >> transaction;
-			CClientRequestsManager::getInstance()->addRequest( CTransactionMessage( transaction ), transaction.GetHash() );
-			m_tokens.insert( transaction.GetHash() );
+			CClientTransactionSend clientTransactionSend;
+			common::convertClientPayload( clientMessage, clientTransactionSend );
+			CClientRequestsManager::getInstance()->addRequest(
+						CTransactionMessage( clientTransactionSend.m_transaction ), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
-		else if ( messageType == CMainRequestType::TrackerInfoReq )
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::TrackerInfoReq )
 		{
-			uint256 token =CClientRequestsManager::getInstance()->addRequest( CTrackerStatsReq() );
-			pushStream << token;
-			m_tokens.insert( token );
+			CClientRequestsManager::getInstance()->addRequest( CTrackerStatsReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
-		else if ( messageType == CMainRequestType::MonitorInfoReq )
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::MonitorInfoReq )
 		{
-			uint256 token = CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq() );
-			pushStream << token;
-			m_tokens.insert( token );
+			CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
-		else if ( messageType == CMainRequestType::TransactionStatusReq )
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::TransactionStatusReq )
 		{
-			uint256 hash;
-			pullStream >> hash;
-			CClientRequestsManager::getInstance()->addRequest( CTransactionStatusReq( hash ), hash );
-			pushStream << hash;
-			m_tokens.insert( hash );
-		}
-		else if ( messageType == CMainRequestType::BalanceInfoReq )
-		{
-			std::string address;
-			pullStream >> address;
-			uint256 token = CClientRequestsManager::getInstance()->addRequest( address );
-			pushStream << token;
-			m_tokens.insert( token );
-		}
-		else if ( messageType == CMainRequestType::NetworkInfoReq )
-		{
+			CClientTransactionStatusAsk clientTransactionStatusAsk;
+			common::convertClientPayload( clientMessage, clientTransactionStatusAsk );
 
-			uint256 token = CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq() );
-			pushStream << token;
-			m_tokens.insert( token );
+			CClientRequestsManager::getInstance()->addRequest(
+						CTransactionStatusReq( clientTransactionStatusAsk.m_hash ), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
+		}
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::BalanceInfoReq )
+		{
+			CClientBalanceAsk clientBalanceAsk;
+			common::convertClientPayload( clientMessage, clientBalanceAsk );
+			CClientRequestsManager::getInstance()->addRequest(
+						clientBalanceAsk.m_address, clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
+		}
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::NetworkInfoReq )
+		{
+			CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
 		else
 		{

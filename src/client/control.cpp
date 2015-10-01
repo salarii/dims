@@ -11,9 +11,9 @@
 
 #include "sendBalanceInfoAction.h"
 #include "connectAction.h"
-#include "clientEvents.h"
+#include "events.h"
 #include "addresstablemodel.h"
-#include "clientControl.h"
+#include "control.h"
 
 #include "ui_interface.h"
 
