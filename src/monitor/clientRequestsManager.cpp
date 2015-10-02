@@ -48,7 +48,7 @@ public:
 
 		// problematic??  how to manage  self??
 
-		std::vector< CAllyMonitorData > allyMonitors = CReputationTracker::getInstance()->getAllyMonitors();
+		std::set< CAllyMonitorData > allyMonitors = CReputationTracker::getInstance()->getAllyMonitors();
 
 		bool success;
 		uintptr_t nodeIndicator;
@@ -65,7 +65,7 @@ public:
 			//fix this
 			monitors.push_back(
 						common::CNodeInfo(
-							allyMonitorData.m_key
+							allyMonitorData.m_publicKey
 							, address.ToStringIP()
 							, address.GetPort()
 							, common::CRole::Monitor ));

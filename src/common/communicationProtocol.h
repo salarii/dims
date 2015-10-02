@@ -55,6 +55,7 @@ struct CPayloadKind
 		EnterNetworkAsk,
 		EnterNetworkCondition,
 		RankingInfo,
+		FullRankingInfo,
 		ExtendRegistration
 	};
 };
@@ -142,7 +143,7 @@ struct CIdentifyMessage
 	std::vector<unsigned char> m_signed;
 };
 
-struct CRankingInfo
+struct CRankingFullInfo
 {
 	IMPLEMENT_SERIALIZE
 	(
@@ -151,9 +152,9 @@ struct CRankingInfo
 		READWRITE(m_trackers);
 	)
 
-	CRankingInfo();
+	CRankingFullInfo();
 
-	CRankingInfo(
+	CRankingFullInfo(
 			std::vector< CAllyTrackerData > const & _allyTrackers
 			, std::vector< CAllyMonitorData > const & _allyMonitors
 			, std::vector< CTrackerData > const & _trackers )
@@ -165,6 +166,27 @@ struct CRankingInfo
 	std::vector< CAllyTrackerData > m_allyTrackers;
 	std::vector< CAllyMonitorData > m_allyMonitors;
 	std::vector< CTrackerData > m_trackers;
+};
+
+struct CRankingInfo
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_trackers);
+		READWRITE(m_time);
+	)
+
+	CRankingInfo(){};
+
+	CRankingInfo(
+			std::set< CTrackerData > const & _trackers
+			, int64_t _time)
+		: m_trackers( _trackers )
+		, m_time(_time)
+	{}
+
+	std::set< CTrackerData > m_trackers;
+	int64_t m_time;
 };
 
 struct CTransactionsBundleStatus

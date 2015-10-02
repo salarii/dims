@@ -27,7 +27,7 @@ double const PreviousReptationRatio = 0.95;// I want  to preserve  a lot
 double const TriggerExtendRatio = 0.1;
 double const RelativeToMax = 0.3;
 unsigned int const OneTransactionGain = 10;
-
+unsigned int const BoostForServicesAlone = 10;
 
 
 // allow some  deviation for  other monitors
@@ -62,8 +62,6 @@ CReputationTracker::getInstance()
 unsigned int
 CReputationTracker::calculateReputation( uint64_t _passedTime )
 {
-
-
 	unsigned int  maxTransactionNumber = 0;
 	BOOST_FOREACH( TransactionsAddmited::value_type & transactionIndicator, m_transactionsAddmited )
 	{
@@ -73,9 +71,9 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 		}
 	}
 
-	unsigned int boostForAll = ( maxTransactionNumber + 1 )* OneTransactionGain * RelativeToMax;
+	unsigned int boostForAll = ( maxTransactionNumber + BoostForServicesAlone )* OneTransactionGain * RelativeToMax;
 
-	BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
+	BOOST_FOREACH( PAIRTYPE( uint160 const, common::CTrackerData ) & tracker, m_registeredTrackers )
 	{
 		if ( m_presentTrackers.find( tracker.first ) != m_presentTrackers.end() )
 		{
@@ -86,7 +84,7 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 
 	BOOST_FOREACH( TransactionsAddmited::value_type & transactionIndicator, m_transactionsAddmited )
 	{
-		RegisteredTrackers::iterator iterator = m_registeredTrackers.find( transactionIndicator.first );
+		std::map< uint160, common::CTrackerData >::iterator iterator = m_registeredTrackers.find( transactionIndicator.first );
 
 		if ( m_registeredTrackers.end() != iterator )
 		{
@@ -108,7 +106,7 @@ CReputationTracker::loop()
 			boost::lock_guard<boost::mutex> lock( m_lock );
 
 			std::list< uint160 > toBeRemoved;
-			BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
+			BOOST_FOREACH( PAIRTYPE( uint160 const, common::CTrackerData ) & tracker, m_registeredTrackers )
 			{
 				int64_t timePassed = GetTime() - tracker.second.m_contractTime;
 				int64_t timeLeft = tracker.second.m_networkTime - timePassed;
@@ -148,7 +146,7 @@ CReputationTracker::loop()
 void
 CReputationTracker::storeCurrentRanking()
 {
-	BOOST_FOREACH( RegisteredTrackers::value_type & tracker, m_registeredTrackers )
+	BOOST_FOREACH( PAIRTYPE( uint160 const, common::CTrackerData ) & tracker, m_registeredTrackers )
 	{
 		CRankingDatabase::getInstance()->writeTrackerData( tracker.second );
 	}
@@ -177,6 +175,12 @@ CReputationTracker::setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, 
 	}
 }
 
+void
+CReputationTracker::clearTransactions()
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_transactionsAddmited.clear();
+}
 
 void
 CReputationTracker::checkValidity( common::CAllyTrackerData const & _allyTrackerData )
@@ -196,10 +200,10 @@ CReputationTracker::getTrackers() const
 	return trackers;
 }
 
-std::vector< common::CAllyMonitorData >
+std::set< common::CAllyMonitorData >
 CReputationTracker::getAllyMonitors() const
 {
-	return std::vector< common::CAllyMonitorData >();
+	return std::set< common::CAllyMonitorData >();
 }
 
 std::vector< common::CAllyTrackerData >
@@ -253,7 +257,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 	{
 		BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
 		{
-				if ( !getKeyToNode( monitorData.second.m_key.GetID(), nodeIndicator) )
+				if ( !getKeyToNode( monitorData.second.m_publicKey.GetID(), nodeIndicator) )
 					assert( !"something wrong" );
 
 				common::CMedium * medium = findNodeMedium( nodeIndicator );
@@ -331,7 +335,7 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 	std::set< common::CValidNodeInfo > nodesInfo;
 	if ( _role == common::CRole::Tracker )
 	{
-		BOOST_FOREACH( RegisteredTrackers::value_type const & tracker, m_registeredTrackers )
+		BOOST_FOREACH( PAIRTYPE( uint160 const, common::CTrackerData ) const & tracker, m_registeredTrackers )
 		{
 			uintptr_t nodePtr;
 			getKeyToNode( tracker.second.m_publicKey.GetID(), nodePtr );
@@ -344,7 +348,7 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 	}
 	else if ( _role == common::CRole::Monitor )
 	{
-		BOOST_FOREACH( Monitor::value_type const & monitor, m_allyMonitors )
+		BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitor, m_allyMonitors )
 		{
 			uintptr_t nodePtr;
 			getKeyToNode( monitor.second.m_publicKey.GetID(), nodePtr );
@@ -361,7 +365,7 @@ CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 bool
 CReputationTracker::checkForTracker( uint160 const & _pubKeyId, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const
 {
-	RegisteredTrackers::const_iterator iterator = m_registeredTrackers.find( _pubKeyId );
+	std::map< uint160, common::CTrackerData >::const_iterator iterator = m_registeredTrackers.find( _pubKeyId );
 
 	if ( iterator != m_registeredTrackers.end() )
 	{
@@ -371,7 +375,7 @@ CReputationTracker::checkForTracker( uint160 const & _pubKeyId, common::CTracker
 		return true;
 	}
 
-	AllyTrackers::const_iterator allyIterator = m_allyTrackersRankings.find( _pubKeyId );
+	std::map< uint160, common::CAllyTrackerData >::const_iterator allyIterator = m_allyTrackersRankings.find( _pubKeyId );
 
 	if ( allyIterator == m_allyTrackersRankings.end() )
 		return  false;
@@ -423,14 +427,19 @@ void
 CReputationTracker::addAllyTracker( common::CAllyTrackerData const & _trackerData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	//m_allyTrackersRankings.push_back( _trackerData );
+
+	m_allyTrackersRankings.erase( _trackerData.m_publicKey.GetID() );
+	m_allyTrackersRankings.insert( make_pair( _trackerData.m_publicKey.GetID(), _trackerData ) );
+
+	m_trackerToMonitor.erase( _trackerData.m_publicKey.GetID() );
+	m_trackerToMonitor.insert( std::make_pair( _trackerData.m_publicKey.GetID(), _trackerData.m_allyMonitorKey.GetID() ) );
 }
 
 void
 CReputationTracker::addAllyMonitor( common::CAllyMonitorData const & _monitorData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	m_allyMonitors.insert( std::make_pair( _monitorData.m_key.GetID(), _monitorData ) );
+	m_allyMonitors.insert( std::make_pair( _monitorData.m_publicKey.GetID(), _monitorData ) );
 }
 
 }

@@ -55,10 +55,15 @@ struct CTrackerData
 	unsigned int m_reputation;
 	uint64_t m_networkTime;
 	uint64_t m_contractTime;
+
+	bool operator<( CTrackerData const & _trackerData ) const
+	{
+		return m_publicKey < _trackerData.m_publicKey;
+	}
 };
 
-
-struct CAllyMonitorData : public common::CValidNodeInfo
+//
+struct CAllyMonitorData
 {
 	CAllyMonitorData(){}
 	CAllyMonitorData( CPubKey const &_publicKey ): m_publicKey( _publicKey ){}
@@ -67,6 +72,16 @@ struct CAllyMonitorData : public common::CValidNodeInfo
 	(
 		READWRITE(m_publicKey);
 	)
+
+	bool operator<( CAllyMonitorData const & _allyMonitorData ) const
+	{
+		return m_publicKey < _allyMonitorData.m_publicKey;
+	}
+
+	bool operator<( CPubKey  const & _pubKey ) const
+	{
+		return m_publicKey < _pubKey;
+	}
 
 	CPubKey m_publicKey;
 };
@@ -78,6 +93,13 @@ struct CAllyTrackerData : public CTrackerData
 		READWRITE(*this);
 		READWRITE(m_allyMonitorKey);
 	)
+
+	CAllyTrackerData(){}
+
+	CAllyTrackerData( CTrackerData const & _trackerData, CPubKey const & _monitorKey )
+		: CTrackerData( _trackerData )
+		, m_allyMonitorKey( _monitorKey )
+	{}
 
 	CPubKey m_allyMonitorKey;
 };

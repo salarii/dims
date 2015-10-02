@@ -635,13 +635,13 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 					common::CPayloadKind::RankingInfo
 					, context< CEnterNetworkAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
-
+/*
 		common::CRankingInfo rankingInfo(
 					CReputationTracker::getInstance()->getAllyTrackers()
 					,CReputationTracker::getInstance()->getAllyMonitors()
 					,CReputationTracker::getInstance()->getTrackers() );
-
-		request->addPayload( rankingInfo );
+*/
+//		request->addPayload( rankingInfo );
 
 		context< CEnterNetworkAction >().addRequest( request );
 
