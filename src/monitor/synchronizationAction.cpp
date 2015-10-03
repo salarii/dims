@@ -7,6 +7,11 @@
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
+#include "wallet.h"
+
+#include "common/analyseTransaction.h"
+#include "common/actionHandler.h"
+#include "common/authenticationProvider.h"
 #include "common/setResponseVisitor.h"
 #include "common/requests.h"
 #include "common/events.h"
@@ -18,6 +23,8 @@
 #include "monitor/synchronizationAction.h"
 #include "monitor/filters.h"
 #include "monitor/copyStorageHandler.h"
+#include "monitor/transactionRecordManager.h"
+#include "monitor/trackOriginAddressAction.h"
 
 namespace monitor
 {
@@ -30,6 +37,15 @@ struct CSynchronizingGetInfo;
 struct CSynchronizingHeaders;
 struct CSynchronizedUninitialized;
 struct CSynchronizedProvideCopy;
+struct CSynchronized;
+struct CSynchronizingAsk;
+struct CGetBitcoinHeader;
+
+namespace
+{
+unsigned int HeaderSize;
+unsigned int StrageSize;
+}
 
 struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
 {
@@ -38,8 +54,125 @@ struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing
 struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
 {
 	typedef boost::mpl::list<
-	boost::statechart::transition< CSwitchToSynchronizing, CSynchronizingGetInfo >,
+	boost::statechart::transition< CSwitchToSynchronizing, CSynchronizingAsk >,
 	boost::statechart::transition< CSwitchToSynchronized, CSynchronizedUninitialized >
+	> reactions;
+};
+
+
+struct CSynchronizingAsk : boost::statechart::state< CSynchronizingAsk, CSynchronizationAction >
+{
+	CSynchronizingAsk( my_context ctx ) : my_base( ctx )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::SynchronizationAsk
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload( common::CSynchronizationAsk() );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest(
+						 SynchronisingGetInfoTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+		context< CSynchronizationAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		CWallet::getInstance()->resetDatabase();
+
+		CWallet::getInstance()->AddKeyPubKey(
+					common::CAuthenticationProvider::getInstance()->getMyPrivKey()
+					, common::CAuthenticationProvider::getInstance()->getMyKey());
+
+		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
+
+		return transit< CGetBitcoinHeader >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >
+	> reactions;
+};
+
+struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchronizationAction >
+{
+	CGetBitcoinHeader( my_context ctx ) : my_base( ctx )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+		context< CSynchronizationAction >().addRequest(
+					new common::CInfoAskRequest(
+						common::CInfoKind::BitcoinHeaderAsk
+						, context< CSynchronizationAction >().getActionKey()
+						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest(
+						 SynchronisingGetInfoTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBitcoinHeader )
+		{
+			common::CBitcoinHeader bitcoinHeader;
+
+			common::convertPayload( orginalMessage, bitcoinHeader );
+
+			CAutoFile file( OpenHeadFile(false), SER_DISK, CLIENT_VERSION );
+
+			file << bitcoinHeader.m_bitcoinHeader;
+			fflush(file);
+			FileCommit(file);
+
+			resetChains();
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+			common::CActionHandler::getInstance()->executeAction( new CTrackOriginAddressAction );
+
+		}
+		return transit< CSynchronizingGetInfo >();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+		context< CSynchronizationAction >().setExit();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
 
@@ -47,24 +180,284 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 {
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
-	}
-};
+		context< CSynchronizationAction >().forgetRequests();
 
-struct CSynchronized;
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload( (int)common::CInfoKind::StorageInfoAsk, 0 );
+
+		context< CSynchronizationAction >().addRequest( request );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
+		{
+			common::CSynchronizationInfo synchronizationInfo;
+
+			common::convertPayload( orginalMessage, synchronizationInfo );
+
+			StrageSize = synchronizationInfo.m_strageSize;
+			HeaderSize = synchronizationInfo.m_headerSize;
+
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+		}
+		return transit< CSynchronizingHeaders >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+};
 
 struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CSynchronizationAction >
 {
-	CSynchronizingBlocks( my_context ctx ) : my_base( ctx )
+	CSynchronizingBlocks( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
+		context< CSynchronizationAction >().forgetRequests();
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Segment
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest(
+						  SynchronisingWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock )
+		{
+			common::CSynchronizationBlock synchronizationBlock( new common::CDiskBlock(), -1 );
+
+			common::convertPayload( orginalMessage, synchronizationBlock );
+			context< CSynchronizationAction >().forgetRequests();
+
+			std::vector< CTransaction > transactions;
+
+			assert( synchronizationBlock.m_blockIndex == m_currentBlock );
+
+			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationBlock.m_diskBlock, synchronizationBlock.m_blockIndex, transactions );
+
+			BOOST_FOREACH( CTransaction const & transaction, transactions )
+			{
+				common::findSelfCoinsAndAddToWallet( transaction );
+				common::CSupportTransactionsDatabase::getInstance()->setTransactionLocation( transaction.GetHash(), transaction.m_location );
+			}
+
+			common::CSupportTransactionsDatabase::getInstance()->flush();
+
+			if ( StrageSize > ++m_currentBlock )
+			{
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
+							common::CPayloadKind::SynchronizationGet
+							, context< CSynchronizationAction >().getActionKey()
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+				request->addPayload(
+							common::CSynchronizationGet(
+								(int)common::CBlockKind::Segment
+								, m_currentBlock ) );
+
+				context< CSynchronizationAction >().addRequest( request );
+			}
+			else
+			{
+				common::CSegmentFileStorage::getInstance()->resetState();
+				common::CSegmentFileStorage::getInstance()->retriveState();
+
+				common::CSynchronizationResult synchronizationResult;
+				synchronizationResult.m_result = 1;
+
+				context< CSynchronizationAction >().setResult( synchronizationResult );
+				context< CSynchronizationAction >().setExit();
+			}
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Segment
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest(
+						  SynchronisingWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		return discard_event();
+	}
+
+	~CSynchronizingBlocks()
+	{
+		common::CSegmentFileStorage::getInstance()->releaseSynchronizationInProgress();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+
+	unsigned int m_currentBlock;
 };
 
 
 struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, CSynchronizationAction >
 {
-	CSynchronizingHeaders( my_context ctx ) : my_base( ctx )
+	CSynchronizingHeaders( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
+		context< CSynchronizationAction >().forgetRequests();
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Header
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest(
+						  SynchronisingWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader )
+		{
+			common::CSynchronizationSegmentHeader synchronizationHeader( new common::CSegmentHeader(), -1 );
+
+			common::convertPayload( orginalMessage, synchronizationHeader );
+			context< CSynchronizationAction >().forgetRequests();
+
+			common::CSegmentFileStorage::getInstance()->setDiscBlock( *synchronizationHeader.m_segmentHeader, synchronizationHeader.m_blockIndex );
+
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+			if ( HeaderSize > ++m_currentBlock )
+			{
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
+							common::CPayloadKind::SynchronizationGet
+							, context< CSynchronizationAction >().getActionKey()
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+				request->addPayload(
+							common::CSynchronizationGet(
+								(int)common::CBlockKind::Header
+								, m_currentBlock ) );
+
+				context< CSynchronizationAction >().addRequest( request );
+			}
+			else
+			{
+				return transit< CSynchronizingBlocks >();
+			}
+
+			assert( synchronizationHeader.m_blockIndex == m_currentBlock - 1 );
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::SynchronizationGet
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload(
+					common::CSynchronizationGet(
+						(int)common::CBlockKind::Header
+						, m_currentBlock ) );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest(
+						  SynchronisingWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
+	{
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+
+	unsigned int m_currentBlock;
 };
 
 struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUninitialized, CSynchronizationAction >
