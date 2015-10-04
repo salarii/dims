@@ -71,7 +71,7 @@ public:
 							, common::CRole::Monitor ));
 		}
 
-		std::vector< CTrackerData > trackersData = CReputationTracker::getInstance()->getTrackers();
+		std::set< CTrackerData > trackersData = CReputationTracker::getInstance()->getTrackers();
 
 		BOOST_FOREACH( CTrackerData const & trackerData, trackersData )
 		{

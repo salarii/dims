@@ -30,6 +30,7 @@ MONITOR_H = \
 	rankingDatabase.h \
 	recognizeNetworkAction.h \
 	registerRpcHooks.h \
+	reputationControlAction.h \
 	reputationTracer.h \
 	server.h \
 	synchronizationAction.h \
@@ -60,6 +61,7 @@ MONITOR_CPP = \
 	rankingDatabase.cpp \
 	recognizeNetworkAction.cpp \
 	registerRpcHooks.cpp \
+	reputationControlAction.cpp \
 	reputationTracer.cpp \
 	server.cpp \
 	setResponseVisitor.cpp \

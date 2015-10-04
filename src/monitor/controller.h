@@ -15,6 +15,8 @@ namespace monitor
 struct CSynchronizeWithBitcoin;
 struct CMonitorStandAlone;
 
+// this  is utter crap and need  to  be improved  somehow
+
 class CController : public boost::statechart::state_machine< CController, CMonitorStandAlone >
 {
 public:

@@ -2,6 +2,10 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <boost/statechart/state.hpp>
+#include <boost/statechart/transition.hpp>
+#include <boost/statechart/custom_reaction.hpp>
+
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
 #include "common/setResponseVisitor.h"
@@ -12,10 +16,6 @@
 #include "monitor/filters.h"
 #include "monitor/controller.h"
 #include "monitor/provideInfoAction.h"
-
-#include <boost/statechart/state.hpp>
-#include <boost/statechart/transition.hpp>
-#include <boost/statechart/custom_reaction.hpp>
 
 namespace monitor
 {

@@ -2,14 +2,23 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <boost/statechart/state.hpp>
+#include <boost/statechart/transition.hpp>
+#include <boost/statechart/custom_reaction.hpp>
+
 #include "common/requests.h"
 #include "common/events.h"
+#include "common/setResponseVisitor.h"
 
-#include "monitor/reputationControlAction.hpp"
+#include "monitor/reputationControlAction.h"
 #include "monitor/reputationTracer.h"
+#include "monitor/filters.h"
 
 namespace monitor
 {
+CReputationControlAction * CReputationControlAction::ms_instance = NULL;
+
+
 struct COperating;
 namespace
 {
@@ -30,8 +39,8 @@ struct CReputationControlInitial : boost::statechart::state< CReputationControlI
 {
 	CReputationControlInitial( my_context ctx ) : my_base( ctx )
 	{
-		context< CRecognizeNetworkAction >().forgetRequests();
-		context< CRecognizeNetworkAction >().addRequest(
+		context< CReputationControlAction >().forgetRequests();
+		context< CReputationControlAction >().addRequest(
 					new common::CTimeEventRequest(
 						calculateNextTime()
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -45,7 +54,7 @@ struct CReputationControlInitial : boost::statechart::state< CReputationControlI
 		m_allyMonitorData = CReputationTracker::getInstance()->getAllyMonitors();
 		RecalculationTime += CReputationTracker::getInstance()->getRecalculateTime();
 
-		context< CRecognizeNetworkAction >().addRequest(
+		context< CReputationControlAction >().addRequest(
 					new common::CTimeEventRequest(
 						calculateNextTime()
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -64,15 +73,18 @@ struct CReputationControlInitial : boost::statechart::state< CReputationControlI
 			common::CRankingInfo rankingInfo;
 			common::convertPayload( orginalMessage, rankingInfo );
 
-			context< CPassTransactionAction >().addRequest(
+			context< CReputationControlAction >().addRequest(
 						new common::CAckRequest(
-							context< CPassTransactionAction >().getActionKey()
+							context< CReputationControlAction >().getActionKey()
 							, orginalMessage.m_header.m_id
 							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
 			// do  some  sanity??
 			m_allyMonitorData.erase( _messageResult.m_pubKey );
-			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( rankingInfo, _messageResult.m_pubKey ) );
+			BOOST_FOREACH( common::CTrackerData const & trackerData, rankingInfo.m_trackers )
+			{
+				CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, _messageResult.m_pubKey ) );
+			}
 			if ( m_allyMonitorData.empty() )
 				return transit< COperating >();//ready to start normal operations
 		}
@@ -98,8 +110,8 @@ struct COperating : boost::statechart::state< COperating, CReputationControlActi
 {
 	COperating( my_context ctx ) : my_base( ctx )
 	{
-		context< CRecognizeNetworkAction >().forgetRequests();
-		context< CRecognizeNetworkAction >().addRequest(
+		context< CReputationControlAction >().forgetRequests();
+		context< CReputationControlAction >().addRequest(
 					new common::CTimeEventRequest(
 						calculateNextTime()
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -113,7 +125,7 @@ struct COperating : boost::statechart::state< COperating, CReputationControlActi
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CPayloadKind::RankingInfo
-					, context< CPassTransactionAction >().getActionKey()
+					, context< CReputationControlAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Monitors ) );
 
 		request->addPayload(
@@ -138,9 +150,9 @@ struct COperating : boost::statechart::state< COperating, CReputationControlActi
 		common::CRankingInfo rankingInfo;
 		common::convertPayload( orginalMessage, rankingInfo );
 
-		context< CPassTransactionAction >().addRequest(
+		context< CReputationControlAction >().addRequest(
 					new common::CAckRequest(
-						  context< CPassTransactionAction >().getActionKey()
+						  context< CReputationControlAction >().getActionKey()
 						, orginalMessage.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 		}
@@ -164,5 +176,48 @@ send  request
 
 */
 
+
+CReputationControlAction *
+CReputationControlAction::getInstance()
+{
+	return ms_instance;
+}
+
+CReputationControlAction *
+CReputationControlAction::createInstance( uint256 const & _actionKey )
+{
+	if ( ms_instance )
+		ms_instance->setExit();
+
+	ms_instance = new CReputationControlAction( _actionKey );
+
+	return ms_instance;
+}
+
+CReputationControlAction *
+CReputationControlAction::createInstance()
+{
+	if ( ms_instance )
+		ms_instance->setExit();
+
+	ms_instance = new CReputationControlAction();
+
+	return ms_instance;
+}
+
+CReputationControlAction::CReputationControlAction()
+{
+}
+
+CReputationControlAction::CReputationControlAction( uint256 const & _actionKey )
+	: common::CAction( _actionKey )
+{
+}
+
+void
+CReputationControlAction::accept( common::CSetResponseVisitor & _visitor )
+{
+	_visitor.visit( *this );
+}
 
 }

@@ -23,6 +23,7 @@
 #include "monitor/recognizeNetworkAction.h"
 #include "monitor/trackOriginAddressAction.h"
 #include "monitor/controller.h"
+#include "monitor/reputationControlAction.h"
 
 namespace monitor
 {
@@ -53,7 +54,7 @@ struct CConnectWithTrackerRequest : boost::statechart::event< CConnectWithTracke
 };
 
 struct CMonitorStandAlone;
-struct CMonitorConnected;
+struct CMonitorOperating;
 struct CMonitorSynchronizing;
 
 struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitcoin, CController >
@@ -110,11 +111,18 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 		return discard_event();
 	}
 
+	boost::statechart::result
+	react( common::CInitialSynchronizationDoneEvent const & _event )
+	{
+		common::CActionHandler::getInstance()->executeAction( CReputationControlAction::getInstance()->createInstance() );
+		return transit<CMonitorOperating>();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CUpdateStatus >,
 	boost::statechart::custom_reaction< common::CBitcoinNetworkConnection >,
 	boost::statechart::custom_reaction< common::CSetScanBitcoinChainProgress >,
-	boost::statechart::transition< common::CInitialSynchronizationDoneEvent, CMonitorStandAlone > > reactions;
+	boost::statechart::custom_reaction< common::CInitialSynchronizationDoneEvent > > reactions;
 
 	int m_blockLeft;
 	unsigned int m_nodesNumber;
@@ -155,6 +163,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CContr
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::transition< common::CSynchronizeBitcoinAsk, CSynchronizeWithBitcoin >,
 	boost::statechart::custom_reaction< common::CNetworkRecognizedData > > reactions;
 };
 
@@ -174,15 +183,13 @@ struct CMonitorSynchronizing : boost::statechart::state< CMonitorSynchronizing, 
 */
 	}
 
-	typedef boost::mpl::list<
-	boost::statechart::transition< CSynchronizedWithNetworkEvent, CMonitorConnected > > reactions;
 };
 
-struct CMonitorConnected : boost::statechart::state< CMonitorConnected, CController >
+struct CMonitorOperating : boost::statechart::state< CMonitorOperating, CController >
 {
-	CMonitorConnected( my_context ctx ) : my_base( ctx )
+	CMonitorOperating( my_context ctx ) : my_base( ctx )
 	{
-	//CController::getInstance()->setConnected( true );
+		context< CController >().setStatusMessage( "status""" );
 	}
 
 	boost::statechart::result react( CGetStateEvent const & _event )

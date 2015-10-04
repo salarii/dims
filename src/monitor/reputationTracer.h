@@ -34,7 +34,7 @@ public:
 	void deleteTracker( CPubKey const & _pubKey );
 
 	// both function, not final form
-	std::vector< common::CTrackerData > getTrackers() const;
+	std::set< common::CTrackerData > getTrackers() const;
 
 	std::set< common::CAllyMonitorData > getAllyMonitors() const;
 

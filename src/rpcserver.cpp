@@ -222,13 +222,14 @@ Value stop(const Array& params, bool fHelp)
 static const CRPCCommand vRPCCommands[] =
 { //  name                      actor (function)         okSafeMode threadSafe reqWallet
   //  ------------------------  -----------------------  ---------- ---------- ---------
-    { "help",                  &help,                   true,      true,       false },
-    { "stop",                  &stop,                   true,      true,       false },
-	{ "status",                  &status,                   true,      true,       false },
+  { "help",                  &help,                   true,      true,       false },
+  { "stop",                  &stop,                   true,      true,       false },
+  { "status",                  &status,                   true,      true,       false },
   { "registerInNetwork",                  &registerInNetwork,                   true,      true,       false },
   { "enterNetwork",                  &enterNetwork,                   true,      true,       false },
   { "connectNetwork",                  &connectNetwork,                   true,      true,       false },
-	{ "selfAddress",                  &selfAddress,                   true,      true,       false },
+  { "selfAddress",                  &selfAddress,                   true,      true,       false },
+  { "synchronizeBitcoin",                  &synchronizeBitcoin,                   true,      true,       false },
   /*
   { "getconnectioncount",    &getconnectioncount,     true,      false,      false },
     { "getpeerinfo",           &getpeerinfo,            true,      false,      false },

@@ -25,6 +25,7 @@ boost::signals2::signal< std::string ( std::string const & ) > EnterNetworkHook;
 boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
 boost::signals2::signal< std::string () > SelfAddress;
 boost::signals2::signal< std::string () > ConnectNetworkHook;
+boost::signals2::signal< std::string () > SynchronizeBitcoin;
 
 json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 {
@@ -102,6 +103,22 @@ json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
 		);
 
 	std::string result = *ConnectNetworkHook();
+
+	return result;
+}
+
+json_spirit::Value synchronizeBitcoin(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+				"synchronizeBitcoin \n" \
+				"\n if stand alone \n" \
+				"\n it causes start of synchronisation wit bitcoin network\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("synchronizeBitcoin", "")
+		);
+
+	std::string result = *SynchronizeBitcoin();
 
 	return result;
 }

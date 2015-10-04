@@ -122,7 +122,9 @@ struct CUpdateStatus : boost::statechart::event< CUpdateStatus >
 {
 };
 
-
+struct CSynchronizeBitcoinAsk : boost::statechart::event< CSynchronizeBitcoinAsk >
+{
+};
 
 struct CSetScanBitcoinChainProgress : boost::statechart::event< CSetScanBitcoinChainProgress >
 {

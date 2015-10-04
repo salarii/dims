@@ -187,15 +187,15 @@ CReputationTracker::checkValidity( common::CAllyTrackerData const & _allyTracker
 {
 }
 
-std::vector< common::CTrackerData >
+std::set< common::CTrackerData >
 CReputationTracker::getTrackers() const
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	std::vector< common::CTrackerData >trackers;
+	std::set< common::CTrackerData >trackers;
 
 	BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & tracker, m_registeredTrackers )
 	{
-		trackers.push_back( tracker.second );
+		trackers.insert( tracker.second );
 	}
 	return trackers;
 }
