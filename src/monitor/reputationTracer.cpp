@@ -183,6 +183,12 @@ CReputationTracker::clearTransactions()
 }
 
 void
+CReputationTracker::recalculateReputation()
+{
+
+}
+
+void
 CReputationTracker::checkValidity( common::CAllyTrackerData const & _allyTrackerData )
 {
 }

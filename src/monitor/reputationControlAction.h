@@ -16,12 +16,20 @@ struct CReputationControlInitial;
 class CReputationControlAction : public common::CAction, public  boost::statechart::state_machine< CReputationControlAction, CReputationControlInitial >
 {
 public:
-	CReputationControlAction *getInstance();
+	//acton  as  singleton  is an abuse,  it  seems  I need  it but it  shows some  weaknes in  action  handling
+	static CReputationControlAction *getInstance();
 
-	CReputationControlAction *createInstance( uint256 const & _actionKey );
+	static CReputationControlAction *createInstance( uint256 const & _actionKey );
 
-	CReputationControlAction *createInstance();
+	static CReputationControlAction *createInstance();
+
+	void accept( common::CSetResponseVisitor & _visitor );
 private:
+	CReputationControlAction();
+
+	CReputationControlAction( uint256 const & _actionKey );
+
+	static CReputationControlAction * ms_instance;
 };
 
 }

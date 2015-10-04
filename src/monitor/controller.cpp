@@ -114,7 +114,7 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 	boost::statechart::result
 	react( common::CInitialSynchronizationDoneEvent const & _event )
 	{
-		common::CActionHandler::getInstance()->executeAction( CReputationControlAction::getInstance()->createInstance() );
+		common::CActionHandler::getInstance()->executeAction( CReputationControlAction::createInstance() );
 		return transit<CMonitorOperating>();
 	}
 

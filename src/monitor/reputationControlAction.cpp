@@ -2,6 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
@@ -18,8 +19,6 @@ namespace monitor
 {
 CReputationControlAction * CReputationControlAction::ms_instance = NULL;
 
-
-struct COperating;
 namespace
 {
 
@@ -35,9 +34,23 @@ int64_t calculateNextTime()
 }
 }
 
-struct CReputationControlInitial : boost::statechart::state< CReputationControlInitial, CReputationControlAction >
+struct CSelfOperateEvent : boost::statechart::event< CSelfOperateEvent >{};
+struct CCatchUpEvent : boost::statechart::event< CCatchUpEvent >{};
+
+struct CCatchUp;
+struct COperating;
+
+struct CReputationControlInitial : boost::statechart::simple_state< CReputationControlInitial, CReputationControlAction >
 {
-	CReputationControlInitial( my_context ctx ) : my_base( ctx )
+	typedef boost::mpl::list<
+	boost::statechart::transition< CSelfOperateEvent, COperating >,
+	boost::statechart::transition< CCatchUpEvent, CCatchUp >
+	> reactions;
+};
+
+struct CCatchUp : boost::statechart::state< CCatchUp, CReputationControlAction >
+{
+	CCatchUp( my_context ctx ) : my_base( ctx )
 	{
 		context< CReputationControlAction >().forgetRequests();
 		context< CReputationControlAction >().addRequest(
@@ -207,11 +220,15 @@ CReputationControlAction::createInstance()
 
 CReputationControlAction::CReputationControlAction()
 {
+	initiate();
+	process_event( CSelfOperateEvent() );
 }
 
 CReputationControlAction::CReputationControlAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	initiate();
+	process_event( CCatchUpEvent() );
 }
 
 void
