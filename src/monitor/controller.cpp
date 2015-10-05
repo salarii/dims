@@ -191,7 +191,7 @@ struct CMonitorOperating : boost::statechart::state< CMonitorOperating, CControl
 {
 	CMonitorOperating( my_context ctx ) : my_base( ctx )
 	{
-		context< CController >().setStatusMessage( "status""" );
+		context< CController >().setStatusMessage( "network operating" );
 	}
 
 	boost::statechart::result react( CGetStateEvent const & _event )

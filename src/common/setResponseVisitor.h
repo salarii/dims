@@ -74,6 +74,8 @@ class CSynchronizationAction;
 class CEnterNetworkAction;
 
 class CPassTransactionAction;
+
+class CReputationControlAction;
 }
 
 namespace seed
@@ -154,6 +156,8 @@ public:
 	void visit( monitor::CSynchronizationAction & _action );
 
 	void visit( monitor::CPassTransactionAction & _action );
+
+	void visit( monitor::CReputationControlAction & _action );
 
 	void visit( seed::CAcceptNodeAction & _action );
 
