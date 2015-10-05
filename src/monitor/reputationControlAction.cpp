@@ -30,7 +30,7 @@ int64_t calculateNextTime()
 	int64_t nextTime = RecalculationTime + period;
 	nextTime -= GetTime();
 	assert( nextTime > 0 );// this  failing means, that reputation  controlling  is  wrongly  initiated
-	return nextTime;
+	return nextTime * 1000;
 }
 }
 

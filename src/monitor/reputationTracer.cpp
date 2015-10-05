@@ -32,7 +32,7 @@ unsigned int const BoostForServicesAlone = 10;
 
 // allow some  deviation for  other monitors
 
-uint64_t const CReputationTracker::m_recalculateTime = 20000;// this  time is  vital how frequent it should be???
+uint64_t const CReputationTracker::m_recalculateTime = 40;// seconds, this  time is  vital how frequent it should be???
 
 CReputationTracker::CReputationTracker()
 {
@@ -59,8 +59,8 @@ CReputationTracker::getInstance()
 	return dynamic_cast<CReputationTracker *>( ms_instance );
 }
 
-unsigned int
-CReputationTracker::calculateReputation( uint64_t _passedTime )
+void
+CReputationTracker::calculateReputation()
 {
 	unsigned int  maxTransactionNumber = 0;
 	BOOST_FOREACH( TransactionsAddmited::value_type & transactionIndicator, m_transactionsAddmited )
@@ -75,9 +75,9 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 
 	BOOST_FOREACH( PAIRTYPE( uint160 const, common::CTrackerData ) & tracker, m_registeredTrackers )
 	{
+		tracker.second.m_reputation *= PreviousReptationRatio;
 		if ( m_presentTrackers.find( tracker.first ) != m_presentTrackers.end() )
 		{
-			tracker.second.m_reputation *= PreviousReptationRatio;
 			tracker.second.m_reputation += boostForAll;
 		}
 	}
@@ -93,8 +93,6 @@ CReputationTracker::calculateReputation( uint64_t _passedTime )
 	}
 
 	m_transactionsAddmited.clear();
-
-	return 0;
 }
 
 void
@@ -127,9 +125,6 @@ CReputationTracker::loop()
 					}
 				}
 
-				{
-					tracker.second.m_reputation = calculateReputation( tracker.second.m_networkTime );
-				}
 				//	tracker.second.m_networkTime += m_recalculateTime;
 			}
 
@@ -185,7 +180,8 @@ CReputationTracker::clearTransactions()
 void
 CReputationTracker::recalculateReputation()
 {
-
+	m_measureReputationTime += m_recalculateTime;
+	calculateReputation();
 }
 
 void

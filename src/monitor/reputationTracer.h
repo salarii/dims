@@ -82,7 +82,7 @@ private:
 
 	bool isExtendInProgress( CPubKey const & _pubKey );
 
-	unsigned int calculateReputation( uint64_t _passedTime );
+	void calculateReputation();
 
 	void checkValidity( common::CAllyTrackerData const & _allyTrackerData );
 
