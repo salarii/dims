@@ -24,6 +24,7 @@
 #include "monitor/trackOriginAddressAction.h"
 #include "monitor/controller.h"
 #include "monitor/reputationControlAction.h"
+#include "monitor/reputationTracer.h"
 
 namespace monitor
 {
@@ -114,6 +115,7 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 	boost::statechart::result
 	react( common::CInitialSynchronizationDoneEvent const & _event )
 	{
+		CReputationTracker::getInstance()->setMeasureReputationTime( GetTime() );
 		common::CActionHandler::getInstance()->executeAction( CReputationControlAction::createInstance() );
 		return transit<CMonitorOperating>();
 	}

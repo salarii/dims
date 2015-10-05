@@ -68,7 +68,9 @@ public:
 
 	static uint64_t getRecalculateTime(){ return m_recalculateTime; }
 
-	uint64_t getMeasureReputationTime(){ return m_measureReputationTime; }
+	void setMeasureReputationTime( uint64_t _measureReputationTime ){ m_measureReputationTime = _measureReputationTime; }
+
+	uint64_t getMeasureReputationTime()const{ return m_measureReputationTime; }
 
 	void clearTransactions();
 
