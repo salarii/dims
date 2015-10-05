@@ -22,12 +22,11 @@ CReputationControlAction * CReputationControlAction::ms_instance = NULL;
 namespace
 {
 
-int64_t RecalculationTime;
 int64_t calculateNextTime()
 {
-	RecalculationTime = CReputationTracker::getInstance()->getMeasureReputationTime();
+	int64_t recalculationTime = CReputationTracker::getInstance()->getMeasureReputationTime();
 	int64_t period = CReputationTracker::getInstance()->getRecalculateTime();
-	int64_t nextTime = RecalculationTime + period;
+	int64_t nextTime = recalculationTime + period;
 	nextTime -= GetTime();
 	assert( nextTime > 0 );// this  failing means, that reputation  controlling  is  wrongly  initiated
 	return nextTime * 1000;
@@ -65,7 +64,10 @@ struct CCatchUp : boost::statechart::state< CCatchUp, CReputationControlAction >
 	{
 		CReputationTracker::getInstance()->clearTransactions();
 		m_allyMonitorData = CReputationTracker::getInstance()->getAllyMonitors();
-		RecalculationTime += CReputationTracker::getInstance()->getRecalculateTime();
+
+		CReputationTracker::getInstance()->setMeasureReputationTime(
+					CReputationTracker::getInstance()->getMeasureReputationTime()
+					+ CReputationTracker::getInstance()->getRecalculateTime() );
 
 		context< CReputationControlAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -132,8 +134,12 @@ struct COperating : boost::statechart::state< COperating, CReputationControlActi
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		RecalculationTime += CReputationTracker::getInstance()->getRecalculateTime();
 		CReputationTracker::getInstance()->recalculateReputation();
+
+		context< CReputationControlAction >().addRequest(
+					new common::CTimeEventRequest(
+						calculateNextTime()
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
@@ -144,7 +150,7 @@ struct COperating : boost::statechart::state< COperating, CReputationControlActi
 		request->addPayload(
 					common::CRankingInfo(
 						CReputationTracker::getInstance()->getTrackers()
-						, RecalculationTime ) );
+						, CReputationTracker::getInstance()->getMeasureReputationTime() ) );
 
 		context< CReputationControlAction >().addRequest( request );
 
