@@ -186,7 +186,12 @@ public:
 
 	CSendMessageRequest(
 			common::CMainRequestType::Enum _messageKind
-			, CMediumFilter * _CMediumFilter );// bit  overuse of  this
+			, CMediumFilter * _CMediumFilter );// bit  overuse of concept
+
+	CSendMessageRequest(
+			common::CMainRequestType::Enum _messageKind
+			, uint256 const & _id
+			, CMediumFilter * _CMediumFilter );// bit  overuse of concept
 
 	void accept( CMedium * _medium ) const;
 

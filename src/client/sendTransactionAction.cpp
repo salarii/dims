@@ -35,6 +35,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CMainRequestType::Transaction
+					, context< CSendTransactionAction >().getTransaction().GetHash()
 					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
 
 		request->addPayload( common::CClientTransactionSend(context< CSendTransactionAction >().getTransaction()) );
@@ -55,7 +56,9 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 		}
 		else
 		{
+			// indicate problem ??
 			context< CSendTransactionAction >().forgetRequests();
+			context< CSendTransactionAction >().setExit();
 		}
 
 		return discard_event();

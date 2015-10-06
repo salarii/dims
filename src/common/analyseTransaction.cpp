@@ -33,6 +33,7 @@ getTransactionInputs( CTransaction const & _tx, std::vector< CKeyID > & _inputs 
 			if ( data.size() == 33 || data.size() == 65 )
 			{
 				_inputs.push_back( CPubKey( data ).GetID() );
+				break;
 			}
 		}
 	}

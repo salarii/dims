@@ -3,8 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "rpcserver.h"
-
+#include "wallet.h"
 #include "base58.h"
+
 #include "common/events.h"
 #include "common/actionHandler.h"
 #include "common/authenticationProvider.h"
@@ -13,6 +14,7 @@
 #include "monitor/registerRpcHooks.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/enterNetworkAction.h"
+#include "monitor/passTransactionAction.h"
 
 namespace monitor
 {
@@ -54,7 +56,14 @@ selfAddress()
 
 	address.Set( common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
 
-	return address.ToString();
+	double coins = CWallet::getInstance()->AvailableCoinsAmount( common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
+	coins /= 100;
+
+	std::ostringstream coinAmount;
+	coinAmount.precision (2);
+	coinAmount << coins;
+
+	return address.ToString() + "\n\n" + "available coins: " + coinAmount.str();
 }
 
 std::string
@@ -63,6 +72,21 @@ synchronizeBitcoin()
 	CController::getInstance()->process_event( common::CSynchronizeBitcoinAsk() );
 
 	return std::string("executing");
+}
+
+std::string sendCoins( std::string const & _key, int _amount )
+{
+	CKeyID keyId;
+
+	CMnemonicAddress mnemonicAddress( _key );
+
+	if ( !mnemonicAddress.GetKeyID( keyId ) )
+		return "invalid key specified";
+
+	common::CActionHandler::getInstance()->executeAction(
+				new CPassTransactionAction( keyId, _amount ) );
+
+	return "executing";
 }
 
 void registerHooks()
@@ -74,6 +98,8 @@ void registerHooks()
 	EnterNetworkHook.connect( &enterNetwork );
 
 	SynchronizeBitcoin.connect( &synchronizeBitcoin );
+
+	SendCoins.connect( &sendCoins );
 }
 
 }

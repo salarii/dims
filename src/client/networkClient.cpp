@@ -48,6 +48,7 @@ CNetworkClient::waitForInput()
 		else
 		{
 			QThread::msleep( 50 );
+			return bytesAvail;
 		}
 	}
 	return bytesAvail;

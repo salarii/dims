@@ -112,7 +112,6 @@ TRACKER_CORE_H = \
   tracker/registerAction.h \
   tracker/registerRpcHooks.h \
   tracker/requests.h \
-  tracker/selfWallet.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
   tracker/synchronizationAction.h \
@@ -209,7 +208,6 @@ TRACKER_CORE_CPP = \
   tracker/registerRpcHooks.cpp \
   tracker/requests.cpp \
   tracker/rpcTracker.cpp \
-  tracker/selfWallet.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
   tracker/synchronizationAction.cpp \

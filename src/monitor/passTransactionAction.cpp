@@ -25,7 +25,6 @@ namespace monitor
 {
 
 struct CProcessAsClient;
-struct CValidInNetwork;
 struct CProcessTransaction;
 struct CFetchBalance;
 struct CProvideStatusInfo;
@@ -33,10 +32,6 @@ struct CAcceptTransaction;
 struct CCheckStatus;
 
 unsigned int const LoopTime = 10000;
-
-struct CValidInNetworkEvent : boost::statechart::event< CValidInNetworkEvent >{};
-struct CInvalidInNetworkEvent : boost::statechart::event< CInvalidInNetworkEvent >{};
-struct CProcessTransactionEvent : boost::statechart::event< CProcessTransactionEvent >{};
 
 // another  way of passing  parameters between states ?? good ?? bad
 namespace
@@ -97,7 +92,8 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 
 		ServicingTracker = common::CTrackerStats( _messageResult.m_pubKey, 0, trackerInfo.m_price );
 
-		return transit< CFetchBalance >();
+		return CController::getInstance()->isAdmitted() ? transit< CProcessTransaction >() : transit< CFetchBalance >();
+
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -452,7 +448,6 @@ CPassTransactionAction::CPassTransactionAction( uint256 const & _actionKey )
 	: common::CScheduleAbleAction( _actionKey )
 {
 	initiate();
-	process_event( CProcessTransactionEvent() );
 }
 
 
@@ -461,10 +456,6 @@ CPassTransactionAction::CPassTransactionAction( CKeyID const & _keyId, int64_t _
 	, m_amount( _amount )
 {
 	initiate();
-//	if ( CController::getInstance()->isConnected() )
-		process_event( CValidInNetworkEvent() );
-//	else
-		process_event( CInvalidInNetworkEvent() );
 }
 
 void

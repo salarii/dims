@@ -26,6 +26,7 @@ boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetwork
 boost::signals2::signal< std::string () > SelfAddress;
 boost::signals2::signal< std::string () > ConnectNetworkHook;
 boost::signals2::signal< std::string () > SynchronizeBitcoin;
+boost::signals2::signal< std::string ( std::string const &, unsigned int ) > SendCoins;
 
 json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
 {
@@ -59,6 +60,20 @@ json_spirit::Value enterNetwork(const json_spirit::Array& params, bool fHelp)
 	return result;
 }
 
+json_spirit::Value sendCoins(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 2)
+		throw runtime_error(
+			"sendCoins\n" \
+			"\nTry to send coins if any available\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("sendCoins", "\"dQzSjE7qQjnQgdxsZApmbnX3W3Fici89wH\", \"33\"")
+		);
+
+	std::string result = *SendCoins( params[0].get_str(), params[1].get_int() );
+
+	return result;
+}
 
 json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp)
 {

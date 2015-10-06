@@ -62,7 +62,7 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 
 	BOOST_FOREACH( PAIRTYPE( uint256, CCoins ) const & coin, availableCoins.m_availableCoins )
 	{
-		if ( CAddressToCoinsViewCache::getInstance()->getTransactionInputs( coin.first, inputs ) )
+		if ( !CAddressToCoinsViewCache::getInstance()->getTransactionInputs( coin.first, inputs ) )
 			assert( !"problem" );
 			availableCoins.m_transactionInputs.insert( make_pair( coin.first, inputs ) );
 	}

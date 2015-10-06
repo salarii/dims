@@ -142,6 +142,7 @@ extern boost::signals2::signal< std::string ( std::string const & ) > EnterNetwo
 extern boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
 extern boost::signals2::signal< std::string () > ConnectNetworkHook;
 extern boost::signals2::signal< std::string () > SynchronizeBitcoin;
+extern boost::signals2::signal< std::string ( std::string const &, unsigned int ) > SendCoins;
 
 namespace tracker
 {

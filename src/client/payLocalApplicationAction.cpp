@@ -183,6 +183,7 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CMainRequestType::Transaction
+					, tx.GetHash()
 					, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) );
 
 		request->addPayload( common::CClientTransactionSend(tx) );
@@ -300,6 +301,7 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CMainRequestType::Transaction
+					, tx.GetHash()
 					, new CMediumByKeyFilter( context< CPayLocalApplicationAction >().getTrackerStats().m_key.GetID() ) );
 
 			request->addPayload( common::CClientTransactionSend(tx) );

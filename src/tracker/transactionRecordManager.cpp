@@ -148,7 +148,7 @@ CTransactionRecordManager::addRetrivedTransactionBundle( std::vector< CTransacti
 		}
 
 		std::vector< CKeyID > inputs;
-		if ( common::getTransactionInputs( transaction, inputs ) )
+		if ( !common::getTransactionInputs( transaction, inputs ) )
 			assert( !"problem" );
 
 		m_addressToCoinsViewCache->setTransactionInputs( transaction.GetHash(), inputs );
@@ -215,7 +215,7 @@ CTransactionRecordManager::addValidatedTransactionBundle( std::vector< CTransact
 		}
 
 		std::vector< CKeyID > inputs;
-		if ( common::getTransactionInputs( transaction, inputs ) )
+		if ( !common::getTransactionInputs( transaction, inputs ) )
 			assert( !"problem" );
 
 		m_addressToCoinsViewCache->setTransactionInputs( transaction.GetHash(), inputs );

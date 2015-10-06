@@ -50,7 +50,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 			common::convertPayload( orginalMessage, transactionBundle );
 
 			m_trackers.insert( _messageResult.m_nodeIndicator );
-
+			//wrong
 			// this  condition  is wrong  but  for now,  better  this  than nothing
 			if ( m_trackers.size() == CReputationTracker::getInstance()->getTrackers().size() )
 			{
@@ -61,6 +61,11 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 				}
 
 				CTransactionRecordManager::getInstance()->addTransactionsToStorage( transactionBundle.m_transactions );
+			}
+
+			BOOST_FOREACH( CTransaction const & transaction, transactionBundle.m_transactions )
+			{
+				common::findSelfCoinsAndAddToWallet( transaction );
 			}
 		}
 

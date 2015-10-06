@@ -234,6 +234,15 @@ CSendMessageRequest::CSendMessageRequest(
 	, m_payload( std::vector< unsigned char >() )
 {}
 
+CSendMessageRequest::CSendMessageRequest(
+		common::CMainRequestType::Enum _messageKind
+		, uint256 const & _id
+		, CMediumFilter * _CMediumFilter )
+	: common::CRequest( _id, _CMediumFilter )
+	, m_messageKind( (int)_messageKind )
+	, m_payload( std::vector< unsigned char >() )
+{}
+
 void
 CSendMessageRequest::accept( CMedium * _medium ) const
 {

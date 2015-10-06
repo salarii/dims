@@ -14,7 +14,6 @@
 
 #include "tracker/passTransactionAction.h"
 #include "tracker/requests.h"
-#include "tracker/selfWallet.h"
 #include "tracker/synchronizationAction.h"
 #include "tracker/getBalanceAction.h"
 #include "tracker/controller.h"
