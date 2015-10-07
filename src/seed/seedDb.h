@@ -329,16 +329,13 @@ public:
     SHARED_CRITICAL_BLOCK(cs) {
       if (fWrite) {
         CAddrDb *db = const_cast<CAddrDb*>(this);
-        int n = ourId.size() + unkId.size();
-        READWRITE(n);
-        for (std::deque<int>::const_iterator it = ourId.begin(); it != ourId.end(); it++) {
-          std::map<int, CAddrInfo>::iterator ci = db->idToInfo.find(*it);
-          READWRITE((*ci).second);
-        }
-        for (std::set<int>::const_iterator it = unkId.begin(); it != unkId.end(); it++) {
-          std::map<int, CAddrInfo>::iterator ci = db->idToInfo.find(*it);
-          READWRITE((*ci).second);
-        }
+		int n = idToInfo.size();
+									READWRITE(n);
+									CAddrInfo addresInfo;
+		for (std::map<int, CAddrInfo>::const_iterator it = idToInfo.begin(); it != idToInfo.end(); it++) {
+										addresInfo = (*it).second;
+										READWRITE( addresInfo );
+		}
       } else {
         CAddrDb *db = const_cast<CAddrDb*>(this);
         db->nId = 0;

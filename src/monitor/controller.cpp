@@ -149,15 +149,15 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CContr
 		{
 			CNodeAddress tracker;
 			tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
-			status = "key " + tracker.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
+			status += "key " + tracker.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
 		}
 
-		status = "\nDetected following monitors \n";
+		status += "\nDetected following monitors \n";
 		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
 		{
 			CNodeAddress monitor;
 			monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
-			status = "key " + monitor.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
+			status += "key " + monitor.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
 		}
 
 		context< CController >().setStatusMessage( status );
