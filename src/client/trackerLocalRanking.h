@@ -57,6 +57,8 @@ public:
 
 	void addUnidentifiedNode( std::string const & _ip, common::CUnidentifiedNodeInfo const & _unidentifiedNode );
 
+	unsigned int getUnidentifiedNodeAmount() const{ return m_unidentifiedNodes.size(); }
+
 	bool isInUnidentified( std::string const & _ip ) const;
 
 	void removeUnidentifiedNode( std::string const & _ip );

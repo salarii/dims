@@ -161,6 +161,7 @@ CReputationTracker::setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, 
 	case common::CRole::Seed:
 		break;
 	case common::CRole::Tracker:
+		m_knownTrackers.insert( _validNodeInfo );
 		break;
 	case common::CRole::Monitor:
 		m_knownMonitors.insert( _validNodeInfo );
@@ -227,14 +228,22 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
 			{
-					if ( !getKeyToNode( validNode.m_key.GetID(), nodeIndicator) )
-						assert( !"something wrong" );
-
+				// in case  of  fail  do  something ??
+					if ( getKeyToNode( validNode.m_key.GetID(), nodeIndicator) )
+					{
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
+						if ( medium )
+							mediums.push_back( medium );
+					}
+			}
+			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
+			{
+				if ( getKeyToNode( validNode.m_key.GetID(), nodeIndicator) )
+				{
 					common::CMedium * medium = findNodeMedium( nodeIndicator );
-
-					if ( !medium )
-						assert( !"something wrong" );
-					mediums.push_back( medium );
+					if ( medium )
+						mediums.push_back( medium );
+				}
 			}
 		}
 		return mediums;

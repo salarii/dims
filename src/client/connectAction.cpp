@@ -20,6 +20,8 @@
 #include "client/control.h"
 #include "client/events.h"
 
+//fix  this
+
 namespace client
 {
 const unsigned DnsAskLoopTime = 20000;//
@@ -77,6 +79,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		context< CConnectAction >().addRequest( request );
 
+		m_undefinedNumber = CTrackerLocalRanking::getInstance()->getUnidentifiedNodeAmount();
+
 		context< CConnectAction >().addRequest( new common::CTimeEventRequest( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
 	}
 
@@ -100,8 +104,6 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		common::CClientNetworkInfoResult clientNetworkInfo;
 		common::convertClientPayload( _clientMessage.m_clientMessage, clientNetworkInfo );
 
-		m_pending.erase( _clientMessage.m_nodePtr );
-
 		common::CNodeInfo nodeStats( clientNetworkInfo.m_selfKey, _clientMessage.m_ip, common::dimsParams().getDefaultClientPort(), common::CRole::Tracker );
 		if ( clientNetworkInfo.m_selfRole == common::CRole::Monitor )
 		{
@@ -120,11 +122,12 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 			m_uniqueNodes.insert( common::CNodeInfo( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort() ) );
 		}
 
-		if ( !m_pending.size() )
+		if ( !--m_undefinedNumber )
 		{
-			if ( !m_uniqueNodes.size() )
+			if ( m_uniqueNodes.empty() )
 			{
-				return transit< CDetermineTrackers >(); // not  ok
+				context< CConnectAction >().setExit();
+				return discard_event();
 			}
 
 			bool moniorPresent = false;
@@ -169,7 +172,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	// in  future be  careful with  those
 	std::set< common::CNodeInfo > m_uniqueNodes;
 
-	std::set< uintptr_t > m_pending;
+	unsigned int m_undefinedNumber;
 };
 
 

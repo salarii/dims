@@ -96,6 +96,8 @@ private:
 
 	typedef std::map< uint160, unsigned int > TransactionsAddmited;
 
+	std::set< common::CValidNodeInfo > m_knownTrackers;
+
 	std::set< common::CValidNodeInfo > m_knownMonitors;
 
 	std::map< uint160, common::CValidNodeInfo > m_candidates;
