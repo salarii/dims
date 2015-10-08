@@ -109,7 +109,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 
 	CTransaction transaction;
 };
-
+/*
 struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CPassTransactionAction >
 {
 	CGetSelfBalance( my_context ctx ) : my_base( ctx )
@@ -200,7 +200,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CPassTransac
 
 	CKeyID m_self;
 };
-
+*/
 struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransactionAction >
 {
 	CFetchBalance( my_context ctx ) : my_base( ctx )

@@ -138,6 +138,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	{
 		LogPrintf("accept node action: %p pair identified connecting \n", &context< CAcceptNodeAction >() );
 
+		context< CAcceptNodeAction >().forgetRequests();
 		context< CAcceptNodeAction >().addRequest( new common::CTimeEventRequest( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 

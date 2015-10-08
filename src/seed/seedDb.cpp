@@ -130,7 +130,14 @@ void CAddrDb::Skipped_(const CService &addr)
 
 
 void CAddrDb::Add_(const CAddress &addr, bool force) {
-  if (!force && !addr.IsRoutable())
+//ugly check
+	for ( std::map<int, CAddrInfo>::const_iterator iterator = idToInfo.begin(); iterator != idToInfo.end(); iterator++ )
+	{
+		if ( addr.ToStringIP() == iterator->second.ip.ToStringIP() )
+			return;
+	}
+
+	if (!force && !addr.IsRoutable())
     return;
   CService ipp(addr);
   if (banned.count(ipp)) {

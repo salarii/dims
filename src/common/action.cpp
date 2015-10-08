@@ -126,6 +126,7 @@ CAction::requestToProcess()const
 
 CAction::~CAction()
 {
+	LogPrintf("destructor of action: %p \n", this );
 	BOOST_FOREACH( CRequest *request, m_droppedRequests )
 	{
 		delete request;

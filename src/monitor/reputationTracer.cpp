@@ -236,6 +236,9 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 							mediums.push_back( medium );
 					}
 			}
+		}
+		else if ( _nodesClass == common::CMediumKinds::Trackers )
+		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
 			{
 				if ( getKeyToNode( validNode.m_key.GetID(), nodeIndicator) )
