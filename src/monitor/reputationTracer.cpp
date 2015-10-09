@@ -216,6 +216,17 @@ CReputationTracker::getAllyTrackers() const
 }
 
 std::list< common::CMedium *>
+CReputationTracker::provideConnection( common::CMediumFilter const & _mediumFilter )
+{
+	std::list< common::CMedium*> mediums = common::CNodesManager::provideConnection( _mediumFilter );
+
+	if ( !mediums.empty() )
+		return mediums;
+
+	return _mediumFilter.getMediums( this );
+}
+
+std::list< common::CMedium *>
 CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const
 {
 	std::list< common::CMedium *> mediums;

@@ -188,10 +188,7 @@ struct CValidInNetwork : boost::statechart::state< CValidInNetwork, CPassTransac
 		CWalletTx tx;
 		std::string failReason;
 
-		common::CTrackerStats tracker;
-		tracker.m_price = 0; // this  will produce transaction with no tracker output
-
-		if ( !CWallet::getInstance()->CreateTransaction( outputs, std::vector< CSpendCoins >(), tracker, tx, failReason ) )
+		if ( !CWallet::getInstance()->CreateTransaction( outputs, std::vector< CSpendCoins >(), CPubKey(), 0, tx, failReason ) )
 		{
 			context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Invalid, CTransaction() ) );
 			context< CPassTransactionAction >().setExit();
@@ -330,7 +327,8 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 					!CWallet::getInstance()->CreateTransaction(
 						outputs
 						, std::vector< CSpendCoins >()
-						, ServicingTracker
+						, ServicingTracker.m_key
+						, ServicingTracker.m_price
 						, tx
 						, failReason )
 				)

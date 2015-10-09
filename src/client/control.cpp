@@ -102,7 +102,7 @@ CClientControl::determineFeeAndTracker( unsigned int _transactionAmount, common:
 bool
 CClientControl::createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& _wtxNew, std::string& _strFailReason )
 {
-	return m_clientSignals.m_createTransaction( _outputs, _coinsToUse, _trackerStats, _wtxNew, _strFailReason );
+	return m_clientSignals.m_createTransaction( _outputs, _coinsToUse, _trackerStats.m_key, _trackerStats.m_price, _wtxNew, _strFailReason );
 }
 
 bool

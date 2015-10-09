@@ -25,13 +25,9 @@ unsigned int const LoopTime = 20000;//milisec
 struct CProvideInfo;
 struct CAskForInfo;
 
-struct CAskForInfoEvent : boost::statechart::event< CAskForInfoEvent >
-{
-};
+struct CAskForInfoEvent : boost::statechart::event< CAskForInfoEvent >{};
 
-struct CProvideInfoEvent : boost::statechart::event< CProvideInfoEvent >
-{
-};
+struct CProvideInfoEvent : boost::statechart::event< CProvideInfoEvent >{};
 
 struct CInit : boost::statechart::state< CInit, CProvideInfoAction >
 {
@@ -99,7 +95,10 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
-			request->addPayload( common::CTrackerInfo( CController::getInstance()->getPrice() ) );
+			request->addPayload(
+						common::CTrackerInfo(
+							common::CAuthenticationProvider::getInstance()->getMyKey()
+							, CController::getInstance()->getPrice() ) );
 
 			context< CProvideInfoAction >().addRequest( request );
 
@@ -118,7 +117,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					, m_id
 					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
 
-		request->addPayload( common::CBalance( _availableCoins.m_availableCoins ) );
+		request->addPayload( common::CBalance( _availableCoins.m_availableCoins, _availableCoins.m_transactionInputs ) );
 
 		context< CProvideInfoAction >().addRequest( request );
 

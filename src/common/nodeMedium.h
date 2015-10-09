@@ -48,6 +48,8 @@ public:
 	bool getDirectActionResponseAndClear( CAction const * _action, std::list< DimsResponse > & _responses );
 
 	void addActionResponse( uint256 const & _actionId, DimsResponse const & _response );
+
+	void deleteAction( CAction const * _action );
 protected:
 	void clearResponses();
 

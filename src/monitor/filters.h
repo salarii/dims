@@ -4,7 +4,8 @@
 #include "common/filters.h"
 #include "common/nodesManager.h"
 
-#include "internalMediumProvider.h"
+#include "monitor/internalMediumProvider.h"
+#include "monitor/reputationTracer.h"
 
 namespace monitor
 {
@@ -74,6 +75,30 @@ struct CSpecificMediumFilter : public common::CMediumFilter
 	}
 	uintptr_t m_ptr;
 };
+
+struct CByKeyMediumFilter : public common::CMediumFilter
+{
+	CByKeyMediumFilter( CPubKey const & _key )
+	: m_key( _key )
+	{}
+
+	std::list< common::CMedium *> getMediums( CReputationTracker * _nodesManager )const
+	{
+		std::list< common::CMedium *> mediums;
+
+		uintptr_t nodeIndicator;
+		_nodesManager->getKeyToNode( m_key.GetID(), nodeIndicator );
+
+		common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
+
+		if ( medium )
+			mediums.push_back( medium );
+
+		return mediums;
+	}
+	CPubKey m_key;
+};
+
 
 struct CComplexMediumFilter : public common::CMediumFilter
 {

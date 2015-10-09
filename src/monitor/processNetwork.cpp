@@ -67,6 +67,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				|| message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkCondition
 				|| message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkAsk
 				|| message.m_header.m_payloadKind == common::CPayloadKind::TrackerInfo
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Balance
 				)
 		{
 			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );

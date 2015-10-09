@@ -42,6 +42,8 @@ public:
 
 	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
+	std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
+
 	void setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator);
 
 	bool getKeyToNode( uint160 const & _pubKeyId, uintptr_t & _nodeIndicator)const;

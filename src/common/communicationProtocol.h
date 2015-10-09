@@ -245,8 +245,9 @@ struct CTrackerInfo
 
 		CTrackerInfo(){}
 
-		CTrackerInfo( uint64_t _price ): m_price( _price ){}
+		CTrackerInfo( CPubKey const & _key, uint64_t _price ): m_key( _key ), m_price( _price ){}
 
+		CPubKey m_key;
 		uint64_t m_price;
 };
 
@@ -352,14 +353,19 @@ struct CAdmitAsk
 
 struct CBalance
 {
-	CBalance( std::map< uint256, CCoins > const & _availableCoins ):m_availableCoins(_availableCoins){}
+	CBalance( std::map< uint256, CCoins > const & _availableCoins, std::map< uint256, std::vector< CKeyID > > const & _transactionInputs )
+		: m_availableCoins(_availableCoins)
+		, m_transactionInputs(_transactionInputs)
+	{}
 	CBalance(){}
 
 	IMPLEMENT_SERIALIZE
 	(
 		READWRITE(m_availableCoins);
+		READWRITE(m_transactionInputs);
 	)
 	std::map< uint256, CCoins > m_availableCoins;
+	std::map< uint256, std::vector< CKeyID > > m_transactionInputs;
 };
 
 struct CInfoRequestData

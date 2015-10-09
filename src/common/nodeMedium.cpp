@@ -83,7 +83,7 @@ CNodeMedium::clearResponses()
 	{
 		m_responses.erase( m_responses.lower_bound( id ) );
 		//m_idToRequest.erase( id );//doubt if this is ok
-		//	m_indexes.erase( id );
+		//m_indexes.erase( id );
 	}
 	deleteList.clear();
 }
@@ -108,7 +108,14 @@ CNodeMedium::addActionResponse( uint256 const & _actionId, DimsResponse const & 
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 	m_actionToResponse.insert( std::make_pair( _actionId, _response ) );
-		m_synchronizeQueue.push_back( _actionId );
+	m_synchronizeQueue.push_back( _actionId );
+}
+
+void
+CNodeMedium::deleteAction( CAction const * _action )
+{
+	m_actionToResponse.erase( _action->getActionKey() );
+	std::remove ( m_synchronizeQueue.begin(), m_synchronizeQueue.end(), _action->getActionKey() );
 }
 
 bool
@@ -120,8 +127,9 @@ CNodeMedium::getDirectActionResponseAndClear( CAction const * _action, std::list
 		return false;
 
 	if ( _action->getActionKey() != m_synchronizeQueue.front() )
+	{
 		return false;
-
+	}
 	m_synchronizeQueue.pop_front();
 
 	typename std::multimap< uint256, DimsResponse >::const_iterator iterator

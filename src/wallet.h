@@ -273,7 +273,7 @@ public:
 
 	void addmitNewTransaction( uint256 const & _initialHash, CTransaction const & _addmitedTransaction );
 
-	bool CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
+	bool CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, CPubKey const & _trackerKey, unsigned int _price, CWalletTx& wtxNew, std::string& strFailReason );
 
     bool NewKeyPool();
     bool TopUpKeyPool(unsigned int kpSize = 0);

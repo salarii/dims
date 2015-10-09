@@ -29,7 +29,7 @@ namespace common
 
 struct CNoMedium : boost::statechart::event< CNoMedium >
 {};
-
+//not ok
 struct CAvailableCoinsData : boost::statechart::event< CAvailableCoinsData >
 {
 	CAvailableCoinsData(
@@ -333,7 +333,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsData, CResult > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsData, CResult, CTrackerInfo > ScheduledResult;
 
 struct CRequestedMerkles
 {

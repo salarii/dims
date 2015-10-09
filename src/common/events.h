@@ -147,6 +147,15 @@ struct CTransactionAckEvent : boost::statechart::event< CTransactionAckEvent >
 	CTransaction m_transactionSend;
 };
 
+struct CTrackerInfoEvent : boost::statechart::event< CTrackerInfoEvent >
+{
+	CTrackerInfoEvent( CTrackerInfo const & _trackerInfo )
+		: m_trackerInfo( _trackerInfo )
+	{}
+
+	CTrackerInfo m_trackerInfo;
+};
+
 template < class Action >
 class CResolveScheduledResult : public boost::static_visitor< void >
 {
@@ -178,6 +187,11 @@ public:
 	void operator()( CResult const & _result ) const
 	{
 		this->m_action->process_event( CResultEvent( _result.m_result ) );
+	}
+
+	void operator()( CTrackerInfo const & _trackerInfo ) const
+	{
+		this->m_action->process_event( CTrackerInfoEvent( _trackerInfo ) );
 	}
 
 	void operator()( CExecutedIndicator const & _executedIndicator ) const

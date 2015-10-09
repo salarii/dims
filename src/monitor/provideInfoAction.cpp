@@ -155,22 +155,6 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAvailableCoinsData const & _availableCoins )
-	{
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::Balance
-					, context< CProvideInfoAction >().getActionKey()
-					, m_id
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
-
-		request->addPayload( common::CBalance( _availableCoins.m_availableCoins ) );
-
-		context< CProvideInfoAction >().addRequest( request );
-
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CProvideInfoAction >().forgetRequests();
@@ -182,12 +166,16 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CAvailableCoinsData >,
 	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 
 	uint256 m_id;
 };
+
+namespace
+{
+common::CMediumFilter * TargetMediumFilter;
+}
 
 struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
@@ -196,7 +184,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest(
 														  context< CProvideInfoAction >().getInfo()
 														, context< CProvideInfoAction >().getActionKey()
-														, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
+														, TargetMediumFilter ) );
 
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -238,6 +226,21 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 			context< CProvideInfoAction >().setResult( result );
 		}
+		if ( orginalMessage.m_header.m_payloadKind == (int)common::CInfoKind::BalanceAsk )
+		{
+			common::CBalance balance;
+			common::convertPayload( orginalMessage, balance );
+
+			context< CProvideInfoAction >().setResult( common::CAvailableCoinsData( balance.m_availableCoins, balance.m_transactionInputs, uint256() ) );//available  coins  is  not  nice  here
+		}
+		if ( orginalMessage.m_header.m_payloadKind == (int)common::CInfoKind::TrackerInfo )
+		{
+			common::CTrackerInfo trackerInfo;
+
+			common::convertPayload( orginalMessage, trackerInfo );
+
+			context< CProvideInfoAction >().setResult( trackerInfo );
+		}
 
 		context< CProvideInfoAction >().forgetRequests();
 		context< CProvideInfoAction >().setExit();
@@ -265,10 +268,30 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _n
 	process_event( CProvideInfoEvent() );
 }
 
-CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind )
+CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, common::CMediumKinds::Enum _mediumKind )
 	: m_infoKind( _infoKind )
 {
 	initiate();
+
+	TargetMediumFilter = new CMediumClassFilter( _mediumKind, 1 );
+	process_event( CAskForInfoEvent() );
+}
+
+CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, uintptr_t _nodePtr )
+	: m_infoKind( _infoKind )
+{
+	initiate();
+
+	TargetMediumFilter = new CSpecificMediumFilter( _nodePtr );
+	process_event( CAskForInfoEvent() );
+}
+
+CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, CPubKey _pubKey )
+	: m_infoKind( _infoKind )
+{
+	initiate();
+
+	TargetMediumFilter = new CByKeyMediumFilter( _pubKey );
 	process_event( CAskForInfoEvent() );
 }
 
