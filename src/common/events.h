@@ -213,6 +213,10 @@ struct CValidationEvent : boost::statechart::event< CValidationEvent >
 	std::vector< unsigned int > m_invalidTransactionIndexes;
 };
 
+struct CFailureEvent : boost::statechart::event< CFailureEvent >
+{
+};
+
 }
 
 #endif // COMMON_EVENTS_H
