@@ -318,6 +318,10 @@ struct CExecutedIndicator : boost::statechart::event< CExecutedIndicator >
 	bool m_correct;
 };
 
+struct CFailureEvent : boost::statechart::event< CFailureEvent >
+{
+};
+
 inline
 uint256
 hashMonitorData( CMonitorData const & _monitorData )
@@ -333,7 +337,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsData, CResult, CTrackerInfo > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsData, CResult, CTrackerInfo, CFailureEvent > ScheduledResult;
 
 struct CRequestedMerkles
 {

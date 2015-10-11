@@ -203,6 +203,11 @@ public:
 	{
 		this->m_action->process_event( _availableCoins );
 	}
+
+	void operator()( CFailureEvent const & _failureEvent ) const
+	{
+		this->m_action->process_event( _failureEvent );
+	}
 private:
 	Action * m_action;
 };
@@ -211,10 +216,6 @@ struct CValidationEvent : boost::statechart::event< CValidationEvent >
 {
 	CValidationEvent( std::vector< unsigned int > const & _invalidTransactionIndexes ):m_invalidTransactionIndexes( _invalidTransactionIndexes ){};
 	std::vector< unsigned int > m_invalidTransactionIndexes;
-};
-
-struct CFailureEvent : boost::statechart::event< CFailureEvent >
-{
 };
 
 }

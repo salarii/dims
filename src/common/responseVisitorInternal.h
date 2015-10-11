@@ -112,6 +112,11 @@ public:
 		//obsolete anyway
 	}
 
+	virtual void operator()( common::CFailureEvent & _param ) const
+	{
+		LogPrintf("set response \"failure event\" to action: %p \n", m_action );
+		m_action->process_event( _param );
+	}
 protected:
 	_Action * const m_action;
 

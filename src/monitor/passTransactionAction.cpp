@@ -81,10 +81,16 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CTrackerInfoEvent >
+	boost::statechart::custom_reaction< common::CTrackerInfoEvent >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 
 	CTransaction transaction;
@@ -182,11 +188,16 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 
 	CKeyID m_self;

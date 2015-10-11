@@ -308,11 +308,17 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CSynchronizationResult >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 //stupid  name
@@ -405,11 +411,17 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 
@@ -503,11 +515,17 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 

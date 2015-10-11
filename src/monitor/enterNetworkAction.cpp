@@ -522,11 +522,17 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAct
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 
@@ -569,10 +575,16 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CSynchronizationResult >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 

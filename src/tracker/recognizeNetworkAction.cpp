@@ -146,10 +146,15 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		return transit< CCheckRegistrationStatus >();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CNetworkInfoResult >
-
+	boost::statechart::custom_reaction< common::CNetworkInfoResult >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 
 	std::set< common::CValidNodeInfo > m_trackers;
@@ -176,8 +181,14 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CRegistrationData >
+	boost::statechart::custom_reaction< common::CRegistrationData >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 

@@ -60,8 +60,14 @@ struct CInitialConnect : public boost::statechart::state< CInitialConnect, CConn
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CSynchronizationResult >
+	boost::statechart::custom_reaction< common::CSynchronizationResult >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 
 	CPubKey m_key;
