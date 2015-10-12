@@ -91,6 +91,14 @@ selfAddress()
 	return address.ToString() + "\n\n" + "available coins: " + coinAmount.str();
 }
 
+std::string
+synchronizeBitcoin()
+{
+	CController::getInstance()->process_event( common::CSynchronizeBitcoinAsk() );
+
+	return std::string("executing");
+}
+
 void registerHooks()
 {
 	SatusHook.connect( &getStatus );
@@ -98,6 +106,7 @@ void registerHooks()
 	SelfAddress.connect( &selfAddress );
 	ConnectNetworkHook.connect( &connectNetwork );
 	SendCoins.connect( &sendCoins );
+	SynchronizeBitcoin.connect( &synchronizeBitcoin );
 }
 
 }

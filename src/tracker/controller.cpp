@@ -33,9 +33,9 @@ CController * CController::ms_instance = NULL;
 struct CInitialSynchronization : boost::statechart::simple_state< CInitialSynchronization, CController >
 {
 	CInitialSynchronization()
-		:m_blockLeft( -1 )
+		: m_blockLeft( -1 )
 	{
-		common::CActionHandler::getInstance()->executeAction( new tracker::CTrackOriginAddressAction );
+		common::CActionHandler::getInstance()->executeAction( tracker::CTrackOriginAddressAction::createInstance() );
 	}
 
 	boost::statechart::result react( common::CSetScanBitcoinChainProgress const & _event )
