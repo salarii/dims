@@ -1322,6 +1322,20 @@ CWallet::addInputs( std::map< uint256, std::vector< CKeyID > > const & _inputs )
 	m_inputs.insert( _inputs.begin(), _inputs.end() );
 }
 
+bool
+CWallet::getInputs( uint256 const & _hash, std::vector< CKeyID > & _inputs ) const
+{
+	AssertLockHeld(cs_wallet);
+
+	std::map< uint256, std::vector< CKeyID > >::const_iterator iterator = m_inputs.find( _hash );
+
+	if( iterator == m_inputs.end() )
+		return false;
+
+	_inputs = iterator->second;
+
+	return true;
+}
 
 void
 CWallet::addAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins, bool _writeToDatabase )

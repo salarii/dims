@@ -80,11 +80,11 @@ public:
 		cachedWallet.clear();
 		{
 			LOCK(wallet->cs_wallet);
-	/*		for(std::map<uint256, CWalletTx>::iterator it = wallet->mapWallet.begin(); it != wallet->mapWallet.end(); ++it)
+			for(std::multimap< uint160, CAvailableCoin >::iterator it = wallet->m_availableCoins.begin(); it != wallet->m_availableCoins.end(); ++it)
 			{
 				if(TransactionRecord::showTransaction(it->second))
-					cachedWallet.append(TransactionRecord::decomposeTransaction(wallet, it->second));
-			}*/
+					cachedWallet.append(TransactionRecord::decomposeTransaction(wallet, it->second, it->first));
+			}
 		}
 	}
 

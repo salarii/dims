@@ -151,7 +151,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 							, _messageResult.m_message.m_header.m_id
 							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
-			common::CActionHandler::getInstance()->executeAction( new CTrackOriginAddressAction );
+			common::CActionHandler::getInstance()->executeAction( CTrackOriginAddressAction::createInstance() );
 
 		}
 		return transit< CSynchronizingGetInfo >();

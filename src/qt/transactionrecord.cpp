@@ -11,79 +11,43 @@
 
 /* Return positive answer if transaction should be shown in list.
  */
-bool TransactionRecord::showTransaction(const CWalletTx &wtx)
+bool TransactionRecord::showTransaction( CAvailableCoin const &wtx)
 {
-
-    return true;
+	return true;
 }
 
-QList<TransactionRecord> TransactionRecord::decomposeTransaction( CWallet const * _wallet, CTransaction const &_transaction )
+QList<TransactionRecord> TransactionRecord::decomposeTransaction(
+		CWallet const * _wallet
+		, CAvailableCoin const &_availableCoin
+		, CKeyID const & _keyId )
 {
 	QList<TransactionRecord> parts;
 	int64_t nTime = GetTime();
-	int64_t nCredit = _wallet->GetCredit( _transaction );
-	int64_t nNet = nCredit;
-	uint256 hash = _transaction.GetHash();
-//	std::map<std::string, std::string> mapValue = wtx.mapValue;
+	uint256 hash = _availableCoin.m_hash;
 
-	if (nNet > 0 || _transaction.IsCoinBase())
+	std::vector< CKeyID > inputs;
+
+	if ( !_wallet->getInputs( _availableCoin.m_hash, inputs ) )
 	{
-		//
-		// Credit
-		//
-		BOOST_FOREACH(const CTxOut& txout, _transaction.vout)
-		{
-			if(_wallet->IsMine(txout))
-			{
-				TransactionRecord sub(hash, nTime);
-				CTxDestination address;
-				sub.idx = parts.size(); // sequence number
-				sub.credit = txout.nValue;
-				if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*_wallet, address))
-				{
-					// Received by Bitcoin Address
-					sub.type = TransactionRecord::RecvWithAddress;
-					sub.address = CMnemonicAddress(address).ToString();
-				}
-				else
-				{
-					// Received by IP connection (deprecated features), or a multisignature or other non-simple transaction
-					sub.type = TransactionRecord::RecvFromOther;
+		CMnemonicAddress mnemonicAddress;
+		mnemonicAddress.Set(_keyId);
 
-				}
-				if (_transaction.IsCoinBase())
-				{
-					// Spooned
-					sub.type = TransactionRecord::Generated;
-				}
+		TransactionRecord sub(hash, nTime);
 
-				parts.append(sub);
-			}
-		}
+		sub.idx = parts.size(); // sequence number
+
+		sub.credit = _availableCoin.m_coin.nValue;
+
+		sub.type = TransactionRecord::RecvWithAddress;
+		sub.address = mnemonicAddress.ToString();
+
+		sub.type = TransactionRecord::Generated;
+		parts.append(sub);
 	}
 	else
 	{
-		bool fAllFromMe = true;
-		BOOST_FOREACH(const CTxIn& txin, _transaction.vin)
-				fAllFromMe = fAllFromMe;
 
-		bool fAllToMe = true;
-		BOOST_FOREACH(const CTxOut& txout, _transaction.vout)
-				fAllToMe = fAllToMe && _wallet->IsMine(txout);
-
-		if (fAllFromMe && fAllToMe)
-		{
-			// Payment to self
-			int64_t nChange = _wallet->GetChange(_transaction);
-
-			parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
-										   -( - nChange), nCredit - nChange));
-		}
-		else if (fAllFromMe)
-		{
-			//
-			// Debit
-			//
+	/*
 			int64_t nTxFee = _transaction.GetValueOut();
 
 			for (unsigned int nOut = 0; nOut < _transaction.vout.size(); nOut++)
@@ -115,23 +79,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction( CWallet const 
 
 				int64_t nValue = txout.nValue;
 				/* Add fee to first output */
-				if (nTxFee > 0)
-				{
-					nValue += nTxFee;
-					nTxFee = 0;
-				}
-				sub.debit = -nValue;
-
-				parts.append(sub);
-			}
-		}
-		else
-		{
-			//
-			// Mixed debit transaction, can't break down payees
-			//
-			parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
-		}
 	}
 
 	return parts;
@@ -140,16 +87,13 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction( CWallet const 
 /*
  * Decompose CWallet transaction to model transaction records.
  */
-QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *wallet, const CWalletTx &wtx)
+QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *wallet, CTransaction const &wtx)
 {
     QList<TransactionRecord> parts;
-    int64_t nTime = wtx.GetTxTime();
-    int64_t nCredit = wtx.GetCredit(true);
-	int64_t nNet = nCredit;
+	int64_t nTime = GetTime();
     uint256 hash = wtx.GetHash();
-    std::map<std::string, std::string> mapValue = wtx.mapValue;
 
-    if (nNet > 0 || wtx.IsCoinBase())
+	if ( wtx.IsCoinBase())
     {
         //
         // Credit
@@ -172,7 +116,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Received by IP connection (deprecated features), or a multisignature or other non-simple transaction
                     sub.type = TransactionRecord::RecvFromOther;
-                    sub.address = mapValue["from"];
+				   // sub.address = mapValue["from"];
                 }
                 if (wtx.IsCoinBase())
                 {
@@ -197,10 +141,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         if (fAllFromMe && fAllToMe)
         {
             // Payment to self
-            int64_t nChange = wtx.GetChange();
 
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
-							-( nChange), nCredit - nChange));
+							-( 0), 0));
         }
         else if (fAllFromMe)
         {
@@ -233,7 +176,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Sent to IP, or other non-address transaction like OP_EVAL
                     sub.type = TransactionRecord::SendToOther;
-                    sub.address = mapValue["to"];
+		   //         sub.address = mapValue["to"];
                 }
 
                 int64_t nValue = txout.nValue;
@@ -253,7 +196,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Mixed debit transaction, can't break down payees
             //
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
+		 //   parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
         }
     }
 

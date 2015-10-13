@@ -17,7 +17,9 @@ struct CUninitiatedTrackAction;
 class CTrackOriginAddressAction : public common::CAction, public  boost::statechart::state_machine< CTrackOriginAddressAction, CUninitiatedTrackAction >
 {
 public:
-	CTrackOriginAddressAction();
+	static CTrackOriginAddressAction * createInstance();
+
+	static CTrackOriginAddressAction * getInstance();
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
@@ -35,6 +37,8 @@ public:
 
 	void adjustTracking();
 private:
+	CTrackOriginAddressAction();
+
 	void validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected );
 private:
 	//replace std::vector with std::deque ???
@@ -49,6 +53,8 @@ private:
 	double m_timeModifier;
 
 	unsigned int m_updated;
+
+	static CTrackOriginAddressAction * ms_instance;
 };
 
 }

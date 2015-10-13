@@ -62,7 +62,7 @@ struct CSynchronizeWithBitcoin : boost::statechart::state< CSynchronizeWithBitco
 {
 	CSynchronizeWithBitcoin( my_context ctx ) : my_base( ctx )
 	{
-		common::CActionHandler::getInstance()->executeAction( new CTrackOriginAddressAction() );
+		common::CActionHandler::getInstance()->executeAction( CTrackOriginAddressAction::createInstance() );
 	}
 
 	boost::statechart::result

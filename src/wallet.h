@@ -167,7 +167,7 @@ public:
 
 	std::multimap< uint160, CAvailableCoin > m_availableCoins;
 
-	 std::map< uint256, std::vector< CKeyID > > m_inputs;
+	std::map< uint256, std::vector< CKeyID > > m_inputs;
 
 	struct CUpdateCoins
 	{
@@ -200,6 +200,8 @@ public:
 	//I have to  consider proper  form and place for it
 	uint64_t AvailableCoinsAmount(CKeyID const & _keyID) const;
     unsigned AllAvailableCoinsAmount() const;
+
+	bool getInputs( uint256 const & _hash, std::vector< CKeyID > & _inputs ) const;
 
 	bool IsLockedCoin(uint256 hash, unsigned int n) const;
 	void LockCoin(COutPoint& output);

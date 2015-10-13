@@ -29,6 +29,8 @@ unsigned int const WaitResultTime = 30000;
 unsigned int const CleanTime = 2;
 unsigned int const SynchronizedTreshold = 10;
 
+CTrackOriginAddressAction * CTrackOriginAddressAction::ms_instance = 0;
+
 struct CReadingData;
 struct CEvaluateProgress;
 
@@ -235,6 +237,21 @@ CCompareTransactions::isCorrect() const
 }
 
 //
+CTrackOriginAddressAction*
+CTrackOriginAddressAction::createInstance()
+{
+	if ( ms_instance )
+		ms_instance->setExit();
+
+	ms_instance = new CTrackOriginAddressAction;
+}
+
+CTrackOriginAddressAction *
+CTrackOriginAddressAction::getInstance()
+{
+	return ms_instance;
+}
+
 void
 CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput )
 {

@@ -13,6 +13,9 @@
 class CWallet;
 class CWalletTx;
 class CTransaction;
+class CKeyID;
+
+struct CAvailableCoin;
 
 /** UI model for transaction status. The transaction status is the part of a transaction that will change over time.
  */
@@ -104,9 +107,9 @@ public:
 
     /** Decompose CWallet transaction to model transaction records.
      */
-    static bool showTransaction(const CWalletTx &wtx);
-    static QList<TransactionRecord> decomposeTransaction(const CWallet *wallet, const CWalletTx &wtx);
-	static QList<TransactionRecord> decomposeTransaction( CWallet const * _wallet, CTransaction const &_transaction );
+	static bool showTransaction( CAvailableCoin const &wtx);
+	static QList<TransactionRecord> decomposeTransaction(const CWallet *wallet, CTransaction const &wtx);
+	static QList<TransactionRecord> decomposeTransaction( CWallet const * _wallet, CAvailableCoin const &_availableCoin, CKeyID const & _keyId );
 
 	/** @name Immutable transaction attributes
       @{*/
