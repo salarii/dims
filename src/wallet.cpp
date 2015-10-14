@@ -712,7 +712,7 @@ CWallet::CreateTransaction( std::vector< std::pair< CKeyID, int64_t > > const & 
 		return false;
 	}
 
-	int64_t trackerFee = _price;
+	int64_t trackerFee = _price * _outputs.size();
 
 	{
 		CScript scriptPubKey;

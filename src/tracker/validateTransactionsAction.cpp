@@ -79,12 +79,11 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 		unsigned int value = 0;
 		BOOST_FOREACH( CTransaction const & transaction, context< CValidateTransactionsAction >().getTransactions() )
 		{
-
 			if ( !common::findOutputInTransaction(
 					 transaction
 					 , common::CAuthenticationProvider::getInstance()->getMyKey().GetID()
 					 , txOuts
-					 ,ids) )
+					 , ids) )
 			{
 				invalidTransactions.push_back( transaction );
 			}
@@ -93,7 +92,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 			{
 				value += txOut.nValue;
 			}
-			if ( tracker::CController::getInstance()->getPrice() <= value )
+			if ( tracker::CController::getInstance()->getPrice() * ( transaction.vout.size() - 2 ) <= value )
 				validTransactions.push_back( transaction );
 			else
 				invalidTransactions.push_back( transaction );
