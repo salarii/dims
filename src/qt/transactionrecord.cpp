@@ -15,7 +15,11 @@ bool TransactionRecord::showTransaction( CAvailableCoin const &wtx)
 {
 	return true;
 }
-
+/***
+input  self ->  to  self
+output self to outputs
+zero self
+**/
 QList<TransactionRecord> TransactionRecord::decomposeTransaction(
 		CWallet const * _wallet
 		, CAvailableCoin const &_availableCoin
@@ -27,60 +31,41 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(
 
 	std::vector< CKeyID > inputs;
 
+	CMnemonicAddress mnemonicAddress;
+	mnemonicAddress.Set(_keyId);
+
+	TransactionRecord sub(hash, nTime);
+
+	sub.credit = _availableCoin.m_coin.nValue;
+
+	sub.idx = parts.size(); // sequence number
+
+	sub.address = mnemonicAddress.ToString();
+
 	if ( !_wallet->getInputs( _availableCoin.m_hash, inputs ) )
 	{
-		CMnemonicAddress mnemonicAddress;
-		mnemonicAddress.Set(_keyId);
-
-		TransactionRecord sub(hash, nTime);
-
-		sub.idx = parts.size(); // sequence number
-
-		sub.credit = _availableCoin.m_coin.nValue;
-
-		sub.type = TransactionRecord::RecvWithAddress;
-		sub.address = mnemonicAddress.ToString();
 
 		sub.type = TransactionRecord::Generated;
-		parts.append(sub);
 	}
 	else
 	{
+		std::set<CKeyID> addresses;
+		_wallet->GetKeys( addresses );
 
-	/*
-			int64_t nTxFee = _transaction.GetValueOut();
-
-			for (unsigned int nOut = 0; nOut < _transaction.vout.size(); nOut++)
+		BOOST_FOREACH( CKeyID const & keyId, inputs )
+		{
+			if ( addresses.find( keyId ) != addresses.end() )
 			{
-				const CTxOut& txout = _transaction.vout[nOut];
-				TransactionRecord sub(hash, nTime);
-				sub.idx = parts.size();
+				sub.type = TransactionRecord::SendToSelf;
+				parts.append(sub);
+				return parts;
+			}
+		}
 
-				if(_wallet->IsMine(txout))
-				{
-					// Ignore parts sent to self, as this is usually the change
-					// from a transaction sent back to our own address.
-					continue;
-				}
-
-				CTxDestination address;
-				if (ExtractDestination(txout.scriptPubKey, address))
-				{
-					// Sent to Bitcoin Address
-					sub.type = TransactionRecord::SendToAddress;
-					sub.address = CMnemonicAddress(address).ToString();
-				}
-				else
-				{
-					// Sent to IP, or other non-address transaction like OP_EVAL
-					sub.type = TransactionRecord::SendToOther;
-
-				}
-
-				int64_t nValue = txout.nValue;
-				/* Add fee to first output */
+		sub.type = TransactionRecord::RecvFromOther;
 	}
 
+	parts.append(sub);
 	return parts;
 }
 
