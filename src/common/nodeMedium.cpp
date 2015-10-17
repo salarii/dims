@@ -115,7 +115,7 @@ void
 CNodeMedium::deleteAction( CAction const * _action )
 {
 	m_actionToResponse.erase( _action->getActionKey() );
-	std::remove ( m_synchronizeQueue.begin(), m_synchronizeQueue.end(), _action->getActionKey() );
+	m_synchronizeQueue.remove( _action->getActionKey() );
 }
 
 bool

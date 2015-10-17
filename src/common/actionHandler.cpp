@@ -153,6 +153,7 @@ CActionHandler::loop()
 
 							for ( typename RequestToHandlers::iterator it = lower; it!=upper; ++it)
 							{
+								it->second->deleteAction(action);
 								it->second->deleteRequest( request );
 							}
 							m_currentlyUsedHandlers.erase( request );
