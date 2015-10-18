@@ -200,6 +200,8 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CProvideInfoAction >().forgetRequests();
+
+		context< CProvideInfoAction >().setResult( common::CFailureEvent() );
 		context< CProvideInfoAction >().setExit();
 
 		return discard_event();
@@ -226,20 +228,24 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 			context< CProvideInfoAction >().setResult( result );
 		}
-		if ( orginalMessage.m_header.m_payloadKind == (int)common::CInfoKind::BalanceAsk )
+		if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::Balance )
 		{
 			common::CBalance balance;
 			common::convertPayload( orginalMessage, balance );
 
 			context< CProvideInfoAction >().setResult( common::CAvailableCoinsData( balance.m_availableCoins, balance.m_transactionInputs, uint256() ) );//available  coins  is  not  nice  here
 		}
-		if ( orginalMessage.m_header.m_payloadKind == (int)common::CInfoKind::TrackerInfo )
+		if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::TrackerInfo )
 		{
 			common::CTrackerInfo trackerInfo;
 
 			common::convertPayload( orginalMessage, trackerInfo );
 
 			context< CProvideInfoAction >().setResult( trackerInfo );
+		}
+		else
+		{
+			context< CProvideInfoAction >().setResult( common::CFailureEvent() );
 		}
 
 		context< CProvideInfoAction >().forgetRequests();

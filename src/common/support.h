@@ -26,6 +26,14 @@ createPayload( T const & _type, std::vector< unsigned char > & _payload )
 	stream << _type;
 }
 
+template < class T >
+void
+readPayload( std::vector< unsigned char > const & _payload, T & _outMessage )
+{
+	CBufferAsStream stream( (char*)&_payload.front(), _payload.size(), SER_NETWORK, PROTOCOL_VERSION );
+	stream >> _outMessage;
+}
+
 template < class T, class Enum >
 void 
 serializeEnum( T & _stream, Enum const _enum )

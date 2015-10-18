@@ -320,6 +320,7 @@ struct CExecutedIndicator : boost::statechart::event< CExecutedIndicator >
 
 struct CFailureEvent : boost::statechart::event< CFailureEvent >
 {
+	std::vector<unsigned char> m_problemData;
 };
 
 inline

@@ -57,17 +57,6 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 
 	}
 
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CPassTransactionAction >().setResult(
-					common::CTransactionAck(
-						( int )common::TransactionsStatus::Invalid
-						, CTransaction() ) );
-
-		context< CPassTransactionAction >().setExit();
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CTrackerInfoEvent const & _trackerInfoEvent )
 	{
 		ServicingTracker = _trackerInfoEvent.m_trackerInfo;
@@ -87,7 +76,6 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTrackerInfoEvent >,
 	boost::statechart::custom_reaction< common::CFailureEvent >

@@ -32,12 +32,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
 
-		context< CRecognizeNetworkAction >().forgetRequests();
-		context< CRecognizeNetworkAction >().addRequest(
-					new common::CTimeEventRequest(
-						  ConnectWaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
 		if ( !vAdd.empty() )
 		{
 			BOOST_FOREACH( CAddress address, vAdd )
@@ -57,6 +51,12 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			{
 				context< CRecognizeNetworkAction >().setExit();
 			}
+
+			context< CRecognizeNetworkAction >().forgetRequests();
+			context< CRecognizeNetworkAction >().addRequest(
+						new common::CTimeEventRequest(
+							  ConnectWaitTime
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
@@ -120,11 +120,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			context< CRecognizeNetworkAction >().forgetRequests();
 
-			context< CRecognizeNetworkAction >().addRequest(
-						new common::CTimeEventRequest(
-							ConnectWaitTime
-							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
 			BOOST_FOREACH( CAddress const & address, nodesToAsk )
 			{
 				m_alreadyAsked.insert( address );
@@ -152,6 +147,17 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
+		CAddress problemNode;
+
+		common::readPayload( _failureEvent.m_problemData, problemNode );
+		m_received.insert( problemNode );
+
+		if (m_received.size() == m_alreadyAsked.size() )
+		{
+			context< CRecognizeNetworkAction >().forgetRequests();
+			context< CRecognizeNetworkAction >().setExit();
+		}
+
 		return discard_event();
 	}
 

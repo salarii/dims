@@ -91,10 +91,21 @@ struct CMonitorBothUnidentifiedConnecting : boost::statechart::state< CMonitorBo
 						new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() )
 						)
 					);
+
+		context< CConnectNodeAction >().addRequest(
+					new common::CTimeEventRequest(
+						LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return transit< CMonitorCantReachNode >();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::transition< common::CAckEvent, CMonitorPairIdentifiedConnecting >
+	boost::statechart::transition< common::CAckEvent, CMonitorPairIdentifiedConnecting >,
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 };
 
@@ -104,6 +115,11 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 	CMonitorPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p pair identified connecting \n", &context< CConnectNodeAction >() );
+
+		context< CConnectNodeAction >().addRequest(
+					new common::CTimeEventRequest(
+						LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -132,7 +148,13 @@ struct CMonitorPairIdentifiedConnecting : boost::statechart::state< CMonitorPair
 		return transit< CMonitorDetermineRoleConnecting >();
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return transit< CMonitorCantReachNode >();
+	}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CIdentificationResult >
 	> reactions;
 };
@@ -363,15 +385,12 @@ struct CMonitorCantReachNode : boost::statechart::state< CMonitorCantReachNode, 
 {
 	CMonitorCantReachNode( my_context ctx ) : my_base( ctx )
 	{
+		common::CFailureEvent failureEvent;
+		common::createPayload( context< CConnectNodeAction >().getServiceAddress(), failureEvent.m_problemData );
+
 		LogPrintf("connect node action: %p can't reach node' \n", &context< CConnectNodeAction >() );
 		context< CConnectNodeAction >().setResult(
-					common::CNetworkInfoResult(
-						common::CValidNodeInfo( CPubKey(), context< CConnectNodeAction >().getServiceAddress() ) //  not  nice
-						, common::CRole::Monitor
-						,std::set< common::CValidNodeInfo >()
-						, std::set< common::CValidNodeInfo >()
-						, false
-						) );
+					failureEvent );
 
 		context< CConnectNodeAction >().setExit();
 	}
@@ -384,7 +403,10 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 	CMonitorConnectedToSeed( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p connected to seed \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().addRequest( new common::CTimeEventRequest( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		context< CConnectNodeAction >().addRequest(
+					new common::CTimeEventRequest(
+						LoopTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

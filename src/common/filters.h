@@ -37,6 +37,7 @@ class CErrorMediumProvider;
 
 namespace monitor
 {
+class CReputationTracker;
 class CInternalMediumProvider;
 }
 
@@ -57,6 +58,7 @@ struct CMediumFilter
 	virtual std::list< CMedium *> getMediums( client::CErrorMediumProvider * _provider )const{ return std::list< CMedium *>(); }
 	virtual std::list< CMedium *> getMediums( seed::CSeedNodesManager * _provider )const{ return std::list< CMedium *>(); }
 	virtual std::list< CMedium *> getMediums( monitor::CInternalMediumProvider * _provider )const{ return std::list< CMedium *>(); }
+	virtual std::list< CMedium *> getMediums( monitor::CReputationTracker * _provider )const{ return std::list< CMedium *>(); }
 
 	virtual ~CMediumFilter(){}
 };
