@@ -251,6 +251,8 @@ CTrackOriginAddressAction::createInstance()
 		ms_instance->setExit();
 
 	ms_instance = new CTrackOriginAddressAction;
+
+	return ms_instance;
 }
 
 CTrackOriginAddressAction *
