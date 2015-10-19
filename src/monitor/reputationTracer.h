@@ -48,7 +48,7 @@ public:
 
 	bool getKeyToNode( uint160 const & _pubKeyId, uintptr_t & _nodeIndicator)const;
 
-	bool getNodeToKey( uintptr_t _nodeIndicator, uint160 & _pubKey )const;
+	bool getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const;
 
 	void setPresentTrackers( std::set< uint160 > const & _presentTrackers )
 	{
@@ -77,6 +77,8 @@ public:
 	void clearTransactions();
 
 	void recalculateReputation();
+
+	void clearAll();
 private:
 	CReputationTracker();
 
@@ -91,8 +93,6 @@ private:
 	void storeCurrentRanking();
 
 	void loadCurrentRanking();
-
-// counting reputation is crucial, it will be  done  differently in separate  action, something I consider  to call "super  action"
 private:
 	mutable boost::mutex m_lock;
 
@@ -120,7 +120,7 @@ private:
 
 	uint64_t m_measureReputationTime;
 
-	std::map< uint160, uintptr_t > m_pubKeyToNodeIndicator;
+	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
 
 	std::set< CPubKey > m_extendInProgress;
 };

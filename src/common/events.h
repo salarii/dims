@@ -147,6 +147,14 @@ struct CTransactionAckEvent : boost::statechart::event< CTransactionAckEvent >
 	CTransaction m_transactionSend;
 };
 
+struct CRankingEvent : boost::statechart::event< CRankingEvent >
+{
+	CRankingEvent( CRankingFullInfo const & _rankingInfo )
+	{}
+
+	CRankingFullInfo m_rankingInfo;
+};
+
 struct CTrackerInfoEvent : boost::statechart::event< CTrackerInfoEvent >
 {
 	CTrackerInfoEvent( CTrackerInfo const & _trackerInfo )
@@ -207,6 +215,11 @@ public:
 	void operator()( CFailureEvent const & _failureEvent ) const
 	{
 		this->m_action->process_event( _failureEvent );
+	}
+
+	void operator()( CRankingFullInfo const & _rankingInfo ) const
+	{
+		this->m_action->process_event( CRankingEvent( _rankingInfo ) );
 	}
 private:
 	Action * m_action;

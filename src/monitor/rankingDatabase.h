@@ -40,6 +40,8 @@ public:
 	DBErrors loadIdentificationDatabase( std::map< uint160, common::CTrackerData > & _trackers );
 
 	static CRankingDatabase * getInstance();
+
+	static void resetDb();
 private:
 	CRankingDatabase(std::string strFilename, const char* pszMode="r+") : CDB(strFilename.c_str(), pszMode)
 	{

@@ -145,5 +145,15 @@ DBErrors CRankingDatabase::loadIdentificationDatabase( std::map< uint160, common
 	return result;
 }
 
+void
+CRankingDatabase::resetDb()
+{
+	bitdb.CloseDb("rankingData");
+	bitdb.CheckpointLSN("rankingData");
+	bitdb.mapFileUseCount.erase("rankingData");
+	bitdb.RemoveDb("rankingData");
+	delete getInstance();
+	getInstance();
+}
 
 }

@@ -299,13 +299,22 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 void
 CReputationTracker::setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator)
 {
-	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey.GetID(), _nodeIndicator ) );
+	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey, _nodeIndicator ) );
 }
 
 bool
 CReputationTracker::getKeyToNode( uint160 const & _pubKeyId, uintptr_t & _nodeIndicator) const
 {
-	std::map< uint160, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKeyId );
+	std::map< CPubKey, uintptr_t >::const_iterator iterator =
+			m_pubKeyToNodeIndicator.begin();
+
+	while( iterator != m_pubKeyToNodeIndicator.end() )
+	{
+		if ( iterator->first.GetID() == _pubKeyId )
+			break;
+		iterator++;
+	}
+
 
 	if ( iterator != m_pubKeyToNodeIndicator.end() )
 		_nodeIndicator = iterator->second;
@@ -314,9 +323,9 @@ CReputationTracker::getKeyToNode( uint160 const & _pubKeyId, uintptr_t & _nodeIn
 }
 
 bool
-CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, uint160 & _pubKey )const
+CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const
 {
-	BOOST_FOREACH( PAIRTYPE(uint160, uintptr_t) const & keyToIndicator, m_pubKeyToNodeIndicator )
+	BOOST_FOREACH( PAIRTYPE(CPubKey, uintptr_t) const & keyToIndicator, m_pubKeyToNodeIndicator )
 	{
 		if ( keyToIndicator.second == _nodeIndicator )
 		{
@@ -337,9 +346,10 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	common::CNodesManager::eraseMedium( _nodePtr );
 
-	uint160 keyId;
+	CPubKey key;
+	getNodeToKey( _nodePtr, key );
 
-	getNodeToKey( _nodePtr, keyId );
+	CKeyID keyId = key.GetID();
 
 	m_candidates.erase( keyId );
 
@@ -351,7 +361,7 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	m_presentTrackers.erase( keyId );
 
-	m_pubKeyToNodeIndicator.erase( keyId );
+	m_pubKeyToNodeIndicator.erase( key );
 }
 
 std::set< common::CValidNodeInfo > const
@@ -465,6 +475,22 @@ CReputationTracker::addAllyMonitor( common::CAllyMonitorData const & _monitorDat
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_allyMonitors.insert( std::make_pair( _monitorData.m_publicKey.GetID(), _monitorData ) );
+}
+
+void
+CReputationTracker::clearAll()
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_candidates.clear();
+	m_trackerToMonitor.clear();
+	m_registeredTrackers.clear();
+	m_allyTrackersRankings.clear();
+	m_allyMonitors.clear();
+	m_presentTrackers.clear();
+	m_pubKeyToNodeIndicator.clear();
+	m_extendInProgress.clear();
+
+	CRankingDatabase::getInstance()->resetDb();
 }
 
 }

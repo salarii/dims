@@ -338,7 +338,7 @@ hashMonitorData( CMonitorData const & _monitorData )
 	return Hash( &monitorsInBytes.front(), &monitorsInBytes.back() );
 }
 
-typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsData, CResult, CTrackerInfo, CFailureEvent > ScheduledResult;
+typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration, CSynchronizationResult, CExecutedIndicator, CAvailableCoinsData, CResult, CTrackerInfo, CFailureEvent, CRankingFullInfo > ScheduledResult;
 
 struct CRequestedMerkles
 {

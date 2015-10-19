@@ -25,12 +25,14 @@
 #include "monitor/rankingDatabase.h"
 #include "monitor/synchronizationAction.h"
 #include "monitor/chargeRegister.h"
+#include "monitor/reputationControlAction.h"
+#include "monitor/provideInfoAction.h"
 
 namespace monitor
 {
 struct CSynchronization;
-struct CFreeRegistration;
-struct CPaidRegistration;
+struct CFreeEnterance;
+struct CPaidEnterance;
 struct CNetworkAlive;
 struct CFreeRegistrationEnter;
 struct CAssistAdmission;
@@ -87,7 +89,16 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 						, _messageResult.m_message.m_header.m_id
 						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) );
 
-			request->addPayload( common::CResult( 1 ) );
+			if (
+					!CController::getInstance()->getEnterancePrice()
+					|| !CReputationTracker::getInstance()->getTrackers().empty() )
+			{
+				request->addPayload( common::CResult( 1 ) );
+			}
+			else
+			{
+				request->addPayload( common::CResult( 0 ) );
+			}
 
 			context< CEnterNetworkAction >().addRequest( request );
 		}
@@ -97,12 +108,9 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		if ( CController::getInstance()->getEnterancePrice() )
-		{
-			if ( CReputationTracker::getInstance()->getTrackers().empty() );
-				//return transit< CPaidRegistrationEmptyNetwork >();
-		}
+			return transit< CPaidEnterance >();
 		else
-			return transit< CFreeRegistration >();
+			return transit< CFreeEnterance >();
 
 		return discard_event();
 	}
@@ -120,9 +128,9 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 	> reactions;
 };
 
-struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CEnterNetworkAction >
+struct CFreeEnterance : boost::statechart::state< CFreeEnterance, CEnterNetworkAction >
 {
-	CFreeRegistration( my_context ctx )
+	CFreeEnterance( my_context ctx )
 		: my_base( ctx )
 	{
 		context< CEnterNetworkAction >().forgetRequests();
@@ -163,9 +171,9 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CEnterNe
 
 };
 
-struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CEnterNetworkAction >
+struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkAction >
 {
-	CPaidRegistration( my_context ctx )
+	CPaidEnterance( my_context ctx )
 		: my_base( ctx )
 		, m_checkPeriod( 30000 )
 	{
@@ -228,21 +236,15 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CEnterNe
 						, m_messageId
 						, new CSpecificMediumFilter( m_nodePtr ) );
 
-			uint160 pubKeyId;
+			CPubKey pubKey;
 
-			if ( CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), pubKeyId ) )
+			if ( CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), pubKey ) )
 			{
 				request->addPayload( common::CResult( 1 ) );
 
-							common::CTrackerData trackerData(
-								m_pubKey
-								, 0
-								, CController::getInstance()->getPeriod()
-								, GetTime() );
+				common::CAllyMonitorData monitorData( m_pubKey );
 
-				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
-
-				CReputationTracker::getInstance()->addTracker( trackerData );
+				CReputationTracker::getInstance()->addAllyMonitor( monitorData );
 			}
 			else
 			{
@@ -264,7 +266,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CEnterNe
 		return discard_event();
 	}
 
-	~CPaidRegistration()
+	~CPaidEnterance()
 	{
 		CChargeRegister::getInstance()->setStoreTransactions( false );
 	}
@@ -400,7 +402,7 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 			if ( result.m_result )
 			{
 				monitorKey = _messageResult.m_pubKey;
-				return price ? transit< CNetworkAlive >() : transit< CFreeRegistration >();
+				return price ? transit< CNetworkAlive >() : transit< CFreeEnterance >();
 			}
 			else
 			{
@@ -592,49 +594,48 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 {
 	CFetchRankingTimeAndInfo( my_context ctx ): my_base( ctx )
 	{
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::InfoReq
-					, context< CEnterNetworkAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
-
-				request->addPayload( (int)common::CInfoKind::StorageInfoAsk, std::vector<unsigned char>() );
-
-				context< CEnterNetworkAction >().addRequest( request );
-
 		context< CEnterNetworkAction >().addRequest(
-					new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CScheduleActionRequest(
+						new CProvideInfoAction(
+							common::CInfoKind::RankingFullInfo
+							, context< CEnterNetworkAction >().getNodePtr() )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
+
+	boost::statechart::result react( common::CRankingEvent const & _rankingEvent )
 	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
+		CReputationTracker::getInstance()->clearAll();
 
-		common::CRankingInfo rankingInfo;
+		BOOST_FOREACH( common::CAllyTrackerData const & trackerData, _rankingEvent.m_rankingInfo.m_allyTrackers )
+		{
+			CReputationTracker::getInstance()->addAllyTracker( trackerData );
+		}
 
-		common::convertPayload( orginalMessage, rankingInfo );
+		BOOST_FOREACH( common::CAllyMonitorData const & monitorData, _rankingEvent.m_rankingInfo.m_allyMonitors )
+		{
+			CReputationTracker::getInstance()->addAllyMonitor( monitorData );
+		}
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::Ack
-					, context< CEnterNetworkAction >().getActionKey()
-					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+		CPubKey key;
+		CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), key );
 
+		BOOST_FOREACH( common::CTrackerData const & trackerData, _rankingEvent.m_rankingInfo.m_trackers )
+		{
+			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, key ) );
+		}
+
+		CReputationControlAction::createInstance( _rankingEvent.m_rankingInfo.m_leadingKey );
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent ){}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent ){}
+	boost::statechart::result react( common::CFailureEvent const & )
+	{
+		return discard_event();
+	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
+	boost::statechart::custom_reaction< common::CFailureEvent >,
+	boost::statechart::custom_reaction< common::CRankingEvent >
 	> reactions;
 };
 
@@ -691,10 +692,12 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CEnterNetworkAction >().setExit();
+		return discard_event();
 	}
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		context< CEnterNetworkAction >().setExit();
+		return discard_event();
 	}
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
