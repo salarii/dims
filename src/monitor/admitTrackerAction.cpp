@@ -275,6 +275,8 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 
 			request->addPayload( common::CResult( 1 ) );
 
+			CReputationTracker::getInstance()->addNodeToSynch( _messageResult.m_pubKey.GetID() );
+
 			context< CAdmitTrackerAction >().addRequest( request );
 
 			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getPeriod(), GetTime() ) );
@@ -380,6 +382,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 
 				CReputationTracker::getInstance()->addTracker( trackerData );
+
+				CReputationTracker::getInstance()->addNodeToSynch( pubKey.GetID() );
 			}
 			else
 			{

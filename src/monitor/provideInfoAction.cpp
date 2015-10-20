@@ -19,6 +19,7 @@
 #include "monitor/filters.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/controller.h"
+#include "monitor/reputationControlAction.h"
 
 namespace monitor
 {
@@ -79,7 +80,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					common::CPayloadKind::Ack
 					, context< CProvideInfoAction >().getActionKey()
 					, m_id
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
 		request->addPayload( common::CAck() );
 
@@ -94,14 +95,14 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::IsAddmited )
 		{
 			CPubKey pubKey;
-			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIdentifier(), pubKey );
 
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
 			request->addPayload(
 						common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( pubKey.GetID() ) ? 1 : 0 ) );
@@ -113,7 +114,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		{
 
 			CPubKey pubKey;
-			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIndicator(), pubKey );
+			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIdentifier(), pubKey );
 
 			common::CTrackerData trackerData;
 			CPubKey monitorPubKey;
@@ -124,7 +125,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						common::CPayloadKind::ValidRegistration
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
 			request->addPayload(
 						common::CValidRegistration(
@@ -142,14 +143,31 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						common::CPayloadKind::EnterNetworkCondition
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
 			request->addPayload(
 						common::CEnteranceTerms( CController::getInstance()->getEnterancePrice() ) );
 
 			context< CProvideInfoAction >().addRequest( request );
 		}
+		else if ( requestedInfo.m_kind == (int)common::CInfoKind::RankingFullInfo )
+		{
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::FullRankingInfo
+						, context< CProvideInfoAction >().getActionKey()
+						, m_id
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
+			request->addPayload(
+						common::CRankingFullInfo(
+							CReputationTracker::getInstance()->getAllyTrackers()
+							, CReputationTracker::getInstance()->getAllyMonitors()
+							, CReputationTracker::getInstance()->getTrackers()
+							, CReputationControlAction::getInstance()->getActionKey() ) );
+
+			context< CProvideInfoAction >().addRequest( request );
+		}
 		context< CProvideInfoAction >().forgetRequests();
 		context< CProvideInfoAction >().setExit();
 		return discard_event();
@@ -308,7 +326,7 @@ CProvideInfoAction::accept( common::CSetResponseVisitor & _visitor )
 }
 
 uintptr_t
-CProvideInfoAction::getNodeIndicator() const
+CProvideInfoAction::getNodeIdentifier() const
 {
 	return m_nodeIndicator;
 }

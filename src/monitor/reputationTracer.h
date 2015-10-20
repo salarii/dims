@@ -31,14 +31,14 @@ public:
 
 	void addAllyMonitor( common::CAllyMonitorData const & _monitorData );
 
-	void deleteTracker( CPubKey const & _pubKey );
+	void deleteTracker( uint160 const & _pubKeyId );
 
 	// both function, not final form
 	std::set< common::CTrackerData > getTrackers() const;
 
 	std::set< common::CAllyMonitorData > getAllyMonitors() const;
 
-	std::vector< common::CAllyTrackerData > getAllyTrackers() const;
+	std::set< common::CAllyTrackerData > getAllyTrackers() const;
 
 	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
 
@@ -66,6 +66,8 @@ public:
 
 	bool isAddmitedMonitor( uint160 const & _pubKeyId );
 
+	bool isRegisteredTracker( uint160 const & _pubKeyId );
+
 	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 
 	static uint64_t getRecalculateTime(){ return m_recalculateTime; }
@@ -79,6 +81,12 @@ public:
 	void recalculateReputation();
 
 	void clearAll();
+// ugly
+	bool isSynchronizationAllowed( uint160 const & _pubKeyId )const;
+
+	void removeNodeFromSynch( uint160 const & _pubKeyId );
+
+	void addNodeToSynch( uint160 const & _pubKeyId );
 private:
 	CReputationTracker();
 
@@ -123,6 +131,8 @@ private:
 	std::map< CPubKey, uintptr_t > m_pubKeyToNodeIndicator;
 
 	std::set< CPubKey > m_extendInProgress;
+
+	std::set< uint160 > m_allowSynchronization;
 };
 
 }

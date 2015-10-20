@@ -54,7 +54,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ping
 					, context< CPingAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+					, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
 
 		request->addPayload( common::CPing() );
 
@@ -69,7 +69,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 		{
 			CConnectNodeAction * connectNode = new CConnectNodeAction(
 						context< CPingAction >().getActionKey()
-						, context< CPingAction >().getNodeIndicator() );
+						, context< CPingAction >().getNodeIdentifier() );
 
 			connectNode->process_event( common::CSwitchToConnectingEvent() );
 
@@ -84,7 +84,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Ping
 						, context< CPingAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+						, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
 
 			request->addPayload( common::CPing() );
 
@@ -125,7 +125,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Pong
 					, context< CPingAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+					, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
 
 		request->addPayload( common::CPong() );
 
@@ -140,7 +140,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		{
 			CConnectNodeAction * connectNode = new CConnectNodeAction(
 						context< CPingAction >().getActionKey()
-						, context< CPingAction >().getNodeIndicator() );
+						, context< CPingAction >().getNodeIdentifier() );
 
 			connectNode->process_event( common::CSwitchToConnectingEvent() );
 
@@ -155,7 +155,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Pong
 						, context< CPingAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CPingAction >().getNodeIndicator() ) );
+						, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
 
 			request->addPayload( common::CPong() );
 
@@ -203,7 +203,7 @@ CPingAction::accept( common::CSetResponseVisitor & _visitor )
 }
 
 uintptr_t
-CPingAction::getNodeIndicator() const
+CPingAction::getNodeIdentifier() const
 {
 	return m_nodeIndicator;
 }

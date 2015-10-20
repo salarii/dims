@@ -95,7 +95,7 @@ struct CCatchUp : boost::statechart::state< CCatchUp, CReputationControlAction >
 							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
 
 			// do  some  sanity??
-			m_allyMonitorData.erase( _messageResult.m_pubKey );
+			m_allyMonitorData.erase( common::CAllyMonitorData(_messageResult.m_pubKey) );
 			BOOST_FOREACH( common::CTrackerData const & trackerData, rankingInfo.m_trackers )
 			{
 				CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, _messageResult.m_pubKey ) );

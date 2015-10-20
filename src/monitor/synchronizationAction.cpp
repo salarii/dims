@@ -85,25 +85,57 @@ struct CSynchronizingAsk : boost::statechart::state< CSynchronizingAsk, CSynchro
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CSynchronizationAction >().forgetRequests();
+		context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 0 ) );
 		context< CSynchronizationAction >().setExit();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		CWallet::getInstance()->resetDatabase();
+		return discard_event();
+	}
 
-		CWallet::getInstance()->AddKeyPubKey(
-					common::CAuthenticationProvider::getInstance()->getMyPrivKey()
-					, common::CAuthenticationProvider::getInstance()->getMyKey());
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
 
-		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Result )
+		{
+			common::CResult result;
 
-		return transit< CGetBitcoinHeader >();
+			common::convertPayload( orginalMessage, result );
+
+			context< CSynchronizationAction >().forgetRequests();
+
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+			if ( result.m_result )
+			{
+				CWallet::getInstance()->resetDatabase();
+
+				CWallet::getInstance()->AddKeyPubKey(
+							common::CAuthenticationProvider::getInstance()->getMyPrivKey()
+							, common::CAuthenticationProvider::getInstance()->getMyKey());
+
+				common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
+
+				return transit< CGetBitcoinHeader >();
+			}
+			context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 0 ) );
+			context< CSynchronizationAction >().setExit();
+		}
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
@@ -160,6 +192,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CSynchronizationAction >().forgetRequests();
+		context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 0 ) );
 		context< CSynchronizationAction >().setExit();
 		return discard_event();
 	}
@@ -295,10 +328,10 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 				common::CSegmentFileStorage::getInstance()->resetState();
 				common::CSegmentFileStorage::getInstance()->retriveState();
 
-				common::CSynchronizationResult synchronizationResult;
-				synchronizationResult.m_result = 1;
+				if ( !CReputationTracker::getInstance()->isRegisteredTracker( _messageResult.m_pubKey.GetID() ) )
+					CReputationTracker::getInstance()->removeNodeFromSynch( _messageResult.m_pubKey.GetID() );
 
-				context< CSynchronizationAction >().setResult( synchronizationResult );
+				context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 1 ) );
 				context< CSynchronizationAction >().setExit();
 			}
 		}
@@ -475,6 +508,27 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 						, context< CSynchronizationAction >().getRequestKey()
 						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
 
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::Result
+					, context< CSynchronizationAction >().getActionKey()
+					, context< CSynchronizationAction >().getRequestKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		CPubKey pubKey;
+		CReputationTracker::getInstance()->getNodeToKey(
+					context< CSynchronizationAction >().getNodeIdentifier()
+					, pubKey );
+
+		bool allowed = CReputationTracker::getInstance()->isSynchronizationAllowed( pubKey.GetID() );
+
+		request->addPayload(
+					common::CResult( allowed ? 1 : 0 ) );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		if ( !allowed )
+			context< CSynchronizationAction >().setExit();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )

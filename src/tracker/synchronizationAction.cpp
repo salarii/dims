@@ -83,24 +83,54 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		CTransactionRecordManager::getInstance()->clearCoinViewDB();
-		CTransactionRecordManager::getInstance()->clearAddressToCoinsDatabase();
-		CTransactionRecordManager::getInstance()->clearSupportTransactionsDatabase();
+		return discard_event();
+	}
 
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+		{
+			common::CMessage orginalMessage;
+			if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+				assert( !"service it somehow" );
 
-		CWallet::getInstance()->resetDatabase();
+			if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Result )
+			{
+				common::CResult result;
 
-		CWallet::getInstance()->AddKeyPubKey(
-					common::CAuthenticationProvider::getInstance()->getMyPrivKey()
-					, common::CAuthenticationProvider::getInstance()->getMyKey());
+				common::convertPayload( orginalMessage, result );
 
-		common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
+				context< CSynchronizationAction >().forgetRequests();
 
-		return transit< CGetBitcoinHeader >();
+				context< CSynchronizationAction >().addRequest(
+							new common::CAckRequest(
+								  context< CSynchronizationAction >().getActionKey()
+								, _messageResult.m_message.m_header.m_id
+								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+				if ( result.m_result )
+				{
+					CTransactionRecordManager::getInstance()->clearCoinViewDB();
+					CTransactionRecordManager::getInstance()->clearAddressToCoinsDatabase();
+					CTransactionRecordManager::getInstance()->clearSupportTransactionsDatabase();
+
+					CWallet::getInstance()->resetDatabase();
+
+					CWallet::getInstance()->AddKeyPubKey(
+								common::CAuthenticationProvider::getInstance()->getMyPrivKey()
+								, common::CAuthenticationProvider::getInstance()->getMyKey());
+
+					common::CSegmentFileStorage::getInstance()->setSynchronizationInProgress();
+
+					return transit< CGetBitcoinHeader >();
+				}
+				context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 0 ) );
+				context< CSynchronizationAction >().setExit();
+			}
+			return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
@@ -157,6 +187,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CSynchronizationAction >().forgetRequests();
+		context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 0 ) );
 		context< CSynchronizationAction >().setExit();
 		return discard_event();
 	}
@@ -333,10 +364,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 				common::CSegmentFileStorage::getInstance()->resetState();
 				common::CSegmentFileStorage::getInstance()->retriveState();
 
-				common::CSynchronizationResult synchronizationResult;
-				synchronizationResult.m_result = 1;
-
-				context< CSynchronizationAction >().setResult( synchronizationResult );
+				context< CSynchronizationAction >().setResult( common::CSynchronizationResult(1) );
 				context< CSynchronizationAction >().setExit();
 			}
 		}

@@ -72,7 +72,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					common::CPayloadKind::Ack
 					, context< CProvideInfoAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
 		request->addPayload( common::CAck() );
 
@@ -93,7 +93,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						common::CPayloadKind::TrackerInfo
 						, context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
 			request->addPayload(
 						common::CTrackerInfo(
@@ -115,7 +115,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					common::CPayloadKind::Balance
 					, context< CProvideInfoAction >().getActionKey()
 					, m_id
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIndicator() ) );
+					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
 
 		request->addPayload( common::CBalance( _availableCoins.m_availableCoins, _availableCoins.m_transactionInputs ) );
 
@@ -226,7 +226,7 @@ CProvideInfoAction::accept( common::CSetResponseVisitor & _visitor )
 }
 
 uintptr_t
-CProvideInfoAction::getNodeIndicator() const
+CProvideInfoAction::getNodeIdentifier() const
 {
 	return m_nodeIndicator;
 }

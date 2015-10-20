@@ -23,7 +23,7 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	uintptr_t getNodeIndicator() const;
+	uintptr_t getNodeIdentifier() const;
 
 	static bool isPinged( uintptr_t _nodeIndicator );
 

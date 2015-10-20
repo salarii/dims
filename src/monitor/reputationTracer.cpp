@@ -113,6 +113,7 @@ CReputationTracker::loop()
 				{
 					toBeRemoved.push_back( tracker.first );
 					CRankingDatabase::getInstance()->eraseTrackerData( tracker.second.m_publicKey );
+					deleteTracker( tracker.second.m_publicKey.GetID() );
 				}
 				else if ( timeLeft < CController::getInstance()->getPeriod() * TriggerExtendRatio )
 				{
@@ -206,13 +207,29 @@ CReputationTracker::getTrackers() const
 std::set< common::CAllyMonitorData >
 CReputationTracker::getAllyMonitors() const
 {
-	return std::set< common::CAllyMonitorData >();
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	std::set< common::CAllyMonitorData > monitors;
+
+	BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitor, m_allyMonitors )
+	{
+		monitors.insert( monitor.second );
+	}
+
+	return monitors;
 }
 
-std::vector< common::CAllyTrackerData >
+std::set< common::CAllyTrackerData >
 CReputationTracker::getAllyTrackers() const
 {
-	return std::vector< common::CAllyTrackerData >();
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	std::set< common::CAllyTrackerData > trackers;
+
+	BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyTrackerData ) const & tracker, m_allyTrackersRankings )
+	{
+		trackers.insert( tracker.second );
+	}
+
+	return trackers;
 }
 
 std::list< common::CMedium *>
@@ -451,11 +468,25 @@ CReputationTracker::isAddmitedMonitor( uint160 const & _pubKeyId )
 	return m_allyMonitors.find( _pubKeyId ) != m_allyMonitors.end();
 }
 
+bool
+CReputationTracker::isRegisteredTracker( uint160 const & _pubKeyId )
+{
+	return m_registeredTrackers.find( _pubKeyId ) != m_registeredTrackers.end();
+}
+
 void
 CReputationTracker::addTracker( common::CTrackerData const & _trackerData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_registeredTrackers.insert( std::make_pair( _trackerData.m_publicKey.GetID(), _trackerData ) );
+}
+
+void
+CReputationTracker::deleteTracker( uint160 const & _pubKeyId )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_registeredTrackers.erase( _pubKeyId );
+	removeNodeFromSynch( _pubKeyId );
 }
 
 void
@@ -491,6 +522,27 @@ CReputationTracker::clearAll()
 	m_extendInProgress.clear();
 
 	CRankingDatabase::getInstance()->resetDb();
+}
+
+bool
+CReputationTracker::isSynchronizationAllowed( uint160 const & _pubKeyId )const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	return m_allowSynchronization.find( _pubKeyId ) != m_allowSynchronization.end();
+}
+
+void
+CReputationTracker::removeNodeFromSynch( uint160 const & _pubKeyId )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_allowSynchronization.erase( _pubKeyId );
+}
+
+void
+CReputationTracker::addNodeToSynch( uint160 const & _pubKeyId )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	m_allowSynchronization.insert( _pubKeyId );
 }
 
 }

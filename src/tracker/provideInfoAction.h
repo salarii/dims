@@ -27,7 +27,7 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	uintptr_t getNodeIndicator()const;
+	uintptr_t getNodeIdentifier()const;
 
 	common::CInfoKind::Enum getInfo() const{ return m_infoKind; }
 

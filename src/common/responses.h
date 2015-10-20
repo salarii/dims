@@ -309,6 +309,7 @@ struct CSystemError
 
 struct CSynchronizationResult : boost::statechart::event< CSynchronizationResult >
 {
+	CSynchronizationResult( unsigned int _result ): m_result( _result ){}
 	unsigned int m_result;
 };
 

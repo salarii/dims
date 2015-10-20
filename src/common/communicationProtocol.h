@@ -151,25 +151,26 @@ struct CRankingFullInfo
 		READWRITE(m_allyTrackers);
 		READWRITE(m_allyMonitors);
 		READWRITE(m_trackers);
+		READWRITE(m_leadingKey);
 	)
 
 	CRankingFullInfo()
 	{}
 
 	CRankingFullInfo(
-			std::vector< CAllyTrackerData > const & _allyTrackers
-			, std::vector< CAllyMonitorData > const & _allyMonitors
-			, std::vector< CTrackerData > const & _trackers
-			, uint256 _leadingKey )
+			std::set< CAllyTrackerData > const & _allyTrackers
+			, std::set< CAllyMonitorData > const & _allyMonitors
+			, std::set< CTrackerData > const & _trackers
+			, uint256 const & _leadingKey )
 		: m_allyTrackers( _allyTrackers )
 		, m_allyMonitors( _allyMonitors )
 		, m_trackers( _trackers )
 		, m_leadingKey(_leadingKey)
 	{}
 
-	std::vector< CAllyTrackerData > m_allyTrackers;
-	std::vector< CAllyMonitorData > m_allyMonitors;
-	std::vector< CTrackerData > m_trackers;
+	std::set< CAllyTrackerData > m_allyTrackers;
+	std::set< CAllyMonitorData > m_allyMonitors;
+	std::set< CTrackerData > m_trackers;
 	uint256 m_leadingKey;
 };
 
