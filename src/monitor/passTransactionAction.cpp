@@ -110,45 +110,6 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Balance )
-		{
-			common::CBalance balance;
-			common::convertPayload( orginalMessage, balance );
-
-			context< CPassTransactionAction >().addRequest(
-						new common::CAckRequest(
-							context< CPassTransactionAction >().getActionKey()
-							, orginalMessage.m_header.m_id
-							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
-
-			std::map< uint256, CCoins >::const_iterator iterator = balance.m_availableCoins.begin();
-
-			CWallet::getInstance()->replaceAvailableCoins( m_self, std::vector< CAvailableCoin >() );
-
-			while( iterator != balance.m_availableCoins.end() )
-			{
-				std::vector< CAvailableCoin > availableCoins
-						= common::getAvailableCoins(
-							iterator->second
-							, m_self
-							, iterator->first );
-
-				CWallet::getInstance()->addAvailableCoins( m_self, availableCoins );
-				iterator++;
-			}
-
-			return transit< CProcessTransaction >();
-		}
-
-		return discard_event();
-	}
-
 	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
 		return discard_event();
@@ -173,7 +134,7 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 			iterator++;
 		}
 
-		return discard_event();
+		return transit< CProcessTransaction >();
 	}
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
@@ -183,8 +144,8 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CAvailableCoinsData >,
 	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 

@@ -38,6 +38,7 @@ struct CFreeRegistrationEnter;
 struct CAssistAdmission;
 struct CAdmissionCondition;
 struct CAskForAddmision;
+struct CFetchRankingTimeAndInfo;
 //milisec
 unsigned int const WaitTime = 10000;
 
@@ -479,7 +480,8 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAct
 
 		context< CEnterNetworkAction >().addRequest( request );
 
-		context< CEnterNetworkAction >().setExit();
+		if ( result.m_result )
+			return transit< CSynchronization >();
 
 		return discard_event();
 	}
@@ -573,7 +575,7 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 	{
 		if ( _synchronizationResult.m_result )
 		{
-	//		return transit< CFetchRankingTimeAndInfo >();
+			return transit< CFetchRankingTimeAndInfo >();
 		}
 
 		return discard_event();
@@ -640,7 +642,7 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 	boost::statechart::custom_reaction< common::CRankingEvent >
 	> reactions;
 };
-
+/*
 struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndInfo, CEnterNetworkAction >
 {
 	CSendRankingTimeAndInfo( my_context ctx ): my_base( ctx )
@@ -650,12 +652,7 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 					common::CPayloadKind::RankingInfo
 					, context< CEnterNetworkAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
-/*
-		common::CRankingInfo rankingInfo(
-					CReputationTracker::getInstance()->getAllyTrackers()
-					,CReputationTracker::getInstance()->getAllyMonitors()
-					,CReputationTracker::getInstance()->getTrackers() );
-*/
+
 //		request->addPayload( rankingInfo );
 
 		context< CEnterNetworkAction >().addRequest( request );
@@ -707,7 +704,7 @@ struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndIn
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 };
-
+*/
 CEnterNetworkAction::CEnterNetworkAction( uintptr_t _nodePtr )
 	: m_nodePtr( _nodePtr )
 {

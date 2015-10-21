@@ -246,6 +246,7 @@ struct CTrackerInfo
 {
 		IMPLEMENT_SERIALIZE
 		(
+			READWRITE( m_key );
 			READWRITE( m_price );
 		)
 
