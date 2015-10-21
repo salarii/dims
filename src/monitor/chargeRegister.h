@@ -11,12 +11,23 @@
 namespace monitor
 {
 
+struct CTransactionCheck
+{
+	CTransactionCheck( CKeyID const & _keyId, unsigned int _price )
+		: m_keyId( _keyId )
+		, m_price( _price )
+	{}
+
+	CKeyID m_keyId;
+	unsigned int m_price;
+};
+
 class CChargeRegister
 {
 public:
 	static CChargeRegister* getInstance();
 
-	void addTransactionToSearch( uint256 const & _hash, CKeyID const & _keyId );
+	void addTransactionToSearch( uint256 const & _hash, CTransactionCheck const & _keyId );
 
 	void removeTransactionfromSearch( uint256 const & _hash );
 
@@ -54,9 +65,7 @@ private:
 private:
 	mutable boost::mutex m_mutex;
 
-//	std::map< uint256, CTransaction > m_foundTransactions;
-
-	std::map< uint256, CKeyID > m_searchTransaction;
+	std::map< uint256, CTransactionCheck > m_searchTransaction;
 
 	std::set< uint256 > m_acceptedTransactons;
 

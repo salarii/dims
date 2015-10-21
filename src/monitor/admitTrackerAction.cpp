@@ -325,7 +325,9 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CChargeRegister::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
+		CChargeRegister::getInstance()->addTransactionToSearch(
+					admitMessage.m_proofTransactionHash
+					, CTransactionCheck( _messageResult.m_pubKey.GetID(), CController::getInstance()->getPrice() ) );
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 

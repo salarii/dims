@@ -24,7 +24,7 @@ CChargeRegister::getInstance()
 }
 
 void
-CChargeRegister::addTransactionToSearch( uint256 const & _hash, CKeyID const & _keyId )
+CChargeRegister::addTransactionToSearch( uint256 const & _hash, CTransactionCheck const & _keyId )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
@@ -46,7 +46,7 @@ CChargeRegister::loop()
 		{
 			boost::lock_guard<boost::mutex> lock( m_mutex );
 
-			std::map< uint256, CKeyID >::const_iterator iterator = m_searchTransaction.begin();
+			std::map< uint256, CTransactionCheck >::const_iterator iterator = m_searchTransaction.begin();
 
 			std::list< uint256 > remove;
 			while( iterator != m_searchTransaction.end() )
@@ -56,7 +56,7 @@ CChargeRegister::loop()
 				{
 					if ( iterator->first == transaction.GetHash() )
 					{
-						if ( common::findKeyInInputs( transaction, iterator->second ) )
+						if ( common::findKeyInInputs( transaction, iterator->second.m_keyId ) )
 						{
 							std::vector < CTxOut > txOuts;
 							std::vector< unsigned int > ids;

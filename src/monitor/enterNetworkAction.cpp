@@ -192,7 +192,9 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CChargeRegister::getInstance()->addTransactionToSearch( admitMessage.m_proofTransactionHash, _messageResult.m_pubKey.GetID() );
+		CChargeRegister::getInstance()->addTransactionToSearch(
+					admitMessage.m_proofTransactionHash
+					, CTransactionCheck( _messageResult.m_pubKey.GetID(), CController::getInstance()->getEnterancePrice() ) );
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
