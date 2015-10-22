@@ -227,7 +227,7 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
-					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
 
 		request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getFirstTransaction().GetHash()) );
 
@@ -252,7 +252,7 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
-						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+						, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
 
 			request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getFirstTransaction().GetHash() ) );
 
@@ -345,7 +345,7 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
-					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
 
 		request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()) );
 
@@ -368,7 +368,7 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
-						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::Trackers, 1 ) );
+						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::TrackersRep, 1 ) );
 
 			request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()) );
 

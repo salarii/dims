@@ -12,7 +12,9 @@ struct ClientMediums
 {
 	enum Enum
 	{
-		Trackers
+		TrackersBalanced
+		, TrackersRep
+		, TrackersPrice
 		, Monitors
 		, Seed
 		, Time

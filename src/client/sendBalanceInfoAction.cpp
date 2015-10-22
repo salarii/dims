@@ -48,7 +48,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CMainRequestType::BalanceInfoReq
-						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+						, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) );
 
 			request->addPayload( CClientBalanceAsk( addresses.at( m_addressIndex++ ) ) );
 
@@ -106,7 +106,7 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CMainRequestType::BalanceInfoReq
-						, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+						, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) );
 
 			request->addPayload( CClientBalanceAsk( m_addresses.at( m_addressIndex++ ) ) );
 

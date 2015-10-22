@@ -22,27 +22,11 @@
 namespace client
 {
 /*
-y = -5.3724+3.3381*log(x);
-y = -5.0505e-03+ 1./( 9.9497e-01 .+   1.9701e-04.*x );
+y = -5.3724+3.3381*log(x); //reputation  normalized  to  100
+y = -5.0505e-03+ 1./( 9.9497e-01 .+   1.9701e-04.*x ); // price  not  normalized
 */
 
 class CNetworkClient;
-
-struct CompareBalancedTracker : public std::binary_function< common::CTrackerStats , common::CTrackerStats ,bool>
-{
-	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
-	{
-		return _tracker1.m_reputation < _tracker2.m_reputation;
-	}
-};
-
-struct CompareReputationTracker : public std::binary_function< common::CTrackerStats ,common::CTrackerStats ,bool>
-{
-	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
-	{
-		return _tracker1.m_reputation < _tracker2.m_reputation;
-	}
-};
 
 class CTrackerLocalRanking : public common::CConnectionProvider
 {
@@ -116,10 +100,7 @@ private:
 	common::CMedium * getNetworkConnection( Stats const & _stats );
 private:
 	static CTrackerLocalRanking * ms_instance;
-	// those  sets should be repeatedly rebuild
-	std::set< common::CTrackerStats, CompareBalancedTracker > m_balancedRanking;
-
-	std::set< common::CTrackerStats, CompareReputationTracker > m_reputationRanking;
+	std::set< common::CTrackerStats > m_trackers;
 
 	std::map< std::string, common::CMedium * > m_createdMediums;
 

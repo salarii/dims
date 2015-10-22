@@ -37,8 +37,7 @@ CTrackerLocalRanking::getInstance( )
 void
 CTrackerLocalRanking::addTracker( common::CTrackerStats const & _trackerStats )
 {
-	m_balancedRanking.insert( _trackerStats ); 
-	m_reputationRanking.insert( _trackerStats );
+	m_trackers.insert( _trackerStats );
 }
 
 void
@@ -124,8 +123,7 @@ void
 CTrackerLocalRanking::resetTrackers()
 {
 	m_undeterminedTrackers.clear();
-	m_reputationRanking.clear();
-	m_balancedRanking.clear();
+	m_trackers.clear();
 }
 
 void
@@ -145,14 +143,48 @@ CTrackerLocalRanking::provideConnection( common::CMediumFilter const & _mediumFi
 	return _mediumFilter.getMediums( this );
 }
 
+struct CompareBalancedTracker
+{
+	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
+	{
+		return calculateBalanced( _tracker1.m_price, _tracker1.m_reputation * m_modifier )
+				< calculateBalanced( _tracker2.m_price, _tracker2.m_reputation * m_modifier );
+	}
+
+	double calculateBalanced( double _price, double _reputation )const
+	{
+		double normalization = -5.3724+3.3381*log( _reputation );
+		double price = -5.0505e-03+ 1/( 9.9497e-01 + ( 1.9701e-04 )* _price );
+		return normalization * price;
+	}
+	static double m_modifier;
+};
+
+double CompareBalancedTracker::m_modifier = 0;
+
+struct CompareReputationTracker
+{
+	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
+	{
+		return _tracker1.m_reputation < _tracker2.m_reputation;
+	}
+};
+
+struct ComparePriceTracker// : public std::binary_function< common::CTrackerStats ,common::CTrackerStats ,bool>
+{
+	bool operator() ( common::CTrackerStats const & _tracker1, common::CTrackerStats const & _tracker2) const
+	{
+		return _tracker1.m_price < _tracker2.m_price;
+	}
+};
+
 std::list< common::CMedium *>
 CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsigned int _mediumNumber )
 {
 	std::list< common::CMedium *> mediums;
 
-	switch ( _requestKind )
+	if ( _requestKind == ClientMediums::Unknown )
 	{
-	case ClientMediums::Unknown:
 		if ( m_unidentifiedNodes.begin() != m_unidentifiedNodes.end() )
 		{
 			BOOST_FOREACH( Unidentified const & stats, m_unidentifiedNodes )
@@ -160,8 +192,9 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 				mediums.push_back( getNetworkConnection( stats.second ) );
 			}
 		}
-		break;
-	case ClientMediums::UndeterminedTrackers:
+	}
+	else if ( _requestKind == ClientMediums::UndeterminedTrackers )
+	{
 		if ( m_undeterminedTrackers.begin() != m_undeterminedTrackers.end() )
 		{
 			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & stats, m_undeterminedTrackers )
@@ -169,8 +202,9 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 				mediums.push_back( getNetworkConnection( stats.second ) );
 			}
 		}
-	break;
-	case ClientMediums::Monitors:
+	}
+	else if ( _requestKind == ClientMediums::Monitors )
+	{
 		if ( m_monitors.begin() != m_monitors.end() )
 		{
 			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & stats, m_monitors )
@@ -178,28 +212,55 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 				mediums.push_back( getNetworkConnection( stats.second ) );
 			}
 		}
-	break;
-	case ClientMediums::Trackers:
-		if ( m_balancedRanking.begin() != m_balancedRanking.end() )
+	}
+	else if ( _requestKind == ClientMediums::TrackersPrice )
+	{
+		std::set< common::CTrackerStats, ComparePriceTracker > priceTrackers;
+		BOOST_FOREACH( common::CTrackerStats const & stats, m_trackers )
 		{
-			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
-			{
-				mediums.push_back( getNetworkConnection( stats) );
-			}
+			priceTrackers.insert( stats );
 		}
-/*		break;
-	case common::RequestKind::TransactionStatus:
-	case common::RequestKind::Balance:
-		if ( m_reputationRanking.begin() != m_reputationRanking.end() )
+
+		BOOST_FOREACH( common::CTrackerStats const & stats, priceTrackers )
 		{
-			BOOST_FOREACH( common::CTrackerStats const & stats, m_balancedRanking )
-			{
-				mediums.push_back( getNetworkConnection( stats ) );
-			}
-		}*/
-		break;
-	default:
-		;
+			mediums.push_back( getNetworkConnection(stats) );
+		}
+
+	}
+	else if ( _requestKind == ClientMediums::TrackersRep )
+	{
+		std::set< common::CTrackerStats, CompareReputationTracker > reputationTrackers;
+		BOOST_FOREACH( common::CTrackerStats const & stats, m_trackers )
+		{
+			reputationTrackers.insert( stats );
+		}
+
+		BOOST_FOREACH( common::CTrackerStats const & stats, reputationTrackers )
+		{
+			mediums.push_back( getNetworkConnection(stats) );
+		}
+
+	}
+	else if ( _requestKind == ClientMediums::TrackersBalanced )
+	{
+		double maxRep = 0;
+		BOOST_FOREACH( common::CTrackerStats const & stats, m_trackers )
+		{
+			if ( maxRep < stats.m_reputation )
+				maxRep = stats.m_reputation;
+		}
+		CompareBalancedTracker::m_modifier = 100 / maxRep;
+
+		std::set< common::CTrackerStats, CompareBalancedTracker > balancedTrackers;
+		BOOST_FOREACH( common::CTrackerStats const & stats, m_trackers )
+		{
+			balancedTrackers.insert( stats );
+		}
+
+		BOOST_FOREACH( common::CTrackerStats const & stats, balancedTrackers )
+		{
+			mediums.push_back( getNetworkConnection(stats) );
+		}
 	}
 	// there will be  not many  mediums  I belive
 	if ( _mediumNumber != (unsigned int)-1 && mediums.size() > _mediumNumber )
@@ -219,7 +280,7 @@ CTrackerLocalRanking::getSpecificTracker( uintptr_t _trackerPtr ) const
 bool
 CTrackerLocalRanking::isValidTrackerKnown( CKeyID const & _trackerId )
 {
-	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_trackers )
 	{
 		if ( trackerStats.m_key.GetID() == _trackerId )
 			return true;
@@ -234,7 +295,7 @@ CTrackerLocalRanking::getTrackerStats( CKeyID const & _trackerId, common::CTrack
 	if ( !isValidTrackerKnown( _trackerId ) )
 		return false;
 
-	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+	BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_trackers )
 	{
 		if ( trackerStats.m_key.GetID() == _trackerId )
 		{
@@ -301,14 +362,14 @@ CTrackerLocalRanking::monitorCount() const
 unsigned int
 CTrackerLocalRanking::determinedTrackersCount() const
 {
-	return m_balancedRanking.size();
+	return m_trackers.size();
 }
 
 std::vector< common::CTrackerStats >
 CTrackerLocalRanking::getTrackers() const
 {
 	std::vector< common::CTrackerStats > trackers;
-	BOOST_FOREACH( common::CTrackerStats const & tackerStat, m_balancedRanking )
+	BOOST_FOREACH( common::CTrackerStats const & tackerStat, m_trackers )
 	{
 		trackers.push_back( tackerStat );
 	}
@@ -338,7 +399,7 @@ CTrackerLocalRanking::determineTracker( unsigned int _amount, common::CTrackerSt
 {
 	unsigned int bestFee = -1;
 
-	BOOST_FOREACH( common::CTrackerStats const & tracker, m_balancedRanking )
+	BOOST_FOREACH( common::CTrackerStats const & tracker, m_trackers )
 	{
 		if ( bestFee > tracker.m_price )
 		{
@@ -373,7 +434,7 @@ CTrackerLocalRanking::getSpecificMedium( CKeyID const & _nodeId, common::CMedium
 	if ( isValidTrackerKnown( _nodeId ) )
 	{
 
-		BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_reputationRanking )
+		BOOST_FOREACH( common::CTrackerStats const & trackerStats, m_trackers )
 		{
 			if ( trackerStats.m_key.GetID() == _nodeId )
 			{

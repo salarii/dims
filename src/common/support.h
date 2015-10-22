@@ -88,7 +88,7 @@ getRandNumber()
 	int const ComponentNumber = 8;
 	uint32_t number[ ComponentNumber ];
 
-	for( unsigned int i = 0; i < ComponentNumber; ++i )
+	for( int i = 0; i < ComponentNumber; ++i )
 	{
 		number[i] = insecure_rand();
 	}

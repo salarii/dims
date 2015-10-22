@@ -267,7 +267,21 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CPassTransactionAction >().setExit();
+		context< CPassTransactionAction >().forgetRequests();
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CPassTransactionAction >().getActionKey()
+					, new CByKeyMediumFilter( ServicingTracker.m_key ) );
+
+		common::CInfoRequestData infoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, std::vector<unsigned char>() );
+
+		common::castTypeToCharVector( &Hash, infoRequestData.m_payload );
+
+		request->addPayload( infoRequestData );
+
+		context< CPassTransactionAction >().addRequest( request );
+
 		return discard_event();
 	}
 
@@ -286,12 +300,17 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 						, orginalMessage.m_header.m_id
 						, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
 
-		// send  and  kill
-		context< CPassTransactionAction >().addRequest(
-		 new common::CTimeEventRequest(
-						1000
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
+		if ( clientTransactionStatus.m_status == common::TransactionsStatus::Validated )
+		{
+			context< CPassTransactionAction >().setExit();
+		}
+		else
+		{
+			context< CPassTransactionAction >().addRequest(
+						new common::CTimeEventRequest(
+							5000
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		}
 
 		return discard_event();
 	}

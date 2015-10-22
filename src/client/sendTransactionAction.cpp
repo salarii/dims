@@ -36,7 +36,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 				new common::CSendMessageRequest(
 					common::CMainRequestType::Transaction
 					, context< CSendTransactionAction >().getTransaction().GetHash()
-					, new CMediumClassFilter( ClientMediums::Trackers, 1 ) );
+					, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) );
 
 		request->addPayload( common::CClientTransactionSend(context< CSendTransactionAction >().getTransaction()) );
 
@@ -75,8 +75,8 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 	{
 		common::CMediumFilter * filter =
 				CTrackerLocalRanking::getInstance()->determinedTrackersCount() > 1 ?
-											(common::CMediumFilter *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), ClientMediums::Trackers, 1 )
-										  : (common::CMediumFilter *)new CMediumClassFilter( ClientMediums::Trackers, 1 );
+											(common::CMediumFilter *)new CMediumClassWithExceptionFilter( context< CSendTransactionAction >().getProcessingTrackerPtr(), ClientMediums::TrackersBalanced, 1 )
+										  : (common::CMediumFilter *)new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 );
 
 		context< CSendTransactionAction >().forgetRequests();
 
@@ -109,7 +109,7 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
-						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::Trackers, 1 ) );
+						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::TrackersRep, 1 ) );
 
 			request->addPayload( common::CClientTransactionStatusAsk(context< CSendTransactionAction >().getTransaction().GetHash()) );
 
