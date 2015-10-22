@@ -279,7 +279,7 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 
 			context< CAdmitTrackerAction >().addRequest( request );
 
-			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getPeriod(), GetTime() ) );
+			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getTryPeriod(), GetTime() ) );
 
 		}
 		return discard_event();

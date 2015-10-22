@@ -22,6 +22,11 @@ class CController : public boost::statechart::state_machine< CController, CMonit
 public:
 	static CController* getInstance();
 
+	uint64_t getTryPeriod() const
+	{
+		return m_tryPeriod;
+	}
+
 	uint64_t getPeriod() const
 	{
 		return m_period;
@@ -84,6 +89,8 @@ private:
 	unsigned int m_price;
 
 	uint64_t m_period;
+
+	uint64_t m_tryPeriod;
 
 	bool m_admitted;
 };

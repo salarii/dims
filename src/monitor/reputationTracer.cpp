@@ -44,7 +44,7 @@ CReputationTracker::CReputationTracker()
 	while( iterator != trackers.end() )
 	{
 		addTracker( iterator->second );
-
+		addNodeToSynch( iterator->second.m_publicKey.GetID() );
 		iterator++;
 	}
 }
