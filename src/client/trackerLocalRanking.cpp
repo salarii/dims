@@ -88,6 +88,12 @@ CTrackerLocalRanking::getUndeterminedTracker( std::string const & _ip, common::C
 	return true;
 }
 
+bool
+CTrackerLocalRanking::isInUndeterminedTracker( CPubKey const & _key )const
+{
+	return m_undeterminedTrackers.find( _key ) != m_undeterminedTrackers.end();
+}
+
 void
 CTrackerLocalRanking::removeUndeterminedTracker( std::string const & _ip )
 {

@@ -20,7 +20,7 @@
 #include "client/control.h"
 #include "client/events.h"
 
-//fix  this
+//fix  this !!!! UGLY
 
 namespace client
 {
@@ -81,7 +81,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		m_undefinedNumber = CTrackerLocalRanking::getInstance()->getUnidentifiedNodeAmount();
 
-		context< CConnectAction >().addRequest( new common::CTimeEventRequest( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
+		context< CConnectAction >().addRequest(
+					new common::CTimeEventRequest( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -104,6 +105,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		common::CClientNetworkInfoResult clientNetworkInfo;
 		common::convertClientPayload( _clientMessage.m_clientMessage, clientNetworkInfo );
 
+		CTrackerLocalRanking::getInstance()->removeUnidentifiedNode( _clientMessage.m_ip );
+
 		common::CNodeInfo nodeStats( clientNetworkInfo.m_selfKey, _clientMessage.m_ip, common::dimsParams().getDefaultClientPort(), common::CRole::Tracker );
 		if ( clientNetworkInfo.m_selfRole == common::CRole::Monitor )
 		{
@@ -119,7 +122,11 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, clientNetworkInfo.m_networkInfo )
 		{
-			m_uniqueNodes.insert( common::CNodeInfo( validNode.m_key, validNode.m_address.ToStringIP(), common::dimsParams().getDefaultClientPort() ) );
+			if ( !CTrackerLocalRanking::getInstance()->CTrackerLocalRanking::isInUndeterminedTracker( validNode.m_key )
+				 && !CTrackerLocalRanking::getInstance()->isValidMonitorKnown( validNode.m_key.GetID() ) )
+			{
+				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( validNode.m_address.ToStringIP(), common::CUnidentifiedNodeInfo( validNode.m_address.ToStringIP(), validNode.m_address.GetPort() ) );
+			}
 		}
 
 		if ( !--m_undefinedNumber )
@@ -130,6 +137,23 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 				return discard_event();
 			}
 
+			m_undefinedNumber = CTrackerLocalRanking::getInstance()->getUnidentifiedNodeAmount();
+			if ( m_undefinedNumber )
+			{
+				context< CConnectAction >().forgetRequests();
+
+				common::CSendMessageRequest * request =
+						new common::CSendMessageRequest(
+							common::CMainRequestType::NetworkInfoReq
+							, new CMediumClassFilter( ClientMediums::Unknown ) );
+
+				context< CConnectAction >().addRequest( request );
+
+				context< CConnectAction >().addRequest(
+							new common::CTimeEventRequest( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
+
+				return discard_event();
+			}
 			bool moniorPresent = false;
 
 			analyseData( moniorPresent );

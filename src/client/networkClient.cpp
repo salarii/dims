@@ -85,7 +85,7 @@ CNetworkClient::write()
 {
 	if (m_pushBuffer.m_usedSize > 0)
 	{
-		m_socket->write( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
+		qint64 written = m_socket->write( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
 
 		if (! m_socket->waitForBytesWritten())
 		{

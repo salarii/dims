@@ -125,8 +125,6 @@ CReputationTracker::loop()
 						common::CActionHandler::getInstance()->executeAction( new CAdmitTrackerAction(nodeIndicator) );
 					}
 				}
-
-				//	tracker.second.m_networkTime += m_recalculateTime;
 			}
 
 			BOOST_FOREACH( uint160 const & id, toBeRemoved )
@@ -135,7 +133,7 @@ CReputationTracker::loop()
 			}
 		}
 
-		MilliSleep( m_recalculateTime );
+		MilliSleep( 100 );
 	}
 }
 
@@ -442,14 +440,12 @@ CReputationTracker::checkForTracker( uint160 const & _pubKeyId, common::CTracker
 void
 CReputationTracker::setExtendInProgress( CPubKey const & _pubKey )
 {
-		boost::lock_guard<boost::mutex> lock( m_lock );
 		m_extendInProgress.insert( _pubKey );
 }
 
 bool
 CReputationTracker::isExtendInProgress( CPubKey const & _pubKey )
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
 	return m_extendInProgress.find(_pubKey) != m_extendInProgress.end();
 }
 
@@ -484,9 +480,8 @@ CReputationTracker::addTracker( common::CTrackerData const & _trackerData )
 void
 CReputationTracker::deleteTracker( uint160 const & _pubKeyId )
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_registeredTrackers.erase( _pubKeyId );
-	removeNodeFromSynch( _pubKeyId );
+	m_allowSynchronization.erase( _pubKeyId );
 }
 
 void

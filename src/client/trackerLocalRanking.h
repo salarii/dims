@@ -51,6 +51,8 @@ public:
 
 	bool getUndeterminedTracker( std::string const & _ip, common::CNodeInfo & _undeterminedTracker );
 
+	bool isInUndeterminedTracker( CPubKey const & _key )const;
+
 	void removeUndeterminedTracker( std::string const & _ip );
 
 	void addMonitor( common::CMonitorInfo const & _monitor );
