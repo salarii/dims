@@ -531,8 +531,8 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 			common::CNetworkInfoResult networkRoleInfo(
 						  common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() )
 						, context< CConnectNodeAction >().getRole()
-						, knownNetworkInfo.m_monitorsInfo
-						, knownNetworkInfo.m_trackersInfo );
+						, knownNetworkInfo.m_trackersInfo
+						, knownNetworkInfo.m_monitorsInfo );
 
 			m_infoReceive = true;
 			context< CConnectNodeAction >().setResult( networkRoleInfo );

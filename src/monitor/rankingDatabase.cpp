@@ -41,6 +41,8 @@ CRankingDatabase::getInstance()
 bool
 CRankingDatabase::writeTrackerData( common::CTrackerData const& _trackerData )
 {
+	eraseTrackerData( _trackerData.m_publicKey );
+
 	bool result = Write( std::make_pair( std::string("tracker"), _trackerData.m_publicKey.GetID() ), _trackerData, false );
 	Flush();
 	return result;

@@ -27,11 +27,13 @@ public:
 
 	void addTracker( common::CTrackerData const & _trackerData );
 
+	bool getTracker( uint160 const & _pubKeyId, common::CTrackerData & _trackerData ) const;
+
+	bool isRegisteredTracker( uint160 const & _pubKeyId );
+
 	void addAllyTracker( common::CAllyTrackerData const & _trackerData );
 
 	void addAllyMonitor( common::CAllyMonitorData const & _monitorData );
-
-	void deleteTracker( uint160 const & _pubKeyId );
 
 	// both function, not final form
 	std::set< common::CTrackerData > getTrackers() const;
@@ -66,8 +68,6 @@ public:
 
 	bool isAddmitedMonitor( uint160 const & _pubKeyId );
 
-	bool isRegisteredTracker( uint160 const & _pubKeyId );
-
 	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 
 	static uint64_t getRecalculateTime(){ return m_recalculateTime; }
@@ -88,6 +88,8 @@ public:
 
 	void addNodeToSynch( uint160 const & _pubKeyId );
 private:
+	void deleteTracker( uint160 const & _pubKeyId );
+
 	CReputationTracker();
 
 	void setExtendInProgress( CPubKey const & _pubKey );

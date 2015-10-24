@@ -375,11 +375,19 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 			{
 				request->addPayload( common::CResult( 1 ) );
 
-							common::CTrackerData trackerData(
+				common::CTrackerData trackerData;
+				if( CReputationTracker::getInstance()->getTracker( m_pubKey.GetID(), trackerData ) )
+				{
+					trackerData.m_networkTime += CController::getInstance()->getPeriod();
+				}
+				else
+				{
+					trackerData = common::CTrackerData(
 								m_pubKey
 								, 0
 								, CController::getInstance()->getPeriod()
 								, GetTime() );
+				}
 
 				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 

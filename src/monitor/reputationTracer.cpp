@@ -474,8 +474,25 @@ void
 CReputationTracker::addTracker( common::CTrackerData const & _trackerData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
+	deleteTracker( _trackerData.m_publicKey.GetID() );
 	m_registeredTrackers.insert( std::make_pair( _trackerData.m_publicKey.GetID(), _trackerData ) );
 }
+
+bool
+CReputationTracker::getTracker( uint160 const & _pubKeyId, common::CTrackerData & _trackerData ) const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	std::map< uint160, common::CTrackerData >::const_iterator iterator =
+			m_registeredTrackers.find( _pubKeyId );
+
+	if ( iterator != m_registeredTrackers.end() )
+	{
+		_trackerData = (*iterator).second;
+	}
+
+	return false;
+}
+
 
 void
 CReputationTracker::deleteTracker( uint160 const & _pubKeyId )
