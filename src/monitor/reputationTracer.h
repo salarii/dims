@@ -88,7 +88,6 @@ public:
 
 	void addNodeToSynch( uint160 const & _pubKeyId );
 private:
-	void deleteTracker( uint160 const & _pubKeyId );
 
 	CReputationTracker();
 

@@ -113,7 +113,8 @@ CReputationTracker::loop()
 				{
 					toBeRemoved.push_back( tracker.first );
 					CRankingDatabase::getInstance()->eraseTrackerData( tracker.second.m_publicKey );
-					deleteTracker( tracker.second.m_publicKey.GetID() );
+					m_registeredTrackers.erase( tracker.second.m_publicKey.GetID() );
+					m_allowSynchronization.erase( tracker.second.m_publicKey.GetID() );
 				}
 				else if ( timeLeft < CController::getInstance()->getPeriod() * TriggerExtendRatio )
 				{
@@ -474,7 +475,7 @@ void
 CReputationTracker::addTracker( common::CTrackerData const & _trackerData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	deleteTracker( _trackerData.m_publicKey.GetID() );
+	m_registeredTrackers.erase( _trackerData.m_publicKey.GetID() );
 	m_registeredTrackers.insert( std::make_pair( _trackerData.m_publicKey.GetID(), _trackerData ) );
 }
 
@@ -492,14 +493,6 @@ CReputationTracker::getTracker( uint160 const & _pubKeyId, common::CTrackerData 
 	}
 
 	return false;
-}
-
-
-void
-CReputationTracker::deleteTracker( uint160 const & _pubKeyId )
-{
-	m_registeredTrackers.erase( _pubKeyId );
-	m_allowSynchronization.erase( _pubKeyId );
 }
 
 void
