@@ -488,6 +488,7 @@ CReputationTracker::getTracker( uint160 const & _pubKeyId, common::CTrackerData 
 	if ( iterator != m_registeredTrackers.end() )
 	{
 		_trackerData = (*iterator).second;
+		return true;
 	}
 
 	return false;
