@@ -145,11 +145,16 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 	CGetBitcoinHeader( my_context ctx ) : my_base( ctx )
 	{
 		context< CSynchronizationAction >().forgetRequests();
-		context< CSynchronizationAction >().addRequest(
-					new common::CInfoAskRequest(
-						common::CInfoKind::BitcoinHeaderAsk
-						, context< CSynchronizationAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CSynchronizationAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+
+		request->addPayload( common::CInfoKind::BitcoinHeaderAsk );
+
+		context< CSynchronizationAction >().addRequest( request );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(

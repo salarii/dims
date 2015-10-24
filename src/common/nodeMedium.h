@@ -35,8 +35,6 @@ public:
 
 	void add( CAckRequest const * _request );
 
-	void add( CInfoAskRequest const * _request );
-
 	void add( CSendMessageRequest const * _request );
 
 	void setResponse( uint256 const & _id, DimsResponse const & _responses );

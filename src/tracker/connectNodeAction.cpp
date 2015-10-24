@@ -149,11 +149,16 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	CDetermineRoleConnecting( my_context ctx ) : my_base( ctx )
 	{
 		context< CConnectNodeAction >().forgetRequests();
-		context< CConnectNodeAction >().addRequest(
-					  new common::CInfoAskRequest(
-						  common::CInfoKind::RoleInfoAsk
-						, context< CConnectNodeAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CConnectNodeAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
+
+		request->addPayload( common::CInfoKind::RoleInfoAsk );
+
+		context< CConnectNodeAction >().addRequest( request );
 
 		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 	}
@@ -347,11 +352,15 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	{
 		context< CConnectNodeAction >().forgetRequests();
 
-		context< CConnectNodeAction >().addRequest(
-					  new common::CInfoAskRequest(
-						  common::CInfoKind::RoleInfoAsk
-						, context< CConnectNodeAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CConnectNodeAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
+
+		request->addPayload( common::CInfoKind::RoleInfoAsk );
+
+		context< CConnectNodeAction >().addRequest( request );
 
 		return discard_event();
 	}
@@ -473,11 +482,16 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					);
 
 		context< CConnectNodeAction >().forgetRequests();
-		context< CConnectNodeAction >().addRequest(
-					  new common::CInfoAskRequest(
-						  common::CInfoKind::NetworkInfoAsk
-						, context< CConnectNodeAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CConnectNodeAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
+
+		request->addPayload( common::CInfoKind::NetworkInfoAsk );
+
+		context< CConnectNodeAction >().addRequest( request );
 
 		context< CConnectNodeAction >().addRequest(
 					new common::CTimeEventRequest(

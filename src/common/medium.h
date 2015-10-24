@@ -16,7 +16,6 @@ class CSendIdentifyDataRequest;
 class CAckRequest;
 class CTimeEventRequest;
 class CScheduleActionRequest;
-class CInfoAskRequest;
 class CConnectToNodeRequest;
 class CAskForTransactionsRequest;
 class CBalanceRequest;
@@ -75,7 +74,6 @@ public:
 	virtual void add( common::CSetBloomFilterRequest const * _request ){};
 	virtual void add( common::CSendIdentifyDataRequest const * _request ){};
 	virtual void add( common::CScheduleActionRequest const * _request ){};
-	virtual void add( common::CInfoAskRequest const * _request ){};
 	virtual void add( common::CBalanceRequest const * _request ){};
 	virtual void add( common::CAskForTransactionsRequest const * _request ){};
 	virtual void add( common::CConnectToNodeRequest const * _request ){};

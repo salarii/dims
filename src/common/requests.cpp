@@ -72,37 +72,6 @@ CConnectToNodeRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-CInfoAskRequest::CInfoAskRequest( common::CInfoKind::Enum _infoKind, uint256 const & _actionKey, CMediumFilter * _mediumFilter )
-	: common::CRequest( _mediumFilter )
-	, m_actionKey( _actionKey )
-	, m_infoKind( _infoKind )
-{
-}
-
-void
-CInfoAskRequest::accept( CMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-uint256
-CInfoAskRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-common::CInfoKind::Enum
-CInfoAskRequest::getInfoKind() const
-{
-	return m_infoKind;
-}
-
-std::vector<unsigned char>
-CInfoAskRequest::getPayload() const
-{
-	return m_payLoad;
-}
-
 CAckRequest::CAckRequest( uint256 const & _actionKey, uint256 const & _id, CMediumFilter * _mediumFilter )
 	: common::CRequest( _id, _mediumFilter )
 	, m_actionKey( _actionKey )

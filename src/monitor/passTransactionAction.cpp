@@ -182,6 +182,7 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 							, CTransaction() ) );
 
 			context< CPassTransactionAction >().setExit();
+			return;
 		}
 
 		common::CSendMessageRequest * request =

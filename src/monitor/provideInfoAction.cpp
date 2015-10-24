@@ -199,10 +199,20 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
 	CAskForInfo( my_context ctx ) : my_base( ctx )
 	{
-		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest(
-														  context< CProvideInfoAction >().getInfo()
-														, context< CProvideInfoAction >().getActionKey()
-														, TargetMediumFilter ) );
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CProvideInfoAction >().getActionKey()
+					, TargetMediumFilter );
+
+		if ( context< CProvideInfoAction >().getInfo() == (int)common::CPayloadKind::Balance )
+		{
+			request->addPayload( context< CProvideInfoAction >().getInfo(), common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
+		}
+		else
+			request->addPayload( context< CProvideInfoAction >().getInfo() );
+
+		context< CProvideInfoAction >().addRequest( request );
 
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -246,14 +256,14 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 			context< CProvideInfoAction >().setResult( result );
 		}
-		if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::Balance )
+		else if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::Balance )
 		{
 			common::CBalance balance;
 			common::convertPayload( orginalMessage, balance );
 
 			context< CProvideInfoAction >().setResult( common::CAvailableCoinsData( balance.m_availableCoins, balance.m_transactionInputs, uint256() ) );//available  coins  is  not  nice  here
 		}
-		if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::TrackerInfo )
+		else if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::TrackerInfo )
 		{
 			common::CTrackerInfo trackerInfo;
 

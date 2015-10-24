@@ -15,6 +15,8 @@ extern CWallet* pwalletMain;
 namespace monitor
 {
 
+void StartShutdown();
+
 bool AppInit(boost::thread_group& threadGroup);
 void Shutdown();
 }

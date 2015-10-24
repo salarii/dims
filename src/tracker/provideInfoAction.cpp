@@ -146,10 +146,15 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
 	CAskForInfo( my_context ctx ) : my_base( ctx )
 	{
-		context< CProvideInfoAction >().addRequest( new common::CInfoAskRequest(
-														  context< CProvideInfoAction >().getInfo()
-														, context< CProvideInfoAction >().getActionKey()
-														, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CProvideInfoAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) );
+
+		request->addPayload( context< CProvideInfoAction >().getInfo() );
+
+		context< CProvideInfoAction >().addRequest( request );
 
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest(

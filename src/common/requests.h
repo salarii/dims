@@ -67,32 +67,6 @@ private:
 	CAddress const m_serviceAddress;
 };
 
-class CInfoAskRequest : public common::CRequest
-{
-public:
-	CInfoAskRequest( common::CInfoKind::Enum _infoKind, uint256 const & _actionKey, CMediumFilter * _mediumFilter );
-
-	virtual void accept( CMedium * _medium ) const;
-
-	uint256 getActionKey() const;
-
-	common::CInfoKind::Enum getInfoKind() const;
-
-	std::vector<unsigned char> getPayload() const;
-
-	template < class T >
-	void setPayload( T const & _payload )
-	{
-		common::castTypeToCharVector( &_payload, m_payLoad );
-	}
-private:
-	uint256 const m_actionKey;
-
-	common::CInfoKind::Enum m_infoKind;
-
-	std::vector<unsigned char> m_payLoad;
-};
-
 class CAckRequest : public common::CRequest
 {
 public:

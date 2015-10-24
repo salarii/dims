@@ -736,7 +736,7 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	StartNode(threadGroup);
 
-//	StopHook.connect( &StartShutdown );
+	StopHook.connect( &StartShutdown );
 	monitor::registerHooks();
 
 	monitor::runServer();

@@ -191,18 +191,6 @@ CNodeMedium::deleteRequest( CRequest const* _request )
 }
 
 void
-CNodeMedium::add( CInfoAskRequest const * _request )
-{
-	CInfoRequestData infoReqData( ( int ) _request->getInfoKind(), _request->getPayload() );
-
-	common::CMessage message( infoReqData, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest const*)_request );
-}
-
-void
 CNodeMedium::add( CSendMessageRequest const * _request )
 {
 	common::CMessage message(

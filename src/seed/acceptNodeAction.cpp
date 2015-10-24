@@ -191,12 +191,15 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	{
 		LogPrintf("accept node action: %p determine role connecting \n", &context< CAcceptNodeAction >() );
 
-		context< CAcceptNodeAction >().addRequest(
-					  new common::CInfoAskRequest(
-						  common::CInfoKind::RoleInfoAsk
-						, context< CAcceptNodeAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CAcceptNodeAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
 
+		request->addPayload( common::CInfoKind::RoleInfoAsk );
+
+		context< CAcceptNodeAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -412,11 +415,15 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	{
 		context< CAcceptNodeAction >().forgetRequests();
 
-		context< CAcceptNodeAction >().addRequest(
-					  new common::CInfoAskRequest(
-						  common::CInfoKind::RoleInfoAsk
-						, context< CAcceptNodeAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CAcceptNodeAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
+
+		request->addPayload( common::CInfoKind::RoleInfoAsk );
+
+		context< CAcceptNodeAction >().addRequest( request );
 
 		return discard_event();
 	}
@@ -450,11 +457,15 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 
 		context< CAcceptNodeAction >().forgetRequests();
 
-		context< CAcceptNodeAction >().addRequest(
-					  new common::CInfoAskRequest(
-						  common::CInfoKind::NetworkInfoAsk
-						, context< CAcceptNodeAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CAcceptNodeAction >().getActionKey()
+					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
+
+		request->addPayload( common::CInfoKind::NetworkInfoAsk );
+
+		context< CAcceptNodeAction >().addRequest( request );
 
 		context< CAcceptNodeAction >().addRequest( new common::CTimeEventRequest( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
