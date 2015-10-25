@@ -171,7 +171,7 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 					, context< CConnectNodeAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
 
-		request->addPayload( common::CInfoKind::RoleInfoAsk );
+		request->addPayload( common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() );
 
 		context< CConnectNodeAction >().addRequest( request );
 
@@ -373,7 +373,7 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 					, context< CConnectNodeAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
 
-		request->addPayload( common::CInfoKind::RoleInfoAsk );
+		request->addPayload( common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() );
 
 		context< CConnectNodeAction >().addRequest( request );
 
@@ -506,7 +506,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					, context< CConnectNodeAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
 
-		request->addPayload( common::CInfoKind::NetworkInfoAsk );
+		request->addPayload( common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() );
 
 		context< CConnectNodeAction >().addRequest( request );
 

@@ -197,7 +197,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 					, context< CAcceptNodeAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
 
-		request->addPayload( common::CInfoKind::RoleInfoAsk );
+		request->addPayload( common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() );
 
 		context< CAcceptNodeAction >().addRequest( request );
 	}
@@ -421,7 +421,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 					, context< CAcceptNodeAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
 
-		request->addPayload( common::CInfoKind::RoleInfoAsk );
+		request->addPayload( common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() );
 
 		context< CAcceptNodeAction >().addRequest( request );
 
@@ -463,7 +463,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 					, context< CAcceptNodeAction >().getActionKey()
 					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
 
-		request->addPayload( common::CInfoKind::NetworkInfoAsk );
+		request->addPayload( common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() );
 
 		context< CAcceptNodeAction >().addRequest( request );
 
