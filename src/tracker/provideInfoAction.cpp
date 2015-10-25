@@ -152,7 +152,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					, context< CProvideInfoAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) );
 
-		request->addPayload( context< CProvideInfoAction >().getInfo() );
+		request->addPayload( context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );
 
 		context< CProvideInfoAction >().addRequest( request );
 

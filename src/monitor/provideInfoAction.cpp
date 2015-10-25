@@ -210,7 +210,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 			request->addPayload( context< CProvideInfoAction >().getInfo(), common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
 		}
 		else
-			request->addPayload( context< CProvideInfoAction >().getInfo() );
+			request->addPayload( context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );
 
 		context< CProvideInfoAction >().addRequest( request );
 
