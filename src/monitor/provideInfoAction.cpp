@@ -205,9 +205,9 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					, context< CProvideInfoAction >().getActionKey()
 					, TargetMediumFilter );
 
-		if ( context< CProvideInfoAction >().getInfo() == (int)common::CPayloadKind::Balance )
+		if ( context< CProvideInfoAction >().getInfo() == (int)common::CInfoKind::BalanceAsk )
 		{
-			request->addPayload( context< CProvideInfoAction >().getInfo(), common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
+			request->addPayload( common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), common::CAuthenticationProvider::getInstance()->getMyKey().GetID() ) );
 		}
 		else
 			request->addPayload( context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );

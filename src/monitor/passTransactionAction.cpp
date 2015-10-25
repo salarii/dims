@@ -257,11 +257,7 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 					, context< CPassTransactionAction >().getActionKey()
 					, new CByKeyMediumFilter( ServicingTracker.m_key ) );
 
-		common::CInfoRequestData infoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, std::vector<unsigned char>() );
-
-		common::castTypeToCharVector( &Hash, infoRequestData.m_payload );
-
-		request->addPayload( infoRequestData );
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash ) );
 
 		context< CPassTransactionAction >().addRequest( request );
 	}
@@ -275,11 +271,7 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 					, context< CPassTransactionAction >().getActionKey()
 					, new CByKeyMediumFilter( ServicingTracker.m_key ) );
 
-		common::CInfoRequestData infoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, std::vector<unsigned char>() );
-
-		common::castTypeToCharVector( &Hash, infoRequestData.m_payload );
-
-		request->addPayload( infoRequestData );
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash ) );
 
 		context< CPassTransactionAction >().addRequest( request );
 

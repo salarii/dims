@@ -185,7 +185,7 @@ public:
 		CBufferAsStream stream( (char*)&m_payload[ initiaSize ], size, SER_NETWORK, PROTOCOL_VERSION );
 		stream << _t;
 	}
-
+// look at usages of  those especially in  "ask request", and  fix  it
 	template < class T1, class T2 >
 	void addPayload( T1 const & _t1, T2 const & _t2 )
 	{

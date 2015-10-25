@@ -81,7 +81,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::BalanceAsk )
 		{
 			CKeyID keyId;
-			common::castCharVectorToType( requestedInfo.m_payload, &keyId );
+			common::readPayload( requestedInfo.m_payload, keyId );
 
 			context< CProvideInfoAction >().addRequest(
 						new CGetBalanceRequest( keyId ) );

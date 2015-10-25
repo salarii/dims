@@ -14,6 +14,7 @@
 
 #include "common/struct.h"
 #include "common/segmentFileStorage.h"
+#include "common/support.h"
 
 namespace common
 {
@@ -384,7 +385,13 @@ struct CInfoRequestData
 	)
 	CInfoRequestData(){};
 
-	CInfoRequestData( int _kind, std::vector<unsigned char> const & _payload ): m_kind( _kind ), m_payload( _payload ){};
+	CInfoRequestData( int _kind, std::vector<unsigned char> const & _payload = std::vector<unsigned char>() ): m_kind( _kind ), m_payload( _payload ){};
+
+	template < class T >
+	CInfoRequestData( int _kind, T const & _payload ): m_kind( _kind )
+	{
+		createPayload( _payload, m_payload );
+	};
 
 	int m_kind;
 
