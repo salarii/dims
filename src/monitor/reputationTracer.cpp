@@ -256,7 +256,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
 			{
 				// in case  of  fail  do  something ??
-					if ( getKeyToNode( validNode.m_key.GetID(), nodeIndicator) )
+					if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
 					{
 						common::CMedium * medium = findNodeMedium( nodeIndicator );
 						if ( medium )
@@ -268,7 +268,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
 			{
-				if ( getKeyToNode( validNode.m_key.GetID(), nodeIndicator) )
+				if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
 				{
 					common::CMedium * medium = findNodeMedium( nodeIndicator );
 					if ( medium )
@@ -549,6 +549,53 @@ CReputationTracker::addNodeToSynch( uint160 const & _pubKeyId )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_allowSynchronization.insert( _pubKeyId );
+}
+
+void
+CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRankingFullInfo const & _rankingFullInfo )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	// sanity, TODO: later react if wrong
+
+	if ( m_allyMonitors.find( _pubKey.GetID() ) == m_allyMonitors.end() )
+		return;
+
+	BOOST_FOREACH( common::CAllyTrackerData const & allyTrackerData, _rankingFullInfo.m_allyTrackers )
+	{
+		if (
+					m_registeredTrackers.find( allyTrackerData.m_publicKey.GetID() ) == m_registeredTrackers.end()
+				&& m_allyTrackersRankings.find( allyTrackerData.m_publicKey.GetID() ) == m_allyTrackersRankings.end()
+					)
+		{
+			assert( !"react  to  this" );
+		}
+	}
+
+	BOOST_FOREACH( common::CAllyMonitorData const & allyMonitorData, _rankingFullInfo.m_allyMonitors )
+	{
+		if ( m_knownMonitors.find( common::CValidNodeInfo( allyMonitorData.m_publicKey, allyMonitorData.m_address ) ) == m_knownMonitors.end() )
+			;//create  connect  action ??
+
+		if ( m_allyMonitors.find( allyMonitorData.m_publicKey.GetID() ) == m_allyMonitors.end() )
+		{
+			m_allyMonitors.insert( std::make_pair( allyMonitorData.m_publicKey.GetID(), allyMonitorData ) );
+		}
+	}
+
+	//add new tracker data, if any
+
+	BOOST_FOREACH( common::CTrackerData const & trackerData, _rankingFullInfo.m_trackers )
+	{
+		if ( m_allyTrackersRankings.find( trackerData.m_publicKey.GetID() ) == m_allyTrackersRankings.end() )
+		{
+			if ( m_knownTrackers.find( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) ) == m_knownTrackers.end() )
+				;//create  connect  action ??
+
+			m_allyTrackersRankings.insert( make_pair( trackerData.m_publicKey.GetID(), common::CAllyTrackerData( trackerData, _pubKey ) ) );
+			m_trackerToMonitor.insert( std::make_pair( trackerData.m_publicKey.GetID(), _pubKey.GetID() ) );
+		}
+	}
+
 }
 
 }

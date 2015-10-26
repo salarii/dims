@@ -34,6 +34,7 @@ CTrackerNodesManager::CTrackerNodesManager()
 std::set< common::CValidNodeInfo > const
 CTrackerNodesManager::getNodesInfo( common::CRole::Enum _role ) const
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
 	switch( _role )
 	{
 	case common::CRole::Seed:
@@ -53,6 +54,8 @@ CTrackerNodesManager::getNodesInfo( common::CRole::Enum _role ) const
 void
 CTrackerNodesManager::setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role )
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
 	switch( _role )
 	{
 	case common::CRole::Seed:
@@ -85,7 +88,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_trackers )
 			{
 
-				if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+				if (!getKeyToNode( validNode.m_publicKey, nodeIndicator ) )
 					assert(!"something went wrong");
 
 				common::CMedium * medium = findNodeMedium( nodeIndicator );
@@ -100,7 +103,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_monitors )
 			{
 
-				if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+				if (!getKeyToNode( validNode.m_publicKey, nodeIndicator ) )
 					assert(!"something went wrong");
 
 				common::CMedium * medium = findNodeMedium( nodeIndicator );
@@ -116,7 +119,7 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_seeds )
 		{
 
-			if (!getKeyToNode( validNode.m_key, nodeIndicator ) )
+			if (!getKeyToNode( validNode.m_publicKey, nodeIndicator ) )
 				assert(!"something went wrong");
 
 			common::CMedium * medium = findNodeMedium( nodeIndicator );
@@ -133,12 +136,15 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 void
 CTrackerNodesManager::setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator)
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey.GetID(), _nodeIndicator ) );
 }
 
 bool
 CTrackerNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator) const
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
 	std::map< CKeyID, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _pubKey.GetID() );
 
 	if ( iterator != m_pubKeyToNodeIndicator.end() )
@@ -150,6 +156,8 @@ CTrackerNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIn
 bool
 CTrackerNodesManager::getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndicator) const
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
 	std::map< CKeyID, uintptr_t >::const_iterator iterator = m_pubKeyToNodeIndicator.find( _keyId );
 
 	if ( iterator != m_pubKeyToNodeIndicator.end() )
@@ -161,6 +169,8 @@ CTrackerNodesManager::getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndi
 void
 CTrackerNodesManager::eraseMedium( uintptr_t _nodePtr )
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
 	CAddress address;
 
 	getAddress( _nodePtr, address );
@@ -178,6 +188,78 @@ CTrackerNodesManager::eraseMedium( uintptr_t _nodePtr )
 	m_monitors.erase( common::CValidNodeInfo( pubKey, address ) );
 
 	m_seeds.erase( common::CValidNodeInfo( pubKey, address ) );
+}
+
+bool
+CTrackerNodesManager::isInNetwork( uint160 const & _keyId )const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	return
+			m_networkTrackers.find( _keyId ) != m_networkTrackers.end()
+			|| m_networkMonitors.find( _keyId ) != m_networkMonitors.end();
+}
+
+bool
+CTrackerNodesManager::setNetworkTracker( common::CValidNodeInfo const & _nodeInfo )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_networkTrackers.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
+}
+
+bool
+CTrackerNodesManager::setNetworkMonitor( common::CValidNodeInfo const & _nodeInfo )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_networkMonitors.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
+}
+
+void
+CTrackerNodesManager::eraseNetworkTracker( uint160 const & _keyId )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_networkTrackers.erase( _keyId );
+}
+
+void
+CTrackerNodesManager::eraseNetworkMonitor( uint160 const & _keyId )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_networkMonitors.erase( _keyId );
+}
+
+std::set< common::CValidNodeInfo >
+CTrackerNodesManager::getNetworkTrackers()const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	std::set< common::CValidNodeInfo > trackers;
+
+	BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & nodeInfo, m_networkTrackers )
+	{
+		trackers.insert( nodeInfo.second );
+	}
+
+	return trackers;
+}
+
+std::set< common::CValidNodeInfo >
+CTrackerNodesManager::getNetworkMonitors()const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	std::set< common::CValidNodeInfo > monitors;
+
+	BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & nodeInfo, m_networkTrackers )
+	{
+		monitors.insert( nodeInfo.second );
+	}
+
+	return monitors;
 }
 
 }

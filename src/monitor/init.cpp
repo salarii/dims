@@ -49,6 +49,7 @@
 #include "common/timeMedium.h"
 #include "common/commandLine.h"
 #include "common/originAddressScanner.h"
+#include "common/authenticationProvider.h"
 
 #include "monitor/processNetwork.h"
 #include "monitor/controller.h"
@@ -696,6 +697,9 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	CController::getInstance();
 
+	CWallet::getInstance()->AddKeyPubKey(
+				common::CAuthenticationProvider::getInstance()->getMyPrivKey()
+				, common::CAuthenticationProvider::getInstance()->getMyKey());
 
 	nStart = GetTimeMillis();
 

@@ -36,7 +36,7 @@ MONITOR_H = \
 	synchronizationAction.h \
 	trackOriginAddressAction.h \
 	transactionRecordManager.h \
-	updateDataAction.h
+	updateNetworkDataAction.h
 
 MONITOR_CPP = \
 	admitTrackerAction.cpp \
@@ -68,7 +68,7 @@ MONITOR_CPP = \
 	synchronizationAction.cpp \
 	trackOriginAddressAction.cpp \
 	transactionRecordManager.cpp \
-	updateDataAction.cpp
+	updateNetworkDataAction.cpp
 
 libmonitor_a_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES) 
 libmonitor_a_SOURCES = $(MONITOR_H) $(MONITOR_CPP)

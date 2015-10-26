@@ -19,7 +19,7 @@
 
 #include "monitor/filters.h"
 #include "monitor/connectNodeAction.h"
-#include "monitor/updateDataAction.h"
+#include "monitor/updateNetworkDataAction.h"
 #include "monitor/recognizeNetworkAction.h"
 #include "monitor/trackOriginAddressAction.h"
 #include "monitor/controller.h"
@@ -148,7 +148,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CContr
 		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_trackersInfo )
 		{
 			CNodeAddress tracker;
-			tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
+			tracker.Set( nodeInfo.m_publicKey.GetID(), common::NodePrefix::Tracker );
 			status += "key " + tracker.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
 		}
 
@@ -156,7 +156,7 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CContr
 		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
 		{
 			CNodeAddress monitor;
-			monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
+			monitor.Set( nodeInfo.m_publicKey.GetID(), common::NodePrefix::Monitor );
 			status += "key " + monitor.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
 		}
 

@@ -48,82 +48,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
-		if (
-					  message.m_header.m_payloadKind == common::CPayloadKind::ConnectCondition
-				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Balance
-				|| message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration
-				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBitcoinHeader
-				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationHeader
-				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationBlock
-				|| message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration
-				|| message.m_header.m_payloadKind == common::CPayloadKind::ClientTransaction
-				|| message.m_header.m_payloadKind == common::CPayloadKind::ClientStatusTransaction
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
-				|| message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions
-				|| message.m_header.m_payloadKind == common::CPayloadKind::TrackerInfo
-				)
-		{
-			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-			{
-				assert( !"for now assert this" );
-				return true;
-			}
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-				else
-					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-			}
-			else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-			{
-				CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
-							  message.m_header.m_actionKey
-							, convertToInt( nodeMedium->getNode() )
-							);
-
-				provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-
-				common::CActionHandler::getInstance()->executeAction( provideInfoAction );
-			}
-			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration )
-			{
-				CRegisterAction * registerAction
-						= new CRegisterAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
-
-				registerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-
-				common::CActionHandler::getInstance()->executeAction( registerAction );
-
-			}
-			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ClientTransaction )
-			{
-				CPassTransactionAction * passTransactionAction
-						= new CPassTransactionAction( message.m_header.m_actionKey );
-
-				passTransactionAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-
-				common::CActionHandler::getInstance()->executeAction( passTransactionAction );
-			}
-			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
-			{
-				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
-
-				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
-
-				common::CActionHandler::getInstance()->executeAction( validateTransactionsAction );
-			}
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
+		if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
 		{
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
@@ -193,7 +118,63 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				}
 			}
 		}
-		//NetworkInfo
+		else
+		{
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{
+				assert( !"for now assert this" );
+				return true;
+			}
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+				else
+					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+			{
+				CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
+							  message.m_header.m_actionKey
+							, convertToInt( nodeMedium->getNode() )
+							);
+
+				provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( provideInfoAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration )
+			{
+				CRegisterAction * registerAction
+						= new CRegisterAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
+
+				registerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( registerAction );
+
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ClientTransaction )
+			{
+				CPassTransactionAction * passTransactionAction
+						= new CPassTransactionAction( message.m_header.m_actionKey );
+
+				passTransactionAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( passTransactionAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+			{
+				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
+
+				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( validateTransactionsAction );
+			}
+		}
 	}
 	return true;
 }

@@ -44,16 +44,36 @@ public:
 	{
 		return m_trackers.size();
 	}
+
+	bool isInNetwork( uint160 const & _keyId )const;
+
+	bool setNetworkTracker( common::CValidNodeInfo const & _nodeInfo );
+
+	bool setNetworkMonitor( common::CValidNodeInfo const & _nodeInfo );
+
+	void eraseNetworkTracker( uint160 const & _keyId );
+
+	void eraseNetworkMonitor( uint160 const & _keyId );
+
+	std::set< common::CValidNodeInfo > getNetworkTrackers()const;
+
+	std::set< common::CValidNodeInfo > getNetworkMonitors()const;
 private:
 	CTrackerNodesManager();
 private:
-	std::map< CKeyID, uintptr_t > m_pubKeyToNodeIndicator;
+	mutable boost::mutex m_lock;
 
+	std::map< CKeyID, uintptr_t > m_pubKeyToNodeIndicator;
+// not  ok
 	std::set< common::CValidNodeInfo > m_trackers;
 
 	std::set< common::CValidNodeInfo > m_monitors;
 
 	std::set< common::CValidNodeInfo > m_seeds;
+
+	std::map< uint160, common::CValidNodeInfo > m_networkTrackers;
+
+	std::map< uint160, common::CValidNodeInfo > m_networkMonitors;
 };
 
 }

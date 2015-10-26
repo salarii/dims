@@ -198,7 +198,13 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 		common::convertPayload( orginalMessage, admitMessage );
 
-		CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getPeriod(), GetTime() ) );
+		CAddress address;
+
+		if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, address ) )
+			assert( !"problem" );
+
+		CReputationTracker::getInstance()->addTracker(
+					common::CTrackerData( _messageResult.m_pubKey, address, 0, CController::getInstance()->getPeriod(), GetTime() ) );
 
 		context< CAdmitTrackerAction >().addRequest(
 					new common::CAckRequest(
@@ -279,7 +285,12 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 
 			context< CAdmitTrackerAction >().addRequest( request );
 
-			CReputationTracker::getInstance()->addTracker( common::CTrackerData( _messageResult.m_pubKey, 0, CController::getInstance()->getTryPeriod(), GetTime() ) );
+			CAddress address;
+			if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, address ) )
+				assert( !"problem" );
+
+			CReputationTracker::getInstance()->addTracker(
+						common::CTrackerData( _messageResult.m_pubKey, address, 0, CController::getInstance()->getTryPeriod(), GetTime() ) );
 
 		}
 		return discard_event();
@@ -352,6 +363,9 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		m_pubKey = _messageResult.m_pubKey;
 
+		if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, m_address ) )
+			assert( !"problem" );
+
 		return discard_event();
 	}
 
@@ -382,8 +396,10 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 				}
 				else
 				{
+
 					trackerData = common::CTrackerData(
 								m_pubKey
+								, m_address
 								, 0
 								, CController::getInstance()->getPeriod()
 								, GetTime() );
@@ -440,6 +456,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	int64_t const m_checkPeriod;
 
 	CPubKey m_pubKey;
+
+	CAddress m_address;
 };
 
 CAdmitTrackerAction::CAdmitTrackerAction( uintptr_t _nodePtr )

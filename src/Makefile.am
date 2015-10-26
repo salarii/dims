@@ -120,6 +120,7 @@ TRACKER_CORE_H = \
   tracker/trackerNodesManager.h \
   tracker/transactionRecordManager.h \
   tracker/trackOriginAddressAction.h \
+  tracker/updateNetworkDataAction.h \
   tracker/validateTransactionsAction.h \
   tracker/validateTransactionActionEvents.h
   
@@ -215,6 +216,7 @@ TRACKER_CORE_CPP = \
   tracker/trackerNodesManager.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/trackOriginAddressAction.cpp \
+  tracker/updateNetworkDataAction.cpp \
   tracker/validateTransactionsAction.cpp
 
   

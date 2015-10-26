@@ -122,8 +122,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, clientNetworkInfo.m_networkInfo )
 		{
-			if ( !CTrackerLocalRanking::getInstance()->CTrackerLocalRanking::isInUndeterminedTracker( validNode.m_key )
-				 && !CTrackerLocalRanking::getInstance()->isValidMonitorKnown( validNode.m_key.GetID() ) )
+			if ( !CTrackerLocalRanking::getInstance()->CTrackerLocalRanking::isInUndeterminedTracker( validNode.m_publicKey )
+				 && !CTrackerLocalRanking::getInstance()->isValidMonitorKnown( validNode.m_publicKey.GetID() ) )
 			{
 				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( validNode.m_address.ToStringIP(), common::CUnidentifiedNodeInfo( validNode.m_address.ToStringIP(), validNode.m_address.GetPort() ) );
 			}

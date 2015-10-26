@@ -87,6 +87,8 @@ public:
 	void removeNodeFromSynch( uint160 const & _pubKeyId );
 
 	void addNodeToSynch( uint160 const & _pubKeyId );
+
+	void updateRankingInfo( CPubKey const & _pubKey, common::CRankingFullInfo const & _rankingFullInfo );
 private:
 
 	CReputationTracker();

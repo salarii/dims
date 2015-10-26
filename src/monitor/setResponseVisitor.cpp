@@ -7,7 +7,7 @@
 #include "common/events.h"
 
 #include "monitor/connectNodeAction.h"
-#include "monitor/updateDataAction.h"
+#include "monitor/updateNetworkDataAction.h"
 #include "monitor/admitTrackerAction.h"
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/pingAction.h"
@@ -18,6 +18,7 @@
 #include "monitor/enterNetworkAction.h"
 #include "monitor/passTransactionAction.h"
 #include "monitor/reputationControlAction.h"
+#include "monitor/updateNetworkDataAction.h"
 
 namespace common
 {
@@ -26,12 +27,6 @@ void
 CSetResponseVisitor::visit( monitor::CConnectNodeAction & _action )
 {
 	boost::apply_visitor( CSetResult<monitor::CConnectNodeAction>( &_action ), m_responses );
-}
-
-void
-CSetResponseVisitor::visit( monitor::CUpdateDataAction & _action )
-{
-	boost::apply_visitor( CSetResult<monitor::CUpdateDataAction>( &_action ), m_responses );
 }
 
 void
@@ -96,6 +91,12 @@ void
 CSetResponseVisitor::visit( monitor::CReputationControlAction & _action )
 {
 	boost::apply_visitor( CSetResult<monitor::CReputationControlAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CUpdateNetworkDataAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CUpdateNetworkDataAction>( &_action ), m_responses );
 }
 
 }

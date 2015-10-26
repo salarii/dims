@@ -122,7 +122,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_trackersInfo )
 			{
 				CNodeAddress tracker;
-				tracker.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Tracker );
+				tracker.Set( nodeInfo.m_publicKey.GetID(), common::NodePrefix::Tracker );
 				status += "key " + tracker.ToString() + " ip " + nodeInfo.m_address.ToString() + "\n";
 			}
 		}
@@ -137,7 +137,7 @@ struct CStandAlone : boost::statechart::state< CStandAlone, CController >
 			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _event.m_monitorsInfo )
 			{
 				CNodeAddress monitor;
-				monitor.Set( nodeInfo.m_key.GetID(), common::NodePrefix::Monitor );
+				monitor.Set( nodeInfo.m_publicKey.GetID(), common::NodePrefix::Monitor );
 
 				status += "key: " + monitor.ToString() + " ip: " + nodeInfo.m_address.ToString() + "\n";
 			}

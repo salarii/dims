@@ -53,8 +53,6 @@ namespace monitor
 {
 class CConnectNodeAction;
 
-class CUpdateDataAction;
-
 class CAdmitTrackerAction;
 
 class CAdmitTransactionBundle;
@@ -76,6 +74,8 @@ class CEnterNetworkAction;
 class CPassTransactionAction;
 
 class CReputationControlAction;
+
+class CUpdateNetworkDataAction;
 }
 
 namespace seed
@@ -135,8 +135,6 @@ public:
 
 	void visit( monitor::CConnectNodeAction & _action );
 
-	void visit( monitor::CUpdateDataAction & _action );
-
 	void visit( monitor::CAdmitTrackerAction & _action );
 
 	void visit( monitor::CAdmitTransactionBundle & _action );
@@ -158,6 +156,8 @@ public:
 	void visit( monitor::CPassTransactionAction & _action );
 
 	void visit( monitor::CReputationControlAction & _action );
+
+	void visit( monitor::CUpdateNetworkDataAction & _action );
 
 	void visit( seed::CAcceptNodeAction & _action );
 

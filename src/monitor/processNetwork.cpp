@@ -20,6 +20,7 @@
 #include "monitor/synchronizationAction.h"
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/enterNetworkAction.h"
+#include "monitor/updateNetworkDataAction.h"
 
 namespace monitor
 {
@@ -51,24 +52,75 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
 
+		if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
+		{
+			common::CIdentifyMessage identifyMessage;
+			convertPayload( message, identifyMessage );
 
-		if (
-				   message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Result
-				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq// reconsider  this, info request has  hidden  risk  serviced  like  it  is now
-				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitProof
-				|| message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk
-				|| message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions
-				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationAsk
-				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
-				|| message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkCondition
-				|| message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkAsk
-				|| message.m_header.m_payloadKind == common::CPayloadKind::TrackerInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Balance
-				)
+			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
+			}
+			else
+			{
+				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
+							  message.m_header.m_actionKey
+							, convertToInt( nodeMedium->getNode() ) );
+
+				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
+
+				common::CActionHandler::getInstance()->executeAction( connectNodeAction );
+			}
+
+		}
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
+		{
+			common::CAck ack;
+
+			common::convertPayload( message, ack );
+
+			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
+			}
+		}
+		else if (
+					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
+				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )
+		{
+			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				bool isPing = message.m_header.m_payloadKind == common::CPayloadKind::Ping;
+				nodeMedium->setResponse( message.m_header.m_id, common::CPingPongResult( isPing, convertToInt( nodeMedium->getNode() ) ) );
+			}
+			else
+			{
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
+				{
+					CPingAction * pingAction
+							= new CPingAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
+
+					pingAction->process_event( common::CStartPongEvent() );
+
+					common::CActionHandler::getInstance()->executeAction( pingAction );
+				}
+				else
+				{
+					assert(!"it should be existing action");
+				}
+			}
+		}
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
+		{
+			//
+		}
+		else
 		{
 			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
 			// not necessarily have to pass this
@@ -139,81 +191,16 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					common::CActionHandler::getInstance()->executeAction( admitTransactionBundle );
 					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 				}
-			}
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
-		{
-			common::CIdentifyMessage identifyMessage;
-			convertPayload( message, identifyMessage );
-
-			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
-			}
-			else
-			{
-				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
-							  message.m_header.m_actionKey
-							, convertToInt( nodeMedium->getNode() ) );
-
-				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
-
-				common::CActionHandler::getInstance()->executeAction( connectNodeAction );
-			}
-
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
-		{
-			common::CAck ack;
-
-			common::convertPayload( message, ack );
-
-			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
-			}
-		}
-		else if (
-					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )
-		{
-			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				bool isPing = message.m_header.m_payloadKind == common::CPayloadKind::Ping;
-				nodeMedium->setResponse( message.m_header.m_id, common::CPingPongResult( isPing, convertToInt( nodeMedium->getNode() ) ) );
-			}
-			else
-			{
-				if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::FullRankingInfo )
 				{
-					CPingAction * pingAction
-							= new CPingAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
-
-					pingAction->process_event( common::CStartPongEvent() );
-
-					common::CActionHandler::getInstance()->executeAction( pingAction );
-				}
-				else
-				{
-					assert(!"it should be existing action");
+					CUpdateNetworkDataAction * updateNetworkDataAction = new CUpdateNetworkDataAction( message.m_header.m_actionKey );
+					common::CActionHandler::getInstance()->executeAction( updateNetworkDataAction );
+					updateNetworkDataAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 				}
 			}
 		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
-		{
-			//
-		}
+
 	}
-	/*
-
-
-*/
 	return true;
 }
 

@@ -632,26 +632,8 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 			return true;
 		}
 
-		// Solve subset sum by stochastic approximation
 		sort(vValue.rbegin(), vValue.rend(), CompareValueOnly2());
-		//vector<char> vfBest;
-		//int64_t nBest;
 
-		//disable fency stuff for now in order  to make  debuging/development easier/faster
-		/*
-		ApproximateBestSubset(vValue, nTotalLower, nTargetValue, vfBest, nBest, 1000);
-		if (nBest != nTargetValue && nTotalLower >= nTargetValue + CENT)
-			ApproximateBestSubset(vValue, nTotalLower, nTargetValue + CENT, vfBest, nBest, 1000);
-*/
-		// If we have a bigger coin and (either the stochastic approximation didn't find a good solution,
-		//                                   or the next bigger coin is closer), return the bigger coin
-		/*if (coinLowestLarger.second.first &&
-			((nBest != nTargetValue && nBest < nTargetValue + CENT) || coinLowestLarger.first <= nBest))
-		{
-			setCoinsRet.insert(coinLowestLarger.second);
-			nValueRet += coinLowestLarger.first;
-		}
-		else {*/
 		std::vector< CAvailableCoin >::iterator iterator = vValue.begin();
 		while( iterator != vValue.end() )
 		{
@@ -669,14 +651,6 @@ bool CWallet::SelectCoins(int64_t nTargetValue, std::vector<CAvailableCoin> & se
 
 		if (nTargetValue <= nValueRet )
 			return true;
-/*
-			LogPrint("selectcoins", "SelectCoins() best subset: ");
-			for (unsigned int i = 0; i < vValue.size(); i++)
-				if (vfBest[i])
-					LogPrint("selectcoins", "%s ", FormatMoney(vValue[i].first));
-			LogPrint("selectcoins", "total %s\n", FormatMoney(nBest));
-
-			*/
 
 		return false;
 }

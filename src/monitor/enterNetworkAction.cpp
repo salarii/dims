@@ -222,6 +222,9 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 
 		m_pubKey = _messageResult.m_pubKey;
 
+		if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, m_address ) )
+			assert( !"problem" );
+
 		return discard_event();
 	}
 
@@ -245,7 +248,7 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 			{
 				request->addPayload( common::CResult( 1 ) );
 
-				common::CAllyMonitorData monitorData( m_pubKey );
+				common::CAllyMonitorData monitorData( m_pubKey, m_address );
 
 				CReputationTracker::getInstance()->addAllyMonitor( monitorData );
 			}
@@ -294,6 +297,8 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 	int64_t const m_checkPeriod;
 
 	CPubKey m_pubKey;
+
+	CAddress m_address;
 
 	uintptr_t m_nodePtr;
 };
@@ -549,21 +554,11 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 		: my_base( ctx )
 	{
 		context< CEnterNetworkAction >().forgetRequests();
-		context< CEnterNetworkAction >().addRequest(
-		 new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		context< CEnterNetworkAction >().addRequest(
 					new common::CScheduleActionRequest(
 						new CSynchronizationAction( context< CEnterNetworkAction >().getNodePtr() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CEnterNetworkAction >().setExit();
-		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -588,7 +583,6 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CSynchronizationResult >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;

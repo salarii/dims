@@ -41,6 +41,7 @@
 #include "common/originAddressScanner.h"
 #include "common/commandLine.h"
 #include "common/segmentFileStorage.h"
+#include "common/authenticationProvider.h"
 
 #include "tracker/server.h"
 #include "tracker/clientRequestsManager.h"
@@ -964,6 +965,10 @@ common::CDimsParams::setAppType( common::AppType::Tracker );
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
 	tracker::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
+
+	CWallet::getInstance()->AddKeyPubKey(
+				common::CAuthenticationProvider::getInstance()->getMyPrivKey()
+				, common::CAuthenticationProvider::getInstance()->getMyKey());
 
 	tracker::CController::getInstance();
 	// ********************************************************* Step 10: load peers

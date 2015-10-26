@@ -66,7 +66,7 @@ private:
 
 	CAddress const m_serviceAddress;
 };
-
+// turn  ack  into signed message???
 class CAckRequest : public common::CRequest
 {
 public:
