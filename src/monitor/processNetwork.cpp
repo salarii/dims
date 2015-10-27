@@ -88,34 +88,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
 			}
 		}
-		else if (
-					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )
-		{
-			common::CNodeMedium * nodeMedium = CReputationTracker::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				bool isPing = message.m_header.m_payloadKind == common::CPayloadKind::Ping;
-				nodeMedium->setResponse( message.m_header.m_id, common::CPingPongResult( isPing, convertToInt( nodeMedium->getNode() ) ) );
-			}
-			else
-			{
-				if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
-				{
-					CPingAction * pingAction
-							= new CPingAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
-
-					pingAction->process_event( common::CStartPongEvent() );
-
-					common::CActionHandler::getInstance()->executeAction( pingAction );
-				}
-				else
-				{
-					assert(!"it should be existing action");
-				}
-			}
-		}
 		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
 		{
 			//
@@ -146,7 +118,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				if ( message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk )
 				{
-						CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ) );
+						CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, key );
 						admitTrackerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 						common::CActionHandler::getInstance()->executeAction( admitTrackerAction );
 				}
@@ -166,7 +138,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				{
 					CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
 								 message.m_header.m_actionKey
-								, convertToInt( nodeMedium->getNode() )
+								, key
 								);
 
 					provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
@@ -178,7 +150,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					CSynchronizationAction * synchronizationAction= new CSynchronizationAction(
 								  message.m_header.m_id
 								, message.m_header.m_actionKey
-								, convertToInt( nodeMedium->getNode() )
+								, key
 								);
 
 					synchronizationAction->process_event( CSwitchToSynchronized() );

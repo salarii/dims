@@ -218,7 +218,7 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		if ( result.m_result )
 		{

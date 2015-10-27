@@ -24,20 +24,23 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 	{
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _result )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), _result.m_pubKey ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
 		common::CRankingFullInfo rankingFullInfo;
 
 		common::convertPayload( orginalMessage, rankingFullInfo );
 
-		CReputationTracker::getInstance()->updateRankingInfo( _result.m_pubKey, rankingFullInfo );
+		CReputationTracker::getInstance()->updateRankingInfo( _messageResult.m_pubKey, rankingFullInfo );
 
 		context< CUpdateNetworkDataAction >().addRequest(
-		new common::CAckRequest( context< CUpdateNetworkDataAction >().getActionKey(), _result.m_message.m_header.m_id, new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+		new common::CAckRequest(
+						context< CUpdateNetworkDataAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		context< CUpdateNetworkDataAction >().setExit();
 

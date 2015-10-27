@@ -81,14 +81,14 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 						new common::CAckRequest(
 							context< CEnterNetworkAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
 						, context< CEnterNetworkAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			if (
 					!CController::getInstance()->getEnterancePrice()
@@ -199,14 +199,12 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
-		m_nodePtr = _messageResult.m_nodeIndicator;
-
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
 					, context< CEnterNetworkAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 		request->addPayload( common::CAck() );
 
@@ -240,22 +238,13 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 						common::CPayloadKind::Result
 						, context< CEnterNetworkAction >().getActionKey()
 						, m_messageId
-						, new CSpecificMediumFilter( m_nodePtr ) );
+						, new CByKeyMediumFilter( m_pubKey ) );
 
-			CPubKey pubKey;
+			request->addPayload( common::CResult( 1 ) );
 
-			if ( CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), pubKey ) )
-			{
-				request->addPayload( common::CResult( 1 ) );
+			common::CAllyMonitorData monitorData( context< CEnterNetworkAction >().getPartnerKey(), m_address );
 
-				common::CAllyMonitorData monitorData( m_pubKey, m_address );
-
-				CReputationTracker::getInstance()->addAllyMonitor( monitorData );
-			}
-			else
-			{
-				request->addPayload( common::CResult( 0 ) );
-			}
+			CReputationTracker::getInstance()->addAllyMonitor( monitorData );
 
 			context< CEnterNetworkAction >().addRequest( request );
 		}
@@ -299,8 +288,6 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 	CPubKey m_pubKey;
 
 	CAddress m_address;
-
-	uintptr_t m_nodePtr;
 };
 
 struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnterNetworkAction >
@@ -318,7 +305,7 @@ struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnt
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CEnterNetworkAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ); // bit  risky to ask  this way
+					, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) ); // bit  risky to ask  this way
 
 		request->addPayload( common::CInfoKind::EnterConditionAsk, std::vector<unsigned char>() );
 
@@ -340,7 +327,7 @@ struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnt
 						new common::CAckRequest(
 							context< CEnterNetworkAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			price = enteranceTerms.m_price;
 			return transit< CAskForAddmision >();
@@ -405,7 +392,7 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 						new common::CAckRequest(
 							context< CEnterNetworkAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			if ( result.m_result )
 			{
@@ -479,7 +466,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAct
 					common::CPayloadKind::Ack
 					, context< CEnterNetworkAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 		request->addPayload( common::CAck() );
 
@@ -513,7 +500,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAct
 					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitProof
 						, context< CEnterNetworkAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
+						, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) );
 
 			request->addPayload(admitProof);
 
@@ -557,7 +544,7 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 
 		context< CEnterNetworkAction >().addRequest(
 					new common::CScheduleActionRequest(
-						new CSynchronizationAction( context< CEnterNetworkAction >().getNodePtr() )
+						new CSynchronizationAction( context< CEnterNetworkAction >().getPartnerKey() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
@@ -596,7 +583,7 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 					new common::CScheduleActionRequest(
 						new CProvideInfoAction(
 							common::CInfoKind::RankingFullInfo
-							, context< CEnterNetworkAction >().getNodePtr() )
+							, context< CEnterNetworkAction >().getPartnerKey() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
@@ -614,12 +601,9 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 			CReputationTracker::getInstance()->addAllyMonitor( monitorData );
 		}
 
-		CPubKey key;
-		CReputationTracker::getInstance()->getNodeToKey( context< CEnterNetworkAction >().getNodePtr(), key );
-
 		BOOST_FOREACH( common::CTrackerData const & trackerData, _rankingEvent.m_rankingInfo.m_trackers )
 		{
-			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, key ) );
+			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, context< CEnterNetworkAction >().getPartnerKey() ) );
 		}
 
 		CReputationControlAction::createInstance( _rankingEvent.m_rankingInfo.m_leadingKey );
@@ -636,71 +620,9 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 	boost::statechart::custom_reaction< common::CRankingEvent >
 	> reactions;
 };
-/*
-struct CSendRankingTimeAndInfo : boost::statechart::state< CSendRankingTimeAndInfo, CEnterNetworkAction >
-{
-	CSendRankingTimeAndInfo( my_context ctx ): my_base( ctx )
-	{
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::RankingInfo
-					, context< CEnterNetworkAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
 
-//		request->addPayload( rankingInfo );
-
-		context< CEnterNetworkAction >().addRequest( request );
-
-		context< CEnterNetworkAction >().addRequest(
-					new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
-	}
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-		{
-			common::CInfoRequestData infoRequest;
-
-			common::convertPayload( orginalMessage, infoRequest );
-
-			if ( infoRequest.m_kind == common::CInfoKind::RankingAsk )
-			{
-
-				common::CSendMessageRequest * request =
-						new common::CSendMessageRequest(
-							common::CPayloadKind::Ack
-							, context< CEnterNetworkAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CEnterNetworkAction >().getNodePtr() ) );
-			}
-		}
-		return discard_event();
-	}
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CEnterNetworkAction >().setExit();
-		return discard_event();
-	}
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		context< CEnterNetworkAction >().setExit();
-		return discard_event();
-	}
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
-	> reactions;
-};
-*/
-CEnterNetworkAction::CEnterNetworkAction( uintptr_t _nodePtr )
-	: m_nodePtr( _nodePtr )
+CEnterNetworkAction::CEnterNetworkAction( CPubKey const & _partnerKey )
+	: m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CSwitchToEnter() );

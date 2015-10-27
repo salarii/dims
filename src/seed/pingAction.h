@@ -16,6 +16,7 @@ struct CUninitialised;
 
 class CPingAction : public common::CAction, public  boost::statechart::state_machine< CPingAction, CUninitialised >
 {
+	/*
 public:
 	CPingAction( uintptr_t _nodeIndicator );
 
@@ -23,20 +24,12 @@ public:
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	uintptr_t getNodeIdentifier()const;
-
 	void cleanup() const;
 
 	static bool isPinged( uintptr_t _nodeIndicator );
 
-	~CPingAction()
-	{
-		m_pingedNodes.erase( m_nodeIndicator );
-	};
 private:
-	uintptr_t m_nodeIndicator;
-
-	static std::set< uintptr_t > m_pingedNodes; //a bit ugly
+	uintptr_t m_nodeIndicator;*/
 };
 
 

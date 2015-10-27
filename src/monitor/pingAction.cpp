@@ -24,9 +24,6 @@ struct CSendPong;
 
 int64_t PingPeriod = 20000;//milisec
 
-std::set< uintptr_t >
-CPingAction::m_pingedNodes;
-
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
 	CUninitialised( my_context ctx ) : my_base( ctx )
@@ -54,7 +51,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ping
 					, context< CPingAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CPing() );
 
@@ -67,13 +64,6 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 		if ( !m_received )
 		{
-			CConnectNodeAction * connectNode = new CConnectNodeAction(
-						context< CPingAction >().getActionKey()
-						, context< CPingAction >().getNodeIdentifier() );
-
-			connectNode->process_event( common::CSwitchToConnectingEvent() );
-
-			common::CActionHandler::getInstance()->executeAction( connectNode );
 		}
 		else
 		{
@@ -84,7 +74,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Ping
 						, context< CPingAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
 
 			request->addPayload( common::CPing() );
 
@@ -125,7 +115,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Pong
 					, context< CPingAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CPong() );
 
@@ -138,13 +128,6 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 		if ( !m_received )
 		{
-			CConnectNodeAction * connectNode = new CConnectNodeAction(
-						context< CPingAction >().getActionKey()
-						, context< CPingAction >().getNodeIdentifier() );
-
-			connectNode->process_event( common::CSwitchToConnectingEvent() );
-
-			common::CActionHandler::getInstance()->executeAction( connectNode );
 		}
 		else
 		{
@@ -155,7 +138,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Pong
 						, context< CPingAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CPingAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
 
 			request->addPayload( common::CPong() );
 
@@ -182,17 +165,15 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 	bool m_received;
 };
 
-CPingAction::CPingAction( uintptr_t _nodeIndicator )
-	: m_nodeIndicator( _nodeIndicator )
+CPingAction::CPingAction( CPubKey const & _partnerKey )
+	: m_partnerKey( _partnerKey )
 {
-	m_pingedNodes.insert( _nodeIndicator );
 	initiate();
 }
 
-CPingAction::CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
-	: m_nodeIndicator( _nodeIndicator )
+CPingAction::CPingAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
+	: m_partnerKey( _partnerKey )
 {
-	m_pingedNodes.insert( _nodeIndicator );
 	initiate();
 }
 
@@ -200,18 +181,6 @@ void
 CPingAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
-}
-
-uintptr_t
-CPingAction::getNodeIdentifier() const
-{
-	return m_nodeIndicator;
-}
-
-bool
-CPingAction::isPinged( uintptr_t _nodeIndicator )
-{
-	return m_pingedNodes.find( _nodeIndicator ) != m_pingedNodes.end();
 }
 
 }

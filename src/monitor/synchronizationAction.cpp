@@ -70,7 +70,7 @@ struct CSynchronizingAsk : boost::statechart::state< CSynchronizingAsk, CSynchro
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationAsk
 					, context< CSynchronizationAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CSynchronizationAsk() );
 
@@ -113,7 +113,7 @@ struct CSynchronizingAsk : boost::statechart::state< CSynchronizingAsk, CSynchro
 						new common::CAckRequest(
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			if ( result.m_result )
 			{
@@ -150,7 +150,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CSynchronizationAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CInfoKind::BitcoinHeaderAsk, std::vector<unsigned char>() );
 
@@ -186,7 +186,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 						new common::CAckRequest(
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			common::CActionHandler::getInstance()->executeAction( CTrackOriginAddressAction::createInstance() );
 
@@ -224,7 +224,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CSynchronizationAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload( (int)common::CInfoKind::StorageInfoAsk, 0 );
 
@@ -250,7 +250,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 						new common::CAckRequest(
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		}
 		return transit< CSynchronizingHeaders >();
@@ -271,7 +271,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload(
 					common::CSynchronizationGet(
@@ -319,7 +319,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationGet
 							, context< CSynchronizationAction >().getActionKey()
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 				request->addPayload(
 							common::CSynchronizationGet(
@@ -351,7 +351,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload(
 					common::CSynchronizationGet(
@@ -398,7 +398,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload(
 					common::CSynchronizationGet(
@@ -432,7 +432,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 						new common::CAckRequest(
 							  context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			if ( HeaderSize > ++m_currentBlock )
 			{
@@ -440,7 +440,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationGet
 							, context< CSynchronizationAction >().getActionKey()
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 				request->addPayload(
 							common::CSynchronizationGet(
@@ -467,7 +467,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload(
 					common::CSynchronizationGet(
@@ -511,21 +511,16 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 					new common::CAckRequest(
 						context< CSynchronizationAction >().getActionKey()
 						, context< CSynchronizationAction >().getRequestKey()
-						, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+						, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Result
 					, context< CSynchronizationAction >().getActionKey()
 					, context< CSynchronizationAction >().getRequestKey()
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
-		CPubKey pubKey;
-		CReputationTracker::getInstance()->getNodeToKey(
-					context< CSynchronizationAction >().getNodeIdentifier()
-					, pubKey );
-
-		bool allowed = CReputationTracker::getInstance()->isSynchronizationAllowed( pubKey.GetID() );
+		bool allowed = CReputationTracker::getInstance()->isSynchronizationAllowed( context< CSynchronizationAction >().getPartnerKey().GetID() );
 
 		request->addPayload(
 					common::CResult( allowed ? 1 : 0 ) );
@@ -558,7 +553,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 							new common::CAckRequest(
 								context< CSynchronizationAction >().getActionKey()
 								, _messageResult.m_message.m_header.m_id
-								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+								, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 				context< CSynchronizationAction >().setRequestKey( _messageResult.m_message.m_header.m_id );
 
@@ -570,7 +565,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 							new common::CAckRequest(
 								context< CSynchronizationAction >().getActionKey()
 								, _messageResult.m_message.m_header.m_id
-								, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+								, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 				CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
 				CBlockHeader header;
@@ -581,7 +576,7 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 							common::CPayloadKind::SynchronizationBitcoinHeader
 							, context< CSynchronizationAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 				request->addPayload( header );
 
@@ -629,7 +624,7 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 							common::CPayloadKind::SynchronizationInfo
 							, context< CSynchronizationAction >().getActionKey()
 							, context< CSynchronizationAction >().getRequestKey()
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 				request->addPayload(
 							common::CSynchronizationInfo(
@@ -686,7 +681,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 					common::CPayloadKind::SynchronizationBlock,
 					context< CSynchronizationAction >().getActionKey()
 					, m_id
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload( synchronizationBlock );
 
@@ -707,7 +702,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 					common::CPayloadKind::SynchronizationHeader,
 					context< CSynchronizationAction >().getActionKey()
 					, m_id
-					, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
 		request->addPayload( synchronizationSegmentHeader );
 
@@ -732,7 +727,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 						new common::CAckRequest(
 							context< CSynchronizationAction >().getActionKey()
 							, m_id
-							, new CSpecificMediumFilter( context< CSynchronizationAction >().getNodeIdentifier() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			if ( synchronizationGet.m_number < m_storedBlocks && synchronizationGet.m_kind == common::CBlockKind::Segment )
 			{
@@ -774,15 +769,15 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	uint256 m_id;
 };
 
-CSynchronizationAction::CSynchronizationAction( uintptr_t _nodeIndicator )
+CSynchronizationAction::CSynchronizationAction( CPubKey const & _partnerKey )
 {
 	initiate();
 }
 
-CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, uintptr_t _nodeIndicator )
+CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, CPubKey const & _partnerKey )
 	: common::CScheduleAbleAction( _actionKey )
 	, m_requestKey( _id )
-	, m_nodeIdentifier( _nodeIndicator )
+	, m_partnerKey( _partnerKey )
 {
 	initiate();
 }
@@ -798,22 +793,10 @@ CSynchronizationAction::clear()
 {
 }
 
-unsigned long long
-CSynchronizationAction::getNodeIdentifier() const
-{
-	return m_nodeIdentifier;
-}
-
 bool
 CSynchronizationAction::isRequestInitialized() const
 {
 	return !m_requests.empty();
-}
-
-void
-CSynchronizationAction::setNodeIdentifier( unsigned int _nodeIdentifier )
-{
-	m_nodeIdentifier = _nodeIdentifier;
 }
 
 }

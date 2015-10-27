@@ -80,7 +80,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					common::CPayloadKind::Ack
 					, context< CProvideInfoAction >().getActionKey()
 					, m_id
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 		request->addPayload( common::CAck() );
 
@@ -94,18 +94,15 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::IsAddmited )
 		{
-			CPubKey pubKey;
-			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIdentifier(), pubKey );
-
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload(
-						common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( pubKey.GetID() ) ? 1 : 0 ) );
+						common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( context< CProvideInfoAction >().getPartnerKey().GetID() ) ? 1 : 0 ) );
 
 			context< CProvideInfoAction >().addRequest( request );
 
@@ -113,19 +110,16 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::IsRegistered )
 		{
 
-			CPubKey pubKey;
-			CReputationTracker::getInstance()->getNodeToKey( context< CProvideInfoAction >().getNodeIdentifier(), pubKey );
-
 			common::CTrackerData trackerData;
 			CPubKey monitorPubKey;
-			CReputationTracker::getInstance()->checkForTracker( pubKey.GetID(), trackerData, monitorPubKey );
+			CReputationTracker::getInstance()->checkForTracker( context< CProvideInfoAction >().getPartnerKey().GetID(), trackerData, monitorPubKey );
 
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ValidRegistration
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload(
 						common::CValidRegistration(
@@ -143,7 +137,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						common::CPayloadKind::RegistrationTerms
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload(
 						common::CRegistrationTerms( CController::getInstance()->getPrice(), CController::getInstance()->getPeriod() ) );
@@ -157,7 +151,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						common::CPayloadKind::EnterNetworkCondition
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload(
 						common::CEnteranceTerms( CController::getInstance()->getEnterancePrice() ) );
@@ -171,7 +165,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						common::CPayloadKind::FullRankingInfo
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload(
 						common::CRankingFullInfo(
@@ -260,7 +254,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					new common::CAckRequest(
 						  context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		if ( ( common::CPayloadKind::Enum )orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Result )
 		{
@@ -308,9 +302,9 @@ struct CMonitorStop : boost::statechart::state< CMonitorStop, CProvideInfoAction
 	}
 };
 
-CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
+CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
 	: common::CScheduleAbleAction( _actionKey )
-	, m_nodeIndicator( _nodeIndicator )
+	, m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CProvideInfoEvent() );
@@ -322,15 +316,6 @@ CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, commo
 	initiate();
 
 	TargetMediumFilter = new CMediumClassFilter( _mediumKind, 1 );
-	process_event( CAskForInfoEvent() );
-}
-
-CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, uintptr_t _nodePtr )
-	: m_infoKind( _infoKind )
-{
-	initiate();
-
-	TargetMediumFilter = new CSpecificMediumFilter( _nodePtr );
 	process_event( CAskForInfoEvent() );
 }
 
@@ -347,12 +332,6 @@ void
 CProvideInfoAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
-}
-
-uintptr_t
-CProvideInfoAction::getNodeIdentifier() const
-{
-	return m_nodeIndicator;
 }
 
 }

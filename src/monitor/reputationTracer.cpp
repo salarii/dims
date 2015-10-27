@@ -118,12 +118,10 @@ CReputationTracker::loop()
 				}
 				else if ( timeLeft < CController::getInstance()->getPeriod() * TriggerExtendRatio )
 				{
-					uintptr_t nodeIndicator;
-					getKeyToNode( tracker.second.m_publicKey.GetID(), nodeIndicator);
 					if ( isExtendInProgress( tracker.second.m_publicKey ) )
 					{
 						setExtendInProgress( tracker.second.m_publicKey );
-						common::CActionHandler::getInstance()->executeAction( new CAdmitTrackerAction(nodeIndicator) );
+						common::CActionHandler::getInstance()->executeAction( new CAdmitTrackerAction(tracker.second.m_publicKey) );
 					}
 				}
 			}
@@ -454,7 +452,7 @@ bool
 CReputationTracker::eraseExtendInProgress( CPubKey const & _pubKey )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	m_extendInProgress.erase(_pubKey);//m_extendInProgress.find(_pubKey)
+	m_extendInProgress.erase(_pubKey);
 
 	return true;
 }

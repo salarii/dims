@@ -92,7 +92,7 @@ struct CCatchUp : boost::statechart::state< CCatchUp, CReputationControlAction >
 						new common::CAckRequest(
 							context< CReputationControlAction >().getActionKey()
 							, orginalMessage.m_header.m_id
-							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			// do  some  sanity??
 			CAddress address;
@@ -177,7 +177,7 @@ struct COperating : boost::statechart::state< COperating, CReputationControlActi
 					new common::CAckRequest(
 						  context< CReputationControlAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		return discard_event();
 	}

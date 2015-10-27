@@ -17,7 +17,7 @@
 
 namespace seed
 {
-
+/*
 struct CSendPing;
 struct CSendPong;
 
@@ -197,11 +197,7 @@ void
 CPingAction::cleanup() const
 {
 	CSeedNodesManager::getInstance()->clearPublicKey( m_nodeIndicator );
-	/*common::CMedium * medium =
-			CSeedNodesManager::getInstance()->eraseMedium( m_nodeIndicator );
 
-	if ( medium )
-		delete medium;			*/
 }
 
 bool
@@ -209,5 +205,5 @@ CPingAction::isPinged( uintptr_t _nodeIndicator )
 {
 	return m_pingedNodes.find( _nodeIndicator ) != m_pingedNodes.end();
 }
-
+*/
 }

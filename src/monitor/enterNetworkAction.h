@@ -5,9 +5,11 @@
 #ifndef ENTER_NETWORK_ACTION_H
 #define ENTER_NETWORK_ACTION_H
 
+#include <boost/statechart/state_machine.hpp>
+
 #include "common/action.h"
 
-#include <boost/statechart/state_machine.hpp>
+#include "key.h"
 
 namespace monitor
 {
@@ -17,15 +19,18 @@ struct CEnterNetworkInitial;
 class CEnterNetworkAction : public common::CAction, public  boost::statechart::state_machine< CEnterNetworkAction, CEnterNetworkInitial >
 {
 public:
-	CEnterNetworkAction( uintptr_t _nodePtr );
+	CEnterNetworkAction( CPubKey const & _partnerKey );
 
 	CEnterNetworkAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	uintptr_t getNodePtr() const { return m_nodePtr; }
+	CPubKey getPartnerKey() const
+	{
+		return m_partnerKey;
+	}
 private:
-	uintptr_t m_nodePtr;
+	CPubKey m_partnerKey;
 };
 
 }

@@ -56,7 +56,7 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 				new common::CSendMessageRequest(
 					common::CPayloadKind::ExtendRegistration
 					, context< CAdmitTrackerAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+					, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) );
 
 		common::CRegistrationTerms registrationTerms(
 					CController::getInstance()->getPrice()
@@ -83,7 +83,7 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 						common::CPayloadKind::Ack
 						, context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload( common::CAck() );
 
@@ -138,14 +138,14 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 					new common::CAckRequest(
 						context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		context< CAdmitTrackerAction >().addRequest( new CRegistrationTerms(
 														  CController::getInstance()->getPrice()
 														 , CController::getInstance()->getPeriod()
 														 , context< CAdmitTrackerAction >().getActionKey()
 														 , _messageResult.m_message.m_header.m_id
-														 , new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+														 , new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		return discard_event();
 	}
@@ -210,14 +210,14 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 					new common::CAckRequest(
 						context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		common::CSendMessageRequest * request =
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Result
 					, context< CAdmitTrackerAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 		request->addPayload( common::CResult( 1 ) );
 
@@ -270,14 +270,14 @@ struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrati
 						new common::CAckRequest(
 							context< CAdmitTrackerAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			common::CSendMessageRequest * request =
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
 						, context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload( common::CResult( 1 ) );
 
@@ -347,7 +347,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 					common::CPayloadKind::Ack
 					, context< CAdmitTrackerAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 		request->addPayload( common::CAck() );
 
@@ -381,42 +381,32 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 						common::CPayloadKind::Result
 						, context< CAdmitTrackerAction >().getActionKey()
 						, m_messageId
-						, new CSpecificMediumFilter( context< CAdmitTrackerAction >().getNodePtr() ) );
+						, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) );
 
-			CPubKey pubKey;
+			request->addPayload( common::CResult( 1 ) );
 
-			if ( CReputationTracker::getInstance()->getNodeToKey( context< CAdmitTrackerAction >().getNodePtr(), pubKey ) )
+			common::CTrackerData trackerData;
+			if( CReputationTracker::getInstance()->getTracker( context< CAdmitTrackerAction >().getPartnerKey().GetID(), trackerData ) )
 			{
-				request->addPayload( common::CResult( 1 ) );
+				trackerData.m_networkTime += CController::getInstance()->getPeriod();
+			}
+			else
+			{
 
-				common::CTrackerData trackerData;
-				if( CReputationTracker::getInstance()->getTracker( m_pubKey.GetID(), trackerData ) )
-				{
-					trackerData.m_networkTime += CController::getInstance()->getPeriod();
-				}
-				else
-				{
-
-					trackerData = common::CTrackerData(
-								m_pubKey
-								, m_address
-								, 0
-								, CController::getInstance()->getPeriod()
-								, GetTime() );
-				}
+				trackerData = common::CTrackerData(
+							context< CAdmitTrackerAction >().getPartnerKey()
+							, m_address
+							, 0
+							, CController::getInstance()->getPeriod()
+							, GetTime() );
+			}
 
 				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 
 				CReputationTracker::getInstance()->addTracker( trackerData );
 
-				CReputationTracker::getInstance()->addNodeToSynch( pubKey.GetID() );
-			}
-			else
-			{
-				request->addPayload( common::CResult( 0 ) );
-			}
-
-			context< CAdmitTrackerAction >().addRequest( request );
+				CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
+				context< CAdmitTrackerAction >().setExit();
 		}
 		else
 		{
@@ -460,16 +450,16 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	CAddress m_address;
 };
 
-CAdmitTrackerAction::CAdmitTrackerAction( uintptr_t _nodePtr )
-	: m_nodePtr( _nodePtr )
+CAdmitTrackerAction::CAdmitTrackerAction( CPubKey const & _partnerKey )
+	: m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CExtendEvent() );
 }
 
-CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, uintptr_t _nodePtr )
+CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
 	: common::CAction( _actionKey )
-	, m_nodePtr( _nodePtr )
+	, m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CRegisterEvent() );

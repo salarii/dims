@@ -43,7 +43,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 						new common::CAckRequest(
 							context< CAdmitTransactionBundle >().getActionKey()
 							, orginalMessage.m_header.m_id
-							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			common::CTransactionBundle transactionBundle;
 
