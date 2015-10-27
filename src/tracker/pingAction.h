@@ -13,25 +13,26 @@
 namespace tracker
 {
 struct CUninitialised;
-
+//rework  this
 class CPingAction : public common::CAction, public  boost::statechart::state_machine< CPingAction, CUninitialised >
 {
 public:
-	CPingAction( uintptr_t _nodeIndicator );
+	CPingAction( CPubKey const & _partnerKey );
 
-	CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
+	CPingAction( uint256 const & _actionKey, CPubKey const & _partnerKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	uintptr_t getNodeIdentifier() const;
-
 	static bool isPinged( uintptr_t _nodeIndicator );
+
+	CPubKey getPartnerKey()const
+	{
+		return m_partnerKey;
+	}
 
 	~CPingAction(){};
 private:
-	uintptr_t m_nodeIndicator;
-
-	static std::set< uintptr_t > m_pingedNodes; //a bit ugly
+	CPubKey m_partnerKey;
 };
 
 

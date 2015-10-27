@@ -19,13 +19,16 @@ struct CInitiateRegistration;
 class CRegisterAction : public common::CAction, public  boost::statechart::state_machine< CRegisterAction, CInitiateRegistration >
 {
 public:
-	CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr );
+	CRegisterAction( uint256 const & _actionKey, CPubKey const & _partnerKey );
 
-	CRegisterAction( uintptr_t _nodePtr );
+	CRegisterAction( CPubKey const & _partnerKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	uintptr_t getNodePtr() const { return m_nodePtr; }
+	CPubKey getPartnerKey()const
+	{
+		return m_partnerKey;
+	}
 
 	~CRegisterAction(){};
 
@@ -33,11 +36,11 @@ public:
 
 	int64_t getRegisterPayment() const{ return m_registerPayment; }
 
-	CPubKey getPublicKey() const;
+	void setInNetwork( bool _flag );
 private:
 	int64_t m_registerPayment;
 
-	uintptr_t m_nodePtr;
+	CPubKey m_partnerKey;
 };
 
 }

@@ -18,6 +18,7 @@
 #include "tracker/getBalanceAction.h"
 #include "tracker/controller.h"
 #include "tracker/controllerEvents.h"
+#include "tracker/provideInfoAction.h"
 
 namespace tracker
 {
@@ -69,7 +70,7 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 						common::CPayloadKind::Ack
 						, context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
 
 			request->addPayload( common::CAck() );
 
@@ -81,7 +82,7 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 							common::CPayloadKind::AdmitAsk
 							, context< CRegisterAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+							, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
 
 				request->addPayload( common::CAdmitAsk() );
 				context< CRegisterAction >().addRequest( request );
@@ -115,17 +116,10 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 	COriginateRegistration( my_context ctx )
 		: my_base( ctx )
 	{
-		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
-		context< CRegisterAction >().forgetRequests();
 		context< CRegisterAction >().addRequest(
-		 new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
-		context< CRegisterAction >().addRequest(
-					new CAskForRegistrationRequest(
-						context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+					new common::CScheduleActionRequest(
+						new CProvideInfoAction( common::CInfoKind::RegistrationTermsAsk, context< CRegisterAction >().getPartnerKey() )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -134,17 +128,19 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
-		common::CRegistrationTerms connectCondition;
+		common::CResult result;
 
-		common::convertPayload( orginalMessage, connectCondition );
+		common::convertPayload( orginalMessage, result );
 
 		context< CRegisterAction >().addRequest(
 					new common::CAckRequest(
 						context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
-		if ( !connectCondition.m_price )
+		if ( result.m_result )
+		{
+		if ( !m_registrationTerms.m_price )
 		{
 			return transit< CFreeRegistration >();
 		}
@@ -153,18 +149,55 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 			common::CNetworkRecognizedData networkData =
 					CController::getInstance()->getNetworkData();
 
-			context< CRegisterAction >().setRegisterPayment( connectCondition.m_price );
+			context< CRegisterAction >().setRegisterPayment( m_registrationTerms.m_price );
 
 			return networkData.m_trackersInfo.empty()
 					? transit< CSynchronize >()
 					: transit< CNetworkAlive >();
 		}
+		}
+		else
+		{
+			context< CRegisterAction >().setExit();
+			return discard_event();
+		}
+	}
+
+	boost::statechart::result react( common::CRegistrationTermsEvent const & _registrationTermsEvent )
+	{
+		m_registrationTerms = _registrationTermsEvent.m_registrationTerms;
+
+		LogPrintf("register action: %p initiate registration \n", &context< CRegisterAction >() );
+		context< CRegisterAction >().forgetRequests();
+		context< CRegisterAction >().addRequest(
+		 new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::AdmitAsk
+						, context< CRegisterAction >().getActionKey()
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
+
+		request->addPayload( common::CAdmitAsk() );
+
+		context< CRegisterAction >().addRequest( request );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+
+	{
+		context< CRegisterAction >().setExit();
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		assert( !"no response" );
 		context< CRegisterAction >().forgetRequests();
+		context< CRegisterAction >().setExit();
 		return discard_event();
 	}
 
@@ -174,10 +207,14 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CRegistrationTermsEvent >,
+	boost::statechart::custom_reaction< common::CFailureEvent >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
+
+	common::CRegistrationTerms m_registrationTerms;
 };
 
 struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegisterAction >
@@ -190,56 +227,30 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 		context< CRegisterAction >().forgetRequests();
 
 		context< CRegisterAction >().addRequest(
-					new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CScheduleActionRequest(
+						new CSynchronizationAction( context< CRegisterAction >().getPartnerKey() )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::AdmitProof
-					, context< CRegisterAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
-
-		request->addPayload( common::CAdmitProof( uint256() ) );
-
-		context< CRegisterAction >().addRequest( request );
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	boost::statechart::result react( common::CSynchronizationResult const & _synchronizationResult )
 	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		common::CResult result;
-
-		common::convertPayload( orginalMessage, result );
-
-		assert( result.m_result );// for debug only, do something here
-
-		context< CRegisterAction >().addRequest(
-					new common::CAckRequest(
-						  context< CRegisterAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
+		if ( _synchronizationResult.m_result )
+		{
+			CController::getInstance()->setConnected( true );
+		}
+		context< CRegisterAction >().setExit();
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CRegisterAction >().forgetRequests();
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CSynchronizationResult >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 
@@ -250,52 +261,11 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 		: my_base( ctx )
 	{
 		context< CRegisterAction >().forgetRequests();
-		context< CRegisterAction >().addRequest(
-		 new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		context< CRegisterAction >().addRequest(
-					new CAskForRegistrationRequest(
-						context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest(
-						new CSynchronizationAction( context< CRegisterAction >().getNodePtr() )
+						new CSynchronizationAction( context< CRegisterAction >().getPartnerKey() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		common::CResult result;
-
-		common::convertPayload( orginalMessage, result );
-
-		assert( result.m_result );// for debug only, do something here
-
-		CController::getInstance()->setConnected( true );
-
-		context< CRegisterAction >().addRequest(
-					new common::CAckRequest(
-						  context< CRegisterAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) ) );
-		return discard_event();
 	}
 
 	boost::statechart::result react( common::CSynchronizationResult const & _synchronizationResult )
@@ -315,9 +285,6 @@ struct CSynchronize : boost::statechart::state< CSynchronize, CRegisterAction >
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CSynchronizationResult >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
@@ -332,7 +299,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
-							context< CRegisterAction >().getPublicKey().GetID()
+							context< CRegisterAction >().getPartnerKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
@@ -354,7 +321,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 					common::CPayloadKind::Ack
 					, context< CRegisterAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+					, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CAck() );
 
@@ -365,7 +332,6 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 		return discard_event();
 	}
-
 
 	boost::statechart::result react( common::CTransactionAckEvent const & _transactionAckEvent )
 	{
@@ -385,7 +351,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitProof
 						, context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
 
 			request->addPayload(admitProof);
 
@@ -399,7 +365,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
-							context< CRegisterAction >().getPublicKey().GetID()
+							context< CRegisterAction >().getPartnerKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
@@ -434,7 +400,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
-							context< CRegisterAction >().getPublicKey().GetID()
+							context< CRegisterAction >().getPartnerKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
@@ -456,7 +422,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 					common::CPayloadKind::Ack
 					, context< CRegisterAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+					, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CAck() );
 
@@ -476,7 +442,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		context< CRegisterAction >().addRequest(
 					new common::CScheduleActionRequest(
 						new CPassTransactionAction(
-							context< CRegisterAction >().getPublicKey().GetID()
+							context< CRegisterAction >().getPartnerKey().GetID()
 							, context< CRegisterAction >().getRegisterPayment() )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
@@ -501,7 +467,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitProof
 						, context< CRegisterAction >().getActionKey()
-						, new CSpecificMediumFilter( context< CRegisterAction >().getNodePtr() ) );
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
 
 			request->addPayload(admitProof);
 
@@ -529,39 +495,42 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	> reactions;
 };
 
-CRegisterAction::CRegisterAction( uint256 const & _actionKey, uintptr_t _nodePtr )
+CRegisterAction::CRegisterAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
 	: common::CAction( _actionKey )
-	, m_nodePtr( _nodePtr )
+	, m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CExtensionEvent() );
 }
 
-CRegisterAction::CRegisterAction( uintptr_t _nodePtr )
-	: m_nodePtr( _nodePtr )
+CRegisterAction::CRegisterAction( CPubKey const & _partnerKey )
+	: m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CNewEvent() );
-}
-
-CPubKey
-CRegisterAction::getPublicKey() const
-{
-	CAddress address;
-	if ( !CTrackerNodesManager::getInstance()->getAddress( m_nodePtr, address ) )
-		return CPubKey();
-
-	CPubKey pubKey;
-	if ( !CTrackerNodesManager::getInstance()->getPublicKey( address, pubKey ) )
-		return CPubKey();
-
-	return pubKey;
 }
 
 void
 CRegisterAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
+}
+
+void
+CRegisterAction::setInNetwork( bool _flag )
+{
+	CController::getInstance()->setConnected( _flag );
+	if ( _flag )
+	{
+			CController::getInstance()->process_event( common::CRegistrationData( m_partnerKey, GetTime(), 0 ) );
+
+			common::CValidNodeInfo validNodeInfo;
+
+			if ( !CTrackerNodesManager::getInstance()->getNodeInfo( m_partnerKey.GetID(), validNodeInfo ) )
+				assert( !"problem" );
+
+			CTrackerNodesManager::getInstance()->setNetworkMonitor( validNodeInfo );
+	}
 }
 
 }

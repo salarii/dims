@@ -57,14 +57,4 @@ CTrackerNodeMedium::add( CDeliverInfoRequest const * _request )
 	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
 
-void
-CTrackerNodeMedium::add( CAskForRegistrationRequest const * _request )
-{
-	common::CMessage message( common::CAdmitAsk(), _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest*)_request );
-}
-
 }

@@ -99,7 +99,6 @@ struct CByKeyMediumFilter : public common::CMediumFilter
 	CPubKey m_key;
 };
 
-
 struct CComplexMediumFilter : public common::CMediumFilter
 {
 	CComplexMediumFilter( std::set< uintptr_t > const & _nodes )

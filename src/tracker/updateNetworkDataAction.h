@@ -12,7 +12,7 @@
 
 #include "protocol.h"
 
-namespace monitor
+namespace tracker
 {
 
 struct CUpdateNetworkData;

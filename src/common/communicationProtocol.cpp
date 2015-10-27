@@ -123,7 +123,7 @@ CMessage::CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256
 }
 
 CMessage::CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey, uint256 const & _id )
-: m_header( (int)CPayloadKind::ConnectCondition, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
+: m_header( (int)CPayloadKind::RegistrationTerms, std::vector<unsigned char>(), GetTime(), CPubKey(), _actionKey, _id )
 {
 	createPayload( _connectCondition, m_payload );
 

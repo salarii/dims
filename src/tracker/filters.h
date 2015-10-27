@@ -97,6 +97,30 @@ struct CComplexMediumFilter : public common::CMediumFilter
 };
 
 
+struct CByKeyMediumFilter : public common::CMediumFilter
+{
+	CByKeyMediumFilter( CPubKey const & _key )
+	: m_key( _key )
+	{}
+
+	std::list< common::CMedium *> getMediums( CTrackerNodesManager * _nodesManager )const
+	{
+		std::list< common::CMedium *> mediums;
+
+		uintptr_t nodeIndicator;
+		_nodesManager->getKeyToNode( m_key.GetID(), nodeIndicator );
+
+		common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
+
+		if ( medium )
+			mediums.push_back( medium );
+
+		return mediums;
+	}
+	CPubKey m_key;
+};
+
+
 }
 
 #endif // TRACKER_FILTERS_H

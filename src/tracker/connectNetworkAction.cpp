@@ -35,17 +35,10 @@ struct CInitialConnect : public boost::statechart::state< CInitialConnect, CConn
 
 		context< CConnectNetworkAction >().forgetRequests();
 
-		uintptr_t nodeIndicator;
-		if ( !CTrackerNodesManager::getInstance()->getKeyToNode( registrationData.m_key, nodeIndicator))
-		{
-			context< CConnectNetworkAction >().setExit();
-			return;
-		}
-
 		m_key = registrationData.m_key;
 		context< CConnectNetworkAction >().addRequest(
 					new common::CScheduleActionRequest(
-						new CSynchronizationAction( nodeIndicator )
+						new CSynchronizationAction( registrationData.m_key )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 

@@ -72,7 +72,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					common::CPayloadKind::Ack
 					, context< CProvideInfoAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CAck() );
 
@@ -93,7 +93,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 						common::CPayloadKind::TrackerInfo
 						, context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+						, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) );
 
 			request->addPayload(
 						common::CTrackerInfo(
@@ -115,7 +115,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 					common::CPayloadKind::Balance
 					, context< CProvideInfoAction >().getActionKey()
 					, m_id
-					, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+					, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) );
 
 		request->addPayload( common::CBalance( _availableCoins.m_availableCoins, _availableCoins.m_transactionInputs ) );
 
@@ -142,6 +142,11 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	uint256 m_id;
 };
 
+namespace
+{
+common::CMediumFilter * TargetMediumFilter;
+}
+
 struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
 	CAskForInfo( my_context ctx ) : my_base( ctx )
@@ -150,7 +155,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CProvideInfoAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) );
+					, TargetMediumFilter );
 
 		request->addPayload( context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );
 
@@ -186,7 +191,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					new common::CAckRequest(
 						  context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		if ( ( common::CPayloadKind::Enum )orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ValidRegistration )
 		{
@@ -195,6 +200,14 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 			common::convertPayload( orginalMessage, validRegistration );
 
 			context< CProvideInfoAction >().setResult( validRegistration );
+		}
+		else if ( ( common::CPayloadKind::Enum )orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RegistrationTerms )
+		{
+			common::CRegistrationTerms registrationTerms;
+
+			common::convertPayload( orginalMessage, registrationTerms );
+
+			context< CProvideInfoAction >().setResult( registrationTerms );
 		}
 
 		context< CProvideInfoAction >().forgetRequests();
@@ -209,18 +222,29 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 };
 
 
-CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator )
+CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
 	: common::CScheduleAbleAction( _actionKey )
-	, m_nodeIndicator( _nodeIndicator )
+	, m_partnerKey( _partnerKey )
 {
+	TargetMediumFilter = new CByKeyMediumFilter( _partnerKey );
 	initiate();
 	process_event( CProvideInfoEvent() );
 }
 
-CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind )
+CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, CPubKey const & _partnerKey )
+	: m_infoKind( _infoKind )
+	, m_partnerKey( _partnerKey )
+{
+	initiate();
+	process_event( CAskForInfoEvent() );
+}
+
+CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, common::CMediumKinds::Enum _mediumKind )
 	: m_infoKind( _infoKind )
 {
 	initiate();
+
+	TargetMediumFilter = new CMediumClassFilter( _mediumKind, 1 );
 	process_event( CAskForInfoEvent() );
 }
 
@@ -228,12 +252,6 @@ void
 CProvideInfoAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
-}
-
-uintptr_t
-CProvideInfoAction::getNodeIdentifier() const
-{
-	return m_nodeIndicator;
 }
 
 }

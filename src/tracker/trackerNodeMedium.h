@@ -27,8 +27,6 @@ public:
 	void add( CPassMessageRequest const * _request );
 
 	void add( CDeliverInfoRequest const * _request );
-
-	void add( CAskForRegistrationRequest const * _request );
 private:
 };
 

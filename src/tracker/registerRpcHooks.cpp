@@ -56,11 +56,11 @@ std::string registerInNetwork( std::string const & _key )
 	if ( !nodeAddress.GetKeyID( keyId ) )
 		return "monitor with specified number not present";
 
-	uintptr_t nodeIndicator;
-	if ( !CTrackerNodesManager::getInstance()->getKeyToNode( keyId, nodeIndicator ) )
+	common::CValidNodeInfo validNodeInfo;
+	if ( !CTrackerNodesManager::getInstance()->getNodeInfo( keyId, validNodeInfo ) )
 		return "monitor with specified number not present";
 
-	common::CActionHandler::getInstance()->executeAction( new CRegisterAction( nodeIndicator ) );
+	common::CActionHandler::getInstance()->executeAction( new CRegisterAction( validNodeInfo.m_publicKey ) );
 	return "registration in progress";
 }
 

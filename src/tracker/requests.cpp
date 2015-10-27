@@ -162,22 +162,4 @@ CGetBalanceRequest::getKey() const
 	return m_key;
 }
 
-CAskForRegistrationRequest::CAskForRegistrationRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
-	: common::CRequest( _mediumFilter )
-	, m_actionKey( _actionKey )
-{
-}
-
-void
-CAskForRegistrationRequest::accept( common::CMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-uint256
-CAskForRegistrationRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
 }

@@ -40,7 +40,7 @@ struct CProcessTransactionEvent : boost::statechart::event< CProcessTransactionE
 // another  way of passing  parameters between states ?? good ?? bad
 namespace
 {
-uintptr_t NodeIndicator;
+CPubKey ServicingNodeKey;
 uint256 Hash;
 common::CTrackerStats ServicingTracker;
 CTransaction Transaction;
@@ -75,7 +75,7 @@ struct CAcceptTransaction : boost::statechart::state< CAcceptTransaction, CPassT
 					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		CTransactionRecordManager::getInstance()->addClientTransaction( clientTransaction.m_transaction );
 
@@ -84,7 +84,7 @@ struct CAcceptTransaction : boost::statechart::state< CAcceptTransaction, CPassT
 					common::CPayloadKind::Result
 					, context< CPassTransactionAction >().getActionKey()
 					, orginalMessage.m_header.m_id
-					, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 		request->addPayload( common::CResult( 1 ) );
 
@@ -127,7 +127,7 @@ struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassT
 					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		if ( infoRequestData.m_kind == (int)common::CInfoKind::ClientTrasactionStatus )
 		{
@@ -146,7 +146,7 @@ struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassT
 						common::CPayloadKind::ClientStatusTransaction
 						, context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
 
 			request->addPayload( common::CClientTransactionStatus( status ) );
 
@@ -264,7 +264,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		ServicingTracker = common::CTrackerStats( _messageResult.m_pubKey, 0, trackerInfo.m_price );
 
@@ -380,11 +380,11 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		if ( result.m_result )
 		{
-			NodeIndicator = _messageResult.m_nodeIndicator;
+			ServicingNodeKey = _messageResult.m_pubKey;
 			return transit< CCheckStatus >();
 		}
 		else
@@ -418,7 +418,7 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
 					, context< CPassTransactionAction >().getActionKey()
-					, new CSpecificMediumFilter( NodeIndicator ) );
+					, new CByKeyMediumFilter( ServicingNodeKey ) );
 
 		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash ) );
 
@@ -444,7 +444,7 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		// send  and  kill
 		context< CPassTransactionAction >().addRequest(

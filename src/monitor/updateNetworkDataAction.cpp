@@ -2,34 +2,26 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "common/setResponseVisitor.h"
-#include "common/events.h"
-#include "common/authenticationProvider.h"
-#include "common/requests.h"
-
-#include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/transition.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "monitor/filters.h"
-#include "monitor/monitorRequests.h"
+#include "common/communicationProtocol.h"
+#include "common/requests.h"
+#include "common/responses.h"
+#include "common/setResponseVisitor.h"
+
+#include "monitor/updateNetworkDataAction.h"
 #include "monitor/reputationTracer.h"
-#include "monitor/controller.h"
-#include "monitor/updateDataAction.h"
+#include "monitor/filters.h"
 
 namespace monitor
 {
 
-unsigned int const LoopTime = 20000;//milisec
-
-struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataAction >
+struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdateNetworkDataAction >
 {
-	CAskForUpdate( my_context ctx ) : my_base( ctx )
+	CUpdateNetworkData( my_context ctx ) : my_base( ctx )
 	{
-		context< CUpdateDataAction >().forgetRequests();
-		context< CUpdateDataAction >().addRequest( new CInfoRequest( context< CUpdateDataAction >().getActionKey(), new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
-		context< CUpdateDataAction >().addRequest( new common::CTimeEventRequest( LoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _result )
@@ -38,62 +30,37 @@ struct CAskForUpdate : boost::statechart::state< CAskForUpdate, CUpdateDataActio
 		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), _result.m_pubKey ) )
 			assert( !"service it somehow" );
 
-		common::CKnownNetworkInfo knownNetworkInfo;
+		common::CRankingFullInfo rankingFullInfo;
 
-		common::convertPayload( orginalMessage, knownNetworkInfo );// right  now it is not clear to me what to  do with  this
+		common::convertPayload( orginalMessage, rankingFullInfo );
 
-		std::vector< common::CValidNodeInfo > validNodesInfo;
-		context< CUpdateDataAction >().forgetRequests();
-//		context< CUpdateDataAction >().addRequest(
-//					new common::CAckRequest( context< CUpdateDataAction >().getActionKey(), new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+		CReputationTracker::getInstance()->updateRankingInfo( _result.m_pubKey, rankingFullInfo );
 
-		m_presentTrackers.insert( _result.m_pubKey.GetID() );
+		context< CUpdateNetworkDataAction >().addRequest(
+		new common::CAckRequest( context< CUpdateNetworkDataAction >().getActionKey(), _result.m_message.m_header.m_id, new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
 
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CNoMedium const & _noMedium )
-	{
-		context< CUpdateDataAction >().forgetRequests();
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		CReputationTracker::getInstance()->setPresentTrackers( m_presentTrackers );
-		context< CUpdateDataAction >().forgetRequests();
+		context< CUpdateNetworkDataAction >().setExit();
 
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CNoMedium >
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 
 	std::set< uint160 > m_presentTrackers;
 };
 
-CUpdateDataAction::CUpdateDataAction( bool _autoDelete )
-: common::CAction( _autoDelete )
+CUpdateNetworkDataAction::CUpdateNetworkDataAction( uint256 const & _actionKey )
+	: common::CAction( _actionKey )
 {
 	initiate();
-	process_event( common::CSwitchToConnectedEvent() );
 }
 
 void
-CUpdateDataAction::accept( common::CSetResponseVisitor & _visitor )
+CUpdateNetworkDataAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
 
-void
-CUpdateDataAction::reset()
-{
-	common::CAction::reset();
-	initiate();
 }
-
-}
-

@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef UPDATE_DATA_ACTION_H
-#define UPDATE_DATA_ACTION_H
+#ifndef UPDATE_NETWORK_DATA_ACTION_H
+#define UPDATE_NETWORK_DATA_ACTION_H
 
 #include "common/action.h"
 #include "common/filters.h"
@@ -15,24 +15,17 @@
 namespace monitor
 {
 
-struct CAskForUpdate;
+struct CUpdateNetworkData;
 
-// rework  this  sooner  or later
-
-class CUpdateDataAction : public common::CAction, public  boost::statechart::state_machine< CUpdateDataAction, CAskForUpdate >
+class CUpdateNetworkDataAction : public common::CAction, public  boost::statechart::state_machine< CUpdateNetworkDataAction, CUpdateNetworkData >
 {
 public:
-	CUpdateDataAction( bool _autoDelete );
+	CUpdateNetworkDataAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
-
-	void reset();
-
-	~CUpdateDataAction(){};
-private:
 };
 
 
 }
 
-#endif // UPDATE_DATA_ACTION_H
+#endif // UPDATE_NETWORK_DATA_ACTION_H

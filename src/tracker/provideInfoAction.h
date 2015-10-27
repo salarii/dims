@@ -7,6 +7,7 @@
 
 #include "common/scheduleAbleAction.h"
 #include "common/filters.h"
+#include "common/mediumKinds.h"
 
 #include <boost/statechart/state_machine.hpp>
 
@@ -21,13 +22,18 @@ struct CInit;
 class CProvideInfoAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CProvideInfoAction, CInit >
 {
 public:
-	CProvideInfoAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
+	CProvideInfoAction( uint256 const & _actionKey, CPubKey const & _partnerKey );
 
-	CProvideInfoAction( common::CInfoKind::Enum _infoKind );
+	CProvideInfoAction( common::CInfoKind::Enum _infoKind, CPubKey const & _partnerKey );
+
+	CProvideInfoAction( common::CInfoKind::Enum _infoKind, common::CMediumKinds::Enum _mediumKind );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	uintptr_t getNodeIdentifier()const;
+	CPubKey getPartnerKey()const
+	{
+		return m_partnerKey;
+	}
 
 	common::CInfoKind::Enum getInfo() const{ return m_infoKind; }
 
@@ -35,7 +41,7 @@ public:
 private:
 	common::CInfoKind::Enum m_infoKind;
 
-	uintptr_t m_nodeIndicator;
+	CPubKey m_partnerKey;
 };
 
 }

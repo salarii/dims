@@ -17,9 +17,9 @@ struct CUninitiated;
 class CSynchronizationAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
 {
 public:
-	CSynchronizationAction( uintptr_t _nodeIndicator );
+	CSynchronizationAction( CPubKey const & _partnerKey );
 
-	CSynchronizationAction( uint256 const & _actionKey, uintptr_t _nodeIndicator, uint64_t _timeStamp );
+	CSynchronizationAction( uint256 const & _actionKey, CPubKey const & _partnerKey, uint64_t _timeStamp );
 
 	~CSynchronizationAction()
 	{}
@@ -28,9 +28,10 @@ public:
 
 	void clear();
 
-	void setNodeIdentifier( unsigned int _nodeIdentifier );
-	
-	unsigned long long getNodeIdentifier() const;
+	CPubKey getPartnerKey()const
+	{
+		return m_partnerKey;
+	}
 
 	bool isRequestInitialized() const;
 
@@ -46,7 +47,7 @@ private:
 
 	uint64_t m_timeStamp;
 
-	uintptr_t m_nodeIdentifier;
+	CPubKey m_partnerKey;
 
 	unsigned int m_storageSize;
 

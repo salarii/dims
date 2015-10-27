@@ -32,7 +32,6 @@ class CTransactionsPropagationRequest;
 class CPassMessageRequest;
 class CDeliverInfoRequest;
 class CGetBalanceRequest;
-class CAskForRegistrationRequest;
 
 }
 
@@ -87,7 +86,6 @@ public:
 	virtual void add( tracker::CTransactionsPropagationRequest const * _request ){};
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
-	virtual void add( tracker::CAskForRegistrationRequest const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
 	virtual void add( monitor::CRegistrationTerms const * _request ){};

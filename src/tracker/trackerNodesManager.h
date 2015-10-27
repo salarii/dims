@@ -28,6 +28,8 @@ public:
 
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 
+	bool getNodeInfo( uint160 const & _id, common::CValidNodeInfo & _validNodeInfo ) const;
+
 	void setNodeInfo( common::CValidNodeInfo const & _validNodeInfo, common::CRole::Enum _role );
 
 	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const;
@@ -58,18 +60,22 @@ public:
 	std::set< common::CValidNodeInfo > getNetworkTrackers()const;
 
 	std::set< common::CValidNodeInfo > getNetworkMonitors()const;
+
+	std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 private:
+	std::set< common::CValidNodeInfo > extractValidNodeInfo( std::map< uint160, common::CValidNodeInfo > const & _validNode ) const;
+
 	CTrackerNodesManager();
 private:
 	mutable boost::mutex m_lock;
 
 	std::map< CKeyID, uintptr_t > m_pubKeyToNodeIndicator;
-// not  ok
-	std::set< common::CValidNodeInfo > m_trackers;
 
-	std::set< common::CValidNodeInfo > m_monitors;
+	std::map< uint160, common::CValidNodeInfo > m_trackers;
 
-	std::set< common::CValidNodeInfo > m_seeds;
+	std::map< uint160, common::CValidNodeInfo > m_monitors;
+
+	std::map< uint160, common::CValidNodeInfo > m_seeds;
 
 	std::map< uint160, common::CValidNodeInfo > m_networkTrackers;
 

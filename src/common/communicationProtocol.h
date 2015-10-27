@@ -40,7 +40,7 @@ struct CPayloadKind
 		AckTransactions,
 		StatusTransactions,
 		Message,
-		ConnectCondition,
+		RegistrationTerms,
 		Result,
 		AdmitProof,
 		ValidRegistration,
@@ -74,6 +74,7 @@ struct CInfoKind
 		, RankingAsk
 		, TrackerInfo  // good ???
 		, EnterConditionAsk
+		, RegistrationTermsAsk
 		, ClientTrasactionStatus
 		, IsAddmited
 		, RankingFullInfo

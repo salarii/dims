@@ -11,11 +11,11 @@
 #include "common/responses.h"
 #include "common/setResponseVisitor.h"
 
-#include "monitor/updateNetworkDataAction.h"
-#include "monitor/reputationTracer.h"
-#include "monitor/filters.h"
+#include "tracker/updateNetworkDataAction.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/filters.h"
 
-namespace monitor
+namespace tracker
 {
 
 struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdateNetworkDataAction >
@@ -30,14 +30,64 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), _result.m_pubKey ) )
 			assert( !"service it somehow" );
 
+
+		// boring  and  tedious
 		common::CRankingFullInfo rankingFullInfo;
 
 		common::convertPayload( orginalMessage, rankingFullInfo );
 
-		CReputationTracker::getInstance()->updateRankingInfo( _result.m_pubKey, rankingFullInfo );
+		std::set<common::CValidNodeInfo> trackers;
+
+		BOOST_FOREACH( common::CTrackerData const & trackerData, rankingFullInfo.m_trackers )
+		{
+			trackers.insert( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) );
+		}
+
+		BOOST_FOREACH( common::CValidNodeInfo const & tracker, trackers )
+		{
+			if ( !CTrackerNodesManager::getInstance()->isInNetwork( tracker.m_publicKey.GetID() ) )
+			{
+				CTrackerNodesManager::getInstance()->setNetworkTracker( tracker );
+			}
+		}
+
+		std::set< common::CValidNodeInfo > networkNodes = CTrackerNodesManager::getInstance()->getNetworkTrackers();
+
+		BOOST_FOREACH( common::CValidNodeInfo const & node, networkNodes )
+		{
+			if ( trackers.find( node ) == trackers.end() )
+			{
+				CTrackerNodesManager::getInstance()->eraseNetworkTracker( node.m_publicKey.GetID() );
+			}
+		}
+
+		std::set<common::CValidNodeInfo> monitors;
+
+		BOOST_FOREACH( common::CAllyMonitorData const & allyMonitorData, rankingFullInfo.m_allyMonitors )
+		{
+			monitors.insert( common::CValidNodeInfo( allyMonitorData.m_publicKey, allyMonitorData.m_address ) );
+		}
+
+		BOOST_FOREACH( common::CValidNodeInfo const & monitor, monitors )
+		{
+			if ( !CTrackerNodesManager::getInstance()->isInNetwork( monitor.m_publicKey.GetID() ) )
+			{
+				CTrackerNodesManager::getInstance()->setNetworkMonitor( monitor );
+			}
+		}
+
+		networkNodes = CTrackerNodesManager::getInstance()->getNetworkMonitors();
+
+		BOOST_FOREACH( common::CValidNodeInfo const & node, networkNodes )
+		{
+			if ( monitors.find( node ) == monitors.end() )
+			{
+				CTrackerNodesManager::getInstance()->eraseNetworkMonitor( node.m_publicKey.GetID() );
+			}
+		}
 
 		context< CUpdateNetworkDataAction >().addRequest(
-		new common::CAckRequest( context< CUpdateNetworkDataAction >().getActionKey(), _result.m_message.m_header.m_id, new CSpecificMediumFilter( _result.m_nodeIndicator ) ) );
+		new common::CAckRequest( context< CUpdateNetworkDataAction >().getActionKey(), _result.m_message.m_header.m_id, new CByKeyMediumFilter( _result.m_pubKey ) ) );
 
 		context< CUpdateNetworkDataAction >().setExit();
 

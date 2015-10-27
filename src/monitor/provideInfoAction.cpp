@@ -136,6 +136,20 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 			context< CProvideInfoAction >().addRequest( request );
 
 		}
+		else if ( requestedInfo.m_kind == (int)common::CInfoKind::RegistrationTermsAsk )
+		{
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::RegistrationTerms
+						, context< CProvideInfoAction >().getActionKey()
+						, m_id
+						, new CSpecificMediumFilter( context< CProvideInfoAction >().getNodeIdentifier() ) );
+
+			request->addPayload(
+						common::CRegistrationTerms( CController::getInstance()->getPrice(), CController::getInstance()->getPeriod() ) );
+
+			context< CProvideInfoAction >().addRequest( request );
+		}
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::EnterConditionAsk )
 		{
 			common::CSendMessageRequest * request =

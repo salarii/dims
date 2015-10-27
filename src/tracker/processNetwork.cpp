@@ -89,35 +89,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			}
 		}
-		else if (
-					  message.m_header.m_payloadKind == common::CPayloadKind::Ping
-				|| message.m_header.m_payloadKind == common::CPayloadKind::Pong )
-		{
-			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
-			{
-				bool isPing = message.m_header.m_payloadKind == common::CPayloadKind::Ping;
-				nodeMedium->setResponse( message.m_header.m_id, common::CPingPongResult( isPing, convertToInt( nodeMedium->getNode() ) ) );
-			}
-			else
-			{
-				if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
-				{
-
-					CPingAction * pingAction
-							= new CPingAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
-
-					pingAction->process_event( common::CStartPongEvent() );
-
-					common::CActionHandler::getInstance()->executeAction( pingAction );
-				}
-				else
-				{
-					assert(!"it should be existing action");
-				}
-			}
-		}
 		else
 		{
 			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
@@ -140,7 +111,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
 							  message.m_header.m_actionKey
-							, convertToInt( nodeMedium->getNode() )
+							, pubKey
 							);
 
 				provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
@@ -150,7 +121,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration )
 			{
 				CRegisterAction * registerAction
-						= new CRegisterAction( message.m_header.m_actionKey, convertToInt( pfrom ) );
+						= new CRegisterAction( message.m_header.m_actionKey, pubKey );
 
 				registerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
 

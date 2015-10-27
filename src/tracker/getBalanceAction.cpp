@@ -107,7 +107,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 						new common::CAckRequest(
 							context< CGetBalanceAction >().getActionKey()
 							, orginalMessage.m_header.m_id
-							, new CSpecificMediumFilter( _messageResult.m_nodeIndicator ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			std::map< uint256, CCoins >::const_iterator iterator = balance.m_availableCoins.begin();
 

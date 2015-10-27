@@ -170,7 +170,7 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 		context< CRecognizeNetworkAction >().forgetRequests();
 		context< CRecognizeNetworkAction >().addRequest(
 					new common::CScheduleActionRequest(
-						  new CProvideInfoAction( common::CInfoKind::IsRegistered )
+						  new CProvideInfoAction( common::CInfoKind::IsRegistered, common::CMediumKinds::Monitors )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
