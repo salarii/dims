@@ -15,6 +15,7 @@ namespace tracker
 
 class CInternalMediumProvider;
 
+class CTrackerNodesManager;
 }
 
 namespace seed
@@ -52,6 +53,7 @@ struct CMediumFilter
 {
 	virtual std::list< CMedium *> getMediums( common::CNodesManager * _provider )const{ return std::list< CMedium *>(); }
 	virtual std::list< CMedium *> getMediums( tracker::CInternalMediumProvider * _provider )const{ return std::list< CMedium *>(); }
+	virtual std::list< CMedium *> getMediums( tracker::CTrackerNodesManager * _provider )const{ return std::list< CMedium *>(); }
 	virtual std::list< CMedium *> getMediums( client::CSettingsConnectionProvider * _provider )const{ return std::list< CMedium *>(); }
 	virtual std::list< CMedium *> getMediums( client::CTrackerLocalRanking * _provider )const{ return std::list< CMedium *>(); }
 	virtual std::list< CMedium *> getMediums( client::CLocalServer * _provider )const{ return std::list< CMedium *>(); }

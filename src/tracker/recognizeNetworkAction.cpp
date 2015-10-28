@@ -111,16 +111,12 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			 && nodesToAsk.empty()
 			)
 		{
+			context< CRecognizeNetworkAction >().forgetRequests();
 			return transit< CCheckRegistrationStatus >();
 		}
 		else if ( !nodesToAsk.empty() )
 		{
 			context< CRecognizeNetworkAction >().forgetRequests();
-
-			context< CRecognizeNetworkAction >().addRequest(
-						new common::CTimeEventRequest(
-							ConnectWaitTime
-							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 			BOOST_FOREACH( CAddress const & address, nodesToAsk )
 			{
@@ -148,7 +144,18 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
-		return discard_event();
+		CAddress problemNode;
+
+			common::readPayload( _failureEvent.m_problemData, problemNode );
+			m_received.insert( problemNode );
+
+			if (m_received.size() == m_alreadyAsked.size() )
+			{
+				context< CRecognizeNetworkAction >().forgetRequests();
+				return transit< CCheckRegistrationStatus >();
+			}
+
+			return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -183,6 +190,8 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
+		context< CRecognizeNetworkAction >().setExit();
+
 		return discard_event();
 	}
 
@@ -190,6 +199,7 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 	boost::statechart::custom_reaction< common::CRegistrationData >,
 	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
+
 };
 
 

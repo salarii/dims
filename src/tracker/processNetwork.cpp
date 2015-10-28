@@ -83,11 +83,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
 			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
 		}
 		else
 		{

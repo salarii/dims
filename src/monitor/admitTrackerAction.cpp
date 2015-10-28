@@ -190,6 +190,8 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
 
+		CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
+
 		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}

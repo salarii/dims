@@ -313,8 +313,6 @@ CTrackerNodesManager::getNetworkMonitors()const
 std::set< common::CValidNodeInfo >
 CTrackerNodesManager::extractValidNodeInfo( std::map< uint160, common::CValidNodeInfo > const & _validNode ) const
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
-
 	std::set< common::CValidNodeInfo > nodes;
 
 	BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & nodeInfo, m_networkTrackers )

@@ -554,10 +554,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 		if ( m_infoReceive && m_infoSend )
 		{
-			context< CConnectNodeAction >().addRequest(
-						new common::CTimeEventRequest(
-							1000
-							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			context< CConnectNodeAction >().setExit();
 		}
 
 		return discard_event();

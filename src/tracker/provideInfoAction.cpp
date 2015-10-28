@@ -157,7 +157,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					, context< CProvideInfoAction >().getActionKey()
 					, TargetMediumFilter );
 
-		request->addPayload( context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );
+		request->addPayload( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );
 
 		context< CProvideInfoAction >().addRequest( request );
 
@@ -235,6 +235,7 @@ CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, CPubK
 	: m_infoKind( _infoKind )
 	, m_partnerKey( _partnerKey )
 {
+	TargetMediumFilter = new CByKeyMediumFilter( _partnerKey );
 	initiate();
 	process_event( CAskForInfoEvent() );
 }
