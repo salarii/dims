@@ -32,7 +32,7 @@
 
 namespace tracker
 {
-
+// fix  synchronized
 unsigned const SynchronisingGetInfoTime = 10000;//milisec
 
 unsigned const SynchronisingWaitTime = 15000;
@@ -147,7 +147,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 					, context< CSynchronizationAction >().getActionKey()
 					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
-		request->addPayload( (int)common::CInfoKind::BitcoinHeaderAsk, std::vector<unsigned char>() );
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::BitcoinHeaderAsk, std::vector<unsigned char>() ) );
 
 		context< CSynchronizationAction >().addRequest( request );
 
@@ -221,7 +221,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 					, context< CSynchronizationAction >().getActionKey()
 					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
-		request->addPayload( (int)common::CInfoKind::StorageInfoAsk, 0 );
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::StorageInfoAsk, 0 ) );
 
 		context< CSynchronizationAction >().addRequest( request );
 	}
@@ -251,47 +251,15 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 		return transit< CSynchronizingHeaders >();
 	}
 
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CMessageResult >
-	> reactions;
-};
-
-struct CSynchronized;
-
-struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CSynchronizationAction >
-{
-	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
+	boost::statechart::result react( common::CAckEvent const & _promptAck )
 	{
-		context< CSynchronizationAction >().forgetRequests();
-
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::InfoReq
-					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload( (int)common::CInfoKind::StorageInfoAsk, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() );
-
-		context< CSynchronizationAction >().addRequest( request );
-
-		context< CSynchronizationAction >().addRequest(
-					new common::CTimeEventRequest(
-						SynchronisingWaitTime * 2
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CSynchronizationAction >().forgetRequests();
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
-
-	// best synchronising option
-	uint64_t m_bestTimeStamp;
 };
 
 struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CSynchronizationAction >
@@ -529,6 +497,44 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	> reactions;
 
 	unsigned int m_currentBlock;
+};
+
+struct CSynchronized;
+
+struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CSynchronizationAction >
+{
+	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::InfoReq
+					, context< CSynchronizationAction >().getActionKey()
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
+
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::StorageInfoAsk, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() ) );
+
+		context< CSynchronizationAction >().addRequest( request );
+
+		context< CSynchronizationAction >().addRequest(
+					new common::CTimeEventRequest(
+						SynchronisingWaitTime * 2
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >
+	> reactions;
+
+	// best synchronising option
+	uint64_t m_bestTimeStamp;
 };
 
 struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronizationAction >

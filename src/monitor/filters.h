@@ -87,7 +87,8 @@ struct CByKeyMediumFilter : public common::CMediumFilter
 		std::list< common::CMedium *> mediums;
 
 		uintptr_t nodeIndicator;
-		_nodesManager->getKeyToNode( m_key.GetID(), nodeIndicator );
+		if ( !_nodesManager->getKeyToNode( m_key.GetID(), nodeIndicator ) )
+			return mediums;
 
 		common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
 

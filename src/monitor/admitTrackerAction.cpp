@@ -164,7 +164,35 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 				return transit< CPaidRegistration >();
 		}
 		else
-			return transit< CFreeRegistration >();
+		{
+
+			CAddress address;
+			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )
+				assert( !"problem" );
+
+			CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
+			common::CTrackerData	trackerData;
+			if( CReputationTracker::getInstance()->getTracker( context< CAdmitTrackerAction >().getPartnerKey().GetID(), trackerData ) )
+			{
+				trackerData.m_networkTime = CController::getInstance()->getPeriod();
+				trackerData.m_contractTime = GetTime();
+
+			}
+			else
+			{
+				trackerData = common::CTrackerData(
+							context< CAdmitTrackerAction >().getPartnerKey()
+							, address
+							, 0
+							, CController::getInstance()->getPeriod()
+							, GetTime() );
+			}
+
+			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+
+			CReputationTracker::getInstance()->addTracker( trackerData );
+			context< CAdmitTrackerAction >().setExit();
+		}
 
 		return discard_event();
 	}
@@ -182,78 +210,6 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 	> reactions;
 };
 
-struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTrackerAction >
-{
-	CFreeRegistration( my_context ctx )
-		: my_base( ctx )
-	{
-
-		LogPrintf("admit tracker action: %p free registration \n", &context< CAdmitTrackerAction >() );
-
-		CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
-
-		context< CAdmitTrackerAction >().forgetRequests();
-		context< CAdmitTrackerAction >().addRequest( new common::CTimeEventRequest( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		common::CAdmitProof admitMessage;
-
-		common::convertPayload( orginalMessage, admitMessage );
-
-		CAddress address;
-
-		if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, address ) )
-			assert( !"problem" );
-
-		CReputationTracker::getInstance()->addTracker(
-					common::CTrackerData( _messageResult.m_pubKey, address, 0, CController::getInstance()->getPeriod(), GetTime() ) );
-
-		context< CAdmitTrackerAction >().addRequest(
-					new common::CAckRequest(
-						context< CAdmitTrackerAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
-
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::Result
-					, context< CAdmitTrackerAction >().getActionKey()
-					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-		request->addPayload( common::CResult( 1 ) );
-
-		context< CAdmitTrackerAction >().addRequest( request );
-
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CAdmitTrackerAction >().forgetRequests();
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		context< CAdmitTrackerAction >().forgetRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
-	> reactions;
-
-};
-
 struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTrackerAction >
 {
 	CPaidRegistration( my_context ctx )
@@ -267,12 +223,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		{
 			CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
 
-			uintptr_t nodeIndicator;
-			if ( !CReputationTracker::getInstance()->getKeyToNode( context< CAdmitTrackerAction >().getPartnerKey().GetID(), nodeIndicator ) )
-				assert( !"problem" );
-
 			CAddress address;
-			if ( !CReputationTracker::getInstance()->getAddress( nodeIndicator, address ) )
+			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )
 				assert( !"problem" );
 
 			CReputationTracker::getInstance()->addTracker(
@@ -319,9 +271,6 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		m_pubKey = _messageResult.m_pubKey;
 
-		if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, m_address ) )
-			assert( !"problem" );
-
 		return discard_event();
 	}
 
@@ -341,6 +290,10 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 			request->addPayload( common::CResult( 1 ) );
 
+			CAddress address;
+			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )
+				assert( !"problem" );
+
 			common::CTrackerData trackerData;
 			if( CReputationTracker::getInstance()->getTracker( context< CAdmitTrackerAction >().getPartnerKey().GetID(), trackerData ) )
 			{
@@ -351,18 +304,18 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 				trackerData = common::CTrackerData(
 							context< CAdmitTrackerAction >().getPartnerKey()
-							, m_address
+							, address
 							, 0
 							, CController::getInstance()->getPeriod()
 							, GetTime() );
 			}
 
-				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 
-				CReputationTracker::getInstance()->addTracker( trackerData );
+			CReputationTracker::getInstance()->addTracker( trackerData );
 
-				CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
-				context< CAdmitTrackerAction >().setExit();
+			CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
+			context< CAdmitTrackerAction >().setExit();
 		}
 		else
 		{
@@ -402,8 +355,6 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	int64_t const m_checkPeriod;
 
 	CPubKey m_pubKey;
-
-	CAddress m_address;
 };
 
 CAdmitTrackerAction::CAdmitTrackerAction( CPubKey const & _partnerKey )

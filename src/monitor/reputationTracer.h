@@ -89,6 +89,8 @@ public:
 	void addNodeToSynch( uint160 const & _pubKeyId );
 
 	void updateRankingInfo( CPubKey const & _pubKey, common::CRankingFullInfo const & _rankingFullInfo );
+
+	bool getAddresFromKey( uint160 const & _pubKeyId, CAddress & _address )const;
 private:
 
 	CReputationTracker();

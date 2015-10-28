@@ -539,6 +539,7 @@ CRegisterAction::setInNetwork( bool _flag )
 	{
 			CController::getInstance()->process_event( common::CRegistrationData( m_partnerKey, GetTime(), 0 ) );
 
+			CController::getInstance()->process_event( CMonitorAcceptEvent( m_partnerKey ) );
 			common::CValidNodeInfo validNodeInfo;
 
 			if ( !CTrackerNodesManager::getInstance()->getNodeInfo( m_partnerKey.GetID(), validNodeInfo ) )

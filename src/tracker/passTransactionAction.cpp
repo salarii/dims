@@ -240,7 +240,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 					, context< CPassTransactionAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
 
-		request->addPayload( (int)common::CInfoKind::TrackerInfo, std::vector<unsigned char>() );
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::TrackerInfo, std::vector<unsigned char>() ) );
 
 		context< CPassTransactionAction >().addRequest( request );
 	}

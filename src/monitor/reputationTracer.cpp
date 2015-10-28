@@ -549,6 +549,18 @@ CReputationTracker::addNodeToSynch( uint160 const & _pubKeyId )
 	m_allowSynchronization.insert( _pubKeyId );
 }
 
+bool
+CReputationTracker::getAddresFromKey( uint160 const & _pubKeyId, CAddress & _address )const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+	uintptr_t nodeIndicator;
+	if ( !CReputationTracker::getInstance()->getKeyToNode( _pubKeyId, nodeIndicator ) )
+		return false;
+
+	CAddress address;
+	return CReputationTracker::getInstance()->getAddress( nodeIndicator, _address );
+}
+
 void
 CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRankingFullInfo const & _rankingFullInfo )
 {

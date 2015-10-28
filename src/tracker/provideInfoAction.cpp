@@ -157,7 +157,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					, context< CProvideInfoAction >().getActionKey()
 					, TargetMediumFilter );
 
-		request->addPayload( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );
+		request->addPayload( common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() ) );
 
 		context< CProvideInfoAction >().addRequest( request );
 
@@ -175,6 +175,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CProvideInfoAction >().forgetRequests();
+					context< CProvideInfoAction >().setResult( common::CFailureEvent() );
 		context< CProvideInfoAction >().setExit();
 
 		return discard_event();

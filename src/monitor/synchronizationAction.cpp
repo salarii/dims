@@ -152,7 +152,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 					, context< CSynchronizationAction >().getActionKey()
 					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
-		request->addPayload( (int)common::CInfoKind::BitcoinHeaderAsk, std::vector<unsigned char>() );
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::BitcoinHeaderAsk, std::vector<unsigned char>() ) );
 
 		context< CSynchronizationAction >().addRequest( request );
 
@@ -226,7 +226,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 					, context< CSynchronizationAction >().getActionKey()
 					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
 
-		request->addPayload( (int)common::CInfoKind::StorageInfoAsk, 0 );
+		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::StorageInfoAsk, 0 ) );
 
 		context< CSynchronizationAction >().addRequest( request );
 	}
