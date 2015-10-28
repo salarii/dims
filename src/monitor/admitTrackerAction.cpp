@@ -132,6 +132,8 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 
 		// todo create alredy registered logic _messageResult.m_pubKey
 
+		assert( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk );
+
 		context< CAdmitTrackerAction >().forgetRequests();
 
 		context< CAdmitTrackerAction >().addRequest(
@@ -140,12 +142,16 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 						, _messageResult.m_message.m_header.m_id
 						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
-		context< CAdmitTrackerAction >().addRequest( new CRegistrationTerms(
-														  CController::getInstance()->getPrice()
-														 , CController::getInstance()->getPeriod()
-														 , context< CAdmitTrackerAction >().getActionKey()
-														 , _messageResult.m_message.m_header.m_id
-														 , new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::Result
+					, context< CAdmitTrackerAction >().getActionKey()
+					, _messageResult.m_message.m_header.m_id
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
+
+		request->addPayload( common::CResult( 1 ) );
+
+		context< CAdmitTrackerAction >().addRequest( request );
 
 		return discard_event();
 	}
@@ -155,7 +161,7 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		if ( CController::getInstance()->getPrice() )
 		{
 			if ( CReputationTracker::getInstance()->getTrackers().empty() )
-				return transit< CPaidRegistrationEmptyNetwork >();
+				return transit< CPaidRegistration >();
 		}
 		else
 			return transit< CFreeRegistration >();
@@ -246,74 +252,6 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CAdmitTr
 
 };
 
-struct CPaidRegistrationEmptyNetwork : boost::statechart::state< CPaidRegistrationEmptyNetwork, CAdmitTrackerAction >
-{
-	CPaidRegistrationEmptyNetwork( my_context ctx )
-		: my_base( ctx )
-	{
-		context< CAdmitTrackerAction >().forgetRequests();
-		context< CAdmitTrackerAction >().addRequest(
-					new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		if ( _messageResult.m_message.m_header.m_payloadKind== common::CPayloadKind::AdmitAsk )
-		{
-			context< CAdmitTrackerAction >().addRequest(
-						new common::CAckRequest(
-							context< CAdmitTrackerAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
-
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
-						common::CPayloadKind::Result
-						, context< CAdmitTrackerAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload( common::CResult( 1 ) );
-
-			CReputationTracker::getInstance()->addNodeToSynch( _messageResult.m_pubKey.GetID() );
-
-			context< CAdmitTrackerAction >().addRequest( request );
-
-			CAddress address;
-			if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, address ) )
-				assert( !"problem" );
-
-			CReputationTracker::getInstance()->addTracker(
-						common::CTrackerData( _messageResult.m_pubKey, address, 0, CController::getInstance()->getTryPeriod(), GetTime() ) );
-
-		}
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CAdmitTrackerAction >().setExit();
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		return transit< CPaidRegistration >();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
-	> reactions;
-};
-
 struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTrackerAction >
 {
 	CPaidRegistration( my_context ctx )
@@ -322,6 +260,22 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	{
 		LogPrintf("admit tracker action: %p paid registration \n", &context< CAdmitTrackerAction >() );
 		context< CAdmitTrackerAction >().forgetRequests();
+
+		if ( CReputationTracker::getInstance()->getTrackers().empty() )
+		{
+			CReputationTracker::getInstance()->addNodeToSynch( context< CAdmitTrackerAction >().getPartnerKey().GetID() );
+
+			uintptr_t nodeIndicator;
+			if ( !CReputationTracker::getInstance()->getKeyToNode( context< CAdmitTrackerAction >().getPartnerKey().GetID(), nodeIndicator ) )
+				assert( !"problem" );
+
+			CAddress address;
+			if ( !CReputationTracker::getInstance()->getAddress( nodeIndicator, address ) )
+				assert( !"problem" );
+
+			CReputationTracker::getInstance()->addTracker(
+						common::CTrackerData( context< CAdmitTrackerAction >().getPartnerKey(), address, 0, CController::getInstance()->getTryPeriod(), GetTime() ) );
+		}
 
 		CChargeRegister::getInstance()->setStoreTransactions( true );
 	}

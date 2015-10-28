@@ -28,35 +28,6 @@ private:
 	CAddress const m_serviceAddress;
 };
 
-class CRegistrationTerms : public common::CRequest
-{
-public:
-	CRegistrationTerms( unsigned int _price, int64_t const & _period, uint256 const & _actionKey, uint256 const & _id, common::CMediumFilter * _mediumFilter );
-
-	virtual void accept( common::CMedium * _medium ) const;
-
-	unsigned int getPrice() const
-	{
-		return m_price;
-	}
-
-	int64_t const & getPeriod() const
-	{
-		return m_period;
-	}
-
-	uint256 const & getActionKey() const
-	{
-		return m_actionKey;
-	}
-private:
-	uint256 const m_actionKey;
-
-	unsigned int m_price;
-
-	int64_t m_period;
-};
-
 class CInfoRequest : public common::CRequest
 {
 public:

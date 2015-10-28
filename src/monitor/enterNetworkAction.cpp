@@ -307,7 +307,7 @@ struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnt
 					, context< CEnterNetworkAction >().getActionKey()
 					, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) ); // bit  risky to ask  this way
 
-		request->addPayload( common::CInfoKind::EnterConditionAsk, std::vector<unsigned char>() );
+		request->addPayload( (int)common::CInfoKind::EnterConditionAsk, std::vector<unsigned char>() );
 
 		context< CEnterNetworkAction >().addRequest( request );
 	}

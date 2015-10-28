@@ -237,7 +237,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	{
 		if ( _synchronizationResult.m_result )
 		{
-			CController::getInstance()->setConnected( true );
+			context< CRegisterAction >().setInNetwork( true );
 		}
 		context< CRegisterAction >().setExit();
 		return discard_event();
@@ -327,9 +327,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 		context< CRegisterAction >().addRequest( request );
 
-		// registration done
-		CController::getInstance()->process_event( CMonitorAcceptEvent( _messageResult.m_pubKey ) );
-
+		context< CRegisterAction >().setInNetwork( true );
 		return discard_event();
 	}
 
@@ -428,10 +426,12 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 
 		context< CRegisterAction >().addRequest( request );
 
-		// registration done
-		CController::getInstance()->process_event( common::CRegistrationData( _messageResult.m_pubKey, GetTime(), 0 ) );
+		context< CRegisterAction >().forgetRequests();
 
-		context< CRegisterAction >().setExit();
+		context< CRegisterAction >().addRequest(
+					new common::CScheduleActionRequest(
+						new CSynchronizationAction( context< CRegisterAction >().getPartnerKey() )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
 		return discard_event();
 	}
@@ -476,6 +476,20 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CSynchronizationResult const & _synchronizationResult )
+	{
+		if ( _synchronizationResult.m_result )
+		{
+			context< CRegisterAction >().setInNetwork( true );
+		}
+		else
+		{
+			assert(!"problem");
+		}
+		context< CRegisterAction >().setExit();
+		return discard_event();
+	}
+
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		return discard_event();
@@ -491,6 +505,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTransactionAckEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CSynchronizationResult >,
 	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };

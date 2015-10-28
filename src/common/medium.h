@@ -46,7 +46,6 @@ namespace monitor
 {
 class CConnectToNodeRequest;
 class CInfoRequest;
-class CRegistrationTerms;
 }
 
 namespace common
@@ -88,7 +87,6 @@ public:
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
-	virtual void add( monitor::CRegistrationTerms const * _request ){};
 
 	void registerDeleteHook( boost::signals2::slot< void () > const & _deleteHook )
 	{

@@ -74,7 +74,7 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 					, context< CGetBalanceAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ); // bit  risky to ask  this way
 
-		request->addPayload( common::CInfoKind::BalanceAsk, m_self );
+		request->addPayload( (int)common::CInfoKind::BalanceAsk, m_self );
 
 		context< CGetBalanceAction >().addRequest( request );
 
