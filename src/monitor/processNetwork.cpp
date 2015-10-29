@@ -124,7 +124,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkAsk )
 				{
-					CEnterNetworkAction * enterNetworkAction = new CEnterNetworkAction( message.m_header.m_actionKey );
+					CEnterNetworkAction * enterNetworkAction = new CEnterNetworkAction( message.m_header.m_actionKey, key );
 					enterNetworkAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
 					common::CActionHandler::getInstance()->executeAction( enterNetworkAction );
 				}

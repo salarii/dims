@@ -21,7 +21,7 @@ class CEnterNetworkAction : public common::CAction, public  boost::statechart::s
 public:
 	CEnterNetworkAction( CPubKey const & _partnerKey );
 
-	CEnterNetworkAction( uint256 const & _actionKey );
+	CEnterNetworkAction( uint256 const & _actionKey, CPubKey const & _partnerKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 

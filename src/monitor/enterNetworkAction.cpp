@@ -581,8 +581,9 @@ CEnterNetworkAction::CEnterNetworkAction( CPubKey const & _partnerKey )
 	process_event( CSwitchToEnter() );
 }
 
-CEnterNetworkAction::CEnterNetworkAction( uint256 const & _actionKey )
+CEnterNetworkAction::CEnterNetworkAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
 	: common::CAction( _actionKey )
+	, m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CSwitchToAdmit() );
