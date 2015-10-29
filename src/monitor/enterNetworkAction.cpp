@@ -1,4 +1,3 @@
-
 // Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -31,7 +30,6 @@
 namespace monitor
 {
 struct CSynchronization;
-struct CFreeEnterance;
 struct CPaidEnterance;
 struct CNetworkAlive;
 struct CFreeRegistrationEnter;
@@ -111,7 +109,10 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 		if ( CController::getInstance()->getEnterancePrice() )
 			return transit< CPaidEnterance >();
 		else
-			return transit< CFreeEnterance >();
+		{
+			CReputationTracker::getInstance()->addNodeToSynch( context< CEnterNetworkAction >().getPartnerKey().GetID() );
+			context< CEnterNetworkAction >().setExit();
+		}
 
 		return discard_event();
 	}
@@ -127,49 +128,6 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
-};
-
-struct CFreeEnterance : boost::statechart::state< CFreeEnterance, CEnterNetworkAction >
-{
-	CFreeEnterance( my_context ctx )
-		: my_base( ctx )
-	{
-		context< CEnterNetworkAction >().forgetRequests();
-
-		context< CEnterNetworkAction >().addRequest(
-					new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-	}
-
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
-	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-// do  something
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CEnterNetworkAction >().forgetRequests();
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		context< CEnterNetworkAction >().forgetRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
-	> reactions;
-
 };
 
 struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkAction >
@@ -245,6 +203,7 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 			common::CAllyMonitorData monitorData( context< CEnterNetworkAction >().getPartnerKey(), m_address );
 
 			CReputationTracker::getInstance()->addAllyMonitor( monitorData );
+			CReputationTracker::getInstance()->addNodeToSynch( context< CEnterNetworkAction >().getPartnerKey().GetID() );
 
 			context< CEnterNetworkAction >().addRequest( request );
 		}
@@ -397,7 +356,7 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 			if ( result.m_result )
 			{
 				monitorKey = _messageResult.m_pubKey;
-				return price ? transit< CNetworkAlive >() : transit< CFreeEnterance >();
+				return price ? transit< CNetworkAlive >() : transit< CSynchronization >();
 			}
 			else
 			{
@@ -425,13 +384,6 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
-};
-
-struct CFreeRegistrationEnter : boost::statechart::state< CFreeRegistrationEnter, CEnterNetworkAction >
-{
-	CFreeRegistrationEnter( my_context ctx )
-		: my_base( ctx )
-	{}
 };
 
 struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAction >

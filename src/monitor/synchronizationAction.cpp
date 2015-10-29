@@ -25,6 +25,7 @@
 #include "monitor/copyStorageHandler.h"
 #include "monitor/transactionRecordManager.h"
 #include "monitor/trackOriginAddressAction.h"
+#include "monitor/reputationControlAction.h"
 
 namespace monitor
 {
@@ -732,6 +733,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 			if ( synchronizationGet.m_number < m_storedBlocks && synchronizationGet.m_kind == common::CBlockKind::Segment )
 			{
 				setBlock( synchronizationGet.m_number );
+				m_exit = synchronizationGet.m_number == m_storedBlocks - 1;
+
 			}
 			else if ( synchronizationGet.m_number < m_storedHeaders && synchronizationGet.m_kind == common::CBlockKind::Header )
 			{
@@ -744,6 +747,26 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	boost::statechart::result react( common::CAckEvent const & )
 	{
 		context< CSynchronizationAction >().forgetRequests();
+		if ( m_exit )
+		{
+			context< CSynchronizationAction >().setExit();
+
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::FullRankingInfo
+						, context< CSynchronizationAction >().getActionKey()
+						, m_id
+						, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) );
+
+			request->addPayload(
+						common::CRankingFullInfo(
+							CReputationTracker::getInstance()->getAllyTrackers()
+							, CReputationTracker::getInstance()->getAllyMonitors()
+							, CReputationTracker::getInstance()->getTrackers()
+							, CReputationControlAction::getInstance()->getActionKey() ) );
+
+			context< CSynchronizationAction >().addRequest( request );
+		}
 
 		return discard_event();
 	}
@@ -767,6 +790,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 	common::CSegmentHeader * m_segmentHeader;
 
 	uint256 m_id;
+	bool m_exit;
 };
 
 CSynchronizationAction::CSynchronizationAction( CPubKey const & _partnerKey )

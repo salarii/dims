@@ -255,8 +255,7 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )
 				assert( !"problem" );
 
-			CReputationTracker::getInstance()->addTracker(
-						common::CTrackerData( context< CAdmitTrackerAction >().getPartnerKey(), address, 0, CController::getInstance()->getTryPeriod(), GetTime() ) );
+			m_closeTime = GetTime();
 		}
 
 		CChargeRegister::getInstance()->setStoreTransactions( true );
@@ -305,6 +304,9 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		CTransaction transaction;
+
+		if (m_closeTime + CController::getInstance()->getTryPeriod() < GetTime() )
+			context< CAdmitTrackerAction >().setExit();
 
 		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
@@ -383,6 +385,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 	int64_t const m_checkPeriod;
 
 	CPubKey m_pubKey;
+
+	int64_t m_closeTime;
 };
 
 CAdmitTrackerAction::CAdmitTrackerAction( CPubKey const & _partnerKey )
