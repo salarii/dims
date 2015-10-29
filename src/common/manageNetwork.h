@@ -153,7 +153,7 @@ CManageNetwork::unregisterNodeSignals( Handler * _handler )
 
 	m_signals.SendMessages.disconnect(boost::bind( &Handler::sendMessages, this, _1, _2 ) );
 
-	m_signals.ProcessMessage.connect(boost::bind( &Handler::processMessages, _handler, _1, _2 ));
+	m_signals.ProcessMessage.disconnect(boost::bind( &Handler::processMessage, _handler, _1, _2 ));
 //	m_signals.InitializeNode.disconnect(boost::bind( &CManageNetwork::initializeNode, this ));
 //	m_signals.FinalizeNode.disconnect(boost::bind( &CManageNetwork::finalizeNode, this ));
 }

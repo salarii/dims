@@ -456,7 +456,6 @@ CReputationTracker::isExtendInProgress( CPubKey const & _pubKey )
 bool
 CReputationTracker::eraseExtendInProgress( CPubKey const & _pubKey )
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_extendInProgress.erase(_pubKey);
 
 	return true;
