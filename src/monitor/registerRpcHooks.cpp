@@ -34,19 +34,18 @@ std::string enterNetwork( std::string const & _key )
 	CNodeAddress nodeAddress(_key);
 
 	if ( !nodeAddress.GetKeyID( keyId ) )
-		goto WrongKey;
+		return "monitor with specified number not present";
 
 	uintptr_t nodeIndicator;
 	if ( !CReputationTracker::getInstance()->getKeyToNode( keyId, nodeIndicator ) )
-		goto NotPresent;
-
-	common::CActionHandler::getInstance()->executeAction( new CEnterNetworkAction( nodeIndicator ) );
-	return "registration in progress";
-
-WrongKey:
 		return "monitor with specified number not present";
-NotPresent:
-	return "monitor with specified number not present";
+
+	CPubKey pubKey;
+	if ( !CReputationTracker::getInstance()->getNodeToKey( nodeIndicator, pubKey ) )
+		return "monitor with specified number not present";
+
+	common::CActionHandler::getInstance()->executeAction( new CEnterNetworkAction( pubKey ) );
+	return "registration in progress";
 }
 
 std::string

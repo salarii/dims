@@ -796,6 +796,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 CSynchronizationAction::CSynchronizationAction( CPubKey const & _partnerKey )
 {
 	initiate();
+	process_event( CSwitchToSynchronizing() );
 }
 
 CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, CPubKey const & _partnerKey )
@@ -804,6 +805,7 @@ CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 con
 	, m_partnerKey( _partnerKey )
 {
 	initiate();
+	process_event( CSwitchToSynchronized() );
 }
 
 void
