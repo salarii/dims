@@ -118,11 +118,16 @@ CReputationTracker::loop()
 				}
 				else if ( timeLeft < CController::getInstance()->getPeriod() * TriggerExtendRatio )
 				{
-					if ( isExtendInProgress( tracker.second.m_publicKey ) )
+					if ( !isExtendInProgress( tracker.second.m_publicKey ) )
 					{
 						setExtendInProgress( tracker.second.m_publicKey );
 						common::CActionHandler::getInstance()->executeAction( new CAdmitTrackerAction(tracker.second.m_publicKey) );
 					}
+				}
+				else
+				{
+					if ( isExtendInProgress( tracker.second.m_publicKey ) )
+						eraseExtendInProgress( tracker.second.m_publicKey );
 				}
 			}
 
