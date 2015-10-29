@@ -161,6 +161,11 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 		context< CProvideInfoAction >().addRequest( request );
 
+		if ( common::CInfoKind::RankingFullInfo == context< CProvideInfoAction >().getInfo() )
+		{
+			context< CProvideInfoAction >().setExit();// ugly but this will allow CValidateTransactionsAction handle this
+		}
+
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest(
 						  LoopTime

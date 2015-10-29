@@ -26,7 +26,6 @@
 namespace monitor
 {
 struct CPaidRegistration;
-struct CFreeRegistration;
 struct CPaidRegistrationEmptyNetwork;
 struct CWaitForInfo;
 struct CExtendRegistration;
@@ -89,7 +88,36 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 
 			context< CAdmitTrackerAction >().addRequest( request );
 
-			return transit< CPaidRegistration >();
+			if ( CController::getInstance()->getPrice() )
+				return transit< CPaidRegistration >();
+
+			CAddress address;
+			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )
+				assert( !"problem" );
+
+			common::CTrackerData	trackerData;
+			if( CReputationTracker::getInstance()->getTracker( context< CAdmitTrackerAction >().getPartnerKey().GetID(), trackerData ) )
+			{
+				trackerData.m_networkTime = CController::getInstance()->getPeriod();
+				trackerData.m_contractTime = GetTime();
+			}
+			else
+			{
+				trackerData = common::CTrackerData(
+							context< CAdmitTrackerAction >().getPartnerKey()
+							, address
+							, 0
+							, CController::getInstance()->getPeriod()
+							, GetTime() );
+			}
+
+			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+
+			CReputationTracker::getInstance()->addTracker( trackerData );
+			context< CAdmitTrackerAction >().setExit();
+
+
+			context< CAdmitTrackerAction >().setExit();
 		}
 
 		return discard_event();

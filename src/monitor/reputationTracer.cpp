@@ -113,7 +113,7 @@ CReputationTracker::loop()
 				{
 					toBeRemoved.push_back( tracker.first );
 					CRankingDatabase::getInstance()->eraseTrackerData( tracker.second.m_publicKey );
-					m_registeredTrackers.erase( tracker.second.m_publicKey.GetID() );
+					toBeRemoved.push_back( tracker.second.m_publicKey.GetID() );
 					m_allowSynchronization.erase( tracker.second.m_publicKey.GetID() );
 				}
 				else if ( timeLeft < CController::getInstance()->getPeriod() * TriggerExtendRatio )

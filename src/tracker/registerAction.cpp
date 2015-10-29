@@ -94,12 +94,17 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		context< CRegisterAction >().setExit();
 		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
-		return m_price ? transit< CNoTrackers >() : transit< CFreeRegistration >();
+		if ( m_price )
+			transit< CNoTrackers >();
+
+		context< CRegisterAction >().setExit();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
