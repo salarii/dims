@@ -511,7 +511,8 @@ struct CSynchronization : boost::statechart::state< CSynchronization, CEnterNetw
 		{
 			return transit< CFetchRankingTimeAndInfo >();
 		}
-
+		else
+			context< CEnterNetworkAction >().setExit();
 		return discard_event();
 	}
 

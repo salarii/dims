@@ -48,11 +48,16 @@ unsigned int HeaderSize;
 unsigned int StrageSize;
 }
 
+
+struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
+{
+};
+
 struct CSwitchToSynchronizing : boost::statechart::event< CSwitchToSynchronizing >
 {
 };
 
-struct CUninitiated : boost::statechart::simple_state< CUninitiated, CSynchronizationAction >
+struct CUninitiatedSynchronization : boost::statechart::simple_state< CUninitiatedSynchronization, CSynchronizationAction >
 {
 	typedef boost::mpl::list<
 	boost::statechart::transition< CSwitchToSynchronizing, CSynchronizingAsk >,
@@ -794,6 +799,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 };
 
 CSynchronizationAction::CSynchronizationAction( CPubKey const & _partnerKey )
+	: m_partnerKey( _partnerKey )
 {
 	initiate();
 	process_event( CSwitchToSynchronizing() );

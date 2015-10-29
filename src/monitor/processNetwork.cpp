@@ -153,8 +153,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 								, key
 								);
 
-					synchronizationAction->process_event( CSwitchToSynchronized() );
-
 					common::CActionHandler::getInstance()->executeAction( synchronizationAction );
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )

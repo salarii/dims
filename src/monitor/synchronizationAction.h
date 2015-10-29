@@ -12,13 +12,9 @@
 namespace monitor
 {
 
-struct CUninitiated;
+struct CUninitiatedSynchronization;
 
-struct CSwitchToSynchronized : boost::statechart::event< CSwitchToSynchronized >
-{
-};
-
-class CSynchronizationAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiated >
+class CSynchronizationAction : public common::CScheduleAbleAction, public  boost::statechart::state_machine< CSynchronizationAction, CUninitiatedSynchronization >
 {
 public:
 	CSynchronizationAction( CPubKey const & _partnerKey );
