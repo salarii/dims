@@ -15,6 +15,7 @@
 #include "monitor/reputationTracer.h"
 #include "monitor/enterNetworkAction.h"
 #include "monitor/passTransactionAction.h"
+#include "monitor/reputationControlAction.h"
 
 namespace monitor
 {
@@ -65,9 +66,12 @@ selfAddress()
 	return address.ToString() + "\n\n" + "available coins: " + coinAmount.str();
 }
 
+// this establishes stand alone network,  rethink name?
 std::string
 synchronizeBitcoin()
 {
+	common::CActionHandler::getInstance()->executeAction( CReputationControlAction::createInstance() );
+
 	CController::getInstance()->process_event( common::CSynchronizeBitcoinAsk() );
 
 	return std::string("executing");
