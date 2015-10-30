@@ -70,6 +70,7 @@ selfAddress()
 std::string
 synchronizeBitcoin()
 {
+	CReputationTracker::getInstance()->setMeasureReputationTime( GetTime() );
 	common::CActionHandler::getInstance()->executeAction( CReputationControlAction::createInstance() );
 
 	CController::getInstance()->process_event( common::CSynchronizeBitcoinAsk() );
