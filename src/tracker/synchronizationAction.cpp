@@ -300,6 +300,12 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 			common::convertPayload( orginalMessage, synchronizationBlock );
 			context< CSynchronizationAction >().forgetRequests();
 
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
+
 			std::vector< CTransaction > transactions;
 
 			assert( synchronizationBlock.m_blockIndex == m_currentBlock );

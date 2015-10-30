@@ -319,8 +319,15 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 			common::CSupportTransactionsDatabase::getInstance()->flush();
 
+			context< CSynchronizationAction >().addRequest(
+						new common::CAckRequest(
+							  context< CSynchronizationAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
+
 			if ( StrageSize > ++m_currentBlock )
 			{
+
 				common::CSendMessageRequest * request =
 						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationGet
