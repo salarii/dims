@@ -42,9 +42,9 @@ public:
 
 	void eraseMedium( uintptr_t _nodePtr );
 
-	unsigned int getNumberOfTrackers() const
+	unsigned int getNumberOfNetworkTrackers() const
 	{
-		return m_trackers.size();
+		return m_networkTrackers.size();
 	}
 
 	bool isInNetwork( uint160 const & _keyId )const;

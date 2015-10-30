@@ -156,7 +156,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 			return transit< CRejected >();
 		else
 		{
-			return CTrackerNodesManager::getInstance()->getNumberOfTrackers() > 0 ? transit< CPropagateBundle >() : transit< CApproved >();
+			return CTrackerNodesManager::getInstance()->getNumberOfNetworkTrackers() > 0 ? transit< CPropagateBundle >() : transit< CApproved >();
 		}
 	}
 
@@ -340,6 +340,7 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 {
 	CApproved( my_context ctx ) : my_base( ctx )
 	{
+		// make real check  against storage ??
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
 			context< CValidateTransactionsAction >().getTransactions() );
 
@@ -370,8 +371,15 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CNoMedium const & _noMedium )
+	{
+		context< CValidateTransactionsAction >().setExit();
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CNoMedium >
 	> reactions;
 
 };

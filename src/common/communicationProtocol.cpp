@@ -40,6 +40,42 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _ori
 	return true;
 }
 
+
+bool
+CommunicationProtocol::unwindMessageAndParticipants(
+		CMessage const & _message
+		, CMessage & _originalMessage
+		, int64_t const _time
+		, CPubKey const &  _pubKey
+		, std::vector< CPubKey > & _participants
+		)
+{
+	if ( _time < _message.m_header.m_time )
+	{
+		// this should be serviced in special way
+		// clock of nodes may be not  synchronized
+		// return false;
+	}
+	if ( _message.m_header.m_payloadKind != CPayloadKind::IntroductionReq )
+	{
+	uint256 messageHash = 	Hash( &_message.m_payload.front(), &_message.m_payload.back() );
+
+	if ( !_pubKey.Verify(messageHash, _message.m_header.m_signedHash ) )
+		return false;
+	}
+	_participants.push_back( _pubKey );
+
+	if( _message.m_header.m_prevKey.IsValid() )
+	{
+		return unwindMessageAndParticipants(*(CMessage*)&_message.m_payload[0], _originalMessage, _message.m_header.m_time, _pubKey, _participants );
+	}
+
+	_originalMessage = _message;
+	//_payload =*(Payload *)_message.m_payload;
+
+	return true;
+}
+
 bool
 CommunicationProtocol::signPayload( std::vector<unsigned char> const & _payload, std::vector<unsigned char> & _signedHash )
 {

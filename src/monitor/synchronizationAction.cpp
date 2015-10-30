@@ -679,6 +679,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		m_diskBlock = new common::CDiskBlock;
 
 		m_segmentHeader = new common::CSegmentHeader;
+
+		m_exit = false;
 	}
 
 	void setBlock( unsigned int _blockNumber )

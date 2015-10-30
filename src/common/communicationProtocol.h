@@ -106,7 +106,19 @@ public:
 
 	bool createMessage( CMessage const & _inMessage, CMessage & _outMessage ) const;
 
-	static bool unwindMessage( CMessage const & _message, CMessage & _originalMessage, int64_t const _time, CPubKey const & _pubKey );
+	static bool unwindMessage(
+			CMessage const & _message
+			, CMessage & _originalMessage
+			, int64_t const _time
+			, CPubKey const & _pubKey );
+
+	static bool unwindMessageAndParticipants(
+			CMessage const & _message
+			, CMessage & _originalMessage
+			, int64_t const _time
+			, CPubKey const &  _pubKey
+			, std::vector< CPubKey > & _participants
+			);
 private:
 	CAuthenticationProvider * m_authenticationProvider;
 };
