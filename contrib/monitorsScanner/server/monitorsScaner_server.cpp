@@ -13,12 +13,13 @@
 #include "util.h"
 
 #include "informationProvider.h"
+#include "networksParameters.h"
 
 #include "common/actionHandler.h"
 #include "common/periodicActionExecutor.h"
+#include "common/dimsParams.h"
 
 #include "client/settingsConnectionProvider.h"
-#include "client/configureClientActionHadler.h"
 #include "client/connectAction.h"
 #include "client/errorMediumProvider.h"
 
@@ -45,42 +46,29 @@ class MonitorsScanerHandler : virtual public MonitorsScanerIf
 
 };
 
-/*
-template<>
-unsigned int const common::CActionHandler< common::CClientTypes >::m_sleepTime = 100;
-template<>
-common::CActionHandler< common::CClientTypes > * common::CActionHandler< common::CClientTypes >::ms_instance = NULL;
-
-
-template<>
-common::CPeriodicActionExecutor< common::CClientTypes > * common::CPeriodicActionExecutor< common::CClientTypes >::ms_instance = NULL;
-
-template<>
-unsigned int const common::CPeriodicActionExecutor< common::CClientTypes >::m_sleepTime = 100;
-*/
 void
 init( boost::thread_group & _threadGroup )
 {
-	common::SelectRatcoinParamsFromCommandLine();
+	common::SelectDimsParams( CNetworkParams::TESTNET );
 
-	common::CPeriodicActionExecutor< common::CClientTypes > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< common::CClientTypes >::getInstance();
+	common::CPeriodicActionExecutor * periodicActionExecutor
+			= common::CPeriodicActionExecutor::getInstance();
 
-	_threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< common::CClientTypes >::processingLoop, periodicActionExecutor ));
+	_threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor::processingLoop, periodicActionExecutor ));
 
-	_threadGroup.create_thread(boost::bind(&common::CActionHandler< common::CClientTypes >::loop, common::CActionHandler< common::CClientTypes >::getInstance()));
+	_threadGroup.create_thread(boost::bind(&common::CActionHandler::loop, common::CActionHandler::getInstance()));
 
-	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
-	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
 
-	common::CActionHandler< common::CClientTypes >::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
 
 	client::CConnectAction * connectAction =  new client::CConnectAction( false );
 
 	connectAction->m_connected.connect( boost::bind( &CInforamtionProvider::reloadData, CInforamtionProvider::getInstance() ) );
 
-	common::CPeriodicActionExecutor< common::CClientTypes >::getInstance()->addAction( connectAction, 60000 );
+	common::CPeriodicActionExecutor::getInstance()->addAction( connectAction, 60000 );
 }
 
 int main(int argc, char **argv)
