@@ -315,7 +315,7 @@ CTrackerNodesManager::extractValidNodeInfo( std::map< uint160, common::CValidNod
 {
 	std::set< common::CValidNodeInfo > nodes;
 
-	BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & nodeInfo, m_networkTrackers )
+	BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & nodeInfo, _validNode )
 	{
 		nodes.insert( nodeInfo.second );
 	}

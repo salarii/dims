@@ -140,9 +140,9 @@ struct CMonitorData
 
 	CMonitorData(){};
 
-	CMonitorData( std::vector< common::CNodeInfo > const & _trackers, std::vector< common::CNodeInfo > const & _monitors ):m_trackers( _trackers ), m_monitors( _monitors ){};
+	CMonitorData( std::set< common::CTrackerData > const & _trackers, std::vector< common::CNodeInfo > const & _monitors ):m_trackers( _trackers ), m_monitors( _monitors ){};
 
-	std::vector< common::CNodeInfo > m_trackers;
+	std::set< common::CTrackerData > m_trackers;
 	std::vector< common::CNodeInfo > m_monitors;
 	std::vector<unsigned char> m_signed;
 	// recognized  monitors and trackers

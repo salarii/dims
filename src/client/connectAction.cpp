@@ -32,6 +32,12 @@ struct CMonitorPresent;
 struct CDetermineTrackers;
 struct CRecognizeNetwork;
 
+namespace
+{
+std::map< uint160, common::CTrackerData > TrackersData;
+}
+
+
 struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConnectAction >
 {
 	CClientUnconnected( my_context ctx ) : my_base( ctx )
@@ -324,7 +330,16 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		monitorNodeInfo.push_back( nodeInfo );
 
 		m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
-		m_trackersInfo.insert( std::make_pair( monitorKey, monitorData.m_trackers ) );
+
+		std::vector< common::CNodeInfo > trackers;
+
+		BOOST_FOREACH( common::CTrackerData const & trackerData, monitorData.m_trackers )
+		{
+			trackers.push_back( common::CNodeInfo( trackerData.m_publicKey, trackerData.m_address.ToStringIP(), trackerData.m_address.GetPort(), (int)common::CRole::Tracker ) );
+			TrackersData.insert( std::make_pair( trackerData.m_publicKey.GetID(), trackerData ) );
+		}
+
+		m_trackersInfo.insert( std::make_pair( monitorKey, trackers ) );
 
 		m_monitorInputData.insert( std::make_pair( monitorKey, monitorKeys ) );
 
@@ -552,17 +567,22 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 		common::CNodeInfo undeterminedTracker;
 		CTrackerLocalRanking::getInstance()->getUndeterminedTracker( _message.m_ip, undeterminedTracker );
 
+	std::map< uint160, common::CTrackerData >::const_iterator iterator = TrackersData.find( undeterminedTracker.m_key.GetID() );
+
+	if ( iterator != TrackersData.end() )
+	{
 		common::CTrackerStats trackerStats(
-			  undeterminedTracker.m_key
-			, 0
-			, trackerStatsData.m_price
-			, undeterminedTracker.m_ip
-			, undeterminedTracker.m_port
-			);
+					undeterminedTracker.m_key
+					, iterator->second.m_reputation
+					, trackerStatsData.m_price
+					, undeterminedTracker.m_ip
+					, undeterminedTracker.m_port
+					);
 
 		CTrackerLocalRanking::getInstance()->addTracker( trackerStats );
 
 		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( _message.m_ip );
+	}
 
 		m_pending.erase( _message.m_nodePtr );
 

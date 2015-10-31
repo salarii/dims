@@ -44,7 +44,8 @@ public:
 
 	void operator()( CMonitorInfoReq const & _MonitorInfoReq ) const
 	{
-		std::vector< common::CNodeInfo > monitors, trackers;
+		std::vector< common::CNodeInfo > monitors;
+		std::vector< common::CTrackerData > trackers;
 
 		// problematic??  how to manage  self??
 
@@ -71,26 +72,7 @@ public:
 							, common::CRole::Monitor ));
 		}
 
-		std::set< CTrackerData > trackersData = CReputationTracker::getInstance()->getTrackers();
-
-		BOOST_FOREACH( CTrackerData const & trackerData, trackersData )
-		{
-
-			success = CReputationTracker::getInstance()->getKeyToNode( trackerData.m_publicKey.GetID(), nodeIndicator );
-			assert( success );
-
-			success = CReputationTracker::getInstance()->getAddress( nodeIndicator, address );
-			assert( success );
-
-			trackers.push_back(
-						common::CNodeInfo(
-							trackerData.m_publicKey
-							, address.ToStringIP()
-							, address.GetPort()
-							, common::CRole::Tracker ));
-		}
-
-		CMonitorData monitorData( trackers, monitors );
+		CMonitorData monitorData( CReputationTracker::getInstance()->getTrackers(), monitors );
 
 		CAuthenticationProvider::getInstance()->sign( hashMonitorData( monitorData ), monitorData.m_signed );
 

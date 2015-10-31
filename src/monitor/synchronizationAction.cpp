@@ -777,6 +777,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 							CReputationTracker::getInstance()->getAllyTrackers()
 							, CReputationTracker::getInstance()->getAllyMonitors()
 							, CReputationTracker::getInstance()->getTrackers()
+							, CReputationTracker::getInstance()->getMeasureReputationTime()
 							, CReputationControlAction::getInstance()->getActionKey() ) );
 
 			context< CSynchronizationAction >().addRequest( request );

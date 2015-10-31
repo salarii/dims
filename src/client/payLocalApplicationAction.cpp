@@ -127,9 +127,9 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 
 		key.Verify( common::hashMonitorData( monitorData ), monitorData.m_signed );
 		unsigned int bestFee = -1;
-		BOOST_FOREACH( common::CNodeInfo const & trackers, monitorData.m_trackers )
+		BOOST_FOREACH( common::CTrackerData const & tracker, monitorData.m_trackers )
 		{
-			CTrackerLocalRanking::getInstance()->getTrackerStats( trackers.m_key.GetID(), trackerStats );
+			CTrackerLocalRanking::getInstance()->getTrackerStats( tracker.m_publicKey.GetID(), trackerStats );
 
 			if ( bestFee > trackerStats.m_price )
 				best = trackerStats;

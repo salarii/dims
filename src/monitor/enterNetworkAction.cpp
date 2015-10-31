@@ -559,6 +559,8 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, context< CEnterNetworkAction >().getPartnerKey() ) );
 		}
 
+		CReputationTracker::getInstance()->setMeasureReputationTime( _rankingEvent.m_rankingInfo.m_time );
+
 		CReputationControlAction::createInstance( _rankingEvent.m_rankingInfo.m_leadingKey );
 		return discard_event();
 	}

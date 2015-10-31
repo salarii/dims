@@ -62,6 +62,7 @@ CReputationTracker::getInstance()
 void
 CReputationTracker::calculateReputation()
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
 	unsigned int  maxTransactionNumber = 0;
 	BOOST_FOREACH( TransactionsAddmited::value_type & transactionIndicator, m_transactionsAddmited )
 	{

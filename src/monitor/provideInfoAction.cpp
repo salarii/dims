@@ -172,6 +172,7 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 							CReputationTracker::getInstance()->getAllyTrackers()
 							, CReputationTracker::getInstance()->getAllyMonitors()
 							, CReputationTracker::getInstance()->getTrackers()
+							, CReputationTracker::getInstance()->getMeasureReputationTime()
 							, CReputationControlAction::getInstance()->getActionKey() ) );
 
 			context< CProvideInfoAction >().addRequest( request );
