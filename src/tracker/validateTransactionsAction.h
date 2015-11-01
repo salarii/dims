@@ -14,9 +14,7 @@ namespace tracker
 {
 
 struct CInitial;
-// extremely simplified,  no  confirmation message
-// it was  working  once, but  right now  not  very likely  ! test it !
-// add ack  event where necessary
+
 class CValidateTransactionsAction : public common::CAction,public boost::statechart::state_machine< CValidateTransactionsAction, CInitial >
 {
 public:
@@ -32,16 +30,10 @@ public:
 
 	void setTransactions( std::vector< CTransaction > const & _transactions );
 
-	void setInitiatingNode( uintptr_t _initiatingNode );
-
-	uintptr_t getInitiatingNode() const;
-
 	void setMessage( common::CMessage const & _message );
 
 	common::CMessage getMessage() const;
 private:
-	uintptr_t m_initiatingNode;
-
 	common::CMessage m_message;
 
 	std::vector< CTransaction > m_transactions;// deque ??? because  removal  from this contaier may  happen

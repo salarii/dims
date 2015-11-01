@@ -27,8 +27,6 @@ namespace tracker
 {
 class CValidateTransactionsRequest;
 class CConnectToTrackerRequest;
-class CTransactionsStatusRequest;
-class CTransactionsPropagationRequest;
 class CPassMessageRequest;
 class CDeliverInfoRequest;
 class CGetBalanceRequest;
@@ -81,8 +79,6 @@ public:
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
-	virtual void add( tracker::CTransactionsStatusRequest const * _request ){};
-	virtual void add( tracker::CTransactionsPropagationRequest const * _request ){};
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
 	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
 	virtual void add( monitor::CInfoRequest const * _request ){};

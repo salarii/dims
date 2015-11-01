@@ -15,10 +15,7 @@ struct TransactionsStatus
 		  Invalid = 0
 		, Validated
 		, Unconfirmed
-		, Ack
-		, DoubleSpend
 		, Confirmed
-		, Investigated
 	};
 };
 

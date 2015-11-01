@@ -334,4 +334,28 @@ CTrackerNodesManager::provideConnection( common::CMediumFilter const & _mediumFi
 	return _mediumFilter.getMediums( this );
 }
 
+void
+CTrackerNodesManager::setActiveNode( uint160 const & _idKey )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_activeNodes.insert( _idKey );
+}
+
+void
+CTrackerNodesManager::removeActiveNode( uint160 const & _idKey )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_activeNodes.erase( _idKey );
+}
+
+bool
+CTrackerNodesManager::isActiveNode( uint160 const & _idKey ) const
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	return m_activeNodes.find( _idKey ) != m_activeNodes.end();
+}
+
 }

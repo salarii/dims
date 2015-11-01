@@ -70,56 +70,6 @@ CPassMessageRequest::getPreviousKey() const
 	return m_prevKey;
 }
 
-CTransactionsPropagationRequest::CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
-	: common::CRequest( _mediumFilter )
-	, m_actionKey( _actionKey )
-	, m_transactions( _transactions )
-{
-}
-
-void
-CTransactionsPropagationRequest::accept( common::CMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-uint256
-CTransactionsPropagationRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-std::vector< CTransaction > const &
-CTransactionsPropagationRequest::getTransactions() const
-{
-	return m_transactions;
-}
-
-CTransactionsStatusRequest::CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
-	: common::CRequest( _mediumFilter )
-	, m_actionKey( _actionKey )
-	,m_bundleStatus( _bundleStatus )
-{
-}
-
-void
-CTransactionsStatusRequest::accept( common::CMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
-uint256
-CTransactionsStatusRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
-CBundleStatus::Enum
-CTransactionsStatusRequest::getBundleStatus() const
-{
-	return m_bundleStatus;
-}
-
 CConnectToTrackerRequest::CConnectToTrackerRequest( std::string const & _trackerAddress, CAddress const & _serviceAddress )
 	: common::CRequest( new CMediumClassFilter( common::CMediumKinds::Internal ) )
 	, m_trackerAddress( _trackerAddress )

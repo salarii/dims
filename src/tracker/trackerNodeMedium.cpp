@@ -14,30 +14,6 @@ namespace tracker
 {
 
 void
-CTrackerNodeMedium::add( CTransactionsPropagationRequest const * _request )
-{
-	common::CTransactionBundle transactionBundle;
-
-	transactionBundle.m_transactions = _request->getTransactions();
-
-	common::CMessage message( transactionBundle, _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest*)_request );
-}
-
-void
-CTrackerNodeMedium::add( CTransactionsStatusRequest const * _request )
-{
-	common::CMessage message( common::CTransactionsBundleStatus( _request->getBundleStatus() ), _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest*)_request );
-}
-
-void
 CTrackerNodeMedium::add( CPassMessageRequest const * _request )
 {
 	common::CMessage message( _request->getMessage(), _request->getPreviousKey(), _request->getActionKey(), _request->getId() );

@@ -62,6 +62,12 @@ public:
 	std::set< common::CValidNodeInfo > getNetworkMonitors()const;
 
 	std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
+
+	void setActiveNode( uint160 const & _idKey );
+
+	void removeActiveNode( uint160 const & _idKey );
+
+	bool isActiveNode( uint160 const & _idKey ) const;
 private:
 	std::set< common::CValidNodeInfo > extractValidNodeInfo( std::map< uint160, common::CValidNodeInfo > const & _validNode ) const;
 
@@ -80,6 +86,8 @@ private:
 	std::map< uint160, common::CValidNodeInfo > m_networkTrackers;
 
 	std::map< uint160, common::CValidNodeInfo > m_networkMonitors;
+
+	std::set< uint160 > m_activeNodes;
 };
 
 }

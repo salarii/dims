@@ -38,20 +38,36 @@ struct CMediumClassFilter : public common::CMediumFilter
 
 struct CNodeExceptionFilter : public common::CMediumFilter
 {
-	CNodeExceptionFilter( uintptr_t _exception ):m_exception( _exception )
-	{}
+	CNodeExceptionFilter( CPubKey const & _exceptionKey )
+	{
+		m_exceptions.insert( _exceptionKey );
+	}
 
-	std::list< common::CMedium *> getMediums( common::CNodesManager * _trackerNodesManager )const
+	CNodeExceptionFilter( std::set< CPubKey > const & _exceptionKeys )
+		: m_exceptions( _exceptionKeys )
+	{
+	}
+
+	std::list< common::CMedium *> getMediums( CTrackerNodesManager * _nodesManager )const
 	{
 		std::list< common::CMedium *> mediums;
 
-		mediums = _trackerNodesManager->getNodesByClass( common::CMediumKinds::Trackers );
-		mediums.remove( _trackerNodesManager->findNodeMedium( m_exception ) );
+		mediums = _nodesManager->getNodesByClass( common::CMediumKinds::Trackers );
+
+		BOOST_FOREACH( CPubKey const & key, m_exceptions )
+		{
+			uintptr_t nodeIndicator;
+
+			_nodesManager->getKeyToNode( key.GetID(), nodeIndicator );
+
+			common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
+			mediums.remove( medium );
+		}
 
 		return mediums;
 	}
 
-	uintptr_t m_exception;
+	std::set<CPubKey> m_exceptions;
 };
 
 struct CSpecificMediumFilter : public common::CMediumFilter
@@ -76,24 +92,27 @@ struct CSpecificMediumFilter : public common::CMediumFilter
 
 struct CComplexMediumFilter : public common::CMediumFilter
 {
-	CComplexMediumFilter( std::set< uintptr_t > const & _nodes )
-		: m_nodes( _nodes )
+	CComplexMediumFilter( std::set< CPubKey > const & _key )
+		: m_keys( _key )
 	{}
 
-	std::list< common::CMedium *> getMediums( common::CNodesManager * _nodesManager )const
+	std::list< common::CMedium *> getMediums( CTrackerNodesManager * _nodesManager )const
 	{
 
 		std::list< common::CMedium *> mediums;
 
-		BOOST_FOREACH( uintptr_t nodePtr , m_nodes )
+		BOOST_FOREACH( CPubKey const & key , m_keys )
 		{
-			common::CMedium * medium = _nodesManager->findNodeMedium( nodePtr );
+			uintptr_t nodeIndicator;
+			_nodesManager->getKeyToNode( key.GetID(), nodeIndicator );
+
+			common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
 			if ( medium )
 				mediums.push_back( medium );
 		}
 		return mediums;
 	}
-	 std::set< uintptr_t > const & m_nodes;
+	 std::set< CPubKey > m_keys;
 };
 
 

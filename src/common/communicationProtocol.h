@@ -281,6 +281,12 @@ struct CTransactionBundle
 		READWRITE(m_transactions);
 	)
 
+	CTransactionBundle()
+	{}
+
+	CTransactionBundle( std::vector< CTransaction > const & _transactions ):m_transactions(_transactions)
+	{}
+
 	std::vector< CTransaction > m_transactions;
 };
 

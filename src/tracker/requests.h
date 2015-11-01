@@ -31,9 +31,10 @@ struct CBundleStatus
 {
 	enum Enum
 	{
-		  Ack
+		  Validated
 		, NotValid
 		, Known
+		, Confirmed
 	};
 };
 
@@ -72,39 +73,6 @@ private:
 	common::CMessage m_message;
 
 	CPubKey const m_prevKey;
-};
-
-class CTransactionsPropagationRequest : public common::CRequest
-{
-public:
-	CTransactionsPropagationRequest( std::vector< CTransaction > const & _transactions, uint256 const & _actionKey,common::CMediumFilter * _mediumFilter );
-
-	virtual void accept( common::CMedium * _medium ) const;
-
-	uint256 getActionKey() const;
-
-	std::vector< CTransaction > const & getTransactions() const;
-private:
-	uint256 const m_actionKey;
-
-	std::vector< CTransaction > const m_transactions;
-};
-
-// most likely temporary solution
-class  CTransactionsStatusRequest : public common::CRequest
-{
-public:
-	CTransactionsStatusRequest( CBundleStatus::Enum _bundleStatus, uint256 const & _actionKey, common::CMediumFilter * _mediumFilter );
-
-	virtual void accept( common::CMedium * _medium ) const;
-
-	uint256 getActionKey() const;
-
-	CBundleStatus::Enum getBundleStatus() const;
-private:
-	uint256 const m_actionKey;
-
-	CBundleStatus::Enum m_bundleStatus;
 };
 
 class CConnectToTrackerRequest : public common::CRequest

@@ -20,10 +20,6 @@ class CTrackerNodeMedium : public common::CNodeMedium
 public:
 	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 
-	void add( CTransactionsPropagationRequest const * _request );
-
-	void add( CTransactionsStatusRequest const * _request );
-
 	void add( CPassMessageRequest const * _request );
 
 	void add( CDeliverInfoRequest const * _request );

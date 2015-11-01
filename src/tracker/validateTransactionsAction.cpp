@@ -36,12 +36,20 @@ generate Ack  or  pass Ack
 namespace tracker
 {
 
+unsigned const PropagateWaitTime = 15000;
+
 struct CNetworkPresent;
 struct COriginInitial;
 struct CPassBundle;
 struct CRejected;
 struct CPropagateBundle;
 struct CPassBundleInvalidate;
+
+namespace
+{
+CPubKey InitiatingNodeKey;
+}
+
 
 struct COriginOfTransactionEvent : boost::statechart::event< COriginOfTransactionEvent >
 {
@@ -165,80 +173,128 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 
 struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateTransactionsAction >
 {
-	CPropagateBundle( my_context ctx ) : my_base( ctx ), m_totalWaitTime( 30 )
+	CPropagateBundle( my_context ctx ) : my_base( ctx )
 	{
 		context< CValidateTransactionsAction >().forgetRequests();
-		context< CValidateTransactionsAction >().addRequest(
-					new CTransactionsPropagationRequest(
-								context< CValidateTransactionsAction >().getTransactions(),
-								context< CValidateTransactionsAction >().getActionKey(),
-								new CMediumClassFilter( common::CMediumKinds::Trackers )
-								)
-					);
 
-		m_time = GetTime();
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::Transactions
+					, context< CValidateTransactionsAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
+
+		request->addPayload( common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() ) );
+
+		context< CValidateTransactionsAction >().addRequest( request );
+
+		context< CValidateTransactionsAction >().addRequest(
+					new common::CTimeEventRequest(
+						 PropagateWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		std::set< common::CValidNodeInfo > networkTrackers
+				= CTrackerNodesManager::getInstance()->getNetworkTrackers();
+
+		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, networkTrackers )
+		{
+			if ( CTrackerNodesManager::getInstance()->isActiveNode( validNodeInfo.m_publicKey.GetID() ) )
+				m_partners.insert( validNodeInfo.m_publicKey.GetID() );
+		}
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _event )
 	{
-		//not needed for the time being
-		m_participating.insert( _event.m_nodePtr );
-		context< CValidateTransactionsAction >().forgetRequests();
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _event )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		assert( _event.m_message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions );
+		assert( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions );
 
 		common::CMessage orginalMessage;
 
-		if ( !common::CommunicationProtocol::unwindMessage( _event.m_message, orginalMessage, GetTime(), _event.m_pubKey ) )
+		 std::vector< CPubKey > participants;
+
+		if ( !common::CommunicationProtocol::unwindMessageAndParticipants( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey, participants ) )
 			assert( !"service it somehow" );
 
 		common::CTransactionsBundleStatus status;
 		convertPayload( orginalMessage, status );
 
-		//  do  nothing with  result  right  now
-
-
-		m_participating.erase( _event.m_nodeIndicator  );
-		if ( m_participating.empty() )
+		if ( status.m_status == (int)common::TransactionsStatus::Validated )
 		{
+			BOOST_FOREACH( CPubKey const & _pubKey, participants )
+			{
+				m_partners.erase( _pubKey.GetID() );
+			}
+		}
+		else
+		{
+			// not over yet, for now reject, in the future determine why it was rejected( inform  monitor about problem )
+			BOOST_FOREACH( CTransaction const & transaction, context< CValidateTransactionsAction >().getTransactions() )
+			{
+				CClientRequestsManager::getInstance()->setClientResponse( transaction.GetHash(), common::CTransactionAck( common::TransactionsStatus::Invalid, transaction ) );
+			}
+
+			return transit< CRejected >();
+		}
+
+		if ( m_partners.empty() )
+		{
+			common::CSendMessageRequest * request =
+					new common::CSendMessageRequest(
+						common::CPayloadKind::StatusTransactions
+						, context< CValidateTransactionsAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
+
+			request->addPayload( common::CTransactionsBundleStatus( (int)common::TransactionsStatus::Confirmed ) );
+
+			context< CValidateTransactionsAction >().addRequest( request );
+
+			context< CValidateTransactionsAction >().forgetRequests();
+
 			return transit< CApproved >();
 		}
 
-		context< CValidateTransactionsAction >().forgetRequests();
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CValidateTransactionsAction >().setExit();
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 
-	std::set< uintptr_t > m_participating;
-
-	uint64_t m_time;
-
-	uint64_t const m_totalWaitTime;
+	std::set< uint160 > m_partners;
 };
-
-struct CSendAcceptBudle : boost::statechart::state< CSendAcceptBudle, CValidateTransactionsAction >
-{
-	CSendAcceptBudle( my_context ctx ) : my_base( ctx )
-	{
-		context< CValidateTransactionsAction >().forgetRequests();
-		context< CValidateTransactionsAction >().addRequest( new CTransactionsStatusRequest( CBundleStatus::Ack, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
-	}
-
-};
-
 
 struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateTransactionsAction >
 {
 	CBroadcastBundle( my_context ctx ) : my_base( ctx )
 	{
+		context< CValidateTransactionsAction >().forgetRequests();
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::Transactions
+					, context< CValidateTransactionsAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
+
+		request->addPayload( common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() ) );
+
+		context< CValidateTransactionsAction >().addRequest( request );
+
+		context< CValidateTransactionsAction >().addRequest(
+					new common::CTimeEventRequest(
+						PropagateWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 	//ugly  check
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -246,31 +302,79 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _message )
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		m_participating.erase( _message.m_nodeIndicator );
+		context< CValidateTransactionsAction >().setExit();
 		return discard_event();
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		std::vector< CPubKey > nodes;
+
+		context< CValidateTransactionsAction >().addRequest(
+					new common::CAckRequest(
+						  context< CValidateTransactionsAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+
+		if ( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+		{
+			common::CMessage orginalMessage;
+
+			if ( !common::CommunicationProtocol::unwindMessageAndParticipants( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey, nodes ) )
+				assert( !"service it somehow" );
+
+
+		}
+		else if( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions )
+		{
+			common::CMessage orginalMessage;
+
+			if ( !common::CommunicationProtocol::unwindMessageAndParticipants( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey, nodes ) )
+				assert( !"service it somehow" );
+
+			common::CTransactionsBundleStatus status;
+			convertPayload( orginalMessage, status );
+
+			if ( status.m_status == CBundleStatus::Validated )
+			{
+
+			}
+			else if ( status.m_status == CBundleStatus::Known )
+			{
+
+			}
+			return discard_event();
+		}
+	}
+
+	boost::statechart::result react( common::CNoMedium const & _noMedium )
+	{
+		return transit< CApproved >();
 	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CAckEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CNoMedium >,
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
-
-	std::set< uintptr_t > m_participating;
 };
 
 struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransactionsAction >
 {
 	CPassBundle( my_context ctx ) : my_base( ctx )
 	{
-		common::CMessageResult const* messageResult = dynamic_cast< common::CMessageResult const* >( simple_state::triggering_event() );
 
-		assert( messageResult->m_message.m_header.m_payloadKind == common::CPayloadKind::Transactions );
+	}
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		assert( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::Transactions );
 
 		common::CMessage orginalMessage;
 
-		if ( !common::CommunicationProtocol::unwindMessage( messageResult->m_message, orginalMessage, GetTime(), messageResult->m_pubKey ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
 		common::CTransactionBundle transactionBundle;
@@ -279,39 +383,28 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 		context< CValidateTransactionsAction >().setTransactions( transactionBundle.m_transactions );
 
-		context< CValidateTransactionsAction >().setInitiatingNode( messageResult->m_nodeIndicator );
+		InitiatingNodeKey = _messageResult.m_pubKey;
 
 		context< CValidateTransactionsAction >().forgetRequests();
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CAckRequest(
 						  context< CValidateTransactionsAction >().getActionKey()
-						, messageResult->m_message.m_header.m_id
-						, new CSpecificMediumFilter( messageResult->m_nodeIndicator ) ) );
+						, _messageResult.m_message.m_header.m_id
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		context< CValidateTransactionsAction >().addRequest(
-					new CValidateTransactionsRequest( context< CValidateTransactionsAction >().getTransactions(), new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
-
-		m_pubKey = messageResult->m_pubKey;
+					new CValidateTransactionsRequest(
+						context< CValidateTransactionsAction >().getTransactions()
+						, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
 	}
 
 	boost::statechart::result react( common::CValidationEvent const & _event )
 	{
 		// for  now  all or  nothing  philosophy
-
 		if ( _event.m_invalidTransactionIndexes.empty() )
 		{
-			common::CMediumFilter * filter = new CNodeExceptionFilter( context< CValidateTransactionsAction >().getInitiatingNode() );
-			if ( CTrackerNodesManager::getInstance()->provideConnection( *filter ).empty() )
-			{
-				delete filter;
-				return transit<CSendAcceptBudle>();
-			}
-			else
-			{
-				CPassMessageRequest( context< CValidateTransactionsAction >().getMessage(), context< CValidateTransactionsAction >().getActionKey(), m_pubKey, filter );
 				return transit<CBroadcastBundle>();
-			}
 		}
 		else
 		{
@@ -321,10 +414,10 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CMessageResult >,
 	boost::statechart::custom_reaction< common::CValidationEvent >
 	> reactions;
 
-	CPubKey m_pubKey;
 };
 
 struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, CValidateTransactionsAction >
@@ -332,7 +425,17 @@ struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, 
 	CPassBundleInvalidate( my_context ctx ) : my_base( ctx )
 	{
 		context< CValidateTransactionsAction >().forgetRequests();
-		context< CValidateTransactionsAction >().addRequest( new CTransactionsStatusRequest( CBundleStatus::NotValid, context< CValidateTransactionsAction >().getActionKey(), new CSpecificMediumFilter( context< CValidateTransactionsAction >().getInitiatingNode() ) ) );
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::StatusTransactions
+					, context< CValidateTransactionsAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
+
+		request->addPayload( common::CTransactionsBundleStatus( (int)CBundleStatus::NotValid ) );
+
+		context< CValidateTransactionsAction >().addRequest( request );
+				context< CValidateTransactionsAction >().setExit();
 	}
 };
 
@@ -355,13 +458,16 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 		}
 
 		context< CValidateTransactionsAction >().forgetRequests();
-		context< CValidateTransactionsAction >().addRequest(
-					new CTransactionsPropagationRequest(
-								context< CValidateTransactionsAction >().getTransactions(),
-								context< CValidateTransactionsAction >().getActionKey(),
-								new CMediumClassFilter( common::CMediumKinds::Monitors )
-								)
-					);
+
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::Transactions
+					, context< CValidateTransactionsAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Monitors ) );
+
+		request->addPayload( common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() ) );
+
+		context< CValidateTransactionsAction >().addRequest( request );
 
 	}
 
@@ -428,18 +534,6 @@ void
 CValidateTransactionsAction::setTransactions( std::vector< CTransaction > const & _transactions )
 {
 	m_transactions = _transactions;
-}
-
-void
-CValidateTransactionsAction::setInitiatingNode( uintptr_t _initiatingNode )
-{
-	m_initiatingNode = _initiatingNode;
-}
-
-uintptr_t
-CValidateTransactionsAction::getInitiatingNode() const
-{
-	return m_initiatingNode;
 }
 
 void
