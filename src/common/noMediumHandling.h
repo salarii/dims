@@ -9,7 +9,7 @@
 #include "common/medium.h"
 #include "common/mediumKinds.h"
 
-namespace monitor
+namespace common
 {
 
 class CErrorMediumProvider : public  common::CConnectionProvider

@@ -38,13 +38,15 @@ struct CMediumClassFilter : public common::CMediumFilter
 
 struct CNodeExceptionFilter : public common::CMediumFilter
 {
-	CNodeExceptionFilter( CPubKey const & _exceptionKey )
+	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, CPubKey const & _exceptionKey )
+		: m_mediumClass(_mediumClass)
 	{
 		m_exceptions.insert( _exceptionKey );
 	}
 
-	CNodeExceptionFilter( std::set< CPubKey > const & _exceptionKeys )
+	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, std::set< CPubKey > const & _exceptionKeys )
 		: m_exceptions( _exceptionKeys )
+		, m_mediumClass(_mediumClass)
 	{
 	}
 
@@ -68,6 +70,7 @@ struct CNodeExceptionFilter : public common::CMediumFilter
 	}
 
 	std::set<CPubKey> m_exceptions;
+	common::CMediumKinds::Enum m_mediumClass;
 };
 
 struct CSpecificMediumFilter : public common::CMediumFilter
@@ -92,8 +95,8 @@ struct CSpecificMediumFilter : public common::CMediumFilter
 
 struct CComplexMediumFilter : public common::CMediumFilter
 {
-	CComplexMediumFilter( std::set< CPubKey > const & _key )
-		: m_keys( _key )
+	CComplexMediumFilter( std::set< uint160> const & _keyIds )
+		: m_keyIds( _keyIds )
 	{}
 
 	std::list< common::CMedium *> getMediums( CTrackerNodesManager * _nodesManager )const
@@ -101,10 +104,10 @@ struct CComplexMediumFilter : public common::CMediumFilter
 
 		std::list< common::CMedium *> mediums;
 
-		BOOST_FOREACH( CPubKey const & key , m_keys )
+		BOOST_FOREACH( uint160 const & keyId , m_keyIds )
 		{
 			uintptr_t nodeIndicator;
-			_nodesManager->getKeyToNode( key.GetID(), nodeIndicator );
+			_nodesManager->getKeyToNode( keyId, nodeIndicator );
 
 			common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
 			if ( medium )
@@ -112,7 +115,7 @@ struct CComplexMediumFilter : public common::CMediumFilter
 		}
 		return mediums;
 	}
-	 std::set< CPubKey > m_keys;
+	 std::set< uint160 > m_keyIds;
 };
 
 

@@ -22,7 +22,6 @@ MONITOR_H = \
 	internalOperationsMedium.h \
 	monitorNodeMedium.h \
 	monitorRequests.h \
-	noMediumHandling.h \
 	passTransactionAction.h \
 	pingAction.h \
 	processNetwork.h \
@@ -53,7 +52,6 @@ MONITOR_CPP = \
 	monitor.cpp \
 	monitorNodeMedium.cpp \
 	monitorRequests.cpp \
-	noMediumHandling.cpp \
 	passTransactionAction.cpp \
 	pingAction.cpp \
 	processNetwork.cpp \

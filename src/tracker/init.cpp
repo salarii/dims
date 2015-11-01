@@ -42,6 +42,7 @@
 #include "common/commandLine.h"
 #include "common/segmentFileStorage.h"
 #include "common/authenticationProvider.h"
+#include "common/noMediumHandling.h"
 
 #include "tracker/server.h"
 #include "tracker/clientRequestsManager.h"
@@ -960,6 +961,7 @@ common::CDimsParams::setAppType( common::AppType::Tracker );
 
 	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)tracker::CInternalMediumProvider::getInstance() );
 	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)tracker::CTrackerNodesManager::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)common::CErrorMediumProvider::getInstance() );
 	common::CManageNetwork::getInstance()->registerNodeSignals( tracker::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );

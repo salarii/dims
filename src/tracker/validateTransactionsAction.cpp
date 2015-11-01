@@ -44,10 +44,12 @@ struct CPassBundle;
 struct CRejected;
 struct CPropagateBundle;
 struct CPassBundleInvalidate;
+struct CPassBundleValidate;
 
 namespace
 {
 CPubKey InitiatingNodeKey;
+std::set< uint160 > PassValidationTargets;
 }
 
 
@@ -295,6 +297,17 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 					new common::CTimeEventRequest(
 						PropagateWaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		std::set< common::CValidNodeInfo > networkTrackers
+				= CTrackerNodesManager::getInstance()->getNetworkTrackers();
+
+		BOOST_FOREACH( common::CValidNodeInfo const & validNodeInfo, networkTrackers )
+		{
+			if ( CTrackerNodesManager::getInstance()->isActiveNode( validNodeInfo.m_publicKey.GetID() ) )
+				m_partners.insert( validNodeInfo.m_publicKey.GetID() );
+		}
+
+		m_partners.erase( InitiatingNodeKey.GetID() );
 	}
 	//ugly  check
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -304,8 +317,8 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		context< CValidateTransactionsAction >().setExit();
-		return discard_event();
+		PassValidationTargets = m_partners;  // burden, clean it
+		return transit< CPassBundleValidate >();
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -325,7 +338,10 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 			if ( !common::CommunicationProtocol::unwindMessageAndParticipants( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey, nodes ) )
 				assert( !"service it somehow" );
 
-
+			BOOST_FOREACH( CPubKey const & key, nodes )
+			{
+				m_known.insert(key.GetID());
+			}
 		}
 		else if( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions )
 		{
@@ -335,18 +351,33 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 				assert( !"service it somehow" );
 
 			common::CTransactionsBundleStatus status;
+
 			convertPayload( orginalMessage, status );
 
-			if ( status.m_status == CBundleStatus::Validated )
+			BOOST_FOREACH( CPubKey const & key, nodes )
 			{
-
+				if ( status.m_status == CBundleStatus::Validated )
+				{
+					m_validate.insert(key.GetID());
+				}
+				else if ( status.m_status == CBundleStatus::Known )
+				{
+					m_known.insert(key.GetID());
+				}
 			}
-			else if ( status.m_status == CBundleStatus::Known )
-			{
-
-			}
-			return discard_event();
 		}
+
+		std::set<uint160> comparePartners = m_validate;
+
+		comparePartners.insert(m_known.begin(), m_known.end());
+
+		if ( comparePartners == m_partners )
+		{
+			PassValidationTargets = m_known;
+			return transit< CPassBundleValidate >();
+		}
+
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
@@ -360,6 +391,10 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
+
+	std::set< uint160 > m_known;
+	std::set< uint160 > m_validate;
+	std::set< uint160 > m_partners;
 };
 
 struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransactionsAction >
@@ -418,6 +453,51 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 	boost::statechart::custom_reaction< common::CValidationEvent >
 	> reactions;
 
+};
+
+struct CPassBundleValidate : boost::statechart::state< CPassBundleValidate, CValidateTransactionsAction >
+{
+	CPassBundleValidate( my_context ctx ) : my_base( ctx )
+	{
+		common::CSendMessageRequest * request =
+				new common::CSendMessageRequest(
+					common::CPayloadKind::StatusTransactions
+					, context< CValidateTransactionsAction >().getActionKey()
+					, new CComplexMediumFilter( PassValidationTargets ) );
+
+		request->addPayload( common::CTransactionsBundleStatus( (int)CBundleStatus::Validated ) );
+
+		context< CValidateTransactionsAction >().addRequest( request );
+
+		context< CValidateTransactionsAction >().addRequest(
+					new common::CTimeEventRequest(
+						PropagateWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		//something  wrong, but  forget  about  that for now
+		context< CValidateTransactionsAction >().forgetRequests();
+		return transit<CApproved>();
+	}
+
+	boost::statechart::result react( common::CAckEvent const & _ackEvent )
+	{
+		context< CValidateTransactionsAction >().forgetRequests();
+		return transit<CApproved>();  // bit  to  optimistic
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CAckEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CTimeEvent >
+	> reactions;
 };
 
 struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, CValidateTransactionsAction >

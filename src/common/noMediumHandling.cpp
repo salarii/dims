@@ -2,9 +2,9 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "monitor/noMediumHandling.h"
+#include "common/noMediumHandling.h"
 
-namespace monitor
+namespace common
 {
 
 class CErrorMedium : public common::CMedium
@@ -15,8 +15,6 @@ public:
 	virtual bool flush(){ return true; }
 
 	virtual bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );
-
-	virtual void add( CInfoRequest const * _request );
 
 	static CErrorMedium* getInstance();
 		CErrorMedium();
@@ -45,12 +43,6 @@ CErrorMedium::getInstance()
 
 CErrorMedium::CErrorMedium()
 {
-}
-
-void
-CErrorMedium::add( CInfoRequest const *_request )
-{
-	m_responses.insert( std::make_pair( (common::CRequest*)_request, common::CNoMedium() ) );
 }
 
 bool

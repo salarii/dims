@@ -50,6 +50,7 @@
 #include "common/commandLine.h"
 #include "common/originAddressScanner.h"
 #include "common/authenticationProvider.h"
+#include "common/noMediumHandling.h"
 
 #include "monitor/processNetwork.h"
 #include "monitor/controller.h"
@@ -57,7 +58,6 @@
 #include "monitor/server.h"
 #include "monitor/clientRequestsManager.h"
 #include "monitor/reputationTracer.h"
-#include "monitor/noMediumHandling.h"
 #include "monitor/registerRpcHooks.h"
 #include "monitor/transactionRecordManager.h"
 #include "monitor/copyStorageHandler.h"
@@ -679,7 +679,7 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)monitor::CReputationTracker::getInstance() );
 
-		common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)CErrorMediumProvider::getInstance() );
+		common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)common::CErrorMediumProvider::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 

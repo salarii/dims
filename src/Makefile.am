@@ -41,6 +41,7 @@ COMMON_H = \
   common/nodeMedium.h \
   common/nodeMessages.h \
   common/nodesManager.h \
+  common/noMediumHandling.h \
   common/originAddressScanner.h \
   common/originTransactionsDatabase.h \
   common/periodicActionExecutor.h \
@@ -77,6 +78,7 @@ COMMON_CPP = \
   common/networkActionRegister.cpp \
   common/nodeMedium.cpp \
   common/nodesManager.cpp \
+  common/noMediumHandling.cpp \
   common/originAddressScanner.cpp \
   common/originTransactionsDatabase.cpp \
   common/periodicActionExecutor.cpp \
