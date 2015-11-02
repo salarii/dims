@@ -95,8 +95,8 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::MonitorInfoReq
 					, new CMediumByKeyFilter( serviceByMonitorEvent->m_keyId ) );
 
@@ -180,8 +180,8 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::Transaction
 					, tx.GetHash()
 					, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) );
@@ -224,8 +224,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	{
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
 					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
 
@@ -249,8 +249,8 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 		{
 			context< CPayLocalApplicationAction >().forgetRequests();
 
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
+			common::CSendClientMessageRequest * request =
+					new common::CSendClientMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
 						, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
 
@@ -298,8 +298,8 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::Transaction
 					, tx.GetHash()
 					, new CMediumByKeyFilter( context< CPayLocalApplicationAction >().getTrackerStats().m_key.GetID() ) );
@@ -342,8 +342,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 	{
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
 					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
 
@@ -365,8 +365,8 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 		{
 			context< CPayLocalApplicationAction >().forgetRequests();
 
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
+			common::CSendClientMessageRequest * request =
+					new common::CSendClientMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
 						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::TrackersRep, 1 ) );
 

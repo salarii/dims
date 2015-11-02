@@ -21,8 +21,6 @@ public:
 	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 
 	void add( CPassMessageRequest const * _request );
-
-	void add( CDeliverInfoRequest const * _request );
 private:
 };
 

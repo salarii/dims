@@ -81,26 +81,29 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 							, _messageResult.m_message.m_header.m_id
 							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
-						common::CPayloadKind::Result
-						, context< CEnterNetworkAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
+			common::CResult result;
 
 			if (
 					!CController::getInstance()->getEnterancePrice()
 					|| !CReputationTracker::getInstance()->getTrackers().empty() )
 			{
-				request->addPayload( common::CResult( 1 ) );
+				result = common::CResult( 1 );
 			}
 			else
 			{
-				request->addPayload( common::CResult( 0 ) );
+				result = common::CResult( 0 );
 			}
 
-			context< CEnterNetworkAction >().addRequest( request );
+			context< CEnterNetworkAction >().addRequest(
+						new common::CSendMessageRequest(
+							common::CPayloadKind::Result
+							, result
+							, context< CEnterNetworkAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+
 		}
+
 		return discard_event();
 	}
 
@@ -157,16 +160,13 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
-		common::CSendMessageRequest * request =
+		context< CEnterNetworkAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
+					, common::CAck()
 					, context< CEnterNetworkAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-		request->addPayload( common::CAck() );
-
-		context< CEnterNetworkAction >().addRequest( request );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		context< CEnterNetworkAction >().forgetRequests();
 		context< CEnterNetworkAction >().addRequest(
@@ -191,21 +191,18 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
 
-			common::CSendMessageRequest * request =
+			context< CEnterNetworkAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
+						, common::CResult( 1 )
 						, context< CEnterNetworkAction >().getActionKey()
 						, m_messageId
-						, new CByKeyMediumFilter( m_pubKey ) );
-
-			request->addPayload( common::CResult( 1 ) );
+						, new CByKeyMediumFilter( m_pubKey ) ) );
 
 			common::CAllyMonitorData monitorData( context< CEnterNetworkAction >().getPartnerKey(), m_address );
 
 			CReputationTracker::getInstance()->addAllyMonitor( monitorData );
 			CReputationTracker::getInstance()->addNodeToSynch( context< CEnterNetworkAction >().getPartnerKey().GetID() );
-
-			context< CEnterNetworkAction >().addRequest( request );
 		}
 		else
 		{
@@ -260,15 +257,12 @@ struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnt
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest * request =
+		context< CEnterNetworkAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::EnterConditionAsk, std::vector<unsigned char>() )
 					, context< CEnterNetworkAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) ); // bit  risky to ask  this way
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::EnterConditionAsk, std::vector<unsigned char>() ) );
-
-		context< CEnterNetworkAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) ) ); // bit  risky to ask  this way
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -319,15 +313,12 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 {
 	CAskForAddmision( my_context ctx ): my_base( ctx )
 	{
-		common::CSendMessageRequest * request =
+		context< CEnterNetworkAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::EnterNetworkAsk
+					, common::CAdmitAsk()
 					, context< CEnterNetworkAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) );
-
-		request->addPayload( common::CAdmitAsk() );
-
-		context< CEnterNetworkAction >().addRequest( request );
+					, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
 
 		context< CEnterNetworkAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -413,16 +404,13 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAct
 
 		assert( result.m_result );// for debug only, do something here
 
-		common::CSendMessageRequest * request =
+		context< CEnterNetworkAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
+					, common::CAck()
 					, context< CEnterNetworkAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-		request->addPayload( common::CAck() );
-
-		context< CEnterNetworkAction >().addRequest( request );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		if ( result.m_result )
 			return transit< CSynchronization >();
@@ -448,15 +436,12 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CEnterNetworkAct
 			common::CAdmitProof admitProof;
 			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
 
-			common::CSendMessageRequest * request =
+			context< CEnterNetworkAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitProof
+						, admitProof
 						, context< CEnterNetworkAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) );
-
-			request->addPayload(admitProof);
-
-			context< CEnterNetworkAction >().addRequest( request );
+						, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) ) );
 
 			context< CEnterNetworkAction >().addRequest(
 						new common::CTimeEventRequest(

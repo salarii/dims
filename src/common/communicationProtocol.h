@@ -565,17 +565,7 @@ public:
 	CMessage();
 	CMessage( CIdentifyMessage const & _identifyMessage, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CAck const & _ack, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CInfoRequestData const & _infoRequest, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CInfoResponseData const & _infoResponse, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CTransactionsBundleStatus const & _transactionsBundleStatus, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CTransactionBundle const & _bundle, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CRegistrationTerms const & _connectCondition, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( CMessage const & _message, CPubKey const & _prevKey, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CAdmitAsk const & _admit, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CBalance const & _balance, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CClientTransaction const & _clientTransaction, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CClientTransactionStatus const & _clientTransactionStatus, uint256 const & _actionKey, uint256 const & _id );
-	CMessage( CTrackerInfo const & _trackerInfo, uint256 const & _actionKey, uint256 const & _id );
 	CMessage( int _messageKind, std::vector< unsigned char > const & _payload, uint256 const & _actionKey, uint256 const & _id );
 
 	IMPLEMENT_SERIALIZE

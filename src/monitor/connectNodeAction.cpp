@@ -165,15 +165,12 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 	{
 		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 
-		common::CSendMessageRequest * request =
+		context< CConnectNodeAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() ) );
-
-		context< CConnectNodeAction >().addRequest( request );
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 	}
 
@@ -191,17 +188,13 @@ struct CMonitorDetermineRoleConnecting : boost::statechart::state< CMonitorDeter
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			common::CSendMessageRequest * request =
+			context< CConnectNodeAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::RoleInfo
+						, common::CNetworkRole( (int)common::CRole::Monitor )
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
-
-			request->addPayload(
-						common::CNetworkRole( (int)common::CRole::Monitor ) );
-
-			context< CConnectNodeAction >().addRequest( request );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
@@ -317,17 +310,13 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			common::CSendMessageRequest * request =
+			context< CConnectNodeAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::RoleInfo
+						, common::CNetworkRole( (int)common::CRole::Monitor )
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
-
-			request->addPayload(
-						common::CNetworkRole( (int)common::CRole::Monitor ) );
-
-			context< CConnectNodeAction >().addRequest( request );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
@@ -367,15 +356,12 @@ struct CMonitorDetermineRoleConnected : boost::statechart::state< CMonitorDeterm
 	{
 		context< CConnectNodeAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CConnectNodeAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() ) );
-
-		context< CConnectNodeAction >().addRequest( request );
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		return discard_event();
 	}
@@ -443,16 +429,13 @@ struct CMonitorConnectedToSeed : boost::statechart::state< CMonitorConnectedToSe
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			common::CSendMessageRequest * request =
+			context< CConnectNodeAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::NetworkInfo
+						, knownNetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
-
-			request->addPayload( knownNetworkInfo );
-
-			context< CConnectNodeAction >().addRequest( request );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 
 		return discard_event();
@@ -500,15 +483,12 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 
 		context< CConnectNodeAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CConnectNodeAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() ) );
-
-		context< CConnectNodeAction >().addRequest( request );
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		context< CConnectNodeAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -534,16 +514,13 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 			knownNetworkInfo.m_trackersInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Tracker );
 			knownNetworkInfo.m_monitorsInfo = CReputationTracker::getInstance()->getNodesInfo( common::CRole::Monitor );
 
-			common::CSendMessageRequest * request =
+			context< CConnectNodeAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::NetworkInfo
+						, knownNetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) );
-
-			request->addPayload( knownNetworkInfo );
-
-			context< CConnectNodeAction >().addRequest( request );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			m_infoSend = true;
 		}

@@ -15,16 +15,12 @@ namespace monitor
 
 class CRegistrationTerms;
 
-class CInfoRequest;
-
 class CMonitorNodeMedium : public common::CNodeMedium
 {
 public:
 	CMonitorNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 
 	void add( CRegistrationTerms const * _request );
-
-	void add( CInfoRequest const * _request );
 private:
 };
 

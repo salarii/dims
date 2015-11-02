@@ -144,32 +144,19 @@ private:
 	uint160 m_key;
 };
 
-class CSendMessageRequest: public common::CRequest
+class CSendClientMessageRequest: public common::CRequest
 {
 public:
-	CSendMessageRequest(
-			CPayloadKind::Enum _messageKind
-			, uint256 const & _actionKey
-			, uint256 const & _id
-			, CMediumFilter * _CMediumFilter );
-
-	CSendMessageRequest(
-			CPayloadKind::Enum _messageKind
-			, uint256 const & _actionKey
-			, CMediumFilter * _CMediumFilter );
-
-	CSendMessageRequest(
+	CSendClientMessageRequest(
 			common::CMainRequestType::Enum _messageKind
 			, CMediumFilter * _CMediumFilter );// bit  overuse of concept
 
-	CSendMessageRequest(
+	CSendClientMessageRequest(
 			common::CMainRequestType::Enum _messageKind
 			, uint256 const & _id
 			, CMediumFilter * _CMediumFilter );// bit  overuse of concept
 
 	void accept( CMedium * _medium ) const;
-
-	uint256 getActionKey() const;
 
 	int getMessageKind() const;
 
@@ -188,9 +175,75 @@ public:
 private:
 	int m_messageKind;
 
-	uint256 const m_actionKey;
-
 	std::vector< unsigned char > m_payload;
+};
+
+class CSendMessageRequest: public common::CRequest
+{
+public:
+	template < class Payload >
+	CSendMessageRequest(
+			CPayloadKind::Enum _messageKind
+			, Payload const & _payload
+			, uint256 const & _actionKey
+			, uint256 const & _id
+			, CMediumFilter * _CMediumFilter )
+	: common::CRequest( _id, _CMediumFilter )
+{
+		common::CMessage message(
+					_messageKind
+					, createPayload( _payload )
+					, _actionKey
+					, _id );
+}
+
+	template < class Payload >
+	CSendMessageRequest(
+			CPayloadKind::Enum _messageKind
+			, Payload const & _payload
+			, uint256 const & _actionKey
+			, CMediumFilter * _CMediumFilter )
+	{
+		common::CMessage message(
+					_messageKind
+					, createPayload( _payload )
+					, _actionKey
+					, getId() );
+	}
+
+	CSendMessageRequest(
+			common::CMessage const & _message
+			, CPubKey const & _prevKey
+			, uint256 const & _actionKey
+			, CMediumFilter * _CMediumFilter )
+	{
+		common::CMessage message(
+					_message
+					, _prevKey
+					, _actionKey
+					, getId() );
+	}
+
+	common::CMessage const & getMessage()const
+	{
+		return m_message;
+	}
+
+	void accept( CMedium * _medium ) const;
+private:
+	//better  define it  here
+	template < class T >
+	std::vector< unsigned char > createPayload( T const & _t )
+	{
+		std::vector< unsigned char > payload;
+		unsigned int size = ::GetSerializeSize( _t, SER_NETWORK, PROTOCOL_VERSION );
+		payload.resize( size );
+		CBufferAsStream stream( (char*)&payload[ 0 ], size, SER_NETWORK, PROTOCOL_VERSION );
+		stream << _t;
+		return payload;
+	}
+private:
+	common::CMessage m_message;
 };
 
 }

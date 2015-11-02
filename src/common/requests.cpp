@@ -179,61 +179,42 @@ CBalanceRequest::accept( CMedium * _medium ) const
 	_medium->add( this );
 }
 
-CSendMessageRequest::CSendMessageRequest( CPayloadKind::Enum _messageKind, uint256 const & _actionKey, uint256 const & _id, CMediumFilter * _CMediumFilter )
+CSendClientMessageRequest::CSendClientMessageRequest( CMainRequestType::Enum _messageKind, uint256 const & _id, CMediumFilter * _CMediumFilter )
 	: common::CRequest( _id, _CMediumFilter )
 	, m_messageKind( (int)_messageKind )
-	, m_actionKey( _actionKey )
 	, m_payload( std::vector< unsigned char >() )
 {
 }
 
-CSendMessageRequest::CSendMessageRequest( CPayloadKind::Enum _messageKind, uint256 const & _actionKey, CMediumFilter * _CMediumFilter )
+CSendClientMessageRequest::CSendClientMessageRequest( CMainRequestType::Enum _messageKind, CMediumFilter * _CMediumFilter )
 	: common::CRequest( _CMediumFilter )
 	, m_messageKind( (int)_messageKind )
-	, m_actionKey( _actionKey )
 	, m_payload( std::vector< unsigned char >() )
 {
 }
-
-CSendMessageRequest::CSendMessageRequest(
-		common::CMainRequestType::Enum _messageKind
-		, CMediumFilter * _CMediumFilter )
-	: common::CRequest( _CMediumFilter )
-	, m_messageKind( (int)_messageKind )
-	, m_payload( std::vector< unsigned char >() )
-{}
-
-CSendMessageRequest::CSendMessageRequest(
-		common::CMainRequestType::Enum _messageKind
-		, uint256 const & _id
-		, CMediumFilter * _CMediumFilter )
-	: common::CRequest( _id, _CMediumFilter )
-	, m_messageKind( (int)_messageKind )
-	, m_payload( std::vector< unsigned char >() )
-{}
 
 void
-CSendMessageRequest::accept( CMedium * _medium ) const
+CSendClientMessageRequest::accept( CMedium * _medium ) const
 {
 	_medium->add( this );
 }
 
-uint256
-CSendMessageRequest::getActionKey() const
-{
-	return m_actionKey;
-}
-
 int
-CSendMessageRequest::getMessageKind() const
+CSendClientMessageRequest::getMessageKind() const
 {
 	return m_messageKind;
 }
 
 std::vector< unsigned char > const &
-CSendMessageRequest::getPayLoad() const
+CSendClientMessageRequest::getPayLoad() const
 {
 	return m_payload;
+}
+
+void
+CSendMessageRequest::accept( CMedium * _medium ) const
+{
+	_medium->add( this );
 }
 
 }

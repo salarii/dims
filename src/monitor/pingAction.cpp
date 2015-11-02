@@ -47,15 +47,12 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 						PingPeriod
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest * request =
+		context< CPingAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ping
+					, common::CPing()
 					, context< CPingAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CPing() );
-
-		context< CPingAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -70,16 +67,12 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest * request =
+			context< CPingAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Ping
+						, common::CPing()
 						, context< CPingAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
-
-			request->addPayload( common::CPing() );
-
-			context< CPingAction >().addRequest( request );
-
+						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
 		}
 		return discard_event();
 	}
@@ -111,15 +104,12 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 		context< CPingAction >().addRequest(
 					new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest * request =
+		context< CPingAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Pong
+					, common::CPong()
 					, context< CPingAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CPong() );
-
-		context< CPingAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -134,15 +124,12 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 			context< CPingAction >().addRequest(
 						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-			common::CSendMessageRequest * request =
+			context< CPingAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Pong
+						, common::CPong()
 						, context< CPingAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) );
-
-			request->addPayload( common::CPong() );
-
-			context< CPingAction >().addRequest( request );
+						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
 		}
 		return discard_event();
 	}

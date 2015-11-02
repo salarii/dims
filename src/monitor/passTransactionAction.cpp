@@ -185,15 +185,12 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 			return;
 		}
 
-		common::CSendMessageRequest * request =
+		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::ClientTransaction
+					, common::CClientTransaction( tx )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CByKeyMediumFilter( ServicingTracker.m_key ) );
-
-		request->addPayload( common::CClientTransaction( tx ) );
-
-		context< CPassTransactionAction >().addRequest( request );
+					, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
 
 		Hash = tx.GetHash();
 		context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Validated, transaction ) );
@@ -251,29 +248,23 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 	CCheckStatus( my_context ctx ) : my_base( ctx )
 	{
 		context< CPassTransactionAction >().forgetRequests();
-		common::CSendMessageRequest * request =
+		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CByKeyMediumFilter( ServicingTracker.m_key ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash ) );
-
-		context< CPassTransactionAction >().addRequest( request );
+					, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CPassTransactionAction >().forgetRequests();
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::InfoReq
-					, context< CPassTransactionAction >().getActionKey()
-					, new CByKeyMediumFilter( ServicingTracker.m_key ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash ) );
-
-		context< CPassTransactionAction >().addRequest( request );
+		context< CPassTransactionAction >().addRequest(
+					new common::CSendMessageRequest(
+						common::CPayloadKind::InfoReq
+						, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash )
+						, context< CPassTransactionAction >().getActionKey()
+						, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
 
 		return discard_event();
 	}

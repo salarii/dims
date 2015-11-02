@@ -50,6 +50,7 @@ namespace
 {
 CPubKey InitiatingNodeKey;
 std::set< uint160 > PassValidationTargets;
+common::CMessage TransactionsMessage;
 }
 
 
@@ -179,15 +180,12 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 	{
 		context< CValidateTransactionsAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CValidateTransactionsAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Transactions
+					, common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() )
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
-
-		request->addPayload( common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() ) );
-
-		context< CValidateTransactionsAction >().addRequest( request );
+					, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -243,16 +241,13 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 
 		if ( m_partners.empty() )
 		{
-			common::CSendMessageRequest * request =
+			context< CValidateTransactionsAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::StatusTransactions
+						, common::CTransactionsBundleStatus( (int)common::TransactionsStatus::Confirmed )
 						, context< CValidateTransactionsAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
-
-			request->addPayload( common::CTransactionsBundleStatus( (int)common::TransactionsStatus::Confirmed ) );
-
-			context< CValidateTransactionsAction >().addRequest( request );
+						, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
 
 			context< CValidateTransactionsAction >().forgetRequests();
 
@@ -283,15 +278,12 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 	{
 		context< CValidateTransactionsAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CValidateTransactionsAction >().addRequest(
 				new common::CSendMessageRequest(
-					common::CPayloadKind::Transactions
+					TransactionsMessage
+					, InitiatingNodeKey
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
-
-		request->addPayload( common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() ) );
-
-		context< CValidateTransactionsAction >().addRequest( request );
+					, new CNodeExceptionFilter( common::CMediumKinds::Trackers, InitiatingNodeKey ) ) );
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -309,7 +301,7 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 		m_partners.erase( InitiatingNodeKey.GetID() );
 	}
-	//ugly  check
+
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
 	{
 		return discard_event();
@@ -342,6 +334,13 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 			{
 				m_known.insert(key.GetID());
 			}
+
+			context< CValidateTransactionsAction >().addRequest(
+					new common::CSendMessageRequest(
+						common::CPayloadKind::StatusTransactions
+						, common::CTransactionsBundleStatus( (int)CBundleStatus::Known )
+						, context< CValidateTransactionsAction >().getActionKey()
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		else if( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions )
 		{
@@ -401,8 +400,8 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 {
 	CPassBundle( my_context ctx ) : my_base( ctx )
 	{
-
 	}
+
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		assert( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::Transactions );
@@ -419,6 +418,8 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 		context< CValidateTransactionsAction >().setTransactions( transactionBundle.m_transactions );
 
 		InitiatingNodeKey = _messageResult.m_pubKey;
+
+		TransactionsMessage = _messageResult.m_message;
 
 		context< CValidateTransactionsAction >().forgetRequests();
 
@@ -459,15 +460,12 @@ struct CPassBundleValidate : boost::statechart::state< CPassBundleValidate, CVal
 {
 	CPassBundleValidate( my_context ctx ) : my_base( ctx )
 	{
-		common::CSendMessageRequest * request =
+		context< CValidateTransactionsAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::StatusTransactions
+					, common::CTransactionsBundleStatus( (int)CBundleStatus::Validated )
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CComplexMediumFilter( PassValidationTargets ) );
-
-		request->addPayload( common::CTransactionsBundleStatus( (int)CBundleStatus::Validated ) );
-
-		context< CValidateTransactionsAction >().addRequest( request );
+					, new CComplexMediumFilter( PassValidationTargets ) ) );
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -506,16 +504,14 @@ struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, 
 	{
 		context< CValidateTransactionsAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CValidateTransactionsAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::StatusTransactions
+					, common::CTransactionsBundleStatus( (int)CBundleStatus::NotValid )
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Trackers ) );
+					, new CByKeyMediumFilter( InitiatingNodeKey ) ) );
 
-		request->addPayload( common::CTransactionsBundleStatus( (int)CBundleStatus::NotValid ) );
-
-		context< CValidateTransactionsAction >().addRequest( request );
-				context< CValidateTransactionsAction >().setExit();
+				context< CValidateTransactionsAction >().setExit(); // too optimistic
 	}
 };
 
@@ -539,16 +535,12 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 
 		context< CValidateTransactionsAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CValidateTransactionsAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Transactions
+					, common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() )
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Monitors ) );
-
-		request->addPayload( common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() ) );
-
-		context< CValidateTransactionsAction >().addRequest( request );
-
+					, new CMediumClassFilter( common::CMediumKinds::Monitors ) ) );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )

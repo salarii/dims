@@ -35,17 +35,6 @@ CConnectToNodeRequest::getServiceAddress() const
 	return m_serviceAddress;
 }
 
-CInfoRequest::CInfoRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
-	: common::CRequest( _mediumFilter )
-	, m_actionKey( _actionKey )
-{
-}
-
-void
-CInfoRequest::accept( common::CMedium * _medium ) const
-{
-	_medium->add( this );
-}
 
 }
 

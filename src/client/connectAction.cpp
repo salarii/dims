@@ -78,8 +78,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::NetworkInfoReq
 					, new CMediumClassFilter( ClientMediums::Unknown ) );
 
@@ -148,8 +148,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 			{
 				context< CConnectAction >().forgetRequests();
 
-				common::CSendMessageRequest * request =
-						new common::CSendMessageRequest(
+				common::CSendClientMessageRequest * request =
+						new common::CSendClientMessageRequest(
 							common::CMainRequestType::NetworkInfoReq
 							, new CMediumClassFilter( ClientMediums::Unknown ) );
 
@@ -212,8 +212,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::MonitorInfoReq
 					, new CMediumClassFilter( ClientMediums::Monitors ) );
 
@@ -232,8 +232,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_checked.insert( m_pending.begin(), m_pending.end() );
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::MonitorInfoReq
 					, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
 
@@ -347,8 +347,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		{
 			context< CConnectAction >().forgetRequests();
 
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
+			common::CSendClientMessageRequest * request =
+					new common::CSendClientMessageRequest(
 						common::CMainRequestType::MonitorInfoReq
 						, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
 
@@ -520,8 +520,8 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 	{
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
+		common::CSendClientMessageRequest * request =
+				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TrackerInfoReq
 					, new CMediumClassFilter( ClientMediums::UndeterminedTrackers ) );
 

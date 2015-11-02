@@ -67,16 +67,13 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		m_id = _messageResult.m_message.m_header.m_id;
 
-		common::CSendMessageRequest * request =
+		context< CProvideInfoAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
+					, common::CAck()
 					, context< CProvideInfoAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CAck() );
-
-		context< CProvideInfoAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) ) );
 
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::BalanceAsk )
 		{
@@ -88,20 +85,17 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		}
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::TrackerInfo )
 		{
-			common::CSendMessageRequest * request =
+			common::CTrackerInfo trackerInfo(
+				common::CAuthenticationProvider::getInstance()->getMyKey()
+				, CController::getInstance()->getPrice() );
+
+			context< CProvideInfoAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::TrackerInfo
+						, trackerInfo
 						, context< CProvideInfoAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) );
-
-			request->addPayload(
-						common::CTrackerInfo(
-							common::CAuthenticationProvider::getInstance()->getMyKey()
-							, CController::getInstance()->getPrice() ) );
-
-			context< CProvideInfoAction >().addRequest( request );
-
+						, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) ) );
 		}
 
 		return discard_event();
@@ -110,16 +104,13 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 	boost::statechart::result react( common::CAvailableCoinsData const & _availableCoins )
 	{
-		common::CSendMessageRequest * request =
+		context< CProvideInfoAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Balance
+					, common::CBalance( _availableCoins.m_availableCoins, _availableCoins.m_transactionInputs )
 					, context< CProvideInfoAction >().getActionKey()
 					, m_id
-					, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CBalance( _availableCoins.m_availableCoins, _availableCoins.m_transactionInputs ) );
-
-		context< CProvideInfoAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CProvideInfoAction >().getPartnerKey() ) ) );
 
 		return discard_event();
 	}
@@ -151,15 +142,12 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
 	CAskForInfo( my_context ctx ) : my_base( ctx )
 	{
-		common::CSendMessageRequest * request =
+		context< CProvideInfoAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() )
 					, context< CProvideInfoAction >().getActionKey()
-					, TargetMediumFilter );
-
-		request->addPayload( common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() ) );
-
-		context< CProvideInfoAction >().addRequest( request );
+					, TargetMediumFilter ) );
 
 		if ( common::CInfoKind::RankingFullInfo == context< CProvideInfoAction >().getInfo() )
 		{

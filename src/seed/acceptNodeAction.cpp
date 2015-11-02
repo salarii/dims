@@ -191,15 +191,12 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 	{
 		LogPrintf("accept node action: %p determine role connecting \n", &context< CAcceptNodeAction >() );
 
-		common::CSendMessageRequest * request =
+		context< CAcceptNodeAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CAcceptNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() ) );
-
-		context< CAcceptNodeAction >().addRequest( request );
+					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -216,17 +213,13 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			common::CSendMessageRequest * request =
+			context< CAcceptNodeAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::RoleInfo
+						, common::CNetworkRole( (int)common::CRole::Seed )
 						, context< CAcceptNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
-
-			request->addPayload(
-						common::CNetworkRole( (int)common::CRole::Seed ) );
-
-			context< CAcceptNodeAction >().addRequest( request );
+						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -361,17 +354,13 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 
 			assert( infoRequest.m_kind == common::CInfoKind::RoleInfoAsk );
 
-			common::CSendMessageRequest * request =
+			context< CAcceptNodeAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::RoleInfo
+						, common::CNetworkRole( (int)common::CRole::Seed )
 						, context< CAcceptNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
-
-			request->addPayload(
-						common::CNetworkRole( (int)common::CRole::Seed ) );
-
-			context< CAcceptNodeAction >().addRequest( request );
+						, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -415,15 +404,12 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	{
 		context< CAcceptNodeAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CAcceptNodeAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CAcceptNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() ) );
-
-		context< CAcceptNodeAction >().addRequest( request );
+					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
 		return discard_event();
 	}
@@ -457,15 +443,12 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 
 		context< CAcceptNodeAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CAcceptNodeAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() )
 					, context< CAcceptNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() ) );
-
-		context< CAcceptNodeAction >().addRequest( request );
+					, new CSpecificMediumFilter( context< CAcceptNodeAction >().getNodePtr() ) ) );
 
 		context< CAcceptNodeAction >().addRequest( new common::CTimeEventRequest( WaitTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}

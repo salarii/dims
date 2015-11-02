@@ -65,27 +65,23 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 
 			common::convertPayload( orginalMessage, connectCondition );
 
-			common::CSendMessageRequest * request =
+			context< CRegisterAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Ack
+						, common::CAck()
 						, context< CRegisterAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
-
-			request->addPayload( common::CAck() );
-
-			context< CRegisterAction >().addRequest( request );
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
 			if ( CController::getInstance()->autoRenewRegistration() )
 			{
-				request = new common::CSendMessageRequest(
-							common::CPayloadKind::AdmitAsk
-							, context< CRegisterAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
-
-				request->addPayload( common::CAdmitAsk() );
-				context< CRegisterAction >().addRequest( request );
+				context< CRegisterAction >().addRequest(
+							new common::CSendMessageRequest(
+								common::CPayloadKind::AdmitAsk
+								, common::CAdmitAsk()
+								, context< CRegisterAction >().getActionKey()
+								, _messageResult.m_message.m_header.m_id
+								, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
 				m_price = connectCondition.m_price;
 			}
@@ -179,15 +175,12 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest * request =
+		context< CRegisterAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitAsk
-						, context< CRegisterAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CAdmitAsk() );
-
-		context< CRegisterAction >().addRequest( request );
+					, common::CAdmitAsk()
+					, context< CRegisterAction >().getActionKey()
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
 		return discard_event();
 	}
@@ -321,16 +314,13 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 
 		assert( result.m_result );// for debug only, do something here
 
-		common::CSendMessageRequest * request =
+		context< CRegisterAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
+					, common::CAck()
 					, context< CRegisterAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CAck() );
-
-		context< CRegisterAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
 		context< CRegisterAction >().setInNetwork( true );
 		return discard_event();
@@ -350,15 +340,13 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 			common::CAdmitProof admitProof;
 			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
 
-			common::CSendMessageRequest * request =
+			context< CRegisterAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::AdmitProof
+						, admitProof
 						, context< CRegisterAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
+						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
-			request->addPayload(admitProof);
-
-			context< CRegisterAction >().addRequest( request );
 		}
 		return discard_event();
 	}
@@ -420,16 +408,13 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 
 		assert( result.m_result );// for debug only, do something here
 
-		common::CSendMessageRequest * request =
+		context< CRegisterAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
+					, common::CAck()
 					, context< CRegisterAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CAck() );
-
-		context< CRegisterAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
 		context< CRegisterAction >().forgetRequests();
 
@@ -468,15 +453,13 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 			common::CAdmitProof admitProof;
 			admitProof.m_proofTransactionHash = _transactionAckEvent.m_transactionSend.GetHash();
 
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
-						common::CPayloadKind::AdmitProof
-						, context< CRegisterAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) );
+			context< CRegisterAction >().addRequest(
+						new common::CSendMessageRequest(
+							common::CPayloadKind::AdmitProof
+							, admitProof
+							, context< CRegisterAction >().getActionKey()
+							, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
-			request->addPayload(admitProof);
-
-			context< CRegisterAction >().addRequest( request );
 		}
 		return discard_event();
 	}

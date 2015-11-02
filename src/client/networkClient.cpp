@@ -175,7 +175,7 @@ CNetworkClient::add( common::CRequest const * _request )
 }
 
 void
-CNetworkClient::add( common::CSendMessageRequest const * _request )
+CNetworkClient::add( common::CSendClientMessageRequest const * _request )
 {
 	QMutexLocker lock( &m_mutex );
 

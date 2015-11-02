@@ -10,14 +10,4 @@
 namespace monitor
 {
 
-void
-CMonitorNodeMedium::add( CInfoRequest const * _request )
-{
-	common::CMessage message( common::CInfoRequestData(), _request->getActionKey(), _request->getId() );
-
-	m_messages.push_back( message );
-
-	setLastRequest( _request->getId(), (common::CRequest*)_request );
-}
-
 }

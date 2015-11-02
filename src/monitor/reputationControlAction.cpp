@@ -145,18 +145,16 @@ struct COperating : boost::statechart::state< COperating, CReputationControlActi
 						calculateNextTime()
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		common::CSendMessageRequest * request =
+		common::CRankingInfo rankingInfo(
+			CReputationTracker::getInstance()->getTrackers()
+			, CReputationTracker::getInstance()->getMeasureReputationTime() );
+
+		context< CReputationControlAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::RankingInfo
+					, rankingInfo
 					, context< CReputationControlAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Monitors ) );
-
-		request->addPayload(
-					common::CRankingInfo(
-						CReputationTracker::getInstance()->getTrackers()
-						, CReputationTracker::getInstance()->getMeasureReputationTime() ) );
-
-		context< CReputationControlAction >().addRequest( request );
+					, new CMediumClassFilter( common::CMediumKinds::Monitors ) ) );
 
 		return discard_event();
 	}

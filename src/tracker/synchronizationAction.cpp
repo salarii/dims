@@ -58,15 +58,12 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationAsk
+					, common::CSynchronizationAsk()
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CSynchronizationAsk() );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -141,15 +138,12 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::BitcoinHeaderAsk, std::vector<unsigned char>() )
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::BitcoinHeaderAsk, std::vector<unsigned char>() ) );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -215,15 +209,12 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::StorageInfoAsk, 0 )
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::StorageInfoAsk, 0 ) );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -268,18 +259,16 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		common::CSynchronizationGet synchronizationGet(
+			(int)common::CBlockKind::Segment
+			, m_currentBlock );
+
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
+					, synchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload(
-					common::CSynchronizationGet(
-						(int)common::CBlockKind::Segment
-						, m_currentBlock ) );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -324,18 +313,17 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 
 			if ( context< CSynchronizationAction >().getStorageSize() > ++m_currentBlock )
 			{
-				common::CSendMessageRequest * request =
+				common::CSynchronizationGet synchronizationGet(
+					(int)common::CBlockKind::Segment
+					, m_currentBlock );
+
+				context< CSynchronizationAction >().addRequest(
 						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationGet
+							, synchronizationGet
 							, context< CSynchronizationAction >().getActionKey()
-							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
+							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
-				request->addPayload(
-							common::CSynchronizationGet(
-								(int)common::CBlockKind::Segment
-								, m_currentBlock ) );
-
-				context< CSynchronizationAction >().addRequest( request );
 			}
 			else
 			{
@@ -354,18 +342,16 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		common::CSynchronizationGet synchronizationGet(
+			(int)common::CBlockKind::Segment
+			, m_currentBlock );
+
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
+					, synchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload(
-					common::CSynchronizationGet(
-						(int)common::CBlockKind::Segment
-						, m_currentBlock ) );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -401,18 +387,16 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		common::CSynchronizationGet synchronizationGet(
+			(int)common::CBlockKind::Header
+			, m_currentBlock );
+
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
+					, synchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload(
-					common::CSynchronizationGet(
-						(int)common::CBlockKind::Header
-						, m_currentBlock ) );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -443,18 +427,16 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 
 			if ( context< CSynchronizationAction >().getHeaderSize() > ++m_currentBlock )
 			{
-				common::CSendMessageRequest * request =
+				common::CSynchronizationGet synchronizationGet(
+					(int)common::CBlockKind::Header
+					, m_currentBlock );
+
+				context< CSynchronizationAction >().addRequest(
 						new common::CSendMessageRequest(
 							common::CPayloadKind::SynchronizationGet
+							, synchronizationGet
 							, context< CSynchronizationAction >().getActionKey()
-							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-				request->addPayload(
-							common::CSynchronizationGet(
-								(int)common::CBlockKind::Header
-								, m_currentBlock ) );
-
-				context< CSynchronizationAction >().addRequest( request );
+							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 			}
 			else
 			{
@@ -470,18 +452,16 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		common::CSynchronizationGet synchronizationGet(
+			(int)common::CBlockKind::Header
+			, m_currentBlock );
+
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::SynchronizationGet
+					, synchronizationGet
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload(
-					common::CSynchronizationGet(
-						(int)common::CBlockKind::Header
-						, m_currentBlock ) );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -513,15 +493,12 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 	{
 		context< CSynchronizationAction >().forgetRequests();
 
-		common::CSendMessageRequest * request =
+		context< CSynchronizationAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::StorageInfoAsk, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() )
 					, context< CSynchronizationAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::StorageInfoAsk, common::CSegmentFileStorage::getInstance()->getTimeStampOfLastFlush() ) );
-
-		context< CSynchronizationAction >().addRequest( request );
+					, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
 
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(

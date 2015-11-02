@@ -193,13 +193,7 @@ CNodeMedium::deleteRequest( CRequest const* _request )
 void
 CNodeMedium::add( CSendMessageRequest const * _request )
 {
-	common::CMessage message(
-				_request->getMessageKind()
-				, _request->getPayLoad()
-				, _request->getActionKey()
-				, _request->getId() );
-
-	m_messages.push_back( message );
+	m_messages.push_back( _request->getMessage() );
 
 	setLastRequest( _request->getId(), (common::CRequest const*)_request );
 }

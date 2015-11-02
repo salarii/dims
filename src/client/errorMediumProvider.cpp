@@ -19,7 +19,7 @@ public:
 
 	void add( common::CRequest const * _request ){};
 
-	void add( common::CSendMessageRequest const * _request )
+	void add( common::CSendClientMessageRequest const * _request )
 	{
 		m_requestResponse.insert( std::make_pair( ( common::CRequest * )_request, common::CNoMedium() ) );
 	}

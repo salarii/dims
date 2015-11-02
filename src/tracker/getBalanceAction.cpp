@@ -68,15 +68,12 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 	{
 		m_self = common::CAuthenticationProvider::getInstance()->getMyKey().GetID();
 
-		common::CSendMessageRequest * request =
+		context< CGetBalanceAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::BalanceAsk, m_self )
 					, context< CGetBalanceAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ); // bit  risky to ask  this way
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::BalanceAsk, m_self ) );
-
-		context< CGetBalanceAction >().addRequest( request );
+					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) ); // bit  risky to ask  this way, better through action
 
 		context< CGetBalanceAction >().addRequest(
 					new common::CTimeEventRequest(

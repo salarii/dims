@@ -51,20 +51,16 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 	{
 		LogPrintf("admit tracker action: %p extend registration \n", &context< CAdmitTrackerAction >() );
 
-		common::CSendMessageRequest * request =
-				new common::CSendMessageRequest(
-					common::CPayloadKind::ExtendRegistration
-					, context< CAdmitTrackerAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) );
-
 		common::CRegistrationTerms registrationTerms(
 					CController::getInstance()->getPrice()
 					, CController::getInstance()->getPeriod() );
 
-		request->addPayload( registrationTerms );
-
-		context< CAdmitTrackerAction >().addRequest( request );
-
+		context< CAdmitTrackerAction >().addRequest(
+				new common::CSendMessageRequest(
+					common::CPayloadKind::ExtendRegistration
+					, registrationTerms
+					, context< CAdmitTrackerAction >().getActionKey()
+					, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) ) );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -77,16 +73,13 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 		{
 			context< CAdmitTrackerAction >().forgetRequests();
 
-			common::CSendMessageRequest * request =
+			context< CAdmitTrackerAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Ack
+						, common::CAck()
 						, context< CAdmitTrackerAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload( common::CAck() );
-
-			context< CAdmitTrackerAction >().addRequest( request );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			if ( CController::getInstance()->getPrice() )
 				return transit< CPaidRegistration >();
@@ -170,16 +163,13 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 						, _messageResult.m_message.m_header.m_id
 						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
-		common::CSendMessageRequest * request =
+		context< CAdmitTrackerAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Result
+					, common::CResult( 1 )
 					, context< CAdmitTrackerAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-		request->addPayload( common::CResult( 1 ) );
-
-		context< CAdmitTrackerAction >().addRequest( request );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		return discard_event();
 	}
@@ -277,16 +267,13 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 
 		m_proofHash = admitMessage.m_proofTransactionHash;
 
-		common::CSendMessageRequest * request =
+		context< CAdmitTrackerAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
+					, common::CAck()
 					, context< CAdmitTrackerAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
-					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-		request->addPayload( common::CAck() );
-
-		context< CAdmitTrackerAction >().addRequest( request );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		context< CAdmitTrackerAction >().forgetRequests();
 		context< CAdmitTrackerAction >().addRequest(
@@ -311,14 +298,13 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 		if ( CChargeRegister::getInstance()->isTransactionPresent( m_proofHash ) )
 		{
 
-			common::CSendMessageRequest * request =
+		context< CAdmitTrackerAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
+						, common::CResult( 1 )
 						, context< CAdmitTrackerAction >().getActionKey()
 						, m_messageId
-						, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) );
-
-			request->addPayload( common::CResult( 1 ) );
+						, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) ) );
 
 			CAddress address;
 			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )

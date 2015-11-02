@@ -79,16 +79,13 @@ struct CAcceptTransaction : boost::statechart::state< CAcceptTransaction, CPassT
 
 		CTransactionRecordManager::getInstance()->addClientTransaction( clientTransaction.m_transaction );
 
-		common::CSendMessageRequest * request =
+		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Result
+					, common::CResult( 1 )
 					, context< CPassTransactionAction >().getActionKey()
 					, orginalMessage.m_header.m_id
-					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-		request->addPayload( common::CResult( 1 ) );
-
-		context< CPassTransactionAction >().addRequest( request );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -141,16 +138,13 @@ struct CProvideStatusInfo : boost::statechart::state< CProvideStatusInfo, CPassT
 			else
 				status = common::TransactionsStatus::Validated	;
 
-			common::CSendMessageRequest * request =
+			context< CPassTransactionAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ClientStatusTransaction
+						, common::CClientTransactionStatus( status )
 						, context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload( common::CClientTransactionStatus( status ) );
-
-			context< CPassTransactionAction >().addRequest( request );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 
 		return discard_event();
@@ -234,15 +228,12 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 {
 	CProcessAsClient( my_context ctx ) : my_base( ctx )
 	{
-		common::CSendMessageRequest * request =
+		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::TrackerInfo, std::vector<unsigned char>() )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::TrackerInfo, std::vector<unsigned char>() ) );
-
-		context< CPassTransactionAction >().addRequest( request );
+					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -347,15 +338,12 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 			context< CPassTransactionAction >().setExit();
 		}
 
-		common::CSendMessageRequest * request =
+		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::ClientTransaction
+					, common::CClientTransaction( tx )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) );
-
-		request->addPayload( common::CClientTransaction( tx ) );
-
-		context< CPassTransactionAction >().addRequest( request );
+					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
 
 		Hash = tx.GetHash();
 		context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Validated, transaction ) );
@@ -414,15 +402,12 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 	CCheckStatus( my_context ctx ) : my_base( ctx )
 	{
 		context< CPassTransactionAction >().forgetRequests();
-		common::CSendMessageRequest * request =
+		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CByKeyMediumFilter( ServicingNodeKey ) );
-
-		request->addPayload( common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash ) );
-
-		context< CPassTransactionAction >().addRequest( request );
+					, new CByKeyMediumFilter( ServicingNodeKey ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

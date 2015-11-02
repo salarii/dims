@@ -28,21 +28,6 @@ private:
 	CAddress const m_serviceAddress;
 };
 
-class CInfoRequest : public common::CRequest
-{
-public:
-	CInfoRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter );
-
-	virtual void accept( common::CMedium * _medium ) const;
-
-	uint256 const & getActionKey() const
-	{
-		return m_actionKey;
-	}
-private:
-	uint256 const m_actionKey;
-};
-
 
 }
 

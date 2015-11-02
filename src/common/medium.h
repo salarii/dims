@@ -20,6 +20,7 @@ class CConnectToNodeRequest;
 class CAskForTransactionsRequest;
 class CBalanceRequest;
 class CSendMessageRequest;
+class CSendClientMessageRequest;
 class CSetBloomFilterRequest;
 }
 
@@ -28,7 +29,6 @@ namespace tracker
 class CValidateTransactionsRequest;
 class CConnectToTrackerRequest;
 class CPassMessageRequest;
-class CDeliverInfoRequest;
 class CGetBalanceRequest;
 
 }
@@ -43,7 +43,6 @@ struct CProofTransactionAndStatusRequest;
 namespace monitor
 {
 class CConnectToNodeRequest;
-class CInfoRequest;
 }
 
 namespace common
@@ -66,6 +65,7 @@ public:
 
 	virtual void add( common::CTimeEventRequest const * _request ){};
 	virtual void add( common::CSendMessageRequest const * _request ){};
+	virtual void add( common::CSendClientMessageRequest const * _request ){};
 	virtual void add( common::CAckRequest const * _request ){}
 	virtual void add( common::CSetBloomFilterRequest const * _request ){};
 	virtual void add( common::CSendIdentifyDataRequest const * _request ){};
@@ -80,8 +80,6 @@ public:
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
 	virtual void add( tracker::CPassMessageRequest const * _request ){};
-	virtual void add( tracker::CDeliverInfoRequest const * _request ){};
-	virtual void add( monitor::CInfoRequest const * _request ){};
 	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
 
 	void registerDeleteHook( boost::signals2::slot< void () > const & _deleteHook )

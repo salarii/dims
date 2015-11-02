@@ -11,22 +11,6 @@
 namespace tracker
 {
 
-class CDeliverInfoRequest : public common::CRequest
-{
-public:
-		CDeliverInfoRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter );
-
-		virtual void accept( common::CMedium * _medium ) const;
-
-		uint256 const & getActionKey() const
-		{
-			return m_actionKey;
-		}
-	private:
-		uint256 const m_actionKey;
-};
-
-
 struct CBundleStatus
 {
 	enum Enum

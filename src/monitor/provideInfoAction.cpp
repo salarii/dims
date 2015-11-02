@@ -75,16 +75,13 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		m_id = _messageResult.m_message.m_header.m_id;
 
-		common::CSendMessageRequest * request =
+		context< CProvideInfoAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Ack
+					, common::CAck()
 					, context< CProvideInfoAction >().getActionKey()
 					, m_id
-					, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-		request->addPayload( common::CAck() );
-
-		context< CProvideInfoAction >().addRequest( request );
+					, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -94,17 +91,13 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 
 		if ( requestedInfo.m_kind == (int)common::CInfoKind::IsAddmited )
 		{
-			common::CSendMessageRequest * request =
+			context< CProvideInfoAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Result
+						, common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( context< CProvideInfoAction >().getPartnerKey().GetID() ) ? 1 : 0 )
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload(
-						common::CResult( CReputationTracker::getInstance()->isAddmitedMonitor( context< CProvideInfoAction >().getPartnerKey().GetID() ) ? 1 : 0 ) );
-
-			context< CProvideInfoAction >().addRequest( request );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		}
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::IsRegistered )
@@ -114,68 +107,55 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 			CPubKey monitorPubKey;
 			CReputationTracker::getInstance()->checkForTracker( context< CProvideInfoAction >().getPartnerKey().GetID(), trackerData, monitorPubKey );
 
-			common::CSendMessageRequest * request =
+			common::CValidRegistration validRegistration(
+				monitorPubKey
+				, trackerData.m_contractTime
+				, trackerData.m_networkTime );
+
+			context< CProvideInfoAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ValidRegistration
+						, validRegistration
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload(
-						common::CValidRegistration(
-							monitorPubKey
-							, trackerData.m_contractTime
-							, trackerData.m_networkTime ) );
-
-			context< CProvideInfoAction >().addRequest( request );
-
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::RegistrationTermsAsk )
 		{
-			common::CSendMessageRequest * request =
+			context< CProvideInfoAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::RegistrationTerms
+						, common::CRegistrationTerms( CController::getInstance()->getPrice(), CController::getInstance()->getPeriod() )
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload(
-						common::CRegistrationTerms( CController::getInstance()->getPrice(), CController::getInstance()->getPeriod() ) );
-
-			context< CProvideInfoAction >().addRequest( request );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::EnterConditionAsk )
 		{
-			common::CSendMessageRequest * request =
+			context< CProvideInfoAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::EnterNetworkCondition
+						, common::CEnteranceTerms( CController::getInstance()->getEnterancePrice() )
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload(
-						common::CEnteranceTerms( CController::getInstance()->getEnterancePrice() ) );
-
-			context< CProvideInfoAction >().addRequest( request );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::RankingFullInfo )
 		{
-			common::CSendMessageRequest * request =
+			common::CRankingFullInfo rankingFullInfo(
+				CReputationTracker::getInstance()->getAllyTrackers()
+				, CReputationTracker::getInstance()->getAllyMonitors()
+				, CReputationTracker::getInstance()->getTrackers()
+				, CReputationTracker::getInstance()->getMeasureReputationTime()
+				, CReputationControlAction::getInstance()->getActionKey() );
+
+			context< CProvideInfoAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::FullRankingInfo
+						, rankingFullInfo
 						, context< CProvideInfoAction >().getActionKey()
 						, m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) );
-
-			request->addPayload(
-						common::CRankingFullInfo(
-							CReputationTracker::getInstance()->getAllyTrackers()
-							, CReputationTracker::getInstance()->getAllyMonitors()
-							, CReputationTracker::getInstance()->getTrackers()
-							, CReputationTracker::getInstance()->getMeasureReputationTime()
-							, CReputationControlAction::getInstance()->getActionKey() ) );
-
-			context< CProvideInfoAction >().addRequest( request );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		context< CProvideInfoAction >().forgetRequests();
 		context< CProvideInfoAction >().setExit();
@@ -208,20 +188,18 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
 	CAskForInfo( my_context ctx ) : my_base( ctx )
 	{
-		common::CSendMessageRequest * request =
+		common::CInfoRequestData infoRequestData;
+		if ( context< CProvideInfoAction >().getInfo() == (int)common::CInfoKind::BalanceAsk )
+			infoRequestData = common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), common::CAuthenticationProvider::getInstance()->getMyKey().GetID() );
+		else
+			infoRequestData = common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() );
+
+		context< CProvideInfoAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
+					, infoRequestData
 					, context< CProvideInfoAction >().getActionKey()
-					, TargetMediumFilter );
-
-		if ( context< CProvideInfoAction >().getInfo() == (int)common::CInfoKind::BalanceAsk )
-		{
-			request->addPayload( common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), common::CAuthenticationProvider::getInstance()->getMyKey().GetID() ) );
-		}
-		else
-			request->addPayload( common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() ) );
-
-		context< CProvideInfoAction >().addRequest( request );
+					, TargetMediumFilter ) );
 
 		context< CProvideInfoAction >().addRequest(
 					new common::CTimeEventRequest(

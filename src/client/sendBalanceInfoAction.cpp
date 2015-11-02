@@ -45,8 +45,8 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			m_pubKey = addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().forgetRequests();
 
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
+			common::CSendClientMessageRequest * request =
+					new common::CSendClientMessageRequest(
 						common::CMainRequestType::BalanceInfoReq
 						, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) );
 
@@ -103,8 +103,8 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 			m_pubKey = m_addresses.at( m_addressIndex );
 			context< CSendBalanceInfoAction >().forgetRequests();
 
-			common::CSendMessageRequest * request =
-					new common::CSendMessageRequest(
+			common::CSendClientMessageRequest * request =
+					new common::CSendClientMessageRequest(
 						common::CMainRequestType::BalanceInfoReq
 						, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) );
 

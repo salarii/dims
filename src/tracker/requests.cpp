@@ -9,18 +9,6 @@
 namespace tracker
 {
 
-CDeliverInfoRequest::CDeliverInfoRequest( uint256 const & _actionKey, common::CMediumFilter * _mediumFilter )
-	: common::CRequest( _mediumFilter )
-	, m_actionKey( _actionKey )
-{
-}
-
-void
-CDeliverInfoRequest::accept( common::CMedium * _medium ) const
-{
-	_medium->add( this );
-}
-
 CValidateTransactionsRequest::CValidateTransactionsRequest( std::vector< CTransaction > const & _transactions, common::CMediumFilter * _mediumFilter )
 	: common::CRequest( _mediumFilter )
 	, m_transactions( _transactions )

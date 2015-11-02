@@ -33,7 +33,7 @@ public:
 
 	void add( common::CRequest const * _request );
 
-	void add( common::CSendMessageRequest const * _request );
+	void add( common::CSendClientMessageRequest const * _request );
 
 	bool flush();
 
