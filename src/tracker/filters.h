@@ -38,14 +38,14 @@ struct CMediumClassFilter : public common::CMediumFilter
 
 struct CNodeExceptionFilter : public common::CMediumFilter
 {
-	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, CPubKey const & _exceptionKey )
+	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, uint160 const & _exceptionKeyId )
 		: m_mediumClass(_mediumClass)
 	{
-		m_exceptions.insert( _exceptionKey );
+		m_exceptions.insert( _exceptionKeyId );
 	}
 
-	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, std::set< CPubKey > const & _exceptionKeys )
-		: m_exceptions( _exceptionKeys )
+	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, std::set< uint160 > const & _exceptionKeyIds )
+		: m_exceptions( _exceptionKeyIds )
 		, m_mediumClass(_mediumClass)
 	{
 	}
@@ -56,11 +56,11 @@ struct CNodeExceptionFilter : public common::CMediumFilter
 
 		mediums = _nodesManager->getNodesByClass( common::CMediumKinds::Trackers );
 
-		BOOST_FOREACH( CPubKey const & key, m_exceptions )
+		BOOST_FOREACH( CKeyID const & keyId, m_exceptions )
 		{
 			uintptr_t nodeIndicator;
 
-			_nodesManager->getKeyToNode( key.GetID(), nodeIndicator );
+			_nodesManager->getKeyToNode( keyId, nodeIndicator );
 
 			common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
 			mediums.remove( medium );
@@ -69,7 +69,7 @@ struct CNodeExceptionFilter : public common::CMediumFilter
 		return mediums;
 	}
 
-	std::set<CPubKey> m_exceptions;
+	std::set<uint160> m_exceptions;
 	common::CMediumKinds::Enum m_mediumClass;
 };
 
