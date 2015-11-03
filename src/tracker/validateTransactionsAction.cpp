@@ -213,7 +213,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 		{
 			common::CMessage orginalMessage;
 
-			std::vector< CPubKey > participants;
+			std::set< CPubKey > participants;
 
 			if ( !common::CommunicationProtocol::unwindMessageAndParticipants( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey, participants ) )
 				assert( !"service it somehow" );
@@ -315,7 +315,7 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		std::vector< CPubKey > nodes;
+		std::set< CPubKey > nodes;
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CAckRequest(
@@ -477,7 +477,7 @@ struct CPassBundleValidate : boost::statechart::state< CPassBundleValidate, CVal
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
-		std::vector< CPubKey > nodes;
+		std::set< CPubKey > nodes;
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CAckRequest(

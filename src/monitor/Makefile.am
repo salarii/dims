@@ -8,6 +8,7 @@ bin_PROGRAMS = dims_monitor
 noinst_LIBRARIES = libmonitor.a
 
 MONITOR_H = \
+	activityControllerAction.h \
 	admitTrackerAction.h \
 	admitTransactionsBundle.h \
 	chargeRegister.h \
@@ -38,6 +39,7 @@ MONITOR_H = \
 	updateNetworkDataAction.h
 
 MONITOR_CPP = \
+	activityControllerAction.cpp \
 	admitTrackerAction.cpp \
 	admitTransactionsBundle.cpp \
 	chargeRegister.cpp \

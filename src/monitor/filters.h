@@ -40,20 +40,39 @@ struct CMediumClassFilter : public common::CMediumFilter
 
 struct CNodeExceptionFilter : public common::CMediumFilter
 {
-	CNodeExceptionFilter( uintptr_t _exception ):m_exception( _exception )
-	{}
+	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, uint160 const & _exceptionKeyId )
+		: m_mediumClass(_mediumClass)
+	{
+		m_exceptions.insert( _exceptionKeyId );
+	}
 
-	std::list< common::CMedium *> getMediums( common::CNodesManager * _trackerNodesManager )const
+	CNodeExceptionFilter( common::CMediumKinds::Enum _mediumClass, std::set< uint160 > const & _exceptionKeyIds )
+		: m_exceptions( _exceptionKeyIds )
+		, m_mediumClass(_mediumClass)
+	{
+	}
+
+	std::list< common::CMedium *> getMediums( CReputationTracker * _trackerNodesManager )const
 	{
 		std::list< common::CMedium *> mediums;
 
-		mediums = _trackerNodesManager->getNodesByClass( common::CMediumKinds::Trackers );
-		mediums.remove( _trackerNodesManager->findNodeMedium( m_exception ) );
+		mediums = _trackerNodesManager->getNodesByClass( m_mediumClass );
+
+		BOOST_FOREACH( CKeyID const & keyId, m_exceptions )
+		{
+			uintptr_t nodeIndicator;
+
+			_trackerNodesManager->getKeyToNode( keyId, nodeIndicator );
+
+			common::CMedium * medium = _trackerNodesManager->findNodeMedium( nodeIndicator );
+			mediums.remove( medium );
+		}
 
 		return mediums;
 	}
 
-	uintptr_t m_exception;
+	std::set<uint160> m_exceptions;
+	common::CMediumKinds::Enum m_mediumClass;
 };
 
 struct CSpecificMediumFilter : public common::CMediumFilter

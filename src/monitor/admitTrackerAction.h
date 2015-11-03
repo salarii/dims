@@ -14,7 +14,7 @@ namespace monitor
 
 struct CAdmitInitial;
 
-class CAdmitTrackerAction : public common::CAction, public  boost::statechart::state_machine< CAdmitTrackerAction, CAdmitInitial >
+class CAdmitTrackerAction : public common::CAction, public boost::statechart::state_machine< CAdmitTrackerAction, CAdmitInitial >
 {
 public:
 	CAdmitTrackerAction( CPubKey const & _partnerKey );

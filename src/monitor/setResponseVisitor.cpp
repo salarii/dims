@@ -19,6 +19,7 @@
 #include "monitor/passTransactionAction.h"
 #include "monitor/reputationControlAction.h"
 #include "monitor/updateNetworkDataAction.h"
+#include "monitor/activityControllerAction.h"
 
 namespace common
 {
@@ -97,6 +98,12 @@ void
 CSetResponseVisitor::visit( monitor::CUpdateNetworkDataAction & _action )
 {
 	boost::apply_visitor( CSetResult<monitor::CUpdateNetworkDataAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CActivityControllerAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CActivityControllerAction>( &_action ), m_responses );
 }
 
 }

@@ -57,7 +57,8 @@ struct CPayloadKind
 		EnterNetworkCondition,
 		RankingInfo,
 		FullRankingInfo,
-		ExtendRegistration
+		ExtendRegistration,
+		ActivationStatus
 	};
 };
 
@@ -117,7 +118,7 @@ public:
 			, CMessage & _originalMessage
 			, int64_t const _time
 			, CPubKey const &  _pubKey
-			, std::vector< CPubKey > & _participants
+			, std::set< CPubKey > & _participants
 			);
 private:
 	CAuthenticationProvider * m_authenticationProvider;
@@ -156,6 +157,21 @@ struct CIdentifyMessage
 	std::vector<unsigned char> m_payload;
 	CPubKey m_key;
 	std::vector<unsigned char> m_signed;
+};
+
+struct CActivationStatus
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_keyId);
+		READWRITE(m_status);
+	)
+	CActivationStatus(){}
+
+	CActivationStatus( uint160 const & _keyId, uint _status ):m_keyId( _keyId ), m_status( _status ){}
+
+	uint160 m_keyId;
+	uint m_status;
 };
 
 struct CRankingFullInfo

@@ -29,6 +29,9 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 					new common::CTimeEventRequest(
 						InvestigationStartTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		m_presentTrackers = CReputationTracker::getInstance()->getPresentTrackers();
+		assert( !m_presentTrackers.empty() );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -48,11 +51,10 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 			common::CTransactionBundle transactionBundle;
 
 			common::convertPayload( orginalMessage, transactionBundle );
+// improve it
+			m_presentTrackers.erase( _messageResult.m_pubKey.GetID() );
 
-			m_trackers.insert( _messageResult.m_nodeIndicator );
-			//wrong
-			// this  condition  is wrong  but  for now,  better  this  than nothing
-			if ( m_trackers.size() == CReputationTracker::getInstance()->getTrackers().size() )
+			if ( m_presentTrackers.empty() )
 			{
 				// if  registration  in  progress  those  should  be  stored
 				if ( CChargeRegister::getInstance()->getStoreTransactions() )
@@ -61,6 +63,8 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 				}
 
 				CTransactionRecordManager::getInstance()->addTransactionsToStorage( transactionBundle.m_transactions );
+
+				//here send those transactions to synchronizing nodes
 			}
 
 			BOOST_FOREACH( CTransaction const & transaction, transactionBundle.m_transactions )
@@ -85,7 +89,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 
-	std::set< uintptr_t > m_trackers;
+	std::set< uint160 > m_presentTrackers;
 };
 
 CAdmitTransactionBundle::CAdmitTransactionBundle( uint256 const & _actionKey )

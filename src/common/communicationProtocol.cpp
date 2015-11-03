@@ -47,7 +47,7 @@ CommunicationProtocol::unwindMessageAndParticipants(
 		, CMessage & _originalMessage
 		, int64_t const _time
 		, CPubKey const &  _pubKey
-		, std::vector< CPubKey > & _participants
+		, std::set< CPubKey > & _participants
 		)
 {
 	if ( _time < _message.m_header.m_time )
@@ -63,7 +63,7 @@ CommunicationProtocol::unwindMessageAndParticipants(
 	if ( !_pubKey.Verify(messageHash, _message.m_header.m_signedHash ) )
 		return false;
 	}
-	_participants.push_back( _pubKey );
+	_participants.insert( _pubKey );
 
 	if( _message.m_header.m_prevKey.IsValid() )
 	{

@@ -76,6 +76,8 @@ class CPassTransactionAction;
 class CReputationControlAction;
 
 class CUpdateNetworkDataAction;
+
+class CActivityControllerAction;
 }
 
 namespace seed
@@ -146,6 +148,8 @@ public:
 	void visit( monitor::CTrackOriginAddressAction & _action );
 
 	void visit( monitor::CProvideInfoAction & _action );
+
+	void visit( monitor::CActivityControllerAction & _action );
 
 	void visit( monitor::CEnterNetworkAction & _action );
 

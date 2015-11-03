@@ -58,6 +58,12 @@ public:
 			m_presentTrackers = _presentTrackers;
 	}
 
+	std::set< uint160 > getPresentTrackers()const
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		return m_presentTrackers;
+	}
+
 	void eraseMedium( uintptr_t _nodePtr );
 
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
