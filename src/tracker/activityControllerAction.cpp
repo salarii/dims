@@ -97,7 +97,6 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	CRecognizeNodeState( my_context ctx )
 		: my_base( ctx )
 	{
-		m_alreadyInformed = false;
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -115,9 +114,8 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 			m_informingNodes.insert( pubKey.GetID() );
 		}
 
-		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus && !m_alreadyInformed )
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus )
 		{
-			m_alreadyInformed = true;
 			common::CActivationStatus activationStatus;
 
 			common::convertPayload( orginalMessage, activationStatus );
@@ -132,11 +130,11 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 
 			if ( activationStatus.m_status == CActivitySatatus::Active )
 			{
-				CReputationTracker::getInstance()->setPresentNode( activationStatus.m_keyId );
+
 			}
 			else if ( activationStatus.m_status == CActivitySatatus::Inactive )
 			{
-				m_keyId = activationStatus.m_keyId;
+
 				common::CTrackerData trackerData;
 				CPubKey controllingMonitor;
 				if ( CReputationTracker::getInstance()->checkForTracker( activationStatus.m_keyId, trackerData, controllingMonitor ) )
@@ -180,8 +178,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 
 		if ( !_networkInfoEvent.m_valid )
 		{
-			CReputationTracker::getInstance()->erasePresentNode( m_keyId );
-
+			//m_alreadyInformed
 			context< CActivityControllerAction >().addRequest(
 						new common::CSendMessageRequest(
 							m_message
@@ -203,7 +200,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	std::set< uint160 > m_informingNodes;
 	common::CMessage m_message;
 	CPubKey m_lastKey;
-	uint160 m_keyId;
+
 	bool m_alreadyInformed;
 };
 

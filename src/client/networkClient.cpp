@@ -179,11 +179,7 @@ CNetworkClient::add( common::CSendClientMessageRequest const * _request )
 {
 	QMutexLocker lock( &m_mutex );
 
-	*m_pushStream <<
-					 common::CClientMessage(
-						 _request->getMessageKind()
-						 , _request->getPayLoad()
-						 , _request->getId() );
+	*m_pushStream << _request->getClientMessage();
 
 	m_matching.insert( std::make_pair( _request->getId(), ( common::CRequest* )_request ) );
 

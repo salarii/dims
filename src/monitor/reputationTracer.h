@@ -52,17 +52,25 @@ public:
 
 	bool getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const;
 
-	void setPresentTrackers( std::set< uint160 > const & _presentTrackers )
+	void setPresentNode( uint160 const & _trackerId )
 	{
 			boost::lock_guard<boost::mutex> lock( m_lock );
-			m_presentTrackers = _presentTrackers;
+			m_presentNodes.insert( _trackerId );
 	}
 
-	std::set< uint160 > getPresentTrackers()const
+	void erasePresentNode( uint160 const & _trackerId )
 	{
 		boost::lock_guard<boost::mutex> lock( m_lock );
-		return m_presentTrackers;
+		m_presentNodes.erase( _trackerId );
 	}
+
+	bool isPresentNode( uint160 const & _trackerId )const
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		return m_presentNodes.find( _trackerId ) != m_presentNodes.end();
+	}
+
+	std::set< uint160 > getPresentTrackers() const;
 
 	void eraseMedium( uintptr_t _nodePtr );
 
@@ -133,7 +141,7 @@ private:
 
 	TransactionsAddmited m_transactionsAddmited;
 
-	std::set< uint160 > m_presentTrackers;
+	std::set< uint160 > m_presentNodes;
 
 	static uint64_t const m_recalculateTime;
 

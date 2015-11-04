@@ -11,6 +11,7 @@
 
 #include "common/request.h"
 #include "common/communicationProtocol.h"
+#include "common/clientProtocol.h"
 #include "common/nodeMessages.h"
 #include "common/support.h"
 
@@ -147,35 +148,51 @@ private:
 class CSendClientMessageRequest: public common::CRequest
 {
 public:
+	template < class Payload >
 	CSendClientMessageRequest(
 			common::CMainRequestType::Enum _messageKind
-			, CMediumFilter * _CMediumFilter );// bit  overuse of concept
+			, Payload const & _payload
+			, uint256 const & _id
+			, CMediumFilter * _CMediumFilter )
+		: common::CRequest( _id, _CMediumFilter )
+	{
+		m_clientMessage = common::CClientMessage( _messageKind, createPayload( _payload ), _id );
+	}
+
+	template < class Payload >
+	CSendClientMessageRequest(
+			common::CMainRequestType::Enum _messageKind
+			, Payload const & _payload
+			, CMediumFilter * _CMediumFilter )
+		: common::CRequest( _CMediumFilter )
+	{
+		m_clientMessage = common::CClientMessage( _messageKind, createPayload( _payload ), getId() );
+	}
 
 	CSendClientMessageRequest(
 			common::CMainRequestType::Enum _messageKind
-			, uint256 const & _id
-			, CMediumFilter * _CMediumFilter );// bit  overuse of concept
+			, CMediumFilter * _CMediumFilter )
+		: common::CRequest( _CMediumFilter )
+	{
+		m_clientMessage = common::CClientMessage( _messageKind, createPayload( std::vector< unsigned char >() ), getId() );
+	}
+
+	common::CClientMessage const & getClientMessage() const { return m_clientMessage; }
 
 	void accept( CMedium * _medium ) const;
-
-	int getMessageKind() const;
-
-	std::vector< unsigned char > const & getPayLoad() const;
-
-	//better  define it  here
+private:
 	template < class T >
-	void addPayload( T const & _t )
+	std::vector< unsigned char > createPayload( T const & _t )
 	{
-		unsigned int initiaSize = m_payload.size();
+		std::vector< unsigned char > payload;
 		unsigned int size = ::GetSerializeSize( _t, SER_NETWORK, PROTOCOL_VERSION );
-		m_payload.resize( size + initiaSize );
-		CBufferAsStream stream( (char*)&m_payload[ initiaSize ], size, SER_NETWORK, PROTOCOL_VERSION );
+		payload.resize( size );
+		CBufferAsStream stream( (char*)&payload[ 0 ], size, SER_NETWORK, PROTOCOL_VERSION );
 		stream << _t;
+		return payload;
 	}
 private:
-	int m_messageKind;
-
-	std::vector< unsigned char > m_payload;
+	common::CClientMessage m_clientMessage;
 };
 
 class CSendMessageRequest: public common::CRequest
@@ -231,7 +248,6 @@ public:
 
 	void accept( CMedium * _medium ) const;
 private:
-	//better  define it  here
 	template < class T >
 	std::vector< unsigned char > createPayload( T const & _t )
 	{

@@ -77,7 +77,7 @@ CReputationTracker::calculateReputation()
 	BOOST_FOREACH( PAIRTYPE( uint160 const, common::CTrackerData ) & tracker, m_registeredTrackers )
 	{
 		tracker.second.m_reputation *= PreviousReptationRatio;
-		if ( m_presentTrackers.find( tracker.first ) != m_presentTrackers.end() )
+		if ( m_presentNodes.find( tracker.first ) != m_presentNodes.end() )
 		{
 			tracker.second.m_reputation += boostForAll;
 		}
@@ -357,6 +357,29 @@ CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )c
 	return false;
 }
 
+std::set< uint160 >
+CReputationTracker::getPresentTrackers() const
+{
+	std::set< common::CTrackerData > trackers = getTrackers();
+
+	std::set< uint160 > presentTrackers;
+	BOOST_FOREACH( common::CTrackerData const & trackerData, trackers )
+	{
+		if ( isPresentNode( trackerData.m_publicKey.GetID() ) )
+			presentTrackers.insert( trackerData.m_publicKey.GetID() );
+	}
+
+	std::set< common::CAllyTrackerData > allyTrackers = getAllyTrackers();
+
+	BOOST_FOREACH( common::CAllyTrackerData const & allyTracker, allyTrackers )
+	{
+		if ( isPresentNode( allyTracker.m_publicKey.GetID() ) )
+			presentTrackers.insert( allyTracker.m_publicKey.GetID() );
+	}
+
+	return presentTrackers;
+}
+
 void
 CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 {
@@ -379,7 +402,7 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	m_transactionsAddmited.erase( keyId );
 
-	m_presentTrackers.erase( keyId );
+	m_presentNodes.erase( keyId );
 
 	m_pubKeyToNodeIndicator.erase( key );
 }
@@ -526,7 +549,7 @@ CReputationTracker::clearAll()
 	m_registeredTrackers.clear();
 	m_allyTrackersRankings.clear();
 	m_allyMonitors.clear();
-	m_presentTrackers.clear();
+	m_presentNodes.clear();
 	m_pubKeyToNodeIndicator.clear();
 	m_extendInProgress.clear();
 

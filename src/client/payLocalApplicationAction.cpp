@@ -180,15 +180,12 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendClientMessageRequest * request =
+		context< CPayLocalApplicationAction >().addRequest(
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::Transaction
+					, tx
 					, tx.GetHash()
-					, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) );
-
-		request->addPayload( common::CClientTransactionSend(tx) );
-
-		context< CPayLocalApplicationAction >().addRequest( request );
+					, new CMediumByKeyFilter( serviceByTrackerEvent->m_keyId ) ) );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -224,14 +221,11 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 	{
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendClientMessageRequest * request =
+		context< CPayLocalApplicationAction >().addRequest(
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
-					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
-
-		request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getFirstTransaction().GetHash()) );
-
-		context< CPayLocalApplicationAction >().addRequest( request );
+					, common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getFirstTransaction().GetHash())
+					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) ) );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -249,14 +243,11 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 		{
 			context< CPayLocalApplicationAction >().forgetRequests();
 
-			common::CSendClientMessageRequest * request =
+			context< CPayLocalApplicationAction >().addRequest(
 					new common::CSendClientMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
-						, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
-
-			request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getFirstTransaction().GetHash() ) );
-
-			context< CPayLocalApplicationAction >().addRequest( request );
+						, common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getFirstTransaction().GetHash() )
+						, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) ) );
 		}
 		return discard_event();
 
@@ -298,15 +289,12 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendClientMessageRequest * request =
+		context< CPayLocalApplicationAction >().addRequest(
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::Transaction
+					, common::CClientTransactionSend(tx)
 					, tx.GetHash()
-					, new CMediumByKeyFilter( context< CPayLocalApplicationAction >().getTrackerStats().m_key.GetID() ) );
-
-			request->addPayload( common::CClientTransactionSend(tx) );
-
-			context< CPayLocalApplicationAction >().addRequest( request );
+					, new CMediumByKeyFilter( context< CPayLocalApplicationAction >().getTrackerStats().m_key.GetID() ) ) );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -342,14 +330,12 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 	{
 		context< CPayLocalApplicationAction >().forgetRequests();
 
-		common::CSendClientMessageRequest * request =
+		context< CPayLocalApplicationAction >().addRequest(
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
-					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) );
+					, common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getSecondTransaction().GetHash())
+					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) ) );
 
-		request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()) );
-
-		context< CPayLocalApplicationAction >().addRequest( request );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -365,14 +351,11 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 		{
 			context< CPayLocalApplicationAction >().forgetRequests();
 
-			common::CSendClientMessageRequest * request =
+			context< CPayLocalApplicationAction >().addRequest(
 					new common::CSendClientMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
-						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::TrackersRep, 1 ) );
-
-			request->addPayload( common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getSecondTransaction().GetHash()) );
-
-			context< CPayLocalApplicationAction >().addRequest( request );
+						, common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getSecondTransaction().GetHash())
+						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::TrackersRep, 1 ) ) );
 
 		}
 		return discard_event();

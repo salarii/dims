@@ -179,36 +179,10 @@ CBalanceRequest::accept( CMedium * _medium ) const
 	_medium->add( this );
 }
 
-CSendClientMessageRequest::CSendClientMessageRequest( CMainRequestType::Enum _messageKind, uint256 const & _id, CMediumFilter * _CMediumFilter )
-	: common::CRequest( _id, _CMediumFilter )
-	, m_messageKind( (int)_messageKind )
-	, m_payload( std::vector< unsigned char >() )
-{
-}
-
-CSendClientMessageRequest::CSendClientMessageRequest( CMainRequestType::Enum _messageKind, CMediumFilter * _CMediumFilter )
-	: common::CRequest( _CMediumFilter )
-	, m_messageKind( (int)_messageKind )
-	, m_payload( std::vector< unsigned char >() )
-{
-}
-
 void
 CSendClientMessageRequest::accept( CMedium * _medium ) const
 {
 	_medium->add( this );
-}
-
-int
-CSendClientMessageRequest::getMessageKind() const
-{
-	return m_messageKind;
-}
-
-std::vector< unsigned char > const &
-CSendClientMessageRequest::getPayLoad() const
-{
-	return m_payload;
 }
 
 void

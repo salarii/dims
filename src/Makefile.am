@@ -94,6 +94,7 @@ COMMON_CPP = \
   
 # tracker core #
 TRACKER_CORE_H = \
+  tracker/activityControllerAction.h \
   tracker/addressToCoins.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
@@ -192,6 +193,7 @@ version.o: obj/build.h
 
 # tracker core #
 TRACKER_CORE_CPP = \
+  tracker/activityControllerAction.cpp \
   tracker/addressToCoins.cpp \
   tracker/connectNetworkAction.cpp \
   tracker/connectNodeAction.cpp \

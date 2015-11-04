@@ -32,15 +32,12 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 	{
 		context< CSendTransactionAction >().forgetRequests();
 
-		common::CSendClientMessageRequest * request =
+		context< CSendTransactionAction >().addRequest(
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::Transaction
+					, common::CClientTransactionSend(context< CSendTransactionAction >().getTransaction())
 					, context< CSendTransactionAction >().getTransaction().GetHash()
-					, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) );
-
-		request->addPayload( common::CClientTransactionSend(context< CSendTransactionAction >().getTransaction()) );
-
-		context< CSendTransactionAction >().addRequest( request );
+					, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) ) );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -80,14 +77,11 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 
 		context< CSendTransactionAction >().forgetRequests();
 
-		common::CSendClientMessageRequest * request =
+		context< CSendTransactionAction >().addRequest(
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
-					, filter );
-
-		request->addPayload( common::CClientTransactionStatusAsk(context< CSendTransactionAction >().getTransaction().GetHash()) );
-
-		context< CSendTransactionAction >().addRequest( request );
+					, common::CClientTransactionStatusAsk(context< CSendTransactionAction >().getTransaction().GetHash())
+					, filter ) );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -106,14 +100,11 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 		{
 			context< CSendTransactionAction >().forgetRequests();
 
-			common::CSendClientMessageRequest * request =
+			context< CSendTransactionAction >().addRequest(
 					new common::CSendClientMessageRequest(
 						common::CMainRequestType::TransactionStatusReq
-						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::TrackersRep, 1 ) );
-
-			request->addPayload( common::CClientTransactionStatusAsk(context< CSendTransactionAction >().getTransaction().GetHash()) );
-
-			context< CSendTransactionAction >().addRequest( request );
+						, common::CClientTransactionStatusAsk(context< CSendTransactionAction >().getTransaction().GetHash())
+						, new CMediumClassWithExceptionFilter( _message.m_nodePtr, ClientMediums::TrackersRep, 1 ) ) );
 		}
 		return discard_event();
 	}
