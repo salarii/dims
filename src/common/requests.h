@@ -207,7 +207,7 @@ public:
 			, CMediumFilter * _CMediumFilter )
 	: common::CRequest( _id, _CMediumFilter )
 {
-		common::CMessage message(
+		m_message = common::CMessage(
 					_messageKind
 					, createPayload( _payload )
 					, _actionKey
@@ -220,8 +220,9 @@ public:
 			, Payload const & _payload
 			, uint256 const & _actionKey
 			, CMediumFilter * _CMediumFilter )
+		: common::CRequest( _CMediumFilter )
 	{
-		common::CMessage message(
+		m_message = common::CMessage(
 					_messageKind
 					, createPayload( _payload )
 					, _actionKey
@@ -234,7 +235,7 @@ public:
 			, uint256 const & _actionKey
 			, CMediumFilter * _CMediumFilter )
 	{
-		common::CMessage message(
+		m_message = common::CMessage(
 					_message
 					, _prevKey
 					, _actionKey

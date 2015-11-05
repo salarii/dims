@@ -14,6 +14,7 @@
 #include "monitor/controller.h"
 #include "monitor/admitTrackerAction.h"
 #include "monitor/reputationTracer.h"
+#include "monitor/activityControllerAction.h"
 
 namespace common
 {
@@ -260,23 +261,30 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
 			{
 				// in case  of  fail  do  something ??
+
+				if ( m_presentNodes.find( validNode.m_publicKey.GetID() ) != m_presentNodes.end() )
+				{
 					if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
 					{
 						common::CMedium * medium = findNodeMedium( nodeIndicator );
 						if ( medium )
 							mediums.push_back( medium );
 					}
+				}
 			}
 		}
 		else if ( _nodesClass == common::CMediumKinds::Trackers )
 		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
 			{
-				if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
+				if ( m_presentNodes.find( validNode.m_publicKey.GetID() ) != m_presentNodes.end() )
 				{
-					common::CMedium * medium = findNodeMedium( nodeIndicator );
-					if ( medium )
-						mediums.push_back( medium );
+					if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
+					{
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
+						if ( medium )
+							mediums.push_back( medium );
+					}
 				}
 			}
 		}
@@ -390,21 +398,21 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 	common::CNodesManager::eraseMedium( _nodePtr );
 
 	CPubKey key;
-	getNodeToKey( _nodePtr, key );
+	if ( getNodeToKey( _nodePtr, key ) )
+	{
+		CKeyID keyId = key.GetID();
 
-	CKeyID keyId = key.GetID();
+		m_candidates.erase( keyId );
 
-	m_candidates.erase( keyId );
+		m_transactionsAddmited.erase( keyId );
 
-	m_allyMonitors.erase( keyId );
+		m_presentNodes.erase( keyId );
 
-	m_trackerToMonitor.erase( keyId );
+		m_pubKeyToNodeIndicator.erase( key );
 
-	m_transactionsAddmited.erase( keyId );
+		common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( key, CActivitySatatus::Inactive ) );
+	}
 
-	m_presentNodes.erase( keyId );
-
-	m_pubKeyToNodeIndicator.erase( key );
 }
 
 std::set< common::CValidNodeInfo > const

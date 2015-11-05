@@ -259,10 +259,9 @@ struct CPingPongResult : boost::statechart::event< CPingPongResult >
 
 struct CMessageResult : boost::statechart::event< CMessageResult >
 {
-	CMessageResult( CMessage const & _message, uintptr_t _nodeIndicator, CPubKey const & _pubKey = CPubKey() ): m_message( _message ),m_nodeIndicator( _nodeIndicator ), m_pubKey( _pubKey ){}
+	CMessageResult( CMessage const & _message, CPubKey const & _pubKey = CPubKey() ): m_message( _message ), m_pubKey( _pubKey ){}
 
 	CMessage m_message;
-	uintptr_t m_nodeIndicator;
 	CPubKey m_pubKey;
 };
 

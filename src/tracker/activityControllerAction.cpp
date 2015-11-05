@@ -12,13 +12,11 @@
 #include "common/requests.h"
 #include "common/events.h"
 
-#include "monitor/controller.h"
-#include "monitor/filters.h"
-#include "monitor/reputationTracer.h"
-#include "monitor/activityControllerAction.h"
-#include "monitor/connectNodeAction.h"
+#include "tracker/filters.h"
+#include "tracker/activityControllerAction.h"
+#include "tracker/connectNodeAction.h"
 
-namespace monitor
+namespace tracker
 {
 
 //milisec
@@ -97,6 +95,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	CRecognizeNodeState( my_context ctx )
 		: my_base( ctx )
 	{
+		m_alreadyInformed = false;
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -114,41 +113,39 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 			m_informingNodes.insert( pubKey.GetID() );
 		}
 
-		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus )
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus && !m_alreadyInformed )
 		{
+			m_alreadyInformed = true;
+
 			common::CActivationStatus activationStatus;
 
 			common::convertPayload( orginalMessage, activationStatus );
 
 			context< CActivityControllerAction >().addRequest(
-					new common::CSendMessageRequest(
-						common::CPayloadKind::Ack
-						, common::CAck()
-						, context< CActivityControllerAction >().getActionKey()
-						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+						new common::CSendMessageRequest(
+							common::CPayloadKind::Ack
+							, common::CAck()
+							, context< CActivityControllerAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			if ( activationStatus.m_status == CActivitySatatus::Active )
 			{
-
+				CTrackerNodesManager::getInstance()->setActiveNode( activationStatus.m_keyId );
 			}
 			else if ( activationStatus.m_status == CActivitySatatus::Inactive )
 			{
+				m_keyId = activationStatus.m_keyId;
 
-				common::CTrackerData trackerData;
-				CPubKey controllingMonitor;
-				if ( CReputationTracker::getInstance()->checkForTracker( activationStatus.m_keyId, trackerData, controllingMonitor ) )
+				common::CValidNodeInfo validNodeInfo;
+				if ( CTrackerNodesManager::getInstance()->getNodeInfo( activationStatus.m_keyId, validNodeInfo ) )
 				{
-					if ( m_informingNodes.find( controllingMonitor.GetID() ) != m_informingNodes.end() )
-					{
-						context< CActivityControllerAction >().addRequest(
-									new common::CScheduleActionRequest(
-										new CConnectNodeAction( trackerData.m_address )
-										, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-					}
+					context< CActivityControllerAction >().addRequest(
+								new common::CScheduleActionRequest(
+									new CConnectNodeAction( validNodeInfo.m_address )
+									, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 				}
 			}
-
 		}
 
 		return discard_event();
@@ -178,6 +175,8 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 
 		if ( !_networkInfoEvent.m_valid )
 		{
+			CTrackerNodesManager::getInstance()->removeActiveNode( m_keyId );
+
 			//m_alreadyInformed
 			context< CActivityControllerAction >().addRequest(
 						new common::CSendMessageRequest(
@@ -200,7 +199,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	std::set< uint160 > m_informingNodes;
 	common::CMessage m_message;
 	CPubKey m_lastKey;
-
+	uint160 m_keyId;
 	bool m_alreadyInformed;
 };
 
@@ -209,6 +208,12 @@ CActivityControllerAction::CActivityControllerAction( CPubKey const & _node, CAc
 	Node = _node;
 	Status = _status;
 }
+
+CActivityControllerAction::CActivityControllerAction( uint256 const & _actionKey )
+	: common::CAction( _actionKey )
+{
+}
+
 void
 CActivityControllerAction::accept( common::CSetResponseVisitor & _visitor )
 {

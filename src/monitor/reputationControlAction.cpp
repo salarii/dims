@@ -96,7 +96,7 @@ struct CCatchUp : boost::statechart::state< CCatchUp, CReputationControlAction >
 
 			// do  some  sanity??
 			CAddress address;
-			if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, address ) )
+			if ( !CReputationTracker::getInstance()->getAddresFromKey( _messageResult.m_pubKey.GetID(), address ) )
 				assert( !"problem" );
 
 			m_allyMonitorData.erase( common::CAllyMonitorData(_messageResult.m_pubKey, address ) );

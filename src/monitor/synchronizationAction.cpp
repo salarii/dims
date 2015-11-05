@@ -26,6 +26,7 @@
 #include "monitor/transactionRecordManager.h"
 #include "monitor/trackOriginAddressAction.h"
 #include "monitor/reputationControlAction.h"
+#include "monitor/activityControllerAction.h"
 
 namespace monitor
 {
@@ -687,7 +688,6 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 			{
 				setBlock( synchronizationGet.m_number );
 				m_exit = synchronizationGet.m_number == m_storedBlocks - 1;
-
 			}
 			else if ( synchronizationGet.m_number < m_storedHeaders && synchronizationGet.m_kind == common::CBlockKind::Header )
 			{
@@ -716,8 +716,9 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 						common::CPayloadKind::FullRankingInfo
 						, rankingFullInfo
 						, context< CSynchronizationAction >().getActionKey()
-						, m_id
 						, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
+
+			common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( context< CSynchronizationAction >().getPartnerKey(), CActivitySatatus::Active ) );
 		}
 
 		return discard_event();

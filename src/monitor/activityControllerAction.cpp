@@ -65,6 +65,8 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 					new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+			CReputationTracker::getInstance()->setPresentNode( Node.GetID() );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -212,6 +214,11 @@ CActivityControllerAction::CActivityControllerAction( CPubKey const & _node, CAc
 	Node = _node;
 	Status = _status;
 }
+
+CActivityControllerAction::CActivityControllerAction( uint256 const & _actionKey )
+	: common::CAction( _actionKey )
+{}
+
 void
 CActivityControllerAction::accept( common::CSetResponseVisitor & _visitor )
 {

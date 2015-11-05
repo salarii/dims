@@ -21,6 +21,7 @@
 #include "monitor/admitTransactionsBundle.h"
 #include "monitor/enterNetworkAction.h"
 #include "monitor/updateNetworkDataAction.h"
+#include "monitor/activityControllerAction.h"
 
 namespace monitor
 {
@@ -110,28 +111,28 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 						|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet
 						|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
 					)
-					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, key ) );
 				else
-					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, key ) );
 			}
 			else
 			{
 				if ( message.m_header.m_payloadKind == common::CPayloadKind::AdmitAsk )
 				{
 						CAdmitTrackerAction * admitTrackerAction = new CAdmitTrackerAction( message.m_header.m_actionKey, key );
-						admitTrackerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+						admitTrackerAction->process_event( common::CMessageResult( message, key ) );
 						common::CActionHandler::getInstance()->executeAction( admitTrackerAction );
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkAsk )
 				{
 					CEnterNetworkAction * enterNetworkAction = new CEnterNetworkAction( message.m_header.m_actionKey, key );
-					enterNetworkAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					enterNetworkAction->process_event( common::CMessageResult( message, key ) );
 					common::CActionHandler::getInstance()->executeAction( enterNetworkAction );
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::AckTransactions )
 				{
 					CAdmitTransactionBundle * admitTransactionBundle = new CAdmitTransactionBundle( message.m_header.m_actionKey );
-					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					admitTransactionBundle->process_event( common::CMessageResult( message, key ) );
 					common::CActionHandler::getInstance()->executeAction( admitTransactionBundle );
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
@@ -141,7 +142,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 								, key
 								);
 
-					provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					provideInfoAction->process_event( common::CMessageResult( message, key ) );
 
 					common::CActionHandler::getInstance()->executeAction( provideInfoAction );
 				}
@@ -159,13 +160,19 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				{
 					CAdmitTransactionBundle * admitTransactionBundle = new CAdmitTransactionBundle( message.m_header.m_actionKey );
 					common::CActionHandler::getInstance()->executeAction( admitTransactionBundle );
-					admitTransactionBundle->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					admitTransactionBundle->process_event( common::CMessageResult( message, key ) );
 				}
 				else if ( message.m_header.m_payloadKind == common::CPayloadKind::FullRankingInfo )
 				{
 					CUpdateNetworkDataAction * updateNetworkDataAction = new CUpdateNetworkDataAction( message.m_header.m_actionKey );
 					common::CActionHandler::getInstance()->executeAction( updateNetworkDataAction );
-					updateNetworkDataAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), key ) );
+					updateNetworkDataAction->process_event( common::CMessageResult( message, key ) );
+				}
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus )
+				{
+					CActivityControllerAction * activityControllerAction = new CActivityControllerAction( message.m_header.m_actionKey );
+					activityControllerAction->process_event( common::CMessageResult( message, key ) );
+					common::CActionHandler::getInstance()->executeAction( activityControllerAction );
 				}
 			}
 		}

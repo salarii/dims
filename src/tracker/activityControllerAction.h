@@ -4,7 +4,7 @@
 #include "common/action.h"
 #include <boost/statechart/state_machine.hpp>
 
-namespace monitor
+namespace tracker
 {
 
 struct CActivitySatatus
@@ -25,7 +25,7 @@ class CActivityControllerAction : public common::CAction, public boost::statecha
 public:
 	CActivityControllerAction( CPubKey const & _node, CActivitySatatus::Enum _status );
 
-	CActivityControllerAction( uint256 const & _actionKey, CPubKey const & _partnerKey );
+	CActivityControllerAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 };

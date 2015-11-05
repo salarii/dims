@@ -88,9 +88,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
 				if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, pubKey ) );
 				else
-					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, pubKey ) );
 			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )

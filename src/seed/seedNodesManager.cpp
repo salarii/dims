@@ -65,6 +65,21 @@ CSeedNodesManager::getPublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) c
 }
 
 bool
+CSeedNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator )
+{
+	BOOST_FOREACH( PAIRTYPE( uintptr_t, CPubKey ) const & node, m_keyStore )
+	{
+		if ( node.second == _pubKey )
+		{
+			_nodeIndicator = node.first;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool
 CSeedNodesManager::clearPublicKey( uintptr_t _nodeIndicator )
 {
 	m_keyStore.erase( _nodeIndicator );

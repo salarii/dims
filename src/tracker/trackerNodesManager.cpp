@@ -3,11 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/mediumKinds.h"
+#include "common/actionHandler.h"
 
 #include "tracker/trackerNodesManager.h"
 #include "tracker/trackerNodeMedium.h"
 #include "tracker/connectNodeAction.h"
 #include "tracker/controller.h"
+#include "tracker/activityControllerAction.h"
 
 namespace common
 {
@@ -115,22 +117,23 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			{
 				BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & validNode, m_networkTrackers )
 				{
+					if ( m_activeNodes.find( validNode.second.m_publicKey.GetID() ) != m_activeNodes.end() )
+					{
+						if (!getKeyToNode( validNode.second.m_publicKey, nodeIndicator ) )
+							assert(!"something went wrong");
 
-					if (!getKeyToNode( validNode.second.m_publicKey, nodeIndicator ) )
-						assert(!"something went wrong");
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
+						if (!medium)
+							assert(!"something went wrong");
 
-					common::CMedium * medium = findNodeMedium( nodeIndicator );
-					if (!medium)
-						assert(!"something went wrong");
-
-					mediums.push_back( medium );
+						mediums.push_back( medium );
+					}
 				}
 			}
 			else
 			{
 				BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & validNode, m_trackers )
 				{
-
 					if (!getKeyToNode( validNode.second.m_publicKey, nodeIndicator ) )
 						assert(!"something went wrong");
 
@@ -148,15 +151,17 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 			{
 				BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & validNode, m_networkMonitors )
 				{
+					if ( m_activeNodes.find( validNode.second.m_publicKey.GetID() ) != m_activeNodes.end() )
+					{
+						if (!getKeyToNode( validNode.second.m_publicKey, nodeIndicator ) )
+							assert(!"something went wrong");
 
-					if (!getKeyToNode( validNode.second.m_publicKey, nodeIndicator ) )
-						assert(!"something went wrong");
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
+						if (!medium)
+							assert(!"something went wrong");
 
-					common::CMedium * medium = findNodeMedium( nodeIndicator );
-					if (!medium)
-						assert(!"something went wrong");
-
-					mediums.push_back( medium );
+						mediums.push_back( medium );
+					}
 				}
 			}
 			else
@@ -180,7 +185,6 @@ CTrackerNodesManager::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) 
 	{
 		BOOST_FOREACH( PAIRTYPE( uint160, common::CValidNodeInfo ) const & validNode, m_seeds )
 		{
-
 			if (!getKeyToNode( validNode.second.m_publicKey, nodeIndicator ) )
 				assert(!"something went wrong");
 
@@ -239,19 +243,15 @@ CTrackerNodesManager::eraseMedium( uintptr_t _nodePtr )
 
 	CPubKey pubKey;
 
-	getPublicKey( address, pubKey );
+	if ( getPublicKey( address, pubKey ) )
+	{
+		m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
 
-	m_keyStore.erase( address );
+		removeActiveNode( pubKey.GetID() );
 
-	m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
-
-	m_trackers.erase( pubKey.GetID() );
-
-	m_monitors.erase( pubKey.GetID() );
-
-	m_seeds.erase( pubKey.GetID() );
+		common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( pubKey, CActivitySatatus::Inactive ) );
+	}
 }
-
 bool
 CTrackerNodesManager::isInNetwork( uint160 const & _keyId )const
 {

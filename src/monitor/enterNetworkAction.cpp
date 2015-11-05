@@ -178,7 +178,7 @@ struct CPaidEnterance : boost::statechart::state< CPaidEnterance, CEnterNetworkA
 
 		m_pubKey = _messageResult.m_pubKey;
 
-		if ( !CReputationTracker::getInstance()->getAddress( _messageResult.m_nodeIndicator, m_address ) )
+		if ( !CReputationTracker::getInstance()->getAddresFromKey( m_pubKey.GetID(), m_address ) )
 			assert( !"problem" );
 
 		return discard_event();

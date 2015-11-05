@@ -99,9 +99,19 @@ struct CBothUnidentifiedConnecting : boost::statechart::state< CBothUnidentified
 						new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() )
 						)
 					);
+
+		context< CConnectNodeAction >().addRequest(
+					new common::CTimeEventRequest( TrackerLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return transit< CCantReachNode >();
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::transition< common::CAckEvent, CPairIdentifiedConnecting >
 	> reactions;
 };
@@ -111,6 +121,9 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 	CPairIdentifiedConnecting( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p pair identified connecting \n", &context< CConnectNodeAction >() );
+
+		context< CConnectNodeAction >().addRequest(
+					new common::CTimeEventRequest( TrackerLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
 	boost::statechart::result react( common::CIdentificationResult const & _identificationResult )
@@ -128,7 +141,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _identificationResult.m_key ) ) );
 		}
 		else
 		{
@@ -138,8 +151,14 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 		return transit< CDetermineRoleConnecting >();
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return transit< CCantReachNode >();
+	}
+
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CIdentificationResult >
+	boost::statechart::custom_reaction< common::CIdentificationResult >,
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
 
 };
@@ -155,7 +174,10 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 					common::CPayloadKind::InfoReq
 					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+					, new CByKeyMediumFilter( context< CConnectNodeAction >().getPublicKey() ) ) );
+
+				context< CConnectNodeAction >().addRequest(
+							new common::CTimeEventRequest( TrackerLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		LogPrintf("connect node action: %p determine role connecting \n", &context< CConnectNodeAction >() );
 	}
@@ -181,7 +203,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 						, common::CNetworkRole( (int)common::CRole::Tracker )
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -193,7 +215,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			context< CConnectNodeAction >().setRole( ( common::CRole::Enum )networkRole.m_role );
 		}
@@ -221,8 +243,14 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		return transit< CCantReachNode >();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CMessageResult >,
+	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 };
@@ -250,13 +278,13 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _identificationResult.m_key ) ) );
 
 			context< CConnectNodeAction >().addRequest(
 						createIdentifyResponse(
 							_identificationResult.m_payload,
 							context< CConnectNodeAction >().getActionKey(),
-							new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() )
+							new CByKeyMediumFilter( _identificationResult.m_key )
 							)
 						);
 		}
@@ -301,7 +329,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 						, common::CNetworkRole( (int)common::CRole::Tracker )
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -313,7 +341,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			context< CConnectNodeAction >().setRole( ( common::CRole::Enum ) networkRole.m_role );
 
@@ -346,7 +374,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 					common::CPayloadKind::InfoReq
 					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+					, new CByKeyMediumFilter( context< CConnectNodeAction >().getPublicKey() ) ) );
 
 		return discard_event();
 	}
@@ -359,20 +387,14 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 	int m_role;
 };
 
-// it is  wrong but  for  now...
 struct CCantReachNode : boost::statechart::state< CCantReachNode, CConnectNodeAction >
 {
 	CCantReachNode( my_context ctx ) : my_base( ctx )
 	{
 		LogPrintf("connect node action: %p can't reach node \n", &context< CConnectNodeAction >() );
-		context< CConnectNodeAction >().setResult(
-					common::CNetworkInfoResult(
-						common::CValidNodeInfo( CPubKey(), context< CConnectNodeAction >().getServiceAddress() ) //  not  nice
-						, common::CRole::Tracker
-						,std::set< common::CValidNodeInfo >()
-						, std::set< common::CValidNodeInfo >()
-						, false
-						) );
+		common::CFailureEvent failureEvent;
+		common::createPayload( context< CConnectNodeAction >().getServiceAddress(), failureEvent.m_problemData );
+		context< CConnectNodeAction >().setResult( failureEvent );
 
 		context< CConnectNodeAction >().setExit();
 	}
@@ -428,7 +450,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 						, knownNetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		return discard_event();
 	}
@@ -471,7 +493,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					common::CPayloadKind::InfoReq
 					, common::CInfoRequestData( (int)common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+					, new CByKeyMediumFilter( context< CConnectNodeAction >().getPublicKey() ) ) );
 
 		context< CConnectNodeAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -503,7 +525,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						, knownNetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			m_infoSend = true;
 		}
@@ -517,7 +539,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			common::CNetworkInfoResult networkRoleInfo(
 						  common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() )

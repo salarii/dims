@@ -18,6 +18,8 @@
 #include "tracker/pingAction.h"
 #include "tracker/registerAction.h"
 #include "tracker/passTransactionAction.h"
+#include "tracker/updateNetworkDataAction.h"
+#include "tracker/activityControllerAction.h"
 
 namespace tracker
 {
@@ -98,9 +100,9 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
 				if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, pubKey ) );
 				else
-					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, pubKey ) );
 			}
 			else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
 			{
@@ -109,7 +111,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 							, pubKey
 							);
 
-				provideInfoAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+				provideInfoAction->process_event( common::CMessageResult( message, pubKey ) );
 
 				common::CActionHandler::getInstance()->executeAction( provideInfoAction );
 			}
@@ -118,7 +120,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				CRegisterAction * registerAction
 						= new CRegisterAction( message.m_header.m_actionKey, pubKey );
 
-				registerAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+				registerAction->process_event( common::CMessageResult( message, pubKey ) );
 
 				common::CActionHandler::getInstance()->executeAction( registerAction );
 
@@ -128,7 +130,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				CPassTransactionAction * passTransactionAction
 						= new CPassTransactionAction( message.m_header.m_actionKey );
 
-				passTransactionAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+				passTransactionAction->process_event( common::CMessageResult( message, pubKey ) );
 
 				common::CActionHandler::getInstance()->executeAction( passTransactionAction );
 			}
@@ -136,9 +138,26 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			{
 				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
 
-				validateTransactionsAction->process_event( common::CMessageResult( message, convertToInt( nodeMedium->getNode() ), pubKey ) );
+				validateTransactionsAction->process_event( common::CMessageResult( message, pubKey ) );
 
 				common::CActionHandler::getInstance()->executeAction( validateTransactionsAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::FullRankingInfo )
+			{
+				CUpdateNetworkDataAction * updateNetworkDataAction = new CUpdateNetworkDataAction( message.m_header.m_actionKey );
+
+				updateNetworkDataAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( updateNetworkDataAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus )
+			{
+
+				CActivityControllerAction * activityControllerAction = new CActivityControllerAction( message.m_header.m_actionKey );
+
+				activityControllerAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( activityControllerAction );
 			}
 		}
 	}

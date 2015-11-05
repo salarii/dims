@@ -26,6 +26,8 @@ public:
 
 	bool getPublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const;
 
+	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator );
+
 	bool clearPublicKey( uintptr_t _nodeIndicator );
 
 	bool isKnown( CPubKey const & _pubKey ) const;

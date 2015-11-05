@@ -57,6 +57,29 @@ struct CMediumClassFilter : public common::CMediumFilter
 	int m_mediumNumber;
 };
 
+struct CByKeyMediumFilter : public common::CMediumFilter
+{
+	CByKeyMediumFilter( CPubKey const & _key )
+	: m_key( _key )
+	{}
+
+	std::list< common::CMedium *> getMediums( CSeedNodesManager * _nodesManager )const
+	{
+		std::list< common::CMedium *> mediums;
+
+		uintptr_t nodeIndicator;
+		_nodesManager->getKeyToNode( m_key, nodeIndicator );
+
+		common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
+
+		if ( medium )
+			mediums.push_back( medium );
+
+		return mediums;
+	}
+	CPubKey m_key;
+};
+
 }
 
 #endif // SEED_FILTER_H

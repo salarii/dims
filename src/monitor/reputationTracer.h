@@ -52,22 +52,22 @@ public:
 
 	bool getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )const;
 
-	void setPresentNode( uint160 const & _trackerId )
+	void setPresentNode( uint160 const & _nodeId )
 	{
 			boost::lock_guard<boost::mutex> lock( m_lock );
-			m_presentNodes.insert( _trackerId );
+			m_presentNodes.insert( _nodeId );
 	}
 
-	void erasePresentNode( uint160 const & _trackerId )
+	void erasePresentNode( uint160 const & _nodeId )
 	{
 		boost::lock_guard<boost::mutex> lock( m_lock );
-		m_presentNodes.erase( _trackerId );
+		m_presentNodes.erase( _nodeId );
 	}
 
-	bool isPresentNode( uint160 const & _trackerId )const
+	bool isPresentNode( uint160 const & _nodeId )const
 	{
 		boost::lock_guard<boost::mutex> lock( m_lock );
-		return m_presentNodes.find( _trackerId ) != m_presentNodes.end();
+		return m_presentNodes.find( _nodeId ) != m_presentNodes.end();
 	}
 
 	std::set< uint160 > getPresentTrackers() const;
