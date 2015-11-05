@@ -141,7 +141,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
-							, new CByKeyMediumFilter( _identificationResult.m_key ) ) );
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else
 		{
@@ -174,7 +174,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 					common::CPayloadKind::InfoReq
 					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CConnectNodeAction >().getPublicKey() ) ) );
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 				context< CConnectNodeAction >().addRequest(
 							new common::CTimeEventRequest( TrackerLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
@@ -203,7 +203,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 						, common::CNetworkRole( (int)common::CRole::Tracker )
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -215,7 +215,7 @@ struct CDetermineRoleConnecting : boost::statechart::state< CDetermineRoleConnec
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			context< CConnectNodeAction >().setRole( ( common::CRole::Enum )networkRole.m_role );
 		}
@@ -278,13 +278,13 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _identificationResult.m_id
-							, new CByKeyMediumFilter( _identificationResult.m_key ) ) );
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			context< CConnectNodeAction >().addRequest(
 						createIdentifyResponse(
 							_identificationResult.m_payload,
 							context< CConnectNodeAction >().getActionKey(),
-							new CByKeyMediumFilter( _identificationResult.m_key )
+							new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() )
 							)
 						);
 		}
@@ -329,7 +329,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 						, common::CNetworkRole( (int)common::CRole::Tracker )
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
 		{
@@ -341,7 +341,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			context< CConnectNodeAction >().setRole( ( common::CRole::Enum ) networkRole.m_role );
 
@@ -374,7 +374,7 @@ struct CDetermineRoleConnected : boost::statechart::state< CDetermineRoleConnect
 					common::CPayloadKind::InfoReq
 					, common::CInfoRequestData( (int)common::CInfoKind::RoleInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CConnectNodeAction >().getPublicKey() ) ) );
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		return discard_event();
 	}
@@ -450,7 +450,7 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 						, knownNetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 		}
 		return discard_event();
 	}
@@ -493,7 +493,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					common::CPayloadKind::InfoReq
 					, common::CInfoRequestData( (int)common::CInfoKind::NetworkInfoAsk, std::vector<unsigned char>() )
 					, context< CConnectNodeAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CConnectNodeAction >().getPublicKey() ) ) );
+					, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 		context< CConnectNodeAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -525,7 +525,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						, knownNetworkInfo
 						, context< CConnectNodeAction >().getActionKey()
 						, _messageResult.m_message.m_header.m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+						, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			m_infoSend = true;
 		}
@@ -539,7 +539,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 						new common::CAckRequest(
 							  context< CConnectNodeAction >().getActionKey()
 							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+							, new CSpecificMediumFilter( context< CConnectNodeAction >().getNodePtr() ) ) );
 
 			common::CNetworkInfoResult networkRoleInfo(
 						  common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() )
