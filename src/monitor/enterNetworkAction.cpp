@@ -318,7 +318,7 @@ struct CAskForAddmision : boost::statechart::state< CAskForAddmision, CEnterNetw
 					common::CPayloadKind::EnterNetworkAsk
 					, common::CAdmitAsk()
 					, context< CEnterNetworkAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Monitors, 1 ) ) );
+					, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) ) );
 
 		context< CEnterNetworkAction >().addRequest(
 					new common::CTimeEventRequest(

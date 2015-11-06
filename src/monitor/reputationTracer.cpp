@@ -261,15 +261,11 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
 			{
 				// in case  of  fail  do  something ??
-
-				if ( m_presentNodes.find( validNode.m_publicKey.GetID() ) != m_presentNodes.end() )
+				if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
 				{
-					if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
-					{
-						common::CMedium * medium = findNodeMedium( nodeIndicator );
-						if ( medium )
-							mediums.push_back( medium );
-					}
+					common::CMedium * medium = findNodeMedium( nodeIndicator );
+					if ( medium )
+						mediums.push_back( medium );
 				}
 			}
 		}
@@ -277,50 +273,53 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
 			{
-				if ( m_presentNodes.find( validNode.m_publicKey.GetID() ) != m_presentNodes.end() )
+				if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
 				{
-					if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
-					{
-						common::CMedium * medium = findNodeMedium( nodeIndicator );
-						if ( medium )
-							mediums.push_back( medium );
-					}
+					common::CMedium * medium = findNodeMedium( nodeIndicator );
+					if ( medium )
+						mediums.push_back( medium );
 				}
 			}
 		}
 		return mediums;
 	}
-
-	if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers )
+	else
 	{
-
-		BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
+		if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers )
 		{
-				if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
-					assert( !"something wrong" );
+			BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
+			{
+				if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() )
+				{
+					if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
+						assert( !"something wrong" );
 
-				common::CMedium * medium = findNodeMedium( nodeIndicator );
+					common::CMedium * medium = findNodeMedium( nodeIndicator );
 
-				if ( !medium )
-					assert( !"something wrong" );
-				mediums.push_back( medium );
+					if ( !medium )
+						assert( !"something wrong" );
+					mediums.push_back( medium );
+				}
+			}
+		}
+		else if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Monitors )
+		{
+			BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
+			{
+				if ( m_presentNodes.find( monitorData.first ) != m_presentNodes.end() )
+				{
+					if ( !getKeyToNode( monitorData.second.m_publicKey.GetID(), nodeIndicator) )
+						assert( !"something wrong" );
+
+					common::CMedium * medium = findNodeMedium( nodeIndicator );
+
+					if ( !medium )
+						assert( !"something wrong" );
+					mediums.push_back( medium );
+				}
+			}
 		}
 	}
-	else if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Monitors )
-	{
-		BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
-		{
-				if ( !getKeyToNode( monitorData.second.m_publicKey.GetID(), nodeIndicator) )
-					assert( !"something wrong" );
-
-				common::CMedium * medium = findNodeMedium( nodeIndicator );
-
-				if ( !medium )
-					assert( !"something wrong" );
-				mediums.push_back( medium );
-		}
-	}
-
 	return mediums;
 }
 

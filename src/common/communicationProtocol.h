@@ -181,6 +181,7 @@ struct CRankingFullInfo
 		READWRITE(m_allyTrackers);
 		READWRITE(m_allyMonitors);
 		READWRITE(m_trackers);
+		READWRITE(m_time);
 		READWRITE(m_leadingKey);
 	)
 
