@@ -24,12 +24,17 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 	{
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _result )
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _result.m_message, orginalMessage, GetTime(), _result.m_pubKey ) )
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
 			assert( !"service it somehow" );
 
+		context< CUpdateNetworkDataAction >().addRequest(
+					new common::CAckRequest(
+						  context< CUpdateNetworkDataAction >().getActionKey()
+						, _messageResult.m_message.m_header.m_id
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 		// boring  and  tedious
 		common::CRankingFullInfo rankingFullInfo;
@@ -85,9 +90,6 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 				CTrackerNodesManager::getInstance()->eraseNetworkMonitor( node.m_publicKey.GetID() );
 			}
 		}
-
-		context< CUpdateNetworkDataAction >().addRequest(
-		new common::CAckRequest( context< CUpdateNetworkDataAction >().getActionKey(), _result.m_message.m_header.m_id, new CByKeyMediumFilter( _result.m_pubKey ) ) );
 
 		context< CUpdateNetworkDataAction >().setExit();
 

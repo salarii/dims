@@ -10,14 +10,31 @@ namespace common
 class CErrorMedium : public common::CMedium
 {
 public:
-	virtual bool serviced() const;
+	bool serviced() const;
 
-	virtual bool flush(){ return true; }
+	bool flush(){ return true; }
 
-	virtual bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );
+	void deleteRequest( CRequest const* _request )
+	{
+		m_responses.erase( _request );
+	}
+
+	bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );
+
+	bool getDirectActionResponseAndClear( CAction const * _action, std::list< DimsResponse > & _responses )
+	{
+		_responses.push_back( CNoMedium() );
+		return true;
+	}
+
+	void add( common::CSendMessageRequest const * _request )
+	{
+		m_responses.insert( make_pair( (CRequest*)_request, CNoMedium() ) );
+	}
 
 	static CErrorMedium* getInstance();
-		CErrorMedium();
+
+	CErrorMedium();
 private:
 	void clearResponses();
 private:
