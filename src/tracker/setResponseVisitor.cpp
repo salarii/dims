@@ -18,6 +18,7 @@
 #include "tracker/recognizeNetworkAction.h"
 #include "tracker/passTransactionAction.h"
 #include "tracker/connectNetworkAction.h"
+#include "tracker/activityControllerAction.h"
 
 namespace common
 {
@@ -86,6 +87,12 @@ void
 CSetResponseVisitor::visit( tracker::CPassTransactionAction & _action )
 {
 	boost::apply_visitor( CSetResult< tracker::CPassTransactionAction >( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( tracker::CActivityControllerAction & _action )
+{
+	boost::apply_visitor( CSetResult<tracker::CActivityControllerAction>( &_action ), m_responses );
 }
 
 }

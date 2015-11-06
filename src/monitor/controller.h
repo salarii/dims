@@ -92,7 +92,7 @@ private:
 
 	uint64_t m_tryPeriod;
 
-	bool m_admitted;
+	bool m_admitted;// if true  means  that monitor considers itself  as  being the valid member of network
 };
 
 }

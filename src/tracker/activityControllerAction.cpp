@@ -207,11 +207,13 @@ CActivityControllerAction::CActivityControllerAction( CPubKey const & _node, CAc
 {
 	Node = _node;
 	Status = _status;
+	initiate();
 }
 
 CActivityControllerAction::CActivityControllerAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	initiate();
 }
 
 void

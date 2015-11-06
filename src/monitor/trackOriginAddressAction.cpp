@@ -38,6 +38,7 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 {
 	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
 	{
+		CController::getInstance()->setAdmitted( true ); // bit  simplification  but  let assume that this is correct
 		context< CTrackOriginAddressAction >().forgetRequests();
 		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}

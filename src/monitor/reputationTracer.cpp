@@ -256,7 +256,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 
 	if ( !CController::getInstance()->isAdmitted() )
 	{
-		if ( _nodesClass == common::CMediumKinds::Monitors )
+		if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Monitors )
 		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
 			{
@@ -269,7 +269,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 				}
 			}
 		}
-		else if ( _nodesClass == common::CMediumKinds::Trackers )
+		else if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers )
 		{
 			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
 			{

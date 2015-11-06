@@ -33,6 +33,8 @@ class CRecognizeNetworkAction;
 class CPassTransactionAction;
 
 class CConnectNetworkAction;
+
+class CActivityControllerAction;
 }
 
 namespace client
@@ -124,6 +126,8 @@ public:
 	void visit( tracker::CPassTransactionAction & _action );
 
 	void visit( tracker::CConnectNetworkAction & _action );
+
+	void visit( tracker::CActivityControllerAction & _action );
 
 	void visit( client::CSendTransactionAction & _action );
 
