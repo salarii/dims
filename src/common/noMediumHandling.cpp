@@ -23,14 +23,15 @@ public:
 
 	bool getDirectActionResponseAndClear( CAction const * _action, std::list< DimsResponse > & _responses )
 	{
-		_responses.push_back( CNoMedium() );
-		return true;
+		return false;
 	}
 
 	void add( common::CSendMessageRequest const * _request )
 	{
 		m_responses.insert( make_pair( (CRequest*)_request, CNoMedium() ) );
 	}
+
+		virtual void deleteAction( CAction const * _action ){};
 
 	static CErrorMedium* getInstance();
 
