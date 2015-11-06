@@ -214,12 +214,14 @@ CActivityControllerAction::CActivityControllerAction( CPubKey const & _node, CAc
 	Node = _node;
 	Status = _status;
 	initiate();
+	process_event( CInitiateActivationEvent() );
 }
 
 CActivityControllerAction::CActivityControllerAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
 	initiate();
+	process_event( CRecognizeNodeStateEvent() );
 }
 
 void
