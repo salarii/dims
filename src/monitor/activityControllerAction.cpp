@@ -59,7 +59,7 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 					common::CPayloadKind::ActivationStatus
 					, common::CActivationStatus( Node.GetID(),(int)Status )
 					, context< CActivityControllerAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
+					, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, Node.GetID() ) ) );
 
 		context< CActivityControllerAction >().addRequest(
 					new common::CTimeEventRequest(
