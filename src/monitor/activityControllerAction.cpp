@@ -121,9 +121,8 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus && !m_alreadyInformed )
 		{
 			m_alreadyInformed = true;
-			common::CActivationStatus activationStatus;
 
-			common::convertPayload( orginalMessage, activationStatus );
+			common::convertPayload( orginalMessage, m_activationStatus );
 
 			context< CActivityControllerAction >().addRequest(
 					new common::CSendMessageRequest(
@@ -133,27 +132,36 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 						, _messageResult.m_message.m_header.m_id
 						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
-			if ( activationStatus.m_status == CActivitySatatus::Active )
+
+			common::CTrackerData trackerData;
+			CPubKey controllingMonitor;
+			if ( CReputationTracker::getInstance()->checkForTracker( m_activationStatus.m_keyId, trackerData, controllingMonitor ) )
 			{
-				CReputationTracker::getInstance()->setPresentNode( activationStatus.m_keyId );
-			}
-			else if ( activationStatus.m_status == CActivitySatatus::Inactive )
-			{
-				m_keyId = activationStatus.m_keyId;
-				common::CTrackerData trackerData;
-				CPubKey controllingMonitor;
-				if ( CReputationTracker::getInstance()->checkForTracker( activationStatus.m_keyId, trackerData, controllingMonitor ) )
+
+				if ( m_activationStatus.m_status == CActivitySatatus::Inactive )
 				{
+
 					if ( m_informingNodes.find( controllingMonitor.GetID() ) != m_informingNodes.end() )
 					{
-						context< CActivityControllerAction >().addRequest(
-									new common::CScheduleActionRequest(
-										new CConnectNodeAction( trackerData.m_address )
-										, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-					}
-				}
-			}
+						CReputationTracker::getInstance()->erasePresentNode( m_activationStatus.m_keyId );
 
+						context< CActivityControllerAction >().addRequest(
+									new common::CSendMessageRequest(
+										m_message
+										, m_lastKey
+										, context< CActivityControllerAction >().getActionKey()
+										, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
+
+						return discard_event();
+					}
+
+				}
+
+				context< CActivityControllerAction >().addRequest(
+							new common::CScheduleActionRequest(
+								new CConnectNodeAction( trackerData.m_address )
+								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+			}
 		}
 
 		return discard_event();
@@ -178,25 +186,50 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		if ( m_activationStatus.m_status == CActivitySatatus::Inactive )
+		{
+			CReputationTracker::getInstance()->erasePresentNode( m_activationStatus.m_keyId );
+		}
+		else
+		{
+			return discard_event();
+		}
+
+		context< CActivityControllerAction >().addRequest(
+					new common::CSendMessageRequest(
+						m_message
+						, m_lastKey
+						, context< CActivityControllerAction >().getActionKey()
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
+
+		return discard_event();
+	}
+
 	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
 	{
-
-		if ( !_networkInfoEvent.m_valid )
+		if ( m_activationStatus.m_status == CActivitySatatus::Active )
 		{
-			CReputationTracker::getInstance()->erasePresentNode( m_keyId );
-
-			context< CActivityControllerAction >().addRequest(
-						new common::CSendMessageRequest(
-							m_message
-							, m_lastKey
-							, context< CActivityControllerAction >().getActionKey()
-							, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
+			CReputationTracker::getInstance()->setPresentNode( m_activationStatus.m_keyId );
 		}
+		else
+		{
+			return discard_event();
+		}
+
+		context< CActivityControllerAction >().addRequest(
+					new common::CSendMessageRequest(
+						m_message
+						, m_lastKey
+						, context< CActivityControllerAction >().getActionKey()
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
 
 		return discard_event();
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CFailureEvent >,
 	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
@@ -207,7 +240,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	std::set< uint160 > m_informingNodes;
 	common::CMessage m_message;
 	CPubKey m_lastKey;
-	uint160 m_keyId;
+	common::CActivationStatus m_activationStatus;
 	bool m_alreadyInformed;
 };
 

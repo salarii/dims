@@ -118,9 +118,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 		{
 			m_alreadyInformed = true;
 
-			common::CActivationStatus activationStatus;
-
-			common::convertPayload( orginalMessage, activationStatus );
+			common::convertPayload( orginalMessage, m_activationStatus );
 
 			context< CActivityControllerAction >().addRequest(
 						new common::CSendMessageRequest(
@@ -130,22 +128,13 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 							, _messageResult.m_message.m_header.m_id
 							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
-			if ( activationStatus.m_status == CActivitySatatus::Active )
+			common::CValidNodeInfo validNodeInfo;
+			if ( CTrackerNodesManager::getInstance()->getNodeInfo( m_activationStatus.m_keyId, validNodeInfo ) )
 			{
-				CTrackerNodesManager::getInstance()->setActiveNode( activationStatus.m_keyId );
-			}
-			else if ( activationStatus.m_status == CActivitySatatus::Inactive )
-			{
-				m_keyId = activationStatus.m_keyId;
-
-				common::CValidNodeInfo validNodeInfo;
-				if ( CTrackerNodesManager::getInstance()->getNodeInfo( activationStatus.m_keyId, validNodeInfo ) )
-				{
-					context< CActivityControllerAction >().addRequest(
-								new common::CScheduleActionRequest(
-									new CConnectNodeAction( validNodeInfo.m_address )
-									, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-				}
+				context< CActivityControllerAction >().addRequest(
+							new common::CScheduleActionRequest(
+								new CConnectNodeAction( validNodeInfo.m_address )
+								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 			}
 		}
 
@@ -171,21 +160,44 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent _failureEvent )
+	{
+		if ( m_activationStatus.m_status == CActivitySatatus::Inactive )
+		{
+			CTrackerNodesManager::getInstance()->removeActiveNode( m_activationStatus.m_keyId );
+		}
+		else
+		{
+			return discard_event();
+		}
+
+		context< CActivityControllerAction >().addRequest(
+					new common::CSendMessageRequest(
+						m_message
+						, m_lastKey
+						, context< CActivityControllerAction >().getActionKey()
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
+
+		return discard_event();
+	}
+
 	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
 	{
-
-		if ( !_networkInfoEvent.m_valid )
+		if ( m_activationStatus.m_status == CActivitySatatus::Active )
 		{
-			CTrackerNodesManager::getInstance()->removeActiveNode( m_keyId );
-
-			//m_alreadyInformed
-			context< CActivityControllerAction >().addRequest(
-						new common::CSendMessageRequest(
-							m_message
-							, m_lastKey
-							, context< CActivityControllerAction >().getActionKey()
-							, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
+			CTrackerNodesManager::getInstance()->setActiveNode( m_activationStatus.m_keyId );
 		}
+		else
+		{
+			return discard_event();
+		}
+
+		context< CActivityControllerAction >().addRequest(
+					new common::CSendMessageRequest(
+						m_message
+						, m_lastKey
+						, context< CActivityControllerAction >().getActionKey()
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
 
 		return discard_event();
 	}
@@ -195,13 +207,14 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CNetworkInfoResult >
+	boost::statechart::custom_reaction< common::CNetworkInfoResult >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 
 	std::set< uint160 > m_informingNodes;
 	common::CMessage m_message;
 	CPubKey m_lastKey;
-	uint160 m_keyId;
+	common::CActivationStatus m_activationStatus;
 	bool m_alreadyInformed;
 };
 

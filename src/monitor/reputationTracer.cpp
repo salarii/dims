@@ -548,16 +548,14 @@ CReputationTracker::addAllyMonitor( common::CAllyMonitorData const & _monitorDat
 }
 
 void
-CReputationTracker::clearAll()
+CReputationTracker::clearRankingData()
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	m_candidates.clear();
 	m_trackerToMonitor.clear();
 	m_registeredTrackers.clear();
 	m_allyTrackersRankings.clear();
 	m_allyMonitors.clear();
 	m_presentNodes.clear();
-	m_pubKeyToNodeIndicator.clear();
 	m_extendInProgress.clear();
 
 	CRankingDatabase::getInstance()->resetDb();

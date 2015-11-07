@@ -114,6 +114,14 @@ struct CAssistAdmission : boost::statechart::state< CAssistAdmission, CEnterNetw
 		else
 		{
 			CReputationTracker::getInstance()->addNodeToSynch( context< CEnterNetworkAction >().getPartnerKey().GetID() );
+			CAddress address;
+			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CEnterNetworkAction >().getPartnerKey().GetID(), address ) )
+				assert( !"problem" );
+
+			common::CAllyMonitorData monitorData( context< CEnterNetworkAction >().getPartnerKey(), address );
+
+			CReputationTracker::getInstance()->addAllyMonitor( monitorData );
+
 			context< CEnterNetworkAction >().setExit();
 		}
 
@@ -527,7 +535,14 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 
 	boost::statechart::result react( common::CRankingEvent const & _rankingEvent )
 	{
-		CReputationTracker::getInstance()->clearAll();
+		CReputationTracker::getInstance()->clearRankingData();
+		CAddress address;
+		if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CEnterNetworkAction >().getPartnerKey().GetID(), address ) )
+			assert( !"problem" );
+
+		common::CAllyMonitorData monitorData( context< CEnterNetworkAction >().getPartnerKey(), address );
+
+		CReputationTracker::getInstance()->addAllyMonitor( monitorData );
 
 		BOOST_FOREACH( common::CAllyTrackerData const & trackerData, _rankingEvent.m_rankingInfo.m_allyTrackers )
 		{

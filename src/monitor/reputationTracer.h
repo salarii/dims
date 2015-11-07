@@ -94,7 +94,7 @@ public:
 
 	void recalculateReputation();
 
-	void clearAll();
+	void clearRankingData();
 // ugly
 	bool isSynchronizationAllowed( uint160 const & _pubKeyId )const;
 

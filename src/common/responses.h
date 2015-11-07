@@ -130,22 +130,19 @@ struct CNetworkInfoResult : boost::statechart::event< CNetworkInfoResult >
 			, common::CRole::Enum _role
 			,std::set< CValidNodeInfo > const & _trackersInfo
 			, std::set< CValidNodeInfo > const & _monitorsInfo
-			, bool _valid = true
 			)
 		:m_nodeSelfInfo( _nodeSelfInfo )
 		, m_role( _role )
 		, m_trackersInfo(_trackersInfo)
 		, m_monitorsInfo(_monitorsInfo)
-		, m_valid( _valid )
 	{}
 
-	CNetworkInfoResult():m_valid( false ){}
+	CNetworkInfoResult(){}
 
 	CValidNodeInfo m_nodeSelfInfo;
 	common::CRole::Enum m_role;
 	std::set< CValidNodeInfo > m_trackersInfo;
 	std::set< CValidNodeInfo > m_monitorsInfo;
-	bool m_valid;
 };
 
 

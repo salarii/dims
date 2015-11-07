@@ -76,40 +76,37 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 		m_received.insert( _networkInfoEvent.m_nodeSelfInfo.m_address );//  valid  even  if  invalid : )
 
-		if ( _networkInfoEvent.m_valid )
+		if ( _networkInfoEvent.m_role == common::CRole::Tracker )
 		{
-			if ( _networkInfoEvent.m_role == common::CRole::Tracker )
-			{
-				m_trackers.insert( _networkInfoEvent.m_nodeSelfInfo );
-			}
-			else if ( _networkInfoEvent.m_role == common::CRole::Monitor )
-			{
-				m_monitors.insert( _networkInfoEvent.m_nodeSelfInfo );
-			}
+			m_trackers.insert( _networkInfoEvent.m_nodeSelfInfo );
+		}
+		else if ( _networkInfoEvent.m_role == common::CRole::Monitor )
+		{
+			m_monitors.insert( _networkInfoEvent.m_nodeSelfInfo );
+		}
 
-			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_monitorsInfo )
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_monitorsInfo )
+		{
+			if ( m_monitors.find( nodeInfo ) == m_monitors.end() )
 			{
-				if ( m_monitors.find( nodeInfo ) == m_monitors.end() )
-				{
-					if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
-						nodesToAsk.insert( nodeInfo.m_address );
-				}
+				if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
+					nodesToAsk.insert( nodeInfo.m_address );
 			}
+		}
 
-			BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_trackersInfo )
+		BOOST_FOREACH( common::CValidNodeInfo const & nodeInfo, _networkInfoEvent.m_trackersInfo )
+		{
+			if ( m_trackers.find( nodeInfo ) == m_trackers.end() )
 			{
-				if ( m_trackers.find( nodeInfo ) == m_trackers.end() )
-				{
-					if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
-						nodesToAsk.insert( nodeInfo.m_address );
-				}
+				if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
+					nodesToAsk.insert( nodeInfo.m_address );
 			}
 		}
 
 		if (
-			m_received.size() == m_alreadyAsked.size()
-			 && nodesToAsk.empty()
-			)
+				m_received.size() == m_alreadyAsked.size()
+				&& nodesToAsk.empty()
+				)
 		{
 			context< CRecognizeNetworkAction >().forgetRequests();
 			return transit< CCheckRegistrationStatus >();

@@ -270,7 +270,10 @@ CTrackerNodesManager::setNetworkTracker( common::CValidNodeInfo const & _nodeInf
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	if ( !(common::CAuthenticationProvider::getInstance()->getMyKey() == _nodeInfo.m_publicKey) )
+	{
 		m_networkTrackers.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
+		m_trackers.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
+	}
 }
 
 bool
@@ -279,6 +282,7 @@ CTrackerNodesManager::setNetworkMonitor( common::CValidNodeInfo const & _nodeInf
 	boost::lock_guard<boost::mutex> lock( m_lock );
 
 	m_networkMonitors.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
+	m_monitors.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
 }
 
 void
