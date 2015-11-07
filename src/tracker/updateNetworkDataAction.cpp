@@ -43,6 +43,11 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 
 		std::set<common::CValidNodeInfo> trackers;
 
+		BOOST_FOREACH( common::CAllyTrackerData const & trackerData, rankingFullInfo.m_allyTrackers )
+		{
+			trackers.insert( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) );
+		}
+
 		BOOST_FOREACH( common::CTrackerData const & trackerData, rankingFullInfo.m_trackers )
 		{
 			trackers.insert( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) );

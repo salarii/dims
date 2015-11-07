@@ -85,6 +85,7 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
@@ -190,6 +191,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	}
 
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CMessageResult >,

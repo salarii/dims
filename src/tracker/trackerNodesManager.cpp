@@ -4,6 +4,7 @@
 
 #include "common/mediumKinds.h"
 #include "common/actionHandler.h"
+#include "common/authenticationProvider.h"
 
 #include "tracker/trackerNodesManager.h"
 #include "tracker/trackerNodeMedium.h"
@@ -90,7 +91,9 @@ CTrackerNodesManager::setNodeInfo( common::CValidNodeInfo const & _validNodeInfo
 		m_seeds.insert( std::make_pair( _validNodeInfo.m_publicKey.GetID(), _validNodeInfo ) );
 		break;
 	case common::CRole::Tracker:
-		m_trackers.insert( std::make_pair( _validNodeInfo.m_publicKey.GetID(), _validNodeInfo ) );
+		// avoid  adding self
+		if ( !(common::CAuthenticationProvider::getInstance()->getMyKey() == _validNodeInfo.m_publicKey) )
+			m_trackers.insert( std::make_pair( _validNodeInfo.m_publicKey.GetID(), _validNodeInfo ) );
 		break;
 	case common::CRole::Monitor:
 		m_monitors.insert( std::make_pair( _validNodeInfo.m_publicKey.GetID(), _validNodeInfo ) );
@@ -266,8 +269,8 @@ bool
 CTrackerNodesManager::setNetworkTracker( common::CValidNodeInfo const & _nodeInfo )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-
-	m_networkTrackers.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
+	if ( !(common::CAuthenticationProvider::getInstance()->getMyKey() == _nodeInfo.m_publicKey) )
+		m_networkTrackers.insert( std::make_pair( _nodeInfo.m_publicKey.GetID(), _nodeInfo ) );
 }
 
 bool
