@@ -13,14 +13,10 @@
 #include "netbase.h"
 #include "addrman.h"
 
-class CSelfNode;
-
 namespace common
 {
 
 class CSelfNode;
-
-class CSelfNodesManager;
 
 class CManageNetwork
 {

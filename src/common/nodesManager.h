@@ -14,6 +14,7 @@
 namespace common
 {
 // class common::CConnectionProvider is problematic, may providers make  things confusing, sometimes it is not  clear which provider is responsible for  mediums of specific
+class CSelfNode;
 
 class CNodesManager : public common::CConnectionProvider
 {
@@ -42,6 +43,8 @@ public:
 
 	virtual std::list< CMedium *> getNodesByClass( CMediumKinds::Enum _nodesClass ) const = 0;
 
+	virtual void evaluateNode( CSelfNode * _selfNode )= 0;
+
 	bool getAddress( uintptr_t _nodePtr, CAddress & _address ) const;
 
 	static CNodesManager * getInstance()
@@ -53,6 +56,7 @@ public:
 
 	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
 
+	void erasePubKey( CAddress const & _address );
 protected:
 	CNodesManager();
 

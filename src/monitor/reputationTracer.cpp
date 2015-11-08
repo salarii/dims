@@ -15,6 +15,7 @@
 #include "monitor/admitTrackerAction.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/activityControllerAction.h"
+#include "monitor/pingAction.h"
 
 namespace common
 {
@@ -393,28 +394,36 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 {
 	CPubKey key;
 
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	if ( !getNodeToKey( _nodePtr, key ) )
+		return;
+
+	CKeyID keyId = key.GetID();
+
+	m_candidates.erase( keyId );
+
+	m_transactionsAddmited.erase( keyId );
+
+	m_presentNodes.erase( keyId );
+
+	m_pubKeyToNodeIndicator.erase( key );
+
+	CAddress address;
+	if ( getAddress( _nodePtr, address ) )
 	{
-		boost::lock_guard<boost::mutex> lock( m_lock );
+		erasePubKey( address );
 
 		common::CNodesManager::eraseMedium( _nodePtr );
 
-		if ( !getNodeToKey( _nodePtr, key ) )
-			return;
-
-		CKeyID keyId = key.GetID();
-
-		m_candidates.erase( keyId );
-
-		m_transactionsAddmited.erase( keyId );
-
-		m_presentNodes.erase( keyId );
-
-		m_pubKeyToNodeIndicator.erase( key );
-
-
+		common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( key, address, CActivitySatatus::Inactive ) );
 	}
+}
 
-	common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( key, CActivitySatatus::Inactive ) );// action outside of  lock  scope, ugly!!
+void
+CReputationTracker::evaluateNode( common::CSelfNode * _selfNode )
+{
+	common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
 }
 
 std::set< common::CValidNodeInfo > const

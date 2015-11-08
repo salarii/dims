@@ -174,6 +174,14 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 					activityControllerAction->process_event( common::CMessageResult( message, key ) );
 					common::CActionHandler::getInstance()->executeAction( activityControllerAction );
 				}
+				else if ( message.m_header.m_payloadKind == common::CPayloadKind::Pong )
+				{
+					CPingAction * pingAction = new CPingAction( message.m_header.m_actionKey );
+
+					pingAction->process_event( common::CMessageResult( message, key ) );
+
+					common::CActionHandler::getInstance()->executeAction( pingAction );
+				}
 			}
 		}
 

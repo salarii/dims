@@ -33,9 +33,9 @@ struct CRecognizeNodeState;
 
 namespace
 {
-CPubKey Node;
+CPubKey NodeKey;
 CActivitySatatus::Enum Status;
-
+CAddress Address;
 }
 
 struct CActivityInitial : boost::statechart::simple_state< CActivityInitial, CActivityControllerAction >
@@ -53,19 +53,10 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 	{
 		LogPrintf("activity controller action: %p initiate activation \n", &context< CActivityControllerAction >() );
 
-		CAddress address;
-		if ( CReputationTracker::getInstance()->getAddresFromKey( Node.GetID(), address ) )
-		{
-
-			context< CActivityControllerAction >().addRequest(
-						new common::CScheduleActionRequest(
-							new CConnectNodeAction( address )
-							, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
-		}
-		else
-		{
-			context< CActivityControllerAction >().setExit();
-		}
+		context< CActivityControllerAction >().addRequest(
+					new common::CScheduleActionRequest(
+						new CConnectNodeAction( Address )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -89,19 +80,19 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
-		if ( CReputationTracker::getInstance()->isPresentNode( Node.GetID() ) )
+		if ( CReputationTracker::getInstance()->isPresentNode( NodeKey.GetID() ) )
 		{
 			if ( Status == CActivitySatatus::Inactive )
 			{
-				CReputationTracker::getInstance()->erasePresentNode( Node.GetID() );
+				CReputationTracker::getInstance()->erasePresentNode( NodeKey.GetID() );
 			}
 
 			context< CActivityControllerAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ActivationStatus
-						, common::CActivationStatus( Node.GetID(),(int)CActivitySatatus::Inactive )
+						, common::CActivationStatus( NodeKey.GetID(),(int)CActivitySatatus::Inactive )
 						, context< CActivityControllerAction >().getActionKey()
-						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, Node.GetID() ) ) );
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, NodeKey.GetID() ) ) );
 
 			context< CActivityControllerAction >().addRequest(
 						new common::CTimeEventRequest(
@@ -113,29 +104,30 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
 	{
-		if ( CReputationTracker::getInstance()->isPresentNode( Node.GetID() ) )
+		if ( CReputationTracker::getInstance()->isPresentNode( NodeKey.GetID() ) )
 			return discard_event();
 
 		if ( Status == CActivitySatatus::Active )
 		{
-			CReputationTracker::getInstance()->setPresentNode( Node.GetID() );
+			CReputationTracker::getInstance()->setPresentNode( NodeKey.GetID() );
+
+			context< CActivityControllerAction >().addRequest(
+					new common::CSendMessageRequest(
+						common::CPayloadKind::ActivationStatus
+						, common::CActivationStatus( NodeKey.GetID(),(int)CActivitySatatus::Active )
+						, context< CActivityControllerAction >().getActionKey()
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, NodeKey.GetID() ) ) );
+
+			context< CActivityControllerAction >().addRequest(
+						new common::CTimeEventRequest(
+							WaitTime
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
 		else
 		{
+			context< CActivityControllerAction >().setExit();
 			return discard_event();
 		}
-
-		context< CActivityControllerAction >().addRequest(
-				new common::CSendMessageRequest(
-					common::CPayloadKind::ActivationStatus
-					, common::CActivationStatus( Node.GetID(),(int)CActivitySatatus::Active )
-					, context< CActivityControllerAction >().getActionKey()
-					, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, Node.GetID() ) ) );
-
-		context< CActivityControllerAction >().addRequest(
-					new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		return discard_event();
 	}
@@ -211,7 +203,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 				}
 			}
 			CAddress address;
-			if ( CReputationTracker::getInstance()->getAddresFromKey( Node.GetID(), address ) )
+			if ( CReputationTracker::getInstance()->getAddresFromKey( NodeKey.GetID(), address ) )
 			{
 				context< CActivityControllerAction >().addRequest(
 							new common::CScheduleActionRequest(
@@ -300,10 +292,11 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	bool m_alreadyInformed;
 };
 
-CActivityControllerAction::CActivityControllerAction( CPubKey const & _node, CActivitySatatus::Enum _status )
+CActivityControllerAction::CActivityControllerAction( CPubKey const & _nodeKey, CAddress const & _address, CActivitySatatus::Enum _status )
 {
-	Node = _node;
+	NodeKey = _nodeKey;
 	Status = _status;
+	Address = _address;
 	initiate();
 	process_event( CInitiateActivationEvent() );
 }

@@ -718,7 +718,11 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 						, context< CSynchronizationAction >().getActionKey()
 						, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
 
-			common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( context< CSynchronizationAction >().getPartnerKey(), CActivitySatatus::Active ) );
+			CAddress address;
+			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CSynchronizationAction >().getPartnerKey().GetID(), address ) )
+				assert( !"can't fail" );
+
+			common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( context< CSynchronizationAction >().getPartnerKey(), address, CActivitySatatus::Active ) );
 		}
 
 		return discard_event();

@@ -85,4 +85,10 @@ CNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) cons
 	return true;
 }
 
+void
+CNodesManager::erasePubKey( CAddress const & _address )
+{
+	m_keyStore.erase( _address );
+}
+
 }

@@ -7,6 +7,7 @@
 #include "common/actionHandler.h"
 #include "common/setResponseVisitor.h"
 #include "common/events.h"
+#include "common/selfNode.h"
 
 #include "monitor/pingAction.h"
 #include "monitor/filters.h"
@@ -24,10 +25,16 @@ struct CSendPong;
 
 int64_t PingPeriod = 20000;//milisec
 
+namespace
+{
+	common::CSelfNode * SelfNode;
+}
+
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
 	CUninitialised( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("ping action: %p uninitialised \n", &context< CPingAction >() );
 	}
 
 	typedef boost::mpl::list<
@@ -38,67 +45,9 @@ struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 
 struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 {
-	CSendPing( my_context ctx ) : my_base( ctx ), m_received( true )
+	CSendPing( my_context ctx ) : my_base( ctx )
 	{
-		context< CPingAction >().forgetRequests();
-
-		context< CPingAction >().addRequest(
-					new common::CTimeEventRequest(
-						PingPeriod
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
-		context< CPingAction >().addRequest(
-				new common::CSendMessageRequest(
-					common::CPayloadKind::Ping
-					, common::CPing()
-					, context< CPingAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
-	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CPingAction >().forgetRequests();
-
-		if ( !m_received )
-		{
-		}
-		else
-		{
-			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-
-			context< CPingAction >().addRequest(
-					new common::CSendMessageRequest(
-						common::CPayloadKind::Ping
-						, common::CPing()
-						, context< CPingAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
-		}
-		return discard_event();
-	}
-
-	boost::statechart::result react( common::CPingPongResult const & _pingPong )
-	{
-		assert( !_pingPong.m_isPing );// remove this  debug only
-
-		if ( !_pingPong.m_isPing )
-			m_received = true;
-
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CPingPongResult >
-	> reactions;
-
-	bool m_received;
-};
-
-struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
-{
-	CSendPong( my_context ctx ) : my_base( ctx )
-	{
+		LogPrintf("ping action: %p send ping \n", &context< CPingAction >() );
 		context< CPingAction >().forgetRequests();
 
 		context< CPingAction >().addRequest(
@@ -106,62 +55,94 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 		context< CPingAction >().addRequest(
 				new common::CSendMessageRequest(
-					common::CPayloadKind::Pong
-					, common::CPong()
+					common::CPayloadKind::Ping
+					, common::CPing()
 					, context< CPingAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
+					, new CSpecificMediumFilter( common::convertToInt( SelfNode ) ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CPingAction >().forgetRequests();
 
-		if ( !m_received )
+		SelfNode->fDisconnect = true;
+		context< CPingAction >().setExit();
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+			common::CMessage orginalMessage;
+			if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+				assert( !"service it somehow" );
+
+			if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Pong )
+			{
+				common::CResult result;
+
+				common::convertPayload( orginalMessage, result );
+
+				context< CPingAction >().setExit();
+			}
+			return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMessageResult >
+	> reactions;
+};
+
+struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
+{
+	CSendPong( my_context ctx ) : my_base( ctx )
+	{
+		LogPrintf("ping action: %p send pong \n", &context< CPingAction >() );
+	}
+
+	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	{
+		common::CMessage orginalMessage;
+		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
+			assert( !"service it somehow" );
+
+		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Ping)
 		{
-		}
-		else
-		{
-			context< CPingAction >().addRequest(
-						new common::CTimeEventRequest( PingPeriod, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+			common::CResult result;
+
+			common::convertPayload( orginalMessage, result );
 
 			context< CPingAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::Pong
 						, common::CPong()
 						, context< CPingAction >().getActionKey()
-						, new CByKeyMediumFilter( context< CPingAction >().getPartnerKey() ) ) );
+						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+
+			context< CPingAction >().setExit();
 		}
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CPingPongResult const & _pingPong )
-	{
-		assert( _pingPong.m_isPing );// remove this  debug only
-
-		if ( _pingPong.m_isPing )
-			m_received = true;
-
-		return discard_event();
-	}
-
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CPingPongResult >
+	boost::statechart::custom_reaction< common::CMessageResult >
 	> reactions;
 
-	bool m_received;
 };
 
-CPingAction::CPingAction( CPubKey const & _partnerKey )
-	: m_partnerKey( _partnerKey )
+CPingAction::CPingAction( common::CSelfNode * _node )
 {
+	SelfNode = _node;
 	initiate();
+	process_event( common::CStartPingEvent() );
 }
 
-CPingAction::CPingAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
-	: m_partnerKey( _partnerKey )
+CPingAction::CPingAction( uint256 const & _actionKey)
 {
 	initiate();
+	process_event( common::CStartPongEvent() );
+
 }
 
 void

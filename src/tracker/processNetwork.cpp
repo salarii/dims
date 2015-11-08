@@ -159,6 +159,14 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 				common::CActionHandler::getInstance()->executeAction( activityControllerAction );
 			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Pong )
+			{
+				CPingAction * pingAction = new CPingAction( message.m_header.m_actionKey );
+
+				pingAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( pingAction );
+			}
 		}
 	}
 	return true;
@@ -177,9 +185,11 @@ CProcessNetwork::sendMessages(common::CSelfNode* pto, bool fSendTrickle)
 
 namespace common
 {
+
 void
 CSelfNode::clearManager()
 {
 	common::CNodesManager::getInstance()->eraseMedium( convertToInt( this ) );
 }
+
 }

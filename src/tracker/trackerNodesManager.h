@@ -48,6 +48,8 @@ public:
 	}
 
 	bool isInNetwork( uint160 const & _keyId )const;
+// ugly way t solve  problem
+	void evaluateNode( common::CSelfNode * _selfNode );
 
 	bool setNetworkTracker( common::CValidNodeInfo const & _nodeInfo );
 

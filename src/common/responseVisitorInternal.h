@@ -107,11 +107,6 @@ public:
 		m_action->process_event( common::CValidationEvent( _param.m_invalidTransactionIndexes ) );
 	}
 
-	virtual void operator()( common::CPingPongResult & _param ) const
-	{
-		//obsolete anyway
-	}
-
 	virtual void operator()( common::CFailureEvent & _param ) const
 	{
 		LogPrintf("set response \"failure event\" to action: %p \n", m_action );

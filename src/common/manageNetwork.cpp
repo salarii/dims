@@ -12,10 +12,9 @@
 #include "main.h"
 
 #include "common/dimsParams.h"
-
-#include "communicationProtocol.h"
-
+#include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
+#include "common/nodesManager.h"
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
@@ -511,6 +510,9 @@ CManageNetwork::threadSocketHandler()
 				//
 				// Inactivity checking
 				//
+				/*
+not very nice  job
+*/
 				if (pnode->vSendMsg.empty())
 					pnode->nLastSendEmpty = GetTime();
 				if (GetTime() - pnode->nTimeConnected > 20)
@@ -518,17 +520,17 @@ CManageNetwork::threadSocketHandler()
 					if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
 					{
 						LogPrint("net", "socket no message in first 60 seconds, %d %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0);
-						pnode->fDisconnect = true;
+						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 					else if (GetTime() - pnode->nLastSend > 60 && GetTime() - pnode->nLastSendEmpty > 60)
 					{
 						LogPrintf("socket not sending\n");
-						pnode->fDisconnect = true;
+						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 					else if (GetTime() - pnode->nLastRecv > 80)
 					{
 						LogPrintf("socket inactivity timeout\n");
-						pnode->fDisconnect = true;
+						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 				}
 			}
@@ -538,7 +540,7 @@ CManageNetwork::threadSocketHandler()
 					pnode->Release();
 			}
 
-			MilliSleep(10);
+			MilliSleep(50);
 	}
 }
 

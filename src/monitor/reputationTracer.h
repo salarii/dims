@@ -74,6 +74,8 @@ public:
 
 	void eraseMedium( uintptr_t _nodePtr );
 
+	void evaluateNode( common::CSelfNode * _selfNode );
+
 	std::set< common::CValidNodeInfo > const getNodesInfo( common::CRole::Enum _role ) const;
 
 	bool checkForTracker( uint160 const & _pubKeyId, common::CTrackerData & _trackerData, CPubKey & _controllingMonitor )const;

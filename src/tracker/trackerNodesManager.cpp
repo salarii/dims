@@ -11,6 +11,7 @@
 #include "tracker/connectNodeAction.h"
 #include "tracker/controller.h"
 #include "tracker/activityControllerAction.h"
+#include "tracker/pingAction.h"
 
 namespace common
 {
@@ -238,24 +239,24 @@ CTrackerNodesManager::getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndi
 void
 CTrackerNodesManager::eraseMedium( uintptr_t _nodePtr )
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	CAddress address;
 	CPubKey pubKey;
-	{
-		boost::lock_guard<boost::mutex> lock( m_lock );
+	if ( !getAddress( _nodePtr, address ) )
+		return;
 
-		CAddress address;
-
-		if ( !getAddress( _nodePtr, address ) )
-			return;
-
-		if ( getPublicKey( address, pubKey ) )
-		{
-			m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
-
-			m_activeNodes.erase( pubKey.GetID() );
-		}
-	}
 	common::CNodesManager::eraseMedium( _nodePtr );
-	common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( pubKey, CActivitySatatus::Inactive ) );// outside  lock  scope ,  ugly
+
+	if ( !getPublicKey( address, pubKey ) )
+		return;
+	m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
+
+	m_activeNodes.erase( pubKey.GetID() );
+
+	erasePubKey( address );
+
+	common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( pubKey, address, CActivitySatatus::Inactive ) );
 }
 bool
 CTrackerNodesManager::isInNetwork( uint160 const & _keyId )const
@@ -265,6 +266,12 @@ CTrackerNodesManager::isInNetwork( uint160 const & _keyId )const
 	return
 			m_networkTrackers.find( _keyId ) != m_networkTrackers.end()
 			|| m_networkMonitors.find( _keyId ) != m_networkMonitors.end();
+}
+
+void
+CTrackerNodesManager::evaluateNode( common::CSelfNode * _selfNode )
+{
+	common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
 }
 
 bool

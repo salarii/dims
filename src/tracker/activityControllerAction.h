@@ -23,7 +23,7 @@ struct CActivityInitial;
 class CActivityControllerAction : public common::CAction, public boost::statechart::state_machine< CActivityControllerAction, CActivityInitial >
 {
 public:
-	CActivityControllerAction( CPubKey const & _node, CActivitySatatus::Enum _status );
+	CActivityControllerAction( CPubKey const & _nodeKey, CAddress const & _address, CActivitySatatus::Enum _status );
 
 	CActivityControllerAction( uint256 const & _actionKey );
 

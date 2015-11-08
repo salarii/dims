@@ -245,15 +245,6 @@ struct CAckResult
 	uintptr_t m_nodePtr;
 };
 
-struct CPingPongResult : boost::statechart::event< CPingPongResult >
-{
-	CPingPongResult( bool _isPing, uintptr_t _nodePtr ): m_nodePtr( _nodePtr ), m_isPing( _isPing ){}
-
-	uintptr_t m_nodePtr;
-
-	bool m_isPing;
-};
-
 struct CMessageResult : boost::statechart::event< CMessageResult >
 {
 	CMessageResult( CMessage const & _message, CPubKey const & _pubKey = CPubKey() ): m_message( _message ), m_pubKey( _pubKey ){}
@@ -367,7 +358,6 @@ common::ScheduledResult
 , common::CIdentificationResult
 , common::CRequestedMerkles
 , common::CMessageResult
-, common::CPingPongResult
 , common::CAckResult
 , common::CTimeEvent
 , common::CNoMedium
