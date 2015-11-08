@@ -69,7 +69,7 @@ public:
 
 	bool isActiveNode( uint160 const & _idKey ) const;
 
-		bool getAddresFromKey( uint160 const & _pubKeyId, CAddress & _address )const;
+	bool getAddresFromKey( uint160 const & _pubKeyId, CAddress & _address )const;
 private:
 	std::set< common::CValidNodeInfo > extractValidNodeInfo( std::map< uint160, common::CValidNodeInfo > const & _validNode ) const;
 

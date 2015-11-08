@@ -326,6 +326,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 void
 CReputationTracker::setKeyToNode( CPubKey const & _pubKey, uintptr_t _nodeIndicator)
 {
+	m_pubKeyToNodeIndicator.erase(_pubKey);
 	m_pubKeyToNodeIndicator.insert( std::make_pair( _pubKey, _nodeIndicator ) );
 }
 
@@ -390,13 +391,16 @@ CReputationTracker::getPresentTrackers() const
 void
 CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 {
-	//reconsider  what  needs  to  be cleared
-
-	boost::lock_guard<boost::mutex> lock( m_lock );
-
 	CPubKey key;
-	if ( getNodeToKey( _nodePtr, key ) )
+
 	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+
+		common::CNodesManager::eraseMedium( _nodePtr );
+
+		if ( !getNodeToKey( _nodePtr, key ) )
+			return;
+
 		CKeyID keyId = key.GetID();
 
 		m_candidates.erase( keyId );
@@ -407,10 +411,10 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 		m_pubKeyToNodeIndicator.erase( key );
 
-		common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( key, CActivitySatatus::Inactive ) );
-	}
-	common::CNodesManager::eraseMedium( _nodePtr );
 
+	}
+
+	common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( key, CActivitySatatus::Inactive ) );// action outside of  lock  scope, ugly!!
 }
 
 std::set< common::CValidNodeInfo > const

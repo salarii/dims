@@ -238,25 +238,24 @@ CTrackerNodesManager::getKeyToNode( CKeyID const & _keyId, uintptr_t & _nodeIndi
 void
 CTrackerNodesManager::eraseMedium( uintptr_t _nodePtr )
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
-
-	CAddress address;
-
-	if ( getAddress( _nodePtr, address ) )
+	CPubKey pubKey;
 	{
-		CPubKey pubKey;
+		boost::lock_guard<boost::mutex> lock( m_lock );
+
+		CAddress address;
+
+		if ( !getAddress( _nodePtr, address ) )
+			return;
 
 		if ( getPublicKey( address, pubKey ) )
 		{
 			m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
 
 			m_activeNodes.erase( pubKey.GetID() );
-
-			common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( pubKey, CActivitySatatus::Inactive ) );
 		}
 	}
 	common::CNodesManager::eraseMedium( _nodePtr );
-
+	common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( pubKey, CActivitySatatus::Inactive ) );// outside  lock  scope ,  ugly
 }
 bool
 CTrackerNodesManager::isInNetwork( uint160 const & _keyId )const
@@ -371,7 +370,6 @@ CTrackerNodesManager::isActiveNode( uint160 const & _idKey ) const
 bool
 CTrackerNodesManager::getAddresFromKey( uint160 const & _pubKeyId, CAddress & _address )const
 {
-	boost::lock_guard<boost::mutex> lock( m_lock );
 	uintptr_t nodeIndicator;
 	if ( !getKeyToNode( _pubKeyId, nodeIndicator ) )
 		return false;

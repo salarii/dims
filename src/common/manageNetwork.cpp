@@ -525,7 +525,7 @@ CManageNetwork::threadSocketHandler()
 						LogPrintf("socket not sending\n");
 						pnode->fDisconnect = true;
 					}
-					else if (GetTime() - pnode->nLastRecv > 60)
+					else if (GetTime() - pnode->nLastRecv > 80)
 					{
 						LogPrintf("socket inactivity timeout\n");
 						pnode->fDisconnect = true;
