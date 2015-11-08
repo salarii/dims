@@ -527,7 +527,7 @@ not very nice  job
 						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 				}
-				else if (GetTime() - pnode->nLastSend > 60 && GetTime() - pnode->nLastSendEmpty > 60)
+				else if (GetTime() - pnode->nLastSend > 20 && GetTime() - pnode->nLastSendEmpty > 20)
 				{
 					if ( m_timeOutNodes.find( pnode ) == m_timeOutNodes.end() )
 					{
@@ -537,7 +537,7 @@ not very nice  job
 						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 				}
-				else if (GetTime() - pnode->nLastRecv > 80)
+				else if (GetTime() - pnode->nLastRecv > 30)
 				{
 					if ( m_timeOutNodes.find( pnode ) == m_timeOutNodes.end() )
 					{

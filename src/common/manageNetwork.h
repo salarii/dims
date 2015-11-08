@@ -126,6 +126,8 @@ private:
 	CSelfNode* pnodeSync;
 	CAddrMan addrman;
 	CNodeSignals m_signals;
+
+	std::set<CSelfNode*> m_timeOutNodes;
 };
 
 template < class Handler >
