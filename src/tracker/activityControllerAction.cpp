@@ -51,18 +51,13 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 	{
 		LogPrintf("activity controller action: %p initiate activation \n", &context< CActivityControllerAction >() );
 
-		// for  now  don't care  about result
-		context< CActivityControllerAction >().addRequest(
-				new common::CSendMessageRequest(
-					common::CPayloadKind::ActivationStatus
-					, common::CActivationStatus( Node.GetID(),(int)Status )
-					, context< CActivityControllerAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
+		CAddress address;
+		CTrackerNodesManager::getInstance()->getAddresFromKey( Node.GetID(), address );
 
 		context< CActivityControllerAction >().addRequest(
-					new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+					new common::CScheduleActionRequest(
+						new CConnectNodeAction( address )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -84,7 +79,62 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
+	{
+		if ( CTrackerNodesManager::getInstance()->isActiveNode( Node.GetID() ) )
+		{
+			if ( Status == CActivitySatatus::Inactive )
+			{
+				CTrackerNodesManager::getInstance()->removeActiveNode( Node.GetID() );
+			}
+
+			context< CActivityControllerAction >().addRequest(
+					new common::CSendMessageRequest(
+						common::CPayloadKind::ActivationStatus
+						, common::CActivationStatus( Node.GetID(),(int)CActivitySatatus::Inactive )
+						, context< CActivityControllerAction >().getActionKey()
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, Node.GetID() ) ) );
+
+			context< CActivityControllerAction >().addRequest(
+						new common::CTimeEventRequest(
+							WaitTime
+							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+		}
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
+	{
+		if ( CTrackerNodesManager::getInstance()->isActiveNode( Node.GetID() ) )
+			return discard_event();
+
+		if ( Status == CActivitySatatus::Active )
+		{
+			CTrackerNodesManager::getInstance()->setActiveNode( Node.GetID() );
+		}
+		else
+		{
+			return discard_event();
+		}
+
+		context< CActivityControllerAction >().addRequest(
+				new common::CSendMessageRequest(
+					common::CPayloadKind::ActivationStatus
+					, common::CActivationStatus( Node.GetID(),(int)CActivitySatatus::Active )
+					, context< CActivityControllerAction >().getActionKey()
+					, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, Node.GetID() ) ) );
+
+		context< CActivityControllerAction >().addRequest(
+					new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CNetworkInfoResult >,
+	boost::statechart::custom_reaction< common::CFailureEvent >,
 	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CAckEvent >,
 	boost::statechart::custom_reaction< common::CTimeEvent >

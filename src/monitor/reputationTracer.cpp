@@ -394,8 +394,6 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 	boost::lock_guard<boost::mutex> lock( m_lock );
 
-	common::CNodesManager::eraseMedium( _nodePtr );
-
 	CPubKey key;
 	if ( getNodeToKey( _nodePtr, key ) )
 	{
@@ -411,6 +409,7 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 
 		common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( key, CActivitySatatus::Inactive ) );
 	}
+	common::CNodesManager::eraseMedium( _nodePtr );
 
 }
 
@@ -587,11 +586,10 @@ CReputationTracker::getAddresFromKey( uint160 const & _pubKeyId, CAddress & _add
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
 	uintptr_t nodeIndicator;
-	if ( !CReputationTracker::getInstance()->getKeyToNode( _pubKeyId, nodeIndicator ) )
+	if ( !getKeyToNode( _pubKeyId, nodeIndicator ) )
 		return false;
 
-	CAddress address;
-	return CReputationTracker::getInstance()->getAddress( nodeIndicator, _address );
+	return getAddress( nodeIndicator, _address );
 }
 
 void

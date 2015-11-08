@@ -256,7 +256,7 @@ CManageNetwork::threadSocketHandler()
 					pnode->Cleanup();
 
 					// hold in disconnected pool until all refs are released
-					if (pnode->fNetworkNode || pnode->fInbound)
+					//if (pnode->fNetworkNode || pnode->fInbound)
 						pnode->Release();
 					m_nodesDisconnected.push_back(pnode);
 				}
@@ -513,19 +513,19 @@ CManageNetwork::threadSocketHandler()
 				//
 				if (pnode->vSendMsg.empty())
 					pnode->nLastSendEmpty = GetTime();
-				if (GetTime() - pnode->nTimeConnected > 60)
+				if (GetTime() - pnode->nTimeConnected > 20)
 				{
 					if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
 					{
 						LogPrint("net", "socket no message in first 60 seconds, %d %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0);
 						pnode->fDisconnect = true;
 					}
-					else if (GetTime() - pnode->nLastSend > 90*60 && GetTime() - pnode->nLastSendEmpty > 90*60)
+					else if (GetTime() - pnode->nLastSend > 60 && GetTime() - pnode->nLastSendEmpty > 60)
 					{
 						LogPrintf("socket not sending\n");
 						pnode->fDisconnect = true;
 					}
-					else if (GetTime() - pnode->nLastRecv > 90*60)
+					else if (GetTime() - pnode->nLastRecv > 60)
 					{
 						LogPrintf("socket inactivity timeout\n");
 						pnode->fDisconnect = true;

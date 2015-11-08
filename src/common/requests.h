@@ -234,6 +234,7 @@ public:
 			, CPubKey const & _prevKey
 			, uint256 const & _actionKey
 			, CMediumFilter * _CMediumFilter )
+		: common::CRequest( _CMediumFilter )
 	{
 		m_message = common::CMessage(
 					_message
