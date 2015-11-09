@@ -79,10 +79,6 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 
 			if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Pong )
 			{
-				common::CResult result;
-
-				common::convertPayload( orginalMessage, result );
-
 				context< CPingAction >().setExit();
 			}
 			return discard_event();
@@ -109,9 +105,6 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Ping)
 		{
-			common::CResult result;
-
-			common::convertPayload( orginalMessage, result );
 
 			context< CPingAction >().addRequest(
 						new common::CSendMessageRequest(
@@ -140,6 +133,7 @@ CPingAction::CPingAction( common::CSelfNode * _node )
 }
 
 CPingAction::CPingAction( uint256 const & _actionKey)
+	: common::CAction( _actionKey )
 {
 	initiate();
 	process_event( common::CStartPongEvent() );
