@@ -114,11 +114,12 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 			common::convertPayload( orginalMessage, result );
 
 			context< CPingAction >().addRequest(
-					new common::CSendMessageRequest(
-						common::CPayloadKind::Pong
-						, common::CPong()
-						, context< CPingAction >().getActionKey()
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+						new common::CSendMessageRequest(
+							common::CPayloadKind::Pong
+							, common::CPong()
+							, context< CPingAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
 			context< CPingAction >().setExit();
 		}
