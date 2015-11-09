@@ -18,6 +18,7 @@
 #include "client/control.h"
 
 #include "serialize.h"
+#include "wallet.h"
 
 using namespace common;
 
@@ -150,6 +151,11 @@ uintptr_t
 CSendTransactionAction::getProcessingTrackerPtr() const
 {
 	return m_processingTrackerPtr;
+}
+
+CSendTransactionAction::~CSendTransactionAction()
+{
+	CClientControl::getInstance()->updateTotalBalance( CWallet::getInstance()->GetBalance() );
 }
 
 }

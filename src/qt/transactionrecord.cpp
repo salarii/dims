@@ -164,14 +164,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 					//         sub.address = mapValue["to"];
 				}
 
-				int64_t nValue = txout.nValue;
-				/* Add fee to first output */
-				if (nTxFee > 0)
-				{
-					nValue += nTxFee;
-					nTxFee = 0;
-				}
-				sub.debit = -nValue;
+				sub.debit = txout.nValue;
 
 				parts.append(sub);
 			}

@@ -194,7 +194,7 @@ BitcoinGUI::BitcoinGUI(bool fIsTestnet, QWidget *parent) :
     // Subscribe to notifications from core
     subscribeToCoreSignals();
 
-	client::CClientControl::getInstance()->acquireClientSignals().m_messageboxPaymentRequest.connect( boost::bind(&BitcoinGUI::handlePaymentRequest, this ) );
+	client::CClientControl::getInstance()->acquireClientSignals().m_messageboxPaymentRequest.connect( boost::bind(&BitcoinGUI::handleApplicationPaymentRequest, this, _1 ) );
 }
 
 BitcoinGUI::~BitcoinGUI()
@@ -869,10 +869,10 @@ void BitcoinGUI::detectShutdown()
 }
 
 int
-BitcoinGUI::handlePaymentRequest()
+BitcoinGUI::handleApplicationPaymentRequest(unsigned int _cost)
 {
 	QMessageBox msgBox;
-	msgBox.setText("Application send payment request");
+	msgBox.setText(QString("Application request you to pay ") + QString().setNum(_cost) + QString(" for license") );
 	msgBox.setInformativeText("Do you want to service request?");
 	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 	msgBox.setDefaultButton(QMessageBox::Ok);

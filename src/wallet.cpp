@@ -1290,10 +1290,19 @@ void CWallet::ListLockedCoins(std::vector<COutPoint>& vOutpts)
 }
 
 void
-CWallet::addInputs( std::map< uint256, std::vector< CKeyID > > const & _inputs )
+CWallet::addInputs( std::map< uint256, std::vector< CKeyID > > const & _inputs, bool _writeToDatabase )
 {
 	AssertLockHeld(cs_wallet);
 	m_inputs.insert( _inputs.begin(), _inputs.end() );
+
+	if ( _writeToDatabase )
+	{
+		BOOST_FOREACH( PAIRTYPE(uint256, std::vector< CKeyID >) const & input, _inputs )
+		{
+			if ( !CWalletDB(this->strWalletFile).replaceInputs(input.first, input.second) )
+				assert(!"problem");
+		}
+	}
 }
 
 bool

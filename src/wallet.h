@@ -213,7 +213,7 @@ public:
 
 	void replaceAvailableCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins );
 
-	void addInputs( std::map< uint256, std::vector< CKeyID > > const & _inputs );
+	void addInputs( std::map< uint256, std::vector< CKeyID > > const & _inputs, bool _writeToDatabase = true );
 
 	void removeCoins( CKeyID const & _keyId, std::vector< CAvailableCoin > const & _previousCoins );
 

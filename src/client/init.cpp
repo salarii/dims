@@ -182,12 +182,12 @@ bool AppInit1(boost::thread_group& threadGroup)
 	if (file) fclose(file);
 	static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
 	if (!lock.try_lock())
-		return InitError(strprintf(_("Cannot obtain a lock on data directory %s. Ratcoin is probably already running."), strDataDir));
+		return InitError(strprintf(_("Cannot obtain a lock on data directory %s. DiMS is probably already running."), strDataDir));
 
 	if (GetBoolArg("-shrinkdebugfile", !fDebug))
 		ShrinkDebugFile();
 	LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	LogPrintf("Ratcoin version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
+	LogPrintf("DiMS version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
 	LogPrintf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
 	if (!fLogTimestamps)
 		LogPrintf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()));

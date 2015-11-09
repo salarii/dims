@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE Ratcoin Test Suite
+#define BOOST_TEST_MODULE DiMS Test Suite
 
 
 

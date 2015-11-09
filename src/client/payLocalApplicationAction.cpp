@@ -400,7 +400,7 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 
 	CTrackerLocalRanking::getInstance()->isValidTrackerKnown( CKeyID() );
 
-	if ( !CClientControl::getInstance()->executePaymentMessageBox() )
+	if ( !CClientControl::getInstance()->executePaymentMessageBox(_value) )
 	{
 		process_event( CIndicateErrorEvent( dims::CAppError::RefusedByClient ) );
 		return;
@@ -528,6 +528,11 @@ CPubKey const &
 CPayLocalApplicationAction::getServicingTracker() const
 {
 	return m_servicingTracker;
+}
+
+CPayLocalApplicationAction::~CPayLocalApplicationAction()
+{
+	CClientControl::getInstance()->updateTotalBalance( CWallet::getInstance()->GetBalance() );
 }
 
 }

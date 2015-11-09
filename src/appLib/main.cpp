@@ -11,17 +11,21 @@
 #include "appClient.h"
 #include "authorData.h"
 
+#include "common/dimsParams.h"
+
 int main(int argc, char *argv[])
 {
 	dims::HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf";
 
 	dims::AuthorId = "dXUT2rfnE8J7nqfa3TQHqPJnur6BX9YsFe";
 
-	dims::Value = 10000;
+	dims::Value = 100;
 
 	dims::PossibleMonitors.push_back( "mK8nrDpWDoZ7Ez6x7aZwudwCcP3T9SEHix");
 
 	QApplication app (argc, argv);
+
+	common::SelectDimsParams(CNetworkParams::TESTNET);
 
 	QMainWindow *window = new QMainWindow();
 	window->setWindowTitle( "Mass calculator" );

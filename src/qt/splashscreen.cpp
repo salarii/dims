@@ -25,10 +25,10 @@ SplashScreen::SplashScreen(const QPixmap &pixmap, Qt::WindowFlags f, bool isTest
     float fontFactor            = 1.0;
 
     // define text to place
-    QString titleText       = tr("Ratcoin Client");
-    QString versionText     = QString("Version %1").arg(QString::fromStdString(FormatFullVersion()));
+	QString titleText       = tr("Dims Client");
+	//QString versionText     = QString("Version %1").arg(QString::fromStdString(FormatFullVersion()));
     QString copyrightText   = QChar(0xA9)+QString(" 2009-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The Bitcoin Core developers \n"));
-    copyrightText  += QChar(0xA9)+QString(" 2009-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The Bitcoin Core developers \n"));
+	copyrightText  += QChar(0xA9)+QString(" 2009-%1 ").arg(COPYRIGHT_YEAR) + QString(tr("The DiMS developers \n"));
     QString testnetAddText  = QString(tr("[testnet]")); // define text to place as single text object
 
     QString font            = "Arial";
@@ -63,12 +63,12 @@ SplashScreen::SplashScreen(const QPixmap &pixmap, Qt::WindowFlags f, bool isTest
 
     // if the version string is to long, reduce size
     fm = pixPaint.fontMetrics();
-    int versionTextWidth  = fm.width(versionText);
+	int versionTextWidth  = 0;//fm.width(versionText);
     if(versionTextWidth > titleTextWidth+paddingRight-10) {
         pixPaint.setFont(QFont(font, 10*fontFactor));
         titleVersionVSpace -= 5;
     }
-    pixPaint.drawText(newPixmap.width()-titleTextWidth-paddingRight+2,paddingTop+titleVersionVSpace,versionText);
+   // pixPaint.drawText(newPixmap.width()-titleTextWidth-paddingRight+2,paddingTop+titleVersionVSpace,versionText);
 
     // draw copyright stuff
     pixPaint.setFont(QFont(font, 10*fontFactor));

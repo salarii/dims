@@ -93,6 +93,8 @@ public:
 	{
 		return m_servicingMonitor;
 	}
+
+	~CPayLocalApplicationAction();
 private:
 	uint256 m_firstInitialHash;
 

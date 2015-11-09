@@ -96,6 +96,25 @@ bool CWalletDB::EraseCoin(CKeyID const & _keyId)
 	return Erase(std::make_pair(std::string("coins"), _keyId));
 }
 
+bool CWalletDB::WriteInputs( uint256 const & _hash, std::vector< CKeyID > const &_inputs)
+{
+	nWalletDBUpdated++;
+	return Write(std::make_pair(std::string("inputs"), _hash), _inputs);
+}
+
+bool CWalletDB::replaceInputs(uint256 const & _hash, std::vector< CKeyID > const &_inputs)
+{
+	EraseInputs(_hash);
+
+	return WriteInputs(_hash, _inputs);
+}
+
+bool CWalletDB::EraseInputs(uint256 const & _hash)
+{
+	nWalletDBUpdated++;
+	return Erase(std::make_pair(std::string("inputs"), _hash));
+}
+
 bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata& keyMeta)
 {
     nWalletDBUpdated++;
@@ -316,6 +335,17 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 			ssValue >> coins;
 
 			pwallet->addAvailableCoins( keyId, coins, false );
+		}
+		else if (strType == "inputs")
+		{
+			uint256 hash;
+			ssKey >> hash;
+
+			std::vector< CKeyID > inputs;
+			ssValue >> inputs;
+			std::map< uint256, std::vector< CKeyID > > inputsMap;
+			inputsMap.insert( std::make_pair( hash, inputs ) );
+			pwallet->addInputs( inputsMap, false );
 		}
         else if (strType == "tx")
         {

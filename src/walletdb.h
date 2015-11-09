@@ -121,6 +121,8 @@ public:
 
     bool WriteMinVersion(int nVersion);
 
+		bool replaceInputs(uint256 const & _hash, std::vector< CKeyID > const &_inputs);
+
     bool ReadAccount(const std::string& strAccount, CAccount& account);
     bool WriteAccount(const std::string& strAccount, const CAccount& account);
 
@@ -131,6 +133,10 @@ public:
 private:
 	bool WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
 	bool EraseCoin(CKeyID const & _keyId);
+
+	bool WriteInputs( uint256 const & _hash, std::vector< CKeyID > const &_inputs);
+	bool EraseInputs(uint256 const & _hash);
+
     bool WriteAccountingEntry(const uint64_t nAccEntryNum, const CAccountingEntry& acentry);
 public:
     bool WriteAccountingEntry(const CAccountingEntry& acentry);

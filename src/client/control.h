@@ -23,7 +23,7 @@ struct CUninitiatedClient;
 struct CClientSignals
 {
 	boost::signals2::signal<void( uint256 const &, CTransaction const & )> m_transactionAddmited;
-	boost::signals2::signal<int()> m_messageboxPaymentRequest;
+	boost::signals2::signal<int(unsigned int)> m_messageboxPaymentRequest;
 	boost::signals2::signal<void ( unsigned int )> m_updateTotalBalance;
 	boost::signals2::signal<void ( CTransaction const & )> m_putTransactionIntoModel;
 	boost::signals2::signal<void ( uint256 const & )> m_updateTransactionInModel;
@@ -48,7 +48,7 @@ public:
 
 	bool createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
 
-	bool executePaymentMessageBox();
+	bool executePaymentMessageBox( unsigned int _cost);
 
 	void transactionAddmited( uint256 const & _hash, CTransaction const & _transaction );
 

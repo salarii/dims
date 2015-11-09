@@ -106,9 +106,9 @@ CClientControl::createTransaction( std::vector< std::pair< CKeyID, int64_t > > c
 }
 
 bool
-CClientControl::executePaymentMessageBox()
+CClientControl::executePaymentMessageBox( unsigned int _cost)
 {
-	return m_clientSignals.m_messageboxPaymentRequest().get_value_or(0) == QMessageBox::Ok ? true : false;
+	return m_clientSignals.m_messageboxPaymentRequest( _cost ).get_value_or(0) == QMessageBox::Ok ? true : false;
 }
 
 void

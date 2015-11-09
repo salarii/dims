@@ -583,6 +583,23 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 
 		CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( _message.m_ip );
 	}
+	else
+	{
+		if ( !CTrackerLocalRanking::getInstance()->monitorCount() )
+		{
+			common::CTrackerStats trackerStats(
+						undeterminedTracker.m_key
+						, 0
+						, trackerStatsData.m_price
+						, undeterminedTracker.m_ip
+						, undeterminedTracker.m_port
+						);
+
+			CTrackerLocalRanking::getInstance()->addTracker( trackerStats );
+
+			CTrackerLocalRanking::getInstance()->removeUndeterminedTracker( _message.m_ip );
+		}
+	}
 
 		m_pending.erase( _message.m_nodePtr );
 

@@ -45,6 +45,8 @@ public:
 	{
 		return m_initialTransactionHash;
 	}
+
+	~CSendTransactionAction();
 private:
 	CTransaction m_transaction;
 
