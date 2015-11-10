@@ -63,7 +63,6 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 {
 	CUnconnected( my_context ctx )
 		: my_base( ctx )
-		, m_default(false)
 	{
 		LogPrintf("accept node action: %p unconnected state \n", &context< CAcceptNodeAction >() );
 		m_usedAddress = context< CAcceptNodeAction >().getAddress();
@@ -75,19 +74,7 @@ struct CUnconnected : boost::statechart::state< CUnconnected, CAcceptNodeAction 
 
 	boost::statechart::result react( common::CCantReachNode const & _cantReach )
 	{
-		if ( m_default )
-		{
-			return transit< CCantReachNode >();
-		}
-		else
-		{
-			m_default = true;
-			m_usedAddress.SetPort( common::dimsParams().GetDefaultPort() );
-			context< CAcceptNodeAction >().forgetRequests();
-			context< CAcceptNodeAction >().addRequest(
-						new common::CConnectToNodeRequest( std::string(""), m_usedAddress, new CMediumClassFilter( common::CMediumKinds::Internal ) ) );
-		}
-		return discard_event();
+		return transit< CCantReachNode >();
 	}
 
 	typedef boost::mpl::list<
