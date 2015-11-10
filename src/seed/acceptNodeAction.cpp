@@ -483,7 +483,7 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CAcceptNodeA
 				db.Add( validNodeInfo.m_address );
 			}
 		}
-
+		context< CAcceptNodeAction >().setExit();
 		return discard_event();
 	}
 
