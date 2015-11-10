@@ -271,7 +271,14 @@ CTrackerNodesManager::isInNetwork( uint160 const & _keyId )const
 void
 CTrackerNodesManager::evaluateNode( common::CSelfNode * _selfNode )
 {
-	common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
+	if ( getPublicKey( _selfNode->addr, pubKey ) )
+	{
+		common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
+	}
+	else
+	{
+		_selfNode->fDisconnect = true;
+	}
 }
 
 bool

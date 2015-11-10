@@ -423,9 +423,15 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 void
 CReputationTracker::evaluateNode( common::CSelfNode * _selfNode )
 {
-	common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
+	if ( getPublicKey( _selfNode->addr, pubKey ) )
+	{
+		common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
+	}
+	else
+	{
+		_selfNode->fDisconnect = true;  // for seed  and unknown
+	}
 }
-
 std::set< common::CValidNodeInfo > const
 CReputationTracker::getNodesInfo( common::CRole::Enum _role ) const
 {

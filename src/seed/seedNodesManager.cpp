@@ -106,7 +106,8 @@ CSeedNodesManager::isKnown( CPubKey const & _pubKey ) const
 void
 CSeedNodesManager::evaluateNode( common::CSelfNode * _selfNode )
 {
-	common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
+	//maybe in future
+	//common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
 }
 
 }
