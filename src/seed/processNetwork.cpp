@@ -71,11 +71,20 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			}
 
 		}
-		else if (
-					  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo
-				|| message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
-				 )
+		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
+		{
+			common::CAck ack;
+
+			common::convertPayload( message, ack );
+
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
+			}
+		}
+		else
 		{
 
 			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
@@ -92,18 +101,13 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 				else
 					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, pubKey ) );
 			}
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
-		{
-			common::CAck ack;
-
-			common::convertPayload( message, ack );
-
-			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
 			{
-				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
+				CPingAction * pingAction = new CPingAction( message.m_header.m_actionKey );
+
+				pingAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( pingAction );
 			}
 		}
 

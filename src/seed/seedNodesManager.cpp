@@ -2,9 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "common/actionHandler.h"
+
 #include "seedNodesManager.h"
 #include "seedNodeMedium.h"
 #include "internalMedium.h"
+#include "pingAction.h"
 
 namespace common
 {
@@ -98,6 +101,12 @@ CSeedNodesManager::isKnown( CPubKey const & _pubKey ) const
 		iterator++;
 	}
 	return false;
+}
+
+void
+CSeedNodesManager::evaluateNode( common::CSelfNode * _selfNode )
+{
+	common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
 }
 
 }

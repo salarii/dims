@@ -411,7 +411,7 @@ void periodicCheck()
 			common::CActionHandler::getInstance()->executeAction( acceptNodeAction );
 		}
 
-		MilliSleep(40000);
+		MilliSleep(50000);
 		db.ResultMany(ips); // believe it is  done
 
 	}

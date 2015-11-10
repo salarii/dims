@@ -12,26 +12,20 @@
 
 namespace seed
 {
+
 struct CUninitialised;
 
 class CPingAction : public common::CAction, public  boost::statechart::state_machine< CPingAction, CUninitialised >
 {
-	/*
 public:
-	CPingAction( uintptr_t _nodeIndicator );
+	CPingAction( common::CSelfNode * _node );
 
-	CPingAction( uint256 const & _actionKey, uintptr_t _nodeIndicator );
+	CPingAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	void cleanup() const;
-
-	static bool isPinged( uintptr_t _nodeIndicator );
-
-private:
-	uintptr_t m_nodeIndicator;*/
+	~CPingAction(){};
 };
-
 
 }
 

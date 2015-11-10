@@ -30,7 +30,7 @@ public:
 
 	bool clearPublicKey( uintptr_t _nodeIndicator );
 
-	void evaluateNode( common::CSelfNode * _selfNode ){};
+	void evaluateNode( common::CSelfNode * _selfNode );
 
 	bool isKnown( CPubKey const & _pubKey ) const;
 
