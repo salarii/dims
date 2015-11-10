@@ -271,6 +271,7 @@ CTrackerNodesManager::isInNetwork( uint160 const & _keyId )const
 void
 CTrackerNodesManager::evaluateNode( common::CSelfNode * _selfNode )
 {
+	CPubKey pubKey;
 	if ( getPublicKey( _selfNode->addr, pubKey ) )
 	{
 		common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );

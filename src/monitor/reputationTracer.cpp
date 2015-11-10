@@ -423,6 +423,7 @@ CReputationTracker::eraseMedium( uintptr_t _nodePtr )
 void
 CReputationTracker::evaluateNode( common::CSelfNode * _selfNode )
 {
+	CPubKey pubKey;
 	if ( getPublicKey( _selfNode->addr, pubKey ) )
 	{
 		common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
