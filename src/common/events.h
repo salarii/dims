@@ -165,6 +165,15 @@ struct CRegistrationTermsEvent : boost::statechart::event< CRegistrationTermsEve
 	CRegistrationTerms m_registrationTerms;
 };
 
+struct CEnteranceTermsEvent : boost::statechart::event< CEnteranceTermsEvent >
+{
+	CEnteranceTermsEvent( CEnteranceTerms const & _enteranceTerms )
+		: m_enteranceTerms( _enteranceTerms )
+	{}
+
+	CEnteranceTerms m_enteranceTerms;
+};
+
 struct CTrackerInfoEvent : boost::statechart::event< CTrackerInfoEvent >
 {
 	CTrackerInfoEvent( CTrackerInfo const & _trackerInfo )
@@ -235,6 +244,11 @@ public:
 	void operator()( CRegistrationTerms const & _registrationTerms ) const
 	{
 		this->m_action->process_event( CRegistrationTermsEvent( _registrationTerms ) );
+	}
+
+	void operator()( CEnteranceTerms const & _enteranceTerms ) const
+	{
+		this->m_action->process_event( CEnteranceTermsEvent( _enteranceTerms ) );
 	}
 private:
 	Action * m_action;

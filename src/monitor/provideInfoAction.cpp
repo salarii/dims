@@ -258,6 +258,14 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 
 			context< CProvideInfoAction >().setResult( trackerInfo );
 		}
+		else if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::EnterNetworkCondition )
+		{
+			common::CEnteranceTerms enteranceTerms;
+
+			common::convertPayload( orginalMessage, enteranceTerms );
+
+			context< CProvideInfoAction >().setResult( enteranceTerms );
+		}
 		else if ( orginalMessage.m_header.m_payloadKind == (int)common::CPayloadKind::FullRankingInfo )
 		{
 			common::CRankingFullInfo rankingFullInfo;

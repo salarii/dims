@@ -260,59 +260,31 @@ struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnt
 		: my_base( ctx )
 	{
 		context< CEnterNetworkAction >().forgetRequests();
-		context< CEnterNetworkAction >().addRequest(
-		 new common::CTimeEventRequest(
-						WaitTime
-						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		context< CEnterNetworkAction >().addRequest(
-				new common::CSendMessageRequest(
-					common::CPayloadKind::InfoReq
-					, common::CInfoRequestData( (int)common::CInfoKind::EnterConditionAsk, std::vector<unsigned char>() )
-					, context< CEnterNetworkAction >().getActionKey()
-					, new CByKeyMediumFilter( context< CEnterNetworkAction >().getPartnerKey() ) ) ); // bit  risky to ask  this way
+		new common::CScheduleActionRequest(
+			  new CProvideInfoAction( common::CInfoKind::EnterConditionAsk, context< CEnterNetworkAction >().getPartnerKey() )
+			, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+
 	}
 
-	boost::statechart::result react( common::CMessageResult const & _messageResult )
+	boost::statechart::result react( common::CEnteranceTermsEvent const & _enteranceTermsEvent )
 	{
-		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
-			assert( !"service it somehow" );
-
-		if ( _messageResult.m_message.m_header.m_payloadKind == common::CPayloadKind::EnterNetworkCondition )
-		{	common::CEnteranceTerms enteranceTerms;
-
-			common::convertPayload( orginalMessage, enteranceTerms );
-
-			context< CEnterNetworkAction >().addRequest(
-						new common::CAckRequest(
-							context< CEnterNetworkAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
-
-			price = enteranceTerms.m_price;
-			return transit< CAskForAddmision >();
-		}
-		return discard_event();
+		price = _enteranceTermsEvent.m_enteranceTerms.m_price;
+		return transit< CAskForAddmision >();
 	}
 
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
-		assert( !"no response" );
-		context< CEnterNetworkAction >().forgetRequests();
 		context< CEnterNetworkAction >().setExit();
 		return discard_event();
 	}
 
-	boost::statechart::result react( common::CAckEvent const & _ackEvent )
-	{
-		return discard_event();
-	}
+
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >,
-	boost::statechart::custom_reaction< common::CMessageResult >,
-	boost::statechart::custom_reaction< common::CAckEvent >
+	boost::statechart::custom_reaction< common::CEnteranceTermsEvent >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
 	> reactions;
 };
 
