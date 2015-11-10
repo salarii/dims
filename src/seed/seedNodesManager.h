@@ -22,9 +22,9 @@ public:
 
 	std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
-	void setPublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey );
+	void setNodePublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey );
 
-	bool getPublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const;
+	bool getNodePublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const;
 
 	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator );
 
@@ -40,7 +40,7 @@ public:
 private:
 	CSeedNodesManager();
 private:
-	std::map< uintptr_t, CPubKey > m_keyStore;
+	std::map< uintptr_t, CPubKey > m_nodeKeyStore;
 };
 
 }

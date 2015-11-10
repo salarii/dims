@@ -149,7 +149,7 @@ struct CPairIdentifiedConnecting : boost::statechart::state< CPairIdentifiedConn
 
 		if ( _identificationResult.m_key.Verify( hash, _identificationResult.m_signed ) )
 		{
-			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
+			CSeedNodesManager::getInstance()->setNodePublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
 
 			context< CAcceptNodeAction >().forgetRequests();
 			context< CAcceptNodeAction >().addRequest(
@@ -292,7 +292,7 @@ struct CBothUnidentifiedConnected : boost::statechart::state< CBothUnidentifiedC
 				return discard_event();
 			}
 
-			CSeedNodesManager::getInstance()->setPublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
+			CSeedNodesManager::getInstance()->setNodePublicKey( context< CAcceptNodeAction >().getNodePtr(), _identificationResult.m_key );
 			context< CAcceptNodeAction >().forgetRequests();
 			context< CAcceptNodeAction >().addRequest(
 						new common::CAckRequest(

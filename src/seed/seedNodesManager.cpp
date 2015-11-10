@@ -49,17 +49,17 @@ CSeedNodesManager::getInternalMedium()
 }
 
 void
-CSeedNodesManager::setPublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey )
+CSeedNodesManager::setNodePublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey )
 {
-	m_keyStore.insert( std::make_pair( _nodeIndicator, _pubKey ) );
+	m_nodeKeyStore.insert( std::make_pair( _nodeIndicator, _pubKey ) );
 }
 
 bool
-CSeedNodesManager::getPublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const
+CSeedNodesManager::getNodePublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const
 {
-	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_keyStore.find( _nodeIndicator );
+	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_nodeKeyStore.find( _nodeIndicator );
 
-	if ( iterator == m_keyStore.end() )
+	if ( iterator == m_nodeKeyStore.end() )
 		return false;
 
 	_pubKey = iterator->second;
@@ -70,7 +70,7 @@ CSeedNodesManager::getPublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) c
 bool
 CSeedNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator )
 {
-	BOOST_FOREACH( PAIRTYPE( uintptr_t, CPubKey ) const & node, m_keyStore )
+	BOOST_FOREACH( PAIRTYPE( uintptr_t, CPubKey ) const & node, m_nodeKeyStore )
 	{
 		if ( node.second == _pubKey )
 		{
@@ -85,16 +85,16 @@ CSeedNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndic
 bool
 CSeedNodesManager::clearPublicKey( uintptr_t _nodeIndicator )
 {
-	m_keyStore.erase( _nodeIndicator );
+	m_nodeKeyStore.erase( _nodeIndicator );
 	return true;
 }
 
 bool
 CSeedNodesManager::isKnown( CPubKey const & _pubKey ) const
 {
-	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_keyStore.begin();
+	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_nodeKeyStore.begin();
 
-	while( iterator != m_keyStore.end() )
+	while( iterator != m_nodeKeyStore.end() )
 	{
 		if ( iterator->second == _pubKey )
 			return true;
