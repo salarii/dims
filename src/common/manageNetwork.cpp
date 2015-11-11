@@ -18,6 +18,8 @@
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
+#define PINGSENDTIME 2000
+#define PINGRECEIVETIME 3000
 namespace common
 {
 
@@ -511,7 +513,7 @@ not very nice  job
 						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 				}
-				else if (GetTime() - pnode->nLastSend > 20 && GetTime() - pnode->nLastSendEmpty > 20)
+				else if (GetTime() - pnode->nLastSend > PINGSENDTIME && GetTime() - pnode->nLastSendEmpty > PINGSENDTIME)
 				{
 					if ( m_timeOutNodes.find( pnode ) == m_timeOutNodes.end() )
 					{
@@ -521,7 +523,7 @@ not very nice  job
 						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 				}
-				else if (GetTime() - pnode->nLastRecv > 30)
+				else if (GetTime() - pnode->nLastRecv > PINGRECEIVETIME)
 				{
 					if ( m_timeOutNodes.find( pnode ) == m_timeOutNodes.end() )
 					{

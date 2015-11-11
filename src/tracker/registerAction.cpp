@@ -534,6 +534,8 @@ CRegisterAction::setInNetwork( bool _flag )
 				assert( !"problem" );
 
 			CTrackerNodesManager::getInstance()->setNetworkMonitor( validNodeInfo );
+
+			CTrackerNodesManager::getInstance()->setActiveNode( m_partnerKey.GetID() );
 	}
 }
 
