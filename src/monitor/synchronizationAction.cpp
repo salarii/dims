@@ -704,6 +704,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		{
 			context< CSynchronizationAction >().setExit();
 
+			CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
+
 			common::CRankingFullInfo rankingFullInfo(
 				CReputationTracker::getInstance()->getAllyTrackers()
 				, CReputationTracker::getInstance()->getAllyMonitors()
