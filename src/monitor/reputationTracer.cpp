@@ -563,9 +563,11 @@ void
 CReputationTracker::addAllyMonitor( common::CAllyMonitorData const & _monitorData )
 {
 	boost::lock_guard<boost::mutex> lock( m_lock );
-	m_allyMonitors.insert( std::make_pair( _monitorData.m_publicKey.GetID(), _monitorData ) );
+	if ( !(common::CAuthenticationProvider::getInstance()->getMyKey() == _monitorData.m_publicKey) )
+	{
+		m_allyMonitors.insert( std::make_pair( _monitorData.m_publicKey.GetID(), _monitorData ) );
+	}
 }
-
 void
 CReputationTracker::clearRankingData()
 {

@@ -197,6 +197,7 @@ struct CRankingFullInfo
 		: m_allyTrackers( _allyTrackers )
 		, m_allyMonitors( _allyMonitors )
 		, m_trackers( _trackers )
+		, m_time( _time )
 		, m_leadingKey(_leadingKey)
 	{}
 
