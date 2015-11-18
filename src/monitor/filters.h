@@ -17,7 +17,7 @@ struct CMediumClassFilter : public common::CMediumFilter
 		m_mediumNumber( _mediumNumber )
 	{}
 
-	std::list< common::CMedium *> getMediums( common::CNodesManager * _nodesManager )const
+	std::list< common::CMedium *> getMediums( CReputationTracker * _nodesManager )const
 	{
 		std::list< common::CMedium *> mediums;
 		mediums = _nodesManager->getNodesByClass( m_mediumClass );

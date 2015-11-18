@@ -13,6 +13,7 @@
 #include "common/analyseTransaction.h"
 #include "common/requests.h"
 #include "common/events.h"
+#include "common/actionHandler.h"
 
 #include "monitor/passTransactionAction.h"
 #include "monitor/enterNetworkAction.h"
@@ -533,7 +534,7 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 
 		CReputationTracker::getInstance()->setMeasureReputationTime( _rankingEvent.m_rankingInfo.m_time );
 
-		CReputationControlAction::createInstance( _rankingEvent.m_rankingInfo.m_leadingKey );
+		common::CActionHandler ::getInstance()->executeAction( CReputationControlAction::createInstance( _rankingEvent.m_rankingInfo.m_leadingKey ) );
 		return discard_event();
 	}
 

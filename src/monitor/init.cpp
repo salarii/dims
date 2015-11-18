@@ -679,7 +679,7 @@ bool AppInit(boost::thread_group& threadGroup)
 
 	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)monitor::CReputationTracker::getInstance() );
 
-		common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)common::CErrorMediumProvider::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)common::CErrorMediumProvider::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 
