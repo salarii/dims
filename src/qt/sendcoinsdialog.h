@@ -22,6 +22,26 @@ namespace Ui {
     class SendCoinsDialog;
 }
 
+struct CSendSentinel : public QObject
+{
+	Q_OBJECT
+
+public slots:
+	void userResponse( bool _accepted )
+	{
+		m_userResponse = _accepted;
+	}
+
+signals:
+	void requestAcceptance( uint _amount, uint _fee );
+
+public:
+	bool m_userResponded;
+	bool m_userResponse;
+};
+
+extern CSendSentinel SendSentinel;
+
 /** Dialog for sending bitcoins */
 class SendCoinsDialog : public QDialog
 {
@@ -50,6 +70,8 @@ public slots:
     void setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 immatureBalance);
 	void setTransactionStatus();
 	void setAddressViewActive( bool _enable );
+
+	void serviceTransactionUserAsk( uint _amout, uint _fee );
 private:
     Ui::SendCoinsDialog *ui;
     WalletModel *model;
@@ -84,6 +106,7 @@ private slots:
 signals:
     // Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);
+	void userTransactionResonse( bool _response );
 };
 
 #endif // SENDCOINSDIALOG_H

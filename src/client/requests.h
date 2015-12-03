@@ -22,7 +22,13 @@ public:
 
 struct CProofTransactionAndStatusRequest : public common::CRequest
 {
-	CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CMediumFilter * _mediumFilter );
+	CProofTransactionAndStatusRequest(
+			CTransaction const & _trasaction
+			, std::vector<unsigned char> const & _transactionStatusSignature
+			, CPubKey const & _servicingTracker
+			, common::CMonitorData const & _monitorData
+			, CPubKey const & _servicingMonitor
+			, common::CMediumFilter * _mediumFilter );
 
 public:
 	void accept( common::CMedium * _medium ) const;
@@ -30,6 +36,20 @@ public:
 	common::CPayApplicationData m_payApplicationData;
 };
 
+struct CCreateTransactionRequest : public common::CRequest
+{
+	CCreateTransactionRequest(
+			std::vector< std::pair< CKeyID, int64_t > > const & _outputs
+			, std::vector< CSpendCoins > const & _sendCoins
+			, common::CMediumFilter * _mediumFilter );
+
+public:
+	void accept( common::CMedium * _medium ) const;
+
+	std::vector< std::pair< CKeyID, int64_t > > m_outputs;
+
+	std::vector< CSpendCoins > m_sendCoins;
+};
 
 }
 

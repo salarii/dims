@@ -22,8 +22,7 @@ public:
 	{
 		dims,
 		Kdims,
-		Mdims,
-		Gdims
+		Mdims
 	};
 
 	//! @name Static API

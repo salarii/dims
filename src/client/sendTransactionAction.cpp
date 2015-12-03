@@ -24,6 +24,12 @@ using namespace common;
 
 namespace client
 {
+namespace
+{
+std::vector< std::pair< CKeyID, int64_t > > outputs;
+std::vector< CSpendCoins > sendCoins;
+}
+
 
 struct CTransactionStatus;
 
@@ -34,11 +40,7 @@ struct CPrepareAndSendTransaction : boost::statechart::state< CPrepareAndSendTra
 		context< CSendTransactionAction >().forgetRequests();
 
 		context< CSendTransactionAction >().addRequest(
-				new common::CSendClientMessageRequest(
-					common::CMainRequestType::Transaction
-					, common::CClientTransactionSend(context< CSendTransactionAction >().getTransaction())
-					, context< CSendTransactionAction >().getTransaction().GetHash()
-					, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) ) );
+				new client::CCreateTransactionRequest( outputs, sendCoins, new CMediumClassFilter( ClientMediums::TrackersBalanced, 1 ) ) );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -92,7 +94,7 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 		if ( transactionStatus.m_status == (int)common::TransactionsStatus::Confirmed )
 		{
 			CClientControl::getInstance()->transactionAddmited(
-						context< CSendTransactionAction >().getInitialTransactionHash()
+						context< CSendTransactionAction >().getTransaction().GetHash()
 						, context< CSendTransactionAction >().getTransaction() );
 
 			context< CSendTransactionAction >().setExit();
@@ -115,12 +117,13 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 	> reactions;
 };
 
-CSendTransactionAction::CSendTransactionAction( const CTransaction & _transaction )
+CSendTransactionAction::CSendTransactionAction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _sendCoins )
 	: CAction()
-	, m_transaction( _transaction )
 {
-	m_initialTransactionHash = m_transaction.GetHash();
 	initiate();
+
+	outputs = _outputs;
+	sendCoins = _sendCoins;
 }
 
 void

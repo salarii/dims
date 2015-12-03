@@ -38,6 +38,7 @@ namespace client
 struct CDnsInfoRequest;
 struct CErrorForAppPaymentProcessing;
 struct CProofTransactionAndStatusRequest;
+struct CCreateTransactionRequest;
 }
 
 namespace monitor
@@ -76,6 +77,7 @@ public:
 	virtual void add( client::CDnsInfoRequest const * _request ){};
 	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
 	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
+	virtual void add( client::CCreateTransactionRequest const * _request ){};
 	virtual void add( tracker::CGetBalanceRequest const * _request ){};
 	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
 	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};

@@ -225,40 +225,28 @@ WalletModel::prepareTransaction(WalletModelTransaction &transaction, const CCoin
     if(total > nBalance)
     {
         return AmountExceedsBalance;
-    }
+	}
 
-	common::CTrackerStats tracker;
-	unsigned int fee;
-	client::CClientControl::getInstance()->determineFeeAndTracker( total, tracker, fee );
+	if( (total ) > nBalance)
+	{
+		return SendCoinsReturn(AmountWithFeeExceedsBalance);
+	}
 
-	if( (total + fee ) > nBalance)
-    {
-        return SendCoinsReturn(AmountWithFeeExceedsBalance);
-    }
-
-    {
-        LOCK2(cs_main, wallet->cs_wallet);
-
-        int64_t nFeeRequired = 0;
-        std::string strFailReason;
-
-		CWalletTx *newTx = transaction.getTransaction();
-
-		bool fCreated = client::CClientControl::getInstance()->createTransaction( outputs, std::vector< CSpendCoins >(), tracker, *newTx, strFailReason );
-
-        if(!fCreated)
-        {
-            if((total + nFeeRequired) > nBalance)
-            {
-                return SendCoinsReturn(AmountWithFeeExceedsBalance);
-            }
-            emit message(tr("Send Coins"), QString::fromStdString(strFailReason),
-                         CClientUIInterface::MSG_ERROR);
-            return TransactionCreationFailed;
-        }
-    }
-
-    return SendCoinsReturn(OK);
+	common::CActionHandler::getInstance()->executeAction( new client::CSendTransactionAction( outputs, std::vector< CSpendCoins >()) );
+	/*
+		if(!fCreated)
+		{
+			if((total + nFeeRequired) > nBalance)
+			{
+				return SendCoinsReturn(AmountWithFeeExceedsBalance);
+			}
+			emit message(tr("Send Coins"), QString::fromStdString(strFailReason),
+						 CClientUIInterface::MSG_ERROR);
+			return TransactionCreationFailed;
+		}
+	}
+*/
+	return SendCoinsReturn(OK);
 }
 
 WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &transaction)
@@ -289,7 +277,6 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     }
 
 /* create send  transaction  action */
-	common::CActionHandler::getInstance()->executeAction( new client::CSendTransactionAction( (CTransaction &)*transaction.getTransaction() ) );
     return SendCoinsReturn(OK);
 }
 

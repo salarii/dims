@@ -26,9 +26,6 @@ public:
 
     CWalletTx *getTransaction();
 
-    void setTransactionFee(qint64 newFee);
-    qint64 getTransactionFee();
-
     qint64 getTotalTransactionAmount();
 
     void newPossibleKeyChange(CWallet *wallet);

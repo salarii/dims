@@ -401,24 +401,6 @@ CTrackerLocalRanking::connectNetworkRecognized( boost::signals2::slot< void () >
 }
 
 bool
-CTrackerLocalRanking::determineTracker( unsigned int _amount, common::CTrackerStats & _tracker, unsigned int & _fee )const
-{
-	unsigned int bestFee = -1;
-
-	BOOST_FOREACH( common::CTrackerStats const & tracker, m_trackers )
-	{
-		if ( bestFee > tracker.m_price )
-		{
-			_tracker = tracker;
-			bestFee = tracker.m_price;
-		}
-	}
-	_fee = bestFee;
-
-	return bestFee != (unsigned int)-1;
-}
-
-bool
 CTrackerLocalRanking::getMonitorKeyForTracker( CPubKey const & _trackerKey, CPubKey & _monitorKey )
 {
 	BOOST_FOREACH( PAIRTYPE( CPubKey, common::CMonitorInfo ) const & monitor, m_monitors )

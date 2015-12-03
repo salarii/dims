@@ -27,7 +27,6 @@ struct CClientSignals
 	boost::signals2::signal<void ( unsigned int )> m_updateTotalBalance;
 	boost::signals2::signal<void ( CTransaction const & )> m_putTransactionIntoModel;
 	boost::signals2::signal<void ( uint256 const & )> m_updateTransactionInModel;
-	boost::signals2::signal<bool ( std::vector< std::pair< CKeyID, int64_t > > const &, std::vector< CSpendCoins > const &, CPubKey const &, unsigned int,CWalletTx&, std::string&)> m_createTransaction;
 };
 
 
@@ -43,10 +42,6 @@ public:
 	void updateTotalBalance( int64_t _totalBalance );
 
 	void addTransactionToModel( CTransaction const & _transaction );
-
-	bool determineFeeAndTracker( unsigned int _transactionAmount, common::CTrackerStats & _tracker, unsigned int & _fee );
-
-	bool createTransaction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _coinsToUse, common::CTrackerStats const & _trackerStats,CWalletTx& wtxNew, std::string& strFailReason );
 
 	bool executePaymentMessageBox( unsigned int _cost);
 

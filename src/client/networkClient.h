@@ -35,6 +35,8 @@ public:
 
 	void add( common::CSendClientMessageRequest const * _request );
 
+	void add( client::CCreateTransactionRequest const * _request );
+
 	bool flush();
 
 	virtual bool getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse );

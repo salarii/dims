@@ -87,8 +87,6 @@ public:
 
 	void connectNetworkRecognized( boost::signals2::slot< void () > const & _slot );
 
-	bool determineTracker( unsigned int _amount, common::CTrackerStats & _tracker, unsigned int & _fee ) const;// rather  it is not what I really need
-
 	bool getMonitorKeyForTracker( CPubKey const & _trackerKey, CPubKey & _monitorKey );
 
 private:

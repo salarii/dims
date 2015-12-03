@@ -172,7 +172,7 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 		CWalletTx tx;
 		std::string failReason;
 
-		CClientControl::getInstance()->createTransaction( outputs, std::vector< CSpendCoins >(), trackerStats, tx, failReason );
+		CWallet::getInstance()->CreateTransaction( outputs, std::vector< CSpendCoins >(), trackerStats.m_key, trackerStats.m_price,tx, failReason );
 
 		context< CPayLocalApplicationAction >().setServicingTracker( trackerStats.m_key );
 
@@ -285,7 +285,7 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 		{
 			coinsToUse.push_back( CSpendCoins( txOuts[i], ids[i], firstTransaction.GetHash(), context< CPayLocalApplicationAction >().getPrivKey() ) );
 		}
-		CClientControl::getInstance()->createTransaction( outputs, coinsToUse, context< CPayLocalApplicationAction >().getTrackerStats(), tx, failReason );
+	CWallet::getInstance()->CreateTransaction( outputs, coinsToUse, context< CPayLocalApplicationAction >().getTrackerStats().m_key,context< CPayLocalApplicationAction >().getTrackerStats().m_price, tx, failReason );
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 

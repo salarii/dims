@@ -21,6 +21,11 @@
 #include <QScrollBar>
 #include <QTextDocument>
 
+// both  ugly
+CSendSentinel SendSentinel;
+QStringList formatted;
+
+
 SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SendCoinsDialog),
@@ -42,7 +47,12 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
     connect(ui->setManual, SIGNAL(toggled ( bool )), this, SLOT(setAddressViewActive( bool )));
-    setAddressViewActive( false );
+
+	connect(&SendSentinel, SIGNAL(requestAcceptance( uint, uint )), this, SLOT( serviceTransactionUserAsk( uint, uint ) ));
+
+	connect(this, SIGNAL(userTransactionResonse( bool )), &SendSentinel, SLOT(userResponse( bool )));
+
+	setAddressViewActive( false );
 
     connect( ui->tableView->selectionModel(), SIGNAL(selectionChanged()), this, SLOT(setTransactionStatus()));
 
@@ -190,7 +200,8 @@ void SendCoinsDialog::on_sendButton_clicked()
     }
 
     // Format confirmation message
-    QStringList formatted;
+
+	formatted.clear();
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
         // generate bold amount string
@@ -252,8 +263,8 @@ void SendCoinsDialog::on_sendButton_clicked()
         prepareStatus = model->prepareTransaction(currentTransaction);
 
     // process prepareStatus and on error generate message shown to user
-    processSendCoinsReturn(prepareStatus,
-		CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
+  //  processSendCoinsReturn(prepareStatus,
+	//	CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
 
     if(prepareStatus.status != WalletModel::OK) {
         fNewRecipientAllowed = true;
@@ -261,42 +272,6 @@ void SendCoinsDialog::on_sendButton_clicked()
     }
 
 // 
-    qint64 txFee = currentTransaction.getTransactionFee(); // this replace  with fee of tracker
-    QString questionString = tr("Are you sure you want to send?");
-    questionString.append("<br /><br />%1");
-
-    if(txFee > 0)
-    {
-        // append fee string if a fee is required
-        questionString.append("<hr /><span style='color:#aa0000;'>");
-		questionString.append(CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
-        questionString.append("</span> ");
-        questionString.append(tr("added as transaction fee"));
-    }
-
-    // add total amount in all subdivision units
-    questionString.append("<hr />");
-    qint64 totalAmount = currentTransaction.getTotalTransactionAmount() + txFee;
-    QStringList alternativeUnits;
-	foreach(CDimsUnits::Unit u, CDimsUnits::availableUnits())
-    {
-        if(u != model->getOptionsModel()->getDisplayUnit())
-			alternativeUnits.append(CDimsUnits::formatWithUnit(u, totalAmount));
-    }
-    questionString.append(tr("Total Amount %1 (= %2)")
-		.arg(CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount))
-        .arg(alternativeUnits.join(" " + tr("or") + " ")));
-
-    QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm send coins"),
-        questionString.arg(formatted.join("<br />")),
-        QMessageBox::Yes | QMessageBox::Cancel,
-        QMessageBox::Cancel);
-
-    if(retval != QMessageBox::Yes)
-    {
-        fNewRecipientAllowed = true;
-        return;
-    }
 
     // now send the prepared transaction
     WalletModel::SendCoinsReturn sendStatus = model->sendCoins(currentTransaction);
@@ -337,6 +312,51 @@ SendCoinsDialog::fillCoinControl(qint64 const _outputSum,CCoinControl &_coinCont
 		iterator++;
 	}
 	return false;
+}
+
+void
+SendCoinsDialog::serviceTransactionUserAsk( uint _amout, uint _fee )
+{
+
+qint64 txFee = _fee;
+QString questionString = tr("Are you sure you want to send?");
+questionString.append("<br /><br />%1");
+
+if(txFee > 0)
+{
+	// append fee string if a fee is required
+	questionString.append("<hr /><span style='color:#aa0000;'>");
+	questionString.append(CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
+	questionString.append("</span> ");
+	questionString.append(tr("added as transaction fee"));
+}
+
+// add total amount in all subdivision units
+questionString.append("<hr />");
+qint64 totalAmount = _amout + txFee;
+QStringList alternativeUnits;
+foreach(CDimsUnits::Unit u, CDimsUnits::availableUnits())
+{
+	if(u != model->getOptionsModel()->getDisplayUnit())
+		alternativeUnits.append(CDimsUnits::formatWithUnit(u, totalAmount));
+}
+questionString.append(tr("Total Amount %1 (= %2)")
+	.arg(CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount))
+	.arg(alternativeUnits.join(" " + tr("or") + " ")));
+
+QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm send coins"),
+	questionString.arg(formatted.join("<br />")),
+	QMessageBox::Yes | QMessageBox::Cancel,
+	QMessageBox::Cancel);
+
+if(retval != QMessageBox::Yes)
+{
+
+	fNewRecipientAllowed = true;
+	return;
+}
+
+userTransactionResonse( retval == QMessageBox::Yes );
 }
 
 void SendCoinsDialog::clear()

@@ -35,4 +35,17 @@ CProofTransactionAndStatusRequest::accept( common::CMedium * _medium ) const
 	_medium->add( this );
 }
 
+CCreateTransactionRequest::CCreateTransactionRequest( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _sendCoins, common::CMediumFilter * _mediumFilter )
+	: common::CRequest( _mediumFilter )
+	, m_outputs( _outputs )
+	, m_sendCoins( _sendCoins )
+{
+}
+
+void
+CCreateTransactionRequest::accept( common::CMedium * _medium ) const
+{
+	_medium->add( this );
+}
+
 }

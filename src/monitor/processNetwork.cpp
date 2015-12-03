@@ -110,7 +110,8 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 						|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo
 						|| message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationGet
 						|| message.m_header.m_payloadKind == common::CPayloadKind::Transactions
-					)
+						|| message.m_header.m_payloadKind == common::CPayloadKind::RankingInfo
+						)
 					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, key ) );
 				else
 					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, key ) );

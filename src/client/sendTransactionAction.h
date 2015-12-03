@@ -9,6 +9,7 @@
 #include <boost/statechart/state_machine.hpp>
 
 #include "core.h"
+#include "coins.h"
 
 #include "common/action.h"
 #include "common/request.h"
@@ -29,7 +30,7 @@ struct CPrepareAndSendTransaction;
 class CSendTransactionAction : public common::CAction, public  boost::statechart::state_machine< CSendTransactionAction, CPrepareAndSendTransaction >
 {
 public:
-	CSendTransactionAction( CTransaction const & _Transaction );
+	CSendTransactionAction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _sendCoins );
 
 	void accept( common::CSetResponseVisitor & _visitor );
 
@@ -41,18 +42,11 @@ public:
 
 	CTransaction const & getTransaction() const;
 
-	uint256 getInitialTransactionHash() const
-	{
-		return m_initialTransactionHash;
-	}
-
 	~CSendTransactionAction();
 private:
 	CTransaction m_transaction;
 
 	uintptr_t m_processingTrackerPtr;
-
-	uint256 m_initialTransactionHash;
 };
 
 }

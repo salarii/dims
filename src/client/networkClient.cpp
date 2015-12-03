@@ -5,15 +5,21 @@
 #include "networkClient.h"
 #include "serialize.h"
 #include "version.h"
+
+#include "qt/sendcoinsdialog.h"
+
 #include "client/sendBalanceInfoAction.h"
 #include "client/sendTransactionAction.h"
 #include "client/sendInfoRequestAction.h"
 #include "client/requests.h"
+#include "client/trackerLocalRanking.h"
 
 #include "common/clientProtocol.h"
 #include "common/requestHandler.h"
 #include "common/support.h"
 #include "common/requests.h"
+
+#include"wallet.h"
 
 #include <QHostAddress>
 
@@ -182,6 +188,63 @@ CNetworkClient::add( common::CSendClientMessageRequest const * _request )
 	*m_pushStream << _request->getClientMessage();
 
 	m_matching.insert( std::make_pair( _request->getId(), ( common::CRequest* )_request ) );
+
+	m_workingRequest.push_back( ( common::CRequest* )_request );
+}
+
+void
+CNetworkClient::add( client::CCreateTransactionRequest const * _request )
+{
+	QMutexLocker lock( &m_mutex );
+
+	CPubKey trackerKey;
+
+	if ( !CTrackerLocalRanking::getInstance()->getNodeKey( m_ip.toStdString(), trackerKey ) )
+	{
+		assert(!"problem");
+		return;
+	}
+
+	common::CTrackerStats trackerStats;
+
+	if ( !CTrackerLocalRanking::getInstance()->getTrackerStats( trackerKey.GetID(), trackerStats ) )
+	{
+		assert(!"problem");
+		return;
+	}
+
+	CWalletTx tx;
+	std::string failReason;
+	if ( !CWallet::getInstance()->CreateTransaction( _request->m_outputs, _request->m_sendCoins, trackerStats.m_key, trackerStats.m_price, tx, failReason ) )
+	{
+		// notify user  about  this
+		return;
+	}
+
+	SendSentinel.m_userResponded = false;
+
+	emit SendSentinel.requestAcceptance( 10, 10 );
+
+	while( !SendSentinel.m_userResponded )
+	{
+		MilliSleep(100);
+	}
+
+	if ( !SendSentinel.m_userResponse )
+		return;
+
+	CTransaction * transaction = &tx;
+
+	std::vector< unsigned char > payload;
+	common::createPayload( common::CClientTransactionSend(*transaction), payload );
+	common::CClientMessage clientMessage(
+				common::CMainRequestType::Transaction
+				, payload
+				, transaction->GetHash() );
+
+		*m_pushStream << clientMessage;
+
+	m_matching.insert( std::make_pair( transaction->GetHash(), ( common::CRequest* )_request ) );
 
 	m_workingRequest.push_back( ( common::CRequest* )_request );
 }
