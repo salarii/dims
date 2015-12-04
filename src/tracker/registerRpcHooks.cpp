@@ -74,7 +74,8 @@ networkInfo()
 	{
 		CNodeAddress monitor;
 		monitor.Set( allyMonitorData.m_publicKey.GetID(), common::NodePrefix::Monitor );
-		info += "key " + monitor.ToString() + " ip " + allyMonitorData.m_address.ToString() + "\n";
+		info += "key " + monitor.ToString() + " ip " + allyMonitorData.m_address.ToString()
+		+ ( CTrackerNodesManager::getInstance()->isActiveNode( allyMonitorData.m_publicKey.GetID() ) ? "  active" : "  inactive" ) + "\n";
 	}
 
 	info += "Trackers: \n";
@@ -82,7 +83,8 @@ networkInfo()
 	{
 		CNodeAddress tracker;
 		tracker.Set( allyTrackerData.m_publicKey.GetID(), common::NodePrefix::Tracker );
-		info += "key " + tracker.ToString() + " ip " + allyTrackerData.m_address.ToString() + "\n";
+		info += "key " + tracker.ToString() + " ip " + allyTrackerData.m_address.ToString()
+				+ ( CTrackerNodesManager::getInstance()->isActiveNode( allyTrackerData.m_publicKey.GetID() ) ? "  active" : "  inactive" ) + "\n";
 	}
 
 	return info;
