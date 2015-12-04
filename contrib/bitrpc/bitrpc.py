@@ -22,27 +22,6 @@ if cmd == "backupwallet":
 	except:
 		print "\n---An error occurred---\n"
 
-elif cmd == "getaccount":
-	try:
-		addr = raw_input("Enter a Bitcoin address: ")
-		print access.getaccount(addr)
-	except:
-		print "\n---An error occurred---\n"
-
-elif cmd == "getaccountaddress":
-	try:
-		acct = raw_input("Enter an account name: ")
-		print access.getaccountaddress(acct)
-	except:
-		print "\n---An error occurred---\n"
-
-elif cmd == "getaddressesbyaccount":
-	try:
-		acct = raw_input("Enter an account name: ")
-		print access.getaddressesbyaccount(acct)
-	except:
-		print "\n---An error occurred---\n"
-
 elif cmd == "getbalance":
 	try:
 		acct = raw_input("Enter an account (optional): ")
@@ -81,6 +60,13 @@ elif cmd == "stop":
 		print access.stop()
 	except:
 		print "\n---An error occurred---\n"
+
+elif cmd == "networkinfo":
+	try:
+		print access.networkInfo()
+	except:
+		print "\n---An error occurred---\n"
+				
 elif cmd == "connectnetwork":
 	try:
 		print access.connectNetwork()

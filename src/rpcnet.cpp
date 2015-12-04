@@ -26,6 +26,7 @@ boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetwork
 boost::signals2::signal< std::string () > SelfAddress;
 boost::signals2::signal< std::string () > ConnectNetworkHook;
 boost::signals2::signal< std::string () > SynchronizeBitcoin;
+boost::signals2::signal< std::string () > NetworkInfo;
 boost::signals2::signal< std::string ( std::string const &, unsigned int ) > SendCoins;
 
 json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
@@ -134,6 +135,23 @@ json_spirit::Value synchronizeBitcoin(const json_spirit::Array& params, bool fHe
 		);
 
 	std::string result = *SynchronizeBitcoin();
+
+	return result;
+}
+
+
+json_spirit::Value networkInfo(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+				"networkInfo\n" \
+				"\n shows network \n" \
+				"\n in which this node operates\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("networkInfo", "")
+		);
+
+	std::string result = *NetworkInfo();
 
 	return result;
 }

@@ -223,7 +223,7 @@ CNetworkClient::add( client::CCreateTransactionRequest const * _request )
 
 	SendSentinel.m_userResponded = false;
 
-	emit SendSentinel.requestAcceptance( 10, 10 );
+	emit SendSentinel.requestAcceptance( trackerStats.m_price * _request->m_outputs.size() );
 
 	while( !SendSentinel.m_userResponded )
 	{

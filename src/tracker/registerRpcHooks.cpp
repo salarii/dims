@@ -65,6 +65,30 @@ std::string registerInNetwork( std::string const & _key )
 }
 
 std::string
+networkInfo()
+{
+	std::string info;
+
+	info += "Monitors: \n";
+	BOOST_FOREACH( common::CValidNodeInfo const & allyMonitorData, CTrackerNodesManager::getInstance()->getNetworkMonitors() )
+	{
+		CNodeAddress monitor;
+		monitor.Set( allyMonitorData.m_publicKey.GetID(), common::NodePrefix::Monitor );
+		info += "key " + monitor.ToString() + " ip " + allyMonitorData.m_address.ToString() + "\n";
+	}
+
+	info += "Trackers: \n";
+	BOOST_FOREACH( common::CValidNodeInfo const & allyTrackerData, CTrackerNodesManager::getInstance()->getNetworkTrackers() )
+	{
+		CNodeAddress tracker;
+		tracker.Set( allyTrackerData.m_publicKey.GetID(), common::NodePrefix::Tracker );
+		info += "key " + tracker.ToString() + " ip " + allyTrackerData.m_address.ToString() + "\n";
+	}
+
+	return info;
+}
+
+std::string
 connectNetwork()
 {
 	if ( CController::getInstance()->isConnected() )
@@ -107,6 +131,7 @@ void registerHooks()
 	ConnectNetworkHook.connect( &connectNetwork );
 	SendCoins.connect( &sendCoins );
 	SynchronizeBitcoin.connect( &synchronizeBitcoin );
+	NetworkInfo.connect( &networkInfo );
 }
 
 }

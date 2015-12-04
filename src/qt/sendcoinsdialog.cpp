@@ -24,6 +24,7 @@
 // both  ugly
 CSendSentinel SendSentinel;
 QStringList formatted;
+qint64 totalAmount;
 
 
 SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
@@ -48,7 +49,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
     connect(ui->setManual, SIGNAL(toggled ( bool )), this, SLOT(setAddressViewActive( bool )));
 
-	connect(&SendSentinel, SIGNAL(requestAcceptance( uint, uint )), this, SLOT( serviceTransactionUserAsk( uint, uint ) ));
+	connect(&SendSentinel, SIGNAL(requestAcceptance( uint )), this, SLOT( serviceTransactionUserAsk( uint ) ));
 
 	connect(this, SIGNAL(userTransactionResonse( bool )), &SendSentinel, SLOT(userResponse( bool )));
 
@@ -202,8 +203,11 @@ void SendCoinsDialog::on_sendButton_clicked()
     // Format confirmation message
 
 	formatted.clear();
+
+	totalAmount = 0;
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
+		totalAmount += rcp.amount;
         // generate bold amount string
 		QString amount = "<b>" + CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
         amount.append("</b>");
@@ -315,7 +319,7 @@ SendCoinsDialog::fillCoinControl(qint64 const _outputSum,CCoinControl &_coinCont
 }
 
 void
-SendCoinsDialog::serviceTransactionUserAsk( uint _amout, uint _fee )
+SendCoinsDialog::serviceTransactionUserAsk( uint _fee )
 {
 
 qint64 txFee = _fee;
@@ -333,15 +337,15 @@ if(txFee > 0)
 
 // add total amount in all subdivision units
 questionString.append("<hr />");
-qint64 totalAmount = _amout + txFee;
+qint64 amount = totalAmount + txFee;
 QStringList alternativeUnits;
 foreach(CDimsUnits::Unit u, CDimsUnits::availableUnits())
 {
 	if(u != model->getOptionsModel()->getDisplayUnit())
-		alternativeUnits.append(CDimsUnits::formatWithUnit(u, totalAmount));
+		alternativeUnits.append(CDimsUnits::formatWithUnit(u, amount));
 }
 questionString.append(tr("Total Amount %1 (= %2)")
-	.arg(CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount))
+	.arg(CDimsUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), amount))
 	.arg(alternativeUnits.join(" " + tr("or") + " ")));
 
 QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm send coins"),

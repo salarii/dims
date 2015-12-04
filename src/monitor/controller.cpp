@@ -169,10 +169,6 @@ struct CMonitorStandAlone : boost::statechart::state< CMonitorStandAlone, CContr
 	boost::statechart::custom_reaction< common::CNetworkRecognizedData > > reactions;
 };
 
-// not right, since  first connection will trigger synchronization( apply  wait  time to  allow  other connections to appear ??)
-// this is outside action handler so I can't deffer this in "normal way"
-// is  this irrelevant ???????, when monitors will came this  will change anyway ??????
-
 struct CMonitorSynchronizing : boost::statechart::state< CMonitorSynchronizing, CController >
 {
 

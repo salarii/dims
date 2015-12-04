@@ -230,6 +230,7 @@ static const CRPCCommand vRPCCommands[] =
   { "connectNetwork",                  &connectNetwork,                   true,      true,       false },
   { "selfAddress",                  &selfAddress,                   true,      true,       false },
   { "synchronizeBitcoin",                  &synchronizeBitcoin,                   true,      true,       false },
+  { "networkInfo",                  &networkInfo,                   true,      true,       false },
   /*
   { "getconnectioncount",    &getconnectioncount,     true,      false,      false },
     { "getpeerinfo",           &getpeerinfo,            true,      false,      false },

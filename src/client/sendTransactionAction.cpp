@@ -120,10 +120,10 @@ struct CTransactionStatus : boost::statechart::state< CTransactionStatus, CSendT
 CSendTransactionAction::CSendTransactionAction( std::vector< std::pair< CKeyID, int64_t > > const & _outputs, std::vector< CSpendCoins > const & _sendCoins )
 	: CAction()
 {
-	initiate();
-
 	outputs = _outputs;
 	sendCoins = _sendCoins;
+
+	initiate();
 }
 
 void

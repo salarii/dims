@@ -75,6 +75,30 @@ synchronizeBitcoin()
 	return std::string("executing");
 }
 
+std::string
+networkInfo()
+{
+	std::string info;
+
+	info += "Monitors: \n";
+	BOOST_FOREACH( common::CAllyMonitorData const & allyMonitorData, CReputationTracker::getInstance()->getAllyMonitors() )
+	{
+		CNodeAddress monitor;
+		monitor.Set( allyMonitorData.m_publicKey.GetID(), common::NodePrefix::Monitor );
+		info += "key " + monitor.ToString() + " ip " + allyMonitorData.m_address.ToString() + "\n";
+	}
+
+	info += "Trackers: \n";
+	BOOST_FOREACH( common::CAllyTrackerData const & allyTrackerData, CReputationTracker::getInstance()->getAllyTrackers() )
+	{
+		CNodeAddress tracker;
+		tracker.Set( allyTrackerData.m_publicKey.GetID(), common::NodePrefix::Tracker );
+		info += "key " + tracker.ToString() + " ip " + allyTrackerData.m_address.ToString() + "\n";
+	}
+
+	return info;
+}
+
 std::string sendCoins( std::string const & _key, int _amount )
 {
 	CKeyID keyId;
@@ -99,6 +123,8 @@ void registerHooks()
 	EnterNetworkHook.connect( &enterNetwork );
 
 	SynchronizeBitcoin.connect( &synchronizeBitcoin );
+
+	NetworkInfo.connect( &networkInfo );
 
 	SendCoins.connect( &sendCoins );
 }

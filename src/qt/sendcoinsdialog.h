@@ -30,10 +30,11 @@ public slots:
 	void userResponse( bool _accepted )
 	{
 		m_userResponse = _accepted;
+		m_userResponded = true;
 	}
 
 signals:
-	void requestAcceptance( uint _amount, uint _fee );
+	void requestAcceptance( uint _fee );
 
 public:
 	bool m_userResponded;
@@ -71,7 +72,7 @@ public slots:
 	void setTransactionStatus();
 	void setAddressViewActive( bool _enable );
 
-	void serviceTransactionUserAsk( uint _amout, uint _fee );
+	void serviceTransactionUserAsk( uint _fee );
 private:
     Ui::SendCoinsDialog *ui;
     WalletModel *model;
