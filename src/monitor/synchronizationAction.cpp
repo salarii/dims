@@ -330,6 +330,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 					CReputationTracker::getInstance()->removeNodeFromSynch( _messageResult.m_pubKey.GetID() );
 
 				context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 1 ) );
+
+				CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
 				context< CSynchronizationAction >().setExit();
 			}
 		}

@@ -35,6 +35,8 @@ public:
 
 	void addAllyMonitor( common::CAllyMonitorData const & _monitorData );
 
+	void removeAllyMonitor( uint160 const & _pubKeyId );
+
 	// both function, not final form
 	std::set< common::CTrackerData > getTrackers() const;
 

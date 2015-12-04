@@ -85,6 +85,11 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 			if ( Status == CActivitySatatus::Inactive )
 			{
 				CReputationTracker::getInstance()->erasePresentNode( NodeKey.GetID() );
+
+				if ( CReputationTracker::getInstance()->isAddmitedMonitor( NodeKey.GetID() ) )
+				{
+					CReputationTracker::getInstance()->removeAllyMonitor( NodeKey.GetID() );
+				}
 			}
 
 			context< CActivityControllerAction >().addRequest(

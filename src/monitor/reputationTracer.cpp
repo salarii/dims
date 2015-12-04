@@ -568,6 +568,15 @@ CReputationTracker::addAllyMonitor( common::CAllyMonitorData const & _monitorDat
 		m_allyMonitors.insert( std::make_pair( _monitorData.m_publicKey.GetID(), _monitorData ) );
 	}
 }
+
+void
+CReputationTracker::removeAllyMonitor( uint160 const & _pubKeyId )
+{
+	boost::lock_guard<boost::mutex> lock( m_lock );
+
+	m_allyMonitors.erase( _pubKeyId );
+}
+
 void
 CReputationTracker::clearRankingData()
 {
