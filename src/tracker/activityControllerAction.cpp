@@ -79,25 +79,23 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
-		if ( CTrackerNodesManager::getInstance()->isActiveNode( NodeKey.GetID() ) )
+		if ( Status == CActivitySatatus::Active )
 		{
-			if ( Status == CActivitySatatus::Inactive )
-			{
-				CTrackerNodesManager::getInstance()->removeActiveNode( NodeKey.GetID() );
-			}
+			CTrackerNodesManager::getInstance()->removeActiveNode( NodeKey.GetID() );
+		}
 
-			context< CActivityControllerAction >().addRequest(
+		context< CActivityControllerAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ActivationStatus
 						, common::CActivationStatus( NodeKey.GetID(),(int)CActivitySatatus::Inactive )
 						, context< CActivityControllerAction >().getActionKey()
 						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, NodeKey.GetID() ) ) );
 
-			context< CActivityControllerAction >().addRequest(
-						new common::CTimeEventRequest(
-							WaitTime
-							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-		}
+		context< CActivityControllerAction >().addRequest(
+					new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 		return discard_event();
 	}
 

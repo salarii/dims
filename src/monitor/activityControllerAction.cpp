@@ -80,30 +80,28 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
-		if ( CReputationTracker::getInstance()->isPresentNode( NodeKey.GetID() ) )
+		if ( Status == CActivitySatatus::Inactive )
 		{
-			if ( Status == CActivitySatatus::Inactive )
+			CReputationTracker::getInstance()->erasePresentNode( NodeKey.GetID() );
+
+			if ( CReputationTracker::getInstance()->isAddmitedMonitor( NodeKey.GetID() ) )
 			{
-				CReputationTracker::getInstance()->erasePresentNode( NodeKey.GetID() );
-
-				if ( CReputationTracker::getInstance()->isAddmitedMonitor( NodeKey.GetID() ) )
-				{
-					CReputationTracker::getInstance()->removeAllyMonitor( NodeKey.GetID() );
-				}
+				CReputationTracker::getInstance()->removeAllyMonitor( NodeKey.GetID() );
 			}
+		}
 
-			context< CActivityControllerAction >().addRequest(
+		context< CActivityControllerAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ActivationStatus
 						, common::CActivationStatus( NodeKey.GetID(),(int)CActivitySatatus::Inactive )
 						, context< CActivityControllerAction >().getActionKey()
 						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, NodeKey.GetID() ) ) );
 
-			context< CActivityControllerAction >().addRequest(
-						new common::CTimeEventRequest(
-							WaitTime
-							, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
-		}
+		context< CActivityControllerAction >().addRequest(
+					new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 		return discard_event();
 	}
 
@@ -194,6 +192,11 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 					if ( m_informingNodes.find( controllingMonitor.GetID() ) != m_informingNodes.end() )
 					{
 						CReputationTracker::getInstance()->erasePresentNode( m_activationStatus.m_keyId );
+
+						if ( CReputationTracker::getInstance()->isAddmitedMonitor( m_activationStatus.m_keyId ) )
+						{
+							CReputationTracker::getInstance()->removeAllyMonitor( m_activationStatus.m_keyId );
+						}
 
 						context< CActivityControllerAction >().addRequest(
 									new common::CSendMessageRequest(

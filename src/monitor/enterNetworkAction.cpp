@@ -27,6 +27,7 @@
 #include "monitor/chargeRegister.h"
 #include "monitor/reputationControlAction.h"
 #include "monitor/provideInfoAction.h"
+#include "monitor/connectNodeAction.h"
 
 namespace monitor
 {
@@ -525,14 +526,20 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 		BOOST_FOREACH( common::CAllyMonitorData const & monitorData, _rankingEvent.m_rankingInfo.m_allyMonitors )
 		{
 			CReputationTracker::getInstance()->addAllyMonitor( monitorData );
+
+			common::CActionHandler ::getInstance()->executeAction( new CConnectNodeAction( monitorData.m_address ) );
 		}
 
 		BOOST_FOREACH( common::CTrackerData const & trackerData, _rankingEvent.m_rankingInfo.m_trackers )
 		{
 			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, context< CEnterNetworkAction >().getPartnerKey() ) );
+
+			common::CActionHandler ::getInstance()->executeAction( new CConnectNodeAction( monitorData.m_address ) );
 		}
 
 		CReputationTracker::getInstance()->setMeasureReputationTime( _rankingEvent.m_rankingInfo.m_time );
+
+		CReputationTracker::getInstance()->setPresentNode( context< CEnterNetworkAction >().getPartnerKey().GetID() );
 
 		common::CActionHandler ::getInstance()->executeAction( CReputationControlAction::createInstance( _rankingEvent.m_rankingInfo.m_leadingKey ) );
 		return discard_event();
