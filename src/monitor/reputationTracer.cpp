@@ -257,66 +257,79 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 
 	if ( !CController::getInstance()->isAdmitted() )
 	{
-		if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Monitors )
+		if ( _nodesClass == common::CMediumKinds::DimsNodes
+			 || _nodesClass == common::CMediumKinds::Monitors
+			 || _nodesClass == common::CMediumKinds::Trackers
+			 )
 		{
-			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
+			if ( _nodesClass != common::CMediumKinds::Trackers )
 			{
-				// in case  of  fail  do  something ??
-				if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
+				BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownMonitors )
 				{
-					common::CMedium * medium = findNodeMedium( nodeIndicator );
-					if ( medium )
-						mediums.push_back( medium );
+					// in case  of  fail  do  something ??
+					if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
+					{
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
+						if ( medium )
+							mediums.push_back( medium );
+					}
 				}
 			}
-		}
-		else if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers )
-		{
-			BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
+			else if ( _nodesClass != common::CMediumKinds::Monitors )
 			{
-				if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
+				BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
 				{
-					common::CMedium * medium = findNodeMedium( nodeIndicator );
-					if ( medium )
-						mediums.push_back( medium );
+					if ( getKeyToNode( validNode.m_publicKey.GetID(), nodeIndicator) )
+					{
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
+						if ( medium )
+							mediums.push_back( medium );
+					}
 				}
 			}
+			return mediums;
 		}
-		return mediums;
 	}
 	else
 	{
-		if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Trackers )
+		if ( _nodesClass == common::CMediumKinds::DimsNodes
+			 || _nodesClass == common::CMediumKinds::Monitors
+			 || _nodesClass == common::CMediumKinds::Trackers
+			 )
 		{
-			BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
+			if ( _nodesClass != common::CMediumKinds::Monitors )
 			{
-				if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() )
+
+				BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
 				{
-					if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
-						assert( !"something wrong" );
+					if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() )
+					{
+						if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
+							assert( !"something wrong" );
 
-					common::CMedium * medium = findNodeMedium( nodeIndicator );
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
 
-					if ( !medium )
-						assert( !"something wrong" );
-					mediums.push_back( medium );
+						if ( !medium )
+							assert( !"something wrong" );
+						mediums.push_back( medium );
+					}
 				}
 			}
-		}
-		else if ( _nodesClass == common::CMediumKinds::DimsNodes || _nodesClass == common::CMediumKinds::Monitors )
-		{
-			BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
+			else 	if ( _nodesClass != common::CMediumKinds::Trackers )
 			{
-				if ( m_presentNodes.find( monitorData.first ) != m_presentNodes.end() )
+				BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
 				{
-					if ( !getKeyToNode( monitorData.second.m_publicKey.GetID(), nodeIndicator) )
-						assert( !"something wrong" );
+					if ( m_presentNodes.find( monitorData.first ) != m_presentNodes.end() )
+					{
+						if ( !getKeyToNode( monitorData.second.m_publicKey.GetID(), nodeIndicator) )
+							assert( !"something wrong" );
 
-					common::CMedium * medium = findNodeMedium( nodeIndicator );
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
 
-					if ( !medium )
-						assert( !"something wrong" );
-					mediums.push_back( medium );
+						if ( !medium )
+							assert( !"something wrong" );
+						mediums.push_back( medium );
+					}
 				}
 			}
 		}

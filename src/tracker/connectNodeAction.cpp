@@ -499,6 +499,9 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 					new common::CTimeEventRequest(
 						MonitorLoopTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		// assume this is correct
+		CTrackerNodesManager::getInstance()->setActiveNode( context< CConnectNodeAction >().getPublicKey().GetID() );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )

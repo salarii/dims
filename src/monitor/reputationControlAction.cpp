@@ -28,8 +28,8 @@ int64_t calculateNextTime()
 	int64_t period = CReputationTracker::getInstance()->getRecalculateTime();
 	int64_t nextTime = recalculationTime + period;
 	nextTime -= GetTime();
-	assert( nextTime >= 0 );// this  failing means, that reputation  controlling  is  wrongly  initiated
-	if ( nextTime == 0 )
+	assert( nextTime >= -10 );// this  failing means, that reputation  controlling  is  wrongly  initiated
+	if ( nextTime <= 0 )
 		nextTime = 1;
 
 	return nextTime * 1000;
