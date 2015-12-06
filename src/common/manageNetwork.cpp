@@ -226,9 +226,9 @@ CManageNetwork::threadSocketHandler()
 			vector<CSelfNode*> vNodesCopy = m_nodes;
 			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 			{
-				if (pnode->fDisconnect ||
+				if (pnode->fDisconnect /*||
 						(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())
-						/*	|| !m_nodesManager->isNodeHonest( pnode )*/)
+							|| !m_nodesManager->isNodeHonest( pnode )*/)
 				{
 					// remove from m_nodes
 					m_nodes.erase(remove(m_nodes.begin(), m_nodes.end(), pnode), m_nodes.end());

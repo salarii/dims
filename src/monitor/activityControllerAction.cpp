@@ -301,7 +301,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 
 CActivityControllerAction::CActivityControllerAction( CPubKey const & _nodeKey, CAddress const & _address, CActivitySatatus::Enum _status )
 {
-	LogPrintf("activity controller action: %p initiate \n", this );
+	LogPrintf("activity controller action: %p initiate % \n", this, _address.ToStringIPPort().c_str() );
 
 	NodeKey = _nodeKey;
 	Status = _status;
