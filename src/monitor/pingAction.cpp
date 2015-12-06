@@ -130,7 +130,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 CPingAction::CPingAction( common::CSelfNode * _node )
 {
-	LogPrintf("ping action: %p ping \n", this );
+	LogPrintf("ping action: %p ping %s \n", this, _node->addrName );
 	SelfNode = _node;
 	initiate();
 	process_event( common::CStartPingEvent() );
