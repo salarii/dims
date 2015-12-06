@@ -18,8 +18,8 @@
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
-#define PINGSENDTIME 2000
-#define PINGRECEIVETIME 3000
+#define PINGSENDTIME 10
+#define PINGRECEIVETIME 10
 namespace common
 {
 
