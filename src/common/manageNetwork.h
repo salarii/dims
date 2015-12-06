@@ -116,7 +116,7 @@ private:
 	set<CNetAddr> setservAddNodeAddresses;
 	std::vector<CSelfNode*> m_nodes;
 
-	std::list<CSelfNode*> m_nodesDisconnected;
+	std::set<CSelfNode*> m_nodesDisconnected;
 
 	std::vector<SOCKET> m_listenSocket;
 

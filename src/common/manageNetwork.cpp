@@ -243,13 +243,13 @@ CManageNetwork::threadSocketHandler()
 					// hold in disconnected pool until all refs are released
 					//if (pnode->fNetworkNode || pnode->fInbound)
 					pnode->Release();
-					m_nodesDisconnected.push_back(pnode);
+					m_nodesDisconnected.insert(pnode);
 				}
 			}
 		}
 		{
 			// Delete disconnected nodes
-			list<CSelfNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
+			set<CSelfNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
 			BOOST_FOREACH(CSelfNode* pnode, vNodesDisconnectedCopy)
 			{
 				// wait until threads are done using it
@@ -271,7 +271,7 @@ CManageNetwork::threadSocketHandler()
 					}
 					if (fDelete)
 					{
-						m_nodesDisconnected.remove(pnode);
+						m_nodesDisconnected.erase(pnode);
 						delete pnode;
 					}
 				}
