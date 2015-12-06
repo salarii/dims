@@ -106,6 +106,10 @@ std::list< DimsResponse >
 CRequestHandler ::getDirectActionResponse( CAction const * _action )
 {
 	std::list< DimsResponse > responses;
+
+	if ( !m_valid )
+		return responses;
+
 	m_usedMedium->getDirectActionResponseAndClear( _action, responses );
 
 	return responses;
