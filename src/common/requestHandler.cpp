@@ -118,6 +118,8 @@ CRequestHandler ::getDirectActionResponse( CAction const * _action )
 void
 CRequestHandler ::deleteAction( CAction const * _action )
 {
+	if ( !m_valid )
+		return;
 	m_usedMedium->deleteAction( _action );
 }
 
