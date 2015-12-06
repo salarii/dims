@@ -39,7 +39,7 @@ CNodesManager::provideConnection( CMediumFilter const & _mediumFilter )
 	return _mediumFilter.getMediums( this );
 }
 
- CMedium *
+CMedium *
 CNodesManager::findNodeMedium( uintptr_t _ptr ) const
 {
 	typename std::map< uintptr_t, CNodeMedium* >::const_iterator iterator = m_ptrToNodes.find( _ptr );
@@ -50,6 +50,9 @@ CNodesManager::findNodeMedium( uintptr_t _ptr ) const
 void
 CNodesManager::eraseMedium( uintptr_t _nodePtr )
 {
+	CMedium * medium = findNodeMedium( _nodePtr );
+	if ( medium )
+		delete medium;
 	m_ptrToNodes.erase( _nodePtr );
 }
 
