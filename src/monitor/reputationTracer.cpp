@@ -665,7 +665,10 @@ CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRanking
 
 		if ( m_allyMonitors.find( allyMonitorData.m_publicKey.GetID() ) == m_allyMonitors.end() )
 		{
-			m_allyMonitors.insert( std::make_pair( allyMonitorData.m_publicKey.GetID(), allyMonitorData ) );
+			if ( !(common::CAuthenticationProvider::getInstance()->getMyKey() == allyMonitorData.m_publicKey) )
+			{
+				m_allyMonitors.insert( std::make_pair( allyMonitorData.m_publicKey.GetID(), allyMonitorData ) );
+			}
 		}
 	}
 

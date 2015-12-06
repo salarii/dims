@@ -67,7 +67,6 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		assert(!"may consider as  problem");
 		context< CActivityControllerAction >().setExit();
 		return discard_event();
 	}
