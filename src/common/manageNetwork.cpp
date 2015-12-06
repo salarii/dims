@@ -897,7 +897,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 		CSelfNode* pnode = findNode((CService)addrConnect);
 		if (pnode)
 		{
-			pnode->AddRef();
+			//pnode->AddRef(); need it ??
 			return pnode;
 		}
 	}

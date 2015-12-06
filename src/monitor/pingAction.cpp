@@ -23,7 +23,7 @@ namespace monitor
 struct CSendPing;
 struct CSendPong;
 
-int64_t PingPeriod = 20000;//milisec
+int64_t PingPeriod = 15000;//milisec
 
 namespace
 {
