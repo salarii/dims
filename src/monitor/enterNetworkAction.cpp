@@ -559,6 +559,7 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 CEnterNetworkAction::CEnterNetworkAction( CPubKey const & _partnerKey )
 	: m_partnerKey( _partnerKey )
 {
+	LogPrintf("enter network action: %p enter \n", this );
 	initiate();
 	process_event( CSwitchToEnter() );
 }
@@ -567,6 +568,7 @@ CEnterNetworkAction::CEnterNetworkAction( uint256 const & _actionKey, CPubKey co
 	: common::CAction( _actionKey )
 	, m_partnerKey( _partnerKey )
 {
+	LogPrintf("enter network action: %p admit \n", this );
 	initiate();
 	process_event( CSwitchToAdmit() );
 }

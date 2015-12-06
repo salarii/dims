@@ -479,6 +479,8 @@ struct CGetNetworkInfo : boost::statechart::state< CGetNetworkInfo, CConnectNode
 		, m_infoSend(false)
 		, m_infoReceive(false)
 	{
+		LogPrintf("connect node action: %p get network info \n", &context< CConnectNodeAction >() );
+
 		CReputationTracker::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getNodePtr() );
@@ -602,7 +604,7 @@ CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
 	: m_passive( false )
 	, m_addrConnect( _addrConnect )
 {
-	LogPrintf("connect node action: %p %s", this, _addrConnect.ToStringIP().c_str() );
+	LogPrintf("connect node action: %p %s %s", this, _addrConnect.ToStringIP().c_str(), "\n" );
 	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
 	{
 		m_payload.push_back( insecure_rand() % 256 );

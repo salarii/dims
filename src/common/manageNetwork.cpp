@@ -852,7 +852,7 @@ CManageNetwork::findNode(const CService& addr)
 {
 	LOCK(cs_vNodes);
 	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
-			if ((CService)pnode->addr == addr)
+			if (pnode->addr.ToStringIP() == addr.ToStringIP())// only  ip matters
 			return (pnode);
 	return NULL;
 }
