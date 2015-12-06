@@ -92,7 +92,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			CPubKey pubKey;
 
 			if ( !CSeedNodesManager::getInstance()->getNodePublicKey( convertToInt( pfrom ), pubKey ) )
-				assert( !"service it somehow" );
+				return true;
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{

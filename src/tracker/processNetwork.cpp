@@ -93,7 +93,6 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			CPubKey pubKey;
 			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
 			{
-				assert( !"for now assert this" );
 				return true;
 			}
 

@@ -99,7 +99,7 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 			// not necessarily have to pass this
 			CPubKey key;
 			if ( !CReputationTracker::getInstance()->getPublicKey( pfrom->addr, key ) )
-				assert( !"this  can't fail" );
+				return true;
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
