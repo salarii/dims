@@ -301,6 +301,8 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 
 CActivityControllerAction::CActivityControllerAction( CPubKey const & _nodeKey, CAddress const & _address, CActivitySatatus::Enum _status )
 {
+	LogPrintf("activity controller action: %p initiate \n", this );
+
 	NodeKey = _nodeKey;
 	Status = _status;
 	Address = _address;
@@ -311,6 +313,8 @@ CActivityControllerAction::CActivityControllerAction( CPubKey const & _nodeKey, 
 CActivityControllerAction::CActivityControllerAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	LogPrintf("activity controller action: %p recognize state \n", this );
+
 	initiate();
 	process_event( CRecognizeNodeStateEvent() );
 }

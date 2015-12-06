@@ -130,6 +130,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 
 CPingAction::CPingAction( common::CSelfNode * _node )
 {
+	LogPrintf("ping action: %p ping \n", this );
 	SelfNode = _node;
 	initiate();
 	process_event( common::CStartPingEvent() );
@@ -138,6 +139,7 @@ CPingAction::CPingAction( common::CSelfNode * _node )
 CPingAction::CPingAction( uint256 const & _actionKey)
 	: common::CAction( _actionKey )
 {
+	LogPrintf("ping action: %p pong \n", this );
 	initiate();
 	process_event( common::CStartPongEvent() );
 

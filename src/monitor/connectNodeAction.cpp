@@ -593,6 +593,7 @@ CConnectNodeAction::CConnectNodeAction( uint256 const & _actionKey, uintptr_t _n
 	, m_passive( true )
 	, m_nodePtr( _nodePtr )
 {
+	LogPrintf("connect node action: %p \n", this );
 	initiate();
 	process_event( common::CSwitchToConnectedEvent() );
 }
@@ -601,6 +602,7 @@ CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
 	: m_passive( false )
 	, m_addrConnect( _addrConnect )
 {
+	LogPrintf("connect node action: %p %s", this, _addrConnect.ToStringIP().c_str() );
 	for ( unsigned int i = 0; i < ms_randomPayloadLenght; i++ )
 	{
 		m_payload.push_back( insecure_rand() % 256 );
