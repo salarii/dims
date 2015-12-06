@@ -275,7 +275,8 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 					}
 				}
 			}
-			else if ( _nodesClass != common::CMediumKinds::Monitors )
+
+			if ( _nodesClass != common::CMediumKinds::Monitors )
 			{
 				BOOST_FOREACH( common::CValidNodeInfo const & validNode, m_knownTrackers )
 				{
@@ -315,7 +316,8 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 					}
 				}
 			}
-			else 	if ( _nodesClass != common::CMediumKinds::Trackers )
+
+			if ( _nodesClass != common::CMediumKinds::Trackers )
 			{
 				BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyMonitorData ) const & monitorData, m_allyMonitors )
 				{
