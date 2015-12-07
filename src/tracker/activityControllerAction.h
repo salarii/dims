@@ -1,6 +1,8 @@
 #ifndef ACTIVITY_CONTROLLER_ACTION_H
 #define ACTIVITY_CONTROLLER_ACTION_H
 
+#include "core.h"
+
 #include "common/action.h"
 #include <boost/statechart/state_machine.hpp>
 
@@ -28,6 +30,10 @@ public:
 	CActivityControllerAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
+public:
+	CPubKey m_nodeKey;
+	CAddress m_address;
+	CActivitySatatus::Enum m_status;
 };
 
 }

@@ -30,6 +30,8 @@ public:
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	~CPingAction(){};
+public:
+	common::CSelfNode * m_selfNode;
 };
 
 

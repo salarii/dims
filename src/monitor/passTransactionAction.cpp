@@ -34,14 +34,6 @@ struct CCheckStatus;
 
 unsigned int const LoopTime = 10000;
 
-// another  way of passing  parameters between states ?? good ?? bad
-namespace
-{
-uint256 Hash;
-common::CTrackerInfo ServicingTracker;
-CTransaction Transaction;
-
-}
 
 struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTransactionAction >
 {
@@ -59,7 +51,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 
 	boost::statechart::result react( common::CTrackerInfoEvent const & _trackerInfoEvent )
 	{
-		ServicingTracker = _trackerInfoEvent.m_trackerInfo;
+		context< CPassTransactionAction >().m_servicingTracker = _trackerInfoEvent.m_trackerInfo;
 
 		return CController::getInstance()->isAdmitted() ? transit< CProcessTransaction >() : transit< CFetchBalance >();
 
@@ -94,7 +86,7 @@ struct CFetchBalance : boost::statechart::state< CFetchBalance, CPassTransaction
 					new common::CScheduleActionRequest(
 						new CProvideInfoAction(
 							common::CInfoKind::BalanceAsk
-							, ServicingTracker.m_key )
+							, context< CPassTransactionAction >().m_servicingTracker.m_key )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 
 	}
@@ -170,8 +162,8 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 					!CWallet::getInstance()->CreateTransaction(
 						outputs
 						, std::vector< CSpendCoins >()
-						, ServicingTracker.m_key
-						, ServicingTracker.m_price
+						, context< CPassTransactionAction >().m_servicingTracker.m_key
+						, context< CPassTransactionAction >().m_servicingTracker.m_price
 						, tx
 						, failReason )
 				)
@@ -190,9 +182,9 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 					common::CPayloadKind::ClientTransaction
 					, common::CClientTransaction( tx )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
+					, new CByKeyMediumFilter( context< CPassTransactionAction >().m_servicingTracker.m_key ) ) );
 
-		Hash = tx.GetHash();
+		context< CPassTransactionAction >().m_hash = tx.GetHash();
 		context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Validated, transaction ) );
 	}
 
@@ -251,9 +243,9 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
-					, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash )
+					, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, context< CPassTransactionAction >().m_hash )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
+					, new CByKeyMediumFilter( context< CPassTransactionAction >().m_servicingTracker.m_key ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -262,9 +254,9 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 		context< CPassTransactionAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::InfoReq
-						, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash )
+						, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, context< CPassTransactionAction >().m_hash )
 						, context< CPassTransactionAction >().getActionKey()
-						, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
+						, new CByKeyMediumFilter( context< CPassTransactionAction >().m_servicingTracker.m_key ) ) );
 
 		return discard_event();
 	}
@@ -282,7 +274,7 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 					new common::CAckRequest(
 						  context< CPassTransactionAction >().getActionKey()
 						, orginalMessage.m_header.m_id
-						, new CByKeyMediumFilter( ServicingTracker.m_key ) ) );
+						, new CByKeyMediumFilter( context< CPassTransactionAction >().m_servicingTracker.m_key ) ) );
 
 		if ( clientTransactionStatus.m_status == common::TransactionsStatus::Validated )
 		{

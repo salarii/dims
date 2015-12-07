@@ -42,7 +42,7 @@ struct CFetchRankingTimeAndInfo;
 //milisec
 unsigned int const WaitTime = 10000;
 
-namespace // parameters  to  pass  between states
+namespace // parameters  to  pass  between states,  not  safe !!
 {
 CPubKey monitorKey;
 unsigned int price;

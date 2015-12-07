@@ -610,7 +610,7 @@ CConnectNodeAction::CConnectNodeAction( CAddress const & _addrConnect )
 		m_payload.push_back( insecure_rand() % 256 );
 	}
 
-	// !! use  default  no  matter  what  is  there
+	// !! use  default  no  matter  what  is  there,
 	// it  warks   but  is  it acctually correct??
 	m_addrConnect.SetPort( common::dimsParams().GetDefaultPort() );
 

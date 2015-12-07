@@ -3,6 +3,7 @@
 
 #include "common/action.h"
 #include <boost/statechart/state_machine.hpp>
+#include "core.h"
 
 namespace monitor
 {
@@ -28,6 +29,10 @@ public:
 	CActivityControllerAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
+public:
+	CPubKey m_nodeKey;
+	CActivitySatatus::Enum m_status;
+	CAddress m_address;
 };
 
 }

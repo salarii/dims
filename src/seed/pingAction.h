@@ -5,6 +5,7 @@
 #ifndef PING_ACTION_H
 #define PING_ACTION_H
 
+#include "common/selfNode.h"
 #include "common/action.h"
 #include "common/filters.h"
 
@@ -25,6 +26,9 @@ public:
 	virtual void accept( common::CSetResponseVisitor & _visitor );
 
 	~CPingAction(){};
+
+public:
+	common::CSelfNode * m_selfNode;
 };
 
 }

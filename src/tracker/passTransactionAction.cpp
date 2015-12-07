@@ -37,16 +37,6 @@ struct CValidInNetworkEvent : boost::statechart::event< CValidInNetworkEvent >{}
 struct CInvalidInNetworkEvent : boost::statechart::event< CInvalidInNetworkEvent >{};
 struct CProcessTransactionEvent : boost::statechart::event< CProcessTransactionEvent >{};
 
-// another  way of passing  parameters between states ?? good ?? bad
-namespace
-{
-CPubKey ServicingNodeKey;
-uint256 Hash;
-common::CTrackerStats ServicingTracker;
-CTransaction Transaction;
-
-}
-
 struct CPassTransactionInitial : boost::statechart::simple_state< CPassTransactionInitial, CPassTransactionAction >
 {
 	typedef boost::mpl::list<
@@ -257,7 +247,7 @@ struct CProcessAsClient : boost::statechart::state< CProcessAsClient, CPassTrans
 						, orginalMessage.m_header.m_id
 						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
-		ServicingTracker = common::CTrackerStats( _messageResult.m_pubKey, 0, trackerInfo.m_price );
+		context< CPassTransactionAction >().m_servicingTracker = common::CTrackerStats( _messageResult.m_pubKey, 0, trackerInfo.m_price );
 
 		return transit< CFetchBalance >();
 	}
@@ -324,8 +314,8 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 					!CWallet::getInstance()->CreateTransaction(
 						outputs
 						, std::vector< CSpendCoins >()
-						, ServicingTracker.m_key
-						, ServicingTracker.m_price
+						, context< CPassTransactionAction >().m_servicingTracker.m_key
+						, context< CPassTransactionAction >().m_servicingTracker.m_price
 						, tx
 						, failReason )
 				)
@@ -345,7 +335,7 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 					, context< CPassTransactionAction >().getActionKey()
 					, new CMediumClassFilter( common::CMediumKinds::Trackers, 1 ) ) );
 
-		Hash = tx.GetHash();
+		context< CPassTransactionAction >().m_hash = tx.GetHash();
 		context< CPassTransactionAction >().setResult( common::CTransactionAck( ( int )common::TransactionsStatus::Validated, transaction ) );
 	}
 
@@ -372,7 +362,7 @@ struct CProcessTransaction : boost::statechart::state< CProcessTransaction, CPas
 
 		if ( result.m_result )
 		{
-			ServicingNodeKey = _messageResult.m_pubKey;
+			context< CPassTransactionAction >().m_servicingNodeKey = _messageResult.m_pubKey;
 			return transit< CCheckStatus >();
 		}
 		else
@@ -405,9 +395,9 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 		context< CPassTransactionAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::InfoReq
-					, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, Hash )
+					, common::CInfoRequestData( (int)common::CInfoKind::ClientTrasactionStatus, context< CPassTransactionAction >().m_hash )
 					, context< CPassTransactionAction >().getActionKey()
-					, new CByKeyMediumFilter( ServicingNodeKey ) ) );
+					, new CByKeyMediumFilter(context< CPassTransactionAction >().m_servicingNodeKey ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )

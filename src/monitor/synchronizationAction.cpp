@@ -43,7 +43,7 @@ struct CSynchronized;
 struct CSynchronizingAsk;
 struct CGetBitcoinHeader;
 
-namespace
+namespace  // not safe in  general !!
 {
 unsigned int HeaderSize;
 unsigned int StrageSize;

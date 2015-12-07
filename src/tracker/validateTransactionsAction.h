@@ -29,13 +29,14 @@ public:
 	std::vector< CTransaction > & acquireTransactions();
 
 	void setTransactions( std::vector< CTransaction > const & _transactions );
+public:
+	CPubKey m_initiatingNodeKey;
 
-	void setMessage( common::CMessage const & _message );
+	std::set< uint160 > m_passValidationTargets;
 
-	common::CMessage getMessage() const;
+	common::CMessage m_transactionsMessage;
+
 private:
-	common::CMessage m_message;
-
 	std::vector< CTransaction > m_transactions;// deque ??? because  removal  from this contaier may  happen
 };
 

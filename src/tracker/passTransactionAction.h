@@ -27,6 +27,15 @@ public:
 
 	int64_t getAmount() const{ return m_amount; }
 
+public:
+	CPubKey m_servicingNodeKey;
+
+	uint256 m_hash;
+
+	common::CTrackerStats m_servicingTracker;
+
+	CTransaction m_transaction;
+
 private:
 	CKeyID const m_keyId;
 

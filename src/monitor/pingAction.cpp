@@ -25,11 +25,6 @@ struct CSendPong;
 
 int64_t PingPeriod = 15000;//milisec
 
-namespace
-{
-	common::CSelfNode * SelfNode;
-}
-
 struct CUninitialised : boost::statechart::state< CUninitialised, CPingAction >
 {
 	CUninitialised( my_context ctx ) : my_base( ctx )
@@ -58,14 +53,14 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 					common::CPayloadKind::Ping
 					, common::CPing()
 					, context< CPingAction >().getActionKey()
-					, new CSpecificMediumFilter( common::convertToInt( SelfNode ) ) ) );
+					, new CSpecificMediumFilter( common::convertToInt( context< CPingAction >().m_selfNode ) ) ) );
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
 		context< CPingAction >().forgetRequests();
 
-		SelfNode->fDisconnect = true;
+		context< CPingAction >().m_selfNode->fDisconnect = true;
 		context< CPingAction >().setExit();
 
 		return discard_event();
@@ -129,9 +124,9 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 };
 
 CPingAction::CPingAction( common::CSelfNode * _node )
+	: m_selfNode( _node )
 {
 	LogPrintf("ping action: %p ping %s \n", this, _node->addrName );
-	SelfNode = _node;
 	initiate();
 	process_event( common::CStartPingEvent() );
 }

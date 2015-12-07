@@ -29,14 +29,6 @@ struct CRecognizeNodeStateEvent : boost::statechart::event< CRecognizeNodeStateE
 struct CInitiateActivation;
 struct CRecognizeNodeState;
 
-namespace
-{
-CPubKey NodeKey;
-CAddress Address;
-CActivitySatatus::Enum Status;
-
-}
-
 struct CActivityInitial : boost::statechart::simple_state< CActivityInitial, CActivityControllerAction >
 {
 	typedef boost::mpl::list<
@@ -54,7 +46,7 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 		context< CActivityControllerAction >().addRequest(
 					new common::CScheduleActionRequest(
-						new CConnectNodeAction( Address )
+						new CConnectNodeAction( context< CActivityControllerAction >().m_address )
 						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
 	}
 
@@ -66,7 +58,6 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		assert(!"may consider as  problem");
 		context< CActivityControllerAction >().setExit();
 		return discard_event();
 	}
@@ -79,17 +70,17 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CFailureEvent const & _failureEvent )
 	{
-		if ( Status == CActivitySatatus::Active )
+		if ( context< CActivityControllerAction >().m_status == CActivitySatatus::Active )
 		{
-			CTrackerNodesManager::getInstance()->removeActiveNode( NodeKey.GetID() );
+			CTrackerNodesManager::getInstance()->removeActiveNode( context< CActivityControllerAction >().m_nodeKey.GetID() );
 		}
 
 		context< CActivityControllerAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ActivationStatus
-						, common::CActivationStatus( NodeKey.GetID(),(int)CActivitySatatus::Inactive )
+						, common::CActivationStatus( context< CActivityControllerAction >().m_nodeKey.GetID(),(int)CActivitySatatus::Inactive )
 						, context< CActivityControllerAction >().getActionKey()
-						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, NodeKey.GetID() ) ) );
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, context< CActivityControllerAction >().m_nodeKey.GetID() ) ) );
 
 		context< CActivityControllerAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -101,19 +92,19 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 
 	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
 	{
-		if ( CTrackerNodesManager::getInstance()->isActiveNode( NodeKey.GetID() ) )
+		if ( CTrackerNodesManager::getInstance()->isActiveNode( context< CActivityControllerAction >().m_nodeKey.GetID() ) )
 			return discard_event();
 
-		if ( Status == CActivitySatatus::Active )
+		if ( context< CActivityControllerAction >().m_status == CActivitySatatus::Active )
 		{
-			CTrackerNodesManager::getInstance()->setActiveNode( NodeKey.GetID() );
+			CTrackerNodesManager::getInstance()->setActiveNode( context< CActivityControllerAction >().m_nodeKey.GetID() );
 
 			context< CActivityControllerAction >().addRequest(
 					new common::CSendMessageRequest(
 						common::CPayloadKind::ActivationStatus
-						, common::CActivationStatus( NodeKey.GetID(),(int)CActivitySatatus::Active )
+						, common::CActivationStatus( context< CActivityControllerAction >().m_nodeKey.GetID(),(int)CActivitySatatus::Active )
 						, context< CActivityControllerAction >().getActionKey()
-						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, NodeKey.GetID() ) ) );
+						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, context< CActivityControllerAction >().m_nodeKey.GetID() ) ) );
 
 			context< CActivityControllerAction >().addRequest(
 						new common::CTimeEventRequest(
@@ -198,7 +189,6 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		assert(!"may consider as  problem");
 		context< CActivityControllerAction >().setExit();
 		return discard_event();
 	}
@@ -268,10 +258,12 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 };
 
 CActivityControllerAction::CActivityControllerAction( CPubKey const & _nodeKey, CAddress const & _address, CActivitySatatus::Enum _status )
+	: m_nodeKey( _nodeKey )
+	, m_address( _address )
+	, m_status( _status )
 {
-	NodeKey = _nodeKey;
-	Address = _address;
-	Status = _status;
+	LogPrintf("activity controller action: %p initiate % \n", this, _address.ToStringIPPort().c_str() );
+
 	initiate();
 	process_event( CInitiateActivationEvent() );
 }
@@ -279,6 +271,7 @@ CActivityControllerAction::CActivityControllerAction( CPubKey const & _nodeKey, 
 CActivityControllerAction::CActivityControllerAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	LogPrintf("activity controller action: %p recognize state \n", this );
 	initiate();
 	process_event( CRecognizeNodeStateEvent() );
 }

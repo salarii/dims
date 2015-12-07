@@ -46,13 +46,6 @@ struct CPropagateBundle;
 struct CPassBundleInvalidate;
 struct CPassBundleValidate;
 
-namespace
-{
-CPubKey InitiatingNodeKey;
-std::set< uint160 > PassValidationTargets;
-common::CMessage TransactionsMessage;
-}
-
 
 struct COriginOfTransactionEvent : boost::statechart::event< COriginOfTransactionEvent >
 {
@@ -280,10 +273,10 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 		context< CValidateTransactionsAction >().addRequest(
 				new common::CSendMessageRequest(
-					TransactionsMessage
-					, InitiatingNodeKey
+					context< CValidateTransactionsAction >().m_transactionsMessage
+					, context< CValidateTransactionsAction >().m_initiatingNodeKey
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CNodeExceptionFilter( common::CMediumKinds::Trackers, InitiatingNodeKey.GetID() ) ) );
+					, new CNodeExceptionFilter( common::CMediumKinds::Trackers, context< CValidateTransactionsAction >().m_initiatingNodeKey.GetID() ) ) );
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -299,7 +292,7 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 				m_partners.insert( validNodeInfo.m_publicKey.GetID() );
 		}
 
-		m_partners.erase( InitiatingNodeKey.GetID() );
+		m_partners.erase( context< CValidateTransactionsAction >().m_initiatingNodeKey.GetID() );
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -309,7 +302,7 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		PassValidationTargets = m_partners;  // burden, clean it
+		context< CValidateTransactionsAction >().m_passValidationTargets = m_partners;  // burden, clean it
 		return transit< CPassBundleValidate >();
 	}
 
@@ -372,7 +365,7 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 		if ( comparePartners == m_partners )
 		{
-			PassValidationTargets = m_known;
+			context< CValidateTransactionsAction >().m_passValidationTargets = m_known;
 			return transit< CPassBundleValidate >();
 		}
 
@@ -417,9 +410,9 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 
 			context< CValidateTransactionsAction >().setTransactions( transactionBundle.m_transactions );
 
-			InitiatingNodeKey = _messageResult.m_pubKey;
+			context< CValidateTransactionsAction >().m_initiatingNodeKey = _messageResult.m_pubKey;
 
-			TransactionsMessage = _messageResult.m_message;
+			context< CValidateTransactionsAction >().m_transactionsMessage = _messageResult.m_message;
 
 			context< CValidateTransactionsAction >().forgetRequests();
 
@@ -467,7 +460,7 @@ struct CPassBundleValidate : boost::statechart::state< CPassBundleValidate, CVal
 					common::CPayloadKind::StatusTransactions
 					, common::CTransactionsBundleStatus( (int)CBundleStatus::Validated )
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CComplexMediumFilter( PassValidationTargets ) ) );
+					, new CComplexMediumFilter( context< CValidateTransactionsAction >().m_passValidationTargets ) ) );
 
 		context< CValidateTransactionsAction >().addRequest(
 					new common::CTimeEventRequest(
@@ -558,7 +551,7 @@ struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, 
 					common::CPayloadKind::StatusTransactions
 					, common::CTransactionsBundleStatus( (int)CBundleStatus::NotValid )
 					, context< CValidateTransactionsAction >().getActionKey()
-					, new CByKeyMediumFilter( InitiatingNodeKey ) ) );
+					, new CByKeyMediumFilter( context< CValidateTransactionsAction >().m_initiatingNodeKey ) ) );
 
 				context< CValidateTransactionsAction >().setExit(); // too optimistic
 	}
@@ -655,18 +648,6 @@ void
 CValidateTransactionsAction::setTransactions( std::vector< CTransaction > const & _transactions )
 {
 	m_transactions = _transactions;
-}
-
-void
-CValidateTransactionsAction::setMessage( common::CMessage const & _message )
-{
-	m_message = _message;
-}
-
-common::CMessage
-CValidateTransactionsAction::getMessage() const
-{
-	return m_message;
 }
 
 }
