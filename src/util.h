@@ -156,7 +156,7 @@ static inline int LogPrint(const char* category, const char* format)
 }
 static inline bool error(const char* format)
 {
-    LogPrintStr(std::string("ERROR: ") + format + "\n");
+   // LogPrintStr(std::string("ERROR: ") + format + "\n");  commented because it pollutes log file
     return false;
 }
 

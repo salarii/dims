@@ -35,6 +35,9 @@ public:
 	}
 
 	void setRequestKey( uint256 const & _requestKey ){ m_requestKey = _requestKey; }
+
+	~CSynchronizationAction();
+
 private:
 	uint256 m_requestKey;
 

@@ -57,6 +57,8 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 CUpdateNetworkDataAction::CUpdateNetworkDataAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	LogPrintf("update network action: %p \n", this );
+
 	initiate();
 }
 

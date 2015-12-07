@@ -148,6 +148,8 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 {
 	CGetBitcoinHeader( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p fetch bitcoin header \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -263,6 +265,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 {
 	CSynchronizingBlocks( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
+		LogPrintf("synchronize action: %p fetch blocks \n", &context< CSynchronizationAction >() );
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -381,6 +384,7 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 {
 	CSynchronizingHeaders( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
+		LogPrintf("synchronize action: %p fetch headers \n", &context< CSynchronizationAction >() );
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -726,6 +730,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CSynchronizationAction >().getPartnerKey().GetID(), address ) )
 				assert( !"can't fail" );
 
+			context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 1 ) );
+
 			common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( context< CSynchronizationAction >().getPartnerKey(), address, CActivitySatatus::Active ) );
 		}
 
@@ -757,8 +763,11 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 CSynchronizationAction::CSynchronizationAction( CPubKey const & _partnerKey )
 	: m_partnerKey( _partnerKey )
 {
+	LogPrintf("synchronize action: %p synchronizing \n", this );
 	initiate();
 	process_event( CSwitchToSynchronizing() );
+
+	setResult( common::CSynchronizationResult( 0 ) );
 }
 
 CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 const & _actionKey, CPubKey const & _partnerKey )
@@ -766,8 +775,11 @@ CSynchronizationAction::CSynchronizationAction( uint256 const & _id, uint256 con
 	, m_requestKey( _id )
 	, m_partnerKey( _partnerKey )
 {
+	LogPrintf("synchronize action: %p synchronized \n", this );
 	initiate();
 	process_event( CSwitchToSynchronized() );
+
+	setResult( common::CSynchronizationResult( 0 ) );
 }
 
 void
@@ -785,6 +797,11 @@ bool
 CSynchronizationAction::isRequestInitialized() const
 {
 	return !m_requests.empty();
+}
+
+CSynchronizationAction::~CSynchronizationAction()
+{
+	LogPrintf("synchronization result %i \n", boost::get< common::CSynchronizationResult >( m_result ).m_result );
 }
 
 }
