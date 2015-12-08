@@ -43,7 +43,6 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 	CInitiateActivation( my_context ctx )
 		: my_base( ctx )
 	{
-		LogPrintf("activity controller action: %p initiate activation \n", &context< CActivityControllerAction >() );
 
 		context< CActivityControllerAction >().addRequest(
 					new common::CScheduleActionRequest(

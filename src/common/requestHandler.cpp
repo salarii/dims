@@ -90,7 +90,15 @@ void
  CRequestHandler ::runRequests()
 {
 	if ( !m_valid )
+	{
+		BOOST_FOREACH( CRequest * request, m_newRequest )
+		{
+			request->setProcessed();
+
+			m_newRequest.clear();
+		}
 		return;
+	}
 
 	m_usedMedium->prepareMedium();
 	BOOST_FOREACH( CRequest * request, m_newRequest )
