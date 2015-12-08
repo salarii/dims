@@ -38,6 +38,10 @@ public:
 	common::CInfoKind::Enum getInfo() const{ return m_infoKind; }
 
 	~CProvideInfoAction(){};
+
+public:
+	common::CMediumFilter * m_targetMediumFilter;
+
 private:
 	common::CInfoKind::Enum m_infoKind;
 

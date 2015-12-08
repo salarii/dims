@@ -301,6 +301,8 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, CPubKey cons
 	: common::CScheduleAbleAction( _actionKey )
 	, m_partnerKey( _partnerKey )
 {
+	LogPrintf("provide info action: %p provide \n", this );
+
 	initiate();
 	process_event( CProvideInfoEvent() );
 }
@@ -308,6 +310,7 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, CPubKey cons
 CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, common::CMediumKinds::Enum _mediumKind )
 	: m_infoKind( _infoKind )
 {
+	LogPrintf("provide info action: %p ask \n", this );
 	initiate();
 
 	TargetMediumFilter = new CMediumClassFilter( _mediumKind, 1 );
@@ -317,6 +320,8 @@ CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, commo
 CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, CPubKey _pubKey )
 	: m_infoKind( _infoKind )
 {
+	LogPrintf("provide info action: %p ask \n", this );
+
 	initiate();
 
 	TargetMediumFilter = new CByKeyMediumFilter( _pubKey );

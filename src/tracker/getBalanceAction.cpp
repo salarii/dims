@@ -144,6 +144,8 @@ struct CGetSelfBalance : boost::statechart::state< CGetSelfBalance, CGetBalanceA
 
 CGetBalanceAction::CGetBalanceAction()
 {
+	LogPrintf("get balance action: %p self \n", this );
+
 	initiate();
 	process_event( CFindSelf() );
 }
@@ -152,6 +154,8 @@ CGetBalanceAction::CGetBalanceAction( uint160 const & _keyId, uint256 const & _h
 	: m_keyId( _keyId )
 	, m_hash( _hash )
 {
+	LogPrintf("get balance action: %p client \n", this );
+
 	initiate();
 	process_event( CFindClient() );
 }

@@ -616,6 +616,8 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 	: common::CAction()
 	, m_transactions( _transactions )
 {
+	LogPrintf("validate transaction action: %p origin \n", this );
+
 	initiate();
 	process_event( COriginOfTransactionEvent() );
 }
@@ -623,6 +625,7 @@ CValidateTransactionsAction::CValidateTransactionsAction( std::vector< CTransact
 CValidateTransactionsAction::CValidateTransactionsAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	LogPrintf("validate transaction action: %p pass bundle \n", this );
 	initiate();
 }
 

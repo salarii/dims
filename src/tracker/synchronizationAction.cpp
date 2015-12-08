@@ -559,6 +559,8 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 CSynchronizationAction::CSynchronizationAction( CPubKey const & _partnerKey )
 	: m_partnerKey( _partnerKey )
 {
+	LogPrintf("synchronize action: %p synchronizing \n", this );
+
 	initiate();
 	process_event( CSwitchToSynchronizing() );
 }
@@ -567,6 +569,8 @@ CSynchronizationAction::CSynchronizationAction( uint256 const & _actionKey, CPub
 	: m_timeStamp( _timeStamp )
 	, m_partnerKey( _partnerKey )
 {
+	LogPrintf("synchronize action: %p synchronized \n", this );
+
 	initiate();
 	process_event( CSwitchToSynchronized() );
 }

@@ -231,6 +231,8 @@ CReputationControlAction::createInstance()
 
 CReputationControlAction::CReputationControlAction()
 {
+	LogPrintf("reputation controller action: %p self \n", this );
+
 	initiate();
 	process_event( CSelfOperateEvent() );
 }
@@ -238,6 +240,8 @@ CReputationControlAction::CReputationControlAction()
 CReputationControlAction::CReputationControlAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	LogPrintf("reputation controller action: %p catch up \n", this );
+
 	initiate();
 	process_event( CCatchUpEvent() );
 }

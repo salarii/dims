@@ -68,7 +68,7 @@ struct CSendPing : boost::statechart::state< CSendPing, CPingAction >
 	{
 			common::CMessage orginalMessage;
 			if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
-				assert( !"service it somehow" );
+				context< CPingAction >().setExit();// what  to  do  here ??
 
 			if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Pong )
 			{
@@ -94,7 +94,7 @@ struct CSendPong : boost::statechart::state< CSendPong, CPingAction >
 	{
 		common::CMessage orginalMessage;
 		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey) )
-			assert( !"service it somehow" );
+			context< CPingAction >().setExit();// what  to  do  here ??
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Ping)
 		{

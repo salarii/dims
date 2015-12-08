@@ -133,11 +133,6 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 	uint256 m_id;
 };
 
-namespace
-{
-common::CMediumFilter * TargetMediumFilter;
-}
-
 struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 {
 	CAskForInfo( my_context ctx ) : my_base( ctx )
@@ -147,7 +142,7 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 					common::CPayloadKind::InfoReq
 					, common::CInfoRequestData( (int)context< CProvideInfoAction >().getInfo(), std::vector<unsigned char>() )
 					, context< CProvideInfoAction >().getActionKey()
-					, TargetMediumFilter ) );
+					, context< CProvideInfoAction >().m_targetMediumFilter ) );
 
 		if ( common::CInfoKind::RankingFullInfo == context< CProvideInfoAction >().getInfo() )
 		{
@@ -219,8 +214,10 @@ struct CAskForInfo : boost::statechart::state< CAskForInfo, CProvideInfoAction >
 CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, CPubKey const & _partnerKey )
 	: common::CScheduleAbleAction( _actionKey )
 	, m_partnerKey( _partnerKey )
+	, m_targetMediumFilter( new CByKeyMediumFilter( _partnerKey ) )
 {
-	TargetMediumFilter = new CByKeyMediumFilter( _partnerKey );
+	LogPrintf("provide info action: %p provide \n", this );
+
 	initiate();
 	process_event( CProvideInfoEvent() );
 }
@@ -228,18 +225,22 @@ CProvideInfoAction::CProvideInfoAction( uint256 const & _actionKey, CPubKey cons
 CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, CPubKey const & _partnerKey )
 	: m_infoKind( _infoKind )
 	, m_partnerKey( _partnerKey )
+	, m_targetMediumFilter( new CByKeyMediumFilter( _partnerKey ) )
 {
-	TargetMediumFilter = new CByKeyMediumFilter( _partnerKey );
+	LogPrintf("provide info action: %p ask \n", this );
+
 	initiate();
 	process_event( CAskForInfoEvent() );
 }
 
 CProvideInfoAction::CProvideInfoAction( common::CInfoKind::Enum _infoKind, common::CMediumKinds::Enum _mediumKind )
 	: m_infoKind( _infoKind )
+	, m_targetMediumFilter( new CMediumClassFilter( _mediumKind, 1 ) )
 {
+	LogPrintf("provide info action: %p ask \n", this );
+
 	initiate();
 
-	TargetMediumFilter = new CMediumClassFilter( _mediumKind, 1 );
 	process_event( CAskForInfoEvent() );
 }
 

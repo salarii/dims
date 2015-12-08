@@ -68,6 +68,8 @@ struct CInitialConnect : public boost::statechart::state< CInitialConnect, CConn
 
 CConnectNetworkAction::CConnectNetworkAction()
 {
+	LogPrintf("connect network action: %p \n", this );
+
 	initiate();
 }
 

@@ -378,6 +378,8 @@ struct CPaidRegistration : boost::statechart::state< CPaidRegistration, CAdmitTr
 CAdmitTrackerAction::CAdmitTrackerAction( CPubKey const & _partnerKey )
 	: m_partnerKey( _partnerKey )
 {
+	LogPrintf("admit tracker action: %p extend \n", this );
+
 	initiate();
 	process_event( CExtendEvent() );
 }
@@ -386,6 +388,8 @@ CAdmitTrackerAction::CAdmitTrackerAction( uint256 const & _actionKey, CPubKey co
 	: common::CAction( _actionKey )
 	, m_partnerKey( _partnerKey )
 {
+	LogPrintf("admit tracker action: %p register \n", this );
+
 	initiate();
 	process_event( CRegisterEvent() );
 }

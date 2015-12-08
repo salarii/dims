@@ -202,6 +202,8 @@ struct CCheckRegistrationStatus : boost::statechart::state< CCheckRegistrationSt
 
 CRecognizeNetworkAction::CRecognizeNetworkAction()
 {
+	LogPrintf("recognize  network action: %p \n", this );
+
 	initiate();
 }
 

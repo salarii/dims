@@ -172,6 +172,8 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 CRecognizeNetworkAction::CRecognizeNetworkAction()
 {
+	LogPrintf("recognize network action: %p \n", this );
+
 	initiate();
 }
 

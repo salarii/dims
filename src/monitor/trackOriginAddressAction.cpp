@@ -116,6 +116,8 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 	: m_timeModifier( 1 )
 	, m_updated( 0 )
 {
+	LogPrintf("track origin action: %p \n", this );
+
 	initiate();
 
 	CBlock block;

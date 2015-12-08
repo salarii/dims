@@ -95,6 +95,8 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 CAdmitTransactionBundle::CAdmitTransactionBundle( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
+	LogPrintf("admit transaction bundle action: %p \n", this );
+
 	initiate();
 }
 

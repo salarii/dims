@@ -306,6 +306,8 @@ struct CCheckStatus : boost::statechart::state< CCheckStatus, CPassTransactionAc
 CPassTransactionAction::CPassTransactionAction( uint256 const & _actionKey )
 	: common::CScheduleAbleAction( _actionKey )
 {
+	LogPrintf("pass transaction action: %p \n", this );
+
 	initiate();
 }
 
@@ -314,6 +316,8 @@ CPassTransactionAction::CPassTransactionAction( CKeyID const & _keyId, int64_t _
 	: m_keyId( _keyId )
 	, m_amount( _amount )
 {
+	LogPrintf("pass transaction action: %p \n", this );
+
 	initiate();
 }
 

@@ -502,6 +502,8 @@ CRegisterAction::CRegisterAction( uint256 const & _actionKey, CPubKey const & _p
 	: common::CAction( _actionKey )
 	, m_partnerKey( _partnerKey )
 {
+	LogPrintf("register action: %p extend \n", this );
+
 	initiate();
 	process_event( CExtensionEvent() );
 }
@@ -509,6 +511,8 @@ CRegisterAction::CRegisterAction( uint256 const & _actionKey, CPubKey const & _p
 CRegisterAction::CRegisterAction( CPubKey const & _partnerKey )
 	: m_partnerKey( _partnerKey )
 {
+	LogPrintf("register action: %p register \n", this );
+
 	initiate();
 	process_event( CNewEvent() );
 }
