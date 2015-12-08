@@ -1487,7 +1487,7 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
     // Check for duplicate
 	uint256 hash = block.GetHash();
     if (mapBlockIndex.count(hash))
-        return state.Invalid(error("AddToBlockIndex() : %s already exists", hash.ToString()), 0, "duplicate");
+		return state.Invalid( false/*error("AddToBlockIndex() : %s already exists", hash.ToString()), 0, "duplicate"*/);
 
     // Construct new block index object
     CBlockIndex* pindexNew = new CBlockIndex(block);
