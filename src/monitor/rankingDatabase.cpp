@@ -34,7 +34,17 @@ CRankingDatabase::getInstance()
 	return ms_instance;
 }
 
+CRankingDatabase*
+CRankingDatabase::recreateInstance()
+{
+	if ( !ms_instance )
+	{
+		delete ms_instance;
+	};
 
+	ms_instance = new CRankingDatabase( "rankingData", "rc+" );
+	return ms_instance;
+}
 //
 // CRankingDatabase
 //
@@ -157,7 +167,7 @@ CRankingDatabase::resetDb()
 	bitdb.mapFileUseCount.erase("rankingData");
 	bitdb.RemoveDb("rankingData");
 	delete getInstance();
-	getInstance();
+	recreateInstance();
 }
 
 }

@@ -315,6 +315,21 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 						mediums.push_back( medium );
 					}
 				}
+
+				BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyTrackerData ) const & trackerData, m_allyTrackersRankings )
+				{
+					if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() )
+					{
+						if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
+							assert( !"something wrong" );
+
+						common::CMedium * medium = findNodeMedium( nodeIndicator );
+
+						if ( !medium )
+							assert( !"something wrong" );
+						mediums.push_back( medium );
+					}
+				}
 			}
 
 			if ( _nodesClass != common::CMediumKinds::Trackers )

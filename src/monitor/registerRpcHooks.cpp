@@ -98,6 +98,14 @@ networkInfo()
 				+ ( CReputationTracker::getInstance()->isPresentNode( allyTrackerData.m_publicKey.GetID() ) ? "  active" : "  inactive" ) + "\n";
 	}
 
+	BOOST_FOREACH( common::CTrackerData const & trackerData, CReputationTracker::getInstance()->getTrackers() )
+	{
+		CNodeAddress tracker;
+		tracker.Set( trackerData.m_publicKey.GetID(), common::NodePrefix::Tracker );
+		info += "key " + tracker.ToString() + " ip " + trackerData.m_address.ToString()
+				+ ( CReputationTracker::getInstance()->isPresentNode( trackerData.m_publicKey.GetID() ) ? "  active" : "  inactive" ) + "\n";
+	}
+
 	return info;
 }
 

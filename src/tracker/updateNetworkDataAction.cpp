@@ -90,7 +90,7 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 
 		BOOST_FOREACH( common::CValidNodeInfo const & node, networkNodes )
 		{
-			if ( monitors.find( node ) == monitors.end() )
+			if ( monitors.find( node ) == monitors.end() && _messageResult.m_pubKey != node.m_publicKey )
 			{
 				CTrackerNodesManager::getInstance()->eraseNetworkMonitor( node.m_publicKey.GetID() );
 			}

@@ -43,6 +43,8 @@ public:
 
 	static void resetDb();
 private:
+	static CRankingDatabase * recreateInstance();
+
 	CRankingDatabase(std::string strFilename, const char* pszMode="r+") : CDB(strFilename.c_str(), pszMode)
 	{
 	}
