@@ -114,7 +114,6 @@ CReputationTracker::loop()
 
 				if ( timeLeft < 0 )
 				{
-					toBeRemoved.push_back( tracker.first );
 					CRankingDatabase::getInstance()->eraseTrackerData( tracker.second.m_publicKey );
 					toBeRemoved.push_back( tracker.second.m_publicKey.GetID() );
 					m_allowSynchronization.erase( tracker.second.m_publicKey.GetID() );

@@ -109,8 +109,6 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 			CReputationTracker::getInstance()->addTracker( trackerData );
 			context< CAdmitTrackerAction >().setExit();
 
-
-			context< CAdmitTrackerAction >().setExit();
 		}
 
 		return discard_event();

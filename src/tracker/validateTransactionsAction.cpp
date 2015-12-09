@@ -65,7 +65,7 @@ struct CInitial : boost::statechart::state< CInitial, CValidateTransactionsActio
 
 	typedef boost::mpl::list<
 	boost::statechart::transition< COriginOfTransactionEvent, COriginInitial >,
-	boost::statechart::transition< common::CMessageResult, CPassBundle >
+	boost::statechart::transition< CPasingTransactionEvent, CPassBundle >
 	> reactions;
 };
 
@@ -639,6 +639,7 @@ CValidateTransactionsAction::CValidateTransactionsAction( uint256 const & _actio
 {
 	LogPrintf("validate transaction action: %p pass bundle \n", this );
 	initiate();
+	process_event( CPasingTransactionEvent() );
 }
 
 void

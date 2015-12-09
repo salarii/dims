@@ -601,19 +601,17 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 		}
 	}
 
-		m_pending.erase( _message.m_nodePtr );
+	if ( !CTrackerLocalRanking::getInstance()->areThereAnyUndeterminedTrackers() )
+	{
+		CClientControl::getInstance()->process_event(
+					CNetworkDiscoveredEvent(
+						CTrackerLocalRanking::getInstance()->determinedTrackersCount()
+						, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
-		if ( !m_pending.size() )
-		{
-			CClientControl::getInstance()->process_event(
-						CNetworkDiscoveredEvent(
-							  CTrackerLocalRanking::getInstance()->determinedTrackersCount()
-							, CTrackerLocalRanking::getInstance()->monitorCount() ) );
+		context< CConnectAction >().m_connected();
 
-			context< CConnectAction >().m_connected();
-
-			context< CConnectAction >().setExit();
-		}
+		context< CConnectAction >().setExit();
+	}
 
 		return discard_event();
 	}
@@ -623,8 +621,6 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 	boost::statechart::custom_reaction< common::CTimeEvent >,
 	boost::statechart::custom_reaction< common::CClientMessageResponse >
 	> reactions;
-
-	std::set< uintptr_t > m_pending;
 
 	int64_t m_lastAskTime;
 

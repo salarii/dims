@@ -105,6 +105,12 @@ CTrackerLocalRanking::removeUndeterminedTracker( std::string const & _ip )
 	}
 }
 
+bool
+CTrackerLocalRanking::areThereAnyUndeterminedTrackers() const
+{
+	return !m_undeterminedTrackers.empty();
+}
+
 void
 CTrackerLocalRanking::addMonitor( common::CMonitorInfo const & _monitor )
 {

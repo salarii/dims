@@ -51,6 +51,8 @@ public:
 
 	void removeUndeterminedTracker( std::string const & _ip );
 
+	bool areThereAnyUndeterminedTrackers()const;
+
 	void addMonitor( common::CMonitorInfo const & _monitor );
 
 	void removeMonitor( std::string const & _ip );
