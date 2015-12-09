@@ -37,7 +37,9 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
 	{
 		common::CMessage orginalMessage;
-		if ( !common::CommunicationProtocol::unwindMessage( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey ) )
+
+		 std::set< CPubKey > participants;
+		if ( !common::CommunicationProtocol::unwindMessageAndParticipants( _messageResult.m_message, orginalMessage, GetTime(), _messageResult.m_pubKey, participants ) )
 			assert( !"service it somehow" );
 
 		if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Transactions )
@@ -51,8 +53,20 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 			common::CTransactionBundle transactionBundle;
 
 			common::convertPayload( orginalMessage, transactionBundle );
-// improve it
-			m_presentTrackers.erase( _messageResult.m_pubKey.GetID() );
+
+			BOOST_FOREACH( CPubKey const & pubKey, participants )
+			{
+				m_presentTrackers.erase( pubKey.GetID() );
+			}
+
+			context< CAdmitTransactionBundle >().addRequest(
+					new common::CSendMessageRequest(
+							_messageResult.m_message
+						, _messageResult.m_pubKey
+						, context< CAdmitTransactionBundle >().getActionKey()
+						, new CMediumClassFilter( common::CMediumKinds::Monitors ) ) );
+
+			// TODO: send  transaction  to  synchronizaing nodes
 
 			if ( m_presentTrackers.empty() )
 			{
@@ -61,6 +75,8 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 				{
 					CChargeRegister::getInstance()->storeTransactions( transactionBundle.m_transactions );
 				}
+
+				context< CAdmitTransactionBundle >().setExit();
 
 				CTransactionRecordManager::getInstance()->addTransactionsToStorage( transactionBundle.m_transactions );
 
@@ -73,7 +89,6 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 			}
 		}
 
-		context< CAdmitTransactionBundle >().setExit();
 		return discard_event();
 	}
 

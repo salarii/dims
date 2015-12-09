@@ -74,6 +74,7 @@ struct COriginInitial : boost::statechart::state< COriginInitial, CValidateTrans
 
 	COriginInitial( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("validate transaction action: %p origin \n", &context< CValidateTransactionsAction >() );
 		/* check fee, move it to some other place??? */
 		std::vector< CTransaction > validTransactions;
 		std::vector< CTransaction > invalidTransactions;
@@ -171,6 +172,8 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 {
 	CPropagateBundle( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("validate transaction action: %p propagate bundle \n", &context< CValidateTransactionsAction >() );
+
 		context< CValidateTransactionsAction >().forgetRequests();
 
 		context< CValidateTransactionsAction >().addRequest(
@@ -269,6 +272,8 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 {
 	CBroadcastBundle( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("validate transaction action: %p broadcast bundle \n", &context< CValidateTransactionsAction >() );
+
 		context< CValidateTransactionsAction >().forgetRequests();
 
 		context< CValidateTransactionsAction >().addRequest(
@@ -393,6 +398,7 @@ struct CPassBundle : boost::statechart::state< CPassBundle, CValidateTransaction
 {
 	CPassBundle( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("validate transaction action: %p pass bundle \n", &context< CValidateTransactionsAction >() );
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -455,6 +461,8 @@ struct CPassBundleValidate : boost::statechart::state< CPassBundleValidate, CVal
 {
 	CPassBundleValidate( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("validate transaction action: %p pass bundle validate \n", &context< CValidateTransactionsAction >() );
+
 		context< CValidateTransactionsAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::StatusTransactions
@@ -544,6 +552,8 @@ struct CPassBundleInvalidate : boost::statechart::state< CPassBundleInvalidate, 
 {
 	CPassBundleInvalidate( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("validate transaction action: %p pass bundle invalidate \n", &context< CValidateTransactionsAction >() );
+
 		context< CValidateTransactionsAction >().forgetRequests();
 
 		context< CValidateTransactionsAction >().addRequest(
@@ -561,6 +571,8 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 {
 	CApproved( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("validate transaction action: %p pass bundle approved \n", &context< CValidateTransactionsAction >() );
+
 		// make real check  against storage ??
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
 			context< CValidateTransactionsAction >().getTransactions() );
