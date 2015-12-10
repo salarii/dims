@@ -217,7 +217,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 			common::CTransactionsBundleStatus status;
 			convertPayload( orginalMessage, status );
 
-			if ( status.m_status == (int)common::TransactionsStatus::Validated )
+			if ( status.m_status == (int)CBundleStatus::Validated )
 			{
 				BOOST_FOREACH( CPubKey const & _pubKey, participants )
 				{
@@ -240,7 +240,7 @@ struct CPropagateBundle : boost::statechart::state< CPropagateBundle, CValidateT
 				context< CValidateTransactionsAction >().addRequest(
 							new common::CSendMessageRequest(
 								common::CPayloadKind::StatusTransactions
-								, common::CTransactionsBundleStatus( (int)common::TransactionsStatus::Confirmed )
+								, common::CTransactionsBundleStatus( (int)CBundleStatus::Confirmed )
 								, context< CValidateTransactionsAction >().getActionKey()
 								, _messageResult.m_message.m_header.m_id
 								, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
@@ -298,6 +298,8 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 		}
 
 		m_partners.erase( context< CValidateTransactionsAction >().m_initiatingNodeKey.GetID() );
+
+		m_known.insert(context< CValidateTransactionsAction >().m_initiatingNodeKey.GetID());
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -379,7 +381,8 @@ struct CBroadcastBundle : boost::statechart::state< CBroadcastBundle, CValidateT
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
 	{
-		return transit< CApproved >();
+		context< CValidateTransactionsAction >().m_passValidationTargets = m_known;
+		return transit< CPassBundleValidate >();
 	}
 
 	typedef boost::mpl::list<
@@ -571,7 +574,7 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 {
 	CApproved( my_context ctx ) : my_base( ctx )
 	{
-		LogPrintf("validate transaction action: %p pass bundle approved \n", &context< CValidateTransactionsAction >() );
+		LogPrintf("validate transaction action: %p approved \n", &context< CValidateTransactionsAction >() );
 
 		// make real check  against storage ??
 		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
