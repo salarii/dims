@@ -408,12 +408,12 @@ struct ConnectedToSeed : boost::statechart::state< ConnectedToSeed, CConnectNode
 		LogPrintf("connect node action: %p connected to seed \n", &context< CConnectNodeAction >() );
 		CTrackerNodesManager::getInstance()->setNodeInfo(
 					common::CValidNodeInfo( context< CConnectNodeAction >().getPublicKey(), context< CConnectNodeAction >().getServiceAddress() ), common::CRole::Seed );
-
+/*
 		CTrackerNodesManager::getInstance()->setKeyToNode(
 					context< CConnectNodeAction >().getPublicKey()
 					, context< CConnectNodeAction >().getNodePtr()
 					);
-
+*/
 		context< CConnectNodeAction >().addRequest( new common::CTimeEventRequest( SeedLoopTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 	}
