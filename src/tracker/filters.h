@@ -107,7 +107,8 @@ struct CComplexMediumFilter : public common::CMediumFilter
 		BOOST_FOREACH( uint160 const & keyId , m_keyIds )
 		{
 			uintptr_t nodeIndicator;
-			_nodesManager->getKeyToNode( keyId, nodeIndicator );
+			if ( !_nodesManager->getKeyToNode( keyId, nodeIndicator ) )
+				assert( !"problem somewhere" );
 
 			common::CMedium * medium = _nodesManager->findNodeMedium( nodeIndicator );
 			if ( medium )

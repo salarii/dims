@@ -527,7 +527,8 @@ struct CPassBundleValidate : boost::statechart::state< CPassBundleValidate, CVal
 	{
 		//something  wrong, but  forget  about  that for now
 		context< CValidateTransactionsAction >().forgetRequests();
-		return transit<CApproved>();
+		context< CValidateTransactionsAction >().setExit();
+		return discard_event();
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )
@@ -624,6 +625,7 @@ struct CRejected : boost::statechart::state< CRejected, CValidateTransactionsAct
 	CRejected( my_context ctx ) : my_base( ctx )
 	{
 		context< CValidateTransactionsAction >().forgetRequests();
+		context< CValidateTransactionsAction >().setExit();
 	}
 };
 
