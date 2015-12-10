@@ -98,7 +98,10 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 
 			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+				if (
+						message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
+						|| message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions  // is  this  ok??
+						)
 					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, pubKey ) );
 				else
 					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, pubKey ) );

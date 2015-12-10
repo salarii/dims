@@ -538,8 +538,10 @@ struct CPassBundleValidate : boost::statechart::state< CPassBundleValidate, CVal
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
 	{
+		assert(!"problem");
 		context< CValidateTransactionsAction >().forgetRequests();
-		return transit<CApproved>();
+		context< CValidateTransactionsAction >().setExit();
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
