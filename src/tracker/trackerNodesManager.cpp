@@ -250,7 +250,9 @@ CTrackerNodesManager::eraseMedium( uintptr_t _nodePtr )
 
 	if ( !getPublicKey( address, pubKey ) )
 		return;
-	m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
+
+	if ( m_pubKeyToNodeIndicator.find( pubKey.GetID() ) != m_pubKeyToNodeIndicator.end() )
+		m_pubKeyToNodeIndicator.erase( pubKey.GetID() );
 
 	m_activeNodes.erase( pubKey.GetID() );
 
