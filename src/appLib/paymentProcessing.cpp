@@ -323,13 +323,10 @@ CPaymentProcessing::isLicenseValid()
 	if ( !readLicenseFileData() )
 		return false;
 
-	common::SelectDimsParams(CNetworkParams::TESTNET);
-
 	if ( !verifyData( m_licenseData ) )
 		return false;
 
-	common::SelectDimsParams(CNetworkParams::MAIN);
-	return verifyData( m_licenseData );
+	return true;
 }
 
 template < class Message >
@@ -380,9 +377,20 @@ CPaymentProcessing::serviceMessage( char * _buffer, size_t _size )
 
 		signPrivateKey();
 
-		m_enableHook();
-
 		saveLicenseFileData( m_licenseData );
+
+		QMessageBox msgBox;
+		if ( isLicenseValid() )
+		{
+			m_enableHook();
+			msgBox.setInformativeText("Application successfully paid");
+		}
+		else
+		{
+			msgBox.setInformativeText("Application not paid\n problem in license");
+		}
+		msgBox.addButton(QMessageBox::Ok);
+		msgBox.exec();
 	}
 	else if ( kind == CMessageKind::ErrorIndicator )
 	{

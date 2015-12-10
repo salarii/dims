@@ -114,7 +114,7 @@ bool CAppClient::checkApp( QApplication * _application, QMainWindow *_window )
 			}
 			paymentProcessing->setEnableHook( boost::bind( &QMainWindow::setEnabled, _window, true ) );
 			paymentProcessing->executeDialog( *this );
-			return true;
+			return false;
 		}
 		else
 		{

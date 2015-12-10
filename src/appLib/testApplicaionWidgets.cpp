@@ -4,7 +4,7 @@
 
 #include "testApplicaionWidgets.h"
 
-CTextLine::CTextLine( QString const & _title, QWidget* _parent )
+CTextLine::CTextLine( QString const & _title, QString const & _unit, QWidget* _parent )
 {
 	QHBoxLayout * layout = new QHBoxLayout;
 	setLayout ( layout );
@@ -13,11 +13,17 @@ CTextLine::CTextLine( QString const & _title, QWidget* _parent )
 
 	m_spinBox = new QDoubleSpinBox;
 
-	m_spinBox->setSingleStep( 0.01 );
+	m_spinBox->setSingleStep( 0.1 );
+
+	m_spinBox->setMaximum( (unsigned long long)-1 );
+
+	m_spinBox->setDecimals(4);
 
 	m_spinBox->setValue(0);
 
 	layout->addWidget( m_spinBox );
+
+	layout->addWidget( new QLabel( " " + _unit ) );
 
 	QObject::connect( m_spinBox, SIGNAL( valueChanged ( double ) ),
 					this, SLOT( valueChangedSlot( double ) ) );
@@ -39,14 +45,14 @@ CSphereWidget::CSphereWidget(QWidget* _parent ):QWidget( _parent )
 {
 	QVBoxLayout * layout = new QVBoxLayout;
 	setLayout ( layout );
-	m_radius = new CTextLine( "Radius" );
+	m_radius = new CTextLine( "Radius", "m" );
 
-	m_density = new CTextLine( "Density" );
+	m_density = new CTextLine( "Density", QString( "g/cm" ) + QChar(0xB3) );
 
 	layout->addWidget( m_radius );
 	layout->addWidget( m_density );
 
-	layout->addWidget( new QLabel( "Result:" ) );
+	layout->addWidget( new QLabel( "Resulting mass:" ) );
 
 	QObject::connect( m_radius, SIGNAL( changed() ), this, SLOT( evaluateResult() ) );
 
@@ -63,7 +69,7 @@ CSphereWidget::evaluateResult()
 {
 	double volume = (4.0/3.0)* pow( m_radius->getValue(), 3.0) * M_PI;
 
-	m_result->setText( QString().setNum( volume * m_density->getValue() ) );
+	m_result->setText( QString().setNum( volume * m_density->getValue() * 1000 ) + QString(" kg") );
 }
 
 CCuboidWidget::CCuboidWidget( QWidget* _parent )
@@ -72,18 +78,18 @@ CCuboidWidget::CCuboidWidget( QWidget* _parent )
 	QVBoxLayout * layout = new QVBoxLayout;
 	setLayout ( layout );
 
-	m_x = new CTextLine( "Width" );
-	m_y = new CTextLine( "Height" );
-	m_z = new CTextLine( "Depth" );
+	m_x = new CTextLine( "Width", "m" );
+	m_y = new CTextLine( "Height", "m" );
+	m_z = new CTextLine( "Depth", "m" );
 
-	m_density = new CTextLine( "Density" );
+	m_density = new CTextLine( "Density" , QString( "g/cm" ) + QChar(0xB3) );
 
 	layout->addWidget( m_x );
 	layout->addWidget( m_y );
 	layout->addWidget( m_z );
 	layout->addWidget( m_density );
 
-	layout->addWidget( new QLabel( "Result:" ) );
+	layout->addWidget( new QLabel( "Resulting mass:" ) );
 
 	QObject::connect( m_x, SIGNAL( changed() ), this, SLOT( evaluateResult() ) );
 	QObject::connect( m_y, SIGNAL( changed() ), this, SLOT( evaluateResult() ) );
@@ -103,7 +109,7 @@ CCuboidWidget::evaluateResult()
 {
 	double volume = m_x->getValue() * m_y->getValue() * m_z->getValue();
 
-	m_result->setText( QString().setNum( volume * m_density->getValue() ) );
+	m_result->setText( QString::number(volume * m_density->getValue()* 1000.0, 'g', 10) + QString(" kg") );
 }
 
 CMainWidget::CMainWidget(QWidget* parent ):QTabWidget(parent)

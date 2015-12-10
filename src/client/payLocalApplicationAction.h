@@ -95,6 +95,9 @@ public:
 	}
 
 	~CPayLocalApplicationAction();
+
+public:
+	std::vector<unsigned char> m_signature;
 private:
 	uint256 m_firstInitialHash;
 

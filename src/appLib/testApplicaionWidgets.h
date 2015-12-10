@@ -19,7 +19,7 @@ class CTextLine: public QWidget
 {
 	Q_OBJECT
 public:
-	CTextLine( QString const & _title, QWidget* _parent = 0 );
+	CTextLine( QString const & _title, QString const & _unit, QWidget* _parent = 0 );
 
 	double getValue() const;
 signals:

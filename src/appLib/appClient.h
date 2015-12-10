@@ -26,6 +26,7 @@ public:
 	void send( QByteArray const & _message );
 
 	bool checkApp( QApplication * _application, QMainWindow *_window );
+
 private slots:
 	void what(QLocalSocket::LocalSocketError);
 	void readSocket();

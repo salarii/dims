@@ -345,6 +345,7 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 
 		if ( transactionStatus.m_status == (int)common::TransactionsStatus::Confirmed )
 		{
+			context< CPayLocalApplicationAction >().m_signature = transactionStatus.m_signature;
 			return transit< CSendTransactionData >();
 		}
 		else if ( transactionStatus.m_status == (int)common::TransactionsStatus::Unconfirmed )
@@ -370,14 +371,12 @@ struct CSendTransactionData : boost::statechart::state< CSendTransactionData, CP
 {
 	CSendTransactionData( my_context ctx ) : my_base( ctx )
 	{
-		common::CTransactionStatus const* transactionStatus = dynamic_cast< CTransactionStatus const* >( simple_state::triggering_event() );
-
 		context< CPayLocalApplicationAction >().forgetRequests();
 
 		context< CPayLocalApplicationAction >().addRequest(
 					new CProofTransactionAndStatusRequest(
 						  context< CPayLocalApplicationAction >().getSecondTransaction()
-						, transactionStatus->m_signature
+						, context< CPayLocalApplicationAction >().m_signature
 						, context< CPayLocalApplicationAction >().getServicingTracker()
 						, context< CPayLocalApplicationAction >().getMonitorData()
 						, context< CPayLocalApplicationAction >().getServicingMonitor()

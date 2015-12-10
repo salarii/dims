@@ -25,7 +25,7 @@ CErrorForAppPaymentProcessing::accept( common::CMedium * _medium ) const
 
 CProofTransactionAndStatusRequest::CProofTransactionAndStatusRequest( CTransaction const & _trasaction, std::vector<unsigned char> const & _transactionStatusSignature, CPubKey const & _servicingTracker, common::CMonitorData const & _monitorData, CPubKey const & _servicingMonitor, common::CMediumFilter * _mediumFilter )
 	: common::CRequest( _mediumFilter )
-	, m_payApplicationData( _trasaction, _transactionStatusSignature, _servicingTracker, _monitorData, _servicingMonitor )
+	, m_payApplicationData( _trasaction, _transactionStatusSignature, _servicingTracker, _monitorData, CPubKey() )
 {
 }
 

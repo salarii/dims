@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
 	dims::Value = 100;
 
-	dims::PossibleMonitors.push_back( "mK8nrDpWDoZ7Ez6x7aZwudwCcP3T9SEHix");
+	dims::PossibleTrackers.push_back( "tJVmAF9VgQvpwg85Th9ZYRb9nhnd1ucnEm");
 
 	QApplication app (argc, argv);
 

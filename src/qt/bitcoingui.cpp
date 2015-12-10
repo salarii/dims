@@ -872,7 +872,7 @@ int
 BitcoinGUI::handleApplicationPaymentRequest(unsigned int _cost)
 {
 	QMessageBox msgBox;
-	msgBox.setText(QString("Application request you to pay ") + QString().setNum(_cost) + QString(" for license") );
+	msgBox.setText(QString("Application request you to pay ") + CDimsUnits::formatWithUnit(CDimsUnits::dims, _cost ) + QString(" for license") );
 	msgBox.setInformativeText("Do you want to service request?");
 	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 	msgBox.setDefaultButton(QMessageBox::Ok);
