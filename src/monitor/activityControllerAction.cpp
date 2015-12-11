@@ -9,12 +9,14 @@
 #include "common/setResponseVisitor.h"
 #include "common/requests.h"
 #include "common/events.h"
+#include "common/actionHandler.h"
 
 #include "monitor/controller.h"
 #include "monitor/filters.h"
 #include "monitor/reputationTracer.h"
 #include "monitor/activityControllerAction.h"
 #include "monitor/connectNodeAction.h"
+#include "monitor/updateNetworkDataAction.h"
 
 namespace monitor
 {
@@ -37,6 +39,26 @@ struct CActivityInitial : boost::statechart::simple_state< CActivityInitial, CAc
 	boost::statechart::transition< CRecognizeNodeStateEvent, CRecognizeNodeState >
 	> reactions;
 };
+
+void updateMonitorData(uint160 const & _pubKeyId)
+{
+	if ( CReputationTracker::getInstance()->isAddmitedMonitor( _pubKeyId ) )
+	{
+		CReputationTracker::getInstance()->removeAllyMonitor( _pubKeyId );
+
+		BOOST_FOREACH( common::CAllyTrackerData const & allyTrackerData, CReputationTracker::getInstance()->getAllyTrackers() )
+		{
+			if ( allyTrackerData.m_allyMonitorKey.GetID() == _pubKeyId )
+			{
+				CReputationTracker::getInstance()->erasePresentNode( allyTrackerData.m_publicKey.GetID() );
+			}
+		}
+
+		common::CActionHandler::getInstance()->executeAction( new CUpdateNetworkDataAction() );
+	}
+
+}
+
 
 struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CActivityControllerAction >
 {
@@ -74,10 +96,8 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 		{
 			CReputationTracker::getInstance()->erasePresentNode( context< CActivityControllerAction >().m_nodeKey.GetID() );
 
-			if ( CReputationTracker::getInstance()->isAddmitedMonitor( context< CActivityControllerAction >().m_nodeKey.GetID() ) )
-			{
-				CReputationTracker::getInstance()->removeAllyMonitor( context< CActivityControllerAction >().m_nodeKey.GetID() );
-			}
+			updateMonitorData(context< CActivityControllerAction >().m_nodeKey.GetID());
+
 		}
 
 		context< CActivityControllerAction >().addRequest(
@@ -183,10 +203,7 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 					{
 						CReputationTracker::getInstance()->erasePresentNode( m_activationStatus.m_keyId );
 
-						if ( CReputationTracker::getInstance()->isAddmitedMonitor( m_activationStatus.m_keyId ) )
-						{
-							CReputationTracker::getInstance()->removeAllyMonitor( m_activationStatus.m_keyId );
-						}
+						updateMonitorData(m_activationStatus.m_keyId);
 
 						context< CActivityControllerAction >().addRequest(
 									new common::CSendMessageRequest(

@@ -15,11 +15,13 @@
 namespace monitor
 {
 
-struct CUpdateNetworkData;
+struct CUpdateDataInit;
 
-class CUpdateNetworkDataAction : public common::CAction, public  boost::statechart::state_machine< CUpdateNetworkDataAction, CUpdateNetworkData >
+class CUpdateNetworkDataAction : public common::CAction, public  boost::statechart::state_machine< CUpdateNetworkDataAction, CUpdateDataInit >
 {
 public:
+	CUpdateNetworkDataAction();
+
 	CUpdateNetworkDataAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );

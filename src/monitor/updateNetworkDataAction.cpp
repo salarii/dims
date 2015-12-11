@@ -18,6 +18,51 @@
 namespace monitor
 {
 
+struct CUpdateTrackers;
+
+struct CUpdateNetworkData;
+
+struct CUpdateTrackerEvent : boost::statechart::event< CUpdateTrackerEvent >{};
+
+struct CUpdateSelfEvent : boost::statechart::event< CUpdateSelfEvent >{};
+
+struct CUpdateDataInit : boost::statechart::simple_state< CUpdateDataInit, CUpdateNetworkDataAction >
+{
+	typedef boost::mpl::list<
+	boost::statechart::transition< CUpdateTrackerEvent, CUpdateTrackers >,
+	boost::statechart::transition< CUpdateSelfEvent, CUpdateNetworkData >
+	> reactions;
+};
+
+struct CUpdateTrackers : boost::statechart::state< CUpdateTrackers, CUpdateNetworkDataAction >
+{
+	CUpdateTrackers( my_context ctx ) : my_base( ctx )
+	{
+		std::set< common::CAllyTrackerData > toSend, allyTrackers = CReputationTracker::getInstance()->getAllyTrackers();
+
+		BOOST_FOREACH( common::CAllyTrackerData const & allyTracker, allyTrackers )
+		{
+			if ( CReputationTracker::getInstance()->isPresentNode( allyTracker.m_publicKey.GetID() ) )
+				toSend.insert( allyTracker );
+		}
+
+		common::CRankingFullInfo rankingFullInfo(
+					toSend
+					, CReputationTracker::getInstance()->getAllyMonitors()
+					, CReputationTracker::getInstance()->getTrackers()
+					, CReputationTracker::getInstance()->getMeasureReputationTime()
+					, uint256() );
+
+		context< CUpdateNetworkDataAction >().addRequest(
+				new common::CSendMessageRequest(
+					common::CPayloadKind::FullRankingInfo
+					, rankingFullInfo
+					, context< CUpdateNetworkDataAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+		context< CUpdateNetworkDataAction >().setExit();
+	}
+};
+
 struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdateNetworkDataAction >
 {
 	CUpdateNetworkData( my_context ctx ) : my_base( ctx )
@@ -57,9 +102,21 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 CUpdateNetworkDataAction::CUpdateNetworkDataAction( uint256 const & _actionKey )
 	: common::CAction( _actionKey )
 {
-	LogPrintf("update network action: %p \n", this );
+	LogPrintf("update network action: %p update self \n", this );
 
 	initiate();
+
+	process_event( CUpdateSelfEvent() );
+}
+
+CUpdateNetworkDataAction::CUpdateNetworkDataAction()
+{
+
+	LogPrintf("update network action: %p update trackers \n", this );
+
+	initiate();
+
+	process_event( CUpdateTrackerEvent() );
 }
 
 void
