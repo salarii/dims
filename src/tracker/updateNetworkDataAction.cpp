@@ -76,7 +76,7 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 		std::set<common::CValidNodeInfo> monitors;
 
 		CAddress address;
-		if ( CTrackerNodesManager::getInstance()->getAddresFromKey( _messageResult.m_pubKey.GetID(), address ) )
+		if ( !CTrackerNodesManager::getInstance()->getAddresFromKey( _messageResult.m_pubKey.GetID(), address ) )
 			assert(!"problem");
 
 		monitors.insert( common::CValidNodeInfo( _messageResult.m_pubKey, address ) );// do I need  this??
