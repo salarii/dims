@@ -549,7 +549,11 @@ CReputationTracker::isAddmitedMonitor( uint160 const & _pubKeyId )
 bool
 CReputationTracker::isRegisteredTracker( uint160 const & _pubKeyId )
 {
-	return m_registeredTrackers.find( _pubKeyId ) != m_registeredTrackers.end();
+	if ( m_registeredTrackers.find( _pubKeyId ) != m_registeredTrackers.end() )
+		return true;
+
+	return m_allyTrackersRankings.find( _pubKeyId ) != m_allyTrackersRankings.end();
+
 }
 
 void
