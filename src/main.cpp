@@ -276,15 +276,6 @@ CBlockIndex *CChain::SetTip(CBlockIndex *pindex) {
 void
 resetChains()
 {
-	chainActive.resetChain();
-	chainMostWork.resetChain();
-	resetIndicator =true;//ugly
-}
-
-void CChain::resetChain()
-{
-	vChain.clear();
-
 	if ( FileExist("head") )
 	{
 		CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
@@ -292,12 +283,25 @@ void CChain::resetChain()
 		file >> header;
 
 		CBlockIndex * blockIndex = new CBlockIndex( header );
-		vChain.push_back(blockIndex);
 
 		mapBlockIndex.clear();
+
 		blockIndex->phashBlock = &( mapBlockIndex.insert( std::make_pair( header.GetHash(), blockIndex ) ).first->first);
+		chainActive.resetChain( blockIndex );
+		chainMostWork.resetChain( blockIndex );
+		setBlockIndexValid.clear();
+		pindexBestInvalid = NULL;
+		resetIndicator =true;//ugly
 
 	}
+}
+
+void CChain::resetChain( CBlockIndex * _blockIndex )
+{
+	vChain.clear();
+
+	vChain.push_back(_blockIndex);
+
 }
 
 CBlockLocator CChain::GetLocator(const CBlockIndex *pindex) const {
