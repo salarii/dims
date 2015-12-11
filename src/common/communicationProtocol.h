@@ -192,6 +192,7 @@ struct CRankingFullInfo
 			std::set< CAllyTrackerData > const & _allyTrackers
 			, std::set< CAllyMonitorData > const & _allyMonitors
 			, std::set< CTrackerData > const & _trackers
+			, std::set< uint160 > const & _synchronizedTrackers
 			, int64_t _time
 			, uint256 const & _leadingKey )
 		: m_allyTrackers( _allyTrackers )
@@ -204,6 +205,7 @@ struct CRankingFullInfo
 	std::set< CAllyTrackerData > m_allyTrackers;
 	std::set< CAllyMonitorData > m_allyMonitors;
 	std::set< CTrackerData > m_trackers;
+	std::set< uint160 > m_synchronizedTrackers;
 	int64_t m_time;
 	uint256 m_leadingKey;
 };

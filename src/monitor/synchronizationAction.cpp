@@ -712,19 +712,23 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 
 			CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
 
+			if ( CReputationTracker::getInstance()->isRegisteredTracker( context< CSynchronizationAction >().getPartnerKey().GetID() ) )
+				CReputationTracker::getInstance()->setTrackerSynchronized( context< CSynchronizationAction >().getPartnerKey().GetID() );
+
 			common::CRankingFullInfo rankingFullInfo(
-				CReputationTracker::getInstance()->getAllyTrackers()
-				, CReputationTracker::getInstance()->getAllyMonitors()
-				, CReputationTracker::getInstance()->getTrackers()
-				, CReputationTracker::getInstance()->getMeasureReputationTime()
-				, CReputationControlAction::getInstance()->getActionKey() );
+						CReputationTracker::getInstance()->getAllyTrackers()
+						, CReputationTracker::getInstance()->getAllyMonitors()
+						, CReputationTracker::getInstance()->getTrackers()
+						, CReputationTracker::getInstance()->getSynchronizedTrackers()
+						, CReputationTracker::getInstance()->getMeasureReputationTime()
+						, CReputationControlAction::getInstance()->getActionKey() );
 
 			context< CSynchronizationAction >().addRequest(
-					new common::CSendMessageRequest(
-						common::CPayloadKind::FullRankingInfo
-						, rankingFullInfo
-						, context< CSynchronizationAction >().getActionKey()
-						, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
+						new common::CSendMessageRequest(
+							common::CPayloadKind::FullRankingInfo
+							, rankingFullInfo
+							, context< CSynchronizationAction >().getActionKey()
+							, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
 
 			CAddress address;
 			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CSynchronizationAction >().getPartnerKey().GetID(), address ) )

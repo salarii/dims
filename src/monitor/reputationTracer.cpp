@@ -302,7 +302,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 
 				BOOST_FOREACH( PAIRTYPE( uint160, common::CTrackerData ) const & trackerData, m_registeredTrackers )
 				{
-					if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() )
+					if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() && m_synchronizedTrackers.find( trackerData.first ) != m_synchronizedTrackers.end() )
 					{
 						if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
 							assert( !"something wrong" );
@@ -317,7 +317,7 @@ CReputationTracker::getNodesByClass( common::CMediumKinds::Enum _nodesClass ) co
 
 				BOOST_FOREACH( PAIRTYPE( uint160, common::CAllyTrackerData ) const & trackerData, m_allyTrackersRankings )
 				{
-					if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() )
+					if ( m_presentNodes.find( trackerData.first ) != m_presentNodes.end() && m_synchronizedTrackers.find( trackerData.first ) != m_synchronizedTrackers.end() )
 					{
 						if ( !getKeyToNode( trackerData.second.m_publicKey.GetID(), nodeIndicator) )
 							assert( !"something wrong" );
@@ -396,14 +396,14 @@ CReputationTracker::getNodeToKey( uintptr_t _nodeIndicator, CPubKey & _pubKey )c
 }
 
 std::set< uint160 >
-CReputationTracker::getPresentTrackers() const
+CReputationTracker::getPresentAndSynchronizedTrackers() const
 {
 	std::set< common::CTrackerData > trackers = getTrackers();
 
 	std::set< uint160 > presentTrackers;
 	BOOST_FOREACH( common::CTrackerData const & trackerData, trackers )
 	{
-		if ( isPresentNode( trackerData.m_publicKey.GetID() ) )
+		if ( isPresentNode( trackerData.m_publicKey.GetID() ) && isTrackerSynchronized( trackerData.m_publicKey.GetID() ) )
 			presentTrackers.insert( trackerData.m_publicKey.GetID() );
 	}
 
@@ -411,7 +411,7 @@ CReputationTracker::getPresentTrackers() const
 
 	BOOST_FOREACH( common::CAllyTrackerData const & allyTracker, allyTrackers )
 	{
-		if ( isPresentNode( allyTracker.m_publicKey.GetID() ) )
+		if ( isPresentNode( allyTracker.m_publicKey.GetID() ) && isTrackerSynchronized( allyTracker.m_publicKey.GetID() ) )
 			presentTrackers.insert( allyTracker.m_publicKey.GetID() );
 	}
 
@@ -713,6 +713,11 @@ CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRanking
 			m_allyTrackersRankings.insert( make_pair( trackerData.m_publicKey.GetID(), common::CAllyTrackerData( trackerData, _pubKey ) ) );
 			m_trackerToMonitor.insert( std::make_pair( trackerData.m_publicKey.GetID(), _pubKey.GetID() ) );
 		}
+	}
+
+	BOOST_FOREACH( uint160 const & keyId, _rankingFullInfo.m_synchronizedTrackers )
+	{
+		m_synchronizedTrackers.insert( keyId );
 	}
 
 }

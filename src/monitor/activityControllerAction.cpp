@@ -52,6 +52,7 @@ void updateMonitorData(uint160 const & _pubKeyId)
 			{
 				CReputationTracker::getInstance()->erasePresentNode( allyTrackerData.m_publicKey.GetID() );
 				CReputationTracker::getInstance()->removeAllyTracker( allyTrackerData.m_publicKey.GetID() );
+				CReputationTracker::getInstance()->removeTrackerSynchronized( allyTrackerData.m_publicKey.GetID() );
 			}
 		}
 
@@ -59,7 +60,7 @@ void updateMonitorData(uint160 const & _pubKeyId)
 	}
 	else if ( CReputationTracker::getInstance()->isRegisteredTracker( _pubKeyId ) )
 	{
-		CReputationTracker::getInstance()->removeTracker( _pubKeyId );
+		CReputationTracker::getInstance()->removeTrackerSynchronized( _pubKeyId );
 	}
 }
 

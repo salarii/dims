@@ -42,6 +42,7 @@ struct CUpdateTrackers : boost::statechart::state< CUpdateTrackers, CUpdateNetwo
 					CReputationTracker::getInstance()->getAllyTrackers()
 					, CReputationTracker::getInstance()->getAllyMonitors()
 					, CReputationTracker::getInstance()->getTrackers()
+					, CReputationTracker::getInstance()->getSynchronizedTrackers()
 					, CReputationTracker::getInstance()->getMeasureReputationTime()
 					, uint256() );
 

@@ -76,7 +76,7 @@ public:
 		return m_presentNodes.find( _nodeId ) != m_presentNodes.end();
 	}
 
-	std::set< uint160 > getPresentTrackers() const;
+	std::set< uint160 > getPresentAndSynchronizedTrackers() const;
 
 	void eraseMedium( uintptr_t _nodePtr );
 
@@ -113,6 +113,31 @@ public:
 	void updateRankingInfo( CPubKey const & _pubKey, common::CRankingFullInfo const & _rankingFullInfo );
 
 	bool getAddresFromKey( uint160 const & _pubKeyId, CAddress & _address )const;
+
+	void setTrackerSynchronized( uint160 const & _pubKeyId )
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		m_synchronizedTrackers.insert( _pubKeyId );
+	}
+
+	bool isTrackerSynchronized( uint160 const & _pubKeyId ) const
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		return m_synchronizedTrackers.find( _pubKeyId ) != m_synchronizedTrackers.end();
+	}
+
+	void removeTrackerSynchronized( uint160 const & _pubKeyId )
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		m_synchronizedTrackers.erase( _pubKeyId );
+	}
+
+	std::set< uint160 > getSynchronizedTrackers()const
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+		return m_synchronizedTrackers;
+	}
+
 private:
 
 	CReputationTracker();
@@ -160,6 +185,8 @@ private:
 	std::set< CPubKey > m_extendInProgress;
 
 	std::set< uint160 > m_allowSynchronization;
+
+	std::set< uint160 > m_synchronizedTrackers;
 };
 
 }

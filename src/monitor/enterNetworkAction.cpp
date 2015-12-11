@@ -282,8 +282,6 @@ struct CAdmissionCondition : boost::statechart::state< CAdmissionCondition, CEnt
 		return discard_event();
 	}
 
-
-
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CEnteranceTermsEvent >,
 	boost::statechart::custom_reaction< common::CFailureEvent >
@@ -535,6 +533,11 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, context< CEnterNetworkAction >().getPartnerKey() ) );
 
 			common::CActionHandler ::getInstance()->executeAction( new CConnectNodeAction( monitorData.m_address ) );
+		}
+
+		BOOST_FOREACH( uint160 const & keyId, _rankingEvent.m_rankingInfo.m_synchronizedTrackers )
+		{
+			CReputationTracker::getInstance()->setTrackerSynchronized( keyId );
 		}
 
 		CReputationTracker::getInstance()->setMeasureReputationTime( _rankingEvent.m_rankingInfo.m_time );

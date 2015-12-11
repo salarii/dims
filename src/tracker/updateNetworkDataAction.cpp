@@ -45,12 +45,14 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 
 		BOOST_FOREACH( common::CAllyTrackerData const & trackerData, rankingFullInfo.m_allyTrackers )
 		{
-			trackers.insert( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) );
+			if ( rankingFullInfo.m_synchronizedTrackers.find( trackerData.m_publicKey.GetID() ) != rankingFullInfo.m_synchronizedTrackers.end() )
+				trackers.insert( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) );
 		}
 
 		BOOST_FOREACH( common::CTrackerData const & trackerData, rankingFullInfo.m_trackers )
 		{
-			trackers.insert( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) );
+			if ( rankingFullInfo.m_synchronizedTrackers.find( trackerData.m_publicKey.GetID() ) != rankingFullInfo.m_synchronizedTrackers.end() )
+				trackers.insert( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) );
 		}
 
 		BOOST_FOREACH( common::CValidNodeInfo const & tracker, trackers )
@@ -72,6 +74,12 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 		}
 
 		std::set<common::CValidNodeInfo> monitors;
+
+		CAddress address;
+		if ( CTrackerNodesManager::getInstance()->getAddresFromKey( _messageResult.m_pubKey.GetID(), address ) )
+			assert(!"problem");
+
+		monitors.insert( common::CValidNodeInfo( _messageResult.m_pubKey, address ) );// do I need  this??
 
 		BOOST_FOREACH( common::CAllyMonitorData const & allyMonitorData, rankingFullInfo.m_allyMonitors )
 		{

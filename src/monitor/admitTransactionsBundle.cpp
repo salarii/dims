@@ -30,7 +30,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 						InvestigationStartTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
-		m_presentTrackers = CReputationTracker::getInstance()->getPresentTrackers();
+		m_presentTrackers = CReputationTracker::getInstance()->getPresentAndSynchronizedTrackers();
 		assert( !m_presentTrackers.empty() );
 	}
 

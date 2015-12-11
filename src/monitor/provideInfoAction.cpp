@@ -143,19 +143,20 @@ struct CProvideInfo : boost::statechart::state< CProvideInfo, CProvideInfoAction
 		else if ( requestedInfo.m_kind == (int)common::CInfoKind::RankingFullInfo )
 		{
 			common::CRankingFullInfo rankingFullInfo(
-				CReputationTracker::getInstance()->getAllyTrackers()
-				, CReputationTracker::getInstance()->getAllyMonitors()
-				, CReputationTracker::getInstance()->getTrackers()
-				, CReputationTracker::getInstance()->getMeasureReputationTime()
-				, CReputationControlAction::getInstance()->getActionKey() );
+						CReputationTracker::getInstance()->getAllyTrackers()
+						, CReputationTracker::getInstance()->getAllyMonitors()
+						, CReputationTracker::getInstance()->getTrackers()
+						, CReputationTracker::getInstance()->getSynchronizedTrackers()
+						, CReputationTracker::getInstance()->getMeasureReputationTime()
+						, CReputationControlAction::getInstance()->getActionKey() );
 
 			context< CProvideInfoAction >().addRequest(
-					new common::CSendMessageRequest(
-						common::CPayloadKind::FullRankingInfo
-						, rankingFullInfo
-						, context< CProvideInfoAction >().getActionKey()
-						, m_id
-						, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+						new common::CSendMessageRequest(
+							common::CPayloadKind::FullRankingInfo
+							, rankingFullInfo
+							, context< CProvideInfoAction >().getActionKey()
+							, m_id
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 		}
 		context< CProvideInfoAction >().forgetRequests();
 		context< CProvideInfoAction >().setExit();
