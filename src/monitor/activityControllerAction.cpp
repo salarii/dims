@@ -51,12 +51,16 @@ void updateMonitorData(uint160 const & _pubKeyId)
 			if ( allyTrackerData.m_allyMonitorKey.GetID() == _pubKeyId )
 			{
 				CReputationTracker::getInstance()->erasePresentNode( allyTrackerData.m_publicKey.GetID() );
+				CReputationTracker::getInstance()->removeAllyTracker( allyTrackerData.m_publicKey.GetID() );
 			}
 		}
 
 		common::CActionHandler::getInstance()->executeAction( new CUpdateNetworkDataAction() );
 	}
-
+	else if ( CReputationTracker::getInstance()->isRegisteredTracker( _pubKeyId ) )
+	{
+		CReputationTracker::getInstance()->removeTracker( _pubKeyId );
+	}
 }
 
 

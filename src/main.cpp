@@ -1465,7 +1465,7 @@ bool ActivateBestChain(CValidationState &state) {
 
         // Connect new blocks.
         while (!chainActive.Contains(chainMostWork.Tip())) {
-            CBlockIndex *pindexConnect = chainMostWork[chainActive.Height() + 1];
+			CBlockIndex *pindexConnect = chainMostWork[chainActive.Height() + 1];
             UpdateTip(pindexConnect);
         }
     }

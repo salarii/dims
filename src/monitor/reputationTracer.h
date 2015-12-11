@@ -29,9 +29,13 @@ public:
 
 	bool getTracker( uint160 const & _pubKeyId, common::CTrackerData & _trackerData ) const;
 
+	void removeTracker( uint160 const & _pubKeyId );
+
 	bool isRegisteredTracker( uint160 const & _pubKeyId );
 
 	void addAllyTracker( common::CAllyTrackerData const & _trackerData );
+
+	void removeAllyTracker( uint160 const & _pubKeyId );
 
 	void addAllyMonitor( common::CAllyMonitorData const & _monitorData );
 

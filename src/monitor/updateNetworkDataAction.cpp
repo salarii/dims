@@ -38,16 +38,8 @@ struct CUpdateTrackers : boost::statechart::state< CUpdateTrackers, CUpdateNetwo
 {
 	CUpdateTrackers( my_context ctx ) : my_base( ctx )
 	{
-		std::set< common::CAllyTrackerData > toSend, allyTrackers = CReputationTracker::getInstance()->getAllyTrackers();
-
-		BOOST_FOREACH( common::CAllyTrackerData const & allyTracker, allyTrackers )
-		{
-			if ( CReputationTracker::getInstance()->isPresentNode( allyTracker.m_publicKey.GetID() ) )
-				toSend.insert( allyTracker );
-		}
-
 		common::CRankingFullInfo rankingFullInfo(
-					toSend
+					CReputationTracker::getInstance()->getAllyTrackers()
 					, CReputationTracker::getInstance()->getAllyMonitors()
 					, CReputationTracker::getInstance()->getTrackers()
 					, CReputationTracker::getInstance()->getMeasureReputationTime()
