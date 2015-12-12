@@ -168,10 +168,10 @@ struct CActivationStatus
 	)
 	CActivationStatus(){}
 
-	CActivationStatus( uint160 const & _keyId, uint _status ):m_keyId( _keyId ), m_status( _status ){}
+    CActivationStatus( uint160 const & _keyId, int _status ):m_keyId( _keyId ), m_status( _status ){}
 
 	uint160 m_keyId;
-	uint m_status;
+    int m_status;
 };
 
 struct CRankingFullInfo

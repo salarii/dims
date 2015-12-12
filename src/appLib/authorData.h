@@ -16,7 +16,7 @@ extern std::string AuthorId;
 
 extern int Value;
 
-extern int64_t ValidityExpirationTime; // not used yet
+//extern int64_t ValidityExpirationTime; // not used yet
 }
 
 #endif // AUTHOR_DATA_H
