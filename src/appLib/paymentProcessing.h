@@ -44,7 +44,7 @@ public:
 		m_enableHook.connect( _slot );
 	}
 private:
-	CPaymentProcessing(){};
+    CPaymentProcessing();
 
 	bool readLicenseFileData();
 

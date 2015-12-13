@@ -34,6 +34,7 @@ std::string const LicenseFilePath = ".license";
 
 CPaymentProcessing * CPaymentProcessing::ms_instance = NULL;
 
+
 CPaymentProcessing*
 CPaymentProcessing::getInstance()
 {
@@ -43,6 +44,12 @@ CPaymentProcessing::getInstance()
 	};
 	return ms_instance;
 }
+
+CPaymentProcessing::CPaymentProcessing()
+{
+    common::SelectDimsParams(CNetworkParams::TESTNET);
+}
+
 
 unsigned int const LicenseFileSize = 1024 * 2;
 bool
