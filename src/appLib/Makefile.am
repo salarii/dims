@@ -11,21 +11,6 @@ APP_MOC_CPP = \
   moc_testApplicaionWidgets.cpp
 
 APP_QT_H = \
-  ../common/dimsParams.h \
-  ../common/commonStruct.h \
-  ../addrman.h \
-  ../allocators.h \
-  ../base58.h \
-  ../chainparams.h \
-  ../core.h \
-  ../hash.h \
-  ../key.h \
-  ../netbase.h \
-  ../protocol.h \
-  ../script.h \
-  ../serialize.h \
-  ../version.h \
-  ../util.h \
   appClient.h \
   hardwareInfo.h \
   messageType.h \
@@ -34,18 +19,6 @@ APP_QT_H = \
   testApplicaionWidgets.h
   
 APP_QT_CPP = \
-  ../common/dimsParams.cpp \
-  ../addrman.cpp \
-  ../allocators.cpp \
-  ../chainparams.cpp \
-  ../core.cpp \
-  ../hash.cpp \
-  ../key.cpp \
-  ../netbase.cpp \
-  ../protocol.cpp \
-  ../script.cpp \
-  ../version.cpp \
-  ../util.cpp \
   appClient.cpp \
   hardwareInfo.cpp \
   paymentProcessing.cpp \
@@ -65,7 +38,7 @@ dims_appTest_CPPFLAGS = $(AM_CPPFLAGS) $(QT_INCLUDES)
 
 dims_appTest_SOURCES = main.cpp
 
-dims_appTest_LDADD = libdimsapp.a 
+dims_appTest_LDADD = libdimsapp.a $(LIBBITCOIN_COMMON) $(LIBBITCOIN_SERVER) 
 
 dims_appTest_LDADD += $(LIBLEVELDB) $(LIBMEMENV) $(PROTOBUF_LIBS) $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS)  
 
