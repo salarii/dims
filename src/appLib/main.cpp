@@ -15,7 +15,7 @@
 
 int main(int argc, char *argv[])
 {
-	dims::HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf";
+  dims::HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf";
 
 	dims::AuthorId = "dXUT2rfnE8J7nqfa3TQHqPJnur6BX9YsFe";
 

@@ -10,6 +10,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+//#define _WIN32_WINNT  0x0501
+
+#include <winsock2.h>
 #include <windows.h>
 #include <intrin.h>
 #include <iphlpapi.h>
@@ -324,7 +327,7 @@ CHardwareNumbers getHardwareNumbers()
 	getMacHash( mac1, mac2 );
 	mac = mac1;
 	mac <<= 16;
-	mac = mac2;
+    mac |= mac2;
 	hardwareNumbers.m_volumeHash = convertToVector( getVolumeHash() );
 	hardwareNumbers.m_macHash = convertToVector( mac );
 	hardwareNumbers.m_cpuHash = convertToVector( getCpuHash() );
