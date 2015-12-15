@@ -49,7 +49,7 @@ CTrackerNodesManager::getNodesInfo( common::CRole::Enum _role ) const
 	case common::CRole::Tracker:
 		if ( CController::getInstance()->isConnected() )
 		{
-			return getNetworkTrackers();
+			return extractValidNodeInfo( m_networkTrackers );
 		}
 		else
 		{
@@ -59,7 +59,7 @@ CTrackerNodesManager::getNodesInfo( common::CRole::Enum _role ) const
 	case common::CRole::Monitor:
 		if ( CController::getInstance()->isConnected() )
 		{
-			return getNetworkMonitors();
+			return extractValidNodeInfo( m_networkMonitors );
 		}
 		else
 		{
