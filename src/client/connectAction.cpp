@@ -24,9 +24,9 @@
 
 namespace client
 {
-const unsigned DnsAskLoopTime = 20000;//
-const unsigned NetworkAskLoopTime = 20000;//
-const unsigned MonitorAskLoopTime = 20000;//
+const unsigned DnsAskLoopTime = 15000;//
+const unsigned NetworkAskLoopTime = 10000;//
+const unsigned MonitorAskLoopTime = 10000;//
 //stupid logic here
 struct CMonitorPresent;
 struct CDetermineTrackers;
@@ -54,17 +54,14 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 
 		if ( addresses.empty() )
 		{
-			context< CConnectAction >().setExit();
-			return discard_event();
+			addresses = common::dimsParams().FixedSeeds();
 		}
-		else
+
+		BOOST_FOREACH( CAddress const & address, addresses )
 		{
-            BOOST_FOREACH( CAddress const & address, addresses )
-			{
-				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
-			}
-			return transit< CRecognizeNetwork >();
+			CTrackerLocalRanking::getInstance()->addUnidentifiedNode( address.ToStringIP(), common::CUnidentifiedNodeInfo( address.ToStringIP(), address.GetPort() ) );
 		}
+		return transit< CRecognizeNetwork >();
 	}
 
 	typedef boost::mpl::list<

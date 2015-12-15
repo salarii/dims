@@ -507,6 +507,9 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 
 	boost::statechart::result react( common::CRankingEvent const & _rankingEvent )
 	{
+			std::set< common::CTrackerData > oldTrackersData
+				= CReputationTracker::getInstance()->getTrackers();
+
 		CReputationTracker::getInstance()->clearRankingData();
 		CAddress address;
 		if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CEnterNetworkAction >().getPartnerKey().GetID(), address ) )
@@ -538,6 +541,15 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 		BOOST_FOREACH( uint160 const & keyId, _rankingEvent.m_rankingInfo.m_synchronizedTrackers )
 		{
 			CReputationTracker::getInstance()->setTrackerSynchronized( keyId );
+		}
+
+		BOOST_FOREACH( common::CTrackerData trackerData, oldTrackersData )
+		{
+			if ( CReputationTracker::getInstance()->isAllyTracker( trackerData.m_publicKey.GetID() ) )
+			{
+				trackerData.m_reputation = 0;
+				CReputationTracker::getInstance()->addTracker( trackerData );
+			}
 		}
 
 		CReputationTracker::getInstance()->setMeasureReputationTime( _rankingEvent.m_rankingInfo.m_time );

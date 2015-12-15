@@ -29,6 +29,7 @@ public:
 	{
 		return m_partnerKey;
 	}
+
 private:
 	CPubKey m_partnerKey;
 };

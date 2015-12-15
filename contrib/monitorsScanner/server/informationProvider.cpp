@@ -11,6 +11,8 @@
 #include <sstream>
 
 #include "client/trackerLocalRanking.h"
+#include "qt/dimsUnits.h"
+
 #include "base58.h"
 
 using boost::assign::map_list_of;
@@ -68,7 +70,7 @@ CInforamtionProvider::reloadData()
 		m_trackers.insert(
 					std::make_pair(
 						monitor
-						, ( std::list<std::string> const & )boost::assign::list_of( tracker.m_ip )( node.ToString() )( "" )( convert( tracker.m_reputation ) )( convert( tracker.m_price ) )
+						, ( std::list<std::string> const & )boost::assign::list_of( tracker.m_ip )( node.ToString() )( "" )( convert( tracker.m_reputation ) )( CDimsUnits::format(0, tracker.m_price).toStdString() )
 						)
 				);
 	}

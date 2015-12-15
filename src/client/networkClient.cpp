@@ -141,7 +141,7 @@ void CNetworkClient::run()
 				m_socket->connectToHost( hostAddr, m_port );
 				if ( !m_socket->waitForConnected( m_timeout ) )
 				{
-					assert( !"hadle this" );
+					return;
 				}
 			}
 

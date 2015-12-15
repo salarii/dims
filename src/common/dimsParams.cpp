@@ -88,12 +88,13 @@ protected:
 };
 static CMainDimsParams mainParams;
 
-
+unsigned int pnSeedTest[] ={0x724d9c5e, 0x98347957};
 //
 // Testnet (v3)
 //
 class CTestDimsParams : public CMainDimsParams {
 public:
+
 	CTestDimsParams() {
 
 		m_defaultClientPort = 0x1400;
@@ -122,6 +123,19 @@ public:
 		nodesPrefixes[NodePrefix::Monitor] = list_of(110);
 		nodesPrefixes[NodePrefix::Seed] = list_of(125);
 
+		for (unsigned int i = 0; i < ARRAYLEN(pnSeedTest); i++)
+		{
+			// It'll only connect to one or two seed nodes because once it connects,
+			// it'll get a pile of addresses with newer timestamps.
+			// Seed nodes are given a random 'last seen time' of between one and two
+			// weeks ago.
+			const int64_t nOneWeek = 7*24*60*60;
+			struct in_addr ip;
+			memcpy(&ip, &pnSeedTest[i], sizeof(ip));
+			CAddress addr(CService(ip, GetDefaultPort()));
+			addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
+			vFixedSeeds.push_back(addr);
+		}
 	}
 
 	virtual CNetworkParams::Network NetworkID() const { return CNetworkParams::TESTNET; }

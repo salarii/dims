@@ -35,13 +35,19 @@ public:
 
 	void addAllyTracker( common::CAllyTrackerData const & _trackerData );
 
+	bool isAllyTracker( uint160 const & _pubKeyId )const
+	{
+		boost::lock_guard<boost::mutex> lock( m_lock );
+
+		return m_allyTrackersRankings.find( _pubKeyId ) != m_allyTrackersRankings.end();
+	}
+
 	void removeAllyTracker( uint160 const & _pubKeyId );
 
 	void addAllyMonitor( common::CAllyMonitorData const & _monitorData );
 
 	void removeAllyMonitor( uint160 const & _pubKeyId );
 
-	// both function, not final form
 	std::set< common::CTrackerData > getTrackers() const;
 
 	std::set< common::CAllyMonitorData > getAllyMonitors() const;
