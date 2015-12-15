@@ -83,7 +83,7 @@ struct CAllyTrackerData : public CTrackerData
 {
 	IMPLEMENT_SERIALIZE
 	(
-		READWRITE(*this);
+		READWRITE((CTrackerData &)*this);
 		READWRITE(m_allyMonitorKey);
 	)
 
