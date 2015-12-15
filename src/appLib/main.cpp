@@ -13,9 +13,13 @@
 
 #include "common/dimsParams.h"
 
+
 // nasty!!
+#ifdef WIN32
+
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
+#endif
 
 int main(int argc, char *argv[])
 {
