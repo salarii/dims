@@ -522,6 +522,8 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 		BOOST_FOREACH( common::CAllyTrackerData const & trackerData, _rankingEvent.m_rankingInfo.m_allyTrackers )
 		{
 			CReputationTracker::getInstance()->addAllyTracker( trackerData );
+
+			common::CActionHandler ::getInstance()->executeAction( new CConnectNodeAction( trackerData.m_address ) );
 		}
 
 		BOOST_FOREACH( common::CAllyMonitorData const & monitorData, _rankingEvent.m_rankingInfo.m_allyMonitors )
@@ -535,7 +537,7 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 		{
 			CReputationTracker::getInstance()->addAllyTracker( common::CAllyTrackerData( trackerData, context< CEnterNetworkAction >().getPartnerKey() ) );
 
-			common::CActionHandler ::getInstance()->executeAction( new CConnectNodeAction( monitorData.m_address ) );
+			common::CActionHandler ::getInstance()->executeAction( new CConnectNodeAction( trackerData.m_address ) );
 		}
 
 		BOOST_FOREACH( uint160 const & keyId, _rankingEvent.m_rankingInfo.m_synchronizedTrackers )

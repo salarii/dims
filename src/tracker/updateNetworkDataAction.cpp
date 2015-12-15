@@ -10,10 +10,12 @@
 #include "common/requests.h"
 #include "common/responses.h"
 #include "common/setResponseVisitor.h"
+#include "common/actionHandler.h"
 
 #include "tracker/updateNetworkDataAction.h"
 #include "tracker/trackerNodesManager.h"
 #include "tracker/filters.h"
+#include "tracker/connectNodeAction.h"
 
 namespace tracker
 {
@@ -60,6 +62,7 @@ struct CUpdateNetworkData : boost::statechart::state< CUpdateNetworkData, CUpdat
 			if ( !CTrackerNodesManager::getInstance()->isInNetwork( tracker.m_publicKey.GetID() ) )
 			{
 				CTrackerNodesManager::getInstance()->setNetworkTracker( tracker );
+				common::CActionHandler ::getInstance()->executeAction( new CConnectNodeAction( tracker.m_address ) );
 			}
 		}
 
