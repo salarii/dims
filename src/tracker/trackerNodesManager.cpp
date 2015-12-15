@@ -47,10 +47,24 @@ CTrackerNodesManager::getNodesInfo( common::CRole::Enum _role ) const
 		return extractValidNodeInfo( m_seeds );
 		break;
 	case common::CRole::Tracker:
-		return extractValidNodeInfo( m_trackers );
+		if ( CController::getInstance()->isConnected() )
+		{
+			return getNetworkTrackers();
+		}
+		else
+		{
+			return extractValidNodeInfo( m_trackers );
+		}
 		break;
 	case common::CRole::Monitor:
-		return extractValidNodeInfo( m_monitors );
+		if ( CController::getInstance()->isConnected() )
+		{
+			return getNetworkMonitors();
+		}
+		else
+		{
+			return extractValidNodeInfo( m_monitors );
+		}
 		break;
 	default:
 		return std::set< common::CValidNodeInfo >();

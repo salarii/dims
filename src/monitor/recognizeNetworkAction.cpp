@@ -36,7 +36,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				m_alreadyAsked.insert( address );
+				m_alreadyAsked.insert( address.ToStringIP() );
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
@@ -61,7 +61,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
-				m_alreadyAsked.insert( address );
+				m_alreadyAsked.insert( address.ToStringIP() );
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
@@ -74,7 +74,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 	{
 		std::set< CAddress > nodesToAsk;
 
-		m_received.insert( _networkInfoEvent.m_nodeSelfInfo.m_address );//  valid  even  if  invalid : )
+		m_received.insert( _networkInfoEvent.m_nodeSelfInfo.m_address.ToStringIP() );//  valid  even  if  invalid : )
 
 		if ( _networkInfoEvent.m_role == common::CRole::Tracker )
 		{
@@ -89,7 +89,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			if ( m_monitors.find( nodeInfo ) == m_monitors.end() )
 			{
-				if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
+				if ( m_alreadyAsked.find( nodeInfo.m_address.ToStringIP() ) == m_alreadyAsked.end() )
 					nodesToAsk.insert( nodeInfo.m_address );
 			}
 		}
@@ -98,7 +98,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		{
 			if ( m_trackers.find( nodeInfo ) == m_trackers.end() )
 			{
-				if ( m_alreadyAsked.find( nodeInfo.m_address ) == m_alreadyAsked.end() )
+				if ( m_alreadyAsked.find( nodeInfo.m_address.ToStringIP() ) == m_alreadyAsked.end() )
 					nodesToAsk.insert( nodeInfo.m_address );
 			}
 		}
@@ -119,7 +119,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 			BOOST_FOREACH( CAddress const & address, nodesToAsk )
 			{
-				m_alreadyAsked.insert( address );
+				m_alreadyAsked.insert( address.ToStringIP() );
 				context< CRecognizeNetworkAction >().addRequest(
 							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
@@ -147,7 +147,7 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		CAddress problemNode;
 
 		common::readPayload( _failureEvent.m_problemData, problemNode );
-		m_received.insert( problemNode );
+		m_received.insert( problemNode.ToStringIP() );
 
 		if (m_received.size() == m_alreadyAsked.size() )
 		{
@@ -166,8 +166,8 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 	std::set< common::CValidNodeInfo > m_trackers;
 	std::set< common::CValidNodeInfo > m_monitors;
-	std::set< CAddress > m_received;
-	std::set< CAddress > m_alreadyAsked;
+	std::set< std::string > m_received;
+	std::set< std::string > m_alreadyAsked;
 };
 
 CRecognizeNetworkAction::CRecognizeNetworkAction()

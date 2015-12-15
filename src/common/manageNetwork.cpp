@@ -708,7 +708,7 @@ CManageNetwork::threadOpenConnections()
 		}
 
 		//	if (addrConnect.IsValid())
-		//		openNetworkConnection(addrConnect, &grant);
+			//	openNetworkConnection(addrConnect, &grant);
 	}
 }
 
