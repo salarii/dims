@@ -162,6 +162,7 @@ void
 CTrackOriginAddressAction::requestFiltered()
 {
 	CBlockIndex * index = chainActive.Tip();
+
 	// for  now  for  simplicity reasons
 	for ( int i = 0; i < Params().getConfirmationNumber(); i++ )
 	{
