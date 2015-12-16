@@ -87,7 +87,7 @@ networkInfo()
 				+ ( CTrackerNodesManager::getInstance()->isActiveNode( allyTrackerData.m_publicKey.GetID() ) ? "  active" : "  inactive" ) + "\n";
 	}
 
-	info +="\n bitcoin head block hash" + chainActive.Tip()->GetBlockHash().ToString();
+	info +="\n\n\n bitcoin head block hash: " + chainActive.Tip()->GetBlockHash().ToString();
 	return info;
 }
 

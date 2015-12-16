@@ -108,7 +108,7 @@ networkInfo()
 				+ ( CReputationTracker::getInstance()->isTrackerSynchronized( trackerData.m_publicKey.GetID() ) ? "  synchronized" : "  not synchronized" ) + "\n";
 	}
 
-	info +="\n bitcoin head block hash" + chainActive.Tip()->GetBlockHash().ToString();
+	info +="\n\n\n bitcoin head block hash: " + chainActive.Tip()->GetBlockHash().ToString();
 
 	return info;
 }
