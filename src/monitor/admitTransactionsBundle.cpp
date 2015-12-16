@@ -21,6 +21,8 @@ namespace monitor
 // TODO: bundle  should  be  propagated to synchronizing  at  the moment  nodes
 unsigned const InvestigationStartTime = 60000;
 
+struct CRelaxResonation;
+
 struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransactionBundle >
 {
 	CWaitForBundle( my_context ctx ) : my_base( ctx )
@@ -32,7 +34,6 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 
 		m_presentTrackers = CReputationTracker::getInstance()->getPresentAndSynchronizedTrackers();
 		assert( !m_presentTrackers.empty() );
-		m_stored = false;
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -51,6 +52,13 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 							, orginalMessage.m_header.m_id
 							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
+			context< CAdmitTransactionBundle >().addRequest(
+					new common::CSendMessageRequest(
+							_messageResult.m_message
+						, _messageResult.m_pubKey
+						, context< CAdmitTransactionBundle >().getActionKey()
+						, new CMediumClassFilter( common::CMediumKinds::Monitors ) ) );
+
 			common::CTransactionBundle transactionBundle;
 
 			common::convertPayload( orginalMessage, transactionBundle );
@@ -60,29 +68,19 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 				m_presentTrackers.erase( pubKey.GetID() );
 			}
 
-			context< CAdmitTransactionBundle >().addRequest(
-					new common::CSendMessageRequest(
-							_messageResult.m_message
-						, _messageResult.m_pubKey
-						, context< CAdmitTransactionBundle >().getActionKey()
-						, new CMediumClassFilter( common::CMediumKinds::Monitors ) ) );
-
 			// TODO: send  transaction  to  synchronizaing nodes
 
-			if ( m_presentTrackers.empty() && !m_stored )
+			if ( m_presentTrackers.empty() )
 			{
-				m_stored = true;
 				// if  registration  in  progress  those  should  be  stored
 				if ( CChargeRegister::getInstance()->getStoreTransactions() )
 				{
 					CChargeRegister::getInstance()->storeTransactions( transactionBundle.m_transactions );
 				}
 
-				context< CAdmitTransactionBundle >().setExit();
-
 				CTransactionRecordManager::getInstance()->addTransactionsToStorage( transactionBundle.m_transactions );
 
-				//here send those transactions to synchronizing nodes
+				return transit< CRelaxResonation >();
 			}
 
 			BOOST_FOREACH( CTransaction const & transaction, transactionBundle.m_transactions )
@@ -107,7 +105,31 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 	> reactions;
 
 	std::set< uint160 > m_presentTrackers;
-	bool m_stored;
+};
+
+// below is workaround, one  day  I will look  at  this
+unsigned const RelaxResonation = 10000;
+
+struct CRelaxResonation : boost::statechart::state< CRelaxResonation, CAdmitTransactionBundle >
+{
+	CRelaxResonation( my_context ctx ) : my_base( ctx )
+	{
+		context< CAdmitTransactionBundle >().addRequest(
+					new common::CTimeEventRequest(
+						RelaxResonation
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CAdmitTransactionBundle >().setExit();
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >
+	> reactions;
 };
 
 CAdmitTransactionBundle::CAdmitTransactionBundle( uint256 const & _actionKey )

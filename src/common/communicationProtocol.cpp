@@ -31,7 +31,10 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _ori
 
 	if( _message.m_header.m_prevKey.IsValid() )
 	{
-		return unwindMessage(*(CMessage*)&_message.m_payload[0], _originalMessage, _message.m_header.m_time, _pubKey );
+		CMessage message;
+		readPayload( _message.m_payload, message );
+
+		return unwindMessage(message, _originalMessage, _message.m_header.m_time, _message.m_header.m_prevKey );
 	}
 
 	_originalMessage = _message;
