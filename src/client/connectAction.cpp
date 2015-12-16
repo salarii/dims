@@ -25,8 +25,8 @@
 namespace client
 {
 const unsigned DnsAskLoopTime = 15000;//
-const unsigned NetworkAskLoopTime = 10000;//
-const unsigned MonitorAskLoopTime = 10000;//
+const unsigned NetworkAskLoopTime = 15000;//
+const unsigned MonitorAskLoopTime = 15000;//
 //stupid logic here
 struct CMonitorPresent;
 struct CDetermineTrackers;
@@ -82,8 +82,6 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 		context< CConnectAction >().addRequest( request );
 
-		m_undefinedNumber = CTrackerLocalRanking::getInstance()->getUnidentifiedNodeAmount();
-
 		context< CConnectAction >().addRequest(
 					new common::CTimeEventRequest( NetworkAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
 	}
@@ -114,7 +112,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		if ( clientNetworkInfo.m_selfRole == common::CRole::Monitor )
 		{
 			nodeStats.m_role = common::CRole::Monitor;
-			CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( nodeStats, std::set< CPubKey >()) );// not right
+			CTrackerLocalRanking::getInstance()->addUndeterminedMonitor( nodeStats );
 			m_uniqueNodes.insert( nodeStats );
 		}
 		else if ( clientNetworkInfo.m_selfRole == common::CRole::Tracker )
@@ -126,22 +124,20 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 		BOOST_FOREACH( common::CValidNodeInfo const & validNode, clientNetworkInfo.m_networkInfo )
 		{
 			if ( !CTrackerLocalRanking::getInstance()->CTrackerLocalRanking::isInUndeterminedTracker( validNode.m_publicKey )
-				 && !CTrackerLocalRanking::getInstance()->isValidMonitorKnown( validNode.m_publicKey.GetID() ) )
+				 && !CTrackerLocalRanking::getInstance()->isInUndeterminedMonitor( validNode.m_publicKey ) )
 			{
 				CTrackerLocalRanking::getInstance()->addUnidentifiedNode( validNode.m_address.ToStringIP(), common::CUnidentifiedNodeInfo( validNode.m_address.ToStringIP(), validNode.m_address.GetPort() ) );
 			}
 		}
 
-		if ( !--m_undefinedNumber )
+		if ( CTrackerLocalRanking::getInstance()->areThereAnyUnidentifiedNode() )
 		{
 			if ( m_uniqueNodes.empty() )
 			{
 				context< CConnectAction >().setExit();
 				return discard_event();
 			}
-
-			m_undefinedNumber = CTrackerLocalRanking::getInstance()->getUnidentifiedNodeAmount();
-			if ( m_undefinedNumber )
+			else
 			{
 				context< CConnectAction >().forgetRequests();
 
@@ -157,13 +153,13 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 				return discard_event();
 			}
-			bool moniorPresent = false;
-
-			analyseData( moniorPresent );
-
-			return moniorPresent ? transit< CMonitorPresent >() : transit< CDetermineTrackers >();
 		}
-		return discard_event();
+		bool moniorPresent = false;
+
+		analyseData( moniorPresent );
+
+		return moniorPresent ? transit< CMonitorPresent >() : transit< CDetermineTrackers >();
+
 	}
 
 	boost::statechart::result react( common::CErrorEvent const & _networkInfo )
@@ -181,7 +177,7 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 			if ( validNode.m_role == common::CRole::Monitor )
 			{
 				_isMonitorPresent = true;
-				CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( validNode, std::set< CPubKey >() ) );// this is  not right
+				CTrackerLocalRanking::getInstance()->addUndeterminedMonitor( validNode );
 			}
 			else if ( validNode.m_role == common::CRole::Tracker )
 			{
@@ -198,8 +194,6 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 
 	// in  future be  careful with  those
 	std::set< common::CNodeInfo > m_uniqueNodes;
-
-	unsigned int m_undefinedNumber;
 };
 
 
@@ -212,7 +206,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		common::CSendClientMessageRequest * request =
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::MonitorInfoReq
-					, new CMediumClassFilter( ClientMediums::Monitors ) );
+					, new CMediumClassFilter( ClientMediums::UndeterminedMonitors ) );
 
 		context< CConnectAction >().addRequest( request );
 
@@ -228,54 +222,13 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		context< CConnectAction >().forgetRequests();
 
-		common::CSendClientMessageRequest * request =
-				new common::CSendClientMessageRequest(
-					common::CMainRequestType::MonitorInfoReq
-					, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
-
-		context< CConnectAction >().addRequest( request );
-
-		context< CConnectAction >().addRequest( new common::CTimeEventRequest( MonitorAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
-
-		return discard_event();
+		sortOutOnExit();
+		return transit< CDetermineTrackers >();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
 	{
-		analyseAllData();
-		std::set< CPubKey > monitors = chooseMonitors();
-
-		CTrackerLocalRanking::getInstance()->resetMonitors();
-		CTrackerLocalRanking::getInstance()->resetTrackers();
-
-		BOOST_FOREACH( CPubKey const & key, monitors )
-		{
-			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator monitorsInfoIterator = m_monitorsInfo.find( key );
-			assert( monitorsInfoIterator != m_monitorsInfo.end() );
-
-			BOOST_FOREACH( common::CNodeInfo const & info, monitorsInfoIterator->second )
-			{
-				std::set< CPubKey > dependentTrackers;
-				std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackers = m_trackersInfo.find( info.m_key );
-				if ( trackers != m_trackersInfo.end() )
-				{
-					BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
-					{
-						dependentTrackers.insert( nodeInfo.m_key );
-					}
-				}
-				CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( info, dependentTrackers ) );
-			}
-
-			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackersInfoIterator = m_trackersInfo.find( key );
-
-			assert( trackersInfoIterator != m_trackersInfo.end() );
-
-			BOOST_FOREACH( common::CNodeInfo const & info, trackersInfoIterator->second )
-			{
-				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( info );
-			}
-		}
+		sortOutOnExit();
 		return transit< CDetermineTrackers >();
 	}
 
@@ -298,7 +251,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		common::CMonitorData monitorData;
 		convertClientPayload( _message.m_clientMessage, monitorData );
 
-		m_checked.insert( _message.m_nodePtr );
+		CTrackerLocalRanking::getInstance()->removeUndeterminedMonitor( _message.m_ip );
 //load  all  structures
 		std::vector< CPubKey > monitorKeys;
 		BOOST_FOREACH( common::CNodeInfo const & nodeInfo, monitorData.m_monitors )
@@ -324,11 +277,12 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		std::vector< common::CNodeInfo > monitorNodeInfo = monitorData.m_monitors;
 
 		common::CNodeInfo nodeInfo;
-		CTrackerLocalRanking::getInstance()->getNodeInfo( monitorKey, nodeInfo );
-		monitorNodeInfo.push_back( nodeInfo );
+		if ( CTrackerLocalRanking::getInstance()->getNodeInfo( monitorKey, nodeInfo ) )
+		{
+			monitorNodeInfo.push_back( nodeInfo );
 
-		m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
-
+			m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
+		}
 		std::vector< common::CNodeInfo > trackers;
 
 		BOOST_FOREACH( common::CTrackerData const & trackerData, monitorData.m_trackers )
@@ -340,21 +294,14 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_trackersInfo.insert( std::make_pair( monitorKey, trackers ) );
 
 		m_monitorInputData.insert( std::make_pair( monitorKey, monitorKeys ) );
-/*
-		if ( m_pending.empty() )
+
+		if ( !CTrackerLocalRanking::getInstance()->areThereAnyUndeterminedMonitors() )
 		{
 			context< CConnectAction >().forgetRequests();
-
-			common::CSendClientMessageRequest * request =
-					new common::CSendClientMessageRequest(
-						common::CMainRequestType::MonitorInfoReq
-						, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
-
-			context< CConnectAction >().addRequest( new common::CTimeEventRequest( MonitorAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
-
-			context< CConnectAction >().addRequest( request );
+			sortOutOnExit();
+			return transit< CDetermineTrackers >();
 		}
-*/
+
 		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
 		return discard_event();
 	}
@@ -499,6 +446,44 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		return _container.end() != std::find ( _container.begin(), _container.end(), _value );
 	}
 
+	void sortOutOnExit()
+	{
+		analyseAllData();
+		std::set< CPubKey > monitors = chooseMonitors();
+
+		CTrackerLocalRanking::getInstance()->resetMonitors();
+		CTrackerLocalRanking::getInstance()->resetTrackers();
+
+		BOOST_FOREACH( CPubKey const & key, monitors )
+		{
+			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator monitorsInfoIterator = m_monitorsInfo.find( key );
+			if( monitorsInfoIterator != m_monitorsInfo.end() );
+			{
+			BOOST_FOREACH( common::CNodeInfo const & info, monitorsInfoIterator->second )
+			{
+				std::set< CPubKey > dependentTrackers;
+				std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackers = m_trackersInfo.find( info.m_key );
+				if ( trackers != m_trackersInfo.end() )
+				{
+					BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
+					{
+						dependentTrackers.insert( nodeInfo.m_key );
+					}
+				}
+				CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( info, dependentTrackers ) );
+			}
+
+			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackersInfoIterator = m_trackersInfo.find( key );
+
+			assert( trackersInfoIterator != m_trackersInfo.end() );
+
+			BOOST_FOREACH( common::CNodeInfo const & info, trackersInfoIterator->second )
+			{
+				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( info );
+			}
+			}
+		}
+	}
 
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CClientMessageResponse >,
@@ -508,7 +493,6 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 	std::map< CPubKey, std::vector< common::CNodeInfo > > m_monitorsInfo;
 	std::map< CPubKey, std::vector< common::CNodeInfo > > m_trackersInfo;
-	std::set< uintptr_t > m_checked;
 	std::map< CPubKey, std::vector< CPubKey > > m_monitorInputData;
 	set< std::set< CPubKey > > m_monitorOutput;
 };

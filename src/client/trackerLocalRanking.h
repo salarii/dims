@@ -37,11 +37,11 @@ public:
 
 	void addUnidentifiedNode( std::string const & _ip, common::CUnidentifiedNodeInfo const & _unidentifiedNode );
 
-	unsigned int getUnidentifiedNodeAmount() const{ return m_unidentifiedNodes.size(); }
-
 	bool isInUnidentified( std::string const & _ip ) const;
 
 	void removeUnidentifiedNode( std::string const & _ip );
+
+	bool areThereAnyUnidentifiedNode() const;
 
 	void addUndeterminedTracker( common::CNodeInfo const & _undeterminedTracker );
 
@@ -52,6 +52,16 @@ public:
 	void removeUndeterminedTracker( std::string const & _ip );
 
 	bool areThereAnyUndeterminedTrackers()const;
+
+	void addUndeterminedMonitor( common::CNodeInfo const & _undeterminedMonitor );
+
+	bool getUndeterminedMonitor( std::string const & _ip, common::CNodeInfo & _undeterminedMonitor );
+
+	bool isInUndeterminedMonitor( CPubKey const & _key )const;
+
+	void removeUndeterminedMonitor( std::string const & _ip );
+
+	bool areThereAnyUndeterminedMonitors() const;
 
 	void addMonitor( common::CMonitorInfo const & _monitor );
 
@@ -110,6 +120,8 @@ private:
 	std::map< CPubKey, common::CMonitorInfo > m_monitors;
 
 	std::map< CPubKey, common::CNodeInfo > m_undeterminedTrackers;
+
+	std::map< CPubKey, common::CNodeInfo > m_undeterminedMonitors;
 
 	std::map< std::string, CPubKey > m_ipToKey;
 

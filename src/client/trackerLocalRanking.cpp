@@ -59,6 +59,12 @@ CTrackerLocalRanking::removeUnidentifiedNode( std::string const & _ip )
 	m_unidentifiedNodes.erase( _ip );
 }
 
+bool
+CTrackerLocalRanking::areThereAnyUnidentifiedNode() const
+{
+	return !m_unidentifiedNodes.empty();
+}
+
 void
 CTrackerLocalRanking::addUndeterminedTracker( common::CNodeInfo const & _undeterminedTracker )
 {
@@ -109,6 +115,59 @@ bool
 CTrackerLocalRanking::areThereAnyUndeterminedTrackers() const
 {
 	return !m_undeterminedTrackers.empty();
+}
+
+
+void
+CTrackerLocalRanking::addUndeterminedMonitor( common::CNodeInfo const & _undeterminedMonitor )
+{
+	CPubKey pubKey;
+
+	if ( !getNodeKey( _undeterminedMonitor.m_ip, pubKey ) )
+	{
+		setIpAndKey( _undeterminedMonitor.m_ip, _undeterminedMonitor.m_key );
+		pubKey = _undeterminedMonitor.m_key;
+	}
+	m_undeterminedMonitors.insert( std::make_pair( pubKey, _undeterminedMonitor ) );
+}
+
+bool
+CTrackerLocalRanking::getUndeterminedMonitor( std::string const & _ip, common::CNodeInfo & _undeterminedMonitor )
+{
+	CPubKey pubKey;
+	getNodeKey( _ip, pubKey );
+
+	std::map< CPubKey, common::CNodeInfo >::const_iterator iterator = m_undeterminedMonitors.find( pubKey );
+
+	if ( iterator == m_undeterminedMonitors.end() )
+		return false;
+
+	_undeterminedMonitor= iterator->second;
+
+	return true;
+}
+
+bool
+CTrackerLocalRanking::isInUndeterminedMonitor( CPubKey const & _key )const
+{
+	return m_undeterminedMonitors.find( _key ) != m_undeterminedMonitors.end();
+}
+
+void
+CTrackerLocalRanking::removeUndeterminedMonitor( std::string const & _ip )
+{
+	CPubKey pubKey;
+
+	if ( getNodeKey( _ip, pubKey ) )
+	{
+		m_undeterminedMonitors.erase( pubKey );
+	}
+}
+
+bool
+CTrackerLocalRanking::areThereAnyUndeterminedMonitors() const
+{
+	return !m_undeterminedMonitors.empty();
 }
 
 void
@@ -210,6 +269,16 @@ CTrackerLocalRanking::getMediumByClass( ClientMediums::Enum _requestKind, unsign
 		if ( m_undeterminedTrackers.begin() != m_undeterminedTrackers.end() )
 		{
 			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & stats, m_undeterminedTrackers )
+			{
+				mediums.push_back( getNetworkConnection( stats.second ) );
+			}
+		}
+	}
+	else if ( _requestKind == ClientMediums::UndeterminedMonitors )
+	{
+		if ( m_undeterminedMonitors.begin() != m_undeterminedMonitors.end() )
+		{
+			BOOST_FOREACH( PAIRTYPE( CPubKey, common::CNodeInfo ) const & stats, m_undeterminedMonitors )
 			{
 				mediums.push_back( getNetworkConnection( stats.second ) );
 			}

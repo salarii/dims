@@ -21,6 +21,7 @@ struct ClientMediums
 		, NetworkInfo
 		, Unknown
 		, UndeterminedTrackers
+		, UndeterminedMonitors
 	};
 
 };

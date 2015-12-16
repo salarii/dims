@@ -67,7 +67,10 @@ CommunicationProtocol::unwindMessageAndParticipants(
 
 	if( _message.m_header.m_prevKey.IsValid() )
 	{
-		return unwindMessageAndParticipants(*(CMessage*)&_message.m_payload[0], _originalMessage, _message.m_header.m_time, _pubKey, _participants );
+		CMessage message;
+		readPayload( _message.m_payload, message );
+
+		return unwindMessageAndParticipants( message, _originalMessage, _message.m_header.m_time, _message.m_header.m_prevKey, _participants );
 	}
 
 	_originalMessage = _message;
