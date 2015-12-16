@@ -276,6 +276,8 @@ CBlockIndex *CChain::SetTip(CBlockIndex *pindex) {
 void
 resetChains()
 {
+	LOCK(cs_main);
+
 	if ( FileExist("head") )
 	{
 		CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
@@ -2959,6 +2961,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		vRecv >> vHead;
 		CValidationState state;
 
+		BOOST_FOREACH( CBlock const & block, vHead )
+		{
+			LogPrintf("asked blocks %s\n", block.GetHash().ToString() );
+		}
 
 		std::vector<CBlock>::iterator it= vHead.begin();
 
@@ -2984,8 +2990,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     {
         CBlock block;
         vRecv >> block;
-
-        LogPrint("net", "received block %s\n", block.GetHash().ToString());
+		/* at least  for now */
+		LogPrintf("received block %s\n", block.GetHash().ToString() );
         // block.print();
 
         CInv inv(MSG_BLOCK, block.GetHash());
