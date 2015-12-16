@@ -547,7 +547,7 @@ struct CFetchRankingTimeAndInfo : boost::statechart::state< CFetchRankingTimeAnd
 
 		BOOST_FOREACH( common::CTrackerData trackerData, oldTrackersData )
 		{
-			if ( CReputationTracker::getInstance()->isAllyTracker( trackerData.m_publicKey.GetID() ) )
+			if ( !CReputationTracker::getInstance()->isAllyTracker( trackerData.m_publicKey.GetID() ) )
 			{
 				trackerData.m_reputation = 0;
 				CReputationTracker::getInstance()->addTracker( trackerData );

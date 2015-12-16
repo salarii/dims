@@ -32,6 +32,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 
 		m_presentTrackers = CReputationTracker::getInstance()->getPresentAndSynchronizedTrackers();
 		assert( !m_presentTrackers.empty() );
+		m_stored = false;
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -68,8 +69,9 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 
 			// TODO: send  transaction  to  synchronizaing nodes
 
-			if ( m_presentTrackers.empty() )
+			if ( m_presentTrackers.empty() && !m_stored )
 			{
+				m_stored = true;
 				// if  registration  in  progress  those  should  be  stored
 				if ( CChargeRegister::getInstance()->getStoreTransactions() )
 				{
@@ -105,6 +107,7 @@ struct CWaitForBundle : boost::statechart::state< CWaitForBundle, CAdmitTransact
 	> reactions;
 
 	std::set< uint160 > m_presentTrackers;
+	bool m_stored;
 };
 
 CAdmitTransactionBundle::CAdmitTransactionBundle( uint256 const & _actionKey )

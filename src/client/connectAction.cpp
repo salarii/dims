@@ -226,7 +226,6 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		m_checked.insert( m_pending.begin(), m_pending.end() );
 		context< CConnectAction >().forgetRequests();
 
 		common::CSendClientMessageRequest * request =
@@ -235,6 +234,8 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 					, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
 
 		context< CConnectAction >().addRequest( request );
+
+		context< CConnectAction >().addRequest( new common::CTimeEventRequest( MonitorAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
 
 		return discard_event();
 	}
@@ -296,7 +297,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	{
 		common::CMonitorData monitorData;
 		convertClientPayload( _message.m_clientMessage, monitorData );
-		m_pending.erase( _message.m_nodePtr );
+
 		m_checked.insert( _message.m_nodePtr );
 //load  all  structures
 		std::vector< CPubKey > monitorKeys;
@@ -339,7 +340,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		m_trackersInfo.insert( std::make_pair( monitorKey, trackers ) );
 
 		m_monitorInputData.insert( std::make_pair( monitorKey, monitorKeys ) );
-
+/*
 		if ( m_pending.empty() )
 		{
 			context< CConnectAction >().forgetRequests();
@@ -349,9 +350,11 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 						common::CMainRequestType::MonitorInfoReq
 						, new CMediumClassWithExceptionFilter( m_checked, ClientMediums::Monitors ) );
 
+			context< CConnectAction >().addRequest( new common::CTimeEventRequest( MonitorAskLoopTime, new CMediumClassFilter( ClientMediums::Time ) ) );
+
 			context< CConnectAction >().addRequest( request );
 		}
-
+*/
 		// if in  settings  are  some  monitors  addresses they should be used  to get right  network
 		return discard_event();
 	}
@@ -506,7 +509,6 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 	std::map< CPubKey, std::vector< common::CNodeInfo > > m_monitorsInfo;
 	std::map< CPubKey, std::vector< common::CNodeInfo > > m_trackersInfo;
 	std::set< uintptr_t > m_checked;
-	std::set< uintptr_t > m_pending;
 	std::map< CPubKey, std::vector< CPubKey > > m_monitorInputData;
 	set< std::set< CPubKey > > m_monitorOutput;
 };
