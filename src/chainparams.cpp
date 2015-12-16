@@ -358,7 +358,7 @@ void SelectParams(CNetworkParams::Network network) {
 
 bool SelectParamsFromCommandLine() {
     bool fRegTest = GetBoolArg("-regtest", false);
-    bool fTestNet = GetBoolArg("-testnet", false);
+	bool fTestNet = GetBoolArg("-testnet", true);
 
     if (fTestNet && fRegTest) {
         return false;

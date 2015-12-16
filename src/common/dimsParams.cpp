@@ -186,7 +186,7 @@ bool
 SelectDimsParamsFromCommandLine()
 {
 	bool fRegTest = GetBoolArg("-regtest", false);
-	bool fTestNet = GetBoolArg("-testnet", false);
+	bool fTestNet = GetBoolArg("-testnet", true);
 
 	if (fTestNet && fRegTest)
 	{
