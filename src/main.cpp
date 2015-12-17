@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#define CONFIRM_LIMIT 6
+#define MAX_CONFIRM_LIMIT 6
 
 #include "main.h"
 #include "addrman.h"
@@ -303,7 +303,6 @@ void CChain::resetChain( CBlockIndex * _blockIndex )
 	vChain.clear();
 
 	vChain.push_back(_blockIndex);
-
 }
 
 CBlockLocator CChain::GetLocator(const CBlockIndex *pindex) const {
@@ -1488,94 +1487,84 @@ bool ActivateBestChain(CValidationState &state) {
     return true;
 }
 
+std::map< uint256, uint256 > m_hashToPreviousHash;
+
 bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos& pos)
 {
-    // Check for duplicate
-	uint256 hash = block.GetHash();
-    if (mapBlockIndex.count(hash))
-		return state.Invalid( false/*error("AddToBlockIndex() : %s already exists", hash.ToString()), 0, "duplicate"*/);
-
-    // Construct new block index object
-    CBlockIndex* pindexNew = new CBlockIndex(block);
-    {
-         LOCK(cs_nBlockSequenceId);
-         pindexNew->nSequenceId = nBlockSequenceId++;
-    }
-    assert(pindexNew);
-    mapAlreadyAskedFor.erase(CInv(MSG_BLOCK, hash));
-    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
-    pindexNew->phashBlock = &((*mi).first);
-    map<uint256, CBlockIndex*>::iterator miPrev = mapBlockIndex.find(block.hashPrevBlock);
-    if (miPrev != mapBlockIndex.end())
-    {
-        pindexNew->pprev = (*miPrev).second;
-        pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
-    }
-
-    pindexNew->nTx = block.vtx.size();
-    pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + pindexNew->GetBlockWork().getuint256();
-    pindexNew->nChainTx = (pindexNew->pprev ? pindexNew->pprev->nChainTx : 0) + pindexNew->nTx;
-    pindexNew->nFile = pos.nFile;
-    pindexNew->nDataPos = pos.nPos;
-    pindexNew->nUndoPos = 0;
-    pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
-
-	if ( chainActive.Height() != -1 && chainActive.Genesis()->GetBlockTime() > pindexNew->GetBlockTime() )
+	// leave old stuff
+	if ( chainActive.Height() != -1 && chainActive.Tip()->nTime > block.GetBlockTime() + 3600 )
+		return state.Invalid( false );
+	// Construct new block index object
+	CBlockIndex* pindexNew = new CBlockIndex(block);
 	{
-		// this  test for  testnet
-		CBlockIndex* indexNew = pindexNew;
-		do
-		{
-			indexNew = indexNew->pprev;
+		 LOCK(cs_nBlockSequenceId);
+		 pindexNew->nSequenceId = nBlockSequenceId++;
+	}
+	assert(pindexNew);
+	uint256 hash = block.GetHash();
 
-			if ( !indexNew )
-				return false;
-		}while( chainActive.Genesis()->GetBlockHash() != indexNew->GetBlockHash() );
+	mapAlreadyAskedFor.erase(CInv(MSG_BLOCK, hash));
+	// Check for duplicate
+	if (mapBlockIndex.count(hash))
+		return state.Invalid( false );
+
+	map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
+	pindexNew->phashBlock = &((*mi).first);
+	map<uint256, CBlockIndex*>::iterator miPrev = mapBlockIndex.find(block.hashPrevBlock);
+	if (miPrev != mapBlockIndex.end())
+	{
+		pindexNew->pprev = (*miPrev).second;
+		pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
+	}
+	else
+	{
+		pindexNew->pprev = 0;
+		pindexNew->nHeight = 0;
+
+		if (chainActive.Height() != -1 )
+		{
+			pindexNew->nTx = block.vtx.size();
+			pindexNew->nFile = pos.nFile;
+			pindexNew->nDataPos = pos.nPos;
+			pindexNew->nUndoPos = 0;
+			pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
+
+			m_hashToPreviousHash.insert( std::make_pair( hash, block.hashPrevBlock ) );
+			return true;
+		}
 	}
 
-	if ( chainActive.Height() != -1 && !pindexNew->pprev )// this I put  without  thinking, most likely  not  correct
-		return false;
-	// set height properly
-	if ( chainActive.Height() != -1 && chainActive.Tip()->GetBlockHash() != pindexNew->pprev->GetBlockHash() )
+	pindexNew->nTx = block.vtx.size();
+	pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + pindexNew->GetBlockWork().getuint256();
+	pindexNew->nChainTx = (pindexNew->pprev ? pindexNew->pprev->nChainTx : 0) + pindexNew->nTx;
+	pindexNew->nFile = pos.nFile;
+	pindexNew->nDataPos = pos.nPos;
+	pindexNew->nUndoPos = 0;
+	pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
+
+	std::vector< uint256 > toErase;
+	BOOST_FOREACH( PAIRTYPE( uint256, uint256 ) const & previous, m_hashToPreviousHash )
 	{
-		CBlockIndex* indexNew = pindexNew;
 
-		CBlockIndex* chainIndex = chainActive.Tip();
-
-		unsigned int newHeight = chainActive.Height();
-
-		for ( int i = 0; i < 6; ++i )
+		map<uint256, CBlockIndex*>::iterator miPrev = mapBlockIndex.find(previous.second);
+		if (miPrev != mapBlockIndex.end())
 		{
-			if ( !chainIndex->pprev )
-				break;
+			toErase.push_back( previous.first );
 
-			chainIndex = chainIndex->pprev;
+			map<uint256, CBlockIndex*>::iterator alone = mapBlockIndex.find(previous.first);
+			assert (alone != mapBlockIndex.end());
+			(*alone).second->pprev = (*miPrev).second;
+			(*alone).second->nHeight = (*alone).second->pprev->nHeight + 1;
+			(*alone).second->nChainWork = (*alone).second->pprev->nChainWork + (*alone).second->GetBlockWork().getuint256();
+			(*alone).second->nChainTx = (*alone).second->pprev->nChainTx + (*alone).second->nTx;
 
-			newHeight--;
+			setBlockIndexValid.insert( (*alone).second);
 		}
+	}
 
-		do
-		{
-			indexNew = indexNew->pprev;
-			newHeight++;
-
-			if ( !indexNew )
-			{
-				mapBlockIndex.erase( hash );
-				return false;
-			}
-		}while( chainIndex->GetBlockHash() != indexNew->GetBlockHash() );
-
-		indexNew = pindexNew;
-
-		do
-		{
-			indexNew->nHeight = newHeight;
-			indexNew = indexNew->pprev;
-			newHeight--;
-
-		}while( chainIndex->GetBlockHash() != indexNew->GetBlockHash() );
-
+	BOOST_FOREACH( uint256 const & hash, toErase )
+	{
+		m_hashToPreviousHash.erase( hash );
 	}
 
 	setBlockIndexValid.insert(pindexNew);
@@ -3463,6 +3452,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 		if ((pto->fStartSync ||resetIndicator ) && !fImporting && !fReindex) {
             pto->fStartSync = false;
 			resetIndicator = false;
+
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 		{
