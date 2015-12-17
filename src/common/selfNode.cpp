@@ -35,7 +35,6 @@ CSelfNode::sendMessages()
 
 CSelfNode::~CSelfNode()
 {
-	LogPrintf("delete node %s \n", addrName );
 	clearManager();
 }
 

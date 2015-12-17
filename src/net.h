@@ -329,7 +329,7 @@ public:
 
     ~CNode()
     {
-
+		LogPrintf("delete node %s \n", addrName );
 		GetNodeSignals().NotifyAboutRemoval(this);
 
         if (hSocket != INVALID_SOCKET)
