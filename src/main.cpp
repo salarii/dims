@@ -2949,12 +2949,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		std::vector<CBlock> vHead;
 		vRecv >> vHead;
 		CValidationState state;
-
+/*  //  uncomment for  debug this  creates  to big output into  log  file for  normal  operations
 		BOOST_FOREACH( CBlock const & block, vHead )
 		{
 			LogPrintf("asked blocks %s\n", block.GetHash().ToString() );
 		}
-
+*/
 		std::vector<CBlock>::iterator it= vHead.begin();
 
 

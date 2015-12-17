@@ -51,6 +51,9 @@ void
 CInternalMediumProvider::removeNodeCallback( CNode * node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	assert( m_nodeToMedium.find( node ) != m_nodeToMedium.end() );
+	delete m_nodeToMedium.find( node )->second;
 	m_nodeToMedium.erase( node );
 
 }
