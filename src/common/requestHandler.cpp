@@ -22,6 +22,7 @@ CRequestHandler ::CRequestHandler( CMedium * _medium )
 bool
 CRequestHandler ::getLastResponse( CRequest * _request, common::DimsResponse & _response ) const
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
 	typename std::multimap<CRequest const*,DimsResponse >::const_iterator iterator;
 
 	iterator = m_processedRequests.lower_bound( _request );
@@ -35,6 +36,7 @@ CRequestHandler ::getLastResponse( CRequest * _request, common::DimsResponse & _
 void
 CRequestHandler ::clearLastResponse( CRequest * _request )
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
 	typename std::multimap<CRequest const*,DimsResponse >::iterator iterator;
 
 	iterator = m_processedRequests.lower_bound( _request );
@@ -47,6 +49,8 @@ CRequestHandler ::clearLastResponse( CRequest * _request )
 void
 CRequestHandler ::deleteRequest( CRequest * _request )
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+
 	m_processedRequests.erase( _request );
 
 	if ( m_valid )
@@ -74,6 +78,8 @@ CRequestHandler ::operator<( CRequestHandler  const & _handler ) const
 bool
 CRequestHandler ::isProcessed( CRequest * _request ) const
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+
 	if ( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return true;
 
@@ -83,12 +89,16 @@ CRequestHandler ::isProcessed( CRequest * _request ) const
 void
  CRequestHandler ::setRequest( CRequest * _request )
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+
 	m_newRequest.push_back( _request );
 }
 
 void
  CRequestHandler ::runRequests()
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+
 	if ( !m_valid )
 	{
 		BOOST_FOREACH( CRequest * request, m_newRequest )
@@ -113,6 +123,7 @@ void
 std::list< DimsResponse >
 CRequestHandler ::getDirectActionResponse( CAction const * _action )
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
 	std::list< DimsResponse > responses;
 
 	if ( !m_valid )
@@ -126,6 +137,7 @@ CRequestHandler ::getDirectActionResponse( CAction const * _action )
 void
 CRequestHandler ::deleteAction( CAction const * _action )
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
 	if ( !m_valid )
 		return;
 	m_usedMedium->deleteAction( _action );
@@ -134,6 +146,7 @@ CRequestHandler ::deleteAction( CAction const * _action )
 void
 CRequestHandler ::processMediumResponses()
 {
+	boost::lock_guard<boost::mutex> lock(m_mutex);
 	if ( !m_valid )
 		return;
 
