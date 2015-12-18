@@ -1,11 +1,13 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "internalMediumProvider.h"
-#include "internalOperationsMedium.h"
-#include "common/mediumKinds.h"
-#include "bitcoinNodeMedium.h"
+#include "tracker/internalMediumProvider.h"
+#include "tracker/internalOperationsMedium.h"
+
+#include "common/bitcoinNodeMedium.h"
+#include "common/timeMedium.h"
+#include "common/scheduledActionManager.h"
 
 namespace tracker
 {
@@ -24,65 +26,105 @@ CInternalMediumProvider::getInstance( )
 
 CInternalMediumProvider::CInternalMediumProvider()
 {
-	m_mediums.push_back( CInternalOperationsMedium::getInstance() );
 }
 
-std::list< common::CMedium< TrackerResponses > *>
-CInternalMediumProvider::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+std::list< common::CMedium *>
+CInternalMediumProvider::provideConnection( common::CMediumFilter const & _mediumFilter )
+{
+	return _mediumFilter.getMediums( this );
+}
+
+void
+CInternalMediumProvider::registerRemoveCallback( CNodeSignals& nodeSignals )
+{
+	nodeSignals.NotifyAboutRemoval.connect( bind( &CInternalMediumProvider::removeNodeCallback, this, _1) );
+}
+
+void
+CInternalMediumProvider::removeNodeCallback( CNode * node )
+{
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+	if( m_nodeToMedium.find( node ) != m_nodeToMedium.end() )
+		delete m_nodeToMedium.find( node )->second;
+
+	m_nodeToMedium.erase( node );
+}
+
+void
+CInternalMediumProvider::stopCommunicationWithNode( uintptr_t _nodePtr )
+{
+	CNode * node = reinterpret_cast< CNode * >( _nodePtr );
+	node->fDisconnect = true;
+}
+
+std::list< common::CMedium *>
+CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	if ( common::CMediumKinds::Internal == _actionKind )
-		return m_mediums;
-	else if ( common::CMediumKinds::BitcoinsNodes == _actionKind )
-	{
-		std::list< common::CMedium< TrackerResponses > *> mediums;
+	std::list< common::CMedium *> mediums;
 
-		std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator =  m_nodeToMedium.begin();
+	if ( common::CMediumKinds::Internal == _mediumKind )
+	{
+		mediums.push_back( CInternalOperationsMedium::getInstance() );
+	}
+	else if ( common::CMediumKinds::Time == _mediumKind )
+	{
+		mediums.push_back( common::CTimeMedium::getInstance() );
+	}
+	else if ( common::CMediumKinds::Schedule == _mediumKind )
+	{
+		mediums.push_back( common::CScheduledActionManager::getInstance() );
+	}
+	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
+	{
+		LOCK(cs_vNodes);
+		std::map< CNode *, common::CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
-		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _requestedConnectionNumber ); )
+		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumNumber ); )
 		{
 
 			if ( iterator != m_nodeToMedium.end() )
 			{
 				// validate that node  is  still working??
-				mediums.push_back( static_cast< common::CMedium< TrackerResponses > * >( iterator->second ) );
+				mediums.push_back( static_cast< common::CMedium * >( iterator->second ) );
 				iterator++;
 				++i;
 			}
 			else
 			{
 				CNode * node = vNodes.at( i );
-				m_nodeToMedium.insert( std::make_pair( node, new CBitcoinNodeMedium( node ) ) );
+				m_nodeToMedium.insert( std::make_pair( node, new common::CBitcoinNodeMedium( node ) ) );
 				//ugly
 				iterator =  m_nodeToMedium.begin();
 				std::advance( iterator, i );
 			}
 
 		}
-
-		return mediums;
 	}
-	else
-		return std::list< common::CMedium< TrackerResponses > *>();
+	return mediums;
 }
 
 void
-CInternalMediumProvider::setResponse( CTransaction const & _response, CNode * _node )
+CInternalMediumProvider::setTransaction( CTransaction const & _response, CNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+	std::map< CNode *, common::CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+
+	if( iterator == m_nodeToMedium.end() ) return;// not  asked
 
 	iterator->second->setResponse( _response );
 }
 
 void
-CInternalMediumProvider::setResponse( CMerkleBlock const & _merkle, CNode * _node )
+CInternalMediumProvider::setMerkleBlock( CMerkleBlock const & _merkle, CNode * _node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
 
-	std::map< CNode *, CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+	std::map< CNode *, common::CBitcoinNodeMedium * >::iterator iterator = m_nodeToMedium.find( _node );
+
+	if( iterator == m_nodeToMedium.end() ) return;// not  asked
 
 	iterator->second->setResponse( _merkle );
 }

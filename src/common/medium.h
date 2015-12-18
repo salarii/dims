@@ -1,143 +1,101 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef	MEDIUM_H
 #define MEDIUM_H
 
-#include "requestResponse.h"
+#include "common/responses.h"
 
 #include "visitorConfigurationUtilities.h"
-
-// this is  weak point of  this implementation I don't know  how to get rid of this at the moment
-#include "tracker/trackerRequestsList.h"
-#include "node/nodeRequestList.h"
-#include "node/configureNodeActionHadler.h"
-#include "monitor/monitorRequestsList.h"
-#include "monitor/configureMonitorActionHandler.h"
-#include "seed/configureSeedActionHandler.h"
-#include "seed/seedRequestsList.h"
 
 namespace common
 {
 
-template < class _RequestResponses >
-struct CRequest;
+class CSendIdentifyDataRequest;
+class CAckRequest;
+class CTimeEventRequest;
+class CScheduleActionRequest;
+class CConnectToNodeRequest;
+class CAskForTransactionsRequest;
+class CBalanceRequest;
+class CSendMessageRequest;
+class CSendClientMessageRequest;
+class CSetBloomFilterRequest;
+}
 
-template < class _RequestResponses >
+namespace tracker
+{
+class CValidateTransactionsRequest;
+class CConnectToTrackerRequest;
+class CPassMessageRequest;
+class CGetBalanceRequest;
+
+}
+
+namespace client
+{
+struct CDnsInfoRequest;
+struct CErrorForAppPaymentProcessing;
+struct CProofTransactionAndStatusRequest;
+struct CCreateTransactionRequest;
+}
+
+namespace monitor
+{
+class CConnectToNodeRequest;
+}
+
+namespace common
+{
+
+class CAction;
+
+class CRequest;
+
 class CMedium
 {
 public:
 	virtual bool serviced() const = 0;
 	virtual bool flush() = 0;
-	virtual void clearResponses() = 0;
-	virtual bool getResponse( std::vector< _RequestResponses > & _requestResponse ) const = 0;
-	virtual void add( CRequest< _RequestResponses > const * _request ) = 0;
-	virtual ~CMedium(){};
-};
+	virtual void prepareMedium(){};
+	virtual void deleteRequest( CRequest const* _request ){};// needed in some cases
+	virtual bool getResponseAndClear( std::multimap< CRequest const*, DimsResponse > & _requestResponse) = 0;// the order of  elements with the same key is important, I have read somewhere that in this c++ standard this is not guaranteed but "true in practice":  is  such assertion good  enough??
+	virtual bool getDirectActionResponseAndClear( CAction const * _action, std::list< DimsResponse > & _responses ){ return false; }
+	virtual void deleteAction( CAction const * _action ){};
 
-template <>
-class CMedium< tracker::TrackerResponses >
-{
-public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
+	virtual void add( common::CTimeEventRequest const * _request ){};
+	virtual void add( common::CSendMessageRequest const * _request ){};
+	virtual void add( common::CSendClientMessageRequest const * _request ){};
+	virtual void add( common::CAckRequest const * _request ){}
+	virtual void add( common::CSetBloomFilterRequest const * _request ){};
+	virtual void add( common::CSendIdentifyDataRequest const * _request ){};
+	virtual void add( common::CScheduleActionRequest const * _request ){};
+	virtual void add( common::CBalanceRequest const * _request ){};
+	virtual void add( common::CAskForTransactionsRequest const * _request ){};
+	virtual void add( common::CConnectToNodeRequest const * _request ){};
+	virtual void add( client::CDnsInfoRequest const * _request ){};
+	virtual void add( client::CErrorForAppPaymentProcessing const * _request ){};
+	virtual void add( client::CProofTransactionAndStatusRequest const * _request ){};
+	virtual void add( client::CCreateTransactionRequest const * _request ){};
+	virtual void add( tracker::CGetBalanceRequest const * _request ){};
+	virtual void add( tracker::CValidateTransactionsRequest const * _request ){};
+	virtual void add( tracker::CConnectToTrackerRequest const * _request ){};
+	virtual void add( tracker::CPassMessageRequest const * _request ){};
+	virtual void add( monitor::CConnectToNodeRequest const * _request ){};
 
-	virtual bool getResponse( std::vector< tracker::TrackerResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,10 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,11 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,12 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,13 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,14 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,15 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,16 ) const * _request ){};
-	virtual void add( VisitorParam( tracker::TrackerRequestsList ,17 ) const * _request ){};
-	virtual ~CMedium(){};
-};
+	void registerDeleteHook( boost::signals2::slot< void () > const & _deleteHook )
+	{
+		m_deleteHook.connect( _deleteHook );
+	}
 
-template <>
-class CMedium< client::NodeResponses >
-{
-public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
+	virtual ~CMedium()
+	{
+		m_deleteHook();
+	};
 
-	virtual bool getResponse( std::vector< client::NodeResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( client::NodeRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,10 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,11 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,12 ) const * _request ){};
-	virtual void add( VisitorParam( client::NodeRequestsList ,13 ) const * _request ){};
-	virtual ~CMedium(){};
-};
-
-template <>
-class CMedium< monitor::MonitorResponses >
-{
-public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
-
-	virtual bool getResponse( std::vector< monitor::MonitorResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorResponseList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( monitor::MonitorRequestsList ,10 ) const * _request ){};
-	virtual ~CMedium(){};
-};
-
-template <>
-class CMedium< seed::SeedResponses >
-{
-public:
-	virtual bool serviced() const = 0;
-	virtual bool flush() = 0;
-
-	virtual bool getResponse( std::vector< seed::SeedResponses > & _requestResponse ) const = 0;
-	virtual void clearResponses() = 0;
-	virtual void add( VisitorParam( seed::SeedRequestsList ,0 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,1 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,2 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,3 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,4 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,5 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,6 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,7 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,8 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,9 ) const * _request ){};
-	virtual void add( VisitorParam( seed::SeedRequestsList ,10 ) const * _request ){};
-	virtual ~CMedium(){};
+	boost::signals2::signal<void ()> m_deleteHook;
 };
 
 }
-
 #endif // MEDIUM_H

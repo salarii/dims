@@ -1,56 +1,75 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef ACTION_H
 #define ACTION_H
 
-//#include "setResponseVisitor.h"
+#include <vector>
+
+#include "uint256.h"
 
 namespace common
 {
 
-template < class _RequestResponses >
 class CSetResponseVisitor;
 
-template < class _RequestResponses > struct CRequest;
-// this  is  obsolete
-// but I need  some  wa to mark  that action  is  finished
-struct ActionStatus
-{
-	enum Enum
-	{
-         Unprepared
-        , InProgress
-        , Done
-	};
-};
+class CRequest;
 
-template < class _RequestResponses >
 class CAction
 {
 public:
-	CAction( bool _autoDelete = true ): m_executed( false ), m_autoDelete( _autoDelete ){};
+	CAction( bool _autoDelete = true );
 
-	virtual void accept( CSetResponseVisitor< _RequestResponses > & _visitor ) = 0;
+	CAction( uint256 const & _actionKey, bool _autoDelete = true );
 
-	virtual CRequest< _RequestResponses >* execute() = 0;
+	virtual void accept( CSetResponseVisitor & _visitor ) = 0;
 
-	bool isExecuted(){ return m_executed; }
+	virtual std::vector< CRequest * > getRequests() const;
 
-	void setExecuted(){ m_executed = true; }
+	virtual void addRequest( CRequest * _request );
 
-	bool autoDelete(){ return m_autoDelete; }
+	uint256
+	getActionKey() const;
 
-	virtual void reset(){ m_executed = false; }
+	virtual void forgetRequests();
 
-	virtual ~CAction(){};
+	std::vector< CRequest * > const & getDroppedRequests() const;
+
+	void setInProgress();
+
+	bool isInProgress() const;
+
+	bool isExecuted() const;
+
+	void setExecuted();
+
+	bool autoDelete();
+
+	virtual void reset();
+
+	void setExit();
+
+	bool needToExit() const;
+
+	bool requestToProcess() const;
+
+	virtual ~CAction();
 protected:
+	bool m_inProgress;
+
 	bool m_executed;
 
 	bool const m_autoDelete;
-};
 
+	bool m_exit;
+
+	uint256 m_actionKey;
+
+	std::vector< CRequest * > m_requests;
+
+	std::vector< CRequest * > m_droppedRequests;
+};
 
 }
 

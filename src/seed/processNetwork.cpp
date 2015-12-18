@@ -1,22 +1,21 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "processNetwork.h"
-#include "seedNodeMedium.h"
-#include "seedNodesManager.h"
-#include "acceptNodeAction.h"
 #include "common/actionHandler.h"
 #include "common/communicationProtocol.h"
+#include "common/events.h"
+#include "common/networkActionRegister.h"
 
-#include <iostream>
-#include <fstream>
-using namespace std;
-
+#include "seed/processNetwork.h"
+#include "seed/seedNodeMedium.h"
+#include "seed/seedNodesManager.h"
+#include "seed/acceptNodeAction.h"
+#include "seed/pingAction.h"
 
 namespace seed
 {
-
+	CServiceResult service;//ugly
 CProcessNetwork * CProcessNetwork::ms_instance = NULL;
 
 CProcessNetwork*
@@ -32,151 +31,88 @@ CProcessNetwork::getInstance()
 bool
 CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 {
-
-	ofstream myfile;
-	 myfile.open ("test.txt", ios::app);
-
-
-
 	std::vector< common::CMessage > messages;
-
-		 myfile << "before\n";
-myfile <<  vRecv.size()<<"\n";
-		 myfile.close();
 	vRecv >> messages;
-myfile.open ("test.txt", ios::app);
-		 myfile << "after\n";
-
 
 // it is  stupid  to call this over and over again
 	if ( !CSeedNodesManager::getInstance()->getMediumForNode( pfrom ) )
 	{
-		CSeedNodesManager::getInstance()->addNode( pfrom );
+		CSeedNodesManager::getInstance()->addNode( new CSeedNodeMedium( pfrom ) );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
-				 myfile << "type\n";
-				 myfile << (int)message.m_header.m_payloadKind;
-				 myfile.close();
-		if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
+		if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
 		{
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			CSeedNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( identifyMessage.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr ) );
+				nodeMedium->addActionResponse(
+							message.m_header.m_actionKey
+							, common::CIdentificationResult(
+								  identifyMessage.m_payload
+								, identifyMessage.m_signed
+								, identifyMessage.m_key
+								, pfrom->addr
+								, message.m_header.m_id ) );
 			}
 			else
 			{
-				CAcceptNodeAction * connectTrackerAction= new CAcceptNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< SeedResponses >::getInstance()->executeAction( connectTrackerAction );
+				CAcceptNodeAction * connectNodeAction = new CAcceptNodeAction(
+							message.m_header.m_actionKey, convertToInt( nodeMedium->getNode() ), service );
+
+				connectNodeAction->process_event( common::CSwitchToConnectedEvent() );
+				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
+				common::CActionHandler::getInstance()->executeAction( connectNodeAction );
 			}
 
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
-		{
-			//
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
-		{
-				 myfile.open ("test.txt", ios::app);
-			CPubKey pubKey;
-			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-				;//service  error  somehow, can't  decode  action  at  this point  so it  have  to  be  done as  common  solution  for  all  such  issues
-			common::CMessage orginalMessage;
-			myfile << "befor  unwind\n";
-			myfile << "time" << GetTime() << ":"  << message.m_header.m_time;
-					 myfile.close();
-			if ( !common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey ) )
-			{
-				assert( !"this assert  should be  replaced by some logic for now to indicate problem" );
-			}
-
-			common::CNetworkRole networkRole;
-myfile << "messae unwind\n";
-myfile << "network role:"<< networkRole.GetSerializeSize( SER_DISK, CLIENT_VERSION )<< "\n";
-myfile << "payload  size:" << orginalMessage.m_payload.size()<< "\n";
-			common::convertPayload( orginalMessage, networkRole );
-myfile << "converted\n";
-			CSeedNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( networkRole.m_actionKey ) )
-			{
-				myfile << "is serviced\n";
-				nodeMedium->setResponse( networkRole.m_actionKey, common::CRoleResult( networkRole.m_role ) );
-			}
-			else
-			{
-								 myfile << "exception\n";
-				assert(!"it should be existing action");
-
-			}
-
-							 myfile.close();
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
-		{
-			CPubKey pubKey;
-			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-				;
-
-			common::CMessage orginalMessage;
-			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
-
-			common::CKnownNetworkInfo knownNetworkInfo;
-
-			common::convertPayload( orginalMessage, knownNetworkInfo );
-
-			CSeedNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( knownNetworkInfo.m_actionKey ) )
-			{
-				nodeMedium->setResponse( knownNetworkInfo.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
 		}
 		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
 		{
-			CPubKey pubKey;
-			if ( !CSeedNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-				;
-
-			common::CMessage orginalMessage;
-			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
-
 			common::CAck ack;
 
-			common::convertPayload( orginalMessage, ack );
+			common::convertPayload( message, ack );
 
-			CSeedNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( ack.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( ack.m_actionKey, common::CAckResult() );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-
+				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
 			}
 		}
+		else
+		{
+
+			common::CNodeMedium * nodeMedium = CSeedNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			CPubKey pubKey;
+
+			if ( !CSeedNodesManager::getInstance()->getNodePublicKey( convertToInt( pfrom ), pubKey ) )
+				return true;
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, pubKey ) );
+				else
+					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, pubKey ) );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
+			{
+				CPingAction * pingAction = new CPingAction( message.m_header.m_actionKey );
+
+				pingAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( pingAction );
+			}
+		}
+
 	}
+	return true;
 }
 
 bool
@@ -187,4 +123,14 @@ CProcessNetwork::sendMessages(common::CSelfNode* pto, bool fSendTrickle)
 	return true;
 }
 
+}
+
+
+namespace common
+{
+void
+CSelfNode::clearManager()
+{
+	common::CNodesManager::getInstance()->eraseMedium( convertToInt( this ) );
+}
 }

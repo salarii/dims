@@ -4,7 +4,7 @@
 
 #include "paymentserver.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
@@ -193,7 +193,7 @@ bool PaymentServer::ipcParseCommandLine(int argc, char* argv[])
             SendCoinsRecipient r;
             if (GUIUtil::parseBitcoinURI(arg, &r))
             {
-                CBitcoinAddress address(r.address.toStdString());
+                CMnemonicAddress address(r.address.toStdString());
 
 				SelectParams(CNetworkParams::MAIN);
                 if (!address.IsValid())
@@ -495,7 +495,7 @@ bool PaymentServer::processPaymentRequest(PaymentRequestPlus& request, SendCoins
         CTxDestination dest;
         if (ExtractDestination(sendingTo.first, dest)) {
             // Append destination address
-            addresses.append(QString::fromStdString(CBitcoinAddress(dest).ToString()));
+            addresses.append(QString::fromStdString(CMnemonicAddress(dest).ToString()));
         }
         else if (!recipient.authenticatedMerchant.isEmpty()){
             // Insecure payments to custom bitcoin addresses are not supported
@@ -511,7 +511,7 @@ bool PaymentServer::processPaymentRequest(PaymentRequestPlus& request, SendCoins
         CTxOut txOut(sendingTo.second, sendingTo.first);
         if (txOut.IsDust(CTransaction::nMinRelayTxFee)) {
             QString msg = tr("Requested payment amount of %1 is too small (considered dust).")
-                .arg(CRatcoinUnits::formatWithUnit(optionsModel->getDisplayUnit(), sendingTo.second));
+				.arg(CDimsUnits::formatWithUnit(optionsModel->getDisplayUnit(), sendingTo.second));
 
             qDebug() << "PaymentServer::processPaymentRequest : " << msg;
             emit message(tr("Payment request error"), msg, CClientUIInterface::MSG_ERROR);

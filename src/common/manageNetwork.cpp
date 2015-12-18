@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,14 +11,15 @@
 #include "selfNode.h"
 #include "main.h"
 
-#include "common/ratcoinParams.h"
-
-#include "communicationProtocol.h"
-
+#include "common/dimsParams.h"
+#include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
+#include "common/nodesManager.h"
 
 static const int MAX_OUTBOUND_CONNECTIONS = 64;
 
+#define PINGSENDTIME 10
+#define PINGRECEIVETIME 10
 namespace common
 {
 
@@ -41,23 +42,7 @@ CManageNetwork::CManageNetwork()
 	, pnodeSync( NULL )
 {
 }
-/*
-void 
-CManageNetwork::startClientServer()
-{
-	Poco::Net::ServerSocket serverSocket( m_networkParams->GetDefaultPort() );
 
-	//Configure some server params.
-	Poco::Net::TCPServerParams* pParams = new Poco::Net::TCPServerParams();
-	pParams->setMaxThreads(4);
-	pParams->setMaxQueued(10);
-	pParams->setThreadIdleTime(50);
-
-	//Create your server
-	m_tcpServer = new Poco::Net::TCPServer(new Poco::Net::TCPServerConnectionFactoryImpl<newConnection>(), serverSocket, pParams);
-	m_tcpServer->start();
-}
-*/
 bool
 CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 {
@@ -66,9 +51,9 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 	inaddr_any.s_addr = INADDR_ANY;
 
 #ifdef USE_IPV6
-	bound = bind(CService(in6addr_any, GetListenPort< common::CRatcoinParams >()), BF_NONE);
+	bound = bind(CService(in6addr_any, GetListenPort< common::CDimsParams >()), BF_NONE);
 #endif
-	bound = bind(CService(inaddr_any, GetListenPort< common::CRatcoinParams >()), BF_REPORT_ERROR );
+	bound = bind(CService(inaddr_any, GetListenPort< common::CDimsParams >()), BF_REPORT_ERROR );
 
 	if (m_semOutbound == NULL) {
 		// initialize semaphore
@@ -83,13 +68,13 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 	//
 	// Start threads
 	//
-/* not  seeding right now
+	/* not  seeding right now
 	if (!GetBoolArg("-dnsseed", true))
 		LogPrintf("DNS seeding disabled\n");
 	else
 		threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "dnsseed", &ThreadDNSAddressSeed));
 */
-/*  disable  this for the time being 
+	/*  disable  this for the time being
 #ifdef USE_UPNP
 	// Map ports with UPnP
 	MapPort(GetBoolArg("-upnp", USE_UPNP));
@@ -100,7 +85,7 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 	threadGroup.create_thread(boost::bind(&common::CManageNetwork::threadSocketHandler, this));
 
 	// Initiate outbound connections from -addnode
-//	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenAddedConnections, this));
+	//	threadGroup.create_thread(boost::bind(&tracker::CManageNetwork::threadOpenAddedConnections, this));
 
 	// Initiate outbound connections
 	threadGroup.create_thread(boost::bind(&common::CManageNetwork::threadOpenConnections, this));
@@ -109,7 +94,7 @@ CManageNetwork::connectToNetwork( boost::thread_group& threadGroup )
 	threadGroup.create_thread(boost::bind(&common::CManageNetwork::threadMessageHandler, this));
 
 	// Dump network addresses
-//	threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
+	//	threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
 
 	return bound;
 }
@@ -167,8 +152,8 @@ CManageNetwork::discover(boost::thread_group& threadGroup)
 #endif
 
 	// Don't use external IPv4 discovery, when -onlynet="IPv6"
-//	if (!IsLimited(NET_IPV4))
-//		threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "ext-ip", &ThreadGetMyExternalIP));
+	//	if (!IsLimited(NET_IPV4))
+	//		threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "ext-ip", &ThreadGetMyExternalIP));
 }
 
 // learn a new local address
@@ -205,7 +190,7 @@ CManageNetwork::addLocal(const CService& addr, int nScore)
 bool 
 CManageNetwork::addLocal(const CNetAddr &addr, int nScore)
 {
-	return AddLocal(CService(addr, GetListenPort< common::CRatcoinParams >()), nScore);
+	return AddLocal(CService(addr, GetListenPort< common::CDimsParams >()), nScore);
 }
 
 void
@@ -241,9 +226,9 @@ CManageNetwork::threadSocketHandler()
 			vector<CSelfNode*> vNodesCopy = m_nodes;
 			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
 			{
-				if (pnode->fDisconnect ||
-					(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())
-				/*	|| !m_nodesManager->isNodeHonest( pnode )*/)
+				if (pnode->fDisconnect /*||
+						(pnode->GetRefCount() <= 0 && pnode->vRecvMsg.empty() && pnode->nSendSize == 0 && pnode->ssSend.empty())
+							|| !m_nodesManager->isNodeHonest( pnode )*/)
 				{
 					// remove from m_nodes
 					m_nodes.erase(remove(m_nodes.begin(), m_nodes.end(), pnode), m_nodes.end());
@@ -256,15 +241,15 @@ CManageNetwork::threadSocketHandler()
 					pnode->Cleanup();
 
 					// hold in disconnected pool until all refs are released
-					if (pnode->fNetworkNode || pnode->fInbound)
-						pnode->Release();
-					m_nodesDisconnected.push_back(pnode);
+					//if (pnode->fNetworkNode || pnode->fInbound)
+					pnode->Release();
+					m_nodesDisconnected.insert(pnode);
 				}
 			}
 		}
 		{
 			// Delete disconnected nodes
-			list<CSelfNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
+			set<CSelfNode*> vNodesDisconnectedCopy = m_nodesDisconnected;
 			BOOST_FOREACH(CSelfNode* pnode, vNodesDisconnectedCopy)
 			{
 				// wait until threads are done using it
@@ -286,7 +271,7 @@ CManageNetwork::threadSocketHandler()
 					}
 					if (fDelete)
 					{
-						m_nodesDisconnected.remove(pnode);
+						m_nodesDisconnected.erase(pnode);
 						delete pnode;
 					}
 				}
@@ -353,15 +338,15 @@ CManageNetwork::threadSocketHandler()
 				{
 					TRY_LOCK(pnode->cs_vRecvMsg, lockRecv);
 					if (lockRecv && (
-						pnode->vRecvMsg.empty() || !pnode->vRecvMsg.front().complete() ||
-						pnode->GetTotalRecvSize() <= ReceiveFloodSize()))
+								pnode->vRecvMsg.empty() || !pnode->vRecvMsg.front().complete() ||
+								pnode->GetTotalRecvSize() <= ReceiveFloodSize()))
 						FD_SET(pnode->hSocket, &fdsetRecv);
 				}
 			}
 		}
 
 		int nSelect = select(have_fds ? hSocketMax + 1 : 0,
-			&fdsetRecv, &fdsetSend, &fdsetError, &timeout);
+							 &fdsetRecv, &fdsetSend, &fdsetError, &timeout);
 		boost::this_thread::interruption_point();
 
 		if (nSelect == SOCKET_ERROR)
@@ -383,162 +368,183 @@ CManageNetwork::threadSocketHandler()
 		// Accept new connections
 		//
 		BOOST_FOREACH(SOCKET hListenSocket, m_listenSocket)
-			if (hListenSocket != INVALID_SOCKET && FD_ISSET(hListenSocket, &fdsetRecv))
-			{
+				if (hListenSocket != INVALID_SOCKET && FD_ISSET(hListenSocket, &fdsetRecv))
+		{
 #ifdef USE_IPV6
-				struct sockaddr_storage sockaddr;
+			struct sockaddr_storage sockaddr;
 #else
-				struct sockaddr sockaddr;
+			struct sockaddr sockaddr;
 #endif
-				socklen_t len = sizeof(sockaddr);
-				SOCKET hSocket = accept(hListenSocket, (struct sockaddr*)&sockaddr, &len);
-				CAddress addr;
-				int nInbound = 0;
+			socklen_t len = sizeof(sockaddr);
+			SOCKET hSocket = accept(hListenSocket, (struct sockaddr*)&sockaddr, &len);
+			CAddress addr;
+			int nInbound = 0;
 
-				if (hSocket != INVALID_SOCKET)
-					if (!addr.SetSockAddr((const struct sockaddr*)&sockaddr))
-						LogPrintf("Warning: Unknown socket family\n");
+			if (hSocket != INVALID_SOCKET)
+				if (!addr.SetSockAddr((const struct sockaddr*)&sockaddr))
+					LogPrintf("Warning: Unknown socket family\n");
 
-				{
-					LOCK(cs_vNodes);
-					BOOST_FOREACH(CSelfNode* pnode, m_nodes)
+			{
+				LOCK(cs_vNodes);
+				BOOST_FOREACH(CSelfNode* pnode, m_nodes)
 						if (pnode->fInbound)
-							nInbound++;
-				}
+						nInbound++;
+			}
 
-				if (hSocket == INVALID_SOCKET)
+			if (hSocket == INVALID_SOCKET)
+			{
+				int nErr = WSAGetLastError();
+				if (nErr != WSAEWOULDBLOCK)
+					LogPrintf("socket error accept failed: %d\n", nErr);
+			}
+			else if (nInbound >= nMaxConnections - MAX_OUTBOUND_CONNECTIONS)
+			{
 				{
-					int nErr = WSAGetLastError();
-					if (nErr != WSAEWOULDBLOCK)
-						LogPrintf("socket error accept failed: %d\n", nErr);
+					LOCK(cs_setservAddNodeAddresses);
+					if (!setservAddNodeAddresses.count(addr))
+						closesocket(hSocket);
 				}
-				else if (nInbound >= nMaxConnections - MAX_OUTBOUND_CONNECTIONS)
-				{
-					{
-						LOCK(cs_setservAddNodeAddresses);
-						if (!setservAddNodeAddresses.count(addr))
-							closesocket(hSocket);
-					}
-				}
+			}
 			/*	else if (m_nodesManager->isBanned( addr ))
 				{
 					LogPrintf("connection from %s dropped (banned)\n", addr.ToString());
 					closesocket(hSocket);
 				}*/
-				else
+			else
+			{
+				LogPrint("net", "accepted connection %s\n", addr.ToString());
+				CSelfNode* pnode = new CSelfNode(hSocket, addr, "", true);
+				pnode->AddRef();
 				{
-					LogPrint("net", "accepted connection %s\n", addr.ToString());
-					CSelfNode* pnode = new CSelfNode(hSocket, addr, "", true);
-					pnode->AddRef();
-					{
-						LOCK(cs_vNodes);
-						m_nodes.push_back(pnode);
-					}
+					LOCK(cs_vNodes);
+					m_nodes.push_back(pnode);
 				}
 			}
+		}
 
 
-			//
-			// Service each socket
-			//
-			vector<CSelfNode*> vNodesCopy;
-			{
-				LOCK(cs_vNodes);
-				vNodesCopy = m_nodes;
-				BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
-					pnode->AddRef();
-			}
+		//
+		// Service each socket
+		//
+		vector<CSelfNode*> vNodesCopy;
+		{
+			LOCK(cs_vNodes);
+			vNodesCopy = m_nodes;
 			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
-			{
-				boost::this_thread::interruption_point();
+					pnode->AddRef();
+		}
+		BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
+		{
+			boost::this_thread::interruption_point();
 
-				//
-				// Receive
-				//
-				if (pnode->hSocket == INVALID_SOCKET)
-					continue;
-				if (FD_ISSET(pnode->hSocket, &fdsetRecv) || FD_ISSET(pnode->hSocket, &fdsetError))
+			//
+			// Receive
+			//
+			if (pnode->hSocket == INVALID_SOCKET)
+				continue;
+			if (FD_ISSET(pnode->hSocket, &fdsetRecv) || FD_ISSET(pnode->hSocket, &fdsetError))
+			{
+				TRY_LOCK(pnode->cs_vRecvMsg, lockRecv);
+				if (lockRecv)
 				{
-					TRY_LOCK(pnode->cs_vRecvMsg, lockRecv);
-					if (lockRecv)
 					{
+						// typical socket buffer is 8K-64K
+						char pchBuf[0x10000];
+						int nBytes = recv(pnode->hSocket, pchBuf, sizeof(pchBuf), MSG_DONTWAIT);
+						if (nBytes > 0)
 						{
-							// typical socket buffer is 8K-64K
-							char pchBuf[0x10000];
-							int nBytes = recv(pnode->hSocket, pchBuf, sizeof(pchBuf), MSG_DONTWAIT);
-							if (nBytes > 0)
-							{
-								if (!pnode->ReceiveMsgBytes(pchBuf, nBytes))
-									pnode->CloseSocketDisconnect();
-								pnode->nLastRecv = GetTime();
-								pnode->nRecvBytes += nBytes;
-								pnode->RecordBytesRecv(nBytes);
-							}
-							else if (nBytes == 0)
-							{
-								// socket closed gracefully
-								if (!pnode->fDisconnect)
-									LogPrint("net", "socket closed\n");
+							if (!pnode->ReceiveMsgBytes(pchBuf, nBytes))
 								pnode->CloseSocketDisconnect();
-							}
-							else if (nBytes < 0)
+							pnode->nLastRecv = GetTime();
+							pnode->nRecvBytes += nBytes;
+							pnode->RecordBytesRecv(nBytes);
+						}
+						else if (nBytes == 0)
+						{
+							// socket closed gracefully
+							if (!pnode->fDisconnect)
+								LogPrint("net", "socket closed\n");
+							pnode->CloseSocketDisconnect();
+						}
+						else if (nBytes < 0)
+						{
+							// error
+							int nErr = WSAGetLastError();
+							if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS)
 							{
-								// error
-								int nErr = WSAGetLastError();
-								if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS)
-								{
-									if (!pnode->fDisconnect)
-										LogPrintf("socket recv error %d\n", nErr);
-									pnode->CloseSocketDisconnect();
-								}
+								if (!pnode->fDisconnect)
+									LogPrintf("socket recv error %d\n", nErr);
+								pnode->CloseSocketDisconnect();
 							}
 						}
 					}
 				}
+			}
 
-				//
-				// Send
-				//
-				if (pnode->hSocket == INVALID_SOCKET)
-					continue;
-				if (FD_ISSET(pnode->hSocket, &fdsetSend))
-				{
-					TRY_LOCK(pnode->cs_vSend, lockSend);
-					if (lockSend)
-						SocketSendData(pnode);
-				}
+			//
+			// Send
+			//
+			if (pnode->hSocket == INVALID_SOCKET)
+				continue;
+			if (FD_ISSET(pnode->hSocket, &fdsetSend))
+			{
+				TRY_LOCK(pnode->cs_vSend, lockSend);
+				if (lockSend)
+					SocketSendData(pnode);
+			}
 
-				//
-				// Inactivity checking
-				//
-				if (pnode->vSendMsg.empty())
-					pnode->nLastSendEmpty = GetTime();
-				if (GetTime() - pnode->nTimeConnected > 60)
+			//
+			// Inactivity checking
+			//
+			/*
+not very nice  job
+*/
+			if (pnode->vSendMsg.empty())
+				pnode->nLastSendEmpty = GetTime();
+			if (GetTime() - pnode->nTimeConnected > 20)
+			{
+				if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
 				{
-					if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
+
+					if ( m_timeOutNodes.find( pnode ) == m_timeOutNodes.end() )
 					{
 						LogPrint("net", "socket no message in first 60 seconds, %d %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0);
-						pnode->fDisconnect = true;
-					}
-					else if (GetTime() - pnode->nLastSend > 90*60 && GetTime() - pnode->nLastSendEmpty > 90*60)
-					{
-						LogPrintf("socket not sending\n");
-						pnode->fDisconnect = true;
-					}
-					else if (GetTime() - pnode->nLastRecv > 90*60)
-					{
-						LogPrintf("socket inactivity timeout\n");
-						pnode->fDisconnect = true;
+						m_timeOutNodes.insert( pnode );
+						CNodesManager::getInstance()->evaluateNode( pnode );
 					}
 				}
-			}
-			{
-				LOCK(cs_vNodes);
-				BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
-					pnode->Release();
-			}
+				else if (GetTime() - pnode->nLastSend > PINGSENDTIME && GetTime() - pnode->nLastSendEmpty > PINGSENDTIME)
+				{
+					if ( m_timeOutNodes.find( pnode ) == m_timeOutNodes.end() )
+					{
+						LogPrintf("socket not sending\n");
+						m_timeOutNodes.insert( pnode );
 
-			MilliSleep(10);
+						CNodesManager::getInstance()->evaluateNode( pnode );
+					}
+				}
+				else if (GetTime() - pnode->nLastRecv > PINGRECEIVETIME)
+				{
+					if ( m_timeOutNodes.find( pnode ) == m_timeOutNodes.end() )
+					{
+						LogPrintf("socket inactivity timeout\n");
+						m_timeOutNodes.insert( pnode );
+						CNodesManager::getInstance()->evaluateNode( pnode );
+					}
+				}
+				else
+				{
+					m_timeOutNodes.erase( pnode );
+				}
+			}
+		}
+		{
+			LOCK(cs_vNodes);
+			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
+					pnode->Release();
+		}
+
+		MilliSleep(10);
 	}
 }
 
@@ -557,13 +563,7 @@ CManageNetwork::threadOpenAddedConnections()
 			{
 				LOCK(cs_vAddedNodes);
 				BOOST_FOREACH(string& strAddNode, vAddedNodes)
-					lAddresses.push_back(strAddNode);
-			}
-			BOOST_FOREACH(string& strAddNode, lAddresses) {
-				CAddress addr;
-				CSemaphoreGrant grant(*m_semOutbound);
-				//OpenNetworkConnection(addr, &grant, strAddNode.c_str());
-				MilliSleep(500);
+						lAddresses.push_back(strAddNode);
 			}
 			MilliSleep(120000); // Retry every 2 minutes
 		}
@@ -575,20 +575,20 @@ CManageNetwork::threadOpenAddedConnections()
 		{
 			LOCK(cs_vAddedNodes);
 			BOOST_FOREACH(string& strAddNode, vAddedNodes)
-				lAddresses.push_back(strAddNode);
+					lAddresses.push_back(strAddNode);
 		}
 
 		list<vector<CService> > lservAddressesToAdd(0);
 		BOOST_FOREACH(string& strAddNode, lAddresses)
 		{
 			vector<CService> vservNode(0);
-			if(Lookup(strAddNode.c_str(), vservNode, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort(), fNameLookup, 0))
+			if(Lookup(strAddNode.c_str(), vservNode, GetNetworkParams< common::CDimsParams >().GetDefaultPort(), fNameLookup, 0))
 			{
 				lservAddressesToAdd.push_back(vservNode);
 				{
 					LOCK(cs_setservAddNodeAddresses);
 					BOOST_FOREACH(CService& serv, vservNode)
-						setservAddNodeAddresses.insert(serv);
+							setservAddNodeAddresses.insert(serv);
 				}
 			}
 		}
@@ -597,20 +597,14 @@ CManageNetwork::threadOpenAddedConnections()
 		{
 			LOCK(cs_vNodes);
 			BOOST_FOREACH(CSelfNode* pnode, m_nodes)
-				for (list<vector<CService> >::iterator it = lservAddressesToAdd.begin(); it != lservAddressesToAdd.end(); it++)
+					for (list<vector<CService> >::iterator it = lservAddressesToAdd.begin(); it != lservAddressesToAdd.end(); it++)
 					BOOST_FOREACH(CService& addrNode, *(it))
 					if (pnode->addr == addrNode)
-					{
-						it = lservAddressesToAdd.erase(it);
-						it--;
-						break;
-					}
-		}
-		BOOST_FOREACH(vector<CService>& vserv, lservAddressesToAdd)
-		{
-			CSemaphoreGrant grant(*m_semOutbound);
-//			OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
-			MilliSleep(500);
+			{
+				it = lservAddressesToAdd.erase(it);
+				it--;
+				break;
+			}
 		}
 		MilliSleep(120000); // Retry every 2 minutes
 	}
@@ -625,7 +619,7 @@ CManageNetwork::threadOpenConnections()
 	{
 		for (int64_t nLoop = 0;; nLoop++)
 		{
-//			ProcessOneShot();
+			//			ProcessOneShot();
 			BOOST_FOREACH(string strAddr, mapMultiArgs["-connect"])
 			{
 				CAddress addr;
@@ -706,15 +700,15 @@ CManageNetwork::threadOpenConnections()
 				continue;
 
 			// do not allow non-default ports, unless after 50 invalid addresses selected already
-			if (addr.GetPort() != GetNetworkParams< common::CRatcoinParams >().GetDefaultPort() && nTries < 50)
+			if (addr.GetPort() != GetNetworkParams< common::CDimsParams >().GetDefaultPort() && nTries < 50)
 				continue;
 
 			addrConnect = addr;
 			break;
 		}
 
-	//	if (addrConnect.IsValid())
-	//		openNetworkConnection(addrConnect, &grant);
+		//	if (addrConnect.IsValid())
+			//	openNetworkConnection(addrConnect, &grant);
 	}
 }
 
@@ -723,7 +717,7 @@ CManageNetwork::findNode(const CNetAddr& ip)
 {
 	LOCK(cs_vNodes);
 	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
-		if ((CNetAddr)pnode->addr == ip)
+			if ((CNetAddr)pnode->addr == ip)
 			return (pnode);
 	return NULL;
 }
@@ -848,7 +842,7 @@ CManageNetwork::findNode(std::string addrName)
 {
 	LOCK(cs_vNodes);
 	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
-		if (pnode->addrName == addrName)
+			if (pnode->addrName == addrName)
 			return (pnode);
 	return NULL;
 }
@@ -858,7 +852,7 @@ CManageNetwork::findNode(const CService& addr)
 {
 	LOCK(cs_vNodes);
 	BOOST_FOREACH(CSelfNode* pnode, m_nodes)
-		if ((CService)pnode->addr == addr)
+			if (pnode->addr.ToStringIP() == addr.ToStringIP())// only  ip matters
 			return (pnode);
 	return NULL;
 }
@@ -870,13 +864,13 @@ CManageNetwork::openNetworkConnection(const CAddress& addrConnect, CSemaphoreGra
 	// Initiate outbound network connection
 	//
 	boost::this_thread::interruption_point();
-/*	if (!strDest)
+	/*	if (!strDest)
 		if (IsLocal(addrConnect) ||
 			FindNode((CNetAddr)addrConnect) || CSelfNode::IsBanned(addrConnect) ||
 			FindNode(addrConnect.ToStringIPPort().c_str()))
 			return false;*/
-//	if (strDest && FindNode(strDest))
-//		return false;
+	//	if (strDest && FindNode(strDest))
+	//		return false;
 
 	CSelfNode* pnode = connectNode(addrConnect, strDest);
 	boost::this_thread::interruption_point();
@@ -903,7 +897,7 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 		CSelfNode* pnode = findNode((CService)addrConnect);
 		if (pnode)
 		{
-			pnode->AddRef();
+			//pnode->AddRef(); need it ??
 			return pnode;
 		}
 	}
@@ -911,12 +905,12 @@ CManageNetwork::connectNode(CAddress addrConnect, const char *pszDest)
 
 	/// debug print
 	LogPrint("net", "trying connection %s lastseen=%.1fhrs\n",
-		pszDest ? pszDest : addrConnect.ToString(),
-		pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
+			 pszDest ? pszDest : addrConnect.ToString(),
+			 pszDest ? 0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
 
 	// Connect
 	SOCKET hSocket;
-	if (pszDest ? ConnectSocketByName(addrConnect, hSocket, pszDest, GetNetworkParams< common::CRatcoinParams >().GetDefaultPort()) : ConnectSocket(addrConnect, hSocket))
+	if (pszDest ? ConnectSocketByName(addrConnect, hSocket, pszDest, GetNetworkParams< common::CDimsParams >().GetDefaultPort()) : ConnectSocket(addrConnect, hSocket))
 	{
 		addrman.Attempt(addrConnect);
 
@@ -954,17 +948,16 @@ void
 CManageNetwork::StartSync(const vector<CSelfNode*> &vNodes)
 {
 	CSelfNode *pnodeNewSync = NULL;
-	double dBestScore = 0;
 
 	// Iterate over all nodes
 	BOOST_FOREACH(CSelfNode* pnode, m_nodes) {
 		// check preconditions for allowing a sync
 		if (!pnode->fClient && !pnode->fOneShot &&
-			!pnode->fDisconnect && pnode->fSuccessfullyConnected &&
-			(pnode->nVersion < NOBLKS_VERSION_START || pnode->nVersion >= NOBLKS_VERSION_END)) {
+				!pnode->fDisconnect && pnode->fSuccessfullyConnected &&
+				(pnode->nVersion < NOBLKS_VERSION_START || pnode->nVersion >= NOBLKS_VERSION_END)) {
 			// if ok, compare node's score with the best so far
-		//	double dScore = NodeSyncScore(pnode);
-/*			if (pnodeNewSync == NULL || dScore > dBestScore) {
+			//	double dScore = NodeSyncScore(pnode);
+			/*			if (pnodeNewSync == NULL || dScore > dBestScore) {
 				pnodeNewSync = pnode;
 				dBestScore = dScore;
 			}*/
@@ -1031,7 +1024,7 @@ CManageNetwork::threadMessageHandler()
 			boost::this_thread::interruption_point();
 
 
-/*
+			/*
  * // Send messages
 nodes manager
 - trackers
@@ -1049,7 +1042,7 @@ nodes manager
 		{
 			LOCK(cs_vNodes);
 			BOOST_FOREACH(CSelfNode* pnode, vNodesCopy)
-				pnode->Release();
+					pnode->Release();
 		}
 
 		if (fSleep)
@@ -1143,7 +1136,7 @@ CManageNetwork::processMessages(common::CSelfNode* pfrom)
 		if (nChecksum != hdr.nChecksum)
 		{
 			LogPrintf("ProcessMessages(%s, %u bytes) : CHECKSUM ERROR nChecksum=%08x hdr.nChecksum=%08x\n",
-			   strCommand, nMessageSize, nChecksum, hdr.nChecksum);
+					  strCommand, nMessageSize, nChecksum, hdr.nChecksum);
 			continue;
 		}
 
@@ -1200,7 +1193,7 @@ CManageNetwork::processMessages(common::CSelfNode* pfrom)
 void
 CManageNetwork::getIpsFromSeed( vector<CAddress> & _vAdd )
 {
-	const vector<CDNSSeedData> &vSeeds = ratcoinParams().DNSSeeds();
+	const vector<CDNSSeedData> &vSeeds = dimsParams().DNSSeeds();
 
 	BOOST_FOREACH(const CDNSSeedData &seed, vSeeds) {
 		if (HaveNameProxy()) {
@@ -1213,7 +1206,7 @@ CManageNetwork::getIpsFromSeed( vector<CAddress> & _vAdd )
 				BOOST_FOREACH(CNetAddr& ip, vIPs)
 				{
 					int nOneDay = 24*3600;
-					CAddress addr = CAddress(CService(ip, ratcoinParams().GetDefaultPort()));
+					CAddress addr = CAddress(CService(ip, dimsParams().GetDefaultPort()));
 					addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
 					_vAdd.push_back(addr);
 				}
@@ -1226,7 +1219,7 @@ CManageNetwork::getIpsFromSeed( vector<CAddress> & _vAdd )
 void
 CManageNetwork::getSeedIps( vector<CAddress> & _vAdd )
 {
-	const vector<CDNSSeedData> &vSeeds = ratcoinParams().DNSSeeds();
+	const vector<CDNSSeedData> &vSeeds = dimsParams().DNSSeeds();
 
 	BOOST_FOREACH(const CDNSSeedData &seed, vSeeds) {
 		if (HaveNameProxy()) {
@@ -1239,7 +1232,7 @@ CManageNetwork::getSeedIps( vector<CAddress> & _vAdd )
 				BOOST_FOREACH(CNetAddr& ip, vIPs)
 				{
 					int nOneDay = 24*3600;
-					CAddress addr = CAddress(CService(ip, ratcoinParams().GetDefaultPort()));
+					CAddress addr = CAddress(CService(ip, dimsParams().GetDefaultPort()));
 					addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
 					_vAdd.push_back(addr);
 				}

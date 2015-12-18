@@ -8,10 +8,10 @@
 
 #include "optionsmodel.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "guiutil.h"
 
-#include "init.h"
+#include "tracker/init.h"
 #include "main.h"
 #include "net.h"
 #include "txdb.h" // for -dbcache defaults
@@ -51,7 +51,7 @@ void OptionsModel::Init()
 
     // Display
     if (!settings.contains("nDisplayUnit"))
-        settings.setValue("nDisplayUnit", CRatcoinUnits::rat);
+		settings.setValue("nDisplayUnit", CDimsUnits::dims);
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
 
     if (!settings.contains("bDisplayAddresses"))

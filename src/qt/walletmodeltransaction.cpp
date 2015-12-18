@@ -31,16 +31,6 @@ CWalletTx *WalletModelTransaction::getTransaction()
     return walletTransaction;
 }
 
-qint64 WalletModelTransaction::getTransactionFee()
-{
-    return fee;
-}
-
-void WalletModelTransaction::setTransactionFee(qint64 newFee)
-{
-    fee = newFee;
-}
-
 qint64 WalletModelTransaction::getTotalTransactionAmount()
 {
     qint64 totalTransactionAmount = 0;

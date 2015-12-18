@@ -379,7 +379,7 @@ class DBTest {
     std::string property;
     ASSERT_TRUE(
         db_->GetProperty("leveldb.num-files-at-level" + NumberToString(level),
-                         &property));
+                        &property));
     return atoi(property.c_str());
   }
 
@@ -1855,7 +1855,7 @@ class ModelDB: public DB {
       return new ModelIter(saved, true);
     } else {
       const KVMap* snapshot_state =
-          &(reinterpret_cast<const ModelSnapshot*>(options.snapshot)->map_);
+         &(reinterpret_cast<const ModelSnapshot*>(options.snapshot)->map_);
       return new ModelIter(snapshot_state, false);
     }
   }

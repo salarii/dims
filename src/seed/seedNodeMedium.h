@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,18 +7,13 @@
 
 #include "common/nodeMedium.h"
 
-#include "configureSeedActionHandler.h"
-
 namespace seed
 {
 
-
-class CIdentifyRequest;
-
-class CSeedNodeMedium : public common::CNodeMedium< SeedResponses >
+class CSeedNodeMedium : public common::CNodeMedium
 {
 public:
-	CSeedNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< SeedResponses >( _selfNode ){};
+	CSeedNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 private:
 };
 

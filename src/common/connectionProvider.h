@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,18 +7,21 @@
 
 #include <list>
 
-#include "request.h"
+#include "common/request.h"
+#include "common/filters.h"
 
 namespace common
 {
-template < class _RequestResponses >
-class CMedium;
 
-template < class _RequestResponses >
+class CMedium;
+class CMediumFilter;
+
 class CConnectionProvider
 {
 public:
-	virtual std::list< CMedium< _RequestResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 ) = 0;
+	virtual std::list< CMedium *> provideConnection( CMediumFilter const & ) = 0;
+
+	virtual ~CConnectionProvider(){};
 };
 
 }

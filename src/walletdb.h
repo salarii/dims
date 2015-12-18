@@ -7,6 +7,7 @@
 
 #include "db.h"
 #include "key.h"
+#include "coins.h"
 
 #include <list>
 #include <stdint.h>
@@ -34,6 +35,19 @@ enum DBErrors
     DB_TOO_NEW,
     DB_LOAD_FAIL,
     DB_NEED_REWRITE
+};
+
+struct CTransactionModelAtributes
+{
+	CTransactionModelAtributes(){}
+	CTransactionModelAtributes(	uint256 _hash, uint64_t _time, int _type, std::string _address, uint64_t _debit, uint64_t _credit)
+		: m_hash(_hash), m_time( _time ), m_type(_type), m_address( _address ), m_debit( _debit ), m_credit(_credit ){}
+	uint256 m_hash;
+	uint64_t m_time;
+	int m_type;
+	std::string m_address;
+	uint64_t m_debit;
+	uint64_t m_credit;
 };
 
 class CKeyMetadata
@@ -88,23 +102,26 @@ public:
     bool EraseTx(uint256 hash);
 
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
-    bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
+	bool EraseKey(const CPubKey& vchPubKey);
+	bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
     bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey);
 
     bool WriteCScript(const uint160& hash, const CScript& redeemScript);
 
-    bool WriteBestBlock(const CBlockLocator& locator);
-    bool ReadBestBlock(CBlockLocator& locator);
-
     bool WriteOrderPosNext(int64_t nOrderPosNext);
 
     bool WriteDefaultKey(const CPubKey& vchPubKey);
+
+	bool addCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
+	bool replaceCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
 
     bool ReadPool(int64_t nPool, CKeyPool& keypool);
     bool WritePool(int64_t nPool, const CKeyPool& keypool);
     bool ErasePool(int64_t nPool);
 
     bool WriteMinVersion(int nVersion);
+
+		bool replaceInputs(uint256 const & _hash, std::vector< CKeyID > const &_inputs);
 
     bool ReadAccount(const std::string& strAccount, CAccount& account);
     bool WriteAccount(const std::string& strAccount, const CAccount& account);
@@ -114,13 +131,18 @@ public:
     /// Erase destination data tuple from wallet database
     bool EraseDestData(const std::string &address, const std::string &key);
 private:
+	bool WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins);
+	bool EraseCoin(CKeyID const & _keyId);
+
+	bool WriteInputs( uint256 const & _hash, std::vector< CKeyID > const &_inputs);
+	bool EraseInputs(uint256 const & _hash);
+
     bool WriteAccountingEntry(const uint64_t nAccEntryNum, const CAccountingEntry& acentry);
 public:
     bool WriteAccountingEntry(const CAccountingEntry& acentry);
     int64_t GetAccountCreditDebit(const std::string& strAccount);
     void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& acentries);
 
-    DBErrors ReorderTransactions(CWallet*);
     DBErrors LoadWallet(CWallet* pwallet);
     DBErrors FindWalletTx(CWallet* pwallet, std::vector<uint256>& vTxHash);
     DBErrors ZapWalletTx(CWallet* pwallet);
@@ -129,5 +151,6 @@ public:
 };
 
 bool BackupWallet(const CWallet& wallet, const std::string& strDest);
+
 
 #endif // BITCOIN_WALLETDB_H

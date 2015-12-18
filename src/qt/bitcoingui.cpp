@@ -2,9 +2,11 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "client/control.h"
+
 #include "bitcoingui.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -22,7 +24,7 @@
 #include "macdockiconhandler.h"
 #endif
 
-#include "init.h"
+#include "tracker/init.h"
 #include "ui_interface.h"
 
 #include <iostream>
@@ -70,7 +72,7 @@ BitcoinGUI::BitcoinGUI(bool fIsTestnet, QWidget *parent) :
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(850, 550), this);
 
-    QString windowTitle = tr("Bitcoin Core") + " - ";
+	QString windowTitle = tr("Dims Client") + " - ";
 #ifdef ENABLE_WALLET
     /* if compiled with wallet support, -disablewallet can still disable the wallet */
     bool enableWallet = !GetBoolArg("-disablewallet", false);
@@ -97,10 +99,10 @@ BitcoinGUI::BitcoinGUI(bool fIsTestnet, QWidget *parent) :
     {
         windowTitle += " " + tr("[testnet]");
 #ifndef Q_OS_MAC
-        QApplication::setWindowIcon(QIcon(":icons/bitcoin_testnet"));
-        setWindowIcon(QIcon(":icons/bitcoin_testnet"));
+        QApplication::setWindowIcon(QIcon(":icons/dims_testnet"));
+        setWindowIcon(QIcon(":icons/dims_testnet"));
 #else
-        MacDockIconHandler::instance()->setIcon(QIcon(":icons/bitcoin_testnet"));
+        MacDockIconHandler::instance()->setIcon(QIcon(":icons/dims_testnet"));
 #endif
     }
     setWindowTitle(windowTitle);
@@ -191,6 +193,8 @@ BitcoinGUI::BitcoinGUI(bool fIsTestnet, QWidget *parent) :
 
     // Subscribe to notifications from core
     subscribeToCoreSignals();
+
+	client::CClientControl::getInstance()->acquireClientSignals().m_messageboxPaymentRequest.connect( boost::bind(&BitcoinGUI::handleApplicationPaymentRequest, this, _1 ) );
 }
 
 BitcoinGUI::~BitcoinGUI()
@@ -219,7 +223,7 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     tabGroup->addAction(overviewAction);
 
     sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send"), this);
-    sendCoinsAction->setStatusTip(tr("Send coins to a Bitcoin address"));
+    sendCoinsAction->setStatusTip(tr("Send coins to a DiMS address"));
     sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
@@ -230,14 +234,14 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     addAddressAction->setToolTip(addAddressAction->statusTip());
     addAddressAction->setCheckable(true);
     tabGroup->addAction(addAddressAction);
-
+/*
     receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and bitcoin: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
     receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(receiveCoinsAction);
-
+*/
     historyAction = new QAction(QIcon(":/icons/history"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
@@ -251,8 +255,8 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
-    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
+	//connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+	//connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(addAddressAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -263,10 +267,10 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
     if (!fIsTestnet)
-        aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About Bitcoin Core"), this);
+        aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About DiMS"), this);
     else
-        aboutAction = new QAction(QIcon(":/icons/bitcoin_testnet"), tr("&About Bitcoin Core"), this);
-    aboutAction->setStatusTip(tr("Show information about Bitcoin"));
+        aboutAction = new QAction(QIcon(":/icons/dims_testnet"), tr("&About DiMS"), this);
+    aboutAction->setStatusTip(tr("Show information about DiMS"));
     aboutAction->setMenuRole(QAction::AboutRole);
 #if QT_VERSION < 0x050000
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
@@ -276,12 +280,12 @@ void BitcoinGUI::createActions(bool fIsTestnet)
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
     optionsAction = new QAction(QIcon(":/icons/options"), tr("&Options..."), this);
-    optionsAction->setStatusTip(tr("Modify configuration options for Bitcoin"));
+    optionsAction->setStatusTip(tr("Modify configuration options for DiMS"));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     if (!fIsTestnet)
         toggleHideAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Show / Hide"), this);
     else
-        toggleHideAction = new QAction(QIcon(":/icons/bitcoin_testnet"), tr("&Show / Hide"), this);
+        toggleHideAction = new QAction(QIcon(":/icons/dims_testnet"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
     encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
@@ -345,17 +349,17 @@ void BitcoinGUI::createMenuBar()
     QMenu *file = appMenuBar->addMenu(tr("&File"));
     if(walletFrame)
     {
-        file->addAction(openAction);
-        file->addAction(backupWalletAction);
-        file->addAction(signMessageAction);
-        file->addAction(verifyMessageAction);
-        file->addSeparator();
-        file->addAction(usedSendingAddressesAction);
-        file->addAction(usedReceivingAddressesAction);
+		//file->addAction(openAction);
+		//file->addAction(backupWalletAction);
+		//file->addAction(signMessageAction);
+		//file->addAction(verifyMessageAction);
+		//file->addSeparator();
+		//file->addAction(usedSendingAddressesAction);
+		//file->addAction(usedReceivingAddressesAction);
         file->addSeparator();
     }
     file->addAction(quitAction);
-
+/*
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     if(walletFrame)
     {
@@ -364,14 +368,14 @@ void BitcoinGUI::createMenuBar()
         settings->addSeparator();
     }
     settings->addAction(optionsAction);
-
+*/
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     if(walletFrame)
     {
-        help->addAction(openRPCConsoleAction);
+	  //  help->addAction(openRPCConsoleAction);
     }
-    help->addAction(showHelpMessageAction);
-    help->addSeparator();
+	//help->addAction(showHelpMessageAction);
+   // help->addSeparator();
     help->addAction(aboutAction);
     help->addAction(aboutQtAction);
 }
@@ -384,7 +388,7 @@ void BitcoinGUI::createToolBars()
         toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         toolbar->addAction(overviewAction);
         toolbar->addAction(sendCoinsAction);
-        toolbar->addAction(receiveCoinsAction);
+		//toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
 	  toolbar->addAction(addAddressAction);
         overviewAction->setChecked(true);
@@ -401,8 +405,9 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
         createTrayIconMenu();
 
         // Keep up to date with client
-        setNumConnections(clientModel->getNumConnections());
-        connect(clientModel, SIGNAL(numConnectionsChanged(int)), this, SLOT(setNumConnections(int)));
+		setNumConnections(clientModel->getNumTrackerConnections(),clientModel->getNumTrackerMonitor());
+
+		connect(clientModel, SIGNAL(numConnectionsChanged(int,int)), this, SLOT(setNumConnections(int,int)));
 
         connect(clientModel, SIGNAL(numBlocksChanged(int,int)), this, SLOT(setNumBlocks(int,int)));
 
@@ -447,7 +452,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
 {
     overviewAction->setEnabled(enabled);
     sendCoinsAction->setEnabled(enabled);
-    receiveCoinsAction->setEnabled(enabled);
+	//receiveCoinsAction->setEnabled(enabled);
     historyAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
@@ -505,7 +510,7 @@ void BitcoinGUI::createTrayIconMenu()
     trayIconMenu->addAction(toggleHideAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(sendCoinsAction);
-    trayIconMenu->addAction(receiveCoinsAction);
+	//trayIconMenu->addAction(receiveCoinsAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(signMessageAction);
     trayIconMenu->addAction(verifyMessageAction);
@@ -607,19 +612,37 @@ void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 }
 #endif
 
-void BitcoinGUI::setNumConnections(int count)
+void BitcoinGUI::setNumConnections(int _trackerCount, int _monitorCount)
 {
-    QString icon;
-    switch(count)
-    {
-    case 0: icon = ":/icons/connect_0"; break;
-    case 1: case 2: case 3: icon = ":/icons/connect_1"; break;
-    case 4: case 5: case 6: icon = ":/icons/connect_2"; break;
-    case 7: case 8: case 9: icon = ":/icons/connect_3"; break;
-    default: icon = ":/icons/connect_4"; break;
-    }
-    labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to Bitcoin network", "", count));
+	QString icon;
+
+	if ( _monitorCount )
+	{
+		switch(_monitorCount)
+		{
+		case 1: case 2: icon = ":/icons/connect_2"; break;
+		default: icon = ":/icons/connect_3"; break;
+		}
+	}
+	else if ( _trackerCount )
+	{
+		switch(_trackerCount)
+		{
+		case 1: case 2: icon = ":/icons/connect_1"; break;
+		default: icon = ":/icons/connect_2"; break;
+		}
+	}
+	else
+	{
+		icon = ":/icons/connect_0";
+		labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+		labelConnectionsIcon->setToolTip(tr("synchronizing with dims network", "" ));
+		return;
+	}
+
+	labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+	labelConnectionsIcon->setToolTip(tr("network active, with %1 connection(s) to trackers %2 connection(s) to  monitors").arg(_trackerCount).arg(_monitorCount));
+
 }
 
 void BitcoinGUI::message(const QString &title, const QString &message, unsigned int style, bool *ret)
@@ -729,7 +752,7 @@ void BitcoinGUI::incomingTransaction(const QString& date, int unit, qint64 amoun
                 "Type: %3\n"
                 "Address: %4\n")
                   .arg(date)
-                  .arg(CRatcoinUnits::formatWithUnit(unit, amount, true))
+				  .arg(CDimsUnits::formatWithUnit(unit, amount, true))
                   .arg(type)
                   .arg(address), CClientUIInterface::MSG_INFORMATION);
 }
@@ -843,6 +866,17 @@ void BitcoinGUI::detectShutdown()
     {
         qApp->quit();
     }
+}
+
+int
+BitcoinGUI::handleApplicationPaymentRequest(unsigned int _cost)
+{
+	QMessageBox msgBox;
+	msgBox.setText(QString("Application request you to pay ") + CDimsUnits::formatWithUnit(CDimsUnits::dims, _cost ) + QString(" for license") );
+	msgBox.setInformativeText("Do you want to service request?");
+	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+	msgBox.setDefaultButton(QMessageBox::Ok);
+	return msgBox.exec();
 }
 
 static bool ThreadSafeMessageBox(BitcoinGUI *gui, const std::string& message, const std::string& caption, unsigned int style)

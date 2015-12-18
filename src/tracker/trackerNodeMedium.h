@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,14 +15,12 @@ namespace tracker
 
 typedef boost::variant< common::CIdentifyMessage > ProtocolMessage;
 
-class CGetSynchronizationInfoRequest;
-
-class CTrackerNodeMedium : public common::CNodeMedium< TrackerResponses >
+class CTrackerNodeMedium : public common::CNodeMedium
 {
 public:
-	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium< TrackerResponses >( _selfNode ){};
+	CTrackerNodeMedium( common::CSelfNode * _selfNode ):common::CNodeMedium( _selfNode ){};
 
-	void add( CGetSynchronizationInfoRequest const * _request );
+	void add( CPassMessageRequest const * _request );
 private:
 };
 

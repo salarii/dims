@@ -228,7 +228,7 @@ static void DebugPrintInit()
     assert(fileout == NULL);
     assert(mutexDebugLog == NULL);
 
-    boost::filesystem::path pathDebug = GetDataDir(common::AppType::Tracker) / "debug.log";
+	boost::filesystem::path pathDebug = GetDataDir(common::CDimsParams::getAppType()) / "debug.log";
     fileout = fopen(pathDebug.string().c_str(), "a");
     if (fileout) setbuf(fileout, NULL); // unbuffered
 
@@ -974,7 +974,7 @@ boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
     // Unix: ~/.bitcoin
 #ifdef WIN32
     // Windows
-	return GetSpecialFolderPath(CSIDL_APPDATA) / common::ratcoinParams().getDefaultDirectory();
+	return GetSpecialFolderPath(CSIDL_APPDATA) / common::dimsParams().getDefaultDirectory();
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -986,27 +986,24 @@ boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType)
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-	return pathRet / common::ratcoinParams().getDefaultDirectory();
+	return pathRet / common::dimsParams().getDefaultDirectory();
 #else
     // Unix
-	return pathRet / common::ratcoinParams().getDefaultDirectory();
+	return pathRet / common::dimsParams().getDefaultDirectory();
 #endif
 #endif
 }
 
-static boost::filesystem::path pathCached[CChainParams::MAX_NETWORK_TYPES+1];
+static boost::filesystem::path pathCached[(int)common::AppType::SizeOfEnum];
 static CCriticalSection csPathCached;
-
+//this is not  correct fix it
 const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
 
     LOCK(csPathCached);
 
-    int nNet = CChainParams::MAX_NETWORK_TYPES;
-    if (fNetSpecific) nNet = Params().NetworkID();
-
-    fs::path &path = pathCached[nNet];
+	fs::path &path = pathCached[(int)_appType];
 
     // This can be called during exceptions by LogPrintf(), so we cache the
     // value so we don't have to do memory allocations after that.
@@ -1032,21 +1029,22 @@ const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool 
 
 void ClearDatadirCache()
 {
-    std::fill(&pathCached[0], &pathCached[CChainParams::MAX_NETWORK_TYPES+1],
+	std::fill(&pathCached[0], &pathCached[(int)common::AppType::SizeOfEnum],
               boost::filesystem::path());
 }
 
-boost::filesystem::path GetConfigFile()
+boost::filesystem::path GetConfigFile( common::AppType::Enum _appType )
 {
-	boost::filesystem::path pathConfigFile(GetArg("-conf", "tracker.conf"));
-    if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir(common::AppType::Tracker,false) / pathConfigFile;
-    return pathConfigFile;
+	boost::filesystem::path pathConfigFile( GetArg( "-conf", common::dimsParams().getConfigurationFileName( _appType ) ) );
+	if ( !pathConfigFile.is_complete() )
+		pathConfigFile = GetDataDir( _appType, false ) / pathConfigFile;
+	return pathConfigFile;
 }
 
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
+	boost::filesystem::ifstream streamConfig(GetConfigFile( common::CDimsParams::getAppType() ) );
     if (!streamConfig.good())
 		return; // No tracker.conf file is OK
 

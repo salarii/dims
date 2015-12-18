@@ -750,7 +750,7 @@ void SocketSendData(CNode *pnode)
     pnode->vSendMsg.erase(pnode->vSendMsg.begin(), it);
 }
 
-static list<CNode*> vNodesDisconnected;
+static set<CNode*> vNodesDisconnected;
 
 void ThreadSocketHandler()
 {
@@ -782,13 +782,13 @@ void ThreadSocketHandler()
                     // hold in disconnected pool until all refs are released
                     if (pnode->fNetworkNode || pnode->fInbound)
                         pnode->Release();
-                    vNodesDisconnected.push_back(pnode);
+					vNodesDisconnected.insert(pnode);
                 }
             }
         }
         {
             // Delete disconnected nodes
-            list<CNode*> vNodesDisconnectedCopy = vNodesDisconnected;
+			set<CNode*> vNodesDisconnectedCopy = vNodesDisconnected;
             BOOST_FOREACH(CNode* pnode, vNodesDisconnectedCopy)
             {
                 // wait until threads are done using it
@@ -810,15 +810,14 @@ void ThreadSocketHandler()
                     }
                     if (fDelete)
                     {
-                        vNodesDisconnected.remove(pnode);
+						vNodesDisconnected.erase(pnode);
                         delete pnode;
                     }
                 }
             }
         }
         if(vNodes.size() != nPrevNodeCount) {
-            nPrevNodeCount = vNodes.size();
-            uiInterface.NotifyNumConnectionsChanged(nPrevNodeCount);
+			nPrevNodeCount = vNodes.size();
         }
 
 
@@ -886,7 +885,7 @@ void ThreadSocketHandler()
         }
 
         int nSelect = select(have_fds ? hSocketMax + 1 : 0,
-                             &fdsetRecv, &fdsetSend, &fdsetError, &timeout);
+                            &fdsetRecv, &fdsetSend, &fdsetError, &timeout);
         boost::this_thread::interruption_point();
 
         if (nSelect == SOCKET_ERROR)

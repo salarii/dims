@@ -1,16 +1,17 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#include "common/actionHandler.h"
 
 #include "seedNodesManager.h"
 #include "seedNodeMedium.h"
 #include "internalMedium.h"
+#include "pingAction.h"
 
 namespace common
 {
 std::vector< uint256 > deleteList;
-
-template<>	CNodesManager< seed::SeedResponses > * common::CNodesManager< seed::SeedResponses >::ms_instance = 0;
 }
 
 namespace seed
@@ -31,39 +32,34 @@ CSeedNodesManager::CSeedNodesManager()
 {
 }
 
-CSeedNodeMedium*
-CSeedNodesManager::getMediumForNode( common::CSelfNode * _node ) const
+std::list< common::CMedium *>
+CSeedNodesManager::provideConnection( common::CMediumFilter const & _mediumFilter )
 {
-	return static_cast< CSeedNodeMedium* >( common::CNodesManager< SeedResponses >::getMediumForNode( _node ) );
+	return _mediumFilter.getMediums( this );
 }
 
-std::list< common::CMedium< SeedResponses > *>
-CSeedNodesManager::provideConnection( int const _actionKind, unsigned _requestedConnectionNumber )
+std::list< common::CMedium *>
+CSeedNodesManager::getInternalMedium()
 {
-	std::list< common::CMedium< SeedResponses > *> mediums = common::CNodesManager< SeedResponses >::provideConnection( _actionKind, _requestedConnectionNumber );
+	std::list< common::CMedium *> mediums;
 
-	if ( !mediums.empty() )
-		return mediums;
+	mediums.push_back( CInternalMedium::getInstance() );
 
-	if ( !_actionKind )// not  correct
-	{
-		mediums.push_back( CInternalMedium::getInstance() );
-	}
 	return mediums;
 }
 
 void
-CSeedNodesManager::setPublicKey( CAddress const & _address, CPubKey const & _pubKey )
+CSeedNodesManager::setNodePublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey )
 {
-	m_keyStore.insert( std::make_pair( _address, _pubKey ) );
+	m_nodeKeyStore.insert( std::make_pair( _nodeIndicator, _pubKey ) );
 }
 
 bool
-CSeedNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const
+CSeedNodesManager::getNodePublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const
 {
-	std::map< CAddress, CPubKey >::const_iterator iterator = m_keyStore.find( _address );
+	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_nodeKeyStore.find( _nodeIndicator );
 
-	if ( iterator == m_keyStore.end() )
+	if ( iterator == m_nodeKeyStore.end() )
 		return false;
 
 	_pubKey = iterator->second;
@@ -71,5 +67,47 @@ CSeedNodesManager::getPublicKey( CAddress const & _address, CPubKey & _pubKey ) 
 	return true;
 }
 
+bool
+CSeedNodesManager::getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator )
+{
+	BOOST_FOREACH( PAIRTYPE( uintptr_t, CPubKey ) const & node, m_nodeKeyStore )
+	{
+		if ( node.second == _pubKey )
+		{
+			_nodeIndicator = node.first;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool
+CSeedNodesManager::clearPublicKey( uintptr_t _nodeIndicator )
+{
+	m_nodeKeyStore.erase( _nodeIndicator );
+	return true;
+}
+
+bool
+CSeedNodesManager::isKnown( CPubKey const & _pubKey ) const
+{
+	std::map< uintptr_t, CPubKey >::const_iterator iterator = m_nodeKeyStore.begin();
+
+	while( iterator != m_nodeKeyStore.end() )
+	{
+		if ( iterator->second == _pubKey )
+			return true;
+		iterator++;
+	}
+	return false;
+}
+
+void
+CSeedNodesManager::evaluateNode( common::CSelfNode * _selfNode )
+{
+	//maybe in future
+	//common::CActionHandler::getInstance()->executeAction( new CPingAction( _selfNode ) );
+}
 
 }

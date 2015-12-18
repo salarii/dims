@@ -81,7 +81,7 @@ public:
     int nVersion;
 
     // construct a CCoins from a CTransaction, at a given height
-	CCoins(const CTransaction &tx) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), nVersion(tx.nVersion), m_location( tx.m_location ) {
+	CCoins(const CTransaction &tx) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), m_location( tx.m_location ), nVersion(tx.nVersion) {
         ClearUnspendable();
     }
 
@@ -279,6 +279,9 @@ public:
     // Calculate statistics about the unspent transaction output set
     virtual bool GetStats(CCoinsStats &stats);
 
+	// possibly not  ok
+	virtual void clearView();
+
     // As we use CCoinsViews polymorphically, have a virtual destructor
     virtual ~CCoinsView() {}
 };
@@ -292,7 +295,7 @@ protected:
 
 public:
     CCoinsViewBacked(CCoinsView &viewIn);
-    bool GetCoins(const uint256 &txid, CCoins &coins);
+	bool GetCoins(const uint256 &txid, CCoins &coins);
     bool SetCoins(const uint256 &txid, const CCoins &coins);
     bool HaveCoins(const uint256 &txid);
     uint256 GetBestBlock();
@@ -300,6 +303,7 @@ public:
     void SetBackend(CCoinsView &viewIn);
     bool BatchWrite(const std::map<uint256, CCoins> &mapCoins, const uint256 &hashBlock);
     bool GetStats(CCoinsStats &stats);
+	void clearView();
 };
 
 
@@ -356,17 +360,32 @@ private:
 
 struct CAvailableCoin
 {
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE(m_coin);
+		READWRITE(m_position);
+		READWRITE(m_hash);
+	)
+
 	CAvailableCoin(){}; // risky??
+
 	CAvailableCoin( CTxOut const & _coin, unsigned int _position,uint256 const & _hash ):m_coin( _coin ), m_position(_position),m_hash( _hash ){};
 
-	bool operator==( CAvailableCoin const & _availbleCoin ) const
+	bool operator==( CAvailableCoin const & _availableCoin ) const
 	{
-		return m_coin == _availbleCoin.m_coin && m_position == _availbleCoin.m_position && m_hash == _availbleCoin.m_hash;
+		return m_coin == _availableCoin.m_coin && m_position == _availableCoin.m_position && m_hash == _availableCoin.m_hash;
 	}
 
 	CTxOut m_coin;
 	unsigned int m_position;
 	uint256 m_hash;
+};
+
+struct CSpendCoins : public CAvailableCoin
+{
+	CSpendCoins( CTxOut const & _coin, unsigned int _position,uint256 const & _hash, CKey const & _key ):CAvailableCoin( _coin, _position, _hash ), m_key( _key ){}
+
+	CKey m_key;
 };
 
 #endif

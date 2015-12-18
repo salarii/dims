@@ -5,12 +5,12 @@
 #include "guiutil.h"
 
 #include "bitcoinaddressvalidator.h"
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "qvalidatedlineedit.h"
 #include "walletmodel.h"
 
 #include "core.h"
-#include "init.h"
+#include "tracker/init.h"
 #include "util.h"
 
 #ifdef WIN32
@@ -133,7 +133,7 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-				if(!CRatcoinUnits::parse(CRatcoinUnits::rat, i->second, &rv.amount))
+				if(!CDimsUnits::parse(CDimsUnits::dims, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -172,7 +172,7 @@ QString formatBitcoinURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-		ret += QString("?amount=%1").arg(CRatcoinUnits::format(CRatcoinUnits::rat, info.amount));
+		ret += QString("?amount=%1").arg(CDimsUnits::format(CDimsUnits::dims, info.amount));
         paramCount++;
     }
 
@@ -195,7 +195,7 @@ QString formatBitcoinURI(const SendCoinsRecipient &info)
 
 bool isDust(const QString& address, qint64 amount)
 {
-    CTxDestination dest = CBitcoinAddress(address.toStdString()).Get();
+    CTxDestination dest = CMnemonicAddress(address.toStdString()).Get();
     CScript script; script.SetDestination(dest);
     CTxOut txOut(amount, script);
     return txOut.IsDust(CTransaction::nMinRelayTxFee);
@@ -340,10 +340,10 @@ bool checkPoint(const QPoint &p, const QWidget *w)
 bool isObscured(QWidget *w)
 {
     return !(checkPoint(QPoint(0, 0), w)
-        && checkPoint(QPoint(w->width() - 1, 0), w)
-        && checkPoint(QPoint(0, w->height() - 1), w)
-        && checkPoint(QPoint(w->width() - 1, w->height() - 1), w)
-        && checkPoint(QPoint(w->width() / 2, w->height() / 2), w));
+       && checkPoint(QPoint(w->width() - 1, 0), w)
+       && checkPoint(QPoint(0, w->height() - 1), w)
+       && checkPoint(QPoint(w->width() - 1, w->height() - 1), w)
+       && checkPoint(QPoint(w->width() / 2, w->height() / 2), w));
 }
 
 void openDebugLogfile()

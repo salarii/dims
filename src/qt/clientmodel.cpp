@@ -39,9 +39,14 @@ ClientModel::~ClientModel()
     unsubscribeFromCoreSignals();
 }
 
-int ClientModel::getNumConnections() const
+int ClientModel::getNumTrackerConnections() const
 {
-    return vNodes.size();
+	return 0;
+}
+
+int ClientModel::getNumTrackerMonitor() const
+{
+	return 0;
 }
 
 quint64 ClientModel::getTotalBytesRecv() const
@@ -65,9 +70,9 @@ void ClientModel::updateTimer()
 
 }
 
-void ClientModel::updateNumConnections(int numConnections)
+void ClientModel::updateNumConnections(int numTrackerConnections,int numMonitorConnections)
 {
-    emit numConnectionsChanged(numConnections);
+	emit numConnectionsChanged(numTrackerConnections,numMonitorConnections);
 }
 
 void ClientModel::updateAlert(const QString &hash, int status)
@@ -130,40 +135,23 @@ QString ClientModel::formatClientStartupTime() const
     return QDateTime::fromTime_t(nClientStartupTime).toString();
 }
 
-// Handlers for core signals
-static void NotifyBlocksChanged(ClientModel *clientmodel)
-{
-    // This notification is too frequent. Don't trigger a signal.
-    // Don't remove it, though, as it might be useful later.
-}
-
-static void NotifyNumConnectionsChanged(ClientModel *clientmodel, int newNumConnections)
+static void NotifyNumConnectionsChanged(ClientModel *clientmodel, int newNumTrackerConnections, int newNumMonitorConnections)
 {
     // Too noisy: qDebug() << "NotifyNumConnectionsChanged : " + QString::number(newNumConnections);
     QMetaObject::invokeMethod(clientmodel, "updateNumConnections", Qt::QueuedConnection,
-                              Q_ARG(int, newNumConnections));
-}
-
-static void NotifyAlertChanged(ClientModel *clientmodel, const uint256 &hash, ChangeType status)
-{
-    qDebug() << "NotifyAlertChanged : " + QString::fromStdString(hash.GetHex()) + " status=" + QString::number(status);
-    QMetaObject::invokeMethod(clientmodel, "updateAlert", Qt::QueuedConnection,
-                              Q_ARG(QString, QString::fromStdString(hash.GetHex())),
-                              Q_ARG(int, status));
+							  Q_ARG(int, newNumTrackerConnections),Q_ARG(int, newNumMonitorConnections));
 }
 
 void ClientModel::subscribeToCoreSignals()
 {
     // Connect signals to client
-    uiInterface.NotifyBlocksChanged.connect(boost::bind(NotifyBlocksChanged, this));
-    uiInterface.NotifyNumConnectionsChanged.connect(boost::bind(NotifyNumConnectionsChanged, this, _1));
-    uiInterface.NotifyAlertChanged.connect(boost::bind(NotifyAlertChanged, this, _1, _2));
+	uiInterface.NotifyNumConnectionsChanged.connect(boost::bind(NotifyNumConnectionsChanged, this, _1,_2));
+	//uiInterface.NotifyAlertChanged.connect(boost::bind(NotifyAlertChanged, this, _1, _2));
 }
 
 void ClientModel::unsubscribeFromCoreSignals()
 {
     // Disconnect signals from client
-    uiInterface.NotifyBlocksChanged.disconnect(boost::bind(NotifyBlocksChanged, this));
-    uiInterface.NotifyNumConnectionsChanged.disconnect(boost::bind(NotifyNumConnectionsChanged, this, _1));
-    uiInterface.NotifyAlertChanged.disconnect(boost::bind(NotifyAlertChanged, this, _1, _2));
+	uiInterface.NotifyNumConnectionsChanged.disconnect(boost::bind(NotifyNumConnectionsChanged, this, _1, _2));
+	//uiInterface.NotifyAlertChanged.disconnect(boost::bind(NotifyAlertChanged, this, _1, _2));
 }

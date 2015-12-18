@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -70,7 +70,7 @@ bool AppInit(int argc, char* argv[])
 		// Parameters
 		//
 		// If Qt is used, parameters/tracker.conf are parsed in qt/bitcoin.cpp's main()
-			common::CRatcoinParams::setAppType( common::AppType::Monitor);
+			common::CDimsParams::setAppType( common::AppType::Monitor);
 		ParseParameters(argc, argv);
 		if (!boost::filesystem::is_directory(GetDataDir(common::AppType::Monitor, false)))
 		{
@@ -79,7 +79,7 @@ bool AppInit(int argc, char* argv[])
 		}
 		ReadConfigFile(mapArgs, mapMultiArgs);
 		// Check for -testnet or -regtest parameter (TestNet() calls are only valid after this clause)
-		if (!SelectParamsFromCommandLine()|| !common::SelectRatcoinParamsFromCommandLine() ) {
+		if (!SelectParamsFromCommandLine()|| !common::SelectDimsParamsFromCommandLine() ) {
 			fprintf(stderr, "Error: Invalid combination of -regtest and -testnet.\n");
 			return false;
 		}

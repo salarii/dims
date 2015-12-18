@@ -47,7 +47,7 @@ Status Table::Open(const Options& options,
   char footer_space[Footer::kEncodedLength];
   Slice footer_input;
   Status s = file->Read(size - Footer::kEncodedLength, Footer::kEncodedLength,
-                        &footer_input, footer_space);
+                       &footer_input, footer_space);
   if (!s.ok()) return s;
 
   Footer footer;
@@ -210,7 +210,7 @@ Iterator* Table::BlockReader(void* arg,
 Iterator* Table::NewIterator(const ReadOptions& options) const {
   return NewTwoLevelIterator(
       rep_->index_block->NewIterator(rep_->options.comparator),
-      &Table::BlockReader, const_cast<Table*>(this), options);
+     &Table::BlockReader, const_cast<Table*>(this), options);
 }
 
 Status Table::InternalGet(const ReadOptions& options, const Slice& k,

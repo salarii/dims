@@ -24,12 +24,13 @@ BUILT_SOURCES = $(JSON_TEST_FILES:.json=.json.h) $(RAW_TEST_FILES:.raw=.raw.h)
 
 # test_bitcoin binary #
 test_bitcoin_CPPFLAGS = $(AM_CPPFLAGS) $(TESTDEFS)
-test_bitcoin_LDADD = $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBDIMS_TRACKER) $(LIBBITCOIN_COMMON) $(LIBLEVELDB) $(LIBMEMENV) \
+test_bitcoin_LDADD = $(LIBDIMS_TRACKER) $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBDIMS_TRACKER) $(LIBBITCOIN_COMMON) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIB)
 
 test_bitcoin_LDADD += $(BDB_LIBS)
 
 test_bitcoin_SOURCES = \
+  addressToCoins_tests.cpp \
   test_ratcoin.cpp \
   uint256_tests.cpp \
   segmentFileStorage_tests.cpp \

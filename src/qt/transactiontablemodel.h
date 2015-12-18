@@ -11,7 +11,7 @@
 class TransactionRecord;
 class TransactionTablePriv;
 class WalletModel;
-
+class CTransaction;
 class CWallet;
 
 /** UI model for the transaction table of a wallet.
@@ -86,6 +86,7 @@ public slots:
     void updateTransaction(const QString &hash, int status);
     void updateConfirmations();
     void updateDisplayUnit();
+	void includeTransaction(CTransaction const & _transaction );
 
     friend class TransactionTablePriv;
 };

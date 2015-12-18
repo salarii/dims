@@ -5,7 +5,7 @@
 #include "receiverequestdialog.h"
 #include "ui_receiverequestdialog.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
@@ -131,7 +131,7 @@ void ReceiveRequestDialog::update()
     html += "<a href=\""+uri+"\">" + GUIUtil::HtmlEscape(uri) + "</a><br>";
     html += "<b>"+tr("Address")+"</b>: " + GUIUtil::HtmlEscape(info.address) + "<br>";
     if(info.amount)
-        html += "<b>"+tr("Amount")+"</b>: " + CRatcoinUnits::formatWithUnit(model->getDisplayUnit(), info.amount) + "<br>";
+        html += "<b>"+tr("Amount")+"</b>: " + CDimsUnits::formatWithUnit(model->getDisplayUnit(), info.amount) + "<br>";
     if(!info.label.isEmpty())
         html += "<b>"+tr("Label")+"</b>: " + GUIUtil::HtmlEscape(info.label) + "<br>";
     if(!info.message.isEmpty())

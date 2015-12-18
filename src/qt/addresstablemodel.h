@@ -7,6 +7,7 @@
 
 #include <QAbstractTableModel>
 #include <QStringList>
+#include <vector>
 
 class AddressTablePriv;
 class WalletModel;
@@ -74,6 +75,8 @@ public:
        Return -1 if not found.
      */
     int lookupAddress(const QString &address) const;
+
+	std::vector< std::string > getAddresses() const;
 
     EditStatus getEditStatus() const { return editStatus; }
 

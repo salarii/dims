@@ -129,9 +129,9 @@ BOOST_AUTO_TEST_CASE(util_ParseParameters)
     // a non-option argument (non-GNU option parsing)
     BOOST_CHECK(mapArgs.size() == 3 && mapMultiArgs.size() == 3);
     BOOST_CHECK(mapArgs.count("-a") && mapArgs.count("-b") && mapArgs.count("-ccc")
-                && !mapArgs.count("f") && !mapArgs.count("-d"));
+               && !mapArgs.count("f") && !mapArgs.count("-d"));
     BOOST_CHECK(mapMultiArgs.count("-a") && mapMultiArgs.count("-b") && mapMultiArgs.count("-ccc")
-                && !mapMultiArgs.count("f") && !mapMultiArgs.count("-d"));
+               && !mapMultiArgs.count("f") && !mapMultiArgs.count("-d"));
 
     BOOST_CHECK(mapArgs["-a"] == "" && mapArgs["-ccc"] == "multiple");
     BOOST_CHECK(mapMultiArgs["-ccc"].size() == 2);

@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #ifndef SEED_DB_H_
 #define SEED_DB_H_
 
@@ -15,7 +17,7 @@
 #include "protocol.h"
 #include "sync.h"
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 
 #define MIN_RETRY 1000
 
@@ -151,7 +153,7 @@ public:
 
 	  // interesting functionality  how  to make it  working  ???
 	  return true;
-	if (ip.GetPort() != common::ratcoinParams().GetDefaultPort()) return false;
+	if (ip.GetPort() != common::dimsParams().GetDefaultPort()) return false;
     if (!(services & NODE_NETWORK)) return false;
     if (!ip.IsRoutable()) return false;
     if (clientVersion && clientVersion < REQUIRE_VERSION) return false;
@@ -232,6 +234,15 @@ public:
 };
 
 struct CServiceResult {
+	CServiceResult()
+		: fGood(false)
+		, nBanTime( 0 )
+		, nHeight( 0 )
+		, nClientV( 0 )
+		, strClientV()
+		, ourLastSuccess( 0 )
+	{}
+
     CService service;
     bool fGood;
     int nBanTime;
@@ -241,14 +252,14 @@ struct CServiceResult {
 	int64_t ourLastSuccess;
 };
 
-//             seen nodes
-//            /          \
-// (a) banned nodes       available nodes--------------
-//                       /       |                     \
-//               tracked nodes   (b) unknown nodes   (e) active nodes
-//              /           \
-//     (d) good nodes   (c) non-good nodes 
-
+/*             seen nodes
+			/          \
+ (a) banned nodes       available nodes--------------
+					   /       |                     \
+			   tracked nodes   (b) unknown nodes   (e) active nodes
+			  /           \
+	 (d) good nodes   (c) non-good nodes
+*/
 class CAddrDb {
 private:
   mutable CCriticalSection cs;
@@ -269,7 +280,7 @@ protected:
   void Bad_(const CService &ip, int ban);  // mark an IP as bad (and optionally ban it) (must have been returned by Get_)
   void Skipped_(const CService &ip);       // mark an IP as skipped (must have been returned by Get_)
   int Lookup_(const CService &ip);         // look up id of an IP
-  void GetIPs_(std::set<CNetAddr>& ips, int max, const bool *nets); // get a random set of IPs (shared lock only)
+  void GetIPs_(std::set<CNetAddr>& ips, unsigned int max, const bool *nets); // get a random set of IPs (shared lock only)
 
 public:
   std::map<CService, time_t> banned; // nodes that are banned, with their unban time (a)
@@ -318,16 +329,13 @@ public:
     SHARED_CRITICAL_BLOCK(cs) {
       if (fWrite) {
         CAddrDb *db = const_cast<CAddrDb*>(this);
-        int n = ourId.size() + unkId.size();
-        READWRITE(n);
-        for (std::deque<int>::const_iterator it = ourId.begin(); it != ourId.end(); it++) {
-          std::map<int, CAddrInfo>::iterator ci = db->idToInfo.find(*it);
-          READWRITE((*ci).second);
-        }
-        for (std::set<int>::const_iterator it = unkId.begin(); it != unkId.end(); it++) {
-          std::map<int, CAddrInfo>::iterator ci = db->idToInfo.find(*it);
-          READWRITE((*ci).second);
-        }
+		int n = idToInfo.size();
+									READWRITE(n);
+									CAddrInfo addresInfo;
+		for (std::map<int, CAddrInfo>::const_iterator it = idToInfo.begin(); it != idToInfo.end(); it++) {
+										addresInfo = (*it).second;
+										READWRITE( addresInfo );
+		}
       } else {
         CAddrDb *db = const_cast<CAddrDb*>(this);
         db->nId = 0;
@@ -360,7 +368,7 @@ public:
   }
   void Add(const std::vector<CAddress> &vAddr, bool fForce = false) {
     CRITICAL_BLOCK(cs)
-      for (int i=0; i<vAddr.size(); i++)
+	  for (unsigned int i=0; i<vAddr.size(); i++)
         Add_(vAddr[i], fForce);
   }
   void Good(const CService &addr, int clientVersion, std::string clientSubVersion, int blocks) {
@@ -382,7 +390,7 @@ public:
   void GetMany(std::vector<CServiceResult> &ips, int max, int& wait) {
     CRITICAL_BLOCK(cs) {
       while (max > 0) {
-          CServiceResult ip = {};
+		  CServiceResult ip;
           if (!Get_(ip, wait))
               return;
           ips.push_back(ip);
@@ -392,7 +400,7 @@ public:
   }
   void ResultMany(const std::vector<CServiceResult> &ips) {
     CRITICAL_BLOCK(cs) {
-      for (int i=0; i<ips.size(); i++) {
+	  for (unsigned int i=0; i<ips.size(); i++) {
         if (ips[i].fGood) {
           Good_(ips[i].service, ips[i].nClientV, ips[i].strClientV, ips[i].nHeight);
         } else {

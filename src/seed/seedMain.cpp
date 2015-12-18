@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #include <algorithm>
 
 #define __STDC_FORMAT_MACROS
@@ -12,9 +14,11 @@
 #include "seedDb.h"
 #include "processNetwork.h"
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 #include "common/manageNetwork.h"
 #include "common/actionHandler.h"
+#include "common/timeMedium.h"
+#include "common/events.h"
 
 #include "seedNodesManager.h"
 #include "util.h"
@@ -27,7 +31,6 @@ boost::thread_group threadGroup;
 
 namespace seed
 {
-
 pthread_mutex_t nodesLock;
 
 bool fTestNet = false;
@@ -172,7 +175,7 @@ extern "C" void* ThreadCrawler(void* data) {
 	} while(1);
 }
 */
-extern "C" int GetIPList(void *thread, addr_t *addr, int max, int ipv4, int ipv6);
+extern "C" int GetIPList(void *thread, addr_t *addr, unsigned int max, int ipv4, int ipv6);
 
 class CDnsThread {
 public:
@@ -248,7 +251,7 @@ public:
 	}
 };
 
-extern "C" int GetIPList(void *data, addr_t* addr, int max, int ipv4, int ipv6) {
+extern "C" int GetIPList(void *data, addr_t* addr, unsigned int max, int ipv4, int ipv6) {
 	CDnsThread *thread = (CDnsThread*)data;
 	thread->cacheHit();
 	unsigned int size = thread->cache.size();
@@ -257,9 +260,9 @@ extern "C" int GetIPList(void *data, addr_t* addr, int max, int ipv4, int ipv6) 
 		max = size;
 	if (max > maxmax)
 		max = maxmax;
-	int i=0;
+	unsigned int i=0;
 	while (i<max) {
-		int j = i + (rand() % (size - i));
+		unsigned int j = i + (rand() % (size - i));
 		do {
 			bool ok = (ipv4 && thread->cache[j].v == 4) ||
 					(ipv6 && thread->cache[j].v == 6);
@@ -281,6 +284,7 @@ vector<CDnsThread*> dnsThread;
 extern "C" void* ThreadDNS(void* arg) {
 	CDnsThread *thread = (CDnsThread*)arg;
 	thread->run();
+	return 0;
 }
 
 int StatCompare(const CAddrReport& a, const CAddrReport& b) {
@@ -370,16 +374,12 @@ extern "C" void* ThreadSeeder(void*) {
       vector<CNetAddr> ips;
       LookupHost(seeds[i].c_str(), ips);
       for (vector<CNetAddr>::iterator it = ips.begin(); it != ips.end(); it++) {
-		db.Add(CAddress(CService(*it, common::ratcoinParams().GetDefaultPort() )), true);
+		db.Add(CAddress(CService(*it, common::dimsParams().GetDefaultPort() )), true);
       }
     }
 	MilliSleep(1800000);
   } while(1);
-}
-
-bool stateExecuted( CAcceptNodeAction * _acceptNodeAction )
-{
-	return !_acceptNodeAction->isExecuted();
+	return 0;
 }
 
 void periodicCheck()
@@ -397,43 +397,23 @@ void periodicCheck()
 		  continue;
 		}
 
-		vector<CAddress> addr;
-		std::list< CAcceptNodeAction * > m_searchedNodes;
-
-		for (int i=0; i<ips.size(); i++)
+		for (unsigned int i=0; i<ips.size(); i++)
 		{
 			CServiceResult &res = ips[i];
 			res.nBanTime = 0;
 			res.nClientV = 0;
 			res.nHeight = 0;
 			res.strClientV = "";
-			bool getaddr = res.ourLastSuccess + 604800 < now;
-			//ugly
-			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( CAddress(res.service) );
-			common::CActionHandler< SeedResponses >::getInstance()->executeAction( acceptNodeAction );
-			m_searchedNodes.push_back( acceptNodeAction );
+			// ugly but should be reliable
+			CAcceptNodeAction * acceptNodeAction = new CAcceptNodeAction( res );
+			acceptNodeAction->process_event( common::CSwitchToConnectingEvent() );
+
+			common::CActionHandler::getInstance()->executeAction( acceptNodeAction );
 		}
 
-		// this is  against action  handler  philosophy but here  we can live  with  that
-		while( 1 )
-		{
-			std::list< CAcceptNodeAction * >::iterator it = std::find_if( m_searchedNodes.begin(), m_searchedNodes.end(), stateExecuted );
-			if ( it == m_searchedNodes.end() )
-				break;
-		}
+		MilliSleep(50000);
+		db.ResultMany(ips); // believe it is  done
 
-		int i = 0;
-		BOOST_FOREACH( CAcceptNodeAction * nodeAction, m_searchedNodes )
-		{
-			ips[ i ].fGood = nodeAction->getValid();
-
-			delete nodeAction;
-		}
-
-		db.ResultMany(ips);
-		db.Add(addr);
-
-		MilliSleep(10000);
 	}
 
 
@@ -445,7 +425,7 @@ void periodicCheck()
 using namespace seed;
 
 int main(int argc, char **argv) {
-	common::CRatcoinParams::setAppType( common::AppType::Seed);
+	common::CDimsParams::setAppType( common::AppType::Seed);
 	seed_insecure_rand();
 	pthread_mutex_init(&nodesLock, NULL);
 	signal(SIGPIPE, SIG_IGN);
@@ -464,7 +444,7 @@ int main(int argc, char **argv) {
 	if (opts.fUseTestNet) {
 		printf("Using testnet.\n");
 		fTestNet = true;
-		common::SelectRatcoinParams(CNetworkParams::TESTNET);
+		common::SelectDimsParams(CNetworkParams::TESTNET);
 	}
 	if (!opts.ns) {
 		printf("No nameserver set. Not starting DNS server.\n");
@@ -486,15 +466,17 @@ int main(int argc, char **argv) {
 		printf("done\n");
 	}
 
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< seed::SeedResponses >::loop, common::CActionHandler< seed::SeedResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::CActionHandler::loop, common::CActionHandler::getInstance() ) );
 
-	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
+
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)CSeedNodesManager::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( seed::CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
 
-	common::CActionHandler< seed::SeedResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< seed::SeedResponses >*)CSeedNodesManager::getInstance() );
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)CSeedNodesManager::getInstance() );
 
 	if (fDNS) {
 		printf("Starting %i DNS threads for %s on %s (port %i)...", opts.nDnsThreads, opts.host, opts.ns, opts.nPort);
@@ -524,7 +506,6 @@ int main(int argc, char **argv) {
 
 	threadGroup.create_thread( ThreadStats );
 	threadGroup.create_thread( ThreadDumper );
-	void* res;
 
 	threadGroup.join_all();
 	return 0;

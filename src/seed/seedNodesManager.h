@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,34 +9,39 @@
 #include "common/nodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/connectionProvider.h"
-#include "configureSeedActionHandler.h"
 
 namespace seed
 {
 
 class CSeedNodeMedium;
 
-class CSeedNodesManager : public common::CNodesManager< SeedResponses >
+class CSeedNodesManager : public common::CNodesManager
 {
 public:
 	static CSeedNodesManager * getInstance();
 
-	CSeedNodeMedium* getMediumForNode( common::CSelfNode * _node ) const;
+	std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
-	std::list< common::CMedium< SeedResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+	void setNodePublicKey( uintptr_t _nodeIndicator, CPubKey const & _pubKey );
 
-	void setPublicKey( CAddress const & _address, CPubKey const & _pubKey );
+	bool getNodePublicKey( uintptr_t _nodeIndicator, CPubKey & _pubKey ) const;
 
-	bool getPublicKey( CAddress const & _address, CPubKey & _pubKey ) const;
+	bool getKeyToNode( CPubKey const & _pubKey, uintptr_t & _nodeIndicator );
+
+	bool clearPublicKey( uintptr_t _nodeIndicator );
+
+	void evaluateNode( common::CSelfNode * _selfNode );
+
+	bool isKnown( CPubKey const & _pubKey ) const;
+
+	std::list< common::CMedium *> getInternalMedium();
+
+	std::list< common::CMedium *> getNodesByClass( common::CMediumKinds::Enum _nodesClass ) const{ return std::list< common::CMedium *>(); }// not used  right now
 private:
 	CSeedNodesManager();
 private:
-	std::map< CAddress, CPubKey > m_keyStore;
+	std::map< uintptr_t, CPubKey > m_nodeKeyStore;
 };
-
-
-
-
 
 }
 

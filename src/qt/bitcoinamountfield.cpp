@@ -4,7 +4,7 @@
 
 #include "bitcoinamountfield.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "guiconstants.h"
 #include "qvaluecombobox.h"
 
@@ -29,7 +29,7 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QValueComboBox(this);
-	unit->setModel(new CRatcoinUnits(this));
+	unit->setModel(new CDimsUnits(this));
     layout->addWidget(unit);
     layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
@@ -66,9 +66,9 @@ bool BitcoinAmountField::validate()
     bool valid = true;
     if (amount->value() == 0.0)
         valid = false;
-	else if (!CRatcoinUnits::parse(currentUnit, text(), 0))
+	else if (!CDimsUnits::parse(currentUnit, text(), 0))
         valid = false;
-	else if (amount->value() > CRatcoinUnits::maxAmount(currentUnit))
+	else if (amount->value() > CDimsUnits::maxAmount(currentUnit))
         valid = false;
 
     setValid(valid);
@@ -123,7 +123,7 @@ QWidget *BitcoinAmountField::setupTabChain(QWidget *prev)
 qint64 BitcoinAmountField::value(bool *valid_out) const
 {
     qint64 val_out = 0;
-	bool valid = CRatcoinUnits::parse(currentUnit, text(), &val_out);
+	bool valid = CDimsUnits::parse(currentUnit, text(), &val_out);
     if (valid_out)
     {
         *valid_out = valid;
@@ -133,7 +133,7 @@ qint64 BitcoinAmountField::value(bool *valid_out) const
 
 void BitcoinAmountField::setValue(qint64 value)
 {
-	setText(CRatcoinUnits::format(currentUnit, value));
+	setText(CDimsUnits::format(currentUnit, value));
 }
 
 void BitcoinAmountField::setReadOnly(bool fReadOnly)
@@ -148,7 +148,7 @@ void BitcoinAmountField::unitChanged(int idx)
     unit->setToolTip(unit->itemData(idx, Qt::ToolTipRole).toString());
 
     // Determine new unit ID
-	int newUnit = unit->itemData(idx, CRatcoinUnits::UnitRole).toInt();
+	int newUnit = unit->itemData(idx, CDimsUnits::UnitRole).toInt();
 
     // Parse current value and convert to new unit
     bool valid = false;
@@ -157,9 +157,9 @@ void BitcoinAmountField::unitChanged(int idx)
     currentUnit = newUnit;
 
     // Set max length after retrieving the value, to prevent truncation
-	amount->setDecimals(CRatcoinUnits::decimals(currentUnit));
-	amount->setMaximum(qPow(10, CRatcoinUnits::amountDigits(currentUnit)) - qPow(10, -amount->decimals()));
-	amount->setSingleStep((double)nSingleStep / (double)CRatcoinUnits::factor(currentUnit));
+	amount->setDecimals(CDimsUnits::decimals(currentUnit));
+	amount->setMaximum(qPow(10, CDimsUnits::amountDigits(currentUnit)) - qPow(10, -amount->decimals()));
+	amount->setSingleStep((double)nSingleStep / (double)CDimsUnits::factor(currentUnit));
 
     if (valid)
     {

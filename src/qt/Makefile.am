@@ -92,6 +92,7 @@ QT_FORMS_UI = \
   forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
+  ../client/moc_applicationServer.cpp \
   moc_addressbookpage.cpp \
   moc_addresstablemodel.cpp \
   moc_addAddressDialog.cpp \
@@ -117,7 +118,7 @@ QT_MOC_CPP = \
   moc_overviewpage.cpp \
   moc_paymentserver.cpp \
   moc_qvalidatedlineedit.cpp \
-  moc_ratcoinUnits.cpp \
+  moc_dimsUnits.cpp \
   moc_qvaluecombobox.cpp \
   moc_receivecoinsdialog.cpp \
   moc_receiverequestdialog.cpp \
@@ -137,38 +138,43 @@ QT_MOC_CPP = \
   moc_walletview.cpp
 
 CLIENT_H = \
-  ../node/clientControl.h \
-  ../node/connectAction.h \
-  ../node/controlRequests.h \
-  ../node/init.h \
-  ../node/networkClient.h \
-  ../node/nodeConnectionManager.h \
-  ../node/requestRespond.h \
-  ../node/seedProvider.h \
-  ../node/sendInfoRequestAction.h \
-  ../node/settingsMedium.h \
-  ../node/sendTransactionAction.h \
-  ../node/support.h \
-  ../node/settingsConnectionProvider.h \
-  ../node/sendBalanceInfoAction.h \
-  ../node/trackerLocalRanking.h 
+  ../client/applicationServer.h \
+  ../client/connectAction.h \
+  ../client/control.h \
+  ../client/controlRequests.h \
+  ../client/errorMediumProvider.h \
+  ../client/init.h \
+  ../client/networkClient.h \
+  ../client/payLocalApplicationAction.h \
+  ../client/requests.h \
+  ../client/requestRespond.h \
+  ../client/seedProvider.h \
+  ../client/sendInfoRequestAction.h \
+  ../client/settingsMedium.h \
+  ../client/sendTransactionAction.h \
+  ../client/support.h \
+  ../client/settingsConnectionProvider.h \
+  ../client/sendBalanceInfoAction.h \
+  ../client/trackerLocalRanking.h 
   
 CLIENT_CPP = \
-  ../node/actionHandlerDefinitions.cpp \
-  ../node/clientControl.cpp \
-  ../node/connectAction.cpp \
-  ../node/controlRequests.cpp \
-  ../node/init.cpp \
-  ../node/networkClient.cpp \
-  ../node/nodeConnectionManager.cpp \
-  ../node/sendTransactionAction.cpp \
-  ../node/seedProvider.cpp \
-  ../node/sendInfoRequestAction.cpp \
-  ../node/settingsMedium.cpp \
-  ../node/setResponseVisitor.cpp \
-  ../node/settingsConnectionProvider.cpp \
-  ../node/sendBalanceInfoAction.cpp \
-  ../node/trackerLocalRanking.cpp
+  ../client/applicationServer.cpp \
+  ../client/connectAction.cpp \
+  ../client/control.cpp \
+  ../client/controlRequests.cpp \
+  ../client/errorMediumProvider.cpp \
+  ../client/init.cpp \
+  ../client/networkClient.cpp \
+  ../client/payLocalApplicationAction.cpp \
+  ../client/requests.cpp \
+  ../client/sendTransactionAction.cpp \
+  ../client/seedProvider.cpp \
+  ../client/sendInfoRequestAction.cpp \
+  ../client/settingsMedium.cpp \
+  ../client/setResponseVisitor.cpp \
+  ../client/settingsConnectionProvider.cpp \
+  ../client/sendBalanceInfoAction.cpp \
+  ../client/trackerLocalRanking.cpp
   
 BITCOIN_MM = \
   macdockiconhandler.mm \
@@ -199,6 +205,7 @@ BITCOIN_QT_H = \
   coincontroldialog.h \
   coincontroltreewidget.h \
   csvmodelwriter.h \
+  dimsUnits.h \
   editaddressdialog.h \
   guiconstants.h \
   guiutil.h \
@@ -215,7 +222,6 @@ BITCOIN_QT_H = \
   paymentserver.h \
   qvalidatedlineedit.h \
   qvaluecombobox.h \
-  ratcoinUnits.h \
   receivecoinsdialog.h \
   receiverequestdialog.h \
   recentrequeststablemodel.h \
@@ -240,8 +246,8 @@ RES_ICONS = \
   res/icons/address-book.png \
   res/icons/bitcoin.ico \
   res/icons/bitcoin.png \
-  res/icons/bitcoin_testnet.ico \
-  res/icons/bitcoin_testnet.png \
+  res/icons/dims_testnet.ico \
+  res/icons/dims_testnet.png \
   res/icons/clock1.png \
   res/icons/clock2.png \
   res/icons/clock3.png \
@@ -308,12 +314,12 @@ BITCOIN_QT_CPP += \
   askpassphrasedialog.cpp \
   coincontroldialog.cpp \
   coincontroltreewidget.cpp \
+  dimsUnits.cpp \
   editaddressdialog.cpp \
   openuridialog.cpp \
   overviewpage.cpp \
   paymentrequestplus.cpp \
   paymentserver.cpp \
-  ratcoinUnits.cpp \
   receivecoinsdialog.cpp \
   receiverequestdialog.cpp \
   recentrequeststablemodel.cpp \
@@ -366,7 +372,8 @@ endif
 if TARGET_WINDOWS
   dims_client_SOURCES += $(BITCOIN_RC)
 endif
-dims_client_LDADD = libbitcoinqt.a $(LIBDIMS_TRACKER) $(LIBBITCOIN_SERVER) $(LIBDIMS_TRACKER)
+# fix  mess one day
+dims_client_LDADD = libbitcoinqt.a $(LIBDIMS_TRACKER) $(LIBBITCOIN_SERVER) $(LIBBITCOIN_COMMON)
 
 dims_client_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS)

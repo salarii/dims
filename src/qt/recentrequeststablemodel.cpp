@@ -4,7 +4,7 @@
 
 #include "recentrequeststablemodel.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
 
@@ -78,7 +78,7 @@ QVariant RecentRequestsTableModel::data(const QModelIndex &index, int role) cons
             if (rec->recipient.amount == 0 && role == Qt::DisplayRole)
                 return tr("(no amount)");
             else
-                return CRatcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), rec->recipient.amount);
+                return CDimsUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), rec->recipient.amount);
         }
     }
     return QVariant();

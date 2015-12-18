@@ -2,23 +2,24 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#define CONFIRM_LIMIT 6
-
+#define MAX_CONFIRM_LIMIT 6
 
 #include "main.h"
-
 #include "addrman.h"
 #include "alert.h"
 #include "chainparams.h"
 #include "checkpoints.h"
 #include "checkqueue.h"
-#include "init.h"
 #include "net.h"
 #include "txdb.h"
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "util.h"
-#include "tracker/originAddressScaner.h"
+#include "rpcserver.h"
+
+#include "common/originAddressScanner.h"
+#include "common/dimsParams.h"
+
 #include "tracker/internalMediumProvider.h"
 
 #include <inttypes.h>
@@ -52,6 +53,7 @@ bool fImporting = false;
 bool fReindex = false;
 bool fBenchmark = false;
 bool fTxIndex = false;
+bool resetIndicator = false;
 unsigned int nCoinCacheSize = 5000;
 
 long long currentHeight = 0;
@@ -107,7 +109,6 @@ set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexValid; // may contain 
 
 CCriticalSection cs_LastBlockFile;
 CBlockFileInfo infoLastBlockFile;
-int nLastBlockFile = 0;
 
 // Every received block is assigned a unique and increasing identifier, so we
 // know which one to give priority in case of a fork.
@@ -129,37 +130,27 @@ map<uint256, NodeId> mapBlockSource;
 
 namespace {
 struct CMainSignals {
-    // Notifies listeners of updated transaction data (passing hash, transaction, and optionally the block it is found in.
-    boost::signals2::signal<void (const uint256 &, const CTransaction &, const CBlock *)> SyncTransaction;
-    // Notifies listeners of an erased transaction (currently disabled, requires transaction replacement).
-    boost::signals2::signal<void (const uint256 &)> EraseTransaction;
-    // Notifies listeners of an updated transaction without new data (for now: a coinbase potentially becoming visible).
-    boost::signals2::signal<void (const uint256 &)> UpdatedTransaction;
-    // Notifies listeners of a new active block chain.
-    boost::signals2::signal<void (const CBlockLocator &)> SetBestChain;
-    // Notifies listeners about an inventory item being seen on the network.
-    boost::signals2::signal<void (const uint256 &)> Inventory;
-    // Tells listeners to broadcast their data.
-    boost::signals2::signal<void ()> Broadcast;
+	// Notifies listeners of updated transaction data (passing hash, transaction, and optionally the block it is found in.
+	boost::signals2::signal<void (const uint256 &, const CTransaction &, const CBlock *)> SyncTransaction;
+	// Notifies listeners of an erased transaction (currently disabled, requires transaction replacement).
+	boost::signals2::signal<void (const uint256 &)> EraseTransaction;
+	// Notifies listeners of an updated transaction without new data (for now: a coinbase potentially becoming visible).
+	boost::signals2::signal<void (const uint256 &)> UpdatedTransaction;
+	// Notifies listeners of a new active block chain.
+	boost::signals2::signal<void (const CBlockLocator &)> SetBestChain;
+	// Notifies listeners about an inventory item being seen on the network.
+	boost::signals2::signal<void (const uint256 &)> Inventory;
+	// Tells listeners to broadcast their data.
+	boost::signals2::signal<void ()> Broadcast;
 } g_signals;
 }
 
 void RegisterWallet(CWalletInterface* pwalletIn) {
-    g_signals.SyncTransaction.connect(boost::bind(&CWalletInterface::SyncTransaction, pwalletIn, _1, _2, _3));
-    g_signals.EraseTransaction.connect(boost::bind(&CWalletInterface::EraseFromWallet, pwalletIn, _1));
-    g_signals.UpdatedTransaction.connect(boost::bind(&CWalletInterface::UpdatedTransaction, pwalletIn, _1));
-    g_signals.SetBestChain.connect(boost::bind(&CWalletInterface::SetBestChain, pwalletIn, _1));
     g_signals.Inventory.connect(boost::bind(&CWalletInterface::Inventory, pwalletIn, _1));
-    g_signals.Broadcast.connect(boost::bind(&CWalletInterface::ResendWalletTransactions, pwalletIn));
 }
 
 void UnregisterWallet(CWalletInterface* pwalletIn) {
-    g_signals.Broadcast.disconnect(boost::bind(&CWalletInterface::ResendWalletTransactions, pwalletIn));
     g_signals.Inventory.disconnect(boost::bind(&CWalletInterface::Inventory, pwalletIn, _1));
-    g_signals.SetBestChain.disconnect(boost::bind(&CWalletInterface::SetBestChain, pwalletIn, _1));
-    g_signals.UpdatedTransaction.disconnect(boost::bind(&CWalletInterface::UpdatedTransaction, pwalletIn, _1));
-    g_signals.EraseTransaction.disconnect(boost::bind(&CWalletInterface::EraseFromWallet, pwalletIn, _1));
-    g_signals.SyncTransaction.disconnect(boost::bind(&CWalletInterface::SyncTransaction, pwalletIn, _1, _2, _3));
 }
 
 void UnregisterAllWallets() {
@@ -282,6 +273,38 @@ CBlockIndex *CChain::SetTip(CBlockIndex *pindex) {
     return pindex;
 }
 
+void
+resetChains()
+{
+	LOCK(cs_main);
+
+	if ( FileExist("head") )
+	{
+		CAutoFile file(OpenHeadFile(true), SER_DISK, CLIENT_VERSION);
+		CBlockHeader header;
+		file >> header;
+
+		CBlockIndex * blockIndex = new CBlockIndex( header );
+
+		mapBlockIndex.clear();
+
+		blockIndex->phashBlock = &( mapBlockIndex.insert( std::make_pair( header.GetHash(), blockIndex ) ).first->first);
+		chainActive.resetChain( blockIndex );
+		chainMostWork.resetChain( blockIndex );
+		setBlockIndexValid.clear();
+		pindexBestInvalid = NULL;
+		resetIndicator =true;//ugly
+
+	}
+}
+
+void CChain::resetChain( CBlockIndex * _blockIndex )
+{
+	vChain.clear();
+
+	vChain.push_back(_blockIndex);
+}
+
 CBlockLocator CChain::GetLocator(const CBlockIndex *pindex) const {
     int nStep = 1;
     std::vector<uint256> vHave;
@@ -324,7 +347,6 @@ CBlockIndex *CChain::FindFork(const CBlockLocator &locator) const {
 }
 
 CCoinsViewCache *pcoinsTip = NULL;
-CBlockTreeDB *pblocktree = NULL;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -763,13 +785,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         // you should add code here to check that the transaction does a
         // reasonable number of ECDSA signature verifications.
 
-        int64_t nValueIn = view.GetValueIn(tx);
-        int64_t nValueOut = tx.GetValueOut();
-        int64_t nFees = nValueIn-nValueOut;
         double dPriority = view.GetPriority(tx, chainActive.Height());
 
 		CTxMemPoolEntry entry(tx, GetTime(), dPriority);
-        unsigned int nSize = entry.GetTxSize();
 
         // Continuously rate-limit free transactions
         // This mitigates 'penny-flooding' -- sending thousands of free transactions just to
@@ -788,137 +806,6 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
 
 	//g_signals.SyncTransaction(hash, tx, NULL);
 
-    return true;
-}
-
-
-
-// Return transaction in tx, and if it was found inside a block, its hash is placed in hashBlock
-bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock, bool fAllowSlow)
-{
-    CBlockIndex *pindexSlow = NULL;
-    {
-        LOCK(cs_main);
-        {
-            if (mempool.lookup(hash, txOut))
-            {
-                return true;
-            }
-        }
-
-        if (fTxIndex) {
-            CDiskTxPos postx;
-            if (pblocktree->ReadTxIndex(hash, postx)) {
-                CAutoFile file(OpenBlockFile(postx, true), SER_DISK, CLIENT_VERSION);
-                CBlockHeader header;
-                try {
-                    file >> header;
-                    fseek(file, postx.nTxOffset, SEEK_CUR);
-                    file >> txOut;
-                } catch (std::exception &e) {
-                    return error("%s : Deserialize or I/O error - %s", __PRETTY_FUNCTION__, e.what());
-                }
-                hashBlock = header.GetHash();
-                if (txOut.GetHash() != hash)
-                    return error("%s : txid mismatch", __PRETTY_FUNCTION__);
-                return true;
-            }
-        }
-
-        if (fAllowSlow) { // use coin database to locate block that contains transaction, and scan it
-            int nHeight = -1;
-            {
-                CCoinsViewCache &view = *pcoinsTip;
-                CCoins coins;
-
-            }
-            if (nHeight > 0)
-                pindexSlow = chainActive[nHeight];
-        }
-    }
-
-    if (pindexSlow) {
-        CBlock block;
-        if (ReadBlockFromDisk(block, pindexSlow)) {
-            BOOST_FOREACH(const CTransaction &tx, block.vtx) {
-                if (tx.GetHash() == hash) {
-                    txOut = tx;
-                    hashBlock = pindexSlow->GetBlockHash();
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// CBlock and CBlockIndex
-//
-
-bool WriteBlockToDisk(CBlock& block, CDiskBlockPos& pos)
-{
-    // Open history file to append
-    CAutoFile fileout = CAutoFile(OpenBlockFile(pos), SER_DISK, CLIENT_VERSION);
-    if (!fileout)
-        return error("WriteBlockToDisk : OpenBlockFile failed");
-
-    // Write index header
-    unsigned int nSize = fileout.GetSerializeSize(block);
-    fileout << FLATDATA(Params().MessageStart()) << nSize;
-
-    // Write block
-    long fileOutPos = ftell(fileout);
-    if (fileOutPos < 0)
-        return error("WriteBlockToDisk : ftell failed");
-    pos.nPos = (unsigned int)fileOutPos;
-    fileout << block;
-
-    // Flush stdio buffers and commit to disk before returning
-    fflush(fileout);
-    if (!IsInitialBlockDownload())
-        FileCommit(fileout);
-
-    return true;
-}
-
-bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos)
-{
-    block.SetNull();
-
-    // Open history file to read
-    CAutoFile filein = CAutoFile(OpenBlockFile(pos, true), SER_DISK, CLIENT_VERSION);
-    if (!filein)
-        return error("ReadBlockFromDisk : OpenBlockFile failed");
-
-    // Read block
-    try {
-        filein >> block;
-    }
-    catch (std::exception &e) {
-        return error("%s : Deserialize or I/O error - %s", __PRETTY_FUNCTION__, e.what());
-    }
-
-    // Check the header
-    if (!CheckProofOfWork(block.GetHash(), block.nBits))
-        return error("ReadBlockFromDisk : Errors in block header");
-
-    return true;
-}
-
-bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
-{
-    if (!ReadBlockFromDisk(block, pindex->GetBlockPos()))
-        return false;
-    if (block.GetHash() != pindex->GetBlockHash())
-        return error("ReadBlockFromDisk(CBlock&, CBlockIndex*) : GetHash() doesn't match index");
     return true;
 }
 
@@ -1201,46 +1088,6 @@ void Misbehaving(NodeId pnode, int howmuch)
         LogPrintf("Misbehaving: %s (%d -> %d)\n", state->name, state->nMisbehavior-howmuch, state->nMisbehavior);
 }
 
-void static InvalidChainFound(CBlockIndex* pindexNew)
-{
-    if (!pindexBestInvalid || pindexNew->nChainWork > pindexBestInvalid->nChainWork)
-    {
-        pindexBestInvalid = pindexNew;
-        // The current code doesn't actually read the BestInvalidWork entry in
-        // the block database anymore, as it is derived from the flags in block
-        // index entry. We only write it for backward compatibility.
-        pblocktree->WriteBestInvalidWork(CBigNum(pindexBestInvalid->nChainWork));
-        uiInterface.NotifyBlocksChanged();
-    }
-    LogPrintf("InvalidChainFound: invalid block=%s  height=%d  log2_work=%.8g  date=%s\n",
-      pindexNew->GetBlockHash().ToString(), pindexNew->nHeight,
-      log(pindexNew->nChainWork.getdouble())/log(2.0), DateTimeStrFormat("%Y-%m-%d %H:%M:%S",
-      pindexNew->GetBlockTime()));
-    LogPrintf("InvalidChainFound:  current best=%s  height=%d  log2_work=%.8g  date=%s\n",
-      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), log(chainActive.Tip()->nChainWork.getdouble())/log(2.0),
-      DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()));
-    CheckForkWarningConditions();
-}
-
-void static InvalidBlockFound(CBlockIndex *pindex, const CValidationState &state) {
-    int nDoS = 0;
-    if (state.IsInvalid(nDoS)) {
-        std::map<uint256, NodeId>::iterator it = mapBlockSource.find(pindex->GetBlockHash());
-        if (it != mapBlockSource.end() && State(it->second)) {
-            CBlockReject reject = {state.GetRejectCode(), state.GetRejectReason(), pindex->GetBlockHash()};
-            State(it->second)->rejects.push_back(reject);
-            if (nDoS > 0)
-                Misbehaving(it->second, nDoS);
-        }
-    }
-    if (!state.CorruptionPossible()) {
-        pindex->nStatus |= BLOCK_FAILED_VALID;
-        pblocktree->WriteBlockIndex(CDiskBlockIndex(pindex));
-        setBlockIndexValid.erase(pindex);
-        InvalidChainFound(pindex);
-    }
-}
-
 void UpdateTime(CBlockHeader& block, const CBlockIndex* pindexPrev)
 {
     block.nTime = max(pindexPrev->GetMedianTimePast()+1, GetAdjustedTime());
@@ -1335,29 +1182,6 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, CCoinsViewCach
     }
 
     return true;
-}
-
-void static FlushBlockFile(bool fFinalize = false)
-{
-    LOCK(cs_LastBlockFile);
-
-    CDiskBlockPos posOld(nLastBlockFile, 0);
-
-    FILE *fileOld = OpenBlockFile(posOld);
-    if (fileOld) {
-        if (fFinalize)
-            TruncateFile(fileOld, infoLastBlockFile.nSize);
-        FileCommit(fileOld);
-        fclose(fileOld);
-    }
-
-    fileOld = OpenUndoFile(posOld);
-    if (fileOld) {
-        if (fFinalize)
-            TruncateFile(fileOld, infoLastBlockFile.nUndoSize);
-        FileCommit(fileOld);
-        fclose(fileOld);
-    }
 }
 
 bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigned int nAddSize);
@@ -1494,32 +1318,6 @@ bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, C
     if (fJustCheck)
         return true;
 
-    // Write undo information to disk
-    if (pindex->GetUndoPos().IsNull() || (pindex->nStatus & BLOCK_VALID_MASK) < BLOCK_VALID_SCRIPTS)
-    {
-        if (pindex->GetUndoPos().IsNull()) {
-            CDiskBlockPos pos;
-            if (!FindUndoPos(state, pindex->nFile, pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 40))
-                return error("ConnectBlock() : FindUndoPos failed");
-            if (!blockundo.WriteToDisk(pos, pindex->pprev->GetBlockHash()))
-                return state.Abort(_("Failed to write undo data"));
-
-            // update nUndoPos in block index
-            pindex->nUndoPos = pos.nPos;
-            pindex->nStatus |= BLOCK_HAVE_UNDO;
-        }
-
-        pindex->nStatus = (pindex->nStatus & ~BLOCK_VALID_MASK) | BLOCK_VALID_SCRIPTS;
-
-        CDiskBlockIndex blockindex(pindex);
-        if (!pblocktree->WriteBlockIndex(blockindex))
-            return state.Abort(_("Failed to write block index"));
-    }
-
-    if (fTxIndex)
-        if (!pblocktree->WriteTxIndex(vPos))
-            return state.Abort(_("Failed to write transaction index"));
-
     // add this block to the view's block chain
     bool ret;
     ret = view.SetBestBlock(pindex->GetBlockHash());
@@ -1529,26 +1327,6 @@ bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, C
     for (unsigned int i = 0; i < block.vtx.size(); i++)
         g_signals.SyncTransaction(block.GetTxHash(i), block.vtx[i], &block);
 
-    return true;
-}
-
-// Update the on-disk chain state.
-bool static WriteChainState(CValidationState &state) {
-    static int64_t nLastWrite = 0;
-    if (!IsInitialBlockDownload() || pcoinsTip->GetCacheSize() > nCoinCacheSize || GetTimeMicros() > nLastWrite + 600*1000000) {
-        // Typical CCoins structures on disk are around 100 bytes in size.
-        // Pushing a new one to the database can cause it to be written
-        // twice (once in the log, and once in the tables). This is already
-        // an overestimation, as most will delete an existing entry or
-        // overwrite one. Still, use a conservative safety factor of 2.
-        if (!CheckDiskSpace(100 * 2 * 2 * pcoinsTip->GetCacheSize()))
-            return state.Error("out of disk space");
-        FlushBlockFile();
-        pblocktree->Sync();
-        if (!pcoinsTip->Flush())
-            return state.Abort(_("Failed to write to coin database"));
-        nLastWrite = GetTimeMicros();
-    }
     return true;
 }
 
@@ -1591,72 +1369,34 @@ void static UpdateTip(CBlockIndex *pindexNew) {
 // Disconnect chainActive's tip.
 bool static DisconnectTip(CValidationState &state) {
     CBlockIndex *pindexDelete = chainActive.Tip();
-    assert(pindexDelete);
-    mempool.check(pcoinsTip);
-    // Read block from disk.
-    CBlock block;
-    if (!ReadBlockFromDisk(block, pindexDelete))
-        return state.Abort(_("Failed to read block"));
+	assert(pindexDelete);
+
     // Apply the block atomically to the chain state.
     int64_t nStart = GetTimeMicros();
     {
     }
     if (fBenchmark)
         LogPrintf("- Disconnect: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
-    // Write the chain state to disk, if necessary.
-    if (!WriteChainState(state))
-        return false;
-    // Ressurect mempool transactions from the disconnected block.
-    BOOST_FOREACH(const CTransaction &tx, block.vtx) {
-        // ignore validation errors in resurrected transactions
-        CValidationState stateDummy; 
-        if (!tx.IsCoinBase())
-            if (!AcceptToMemoryPool(mempool, stateDummy, tx, false, NULL))
-                mempool.remove(tx, true);
-    }
-    mempool.check(pcoinsTip);
-    // Update chainActive and related variables.
-    UpdateTip(pindexDelete->pprev);
-    return true;
-}
 
+    // Update chainActive and related variables.
+
+	if ( pindexDelete->pprev )
+	{
+		UpdateTip(pindexDelete->pprev);
+		return true;
+	}
+	return false;
+}
+/*
 // Connect a new block to chainActive.
 bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew) {
     assert(pindexNew->pprev == chainActive.Tip());
-    mempool.check(pcoinsTip);
-    // Read block from disk.
-    CBlock block;
-    if (!ReadBlockFromDisk(block, pindexNew))
-        return state.Abort(_("Failed to read block"));
-    // Apply the block atomically to the chain state.
-    int64_t nStart = GetTimeMicros();
-    {
-        CCoinsViewCache view(*pcoinsTip, true);
-        CInv inv(MSG_BLOCK, pindexNew->GetBlockHash());
-        if (!ConnectBlock(block, state, pindexNew, view)) {
-            if (state.IsInvalid())
-                InvalidBlockFound(pindexNew, state);
-            return error("ConnectTip() : ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
-        }
-        mapBlockSource.erase(inv.hash);
-        assert(view.Flush());
-    }
-    if (fBenchmark)
-        LogPrintf("- Connect: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
-    // Write the chain state to disk, if necessary.
-    if (!WriteChainState(state))
-        return false;
-    // Remove conflicting transactions from the mempool.
-    BOOST_FOREACH(const CTransaction &tx, block.vtx) {
-        mempool.remove(tx);
-        mempool.removeConflicts(tx);
-    }
-    mempool.check(pcoinsTip);
+
     // Update chainActive & related variables.
     UpdateTip(pindexNew);
     return true;
 }
-
+*/
 // Make chainMostWork correspond to the chain with the most work in it, that isn't
 // known to be invalid (it's however far from certain to be valid).
 void static FindMostWorkChain() {
@@ -1730,7 +1470,7 @@ bool ActivateBestChain(CValidationState &state) {
 
         // Connect new blocks.
         while (!chainActive.Contains(chainMostWork.Tip())) {
-            CBlockIndex *pindexConnect = chainMostWork[chainActive.Height() + 1];
+			CBlockIndex *pindexConnect = chainMostWork[chainActive.Height() + 1];
             UpdateTip(pindexConnect);
         }
     }
@@ -1747,37 +1487,87 @@ bool ActivateBestChain(CValidationState &state) {
     return true;
 }
 
+std::map< uint256, uint256 > m_hashToPreviousHash;
+
 bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos& pos)
 {
-    // Check for duplicate
+	// leave old stuff
+	if ( chainActive.Height() != -1 && chainActive.Tip()->nTime > block.GetBlockTime() + 3600 )
+		return state.Invalid( false );
+	// Construct new block index object
+	CBlockIndex* pindexNew = new CBlockIndex(block);
+	{
+		 LOCK(cs_nBlockSequenceId);
+		 pindexNew->nSequenceId = nBlockSequenceId++;
+	}
+	assert(pindexNew);
 	uint256 hash = block.GetHash();
-    if (mapBlockIndex.count(hash))
-        return state.Invalid(error("AddToBlockIndex() : %s already exists", hash.ToString()), 0, "duplicate");
 
-    // Construct new block index object
-    CBlockIndex* pindexNew = new CBlockIndex(block);
-    {
-         LOCK(cs_nBlockSequenceId);
-         pindexNew->nSequenceId = nBlockSequenceId++;
-    }
-    assert(pindexNew);
-    mapAlreadyAskedFor.erase(CInv(MSG_BLOCK, hash));
-    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
-    pindexNew->phashBlock = &((*mi).first);
-    map<uint256, CBlockIndex*>::iterator miPrev = mapBlockIndex.find(block.hashPrevBlock);
-    if (miPrev != mapBlockIndex.end())
-    {
-        pindexNew->pprev = (*miPrev).second;
-        pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
-    }
-    pindexNew->nTx = block.vtx.size();
-    pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + pindexNew->GetBlockWork().getuint256();
-    pindexNew->nChainTx = (pindexNew->pprev ? pindexNew->pprev->nChainTx : 0) + pindexNew->nTx;
-    pindexNew->nFile = pos.nFile;
-    pindexNew->nDataPos = pos.nPos;
-    pindexNew->nUndoPos = 0;
-    pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
-    setBlockIndexValid.insert(pindexNew);
+	mapAlreadyAskedFor.erase(CInv(MSG_BLOCK, hash));
+	// Check for duplicate
+	if (mapBlockIndex.count(hash))
+		return state.Invalid( false );
+
+	map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
+	pindexNew->phashBlock = &((*mi).first);
+	map<uint256, CBlockIndex*>::iterator miPrev = mapBlockIndex.find(block.hashPrevBlock);
+	if (miPrev != mapBlockIndex.end())
+	{
+		pindexNew->pprev = (*miPrev).second;
+		pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
+	}
+	else
+	{
+		pindexNew->pprev = 0;
+		pindexNew->nHeight = 0;
+
+		if (chainActive.Height() != -1 )
+		{
+			pindexNew->nTx = block.vtx.size();
+			pindexNew->nFile = pos.nFile;
+			pindexNew->nDataPos = pos.nPos;
+			pindexNew->nUndoPos = 0;
+			pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
+
+			m_hashToPreviousHash.insert( std::make_pair( hash, block.hashPrevBlock ) );
+			return true;
+		}
+	}
+
+	pindexNew->nTx = block.vtx.size();
+	pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + pindexNew->GetBlockWork().getuint256();
+	pindexNew->nChainTx = (pindexNew->pprev ? pindexNew->pprev->nChainTx : 0) + pindexNew->nTx;
+	pindexNew->nFile = pos.nFile;
+	pindexNew->nDataPos = pos.nPos;
+	pindexNew->nUndoPos = 0;
+	pindexNew->nStatus = BLOCK_VALID_TRANSACTIONS | BLOCK_HAVE_DATA;
+
+	std::vector< uint256 > toErase;
+	BOOST_FOREACH( PAIRTYPE( uint256, uint256 ) const & previous, m_hashToPreviousHash )
+	{
+
+		map<uint256, CBlockIndex*>::iterator miPrev = mapBlockIndex.find(previous.second);
+		if (miPrev != mapBlockIndex.end())
+		{
+			toErase.push_back( previous.first );
+
+			map<uint256, CBlockIndex*>::iterator alone = mapBlockIndex.find(previous.first);
+			assert (alone != mapBlockIndex.end());
+			(*alone).second->pprev = (*miPrev).second;
+			(*alone).second->nHeight = (*alone).second->pprev->nHeight + 1;
+			(*alone).second->nChainWork = (*alone).second->pprev->nChainWork + (*alone).second->GetBlockWork().getuint256();
+			(*alone).second->nChainTx = (*alone).second->pprev->nChainTx + (*alone).second->nTx;
+
+			setBlockIndexValid.insert( (*alone).second);
+		}
+	}
+
+	BOOST_FOREACH( uint256 const & hash, toErase )
+	{
+		m_hashToPreviousHash.erase( hash );
+	}
+
+	setBlockIndexValid.insert(pindexNew);
 
     // New best?
     if (!ActivateBestChain(state))
@@ -1792,97 +1582,6 @@ bool AddToBlockIndex(CBlock& block, CValidationState& state, const CDiskBlockPos
 
     return true;
 }
-
-
-bool FindBlockPos(CValidationState &state, CDiskBlockPos &pos, unsigned int nAddSize, unsigned int nHeight, uint64_t nTime, bool fKnown = false)
-{
-    bool fUpdatedLast = false;
-
-    LOCK(cs_LastBlockFile);
-
-    if (fKnown) {
-        if (nLastBlockFile != pos.nFile) {
-            nLastBlockFile = pos.nFile;
-            infoLastBlockFile.SetNull();
-            pblocktree->ReadBlockFileInfo(nLastBlockFile, infoLastBlockFile);
-            fUpdatedLast = true;
-        }
-    } else {
-        while (infoLastBlockFile.nSize + nAddSize >= MAX_BLOCKFILE_SIZE) {
-            LogPrintf("Leaving block file %i: %s\n", nLastBlockFile, infoLastBlockFile.ToString());
-            FlushBlockFile(true);
-            nLastBlockFile++;
-            infoLastBlockFile.SetNull();
-            pblocktree->ReadBlockFileInfo(nLastBlockFile, infoLastBlockFile); // check whether data for the new file somehow already exist; can fail just fine
-            fUpdatedLast = true;
-        }
-        pos.nFile = nLastBlockFile;
-        pos.nPos = infoLastBlockFile.nSize;
-    }
-
-    infoLastBlockFile.nSize += nAddSize;
-    infoLastBlockFile.AddBlock(nHeight, nTime);
-
-    if (!fKnown) {
-        unsigned int nOldChunks = (pos.nPos + BLOCKFILE_CHUNK_SIZE - 1) / BLOCKFILE_CHUNK_SIZE;
-        unsigned int nNewChunks = (infoLastBlockFile.nSize + BLOCKFILE_CHUNK_SIZE - 1) / BLOCKFILE_CHUNK_SIZE;
-        if (nNewChunks > nOldChunks) {
-            if (CheckDiskSpace(nNewChunks * BLOCKFILE_CHUNK_SIZE - pos.nPos)) {
-                FILE *file = OpenBlockFile(pos);
-                if (file) {
-                    LogPrintf("Pre-allocating up to position 0x%x in blk%05u.dat\n", nNewChunks * BLOCKFILE_CHUNK_SIZE, pos.nFile);
-                    AllocateFileRange(file, pos.nPos, nNewChunks * BLOCKFILE_CHUNK_SIZE - pos.nPos);
-                    fclose(file);
-                }
-            }
-            else
-                return state.Error("out of disk space");
-        }
-    }
-
-    return true;
-}
-
-bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigned int nAddSize)
-{
-    pos.nFile = nFile;
-
-    LOCK(cs_LastBlockFile);
-
-    unsigned int nNewSize;
-    if (nFile == nLastBlockFile) {
-        pos.nPos = infoLastBlockFile.nUndoSize;
-        nNewSize = (infoLastBlockFile.nUndoSize += nAddSize);
-        if (!pblocktree->WriteBlockFileInfo(nLastBlockFile, infoLastBlockFile))
-            return state.Abort(_("Failed to write block info"));
-    } else {
-        CBlockFileInfo info;
-        if (!pblocktree->ReadBlockFileInfo(nFile, info))
-            return state.Abort(_("Failed to read block info"));
-        pos.nPos = info.nUndoSize;
-        nNewSize = (info.nUndoSize += nAddSize);
-        if (!pblocktree->WriteBlockFileInfo(nFile, info))
-            return state.Abort(_("Failed to write block info"));
-    }
-
-    unsigned int nOldChunks = (pos.nPos + UNDOFILE_CHUNK_SIZE - 1) / UNDOFILE_CHUNK_SIZE;
-    unsigned int nNewChunks = (nNewSize + UNDOFILE_CHUNK_SIZE - 1) / UNDOFILE_CHUNK_SIZE;
-    if (nNewChunks > nOldChunks) {
-        if (CheckDiskSpace(nNewChunks * UNDOFILE_CHUNK_SIZE - pos.nPos)) {
-            FILE *file = OpenUndoFile(pos);
-            if (file) {
-                LogPrintf("Pre-allocating up to position 0x%x in rev%05u.dat\n", nNewChunks * UNDOFILE_CHUNK_SIZE, pos.nFile);
-                AllocateFileRange(file, pos.nPos, nNewChunks * UNDOFILE_CHUNK_SIZE - pos.nPos);
-                fclose(file);
-            }
-        }
-        else
-            return state.Error("out of disk space");
-    }
-
-    return true;
-}
-
 
 bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bool fCheckMerkleRoot)
 {
@@ -2022,15 +1721,10 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CDiskBlockPos* dbp)
 
     // Write block to history file
     try {
-        unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
         CDiskBlockPos blockPos;
         if (dbp != NULL)
             blockPos = *dbp;
-        if (!FindBlockPos(state, blockPos, nBlockSize+8, nHeight, block.nTime, dbp != NULL))
-            return error("AcceptBlock() : FindBlockPos failed");
         if (dbp == NULL)
-            if (!WriteBlockToDisk(block, blockPos))
-                return state.Abort(_("Failed to write block"));
         if (!AddToBlockIndex(block, state, blockPos))
             return error("AcceptBlock() : AddToBlockIndex failed");
     } catch(std::runtime_error &e) {
@@ -2086,7 +1780,7 @@ void PushGetHeaders(CNode* pnode, CBlockIndex* pindexBegin, uint256 hashEnd)
 
 void PushGetBlocks(CNode* pnode, CBlockIndex* pindexBegin, uint256 hashEnd)
 {
-    // Filter out duplicate requests
+	// CMediumFilter out duplicate requests
     if (pindexBegin == pnode->pindexLastGetBlocksBegin && hashEnd == pnode->hashLastGetBlocksEnd)
         return;
     pnode->pindexLastGetBlocksBegin = pindexBegin;
@@ -2351,22 +2045,17 @@ uint256 CPartialMerkleTree::ExtractMatches(std::vector<uint256> &vMatch) {
 }
 
 
-
-
-
-
-
 bool AbortNode(const std::string &strMessage) {
     strMiscWarning = strMessage;
     LogPrintf("*** %s\n", strMessage);
     uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_ERROR);
-    StartShutdown();
+	StopHook();
     return false;
 }
 
 bool CheckDiskSpace(uint64_t nAdditionalBytes)
 {
-    uint64_t nFreeBytesAvailable = filesystem::space(GetDataDir(common::AppType::Tracker)).available;
+	uint64_t nFreeBytesAvailable = filesystem::space(GetDataDir(common::CDimsParams::getAppType())).available;
 
     // Check for nMinDiskSpace bytes (currently 50MB)
     if (nFreeBytesAvailable < nMinDiskSpace + nAdditionalBytes)
@@ -2379,7 +2068,7 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
 {
     if (pos.IsNull())
         return NULL;
-    boost::filesystem::path path = GetDataDir(common::AppType::Tracker) / "blocks" / strprintf("%s%05u.dat", prefix, pos.nFile);
+	boost::filesystem::path path = GetDataDir(common::CDimsParams::getAppType()) / "blocks" / strprintf("%s%05u.dat", prefix, pos.nFile);
     boost::filesystem::create_directories(path.parent_path());
     FILE* file = fopen(path.string().c_str(), "rb+");
     if (!file && !fReadOnly)
@@ -2400,7 +2089,7 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
 
 bool FileExist(const char *prefix)
 {
-    boost::filesystem::path path = GetDataDir(common::AppType::Tracker) / "blocks" / strprintf("%s%05u.dat", prefix, 0);
+	boost::filesystem::path path = GetDataDir(common::CDimsParams::getAppType()) / "blocks" / strprintf("%s%05u.dat", prefix, 0);
 
     return filesystem::exists(path);
 
@@ -2442,8 +2131,6 @@ CBlockIndex * InsertBlockIndex(uint256 hash)
 
 bool static LoadBlockIndexDB()
 {
-    if (!pblocktree->LoadBlockIndexGuts())
-        return false;
 
     boost::this_thread::interruption_point();
 
@@ -2466,21 +2153,6 @@ bool static LoadBlockIndexDB()
         if (pindex->nStatus & BLOCK_FAILED_MASK && (!pindexBestInvalid || pindex->nChainWork > pindexBestInvalid->nChainWork))
             pindexBestInvalid = pindex;
     }
-
-    // Load block file info
-    pblocktree->ReadLastBlockFile(nLastBlockFile);
-    LogPrintf("LoadBlockIndexDB(): last block file = %i\n", nLastBlockFile);
-    if (pblocktree->ReadBlockFileInfo(nLastBlockFile, infoLastBlockFile))
-        LogPrintf("LoadBlockIndexDB(): last block file info: %s\n", infoLastBlockFile.ToString());
-
-    // Check whether we need to continue reindexing
-    bool fReindexing = false;
-    pblocktree->ReadReindexing(fReindexing);
-    fReindex |= fReindexing;
-
-    // Check whether we have a transaction index
-    pblocktree->ReadFlag("txindex", fTxIndex);
-    LogPrintf("LoadBlockIndexDB(): transaction index %s\n", fTxIndex ? "enabled" : "disabled");
 
     // Load pointer to end of best chain
     std::map<uint256, CBlockIndex*>::iterator it = mapBlockIndex.find(pcoinsTip->GetBestBlock());
@@ -2518,8 +2190,6 @@ bool VerifyDB(int nCheckLevel, int nCheckDepth)
             break;
         CBlock block;
         // check level 0: read from disk
-        if (!ReadBlockFromDisk(block, pindex))
-            return error("VerifyDB() : *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
         if (nCheckLevel >= 1 && !CheckBlock(block, state))
             return error("VerifyDB() : *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
@@ -2552,11 +2222,7 @@ bool VerifyDB(int nCheckLevel, int nCheckDepth)
         while (pindex != chainActive.Tip()) {
             boost::this_thread::interruption_point();
             pindex = chainActive.Next(pindex);
-            CBlock block;
-            if (!ReadBlockFromDisk(block, pindex))
-                return error("VerifyDB() : *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
-            if (!ConnectBlock(block, state, pindex, coins))
-                return error("VerifyDB() : *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+
         }
     }
 
@@ -2608,14 +2274,8 @@ bool InitBlockIndex() {
             	block = const_cast<CBlock&>(Params().GenesisBlock());
             }
 
-            // Start new block file
-            unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
             CDiskBlockPos blockPos;
             CValidationState state;
-            if (!FindBlockPos(state, blockPos, nBlockSize+8, 0, block.nTime))
-                return error("LoadBlockIndex() : FindBlockPos failed");
-            if (!WriteBlockToDisk(block, blockPos))
-                return error("LoadBlockIndex() : writing genesis block to disk failed");
             if (!AddToBlockIndex(block, state, blockPos))
                 return error("LoadBlockIndex() : genesis block not accepted");
         } catch(std::runtime_error &e) {
@@ -2670,14 +2330,12 @@ void PrintBlockTree()
         for (int i = 0; i < nCol; i++)
             LogPrintf("| ");
 
-        // print item
-        CBlock block;
-        ReadBlockFromDisk(block, pindex);
+		// print item
         LogPrintf("%d (blk%05u.dat:0x%x)  %s  tx %"PRIszu"",
             pindex->nHeight,
             pindex->GetBlockPos().nFile, pindex->GetBlockPos().nPos,
-            DateTimeStrFormat("%Y-%m-%d %H:%M:%S", block.GetBlockTime()),
-            block.vtx.size());
+			DateTimeStrFormat("%Y-%m-%d %H:%M:%S", 0),
+			0);
 
         // put the main time-chain first
         vector<CBlockIndex*>& vNext = mapNext[pindex];
@@ -2695,87 +2353,6 @@ void PrintBlockTree()
             vStack.push_back(make_pair(nCol+i, vNext[i]));
     }
 }
-
-bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
-{
-    int64_t nStart = GetTimeMillis();
-
-    int nLoaded = 0;
-    try {
-        CBufferedFile blkdat(fileIn, 2*MAX_BLOCK_SIZE, MAX_BLOCK_SIZE+8, SER_DISK, CLIENT_VERSION);
-        uint64_t nStartByte = 0;
-        if (dbp) {
-            // (try to) skip already indexed part
-            CBlockFileInfo info;
-            if (pblocktree->ReadBlockFileInfo(dbp->nFile, info)) {
-                nStartByte = info.nSize;
-                blkdat.Seek(info.nSize);
-            }
-        }
-        uint64_t nRewind = blkdat.GetPos();
-        while (blkdat.good() && !blkdat.eof()) {
-            boost::this_thread::interruption_point();
-
-            blkdat.SetPos(nRewind);
-            nRewind++; // start one byte further next time, in case of failure
-            blkdat.SetLimit(); // remove former limit
-            unsigned int nSize = 0;
-            try {
-                // locate a header
-                unsigned char buf[4];
-                blkdat.FindByte(Params().MessageStart()[0]);
-                nRewind = blkdat.GetPos()+1;
-                blkdat >> FLATDATA(buf);
-                if (memcmp(buf, Params().MessageStart(), 4))
-                    continue;
-                // read size
-                blkdat >> nSize;
-                if (nSize < 80 || nSize > MAX_BLOCK_SIZE)
-                    continue;
-            } catch (std::exception &e) {
-                // no valid block header found; don't complain
-                break;
-            }
-            try {
-                // read block
-                uint64_t nBlockPos = blkdat.GetPos();
-                blkdat.SetLimit(nBlockPos + nSize);
-                CBlock block;
-                blkdat >> block;
-                nRewind = blkdat.GetPos();
-
-                // process block
-                if (nBlockPos >= nStartByte) {
-                    LOCK(cs_main);
-                    if (dbp)
-                        dbp->nPos = nBlockPos;
-                    CValidationState state;
-                    if (ProcessBlock(state, NULL, &block, dbp))
-                        nLoaded++;
-                    if (state.IsError())
-                        break;
-                }
-            } catch (std::exception &e) {
-                LogPrintf("%s : Deserialize or I/O error - %s", __PRETTY_FUNCTION__, e.what());
-            }
-        }
-        fclose(fileIn);
-    } catch(std::runtime_error &e) {
-        AbortNode(_("Error: system error: ") + e.what());
-    }
-    if (nLoaded > 0)
-        LogPrintf("Loaded %i blocks from external file in %"PRId64"ms\n", nLoaded, GetTimeMillis() - nStart);
-    return nLoaded > 0;
-}
-
-
-
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2853,8 +2430,8 @@ bool static AlreadyHave(const CInv& inv)
     {
     case MSG_TX:
         {
-            bool txInMap = false;
-            txInMap = mempool.exists(inv.hash);
+/*		bool txInMap = false;
+			txInMap = mempool.exists(inv.hash);*/
 			return true;
         }
     case MSG_BLOCK:
@@ -3357,24 +2934,27 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
 		LOCK(cs_main);
 
-		bool fMissingInputs = false;
 		CValidationState state;
-		tracker::CInternalMediumProvider::getInstance()->setResponse( tx, pfrom );
+		m_setTransaction( tx, pfrom );
 	}
 	else if (strCommand == "merkleblock")
 	{
 		CMerkleBlock merkleBlock;
 		vRecv >> merkleBlock;
 
-		tracker::CInternalMediumProvider::getInstance()->setResponse( merkleBlock, pfrom );
+		m_setMerkleBlock( merkleBlock, pfrom );
 	}
 	else if (strCommand == "headers")
 	{
 		std::vector<CBlock> vHead;
 		vRecv >> vHead;
 		CValidationState state;
-
-
+/*  //  uncomment for  debug this  creates  to big output into  log  file for  normal  operations
+		BOOST_FOREACH( CBlock const & block, vHead )
+		{
+			LogPrintf("asked blocks %s\n", block.GetHash().ToString() );
+		}
+*/
 		std::vector<CBlock>::iterator it= vHead.begin();
 
 
@@ -3399,8 +2979,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     {
         CBlock block;
         vRecv >> block;
-
-        LogPrint("net", "received block %s\n", block.GetHash().ToString());
+		/* at least  for now */
+		LogPrintf("received block %s\n", block.GetHash().ToString() );
         // block.print();
 
         CInv inv(MSG_BLOCK, block.GetHash());
@@ -3472,7 +3052,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             pfrom->PushMessage("pong", nonce);
         }
     }
-
 
     else if (strCommand == "pong")
     {
@@ -3870,12 +3449,14 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
 
         // Start block sync
-        if (pto->fStartSync && !fImporting && !fReindex) {
+		if ((pto->fStartSync ||resetIndicator ) && !fImporting && !fReindex) {
             pto->fStartSync = false;
+			resetIndicator = false;
+
             PushGetHeaders(pto, chainActive.Tip(), uint256(0));
         }
 		{
-			boost::lock_guard<boost::mutex> lock( pto->m_mediumLock );
+			LOCK( pto->m_mediumLock );
 
 			BOOST_FOREACH( CBloomFilter const & filter, pto->m_filterSendQueue)
 			{
@@ -3945,3 +3526,8 @@ public:
         mapOrphanTransactions.clear();
     }
 } instance_of_cmaincleanup;
+
+boost::signals2::signal<void ( CTransaction const & _transaction, CNode * _node )> m_setTransaction;
+boost::signals2::signal<void ( CMerkleBlock const & _merkle, CNode * _node )> m_setMerkleBlock;
+
+

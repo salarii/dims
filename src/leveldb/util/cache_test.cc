@@ -56,7 +56,7 @@ class CacheTest {
 
   void Insert(int key, int value, int charge = 1) {
     cache_->Release(cache_->Insert(EncodeKey(key), EncodeValue(value), charge,
-                                   &CacheTest::Deleter));
+                                  &CacheTest::Deleter));
   }
 
   void Erase(int key) {

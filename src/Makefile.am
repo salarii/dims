@@ -14,82 +14,119 @@ if BUILD_BITCOIND
   bin_PROGRAMS += dims_tracker
 endif
 
-if BUILD_BITCOIN_CLI
-  bin_PROGRAMS += bitcoin-cli
-endif
 
-SUBDIRS = . $(BUILD_QT) $(BUILD_TEST) monitor seed
+SUBDIRS = . $(BUILD_QT) $(BUILD_TEST) monitor seed appLib
 DIST_SUBDIRS = . qt test
 .PHONY: FORCE
 	
 COMMON_H = \
+  common/accessFile.h \
   common/actionHandler.h \
   common/action.h \
+  common/analyseTransaction.h \
   common/authenticationProvider.h \
+  common/bitcoinNodeMedium.h \
+  common/blockInfoDatabase.h \
+  common/commandLine.h \
   common/communicationProtocol.h \
   common/commonEvents.h \
-  common/commonResponses.h \
+  common/responses.h \
+  common/requests.h \
   common/databaseManager.h \
+  common/dimsParams.h \
+  common/filters.h \
   common/identifyRequest.h \
   common/manageNetwork.h \
+  common/networkActionRegister.h \
   common/nodeMedium.h \
   common/nodeMessages.h \
   common/nodesManager.h \
+  common/noMediumHandling.h \
+  common/originAddressScanner.h \
+  common/originTransactionsDatabase.h \
   common/periodicActionExecutor.h \
-  common/ratcoinParams.h \
+  common/pingAction.h \
   common/responseVisitorInternal.h \
   common/requestHandler.h \
-  common/requestResponse.h \
   common/request.h \
+  common/scheduleAbleAction.h \
+  common/scheduledActionManager.h \
+  common/segmentFileStorage.h \
   common/selfNode.h \
+  common/simpleBuddy.h \
+  common/commonStruct.h \
+  common/supportTransactionsDatabase.h \
+  common/timeMedium.h \
   common/transactionStatus.h \
   common/visitorConfigurationUtilities.h 
-
+  
 COMMON_CPP = \
+  common/accessFile.cpp \
+  common/action.cpp \
+  common/actionHandler.cpp \
+  common/analyseTransaction.cpp \
   common/authenticationProvider.cpp \
+  common/bitcoinNodeMedium.cpp \
+  common/blockInfoDatabase.cpp \
+  common/commandLine.cpp \
   common/communicationProtocol.cpp \
-  common/commonResponses.cpp \
+  common/responses.cpp \
+  common/requests.cpp	 \	
   common/databaseManager.cpp \
+  common/dimsParams.cpp \
   common/manageNetwork.cpp \
-  common/ratcoinParams.cpp \
-  common/selfNode.cpp 
+  common/networkActionRegister.cpp \
+  common/nodeMedium.cpp \
+  common/nodesManager.cpp \
+  common/noMediumHandling.cpp \
+  common/originAddressScanner.cpp \
+  common/originTransactionsDatabase.cpp \
+  common/periodicActionExecutor.cpp \
+  common/requestHandler.cpp \
+  common/request.cpp \
+  common/scheduledActionManager.cpp \
+  common/segmentFileStorage.cpp \
+  common/selfNode.cpp \
+  common/segmentFileStorage.cpp \
+  common/simpleBuddy.cpp \
+  common/supportTransactionsDatabase.cpp \
+  common/timeMedium.cpp
   
 # tracker core #
 TRACKER_CORE_H = \
-  tracker/accessFile.h \
+  tracker/activityControllerAction.h \
   tracker/addressToCoins.h \
-  tracker/bitcoinNodeMedium.h \
-  tracker/blockInfoDatabase.h \
   tracker/clientRequestsManager.h \
   tracker/communicationProtocol.h \
   tracker/configureTrackerActionHandler.h \
+  tracker/connectNetworkAction.h \
   tracker/connectNodeAction.h \
-  tracker/connectToTrackerRequest.h \
+  tracker/controller.h \
   tracker/databaseManager.h \
-  tracker/getBalanceAction.h \
-  tracker/getBalanceRequest.h \
+  tracker/getBalanceAction.h \	
+  tracker/init.h \
   tracker/internalMediumProvider.h \
   tracker/internalOperationsMedium.h \
-  tracker/originTransactionsDatabase.h \
-  tracker/originAddressScaner.h \
+  tracker/passTransactionAction.h \
+  tracker/pingAction.h \
   tracker/processNetwork.h \
-  tracker/scanBitcoinNetworkRequest.h \
-  tracker/segmentFileStorage.h \
+  tracker/provideInfoAction.h \
+  tracker/recognizeNetworkAction.h \
+  tracker/registerAction.h \
+  tracker/registerRpcHooks.h \
+  tracker/requests.h \
   tracker/server.h \
   tracker/setResponseVisitor.h \
-  tracker/simpleBuddy.h \
   tracker/synchronizationAction.h \
-  tracker/synchronizationRequests.h \
-  tracker/trackerController.h \
-  tracker/trackerControllerStates.h \
-  tracker/trackerControllerEvents.h \
+  tracker/controllerEvents.h \
   tracker/trackerNodeMedium.h \
   tracker/trackerNodesManager.h \
   tracker/transactionRecordManager.h \
   tracker/trackOriginAddressAction.h \
+  tracker/updateNetworkDataAction.h \
   tracker/validateTransactionsAction.h \
-  tracker/validateTransactionActionEvents.h \
-  tracker/validateTransactionsRequest.h
+  tracker/validateTransactionActionEvents.h
+  
   
 # bitcoin core #
 BITCOIN_CORE_H = \
@@ -109,10 +146,8 @@ BITCOIN_CORE_H = \
   crypter.h \
   db.h \
   hash.h \
-  init.h \
   key.h \
   keystore.h \
-  leveldbwrapper.h \
   limitedmap.h \
   main.h \
   mruset.h \
@@ -128,7 +163,6 @@ BITCOIN_CORE_H = \
   sync.h \
   threadsafety.h \
   tinyformat.h \
-  txdb.h \
   txmempool.h \
   ui_interface.h \
   uint256.h \
@@ -136,7 +170,9 @@ BITCOIN_CORE_H = \
   version.h \
   walletdb.h \
   networksParameters.h \
-  wallet.h
+  wallet.h \
+  leveldbwrapper.h \
+  txdb.h 
 
 JSON_H = \
   json/json_spirit.h \
@@ -157,39 +193,36 @@ version.o: obj/build.h
 
 # tracker core #
 TRACKER_CORE_CPP = \
-  tracker/accessFile.cpp \
-  tracker/actionHandlerDefinitions.cpp \
+  tracker/activityControllerAction.cpp \
   tracker/addressToCoins.cpp \
-  tracker/bitcoinNodeMedium.cpp \
-  tracker/blockInfoDatabase.cpp \
+  tracker/connectNetworkAction.cpp \
   tracker/connectNodeAction.cpp \
-  tracker/connectToTrackerRequest.cpp \
+  tracker/controller.cpp \
+  tracker/controllerEvents.cpp \
   tracker/clientRequestsManager.cpp \
   tracker/getBalanceAction.cpp \
-  tracker/getBalanceRequest.cpp \
+  tracker/init.cpp \
   tracker/internalMediumProvider.cpp \
   tracker/internalOperationsMedium.cpp \
-  tracker/originTransactionsDatabase.cpp \
-  tracker/originAddressScaner.cpp \
+  tracker/passTransactionAction.cpp \
+  tracker/pingAction.cpp \
   tracker/processNetwork.cpp \
+  tracker/provideInfoAction.cpp \
+  tracker/recognizeNetworkAction.cpp \
+  tracker/registerAction.cpp \
+  tracker/registerRpcHooks.cpp \
+  tracker/requests.cpp \
   tracker/rpcTracker.cpp \
-  tracker/scanBitcoinNetworkRequest.cpp \
-  tracker/segmentFileStorage.cpp \
   tracker/server.cpp \
   tracker/setResponseVisitor.cpp \
-  tracker/simpleBuddy.cpp \
   tracker/synchronizationAction.cpp \
-  tracker/synchronizationRequests.cpp \
-  tracker/trackerController.cpp \
-  tracker/trackerControllerEvents.cpp \
-  tracker/trackerControllerStates.cpp \
   tracker/trackerNodeMedium.cpp \
   tracker/trackerNodesManager.cpp \
   tracker/transactionRecordManager.cpp \
   tracker/trackOriginAddressAction.cpp \
-  tracker/validateTransactionsAction.cpp \
-  tracker/validateTransactionsRequest.cpp
- 
+  tracker/updateNetworkDataAction.cpp \
+  tracker/validateTransactionsAction.cpp
+
   
 libbitcoin_server_a_SOURCES = \
   db.cpp \
@@ -201,21 +234,20 @@ libbitcoin_server_a_SOURCES = \
   chainparams.cpp \
   checkpoints.cpp \
   coins.cpp \
-  init.cpp \
   keystore.cpp \
-  leveldbwrapper.cpp \
   main.cpp \
   net.cpp \
   noui.cpp \
   rpcmisc.cpp \
   rpcnet.cpp \
   rpcrawtransaction.cpp \
-  txdb.cpp \
   txmempool.cpp \
   rpcdump.cpp \
   rpcwallet.cpp \
   wallet.cpp \
   walletdb.cpp \
+  leveldbwrapper.cpp \
+  txdb.cpp \
   $(JSON_H) \
   $(BITCOIN_CORE_H)
 
@@ -248,7 +280,7 @@ libbitcoin_cli_a_SOURCES = \
 
 nodist_libbitcoin_common_a_SOURCES = $(top_srcdir)/src/obj/build.h
 #
-# this repetition is temporary work around
+# this repetition is temporary workaround
 # dims_tracker binary #
 dims_tracker_LDADD = \
   libdims_tracker.a \
@@ -258,7 +290,7 @@ dims_tracker_LDADD = \
   libbitcoin_common.a \
   $(LIBLEVELDB) \
   $(LIBMEMENV)
-dims_tracker_SOURCES = bitcoind.cpp
+dims_tracker_SOURCES = tracker/tracker.cpp
 #
 
 if TARGET_WINDOWS
@@ -268,17 +300,9 @@ endif
 AM_CPPFLAGS += $(BDB_CPPFLAGS)
 dims_tracker_LDADD += $(BOOST_LIBS) $(BDB_LIBS)
 
-# bitcoin-cli binary #
-bitcoin_cli_LDADD = \
-  libbitcoin_cli.a \
-  libbitcoin_common.a \
-  $(BOOST_LIBS)
-bitcoin_cli_SOURCES = bitcoin-cli.cpp
 #
 
-if TARGET_WINDOWS
-bitcoin_cli_SOURCES += bitcoin-cli-res.rc
-endif
+
 
 # NOTE: This dependency is not strictly necessary, but without it make may try to build both in parallel, which breaks the LevelDB build system in a race
 leveldb/libleveldb.a: leveldb/libmemenv.a

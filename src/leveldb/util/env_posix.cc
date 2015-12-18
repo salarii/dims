@@ -538,7 +538,7 @@ void PosixEnv::Schedule(void (*function)(void*), void* arg) {
     started_bgthread_ = true;
     PthreadCall(
         "create thread",
-        pthread_create(&bgthread_, NULL,  &PosixEnv::BGThreadWrapper, this));
+        pthread_create(&bgthread_, NULL, &PosixEnv::BGThreadWrapper, this));
   }
 
   // If the queue is currently empty, the background thread may currently be
@@ -591,7 +591,7 @@ void PosixEnv::StartThread(void (*function)(void* arg), void* arg) {
   state->user_function = function;
   state->arg = arg;
   PthreadCall("start thread",
-              pthread_create(&t, NULL,  &StartThreadWrapper, state));
+              pthread_create(&t, NULL, &StartThreadWrapper, state));
 }
 
 }  // namespace

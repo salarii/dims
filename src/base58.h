@@ -190,7 +190,7 @@ protected:
     typedef std::vector<unsigned char, zero_after_free_allocator<unsigned char> > vector_uchar;
     vector_uchar vchData;
 
-	CBase58Data( CNetworkParams const * _networkParams= &GetNetworkParams< common::CRatcoinParams >() )
+	CBase58Data( CNetworkParams const * _networkParams= &GetNetworkParams< common::CDimsParams >() )
 	    : m_networkParams( _networkParams )
     {
         vchVersion.clear();
@@ -263,19 +263,19 @@ public:
  * Script-hash-addresses have version 5 (or 196 testnet).
  * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
  */
-class CBitcoinAddress;
+class CMnemonicAddress;
 class CBitcoinAddressVisitor : public boost::static_visitor<bool>
 {
 private:
-    CBitcoinAddress *addr;
+	CMnemonicAddress *addr;
 public:
-    CBitcoinAddressVisitor(CBitcoinAddress *addrIn) : addr(addrIn) { }
+	CBitcoinAddressVisitor(CMnemonicAddress *addrIn) : addr(addrIn) { }
     bool operator()(const CKeyID &id) const;
     bool operator()(const CScriptID &id) const;
     bool operator()(const CNoDestination &no) const;
 };
 
-class CBitcoinAddress : public CBase58Data
+class CMnemonicAddress : public CBase58Data
 {
 public:
     bool Set(const CKeyID &id) {
@@ -301,24 +301,24 @@ public:
         return fCorrectSize && fKnownVersion;
     }
 
-	CBitcoinAddress( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
+	CMnemonicAddress( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {
     }
 
-	CBitcoinAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
+	CMnemonicAddress(const CTxDestination &dest, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {
         Set(dest);
     }
 
-	CBitcoinAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CMnemonicAddress(const std::string& strAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(strAddress);
     }
 
-	CBitcoinAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CMnemonicAddress(const char* pszAddress, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetString(pszAddress);
@@ -350,6 +350,52 @@ public:
         return IsValid() && vchVersion == m_networkParams->Base58Prefix(CNetworkParams::SCRIPT_ADDRESS);
     }
 };
+
+class CNodeAddress : public CBase58Data
+{
+public:
+	bool Set(const CKeyID &_id, common::NodePrefix::Enum _nodePrefix ) {
+		SetData( common::dimsParams().getNodePrefix( _nodePrefix ), &_id, 20);
+		return true;
+	}
+
+	bool IsValid() const
+	{
+		bool fCorrectSize = vchData.size() == 20;
+		bool fKnownVersion = vchVersion == common::dimsParams().getNodePrefix( common::NodePrefix::Tracker ) ||
+							 vchVersion == common::dimsParams().getNodePrefix( common::NodePrefix::Monitor ) ||
+							 vchVersion == common::dimsParams().getNodePrefix( common::NodePrefix::Seed );
+
+		return fCorrectSize && fKnownVersion;
+	}
+
+	CNodeAddress()
+	: CBase58Data( 0 )
+	{
+	}
+
+	CNodeAddress(const std::string & _strAddress )
+	: CBase58Data( 0 )
+	{
+		SetString( _strAddress );
+	}
+
+	CNodeAddress(const char* pszAddress )
+	: CBase58Data( 0 )
+	{
+		SetString(pszAddress);
+	}
+
+	bool GetKeyID(CKeyID &keyID) const {
+		if (!IsValid() )
+			return false;
+		uint160 id;
+		memcpy(&id, &vchData[0], 20);
+		keyID = CKeyID(id);
+		return true;
+	}
+};
+
 
 bool inline CBitcoinAddressVisitor::operator()(const CKeyID &id) const         { return addr->Set(id); }
 bool inline CBitcoinAddressVisitor::operator()(const CScriptID &id) const      { return addr->Set(id); }
@@ -391,13 +437,13 @@ public:
         return SetString(strSecret.c_str());
     }
 
-	CBitcoinSecret(const CKey& vchSecret, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinSecret(const CKey& vchSecret, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
     	: CBase58Data( _networkParams )
     {
         SetKey(vchSecret);
     }
 
-	CBitcoinSecret( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinSecret( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
     }
@@ -419,12 +465,12 @@ public:
         return ret;
     }
 
-	CBitcoinExtKeyBase(const K &key, CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >())
+	CBitcoinExtKeyBase(const K &key, CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >())
 	: CBase58Data( _networkParams )
     {
         SetKey(key);
     }
-	CBitcoinExtKeyBase( CNetworkParams const * _networkParams = &GetNetworkParams< common::CRatcoinParams >() )
+	CBitcoinExtKeyBase( CNetworkParams const * _networkParams = &GetNetworkParams< common::CDimsParams >() )
 	: CBase58Data( _networkParams )
     {}
 };

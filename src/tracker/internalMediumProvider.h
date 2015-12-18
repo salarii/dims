@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,32 +7,45 @@
 
 #include "common/connectionProvider.h"
 #include "common/medium.h"
-namespace tracker
+#include "common/mediumKinds.h"
+
+namespace common
 {
 
 class CBitcoinNodeMedium;
 
-class CInternalMediumProvider : public  common::CConnectionProvider< TrackerResponses >
+}
+
+namespace tracker
+{
+
+class CInternalMediumProvider : public  common::CConnectionProvider
 {
 public:
-	virtual std::list< common::CMedium< TrackerResponses > *> provideConnection( int const _actionKind, unsigned _requestedConnectionNumber = -1 );
+	virtual std::list< common::CMedium *> provideConnection( common::CMediumFilter const & _mediumFilter );
 
 	// set response, merkle ?? transaction ??
-	void setResponse( CTransaction const & _response, CNode * _node );
+	void setTransaction( CTransaction const & _response, CNode * _node );
 
-	void setResponse( CMerkleBlock const & _merkle, CNode * _node );
+	void setMerkleBlock( CMerkleBlock const & _merkle, CNode * _node );
+
+	std::list< common::CMedium *> getMediumByClass( common::CMediumKinds::Enum _mediumKind, unsigned int _mediumNumber );
 
 	static CInternalMediumProvider* getInstance( );
+
+	void registerRemoveCallback( CNodeSignals& nodeSignals );
+
+	void stopCommunicationWithNode( uintptr_t _nodePtr );
 private:
+	void removeNodeCallback( CNode * node );
+
 	CInternalMediumProvider();
 private:
 	mutable boost::mutex m_mutex;
 
 	static CInternalMediumProvider * ms_instance;
-
-	std::list< common::CMedium< TrackerResponses > *> m_mediums;
 	// this is simplified approach
-	std::map< CNode *, CBitcoinNodeMedium * > m_nodeToMedium;
+	std::map< CNode *, common::CBitcoinNodeMedium * > m_nodeToMedium;
 };
 
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -37,7 +37,7 @@ json_spirit::Value connectToTracker( json_spirit::Array const & params, bool fHe
 
 	string strNode = params[0].get_str();
 
-	common::CActionHandler< TrackerResponses >::getInstance()->executeAction( (common::CAction< TrackerResponses >*)new CConnectNodeAction( strNode ) );
+	common::CActionHandler::getInstance()->executeAction( (common::CAction*)new CConnectNodeAction( strNode ) );
 	return json_spirit::Value::null;
 }
 

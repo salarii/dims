@@ -1,60 +1,75 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef ACCEPT_NODE_ACTION_H
 #define ACCEPT_NODE_ACTION_H
 
-#include "common/action.h"
-#include "common/communicationProtocol.h"
-#include "configureSeedActionHandler.h"
 #include <boost/statechart/state_machine.hpp>
 #include <boost/optional.hpp>
+
+#include "common/action.h"
+#include "common/communicationProtocol.h"
+
+#include "seedDb.h"
 
 namespace seed
 {
 
+void addResult( std::string const & _key, bool _value );
+
+bool
+getResult( std::string const & _key, bool & _value );
+
 struct CUninitiated;
 
-class CAcceptNodeAction : public common::CAction< SeedResponses >, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >, public common::CCommunicationAction
+class CAcceptNodeAction : public common::CAction, public  boost::statechart::state_machine< CAcceptNodeAction, CUninitiated >
 {
 public:
-	CAcceptNodeAction( uint256 const & _actionKey, std::vector< unsigned char > const & _payload, unsigned int _mediumKind );
+	CAcceptNodeAction( uint256 const & _actionKey, uintptr_t _nodePtr, CServiceResult & _service );// last  is  because  of  ugliness
 
-	CAcceptNodeAction( CAddress const & _nodeAddress );
+	CAcceptNodeAction( CServiceResult & _service );
 
-	virtual common::CRequest< SeedResponses >* execute();
+	virtual void accept( common::CSetResponseVisitor & _visitor );
 
-	virtual void accept( common::CSetResponseVisitor< SeedResponses > & _visitor );
-
-	void setRequest( common::CRequest< SeedResponses >* _request );
+	void setAddress( CAddress const & _address );
 
 	CAddress getAddress() const;
 
 	std::vector< unsigned char > const & getPayload() const;
 
-	void setMediumKind( unsigned int _mediumKind );
+	void setNodePtr( uintptr_t _nodePtr );
 // not safe
-	unsigned int getMediumKind() const;
+	uintptr_t getNodePtr() const;
 
-	bool getValid() const{ return m_valid; }
+	bool getValid() const{ return m_service.fGood; }
 
-	void setValid( bool _valid ){ m_valid = _valid; }
+	void setValid( bool _valid )
+	{
+		m_service.fGood = _valid;
+	}
+
+	CPubKey getPublicKey() const;
+
+	void setPublicKey( CPubKey const & _pubKey );
 
 	~CAcceptNodeAction(){};
 private:
-	common::CRequest< SeedResponses >* m_request;
-	CAddress const m_nodeAddress;
+	CAddress m_nodeAddress;
 
 	static int const ms_randomPayloadLenght = 32;
 
 	std::vector< unsigned char > m_payload;
 
-	unsigned int m_mediumKind;
+	uintptr_t m_nodePtr;
 
 	bool const m_passive;
 
 	bool m_valid;
+
+	CPubKey m_key;
+
+	CServiceResult & m_service;
 };
 
 

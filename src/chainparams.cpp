@@ -27,7 +27,7 @@ std::string & getRatcoinOriginPublicAddress()
 	ratcoinOriginPublicAddress.resize(1);
 	*ratcoinOriginPublicAddress.begin() = 4; //means 65 bytes
 
-	char ratcoinOriginPublicAddressPayload[64] = "HiThisIsRatcoinOriginAddressItIsThePlaceWhereNewRatcoinsAreBorn";
+	char ratcoinOriginPublicAddressPayload[64] = "ThisIsDimsOriginAddressSendHereYourBitcoinsAndReclaimThemInDims";
 
 	ratcoinOriginPublicAddress += ratcoinOriginPublicAddressPayload;
 
@@ -154,10 +154,10 @@ public:
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
-        genesis.nVersion = 1;
-        genesis.nTime    = 1231006505;
-        genesis.nBits    = 0x1d00ffff;
-        genesis.nNonce   = 2083236893;
+		genesis.nVersion = 1;
+		genesis.nTime    = 1231006505;
+		genesis.nBits    = 0x1d00ffff;
+		genesis.nNonce   = 2083236893;
 
         hashGenesisBlock = genesis.GetHash();
         assert(hashGenesisBlock == uint256("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
@@ -190,7 +190,9 @@ public:
             vFixedSeeds.push_back(addr);
         }
 		m_originAddress = CPubKey(getRatcoinOriginPublicAddress().c_str(), &getRatcoinOriginPublicAddress().c_str()[65]).GetID();
-    }
+
+		m_confirmation = 6;
+	}
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
     virtual Network NetworkID() const { return CNetworkParams::MAIN; }
@@ -204,6 +206,19 @@ protected:
 };
 static CMainParams mainParams;
 
+
+struct SeedSpec6 {
+uint8_t addr[16];
+uint16_t port;
+};
+
+unsigned int pnSeedTest[] =
+{
+	0x8c855542, 0x09962744, 0x269f814e, 0xeb06c658, 0x1a8f2164, 0x5008a265, 0x0f858368, 0x7d26bb6a,
+	0xea5baa6b, 0x543abf6b, 0xa27afb94, 0xc606afad, 0xf30909b0, 0xc5253eb2, 0x81c02db9, 0x52cda5bc,
+	0xe19fe2bc, 0xe2080abe, 0x92d60bc6, 0x8062d3c6, 0x1eb526d4, 0x450af4dc, 0x81a3e317, 0x1bfe8018,
+	0xf7b14332, 0x27247432, 0xa112ba36
+};
 
 //
 // Testnet (v3)
@@ -226,22 +241,37 @@ public:
 
         // Modify the testnet genesis block so the timestamp is valid for a later start.
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 32);
-        genesis.nVersion =2;
-		genesis.nTime = 1398416844;
-		genesis.hashPrevBlock = uint256("0x000000007b35f82798dcf2fe4bc39af96911ef5224778710403d6d7b43b01e30");
+		genesis.nVersion =3;
 
-		genesis.hashMerkleRoot = uint256("0xd7a9a034b65a1334431fce9667176634d0b1d20c37bb5feec7c99691f8c87839");
+		genesis.hashPrevBlock = uint256("0x000000000118074217495f8ca2391f0a8900754130784022402851fe05ff18e6");
 
-		genesis.nBits = 486604799;
-		genesis.nNonce = 1861716224;
-        hashGenesisBlock = genesis.GetHash();
+		genesis.hashMerkleRoot = uint256("0x7deeaf9bda48a2bc635b821467aa74203c3b4b52f03aa0480851ce1fb2357580");
 
-		assert(hashGenesisBlock == uint256("0x000000000045f2135f5ed826c4b131b32014ac266dd9792415a6f03a31096960"));
+		genesis.nTime    = 1438300094;
+		genesis.nBits    = 486604799;
+		genesis.nNonce   = 2177938181;
 
-        vFixedSeeds.clear();
+		hashGenesisBlock = genesis.GetHash();
+
+		assert(hashGenesisBlock == uint256("0x00000000011adeaabdd7c9b1f14e0ee5c6b89b9f51b1b9a4d8aac5b36b3e8d8a"));
+		vFixedSeeds.clear();
+		for (unsigned int i = 0; i < ARRAYLEN(pnSeedTest); i++)
+		{
+			// It'll only connect to one or two seed nodes because once it connects,
+			// it'll get a pile of addresses with newer timestamps.
+			// Seed nodes are given a random 'last seen time' of between one and two
+			// weeks ago.
+			const int64_t nOneWeek = 7*24*60*60;
+			struct in_addr ip;
+			memcpy(&ip, &pnSeedTest[i], sizeof(ip));
+			CAddress addr(CService(ip, GetDefaultPort()));
+			addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
+			vFixedSeeds.push_back(addr);
+		}
+
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
-        vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
+		vSeeds.push_back(CDNSSeedData("bitcoin.schildbach.de", "testnet-seed.bitcoin.schildbach.de"));
+	//    vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
 
         base58Prefixes[PUBKEY_ADDRESS] = list_of(111);
         base58Prefixes[SCRIPT_ADDRESS] = list_of(196);
@@ -249,7 +279,7 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x35)(0x87)(0xCF);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x35)(0x83)(0x94);
 
-
+		m_confirmation = 2;
     }
     virtual Network NetworkID() const { return CNetworkParams::TESTNET; }
 };

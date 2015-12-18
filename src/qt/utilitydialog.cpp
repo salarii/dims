@@ -12,7 +12,7 @@
 #include "guiutil.h"
 
 #include "clientversion.h"
-#include "init.h"
+#include "tracker/init.h"
 #include "util.h"
 
 #include <QLabel>
@@ -27,7 +27,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     // Set current copyright year
     ui->copyrightLabel->setText(tr("Copyright") + QString(" &copy; 2009-%1 ").arg(COPYRIGHT_YEAR) + tr("The Bitcoin Core developers\n"));
-    ui->copyrightLabel->setText(tr("Copyright") + QString(" &copy; 2014-%1 ").arg(COPYRIGHT_YEAR) + tr("The Dims dev-team"));
+    ui->copyrightLabel->setText(tr("Copyright") + QString(" &copy; 2014-%1 ").arg(COPYRIGHT_YEAR) + tr("The DiMS dev-team"));
 }
 
 void AboutDialog::setModel(ClientModel *model)

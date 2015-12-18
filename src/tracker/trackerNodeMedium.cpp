@@ -1,30 +1,26 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/medium.h"
-#include "trackerNodeMedium.h"
 #include "common/actionHandler.h"
-#include "trackerNodesManager.h"
-#include "connectNodeAction.h"
-#include "synchronizationRequests.h"
+
+#include "tracker/trackerNodeMedium.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/connectNodeAction.h"
+#include "tracker/requests.h"
 
 namespace tracker
 {
 
 void
-CTrackerNodeMedium::add( CGetSynchronizationInfoRequest const * _request )
+CTrackerNodeMedium::add( CPassMessageRequest const * _request )
 {
-	common::CSynchronizationInfo synchronizationInfo;
-
-	synchronizationInfo.m_actionKey = _request->getActionKey();
-
-	common::CMessage message( synchronizationInfo );
+	common::CMessage message( _request->getMessage(), _request->getPreviousKey(), _request->getActionKey(), _request->getId() );
 
 	m_messages.push_back( message );
 
-	m_indexes.push_back( synchronizationInfo.m_actionKey );
+	setLastRequest( _request->getId(), (common::CRequest*)_request );
 }
-
 
 }

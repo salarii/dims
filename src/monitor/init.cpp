@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -45,8 +45,28 @@
 #include "common/actionHandler.h"
 #include "common/manageNetwork.h"
 #include "common/nodesManager.h"
+#include "common/periodicActionExecutor.h"
+#include "common/timeMedium.h"
+#include "common/commandLine.h"
+#include "common/originAddressScanner.h"
+#include "common/authenticationProvider.h"
+#include "common/noMediumHandling.h"
 
-#include "processNetwork.h"
+#include "monitor/processNetwork.h"
+#include "monitor/controller.h"
+#include "monitor/internalMediumProvider.h"
+#include "monitor/server.h"
+#include "monitor/clientRequestsManager.h"
+#include "monitor/reputationTracer.h"
+#include "monitor/registerRpcHooks.h"
+#include "monitor/transactionRecordManager.h"
+#include "monitor/copyStorageHandler.h"
+#include "monitor/chargeRegister.h"
+
+#ifdef ENABLE_WALLET
+std::string strWalletFile;
+CWallet* pwalletMain;
+#endif
 
 using namespace std;
 using namespace boost;
@@ -103,6 +123,7 @@ bool static Bind(const CService &addr, unsigned int flags) {
 bool AppInit(boost::thread_group& threadGroup)
 {
 	seed_insecure_rand();
+
 	// ********************************************************* Step 1: setup
 #ifdef _MSC_VER
 	// Turn off Microsoft heap dump noise
@@ -480,6 +501,24 @@ bool AppInit(boost::thread_group& threadGroup)
 		nStart = GetTimeMillis();
 		do {
 			try {
+				UnloadBlockIndex();
+/*
+				 if (!LoadBlockIndex()) {
+					strLoadError = _("Error loading block database");
+					break;
+				}
+*/
+				// If the loaded chain has a wrong genesis, bail out immediately
+				// (we're likely using a testnet datadir, or the other way around).
+				if (!mapBlockIndex.empty() && chainActive.Genesis() == NULL)
+					return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
+
+				// Initialize the block index (no-op if non-empty database was already loaded)
+				if (!InitBlockIndex()) {
+					strLoadError = _("Error initializing block database");
+					break;
+				}
+
 				// Check for changed -txindex state
 				if (fTxIndex != GetBoolArg("-txindex", false)) {
 					strLoadError = _("You need to rebuild the database using -reindex to change -txindex");
@@ -604,7 +643,6 @@ bool AppInit(boost::thread_group& threadGroup)
 					strErrors << _("Cannot write default address") << "\n";
 			}
 
-			pwalletMain->SetBestChain(chainActive.GetLocator());
 		}
 
 		LogPrintf("%s", strErrors.str());
@@ -617,15 +655,51 @@ bool AppInit(boost::thread_group& threadGroup)
 	LogPrintf("No wallet compiled in!\n");
 #endif // !ENABLE_WALLET
 	// ********************************************************* Step 9: import blocks
+	common::COriginAddressScanner::getInstance()->setStorage( monitor::CTransactionRecordManager::getInstance() );
 /* create  threads of  action  handler */
-	threadGroup.create_thread( boost::bind( &common::CActionHandler< monitor::MonitorResponses >::loop, common::CActionHandler< monitor::MonitorResponses >::getInstance() ) );
+	threadGroup.create_thread( boost::bind( &common::COriginAddressScanner::loop, common::COriginAddressScanner::getInstance() ) );
 
-	common::CActionHandler< monitor::MonitorResponses >::getInstance()->addConnectionProvider( (common::CConnectionProvider< monitor::MonitorResponses >*)common::CNodesManager< monitor::MonitorResponses >::getInstance() );
+	threadGroup.create_thread( boost::bind( &monitor::CReputationTracker::loop, monitor::CReputationTracker::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CSegmentFileStorage::flushLoop, common::CSegmentFileStorage::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CActionHandler::loop, common::CActionHandler::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &monitor::CClientRequestsManager::processRequestLoop, monitor::CClientRequestsManager::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &common::CCommandLine::workLoop, common::CCommandLine::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &CCopyStorageHandler::loop, CCopyStorageHandler::getInstance() ) );
+
+	threadGroup.create_thread( boost::bind( &CChargeRegister::loop, CChargeRegister::getInstance() ) );
+
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)monitor::CInternalMediumProvider::getInstance() );
+
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)monitor::CReputationTracker::getInstance() );
+
+	common::CActionHandler::getInstance()->addConnectionProvider( (common::CConnectionProvider*)common::CErrorMediumProvider::getInstance() );
 
 	common::CManageNetwork::getInstance()->registerNodeSignals( CProcessNetwork::getInstance() );
 
 	common::CManageNetwork::getInstance()->connectToNetwork( threadGroup );
+
+	common::CPeriodicActionExecutor * periodicActionExecutor
+			= common::CPeriodicActionExecutor::getInstance();
+
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor::processingLoop, periodicActionExecutor ));
+
+	monitor::CInternalMediumProvider::getInstance()->registerRemoveCallback( GetNodeSignals() );
+
+
 	// ********************************************************* Step 10: load peers
+
+	CController::getInstance();
+
+	CWallet::getInstance()->AddKeyPubKey(
+				common::CAuthenticationProvider::getInstance()->getMyPrivKey()
+				, common::CAuthenticationProvider::getInstance()->getMyKey());
 
 	nStart = GetTimeMillis();
 
@@ -653,15 +727,23 @@ bool AppInit(boost::thread_group& threadGroup)
 	LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
 #ifdef ENABLE_WALLET
 	LogPrintf("setKeyPool.size() = %"PRIszu"\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
-	LogPrintf("mapWallet.size() = %"PRIszu"\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
 	LogPrintf("mapAddressBook.size() = %"PRIszu"\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 	// InitRPCMining is needed here so getwork/getblocktemplate in the GUI debug console works properly.
   //  InitRPCMining();
+
+	m_setTransaction.connect( boost::bind( &monitor::CInternalMediumProvider::setTransaction, monitor::CInternalMediumProvider::getInstance(), _1, _2 ) );
+	m_setMerkleBlock.connect( boost::bind( &monitor::CInternalMediumProvider::setMerkleBlock, monitor::CInternalMediumProvider::getInstance(), _1, _2 ) );
+
 	if (fServer)
 		StartRPCThreads();
 
+	StartNode(threadGroup);
 
+	StopHook.connect( &StartShutdown );
+	monitor::registerHooks();
+
+	monitor::runServer();
 
 	// ********************************************************* Step 12: finished
 
@@ -694,10 +776,6 @@ void Shutdown()
 	UnregisterNodeSignals(GetNodeSignals());
 	{
 		LOCK(cs_main);
-#ifdef ENABLE_WALLET
-		if (pwalletMain)
-			pwalletMain->SetBestChain(chainActive.GetLocator());
-#endif
 
 	}
 #ifdef ENABLE_WALLET

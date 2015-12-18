@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #ifndef SEED_DNS_H_
 #define SEED_DNS_H_ 1
 
@@ -18,7 +20,7 @@ typedef struct {
   const char *host;
   const char *ns;
   const char *mbox;
-  int (*cb)(void *opt, addr_t *addr, int max, int ipv4, int ipv6);
+  int (*cb)(void *opt, addr_t *addr, unsigned int max, int ipv4, int ipv6);
   // stats
   uint64_t nRequests;
 } dns_opt_t;

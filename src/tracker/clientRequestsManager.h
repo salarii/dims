@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,29 +6,31 @@
 #define TASK_QUEUE_H
 
 #include "common/nodeMessages.h"
-#include "common/commonResponses.h"
+#include "common/responses.h"
 
 namespace tracker
 {
 
-typedef boost::variant< common::CDummy, common::CAvailableCoins, common::CNetworkInfoResult > ClientResponse;
+typedef boost::variant< common::CAvailableCoinsData, common::CClientNetworkInfoResult, common::CTransactionAck, common::CTransactionStatusResponse, common::CTrackerSpecificStats > ClientResponse;
 
 class CClientRequestsManager
 {
 public:
-	uint256 addRequest( common::NodeRequest const & _nodeRequest );
+	uint256 addRequest( common::NodeRequests const & _nodeRequest );
 
-	void addRequest( common::NodeRequest const & _nodeRequest, uint256 const & _hash );
+	void addRequest( common::NodeRequests const & _nodeRequest, uint256 const & _hash );
 
-	ClientResponse getResponse( uint256 const & _token );
+	bool getResponse( uint256 const & _token, ClientResponse & _clientResponse );
 
 	void processRequestLoop();
 
 	void setClientResponse( uint256 const & _hash, ClientResponse const & _clientResponse );
 
 	static CClientRequestsManager* getInstance();
+
+	~CClientRequestsManager();
 private:
-	typedef std::map< uint256, common::NodeRequest > InfoRequestRecord;
+	typedef std::map< uint256, common::NodeRequests > InfoRequestRecord;
 	typedef std::map< uint256, ClientResponse > InfoResponseRecord;
 private:
 	CClientRequestsManager();
@@ -36,9 +38,10 @@ private:
 	static CClientRequestsManager * ms_instance;
 
 	mutable boost::mutex m_lock;
+	mutable boost::mutex m_requestLock;
+
 	InfoRequestRecord m_getInfoRequest;
 	InfoResponseRecord m_infoResponseRecord;
-	static uint256 ms_currentToken;
 
 };
 

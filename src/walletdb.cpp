@@ -64,6 +64,57 @@ bool CWalletDB::EraseTx(uint256 hash)
     return Erase(std::make_pair(std::string("tx"), hash));
 }
 
+bool CWalletDB::addCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins)
+{
+	std::vector< CAvailableCoin > combine;
+
+	Read(_keyId, combine);
+
+	EraseCoin(_keyId);
+
+	combine.insert( combine.end(), _availableCoins.begin(), _availableCoins.end() );
+
+	return WriteCoin(_keyId, combine);
+}
+
+bool CWalletDB::replaceCoins(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins)
+{
+	EraseCoin(_keyId);
+
+	return WriteCoin(_keyId, _availableCoins);
+}
+
+bool CWalletDB::WriteCoin(CKeyID const & _keyId, std::vector< CAvailableCoin > const & _availableCoins)
+{
+	nWalletDBUpdated++;
+	return Write(std::make_pair(std::string("coins"), _keyId), _availableCoins);
+}
+
+bool CWalletDB::EraseCoin(CKeyID const & _keyId)
+{
+	nWalletDBUpdated++;
+	return Erase(std::make_pair(std::string("coins"), _keyId));
+}
+
+bool CWalletDB::WriteInputs( uint256 const & _hash, std::vector< CKeyID > const &_inputs)
+{
+	nWalletDBUpdated++;
+	return Write(std::make_pair(std::string("inputs"), _hash), _inputs);
+}
+
+bool CWalletDB::replaceInputs(uint256 const & _hash, std::vector< CKeyID > const &_inputs)
+{
+	EraseInputs(_hash);
+
+	return WriteInputs(_hash, _inputs);
+}
+
+bool CWalletDB::EraseInputs(uint256 const & _hash)
+{
+	nWalletDBUpdated++;
+	return Erase(std::make_pair(std::string("inputs"), _hash));
+}
+
 bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata& keyMeta)
 {
     nWalletDBUpdated++;
@@ -79,6 +130,18 @@ bool CWalletDB::WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, c
     vchKey.insert(vchKey.end(), vchPrivKey.begin(), vchPrivKey.end());
 
     return Write(std::make_pair(std::string("key"), vchPubKey), std::make_pair(vchPrivKey, Hash(vchKey.begin(), vchKey.end())), false);
+}
+
+bool CWalletDB::EraseKey(const CPubKey& vchPubKey)
+{
+	bool result = false;
+	result = Erase(std::make_pair(std::string("keymeta"), vchPubKey));
+	if ( !result )
+		return false;
+
+	result = Erase( std::make_pair(std::string("key"), vchPubKey) );
+
+	return result;
 }
 
 bool CWalletDB::WriteCryptedKey(const CPubKey& vchPubKey,
@@ -112,17 +175,6 @@ bool CWalletDB::WriteCScript(const uint160& hash, const CScript& redeemScript)
 {
     nWalletDBUpdated++;
     return Write(std::make_pair(std::string("cscript"), hash), redeemScript, false);
-}
-
-bool CWalletDB::WriteBestBlock(const CBlockLocator& locator)
-{
-    nWalletDBUpdated++;
-    return Write(std::string("bestblock"), locator);
-}
-
-bool CWalletDB::ReadBestBlock(CBlockLocator& locator)
-{
-    return Read(std::string("bestblock"), locator);
 }
 
 bool CWalletDB::WriteOrderPosNext(int64_t nOrderPosNext)
@@ -235,79 +287,6 @@ void CWalletDB::ListAccountCreditDebit(const string& strAccount, list<CAccountin
     pcursor->close();
 }
 
-
-DBErrors
-CWalletDB::ReorderTransactions(CWallet* pwallet)
-{
-    LOCK(pwallet->cs_wallet);
-    // Old wallets didn't have any defined order for transactions
-    // Probably a bad idea to change the output of this
-
-    // First: get all CWalletTx and CAccountingEntry into a sorted-by-time multimap.
-    typedef pair<CWalletTx*, CAccountingEntry*> TxPair;
-    typedef multimap<int64_t, TxPair > TxItems;
-    TxItems txByTime;
-
-    for (map<uint256, CWalletTx>::iterator it = pwallet->mapWallet.begin(); it != pwallet->mapWallet.end(); ++it)
-    {
-        CWalletTx* wtx = &((*it).second);
-        txByTime.insert(make_pair(wtx->nTimeReceived, TxPair(wtx, (CAccountingEntry*)0)));
-    }
-    list<CAccountingEntry> acentries;
-    ListAccountCreditDebit("", acentries);
-    BOOST_FOREACH(CAccountingEntry& entry, acentries)
-    {
-        txByTime.insert(make_pair(entry.nTime, TxPair((CWalletTx*)0, &entry)));
-    }
-
-    int64_t& nOrderPosNext = pwallet->nOrderPosNext;
-    nOrderPosNext = 0;
-    std::vector<int64_t> nOrderPosOffsets;
-    for (TxItems::iterator it = txByTime.begin(); it != txByTime.end(); ++it)
-    {
-        CWalletTx *const pwtx = (*it).second.first;
-        CAccountingEntry *const pacentry = (*it).second.second;
-        int64_t& nOrderPos = (pwtx != 0) ? pwtx->nOrderPos : pacentry->nOrderPos;
-
-        if (nOrderPos == -1)
-        {
-            nOrderPos = nOrderPosNext++;
-            nOrderPosOffsets.push_back(nOrderPos);
-
-            if (pacentry)
-                // Have to write accounting regardless, since we don't keep it in memory
-                if (!WriteAccountingEntry(pacentry->nEntryNo, *pacentry))
-                    return DB_LOAD_FAIL;
-        }
-        else
-        {
-            int64_t nOrderPosOff = 0;
-            BOOST_FOREACH(const int64_t& nOffsetStart, nOrderPosOffsets)
-            {
-                if (nOrderPos >= nOffsetStart)
-                    ++nOrderPosOff;
-            }
-            nOrderPos += nOrderPosOff;
-            nOrderPosNext = std::max(nOrderPosNext, nOrderPos + 1);
-
-            if (!nOrderPosOff)
-                continue;
-
-            // Since we're changing the order, write it back
-            if (pwtx)
-            {
-                if (!WriteTx(pwtx->GetHash(), *pwtx))
-                    return DB_LOAD_FAIL;
-            }
-            else
-                if (!WriteAccountingEntry(pacentry->nEntryNo, *pacentry))
-                    return DB_LOAD_FAIL;
-        }
-    }
-
-    return DB_LOAD_OK;
-}
-
 class CWalletScanState {
 public:
     unsigned int nKeys;
@@ -339,14 +318,35 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         {
             string strAddress;
             ssKey >> strAddress;
-            ssValue >> pwallet->mapAddressBook[CBitcoinAddress(strAddress).Get()].name;
+            ssValue >> pwallet->mapAddressBook[CMnemonicAddress(strAddress).Get()].name;
         }
         else if (strType == "purpose")
         {
             string strAddress;
             ssKey >> strAddress;
-            ssValue >> pwallet->mapAddressBook[CBitcoinAddress(strAddress).Get()].purpose;
+            ssValue >> pwallet->mapAddressBook[CMnemonicAddress(strAddress).Get()].purpose;
         }
+		else if (strType == "coins")
+		{
+			CKeyID keyId;
+			ssKey >> keyId;
+
+			std::vector< CAvailableCoin > coins;
+			ssValue >> coins;
+
+			pwallet->addAvailableCoins( keyId, coins, false );
+		}
+		else if (strType == "inputs")
+		{
+			uint256 hash;
+			ssKey >> hash;
+
+			std::vector< CKeyID > inputs;
+			ssValue >> inputs;
+			std::map< uint256, std::vector< CKeyID > > inputsMap;
+			inputsMap.insert( std::make_pair( hash, inputs ) );
+			pwallet->addInputs( inputsMap, false );
+		}
         else if (strType == "tx")
         {
             uint256 hash;
@@ -382,7 +382,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             if (wtx.nOrderPos == -1)
                 wss.fAnyUnordered = true;
 
-            pwallet->AddToWallet(wtx, true);
+	  //      pwallet->AddToWallet(wtx, true);
             //// debug print
             //LogPrintf("LoadWallet  %s\n", wtx.GetHash().ToString());
             //LogPrintf(" %12"PRId64"  %s  %s  %s\n",
@@ -564,7 +564,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             ssKey >> strAddress;
             ssKey >> strKey;
             ssValue >> strValue;
-            if (!pwallet->LoadDestData(CBitcoinAddress(strAddress).Get(), strKey, strValue))
+            if (!pwallet->LoadDestData(CMnemonicAddress(strAddress).Get(), strKey, strValue))
             {
                 strErr = "Error reading wallet database: LoadDestData failed";
                 return false;
@@ -668,8 +668,8 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
     if ((wss.nKeys + wss.nCKeys) != wss.nKeyMeta)
         pwallet->nTimeFirstKey = 1; // 0 would be considered 'no value'
 
-    BOOST_FOREACH(uint256 hash, wss.vWalletUpgrade)
-        WriteTx(hash, pwallet->mapWallet[hash]);
+ //   BOOST_FOREACH(uint256 hash, wss.vWalletUpgrade)
+   //     WriteTx(hash, pwallet->mapWallet[hash]);
 
     // Rewrite encrypted wallets of versions 0.4.0 and 0.5.0rc:
     if (wss.fIsEncrypted && (wss.nFileVersion == 40000 || wss.nFileVersion == 50000))
@@ -677,9 +677,6 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
 
     if (wss.nFileVersion < CLIENT_VERSION) // Update
         WriteVersion(CLIENT_VERSION);
-
-    if (wss.fAnyUnordered)
-        result = ReorderTransactions(pwallet);
 
     return result;
 }
@@ -963,3 +960,4 @@ bool CWalletDB::EraseDestData(const std::string &address, const std::string &key
     nWalletDBUpdated++;
     return Erase(boost::make_tuple(string("destdata"), address, key));
 }
+

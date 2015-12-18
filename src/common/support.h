@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,8 +6,33 @@
 #ifndef SUPPORT_H
 #define SUPPORT_H
 
-namespace  common
+#include <stdint.h>
+#include "uint256.h"
+#include "serialize.h"
+#include "version.h"
+
+extern uint32_t insecure_rand(void);
+
+namespace common
 {
+
+template < class T >
+void
+createPayload( T const & _type, std::vector< unsigned char > & _payload )
+{
+	unsigned int size = ::GetSerializeSize( _type, SER_NETWORK, PROTOCOL_VERSION );
+	_payload.resize( size );
+	CBufferAsStream stream( (char*)&_payload.front(), size, SER_NETWORK, PROTOCOL_VERSION );
+	stream << _type;
+}
+
+template < class T >
+void
+readPayload( std::vector< unsigned char > const & _payload, T & _outMessage )
+{
+	CBufferAsStream stream( (char*)&_payload.front(), _payload.size(), SER_NETWORK, PROTOCOL_VERSION );
+	stream >> _outMessage;
+}
 
 template < class T, class Enum >
 void 
@@ -34,6 +59,27 @@ struct CReadWrite
 		_stream << _object;
 	}
 };
+
+template < class T >
+uintptr_t convertToInt( T * _t )
+{
+	return reinterpret_cast< uintptr_t >( _t );
+}
+
+inline
+uint256
+getRandNumber()
+{
+	int const ComponentNumber = 8;
+	uint32_t number[ ComponentNumber ];
+
+	for( int i = 0; i < ComponentNumber; ++i )
+	{
+		number[i] = insecure_rand();
+	}
+
+	return *reinterpret_cast< uint256* >( &number[0] );
+}
 
 }
 #endif

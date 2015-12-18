@@ -13,7 +13,7 @@
 #include "compat.h"
 #include "serialize.h"
 #include "tinyformat.h"
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 
 #include <cstdio>
 #include <exception>
@@ -156,7 +156,7 @@ static inline int LogPrint(const char* category, const char* format)
 }
 static inline bool error(const char* format)
 {
-    LogPrintStr(std::string("ERROR: ") + format + "\n");
+   // LogPrintStr(std::string("ERROR: ") + format + "\n");  commented because it pollutes log file
     return false;
 }
 
@@ -191,7 +191,7 @@ void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
 bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest);
 boost::filesystem::path GetDefaultDataDir(common::AppType::Enum _appType);
 const boost::filesystem::path &GetDataDir( common::AppType::Enum _appType, bool fNetSpecific = true );
-boost::filesystem::path GetConfigFile();
+boost::filesystem::path GetConfigFile( common::AppType::Enum _appType );
 boost::filesystem::path GetPidFile();
 #ifndef WIN32
 void CreatePidFile(const boost::filesystem::path &path, pid_t pid);
@@ -407,7 +407,7 @@ bool SoftSetBoolArg(const std::string& strArg, bool fValue);
  */
 extern uint32_t insecure_rand_Rz;
 extern uint32_t insecure_rand_Rw;
-static inline uint32_t insecure_rand(void)
+inline uint32_t insecure_rand(void)
 {
     insecure_rand_Rz = 36969 * (insecure_rand_Rz & 65535) + (insecure_rand_Rz >> 16);
     insecure_rand_Rw = 18000 * (insecure_rand_Rw & 65535) + (insecure_rand_Rw >> 16);

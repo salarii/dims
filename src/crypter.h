@@ -155,7 +155,9 @@ public:
 
     virtual bool AddCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret);
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
-    bool HaveKey(const CKeyID &address) const
+
+	bool RemoveKeyPubKey( const CPubKey &pubkey );
+	bool HaveKey(const CKeyID &address) const
     {
         {
             LOCK(cs_KeyStore);

@@ -1,15 +1,13 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef SET_RESPONSE_VISITOR_H
 #define SET_RESPONSE_VISITOR_H
 
-#include <boost/variant.hpp> 
-#include "tracker/configureTrackerActionHandler.h"
-#include "node/configureNodeActionHadler.h"
-#include "monitor/configureMonitorActionHandler.h"
-#include "seed/configureSeedActionHandler.h"
+#include <boost/variant.hpp>
+
+#include "common/responses.h"
 
 namespace tracker
 {
@@ -21,6 +19,22 @@ class CValidateTransactionsAction;
 class CConnectNodeAction;
 
 class CTrackOriginAddressAction;
+
+class CSynchronizationAction;
+
+class CProvideInfoAction;
+
+class CPingAction;
+
+class CRegisterAction;
+
+class CRecognizeNetworkAction;
+
+class CPassTransactionAction;
+
+class CConnectNetworkAction;
+
+class CActivityControllerAction;
 }
 
 namespace client
@@ -31,94 +45,134 @@ class CSendBalanceInfoAction;
 class CSendTransactionAction;
 
 class CConnectAction;
+
+class CPayLocalApplicationAction;
+
+class CSendInfoRequestAction;
 }
 
 namespace monitor
 {
-class CAddTrackerAction;
+class CConnectNodeAction;
+
+class CAdmitTrackerAction;
+
+class CAdmitTransactionBundle;
+
+class CPingAction;
+
+class CRecognizeNetworkAction;
+
+class CTrackOriginAddressAction;
+
+class CProvideInfoAction;
+
+class CCopyTransactionStorageAction;
+
+class CSynchronizationAction;
+
+class CEnterNetworkAction;
+
+class CPassTransactionAction;
+
+class CReputationControlAction;
+
+class CUpdateNetworkDataAction;
+
+class CActivityControllerAction;
 }
 
 namespace seed
 {
 class CAcceptNodeAction;
+
+class CPingAction;
 }
 
 namespace common
 {
 
-template < class _RequestResponses > class CAction;
+class CAction;
 
-template < class _RequestResponses >
 class CSetResponseVisitor
 {
 public:
-	CSetResponseVisitor( _RequestResponses const & _requestRespond );
-	virtual void visit( CAction< _RequestResponses > & _action );
-};
+	CSetResponseVisitor( common::DimsResponse const & _response ):m_responses(_response)
+	{}
 
-// weak spot because one have to remembar to ad function for  every new action refactor it??
-template<>
-class CSetResponseVisitor< tracker::TrackerResponses >
-{
-public:
-	CSetResponseVisitor( tracker::TrackerResponses const & _trackerResponses );
+	~CSetResponseVisitor()
+	{}
 
-	virtual void visit( common::CAction< tracker::TrackerResponses > & _action );
+	void visit( common::CAction & _action ){};
 
-	virtual void visit( tracker::CGetBalanceAction & _action );
+	void visit( tracker::CGetBalanceAction & _action );
 
-	virtual void visit( tracker::CValidateTransactionsAction & _action );
+	void visit( tracker::CValidateTransactionsAction & _action );
 
-	virtual void visit( tracker::CConnectNodeAction & _action );
+	void visit( tracker::CConnectNodeAction & _action );
 
-	virtual void visit( tracker::CTrackOriginAddressAction & _action );
-private:
-	tracker::TrackerResponses m_trackerResponses;
-};
+	void visit( tracker::CTrackOriginAddressAction & _action );
 
-template<>
-class CSetResponseVisitor< client::NodeResponses >
-{
-public:
-	CSetResponseVisitor( client::NodeResponses const & _requestRespond );
+	void visit( tracker::CSynchronizationAction & _action );
+
+	void visit( tracker::CProvideInfoAction & _action );
+
+	void visit( tracker::CPingAction & _action );
+
+	void visit( tracker::CRegisterAction & _action );
+
+	void visit( tracker::CRecognizeNetworkAction & _action );
+
+	void visit( tracker::CPassTransactionAction & _action );
+
+	void visit( tracker::CConnectNetworkAction & _action );
+
+	void visit( tracker::CActivityControllerAction & _action );
 
 	void visit( client::CSendTransactionAction & _action );
 
 	void visit( client::CConnectAction & _action );
 
-	void visit( CAction< client::NodeResponses > & _action );
-
 	void visit( client::CSendBalanceInfoAction & _action );
-private:
 
-	client::NodeResponses m_requestResponse;
-};
+	void visit( client::CPayLocalApplicationAction & _action );
 
+	void visit( client::CSendInfoRequestAction & _action );
 
-template<>
-class CSetResponseVisitor< monitor::MonitorResponses >
-{
-public:
-	CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse );
+	void visit( monitor::CConnectNodeAction & _action );
 
-	void visit( monitor::CAddTrackerAction & _action );
-private:
+	void visit( monitor::CAdmitTrackerAction & _action );
 
-	monitor::MonitorResponses m_requestResponse;
-};
+	void visit( monitor::CAdmitTransactionBundle & _action );
 
-template<>
-class CSetResponseVisitor< seed::SeedResponses >
-{
-public:
-	CSetResponseVisitor( seed::SeedResponses const & _requestResponse );
+	void visit( monitor::CPingAction & _action );
+
+	void visit( monitor::CRecognizeNetworkAction & _action );
+
+	void visit( monitor::CTrackOriginAddressAction & _action );
+
+	void visit( monitor::CProvideInfoAction & _action );
+
+	void visit( monitor::CActivityControllerAction & _action );
+
+	void visit( monitor::CEnterNetworkAction & _action );
+
+	void visit( monitor::CCopyTransactionStorageAction & _action );
+
+	void visit( monitor::CSynchronizationAction & _action );
+
+	void visit( monitor::CPassTransactionAction & _action );
+
+	void visit( monitor::CReputationControlAction & _action );
+
+	void visit( monitor::CUpdateNetworkDataAction & _action );
 
 	void visit( seed::CAcceptNodeAction & _action );
 
-private:
-	seed::SeedResponses m_requestResponse;
+	void visit( seed::CPingAction & _action );
+protected:
+	common::DimsResponse m_responses;
 };
-
 
 }
 

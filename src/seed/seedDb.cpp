@@ -1,3 +1,5 @@
+// @2011 - @2014 sipa
+
 #include "seedDb.h"
 #include <stdlib.h>
 
@@ -34,8 +36,6 @@ void CAddrInfo::Update(bool good) {
 }
 
 bool CAddrDb::Get_(CServiceResult &ip, int &wait) {
-  int64_t now = time(NULL);
-  int cont = 0;
   int tot = unkId.size() + ourId.size();
   if (tot == 0) {
     wait = 5;
@@ -130,7 +130,14 @@ void CAddrDb::Skipped_(const CService &addr)
 
 
 void CAddrDb::Add_(const CAddress &addr, bool force) {
-  if (!force && !addr.IsRoutable())
+//ugly check
+	for ( std::map<int, CAddrInfo>::const_iterator iterator = idToInfo.begin(); iterator != idToInfo.end(); iterator++ )
+	{
+		if ( addr.ToStringIP() == iterator->second.ip.ToStringIP() )
+			return;
+	}
+
+	if (!force && !addr.IsRoutable())
     return;
   CService ipp(addr);
   if (banned.count(ipp)) {
@@ -168,7 +175,7 @@ void CAddrDb::Add_(const CAddress &addr, bool force) {
   nDirty++;
 }
 
-void CAddrDb::GetIPs_(set<CNetAddr>& ips, int max, const bool* nets) {
+void CAddrDb::GetIPs_(set<CNetAddr>& ips, unsigned int max, const bool* nets) {
   if (goodId.size() == 0) {
  /*   int id = -1;
     if (ourId.size() == 0) {

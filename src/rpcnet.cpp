@@ -10,10 +10,7 @@
 #include "protocol.h"
 #include "sync.h"
 #include "util.h"
-#ifdef ENABLE_WALLET
-#include "init.h" // for getinfo
-#include "wallet.h" // for getinfo
-#endif
+
 
 #include <inttypes.h>
 
@@ -22,6 +19,142 @@
 
 using namespace json_spirit;
 using namespace std;
+
+boost::signals2::signal< std::string () > SatusHook;
+boost::signals2::signal< std::string ( std::string const & ) > EnterNetworkHook;
+boost::signals2::signal< std::string ( std::string const & ) > RegisterInNetworkHook;
+boost::signals2::signal< std::string () > SelfAddress;
+boost::signals2::signal< std::string () > ConnectNetworkHook;
+boost::signals2::signal< std::string () > SynchronizeBitcoin;
+boost::signals2::signal< std::string () > NetworkInfo;
+boost::signals2::signal< std::string ( std::string const &, unsigned int ) > SendCoins;
+
+json_spirit::Value status(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+			"status\n" \
+			"\nRequest info about current activity\n" \
+			"Results provide current status ad  activity performed\n"
+				"\nExamples:\n"
+				+ HelpExampleRpc("status", "")
+		);
+
+	std::string status = *SatusHook();
+
+	return status;
+}
+
+json_spirit::Value enterNetwork(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 1)
+		throw runtime_error(
+			"enterNetwork\n" \
+			"\nRequest admission in specified monitor\n" \
+			"Monitor start normal operation within network\n"
+				"\nExamples:\n"
+				+ HelpExampleRpc("enterNetwork", "monitor_key")
+		);
+
+	std::string result = *EnterNetworkHook( params[0].get_str() );
+
+	return result;
+}
+
+json_spirit::Value sendCoins(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 2)
+		throw runtime_error(
+			"sendCoins\n" \
+			"\nTry to send coins if any available\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("sendCoins", "\"dQzSjE7qQjnQgdxsZApmbnX3W3Fici89wH\", \"33\"")
+		);
+
+	std::string result = *SendCoins( params[0].get_str(), params[1].get_int() );
+
+	return result;
+}
+
+json_spirit::Value registerInNetwork(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 1)
+		throw runtime_error(
+			"registerInNetwork\n" \
+			"\nRequest registration in specified monitor\n" \
+			"Results provide registration conditions\n"
+				"\nExamples:\n"
+				+ HelpExampleRpc("registerInNetwork", "monitor_key")
+		);
+
+	std::string result = *RegisterInNetworkHook( params[0].get_str() );
+
+	return result;
+}
+
+json_spirit::Value selfAddress(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+			"selfAddress \n" \
+				"\nwill print node payment address \n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("selfAddress", "")
+		);
+
+	std::string result = *SelfAddress();
+
+	return result;
+}
+
+json_spirit::Value connectNetwork(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+			"connectNetwork \n" \
+				"\nwill cause syncronization with network \n" \
+			"\n If successful node  will start opertions in network\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("connectNetwork", "")
+		);
+
+	std::string result = *ConnectNetworkHook();
+
+	return result;
+}
+
+json_spirit::Value synchronizeBitcoin(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+				"synchronizeBitcoin \n" \
+				"\n if stand alone \n" \
+				"\n it causes start of synchronisation wit bitcoin network\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("synchronizeBitcoin", "")
+		);
+
+	std::string result = *SynchronizeBitcoin();
+
+	return result;
+}
+
+
+json_spirit::Value networkInfo(const json_spirit::Array& params, bool fHelp)
+{
+	if (fHelp || params.size() != 0)
+		throw runtime_error(
+				"networkInfo\n" \
+				"\n shows network \n" \
+				"\n in which this node operates\n" \
+				"\nExamples:\n"
+				+ HelpExampleRpc("networkInfo", "")
+		);
+
+	std::string result = *NetworkInfo();
+
+	return result;
+}
 
 Value getconnectioncount(const Array& params, bool fHelp)
 {
@@ -314,29 +447,4 @@ Value getaddednodeinfo(const Array& params, bool fHelp)
     }
 
     return ret;
-}
-
-Value getnettotals(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() > 0)
-        throw runtime_error(
-            "getnettotals\n"
-            "\nReturns information about network traffic, including bytes in, bytes out,\n"
-            "and current time.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"totalbytesrecv\": n,   (numeric) Total bytes received\n"
-            "  \"totalbytessent\": n,   (numeric) Total bytes sent\n"
-            "  \"timemillis\": t        (numeric) Total cpu time\n"
-            "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getnettotals", "")
-            + HelpExampleRpc("getnettotals", "")
-       );
-
-    Object obj;
-    obj.push_back(Pair("totalbytesrecv", static_cast< boost::uint64_t>(CNode::GetTotalBytesRecv())));
-    obj.push_back(Pair("totalbytessent", static_cast<boost::uint64_t>(CNode::GetTotalBytesSent())));
-    obj.push_back(Pair("timemillis", static_cast<boost::int64_t>(GetTimeMillis())));
-    return obj;
 }

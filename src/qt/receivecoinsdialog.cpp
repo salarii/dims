@@ -6,7 +6,7 @@
 #include "ui_receivecoinsdialog.h"
 
 #include "walletmodel.h"
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "addressbookpage.h"
 #include "optionsmodel.h"
 #include "guiutil.h"

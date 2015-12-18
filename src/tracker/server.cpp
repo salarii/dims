@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,7 +12,7 @@
 #include "common/nodeMessages.h"
 #include "clientRequestsManager.h"
 
-#include "common/ratcoinParams.h"
+#include "common/dimsParams.h"
 #include "common/support.h"
 
 using namespace common;
@@ -26,28 +26,56 @@ namespace tracker
 class CHandleResponseVisitor : public boost::static_visitor< void >
 {
 public:
-	CHandleResponseVisitor( CBufferAsStream * _pushStream ):m_pushStream( _pushStream ){};
+	CHandleResponseVisitor( CBufferAsStream * _pushStream, uint256 const & _token ):m_pushStream( _pushStream ),m_token(_token){};
 
-	void operator()( CAvailableCoins const & _availableCoins ) const
+	void operator()( CAvailableCoinsData const & _availableCoins ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::BalanceInfoReq );
-		*m_pushStream << _availableCoins;
+		std::vector< unsigned char > payload;
+		common::createPayload( _availableCoins, payload );
+
+		CClientMessage message( CMainRequestType::BalanceInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
-	void operator()( CDummy const & _dummy ) const
+	void operator()( CTrackerSpecificStats const & _trackerSpecificStats ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::ContinueReq );
-		*m_pushStream << _dummy;
+		std::vector< unsigned char > payload;
+		common::createPayload( _trackerSpecificStats, payload );
+
+		CClientMessage message( CMainRequestType::TrackerInfoReq, payload, m_token );
+		*m_pushStream << message;
 	}
 
-	void operator()( common::CNetworkInfoResult const & _networkInfo ) const
+	void operator()( common::CClientNetworkInfoResult const & _networkInfo ) const
 	{
-		common::serializeEnum( *m_pushStream, CMainRequestType::NetworkInfoReq );
-		*m_pushStream << _networkInfo;
+		std::vector< unsigned char > payload;
+		common::createPayload( _networkInfo, payload );
+
+		CClientMessage message( CMainRequestType::NetworkInfoReq, payload, m_token );
+		*m_pushStream << message;
+	}
+
+	void operator()( common::CTransactionAck const & _transactionAck ) const
+	{
+		std::vector< unsigned char > payload;
+		common::createPayload( _transactionAck, payload );
+
+		CClientMessage message( CMainRequestType::Transaction, payload, m_token );
+		*m_pushStream << message;
+	}
+
+	void operator()( common::CTransactionStatusResponse const & _transactionStatus ) const
+	{
+		std::vector< unsigned char > payload;
+		common::createPayload( _transactionStatus, payload );
+
+		CClientMessage message( CMainRequestType::TransactionStatusReq, payload, m_token );
+		*m_pushStream << message;
 	}
 private:
 	CBufferAsStream * const m_pushStream;
 
+	uint256 m_token;
 };
 
 
@@ -64,47 +92,50 @@ CTcpServerConnection::CTcpServerConnection(Poco::Net::StreamSocket const & _serv
 	, pushStream(
 		(char*)m_outgoingBuffer.m_buffer
 		, MaxBufferSize
-		, SER_DISK
+		, SER_NETWORK
 		, CLIENT_VERSION)*/
 {
-	m_clientRequestManager = CClientRequestsManager::getInstance();
 }
 
 void
 CTcpServerConnection::run()
 {
-	Poco::Timespan timeOut(10,0);
+	Poco::Timespan timeOut(1,0);
 
-	if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ) == false)
+	while( 1 )
 	{
-		throw server_error(std::string( "TIMEOUT!" ));
-	}
-	else
-	{
-
-		try
+		if (socket().poll(timeOut,Poco::Net::Socket::SELECT_READ ))
 		{
-			m_pullBuffer.m_usedSize = socket().receiveBytes( m_pullBuffer.m_buffer, MaxBufferSize );
-		}
-		catch (Poco::Exception& exc) {
-			//Handle your network errors.
-			throw server_error(std::string( "Network error:" ) + exc.displayText() );
-		}
+			try
+			{
+				m_pullBuffer.m_usedSize = socket().receiveBytes( m_pullBuffer.m_buffer, MaxBufferSize );
+			}
+			catch (Poco::Exception& exc) {
+				//Handle your network errors.
+				throw server_error(std::string( "Network error:" ) + exc.displayText() );
+			}
 
+		}
 		handleIncommingBuffor();
-		int bytes;
-		try
+
+		if (socket().poll(timeOut, Poco::Net::Socket::SELECT_WRITE))
 		{
-			bytes = socket().sendBytes( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
+			try
+			{
+				socket().sendBytes( m_pushBuffer.m_buffer, m_pushBuffer.m_usedSize );
+			}
+			catch (Poco::Exception& exc)
+			{
+				//Handle your network errors.
+				throw server_error(std::string( "Network error:" ) + exc.displayText() );
+			}
 		}
-		catch (Poco::Exception& exc)
+		if ( m_tokens.empty() )
 		{
-			//Handle your network errors.
-			throw server_error(std::string( "Network error:" ) + exc.displayText() );
+			socket().close();
+			break;
 		}
 	}
-	socket().close();
-
 }
 
 void
@@ -163,49 +194,50 @@ CTcpServerConnection::handleIncommingBuffor()
 
 	while( !pullStream.eof() )
 	{
-		int messageType;
+		common::CClientMessage clientMessage;
 
-		pullStream >> messageType;
+		pullStream >> clientMessage;
 
 		CTransaction transaction;
-		if( messageType == CMainRequestType::Transaction )
+		if( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::Transaction )
 		{
-			pullStream >> transaction;
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
-			uint256 token = transaction.GetHash();
-			m_clientRequestManager->addRequest( transaction, token );
-			pushStream << token;
+			CClientTransactionSend clientTransactionSend;
+			common::convertClientPayload( clientMessage, clientTransactionSend );
+			CClientRequestsManager::getInstance()->addRequest(
+						CTransactionMessage( clientTransactionSend.m_transaction ), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
-		else if ( messageType == CMainRequestType::TrackerInfoReq )
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::TrackerInfoReq )
 		{
+			CClientRequestsManager::getInstance()->addRequest( CTrackerStatsReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
+		}
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::MonitorInfoReq )
+		{
+			CClientRequestsManager::getInstance()->addRequest( CMonitorInfoReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
+		}
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::TransactionStatusReq )
+		{
+			CClientTransactionStatusAsk clientTransactionStatusAsk;
+			common::convertClientPayload( clientMessage, clientTransactionStatusAsk );
 
+			CClientRequestsManager::getInstance()->addRequest(
+						CTransactionStatusReq( clientTransactionStatusAsk.m_hash ), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
-		else if ( messageType == CMainRequestType::MonitorInfoReq )
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::BalanceInfoReq )
 		{
-
+			CClientBalanceAsk clientBalanceAsk;
+			common::convertClientPayload( clientMessage, clientBalanceAsk );
+			CClientRequestsManager::getInstance()->addRequest(
+						clientBalanceAsk.m_address, clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
-		else if ( messageType == CMainRequestType::TransactionStatusReq )
+		else if ( clientMessage.m_header.m_payloadKind == (int)CMainRequestType::NetworkInfoReq )
 		{
-
-		}
-		else if ( messageType == CMainRequestType::BalanceInfoReq )
-		{
-			std::string address;
-			pullStream >> address;
-			common::serializeEnum( pushStream, CMainRequestType::ContinueReq );
-			uint256 token = m_clientRequestManager->addRequest( address );
-			pushStream << token;
-		}
-		else if ( messageType == CMainRequestType::ContinueReq )
-		{
-			uint256 token;
-			pullStream >> token;
-			ClientResponse clientResponse = m_clientRequestManager->getResponse( token );
-			boost::apply_visitor( CHandleResponseVisitor( &pushStream ), clientResponse );
-		}
-		else if ( messageType == CMainRequestType::NetworkInfoReq )
-		{
-
+			CClientRequestsManager::getInstance()->addRequest( CNetworkInfoReq(), clientMessage.m_header.m_id );
+			m_tokens.insert( clientMessage.m_header.m_id );
 		}
 		else
 		{
@@ -213,23 +245,36 @@ CTcpServerConnection::handleIncommingBuffor()
 		}
 	}
 
+	std::list< uint256 > toRemove;
+	ClientResponse clientResponse;
+	BOOST_FOREACH( uint256 const & token,m_tokens )
+	{
+		if ( CClientRequestsManager::getInstance()->getResponse( token, clientResponse ) )
+		{
+			boost::apply_visitor( CHandleResponseVisitor( &pushStream, token ), clientResponse );
+			toRemove.push_back( token );
+		}
+	}
+
+	BOOST_FOREACH( uint256 const & token, toRemove )
+	{
+		m_tokens.erase( token );
+	}
+
+	m_pullBuffer.clear();
+
+	return true;
 }
+
 
 void runServer()
 {
 	Poco::Net::TCPServer * server = new Poco::Net::TCPServer(
 												  new Poco::Net::TCPServerConnectionFactoryImpl<CTcpServerConnection>()
-												, Poco::Net::ServerSocket(common::ratcoinParams().getDefaultClientPort())
+												, Poco::Net::ServerSocket(common::dimsParams().getDefaultClientPort())
 												);
 
 	server->start();
 }
-/*
-int sendBytes(
-const void * buffer,
-int length,
-int flags = 0
-);
 
-*/
 }

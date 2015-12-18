@@ -1,4 +1,4 @@
-Ratcoin integration/staging tree
+Dims integration/staging tree
 =====================================
 
 

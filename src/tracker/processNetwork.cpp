@@ -1,15 +1,25 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "processNetwork.h"
-#include "trackerNodesManager.h"
 #include "common/communicationProtocol.h"
 #include "common/actionHandler.h"
+#include "common/networkActionRegister.h"
+#include "common/events.h"
 
-#include "trackerNodeMedium.h"
-#include "connectNodeAction.h"
-
+#include "tracker/processNetwork.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/filters.h"
+#include "tracker/trackerNodeMedium.h"
+#include "tracker/connectNodeAction.h"
+#include "tracker/synchronizationAction.h"
+#include "tracker/validateTransactionsAction.h"
+#include "tracker/provideInfoAction.h"
+#include "tracker/pingAction.h"
+#include "tracker/registerAction.h"
+#include "tracker/passTransactionAction.h"
+#include "tracker/updateNetworkDataAction.h"
+#include "tracker/activityControllerAction.h"
 
 namespace tracker
 {
@@ -35,161 +45,132 @@ CProcessNetwork::processMessage(common::CSelfNode* pfrom, CDataStream& vRecv)
 // it is  stupid  to call this over and over again
 	if ( !CTrackerNodesManager::getInstance()->getMediumForNode( pfrom ) )
 	{
-		CTrackerNodesManager::getInstance()->addNode( pfrom );
+		CTrackerNodesManager::getInstance()->addNode( new CTrackerNodeMedium( pfrom ) );
 	}
 
 	BOOST_FOREACH( common::CMessage const & message, messages )
 	{
-
-
-		if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
-		{
-			//
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
+		if ( message.m_header.m_payloadKind == common::CPayloadKind::IntroductionReq )
 		{
 			common::CIdentifyMessage identifyMessage;
 			convertPayload( message, identifyMessage );
 
-			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( identifyMessage.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
+				nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
 			}
 			else
 			{
-				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
+				CConnectNodeAction * connectNodeAction= new CConnectNodeAction(
+							  message.m_header.m_actionKey
+							, convertToInt( nodeMedium->getNode() ) );
 
+				connectNodeAction->process_event( common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key, pfrom->addr, message.m_header.m_id ) );
+
+				common::CActionHandler::getInstance()->executeAction( connectNodeAction );
 			}
 
 		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::SynchronizationInfo )
+		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Ack )
 		{
-			common::CIdentifyMessage identifyMessage;
-			convertPayload( message, identifyMessage );
-
-			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( identifyMessage.m_actionKey ) )
-			{
-				nodeMedium->setResponse( identifyMessage.m_actionKey, common::CIdentificationResult( identifyMessage.m_payload, identifyMessage.m_signed, identifyMessage.m_key ) );
-			}
-			else
-			{
-				CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( identifyMessage.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );
-
-			}
-		}
-		else if ( message.m_header.m_payloadKind == common::CPayloadKind::Uninitiated )
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
-
-			common::CMessage orginalMessage;
-			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
-
-			common::CSynchronizationInfo synchronizationInfo;
-
-			common::convertPayload( orginalMessage, synchronizationInfo );
-
-			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( synchronizationInfo.m_actionKey ) )
-			{
-				nodeMedium->setResponse( synchronizationInfo.m_actionKey, CSynchronizationInfoResult( synchronizationInfo.m_timeStamp ) );
-			}
-			else
-			{
-				/*CConnectNodeAction * connectTrackerAction= new CConnectNodeAction( synchronizationInfo.m_actionKey, identifyMessage.m_payload, convertToInt( nodeMedium->getNode() ) );
-				common::CActionHandler< TrackerResponses >::getInstance()->executeAction( connectTrackerAction );*/
-			}
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::RoleInfo )
-		{
-			CPubKey pubKey;
-			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
-
-			common::CMessage orginalMessage;
-			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
-
-			common::CNetworkRole networkRole;
-
-			common::convertPayload( orginalMessage, networkRole );
-
-			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( networkRole.m_actionKey ) )
-			{
-				nodeMedium->setResponse( networkRole.m_actionKey, common::CRoleResult( networkRole.m_role ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::NetworkInfo )
-		{
-			CPubKey pubKey;
-			if( CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) );
-
-			common::CMessage orginalMessage;
-			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
-
-			common::CKnownNetworkInfo knownNetworkInfo;
-
-			common::convertPayload( orginalMessage, knownNetworkInfo );
-
-			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
-
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( knownNetworkInfo.m_actionKey ) )
-			{
-				nodeMedium->setResponse( knownNetworkInfo.m_actionKey, common::CNetworkInfoResult( knownNetworkInfo.m_networkInfo ) );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-
-			}
-		}
-		else if (  message.m_header.m_payloadKind == common::CPayloadKind::Ack )
-		{
-			CPubKey pubKey;
-			if ( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
-				;
-
-			common::CMessage orginalMessage;
-			common::CommunicationProtocol::unwindMessage( message, orginalMessage, GetTime(), pubKey );
-
 			common::CAck ack;
 
-			common::convertPayload( orginalMessage, ack );
+			common::convertPayload( message, ack );
 
-			CTrackerNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
 
-			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( ack.m_actionKey ) )
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
 			{
-				nodeMedium->setResponse( ack.m_actionKey, common::CAckResult() );
-			}
-			else
-			{
-				assert(!"it should be existing action");
-
+				nodeMedium->setResponse( message.m_header.m_id, common::CAckResult( convertToInt( nodeMedium->getNode() ) ) );
 			}
 		}
-		//NetworkInfo
+		else
+		{
+			common::CNodeMedium * nodeMedium = CTrackerNodesManager::getInstance()->getMediumForNode( pfrom );
+
+			CPubKey pubKey;
+			if( !CTrackerNodesManager::getInstance()->getPublicKey( pfrom->addr, pubKey ) )
+			{
+				return true;
+			}
+
+			if ( common::CNetworkActionRegister::getInstance()->isServicedByAction( message.m_header.m_actionKey ) )
+			{
+				if (
+						message.m_header.m_payloadKind == common::CPayloadKind::InfoReq
+						|| message.m_header.m_payloadKind == common::CPayloadKind::StatusTransactions  // is  this  ok??
+						)
+					nodeMedium->addActionResponse( message.m_header.m_actionKey, common::CMessageResult( message, pubKey ) );
+				else
+					nodeMedium->setResponse( message.m_header.m_id, common::CMessageResult( message, pubKey ) );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::InfoReq )
+			{
+				CProvideInfoAction * provideInfoAction= new CProvideInfoAction(
+							  message.m_header.m_actionKey
+							, pubKey
+							);
+
+				provideInfoAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( provideInfoAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ExtendRegistration )
+			{
+				CRegisterAction * registerAction
+						= new CRegisterAction( message.m_header.m_actionKey, pubKey );
+
+				registerAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( registerAction );
+
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ClientTransaction )
+			{
+				CPassTransactionAction * passTransactionAction
+						= new CPassTransactionAction( message.m_header.m_actionKey );
+
+				passTransactionAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( passTransactionAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Transactions )
+			{
+				CValidateTransactionsAction * validateTransactionsAction= new CValidateTransactionsAction( message.m_header.m_actionKey );
+
+				validateTransactionsAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( validateTransactionsAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::FullRankingInfo )
+			{
+				CUpdateNetworkDataAction * updateNetworkDataAction = new CUpdateNetworkDataAction( message.m_header.m_actionKey );
+
+				updateNetworkDataAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( updateNetworkDataAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::ActivationStatus )
+			{
+
+				CActivityControllerAction * activityControllerAction = new CActivityControllerAction( message.m_header.m_actionKey );
+
+				activityControllerAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( activityControllerAction );
+			}
+			else if ( message.m_header.m_payloadKind == common::CPayloadKind::Ping )
+			{
+				CPingAction * pingAction = new CPingAction( message.m_header.m_actionKey );
+
+				pingAction->process_event( common::CMessageResult( message, pubKey ) );
+
+				common::CActionHandler::getInstance()->executeAction( pingAction );
+			}
+		}
 	}
-	/*
-
-
-*/
 	return true;
 }
 
@@ -200,6 +181,17 @@ CProcessNetwork::sendMessages(common::CSelfNode* pto, bool fSendTrickle)
 	pto->sendMessages();
 
 	return true;
+}
+
+}
+
+namespace common
+{
+
+void
+CSelfNode::clearManager()
+{
+	common::CNodesManager::getInstance()->eraseMedium( convertToInt( this ) );
 }
 
 }

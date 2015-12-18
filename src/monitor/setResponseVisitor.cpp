@@ -1,46 +1,110 @@
-// Copyright (c) 2014 Ratcoin dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "common/setResponseVisitor.h"
 #include "common/responseVisitorInternal.h"
+#include "common/events.h"
 
-#include "addTrackerAction.h"
-
-#include "common/commonEvents.h"
+#include "monitor/connectNodeAction.h"
+#include "monitor/updateNetworkDataAction.h"
+#include "monitor/admitTrackerAction.h"
+#include "monitor/admitTransactionsBundle.h"
+#include "monitor/pingAction.h"
+#include "monitor/recognizeNetworkAction.h"
+#include "monitor/trackOriginAddressAction.h"
+#include "monitor/provideInfoAction.h"
+#include "monitor/synchronizationAction.h"
+#include "monitor/enterNetworkAction.h"
+#include "monitor/passTransactionAction.h"
+#include "monitor/reputationControlAction.h"
+#include "monitor/updateNetworkDataAction.h"
+#include "monitor/activityControllerAction.h"
 
 namespace common
 {
 
-
-template < class _Action >
-class CSetNodeConnectedResult : public CResponseVisitorBase< _Action, monitor::MonitorResponseList >
+void
+CSetResponseVisitor::visit( monitor::CConnectNodeAction & _action )
 {
-public:
-	CSetNodeConnectedResult( _Action * const _action ):CResponseVisitorBase< _Action, monitor::MonitorResponseList >( _action ){};
-
-	virtual void operator()( common::CIdentificationResult & _param ) const
-	{
-		this->m_action->process_event( common::CIntroduceEvent( _param.m_payload, _param.m_signed, _param.m_key, _param.m_address ) );
-	}
-
-	virtual void operator()( common::CContinueResult & _param ) const
-	{
-		this->m_action->process_event( common::CContinueEvent( _param.m_id ) );
-	}
-};
-
-
-CSetResponseVisitor< monitor::MonitorResponses >::CSetResponseVisitor( monitor::MonitorResponses const & _requestResponse )
-	: m_requestResponse( _requestResponse )
-{
+	boost::apply_visitor( CSetResult<monitor::CConnectNodeAction>( &_action ), m_responses );
 }
-
 
 void
-CSetResponseVisitor< monitor::MonitorResponses >::visit( monitor::CAddTrackerAction & _action )
+CSetResponseVisitor::visit( monitor::CAdmitTrackerAction & _action )
 {
-	boost::apply_visitor( (CResponseVisitorBase< monitor::CAddTrackerAction, monitor::MonitorResponseList > const &)CSetNodeConnectedResult< monitor::CAddTrackerAction >( &_action ), m_requestResponse );
+	boost::apply_visitor( CSetResult<monitor::CAdmitTrackerAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CAdmitTransactionBundle & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CAdmitTransactionBundle>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CPingAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CPingAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CRecognizeNetworkAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CRecognizeNetworkAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CTrackOriginAddressAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CTrackOriginAddressAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CProvideInfoAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CProvideInfoAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CCopyTransactionStorageAction & _action )
+{}
+
+void
+CSetResponseVisitor::visit( monitor::CSynchronizationAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CSynchronizationAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CEnterNetworkAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CEnterNetworkAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CPassTransactionAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CPassTransactionAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CReputationControlAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CReputationControlAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CUpdateNetworkDataAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CUpdateNetworkDataAction>( &_action ), m_responses );
+}
+
+void
+CSetResponseVisitor::visit( monitor::CActivityControllerAction & _action )
+{
+	boost::apply_visitor( CSetResult<monitor::CActivityControllerAction>( &_action ), m_responses );
 }
 
 }
+

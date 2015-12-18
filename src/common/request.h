@@ -1,17 +1,15 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef REQUEST_H
 #define REQUEST_H
 
-struct CBufferAsStream;
+#include "uint256.h"
 
 namespace common
 {
 
-// this is obsolete
-// soon  need to be replaced by something else
 struct RequestKind
 {
 	enum Enum
@@ -22,25 +20,45 @@ struct RequestKind
 		Balance,
 		Seed,
 		UndeterminedTrackers,
+		Trackers,
+		Monitors,
+		Time,
 		Unknown
 	};
 };
 
-template < class _RequestResponses >
 class CMedium;
+
+class CMediumFilter;
 
 class CRequestVisitor;
 
-template < class _RequestResponses >
-struct CRequest
+class CRequest
 {
-	virtual void accept( CMedium< _RequestResponses > * _medium ) const = 0;
-// reconsider this  int
-	virtual int getKind() const = 0;
-	virtual unsigned int getMediumNumber() const { return -1; }
-	virtual ~CRequest(){};
-};
+public:
+	CRequest( CMediumFilter * _mediumFilter = 0 );
 
+	CRequest( uint256 const & _id, CMediumFilter * _mediumFilter = 0 );
+
+	virtual void accept( CMedium * _medium ) const = 0;
+
+	virtual CMediumFilter * getMediumFilter() const;
+
+	uint256
+	getId() const;
+
+	virtual ~CRequest();
+
+	bool isProcessed()const{ return m_processed; }
+
+	void setProcessed(){ m_processed = true; }
+protected:
+	CMediumFilter * m_mediumFilter;
+
+	uint256 m_id;
+
+	bool m_processed;
+};
 
 }
 

@@ -67,12 +67,13 @@ typedef int NodeId;
 // Signals for message handling
 struct CNodeSignals
 {
-    boost::signals2::signal<int ()> GetHeight;
+	boost::signals2::signal<int ()> GetHeight;
     boost::signals2::signal<bool (CNode*)> ProcessMessages;
     boost::signals2::signal<bool (CNode*, bool)> SendMessages;
 	boost::signals2::signal<bool (CNode*, CDataStream&)> ProcessMessage;
     boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
     boost::signals2::signal<void (NodeId)> FinalizeNode;
+	boost::signals2::signal<void (CNode*)> NotifyAboutRemoval;
 };
 
 
@@ -238,7 +239,7 @@ public:
     NodeId id;
 
 	// messages to send
-	mutable boost::mutex m_mediumLock;
+	CCriticalSection m_mediumLock;
 	std::vector< CBloomFilter > m_filterSendQueue; // one has to  expect that only one filter will be send, vector serves here for comfort
 	std::vector< uint256 > m_blockQueue; // hashes of block from which origin transactions will be asked
 protected:
@@ -328,6 +329,10 @@ public:
 
     ~CNode()
     {
+		LogPrintf("delete node %p", this );
+		LogPrintf("  node address %s \n", addrName );
+		GetNodeSignals().NotifyAboutRemoval(this);
+
         if (hSocket != INVALID_SOCKET)
         {
             closesocket(hSocket);

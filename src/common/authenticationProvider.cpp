@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -57,6 +57,14 @@ CPubKey
 CAuthenticationProvider::getMyKey() const
 {
 	return m_selfKey;
+}
+
+CKey
+CAuthenticationProvider::getMyPrivKey() const
+{
+	CKey key;
+	m_keyStore->GetKey(m_selfKey.GetID(), key);
+	return  key;
 }
 
 /*
@@ -124,7 +132,7 @@ CAuthenticationProvider::setPassword( SecureString const & _strWalletPassphrase 
 		delete m_keyStorageDataBase;
 		m_keyStorageDataBase = NULL;
 
-	/*	Lock();
+		Lock();
 		Unlock(strWalletPassphrase);
 		NewKeyPool();
 		Lock();

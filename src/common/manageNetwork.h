@@ -1,15 +1,6 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
-/*
-Redesign it this way:
-		base managment
-		/				\
-ratcoin managment     bitcoin management
-
-*/
-
 
 #ifndef MANAGE_NETWORK_H
 #define MANAGE_NETWORK_H 
@@ -22,23 +13,10 @@ ratcoin managment     bitcoin management
 #include "netbase.h"
 #include "addrman.h"
 
-class CSelfNode;
-
-/*
-overall this is  very very bad  design
-bitcoin  and  ratcoin networks  should be handled in uniform  way
-??I need to do following  steps??
-1 create  uniform code  for  both  networks ( maybe running in the same thereads ?? )
-2. create proper  inheritance tree
-
-*/
-
 namespace common
 {
 
 class CSelfNode;
-
-class CSelfNodesManager;
 
 class CManageNetwork
 {
@@ -138,7 +116,7 @@ private:
 	set<CNetAddr> setservAddNodeAddresses;
 	std::vector<CSelfNode*> m_nodes;
 
-	std::list<CSelfNode*> m_nodesDisconnected;
+	std::set<CSelfNode*> m_nodesDisconnected;
 
 	std::vector<SOCKET> m_listenSocket;
 
@@ -148,6 +126,8 @@ private:
 	CSelfNode* pnodeSync;
 	CAddrMan addrman;
 	CNodeSignals m_signals;
+
+	std::set<CSelfNode*> m_timeOutNodes;
 };
 
 template < class Handler >
@@ -171,7 +151,7 @@ CManageNetwork::unregisterNodeSignals( Handler * _handler )
 
 	m_signals.SendMessages.disconnect(boost::bind( &Handler::sendMessages, this, _1, _2 ) );
 
-	m_signals.ProcessMessage.connect(boost::bind( &Handler::processMessages, _handler, _1, _2 ));
+	m_signals.ProcessMessage.disconnect(boost::bind( &Handler::processMessage, _handler, _1, _2 ));
 //	m_signals.InitializeNode.disconnect(boost::bind( &CManageNetwork::initializeNode, this ));
 //	m_signals.FinalizeNode.disconnect(boost::bind( &CManageNetwork::finalizeNode, this ));
 }

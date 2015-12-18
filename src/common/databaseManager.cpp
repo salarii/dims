@@ -1,4 +1,5 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2009-2014 The Bitcoin developers
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -23,9 +24,6 @@ using namespace boost;
 
 namespace common
 {
-
-static uint64_t nAccountingEntryNumber = 0;
-
 //
 // CIdentificationDB
 //
@@ -129,11 +127,6 @@ ReadKeyValue( std::map< CKeyID, CPubKey > & _keys, CPubKey & _selfKey, CCryptoKe
 				return false;
 			}
 
-			// Old wallets store keys as "key" [pubkey] => [privkey]
-			// ... which was slow for wallets with lots of keys, because the public key is re-derived from the private key
-			// using EC operations as a checksum.
-			// Newer wallets store keys as "key"[pubkey] => [privkey][hash(pubkey,privkey)], which is much faster while
-			// remaining backwards-compatible.
 			try
 			{
 				_ssValue >> hash;
@@ -187,16 +180,7 @@ DBErrors CIdentificationDB::loadIdentificationDatabase( std::map< CKeyID, CPubKe
 	DBErrors result = DB_LOAD_OK;
 
 	try {
-		//LOCK(pwallet->cs_wallet); do  I need  something like this ???
-		int nMinVersion = 0;
 
-		// may be  needed  one day
-	/*	if (Read((string)"minversion", nMinVersion))
-		{
-			if (nMinVersion > CLIENT_VERSION)
-				return DB_TOO_NEW;
-			pwallet->LoadMinVersion(nMinVersion);
-		}*/
 
 		// Get cursor
 		Dbc* pcursor = GetCursor();
@@ -343,7 +327,7 @@ void ThreadFlushWalletDB(const string& strFile)
 		}
 	}
 }
-/*
+
 bool BackupWallet(const CWallet& wallet, const string& strDest)
 {
 	if (!wallet.fFileBacked)

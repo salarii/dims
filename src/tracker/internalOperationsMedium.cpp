@@ -1,14 +1,13 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "internalOperationsMedium.h"
-#include "addressToCoins.h"
-#include "transactionRecordManager.h"
-#include "validateTransactionsRequest.h"
-#include "connectToTrackerRequest.h"
-#include "common/manageNetwork.h"
+#include "tracker/internalOperationsMedium.h"
+#include "tracker/addressToCoins.h"
+#include "tracker/transactionRecordManager.h"
+#include "tracker/requests.h"
 
+#include "common/manageNetwork.h"
 
 #include <algorithm>
 
@@ -40,18 +39,18 @@ CInternalOperationsMedium::serviced() const
 void
 CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 {
-	common::CAvailableCoins availableCoins;
+	common::CAvailableCoinsData availableCoins;
 
 	std::vector< uint256 > coinsHashes;
 
 	std::vector< CCoins > coins;
 
 	if (
-		   !CAddressToCoinsViewCache::getInstance()->getCoins( _request->getKey(), coinsHashes )
+		   ! CAddressToCoinsViewCache::getInstance()->getCoins( _request->getKey(), coinsHashes )
 		|| !CTransactionRecordManager::getInstance()->getCoins( coinsHashes, coins )
 		)
 	{
-		m_trackerResponses.push_back( availableCoins );
+		m_responses.insert( std::make_pair( (common::CRequest*)_request, availableCoins ) );
 		return;
 	}
 
@@ -59,7 +58,16 @@ CInternalOperationsMedium::add( CGetBalanceRequest const *_request )
 	std::transform( coinsHashes.begin(), coinsHashes.end(), coins.begin(),
 		   std::inserter(availableCoins.m_availableCoins, availableCoins.m_availableCoins.end() ), std::make_pair<uint256,CCoins> );
 
-	m_trackerResponses.push_back( availableCoins );
+	std::vector< CKeyID > inputs;
+
+	BOOST_FOREACH( PAIRTYPE( uint256, CCoins ) const & coin, availableCoins.m_availableCoins )
+	{
+		if ( !CAddressToCoinsViewCache::getInstance()->getTransactionInputs( coin.first, inputs ) )
+			assert( !"problem" );
+			availableCoins.m_transactionInputs.insert( make_pair( coin.first, inputs ) );
+	}
+
+	m_responses.insert( std::make_pair( (common::CRequest*)_request, availableCoins ) );
 }
 
 void
@@ -68,35 +76,32 @@ CInternalOperationsMedium::add( CConnectToTrackerRequest const *_request )
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
 	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode( _request->getServiceAddress(), _request->getAddress().empty()? 0 : _request->getAddress().c_str() );
 
-	m_trackerResponses.push_back( common::CConnectedNode( node ) );
-}
-
-void
-CInternalOperationsMedium::add( common::CContinueReqest<TrackerResponses> const * _request )
-{
-	m_trackerResponses.push_back( common::CContinueResult( 0 ) );
+	m_responses.insert( std::make_pair( (common::CRequest*)_request, common::CConnectedNode( node ) ) );
 }
 
 void
 CInternalOperationsMedium::add(CValidateTransactionsRequest const * _request )
 {
-	//this is  simplified to maximum, hence correct only in some cases
-	bool valid = CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions() );
-	m_trackerResponses.push_back( CValidationResult( valid ) );
+	std::vector< unsigned int > invalidTransactions;
+	CTransactionRecordManager::getInstance()->validateTransactionBundle( _request->getTransactions(), invalidTransactions );
+
+	m_responses.insert( std::make_pair( (common::CRequest*)_request, common::CValidationResult( invalidTransactions ) ) );
 }
 
 
 bool
-CInternalOperationsMedium::getResponse( std::vector< TrackerResponses > & _requestResponse ) const
+CInternalOperationsMedium::getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse )
 {
-	_requestResponse = m_trackerResponses;
+	_requestResponse = m_responses;
+
+	clearResponses();
 	return true;
 }
 
 void
 CInternalOperationsMedium::clearResponses()
 {
-	m_trackerResponses.clear();
+	m_responses.clear();
 }
 
 

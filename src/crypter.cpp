@@ -195,6 +195,14 @@ bool CCryptoKeyStore::AddKeyPubKey(const CKey& key, const CPubKey &pubkey)
     return true;
 }
 
+bool CCryptoKeyStore::RemoveKeyPubKey( const CPubKey &pubkey )
+{
+	LOCK(cs_KeyStore);
+	if (!IsCrypted())
+		return CBasicKeyStore::RemoveKeyPubKey( pubkey );
+
+	return false;
+}
 
 bool CCryptoKeyStore::AddCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret)
 {

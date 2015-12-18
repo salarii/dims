@@ -96,7 +96,6 @@ static const uint64_t nMinDiskSpace = 52428800;
 
 
 class CCoinsDB;
-class CBlockTreeDB;
 struct CDiskBlockPos;
 class CTxUndo;
 class CScriptCheck;
@@ -619,6 +618,8 @@ enum BlockStatus {
  * candidates to be the next block. A blockindex may have multiple pprev pointing
  * to it, but at most one of them can be part of the currently active branch.
  */
+void resetChains();
+
 class CBlockIndex
 {
 public:
@@ -631,13 +632,13 @@ public:
     // height of the entry in the chain. The genesis block has height 0
     int nHeight;
 
-    // Which # file this block is stored in (blk?????.dat)
+	// Which # file this block is stored in (blk?????.dat) // for  me  useless
     int nFile;
 
-    // Byte offset within blk?????.dat where this block's data is stored
+	// Byte offset within blk?????.dat where this block's data is stored // for  me  useless
     unsigned int nDataPos;
 
-    // Byte offset within rev?????.dat where this block's undo data is stored
+	// Byte offset within rev?????.dat where this block's undo data is stored // for  me  useless
     unsigned int nUndoPos;
 
     // (memory only) Total amount of work (expected number of hashes) in the chain up to and including this block
@@ -979,7 +980,9 @@ public:
     }
 
     /** Set/initialize a chain with a given tip. Returns the forking point. */
-    CBlockIndex *SetTip(CBlockIndex *pindex);
+	CBlockIndex *SetTip(CBlockIndex *pindex);
+
+	void resetChain( CBlockIndex * _blockIndex );
 
     /** Return a CBlockLocator that refers to a block in this chain (by default the tip). */
     CBlockLocator GetLocator(const CBlockIndex *pindex = NULL) const;
@@ -993,12 +996,6 @@ extern CChain chainActive;
 
 /** The currently best known chain of headers (some of which may be invalid). */
 extern CChain chainMostWork;
-
-/** Global variable that points to the active CCoinsView (protected by cs_main) */
-extern CCoinsViewCache *pcoinsTip;
-
-/** Global variable that points to the active block tree (protected by cs_main) */
-extern CBlockTreeDB *pblocktree;
 
 struct CBlockTemplate
 {
@@ -1044,15 +1041,15 @@ public:
 
 class CWalletInterface {
 protected:
-    virtual void SyncTransaction(const uint256 &hash, const CTransaction &tx, const CBlock *pblock) =0;
-    virtual void EraseFromWallet(const uint256 &hash) =0;
-    virtual void SetBestChain(const CBlockLocator &locator) =0;
-    virtual void UpdatedTransaction(const uint256 &hash) =0;
     virtual void Inventory(const uint256 &hash) =0;
-    virtual void ResendWalletTransactions() =0;
     friend void ::RegisterWallet(CWalletInterface*);
     friend void ::UnregisterWallet(CWalletInterface*);
     friend void ::UnregisterAllWallets();
 };
+
+//set transaction
+extern boost::signals2::signal<void ( CTransaction const & _transaction, CNode * _node )> m_setTransaction;
+//set merkle
+extern boost::signals2::signal<void ( CMerkleBlock const & _merkle, CNode * _node )> m_setMerkleBlock;
 
 #endif

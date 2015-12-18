@@ -9,7 +9,7 @@
 #include "optionsdialog.h"
 #include "ui_optionsdialog.h"
 
-#include "ratcoinUnits.h"
+#include "dimsUnits.h"
 #include "guiutil.h"
 #include "monitoreddatamapper.h"
 #include "optionsmodel.h"
@@ -95,7 +95,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
         }
     }
 
-    ui->unit->setModel(new CRatcoinUnits(this));
+    ui->unit->setModel(new CDimsUnits(this));
     ui->transactionFee->setSingleStep(CTransaction::nMinTxFee);
 
     /* Widget-to-option mapper */

@@ -1,9 +1,9 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "internalMedium.h"
-#include "common/mediumRequests.h"
+#include "common/requests.h"
 #include "common/manageNetwork.h"
 
 #include <algorithm>
@@ -34,21 +34,20 @@ CInternalMedium::serviced() const
 }
 
 void
-CInternalMedium::add( common::CConnectToNodeRequest< SeedResponses > const *_request )
+CInternalMedium::add( common::CConnectToNodeRequest const *_request )
 {
 // in general  it is to slow to be  handled  this  way, but  as usual we can live with that for a while
 	common::CSelfNode* node = common::CManageNetwork::getInstance()->connectNode( _request->getServiceAddress(), _request->getAddress().empty()? 0 : _request->getAddress().c_str() );
 
-	assert( node );
-
-	m_responses.push_back( common::CConnectedNode( node ) );
+	m_responses.insert( std::make_pair( (common::CRequest*)_request, common::CConnectedNode( node ) ) );
 }
 
 
 bool
-CInternalMedium::getResponse( std::vector< SeedResponses > & _requestResponse ) const
+CInternalMedium::getResponseAndClear( std::multimap< common::CRequest const*, common::DimsResponse > & _requestResponse )
 {
 	_requestResponse = m_responses;
+	clearResponses();
 	return true;
 }
 

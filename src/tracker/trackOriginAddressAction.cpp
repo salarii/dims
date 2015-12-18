@@ -1,13 +1,13 @@
-// Copyright (c) 2014 Dims dev-team
+// Copyright (c) 2014-2015 DiMS dev-team
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "trackOriginAddressAction.h"
-#include "originAddressScaner.h"
 
+#include "common/originAddressScanner.h"
 #include "common/setResponseVisitor.h"
-#include "common/mediumRequests.h"
-#include "common/commonEvents.h"
+#include "common/requests.h"
+#include "common/events.h"
 #include "common/mediumKinds.h"
 
 #include <boost/statechart/simple_state.hpp>
@@ -17,21 +17,23 @@
 
 #include "main.h"
 #include "chainparams.h"
-#include "scanBitcoinNetworkRequest.h"
-#include "trackerEvents.h"
-#include "trackerController.h"
-#include "trackerControllerEvents.h"
 
-#define CONFIRM_LIMIT 6
+#include "tracker/events.h"
+#include "tracker/controller.h"
+#include "tracker/controllerEvents.h"
+#include "tracker/filters.h"
+#include "tracker/trackerNodeMedium.h"
+#include "tracker/requests.h"
 
 namespace tracker
 {
-uint const UsedMediumNumber = 3;
-uint const MaxMerkleNumber = 1000;
-uint const WaitResultTime = 60;
-uint const StallCnt = 5; // 3 ?? enough ??
 
-uint const SynchronizedTreshold = 10;
+unsigned int const MaxMerkleNumber = 1000;
+unsigned int const WaitResultTime = 30000;
+unsigned int const CleanTime = 2;
+unsigned int const SynchronizedTreshold = 10;
+
+CTrackOriginAddressAction * CTrackOriginAddressAction::ms_instance = 0;
 
 /*
 store last  tracked  block  number
@@ -43,103 +45,90 @@ use  at  least  three node  and  compare  results, in case of inconsistency of d
 
 */
 struct CReadingData;
+struct CEvaluateProgress;
 
-
-struct CUninitiated : boost::statechart::state< CUninitiated, CTrackOriginAddressAction >
+struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackAction, CTrackOriginAddressAction >
 {
-	CUninitiated( my_context ctx ) : my_base( ctx )
+	CUninitiatedTrackAction( my_context ctx ) : my_base( ctx )
 	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
+		context< CTrackOriginAddressAction >().forgetRequests();
+		context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		CController::getInstance()->process_event( common::CBitcoinNetworkConnection( vNodes.size() ) );
 
-		if ( vNodes.size() >= UsedMediumNumber )
+		if ( vNodes.size() >= common::dimsParams().getUsedBitcoinNodesNumber() )
 		{
 			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
 			return transit< CReadingData >();
 		}
 		else
 		{
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
-
-			return discard_event();
+			context< CTrackOriginAddressAction >().forgetRequests();
+			context< CTrackOriginAddressAction >().addRequest( new common::CTimeEventRequest( 1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 		}
-	}
 
+		return discard_event();
+	}
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
+	boost::statechart::custom_reaction< common::CTimeEvent >
 	> reactions;
-
 };
-// quarantine
-struct CStallAction : boost::statechart::state< CStallAction, CTrackOriginAddressAction >
-{
-	CStallAction( my_context ctx ) : my_base( ctx ), m_counter( StallCnt )
-	{
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
-	}
-
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
-	{
-		if ( m_counter-- )
-		{
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal ) );
-			return discard_event();
-		}
-		else
-		{
-			return transit< CUninitiated >();
-		}
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >
-	> reactions;
-
-	uint m_counter;
-};
-
 
 struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddressAction >
 {
-	CReadingData( my_context ctx ) : my_base( ctx ), m_counter( WaitResultTime )
+	CReadingData( my_context ctx ) : my_base( ctx )
 	{
+		context< CTrackOriginAddressAction >().addRequest(
+					new common::CTimeEventRequest( ( unsigned int )context< CTrackOriginAddressAction >().getTimeModifier() * WaitResultTime, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 	}
 
-	boost::statechart::result react( common::CContinueEvent const & _continueEvent )
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		if ( m_counter-- )
-			context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::BitcoinsNodes ) );
-		else
-		{
-			context< CTrackOriginAddressAction >().clear();
-			return transit< CStallAction >();
-		}
+		return transit< CEvaluateProgress >();
 	}
 
-	boost::statechart::result react( CMerkleBlocksEvent const & _merkleblockEvent )
+	boost::statechart::result react( common::CMerkleBlocksEvent const & _merkleblockEvent )
 	{
-		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_id, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
-		context< CTrackOriginAddressAction >().setRequest( new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::BitcoinsNodes ) );
-	}
-
-	~CReadingData()
-	{
+		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_nodePtr, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CContinueEvent >,
-	boost::statechart::custom_reaction< CMerkleBlocksEvent >
+	boost::statechart::custom_reaction< common::CTimeEvent >,
+	boost::statechart::custom_reaction< common::CMerkleBlocksEvent >
 	> reactions;
-
-	uint m_counter;
 };
 
+struct CEvaluateProgress : boost::statechart::state< CEvaluateProgress, CTrackOriginAddressAction >
+{
+	CEvaluateProgress( my_context ctx ) : my_base( ctx )
+	{
+		context< CTrackOriginAddressAction >().adjustTracking();
+
+		context< CTrackOriginAddressAction >().addRequest(
+					new common::CTimeEventRequest( ( unsigned int )1000, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		context< CTrackOriginAddressAction >().clear();
+		return transit< CUninitiatedTrackAction >();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CTimeEvent >
+	> reactions;
+};
 
 CTrackOriginAddressAction::CTrackOriginAddressAction()
+	: m_timeModifier( 1 )
+	, m_updated( 0 )
 {
+	LogPrintf("track origin action: %p \n", this );
+
 	initiate();
 
 	CBlock block;
@@ -157,30 +146,13 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 	}
 
 	m_currentHash = block.GetHash();
-
-}
-
-
-
-common::CRequest< TrackerResponses >*
-CTrackOriginAddressAction::execute()
-{
-	return m_request;
 }
 
 void
-CTrackOriginAddressAction::accept( common::CSetResponseVisitor< TrackerResponses > & _visitor )
+CTrackOriginAddressAction::accept( common::CSetResponseVisitor & _visitor )
 {
 	_visitor.visit( *this );
 }
-
-void
-CTrackOriginAddressAction::setRequest( common::CRequest< TrackerResponses >* _request )
-{
-	m_request = _request;
-}
-
-
 // current  hash  distance  get  merkle  and  transaction
 // came  back  to  the  same  state  over  and  over  till
 //  analysys  will be finished
@@ -190,16 +162,20 @@ void
 CTrackOriginAddressAction::requestFiltered()
 {
 	CBlockIndex * index = chainActive.Tip();
+
 	// for  now  for  simplicity reasons
-	for ( int i = 0; i < CONFIRM_LIMIT; i++ )
+	for ( int i = 0; i < Params().getConfirmationNumber(); i++ )
 	{
 		if ( index == 0 )
 		{
-			m_request = new common::CContinueReqest<TrackerResponses>( 0, common::CMediumKinds::Internal );
+			CController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 			return;
 		}
 		index = index->pprev;
 	}
+
+	if ( index == 0 )
+		return;
 
 	std::vector< uint256 > requestedBlocks;
 	while ( m_currentHash != index->GetBlockHash() )
@@ -210,17 +186,20 @@ CTrackOriginAddressAction::requestFiltered()
 	}
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
+	tracker::CController::getInstance()->process_event( common::CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
+
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );
 
 	if ( requestedBlocks.size() < SynchronizedTreshold )
-		CTrackerController::getInstance()->process_event( CInitialSynchronizationDoneEvent() );
+		CController::getInstance()->process_event( common::CInitialSynchronizationDoneEvent() );
 
-	m_request = new CAskForTransactionsRequest( requestedBlocks, UsedMediumNumber );
+	forgetRequests();
+	addRequest( new common::CAskForTransactionsRequest( requestedBlocks, new CMediumClassFilter( common::CMediumKinds::BitcoinsNodes, common::dimsParams().getUsedBitcoinNodesNumber() ) ) );
 
 }
 
-// it should be  done  in fency style i  final version,
+// it should be  done  in fency style in  final version,
 // but for  now I will keep it simple as much as possible
 
 typedef std::map< long long, std::vector< CMerkleBlock > >::value_type MerkleResult;
@@ -271,7 +250,22 @@ CCompareTransactions::isCorrect() const
 {
 	return m_correct;
 }
+CTrackOriginAddressAction*
+CTrackOriginAddressAction::createInstance()
+{
+	if ( ms_instance )
+		ms_instance->setExit();
 
+	ms_instance = new CTrackOriginAddressAction;
+
+	return ms_instance;
+}
+
+CTrackOriginAddressAction *
+CTrackOriginAddressAction::getInstance()
+{
+	return ms_instance;
+}
 //
 void
 CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput )
@@ -306,11 +300,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 		validPart( _key, merkle, merkle );
 	}
 
-	// get size of  accepted
-	if (m_acceptedBlocks.size() < UsedMediumNumber )
-		return;
-
-	uint size = -1;
+	unsigned int size = -1;
 
 	BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
 	{
@@ -318,8 +308,9 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			size = nodeResults.second.size();
 	}
 
-	if ( size == -1 || size == 0 )
+	if ( size == (unsigned int)-1 || size == 0 )
 		return;
+
 	// go  through transaction  queue analyse  if  the  same  content
 
 	std::vector< uint256 > blocksToAccept;
@@ -328,7 +319,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 	CBlockHeader headerToSave;
 
-	for ( int i = 0; size > i; ++i )
+	for ( unsigned int i = 0; size > i; ++i )
 	{
 		blocksToAccept.push_back( blockVector.at( i ).header.GetHash() );
 
@@ -337,7 +328,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 	}
 
-	uint const serviced = size;
+	unsigned int const serviced = size;
 
 	while( size-- )
 	{
@@ -384,7 +375,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 			{
 				BOOST_FOREACH( CTransaction const & transaction, toInclude )
 				{
-					tracker::COriginAddressScaner::getInstance()->addTransaction( 0, transaction );
+					common::COriginAddressScanner::getInstance()->addTransaction( 0, transaction );
 				}
 			}
 
@@ -412,6 +403,12 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 void
 CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected )
 {
+	if ( _input.empty() )
+	{
+		m_acceptedBlocks.insert( std::make_pair( _key , _input ) );
+		return;
+	}
+
 	std::vector< CMerkleBlock > output = _input, accepted;
 
 	std::reverse( output.begin(), output.end());
@@ -463,12 +460,36 @@ CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock 
 }
 
 void
-CTrackOriginAddressAction::clearAccepted( uint const _number )
+CTrackOriginAddressAction::adjustTracking()
+{
+	if ( m_updated < MaxMerkleNumber * 0.1 )
+	{
+		unsigned int size;
+		BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
+		{
+			size = nodeResults.second.size();
+
+			if ( m_updated + size < MaxMerkleNumber * 0.1 )
+			{
+				CInternalMediumProvider::getInstance()->stopCommunicationWithNode( nodeResults.first );
+			}
+		}
+	}
+	else if ( m_updated < MaxMerkleNumber / 2 )
+	{
+		increaseModifier();
+	}
+}
+
+void
+CTrackOriginAddressAction::clearAccepted( unsigned int const _number )
 {
 	BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
 	{
 		nodeResults.second.erase(nodeResults.second.begin(), nodeResults.second.begin() + _number );
 	}
+
+	m_updated += _number;
 }
 
 void
@@ -479,6 +500,8 @@ CTrackOriginAddressAction::clear()
 	m_acceptedBlocks.clear();
 
 	m_transactions.clear();
+
+	m_updated = 0;
 }
 
 }

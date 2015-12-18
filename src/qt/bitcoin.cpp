@@ -15,17 +15,22 @@
 #include "optionsmodel.h"
 #include "splashscreen.h"
 #include "utilitydialog.h"
+
 #include "common/actionHandler.h"
-#include "node/nodeConnectionManager.h"
-#include "node/configureNodeActionHadler.h"
+#include "common/timeMedium.h"
 #include "common/periodicActionExecutor.h"
+
+#include "client/trackerLocalRanking.h"
+#include "client/settingsConnectionProvider.h"
+#include "client/applicationServer.h"
+#include "client/errorMediumProvider.h"
 
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
 #include "walletmodel.h"
 #endif
 
-#include "node/init.h"
+#include "client/init.h"
 #include "main.h"
 #include "rpcserver.h"
 #include "ui_interface.h"
@@ -239,18 +244,24 @@ void BitcoinCore::initialize()
 		LogPrintf("Running AppInit1 in thread\n");
 	  int rv = client::AppInit1(threadGroup);
 
-	common::CActionHandler< client::NodeResponses > * actionHandler = common::CActionHandler< client::NodeResponses >::getInstance();
+	common::CActionHandler* actionHandler = common::CActionHandler::getInstance();
 
-	threadGroup.create_thread(boost::bind(&common::CActionHandler< client::NodeResponses >::loop, actionHandler));
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
-	common::CPeriodicActionExecutor< client::NodeResponses > * periodicActionExecutor
-			= common::CPeriodicActionExecutor< client::NodeResponses >::getInstance();
-	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor< client::NodeResponses >::processingLoop, periodicActionExecutor ));
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
 
-	client::CNodeConnectionManager * nodeConnectionManager = client::CNodeConnectionManager::getInstance();
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CLocalServer::getInstance() );
 
-	nodeConnectionManager->connectToNetwork();
- 
+	common::CActionHandler::getInstance()->addConnectionProvider( client::CErrorMediumProvider::getInstance() );
+
+	threadGroup.create_thread(boost::bind(&common::CActionHandler::loop, actionHandler));
+
+	common::CPeriodicActionExecutor * periodicActionExecutor
+			= common::CPeriodicActionExecutor::getInstance();
+	threadGroup.create_thread(boost::bind(&common::CPeriodicActionExecutor::processingLoop, periodicActionExecutor ));
+
+	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
+
         if(rv)
         {
             /* Start a dummy RPC thread if no RPC thread is active yet
@@ -468,7 +479,7 @@ int main(int argc, char *argv[])
     // Command-line options take precedence:
     ParseParameters(argc, argv);
     // Check for -testnet or -regtest parameter (TestNet() calls are only valid after this clause)
-	if (!SelectParamsFromCommandLine() || !common::SelectRatcoinParamsFromCommandLine() ) {
+	if (!SelectParamsFromCommandLine() || !common::SelectDimsParamsFromCommandLine() ) {
         fSelParFromCLFailed = true;
     }
 #ifdef ENABLE_WALLET
@@ -507,9 +518,9 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("Bitcoin");
     QApplication::setOrganizationDomain("bitcoin.org");
     if (isaTestNet) // Separate UI settings for testnets
-        QApplication::setApplicationName("Ratcoin-client-testnet");
+		QApplication::setApplicationName("Dims-client-testnet");
     else
-        QApplication::setApplicationName("Ratcoin-client");
+		QApplication::setApplicationName("Dims-client");
 
     /// 4. Initialization of translations, so that intro dialog is in user's language
     // Now that QSettings are accessible, initialize translations

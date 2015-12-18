@@ -50,7 +50,9 @@ protected:
 
 public:
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
-    bool HaveKey(const CKeyID &address) const
+
+	bool RemoveKeyPubKey( const CPubKey &pubkey );
+	bool HaveKey(const CKeyID &address) const
     {
         bool result;
         {
