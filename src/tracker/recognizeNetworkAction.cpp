@@ -127,7 +127,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		}
 		else if ( !nodesToAsk.empty() )
 		{
-			context< CRecognizeNetworkAction >().forgetRequests();
 
 			BOOST_FOREACH( CAddress const & address, nodesToAsk )
 			{
