@@ -20,7 +20,7 @@
 #include "client/control.h"
 #include "client/events.h"
 
-//fix  this !!!! UGLY
+//fix  this !!!! UGLY ,  no clue yet how it should  work
 
 namespace client
 {
@@ -251,6 +251,10 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		common::CMonitorData monitorData;
 		convertClientPayload( _message.m_clientMessage, monitorData );
 
+		common::CNodeInfo selfNodeInfo;
+		if ( !CTrackerLocalRanking::getInstance()->getUndeterminedMonitor( _message.m_ip, selfNodeInfo ) )
+			return discard_event();
+
 		CTrackerLocalRanking::getInstance()->removeUndeterminedMonitor( _message.m_ip );
 //load  all  structures
 		std::vector< CPubKey > monitorKeys;
@@ -282,6 +286,19 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 			monitorNodeInfo.push_back( nodeInfo );
 
 			m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
+		}
+		else
+		{
+			m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
+
+			std::set< CPubKey > dependentTrackers;
+
+			BOOST_FOREACH( common::CTrackerData const & trackerData, monitorData.m_trackers )
+			{
+				dependentTrackers.insert( trackerData.m_publicKey );
+			}
+
+			CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( selfNodeInfo, dependentTrackers ) );
 		}
 		std::vector< common::CNodeInfo > trackers;
 

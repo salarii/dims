@@ -20,7 +20,7 @@
 namespace monitor
 {
 
-int64_t const ConnectWaitTime = 10000;
+int64_t const ConnectWaitTime = 60000;
 struct CCheckAdmissionStatus;
 
 struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAction >
@@ -31,6 +31,12 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		std::vector<CAddress> vAdd;
 
 		common::CManageNetwork::getInstance()->getIpsFromSeed( vAdd );
+
+		context< CRecognizeNetworkAction >().forgetRequests();
+		context< CRecognizeNetworkAction >().addRequest(
+					new common::CTimeEventRequest(
+						ConnectWaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 		if ( !vAdd.empty() )
 		{
@@ -64,11 +70,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 
 			if ( !vAdd.empty() )
 			{
-				context< CRecognizeNetworkAction >().forgetRequests();
-				context< CRecognizeNetworkAction >().addRequest(
-							new common::CTimeEventRequest(
-								ConnectWaitTime
-								, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
 
 				// let know seed about our existence
 				BOOST_FOREACH( CAddress address, vAdd )
@@ -128,7 +129,6 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		}
 		else if ( !nodesToAsk.empty() )
 		{
-			context< CRecognizeNetworkAction >().forgetRequests();
 
 			BOOST_FOREACH( CAddress const & address, nodesToAsk )
 			{
