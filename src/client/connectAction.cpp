@@ -457,30 +457,30 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		BOOST_FOREACH( CPubKey const & key, monitors )
 		{
 			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator monitorsInfoIterator = m_monitorsInfo.find( key );
-			if( monitorsInfoIterator != m_monitorsInfo.end() );
+			if( monitorsInfoIterator != m_monitorsInfo.end() )
 			{
-			BOOST_FOREACH( common::CNodeInfo const & info, monitorsInfoIterator->second )
-			{
-				std::set< CPubKey > dependentTrackers;
-				std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackers = m_trackersInfo.find( info.m_key );
-				if ( trackers != m_trackersInfo.end() )
+				BOOST_FOREACH( common::CNodeInfo const & info, monitorsInfoIterator->second )
 				{
-					BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
+					std::set< CPubKey > dependentTrackers;
+					std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackers = m_trackersInfo.find( info.m_key );
+					if ( trackers != m_trackersInfo.end() )
 					{
-						dependentTrackers.insert( nodeInfo.m_key );
+						BOOST_FOREACH( common::CNodeInfo const & nodeInfo, trackers->second )
+						{
+							dependentTrackers.insert( nodeInfo.m_key );
+						}
 					}
+					CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( info, dependentTrackers ) );
 				}
-				CTrackerLocalRanking::getInstance()->addMonitor( common::CMonitorInfo( info, dependentTrackers ) );
-			}
 
-			std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackersInfoIterator = m_trackersInfo.find( key );
+				std::map< CPubKey, std::vector< common::CNodeInfo > >::const_iterator trackersInfoIterator = m_trackersInfo.find( key );
 
-			assert( trackersInfoIterator != m_trackersInfo.end() );
+				assert( trackersInfoIterator != m_trackersInfo.end() );
 
-			BOOST_FOREACH( common::CNodeInfo const & info, trackersInfoIterator->second )
-			{
-				CTrackerLocalRanking::getInstance()->addUndeterminedTracker( info );
-			}
+				BOOST_FOREACH( common::CNodeInfo const & info, trackersInfoIterator->second )
+				{
+					CTrackerLocalRanking::getInstance()->addUndeterminedTracker( info );
+				}
 			}
 		}
 	}
