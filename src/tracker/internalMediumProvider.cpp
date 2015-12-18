@@ -44,6 +44,9 @@ void
 CInternalMediumProvider::removeNodeCallback( CNode * node )
 {
 	boost::lock_guard<boost::mutex> lock( m_mutex );
+	if( m_nodeToMedium.find( node ) != m_nodeToMedium.end() )
+		delete m_nodeToMedium.find( node )->second;
+
 	m_nodeToMedium.erase( node );
 }
 
@@ -52,7 +55,6 @@ CInternalMediumProvider::stopCommunicationWithNode( uintptr_t _nodePtr )
 {
 	CNode * node = reinterpret_cast< CNode * >( _nodePtr );
 	node->fDisconnect = true;
-	m_nodeToMedium.erase( node );
 }
 
 std::list< common::CMedium *>
@@ -76,6 +78,7 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	}
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
+		LOCK(cs_vNodes);
 		std::map< CNode *, common::CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
 		//simplified  approach
 		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumNumber ); )

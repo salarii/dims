@@ -48,6 +48,8 @@ public:
 private:
 	void setInvalid(){ m_valid = false; }
 private:
+	mutable boost::mutex m_mutex;
+
 	bool m_valid;
 
 	std::vector<CRequest *> m_newRequest;

@@ -51,14 +51,10 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 		}
 		else
 		{
-			common::CManageNetwork::getInstance()->getSeedIps( vAdd );
-
+			vAdd = common::dimsParams().FixedSeeds();
 			if ( vAdd.empty() )
-			{
 				context< CRecognizeNetworkAction >().setExit();
-			}
 
-			// let know seed about our existence
 			BOOST_FOREACH( CAddress address, vAdd )
 			{
 				m_alreadyAsked.insert( address.ToStringIP() );
@@ -66,6 +62,24 @@ struct CGetDnsInfo : boost::statechart::state< CGetDnsInfo, CRecognizeNetworkAct
 							new common::CScheduleActionRequest(
 								new CConnectNodeAction( address )
 								, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+			}
+
+			vAdd.clear();
+
+			common::CManageNetwork::getInstance()->getSeedIps( vAdd );
+
+			if ( !vAdd.empty() )
+			{
+
+				// let know seed about our existence
+				BOOST_FOREACH( CAddress address, vAdd )
+				{
+					m_alreadyAsked.insert( address.ToStringIP() );
+					context< CRecognizeNetworkAction >().addRequest(
+								new common::CScheduleActionRequest(
+									new CConnectNodeAction( address )
+									, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+				}
 			}
 		}
 	}

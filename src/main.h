@@ -632,13 +632,13 @@ public:
     // height of the entry in the chain. The genesis block has height 0
     int nHeight;
 
-    // Which # file this block is stored in (blk?????.dat)
+	// Which # file this block is stored in (blk?????.dat) // for  me  useless
     int nFile;
 
-    // Byte offset within blk?????.dat where this block's data is stored
+	// Byte offset within blk?????.dat where this block's data is stored // for  me  useless
     unsigned int nDataPos;
 
-    // Byte offset within rev?????.dat where this block's undo data is stored
+	// Byte offset within rev?????.dat where this block's undo data is stored // for  me  useless
     unsigned int nUndoPos;
 
     // (memory only) Total amount of work (expected number of hashes) in the chain up to and including this block

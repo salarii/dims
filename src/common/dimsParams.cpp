@@ -88,7 +88,7 @@ protected:
 };
 static CMainDimsParams mainParams;
 
-unsigned int pnSeedTest[] ={0x724d9c5e, 0x98347957};
+unsigned int pnSeedTest[] ={0x724d9c5e, 0x98347957, 0xc8257857};
 //
 // Testnet (v3)
 //

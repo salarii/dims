@@ -162,6 +162,7 @@ void
 CTrackOriginAddressAction::requestFiltered()
 {
 	CBlockIndex * index = chainActive.Tip();
+
 	// for  now  for  simplicity reasons
 	for ( int i = 0; i < Params().getConfirmationNumber(); i++ )
 	{
@@ -172,6 +173,9 @@ CTrackOriginAddressAction::requestFiltered()
 		}
 		index = index->pprev;
 	}
+
+	if ( index == 0 )
+		return;
 
 	std::vector< uint256 > requestedBlocks;
 	while ( m_currentHash != index->GetBlockHash() )
