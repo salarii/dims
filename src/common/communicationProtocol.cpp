@@ -17,6 +17,12 @@ CommunicationProtocol::unwindMessage( CMessage const & _message, CMessage & _ori
 {
 	if ( _time < _message.m_header.m_time )
 	{
+<<<<<<< HEAD
+		std::string  mismatch;
+		assert( mismatch.empty() );
+		return false;
+	}
+=======
 		// this should be serviced in special way
 		// clock of trackers may be not  synchronized
 		// return false;
@@ -59,6 +65,7 @@ CommunicationProtocol::unwindMessageAndParticipants(
 		// clock of nodes may be not  synchronized
 		// return false;
 	}
+>>>>>>> 46651abfc2d0e9140b4ec774179ba6ab536f3a21
 	if ( _message.m_header.m_payloadKind != CPayloadKind::IntroductionReq )
 	{
 	uint256 messageHash = 	Hash( &_message.m_payload.front(), &_message.m_payload.back() );
