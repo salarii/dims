@@ -5,6 +5,8 @@
 #include "common/filters.h"
 #include "common/request.h"
 
+#include "util.h"
+
 namespace common
 {
 
