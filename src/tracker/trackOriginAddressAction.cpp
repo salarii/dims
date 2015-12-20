@@ -33,6 +33,8 @@ unsigned int const WaitResultTime = 30000;
 unsigned int const CleanTime = 2;
 unsigned int const SynchronizedTreshold = 10;
 
+unsigned int BlockAskedNumber;
+
 CTrackOriginAddressAction * CTrackOriginAddressAction::ms_instance = 0;
 
 /*
@@ -187,6 +189,8 @@ CTrackOriginAddressAction::requestFiltered()
 	std::reverse( requestedBlocks.begin(), requestedBlocks.end());
 
 	tracker::CController::getInstance()->process_event( common::CSetScanBitcoinChainProgress( requestedBlocks.size() ) );
+
+	BlockAskedNumber = requestedBlocks.size();
 
 	if ( requestedBlocks.size() > MaxMerkleNumber )
 		requestedBlocks.resize( MaxMerkleNumber );
@@ -466,7 +470,9 @@ CTrackOriginAddressAction::adjustTracking()
 				common::CMediumKinds::BitcoinsNodes
 				, common::dimsParams().getUsedBitcoinNodesNumber() );
 
-	if ( m_updated < MaxMerkleNumber * 0.1 )
+	unsigned thereshold = BlockAskedNumber * 0.1 + 1;
+
+	if ( m_updated < thereshold )
 	{
 		unsigned int size;
 		BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
@@ -474,7 +480,7 @@ CTrackOriginAddressAction::adjustTracking()
 			size = nodeResults.second.size();
 			mediums.remove( ( common::CMedium *)nodeResults.first );
 
-			if ( m_updated + size < MaxMerkleNumber * 0.1 )
+			if ( m_updated + size < thereshold )
 			{
 				CInternalMediumProvider::getInstance()->stopCommunicationWithNode( nodeResults.first );
 			}
