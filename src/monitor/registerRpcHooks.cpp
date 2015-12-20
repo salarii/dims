@@ -16,6 +16,7 @@
 #include "monitor/enterNetworkAction.h"
 #include "monitor/passTransactionAction.h"
 #include "monitor/reputationControlAction.h"
+#include "monitor/trackOriginAddressAction.h"
 
 namespace monitor
 {
@@ -109,6 +110,9 @@ networkInfo()
 	}
 
 	info +="\n\n\n bitcoin head block hash: " + chainActive.Tip()->GetBlockHash().ToString();
+
+	if ( CTrackOriginAddressAction::getInstance() )
+		info +="\nlast scaned block: \n\n" + CTrackOriginAddressAction::getInstance()->getCurrentHash().ToString();
 
 	return info;
 }

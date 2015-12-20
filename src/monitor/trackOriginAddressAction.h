@@ -9,6 +9,8 @@
 #include <boost/statechart/state_machine.hpp>
 #include "main.h"
 
+#define MAX_TIME_MODIFIER 2.5
+
 // please add excluding of bad nodes( not responding )
 namespace monitor
 {
@@ -33,9 +35,15 @@ public:
 
 	double getTimeModifier() const{ return m_timeModifier; }
 
-	void increaseModifier(){ m_timeModifier += 0.5; }
+	void increaseModifier()
+	{
+		if ( MAX_TIME_MODIFIER > m_timeModifier )
+			m_timeModifier += 0.5;
+	}
 
 	void adjustTracking();
+
+	uint256 getCurrentHash() const { return m_currentHash; }
 private:
 	CTrackOriginAddressAction();
 

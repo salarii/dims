@@ -20,6 +20,7 @@
 #include "tracker/registerAction.h"
 #include "tracker/connectNetworkAction.h"
 #include "tracker/passTransactionAction.h"
+#include "tracker/trackOriginAddressAction.h"
 
 namespace tracker
 {
@@ -88,6 +89,10 @@ networkInfo()
 	}
 
 	info +="\n\n\n bitcoin head block hash: " + chainActive.Tip()->GetBlockHash().ToString();
+
+	if ( CTrackOriginAddressAction::getInstance() )
+		info +="\nlast scaned block: \n\n" + CTrackOriginAddressAction::getInstance()->getCurrentHash().ToString();
+
 	return info;
 }
 

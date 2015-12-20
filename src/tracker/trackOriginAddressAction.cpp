@@ -462,17 +462,27 @@ CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock 
 void
 CTrackOriginAddressAction::adjustTracking()
 {
+	std::list< common::CMedium *> mediums = CInternalMediumProvider::getInstance()->getMediumByClass(
+				common::CMediumKinds::BitcoinsNodes
+				, common::dimsParams().getUsedBitcoinNodesNumber() );
+
 	if ( m_updated < MaxMerkleNumber * 0.1 )
 	{
 		unsigned int size;
 		BOOST_FOREACH( MerkleResult & nodeResults, m_acceptedBlocks )
 		{
 			size = nodeResults.second.size();
+			mediums.remove( ( common::CMedium *)nodeResults.first );
 
 			if ( m_updated + size < MaxMerkleNumber * 0.1 )
 			{
 				CInternalMediumProvider::getInstance()->stopCommunicationWithNode( nodeResults.first );
 			}
+		}
+
+		BOOST_FOREACH( common::CMedium * medium, mediums )
+		{
+			CInternalMediumProvider::getInstance()->stopCommunicationWithNode( (uintptr_t)medium );
 		}
 	}
 	else if ( m_updated < MaxMerkleNumber / 2 )
