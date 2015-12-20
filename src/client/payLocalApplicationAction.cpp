@@ -71,18 +71,8 @@ struct CIndicateErrorCondition : boost::statechart::state< CIndicateErrorConditi
 
 		context< CPayLocalApplicationAction >().forgetRequests();
 		context< CPayLocalApplicationAction >().addRequest( new CErrorForAppPaymentProcessing( indicateErrorEvent->m_error, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
-		context< CPayLocalApplicationAction >().addRequest( new common::CTimeEventRequest( 100, new CMediumClassFilter( ClientMediums::Time ) ) );
+		context< CPayLocalApplicationAction >().setExit();
 	}
-
-	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
-	{
-		context< CPayLocalApplicationAction >().forgetRequests();
-		return discard_event();
-	}
-
-	typedef boost::mpl::list<
-	boost::statechart::custom_reaction< common::CTimeEvent >
-	> reactions;
 };
 
 struct CServiceByTracker;
@@ -168,8 +158,13 @@ struct CServiceByTracker : boost::statechart::state< CServiceByTracker, CPayLoca
 		CWalletTx tx;
 		std::string failReason;
 
-		CWallet::getInstance()->CreateTransaction( outputs, std::vector< CSpendCoins >(), trackerStats.m_key, trackerStats.m_price,tx, failReason );
+		if ( !CWallet::getInstance()->CreateTransaction( outputs, std::vector< CSpendCoins >(), trackerStats.m_key, trackerStats.m_price,tx, failReason ) )
+		{
+			context< CPayLocalApplicationAction >().addRequest( new CErrorForAppPaymentProcessing( dims::CAppError::NotEnoughFunds, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
+			context< CPayLocalApplicationAction >().setExit();
 
+			return;
+		}
 		context< CPayLocalApplicationAction >().setServicingTracker( trackerStats.m_key );
 
 		context< CPayLocalApplicationAction >().setFirstInitialHash( tx.GetHash() );
@@ -281,8 +276,13 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 		{
 			coinsToUse.push_back( CSpendCoins( txOuts[i], ids[i], firstTransaction.GetHash(), context< CPayLocalApplicationAction >().getPrivKey() ) );
 		}
-	CWallet::getInstance()->CreateTransaction( outputs, coinsToUse, context< CPayLocalApplicationAction >().getTrackerStats().m_key,context< CPayLocalApplicationAction >().getTrackerStats().m_price, tx, failReason );
+		if ( !CWallet::getInstance()->CreateTransaction( outputs, coinsToUse, context< CPayLocalApplicationAction >().getTrackerStats().m_key,context< CPayLocalApplicationAction >().getTrackerStats().m_price, tx, failReason ) )
+		{
+			context< CPayLocalApplicationAction >().addRequest( new CErrorForAppPaymentProcessing( dims::CAppError::NotEnoughFunds, new CSpecificMediumFilter( context< CPayLocalApplicationAction >().getSocket() ) ) );
+			context< CPayLocalApplicationAction >().setExit();
 
+			return;
+		}
 		context< CPayLocalApplicationAction >().forgetRequests();
 
 		context< CPayLocalApplicationAction >().addRequest(
@@ -313,7 +313,7 @@ struct CSecondTransaction : boost::statechart::state< CSecondTransaction, CPayLo
 	}
 
 	typedef boost::mpl::list<
-		boost::statechart::custom_reaction< common::CClientMessageResponse >
+	boost::statechart::custom_reaction< common::CClientMessageResponse >
 	> reactions;
 
 };
