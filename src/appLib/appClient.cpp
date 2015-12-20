@@ -104,6 +104,7 @@ bool CAppClient::checkApp( QApplication * _application, QMainWindow *_window )
 											   QMessageBox::Yes|QMessageBox::No);
 				if (reply == QMessageBox::Yes)
 				{
+					connectServer();
 					continue;
 				}
 				else
