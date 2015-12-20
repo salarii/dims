@@ -23,13 +23,18 @@ Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
 
 int main(int argc, char *argv[])
 {
-  dims::HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf";
+  dims::HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf"; // random  pattern
 
-	dims::AuthorId = "dXUT2rfnE8J7nqfa3TQHqPJnur6BX9YsFe";
+	dims::AuthorId = "dXUT2rfnE8J7nqfa3TQHqPJnur6BX9YsFe";  // enter  your address
 
 	dims::Value = 100;
 
-	dims::PossibleTrackers.push_back( "tJVmAF9VgQvpwg85Th9ZYRb9nhnd1ucnEm");
+	dims::PossibleMonitors.push_back( "mKzBm7EtrR1nZP3T5VNGGy9of2MPyPHUH4" );
+
+	dims::PossibleMonitors.push_back( "mYh8ST9HsokJSZ9tr1qKrHN7ineJCDzcPt" );
+
+	//dims::PossibleTrackers.push_back( "tJpviiWjg8FuvTrvXmPJM5btQQkneiLhTB");
+	//dims::PossibleTrackers.push_back( "tJMhNj9DXPnRgDMDjYmCqvnjadQ4oRVfUt" );
 
 	QApplication app (argc, argv);
 

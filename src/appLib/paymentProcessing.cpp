@@ -144,12 +144,15 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 		std::vector< std::string >::const_iterator iterator = std::find( PossibleMonitors.begin(), PossibleMonitors.end(), nodeAddress.ToString() );
 		if ( iterator != PossibleMonitors.end() )
 		{
-			BOOST_FOREACH( common::CTrackerData const & nodeInfo, _licenseData.m_monitorData.m_trackers )
+			if ( _licenseData.m_monitorPubKey.Verify( common::hashMonitorData( _licenseData.m_monitorData ), _licenseData.m_monitorData.m_signed ) )
 			{
-				if ( nodeInfo.m_publicKey == _licenseData.m_trackerPubKey )
+				BOOST_FOREACH( common::CTrackerData const & nodeInfo, _licenseData.m_monitorData.m_trackers )
 				{
-					if ( _licenseData.m_trackerPubKey.Verify( _licenseData.m_trasaction.GetHash(), _licenseData.m_transactionStatusSignature ) )
-						return true;
+					if ( nodeInfo.m_publicKey == _licenseData.m_trackerPubKey )
+					{
+						if ( _licenseData.m_trackerPubKey.Verify( _licenseData.m_trasaction.GetHash(), _licenseData.m_transactionStatusSignature ) )
+							return true;
+					}
 				}
 			}
 		}
