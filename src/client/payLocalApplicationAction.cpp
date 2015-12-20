@@ -101,8 +101,6 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 					, new CMediumByKeyFilter( serviceByMonitorEvent->m_keyId ) );
 
 		context< CPayLocalApplicationAction >().addRequest( request );
-
-		m_lastAskTime = GetTime();
 	}
 
 	boost::statechart::result react( common::CNoMedium const & _noMedium )
@@ -129,10 +127,11 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 		unsigned int bestFee = -1;
 		BOOST_FOREACH( common::CTrackerData const & tracker, monitorData.m_trackers )
 		{
-			CTrackerLocalRanking::getInstance()->getTrackerStats( tracker.m_publicKey.GetID(), trackerStats );
-
-			if ( bestFee > trackerStats.m_price )
-				best = trackerStats;
+			if ( CTrackerLocalRanking::getInstance()->getTrackerStats( tracker.m_publicKey.GetID(), trackerStats ) )
+			{
+				if ( bestFee > trackerStats.m_price )
+					best = trackerStats;
+			}
 		}
 
 		context< CPayLocalApplicationAction >().process_event( CServiceByTrackerEvent( best.m_key.GetID() ) );
@@ -144,9 +143,6 @@ struct CResolveByMonitor : boost::statechart::state< CResolveByMonitor, CPayLoca
 	boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >,
 	boost::statechart::custom_reaction< common::CClientMessageResponse >
 	> reactions;
-
-	std::set< uintptr_t > m_pending;
-	int64_t m_lastAskTime;
 };
 
 struct CCheckTransactionStatus;
