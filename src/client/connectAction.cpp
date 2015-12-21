@@ -289,6 +289,7 @@ struct CMonitorPresent : boost::statechart::state< CMonitorPresent, CConnectActi
 		}
 		else
 		{
+			monitorNodeInfo.push_back( selfNodeInfo );
 			m_monitorsInfo.insert( std::make_pair( monitorKey, monitorNodeInfo ) );
 
 			std::set< CPubKey > dependentTrackers;

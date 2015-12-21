@@ -374,7 +374,9 @@ CTrackOriginAddressAction::analyseOutput( common::CMedium * _key, std::map< uint
 			}
 
 			if ( !compareTransactions.isCorrect() )
+			{
 				return;
+			}
 			else
 			{
 				BOOST_FOREACH( CTransaction const & transaction, toInclude )
