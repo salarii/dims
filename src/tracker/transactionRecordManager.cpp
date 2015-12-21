@@ -82,7 +82,7 @@ CTransactionRecordManager::addCoinbaseTransaction( CTransaction const & _tx, CKe
 	m_addressToCoinsViewCache->setCoins( _keyId, _tx.GetHash() );
 
 	std::vector< CKeyID > inputs;
-	if ( common::getTransactionInputs( _tx, inputs ) )
+	if ( !common::getTransactionInputs( _tx, inputs ) )
 		assert( !"problem" );
 
 	m_addressToCoinsViewCache->setTransactionInputs( _tx.GetHash(), inputs );
