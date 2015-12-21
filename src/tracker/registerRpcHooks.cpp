@@ -70,7 +70,7 @@ networkInfo()
 {
 	std::string info;
 
-	info += "Monitors: \n";
+	info += "\nMonitors: \n";
 	BOOST_FOREACH( common::CValidNodeInfo const & allyMonitorData, CTrackerNodesManager::getInstance()->getNetworkMonitors() )
 	{
 		CNodeAddress monitor;
@@ -91,7 +91,7 @@ networkInfo()
 	info +="\n\n\n bitcoin head block hash: " + chainActive.Tip()->GetBlockHash().ToString();
 
 	if ( CTrackOriginAddressAction::getInstance() )
-		info +="\nlast scaned block: \n\n" + CTrackOriginAddressAction::getInstance()->getCurrentHash().ToString();
+		info +="\n \nlast scaned block:" + CTrackOriginAddressAction::getInstance()->getCurrentHash().ToString() + "\n";
 
 	return info;
 }
