@@ -374,7 +374,7 @@ CTrackOriginAddressAction::analyseOutput( common::CMedium * _key, std::map< uint
 			}
 
 			if ( !compareTransactions.isCorrect() )
-				assert( !"data from various nodes vary!" );// react  to  this
+				return;
 			else
 			{
 				BOOST_FOREACH( CTransaction const & transaction, toInclude )
