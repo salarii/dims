@@ -12,11 +12,17 @@
 namespace common
 {
 
-CRequestHandler ::CRequestHandler( CMedium * _medium )
+CRequestHandler::CRequestHandler( CMedium * _medium )
 	: m_valid( true )
 	, m_usedMedium( _medium )
 {
-	_medium->registerDeleteHook( boost::bind( &CRequestHandler ::setInvalid, this ) );
+	_medium->registerDeleteHook( boost::bind( &CRequestHandler::setInvalid, this ) );
+}
+
+void
+CRequestHandler::setInvalid()
+{
+	m_valid = false;
 }
 
 bool
@@ -79,6 +85,9 @@ bool
 CRequestHandler ::isProcessed( CRequest * _request ) const
 {
 	boost::lock_guard<boost::mutex> lock(m_mutex);
+
+	if ( !m_valid )
+		return false;
 
 	if ( m_processedRequests.find( _request ) != m_processedRequests.end() )
 		return true;

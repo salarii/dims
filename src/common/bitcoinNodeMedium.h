@@ -41,6 +41,8 @@ public:
 	void setResponse( CTransaction const & _tx );
 
 	void setResponse( CMerkleBlock const & _merkle );
+
+	~CBitcoinNodeMedium();
 private:
 	void clearResponses();
 

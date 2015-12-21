@@ -10,6 +10,12 @@
 #include "main.h"
 #define MAX_TIME_MODIFIER 2.5
 // please add excluding of bad nodes( not responding )
+
+namespace common
+{
+	class CMedium;
+}
+
 namespace tracker
 {
 struct CUninitiatedTrackAction;
@@ -25,7 +31,7 @@ public:
 
 	void requestFiltered();
 
-	void analyseOutput( long long _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput );
+	void analyseOutput( common::CMedium * _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput );
 
 	void clear();
 
@@ -45,14 +51,14 @@ public:
 private:
 	CTrackOriginAddressAction();
 
-	void validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected );
+	void validPart( common::CMedium * _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected );
 private:
 	//replace std::vector with std::deque ???
-	std::map< long long, std::vector< CMerkleBlock > > m_blocks;
+	std::map< common::CMedium *, std::vector< CMerkleBlock > > m_blocks;
 	//replace std::vector with std::deque ???
-	std::map< long long, std::vector< CMerkleBlock > > m_acceptedBlocks;
+	std::map< common::CMedium *, std::vector< CMerkleBlock > > m_acceptedBlocks;
 
-	std::map< long long, std::map< uint256 , std::vector< CTransaction > > > m_transactions;
+	std::map< common::CMedium *, std::map< uint256 , std::vector< CTransaction > > > m_transactions;
 
 	uint256 m_currentHash;
 

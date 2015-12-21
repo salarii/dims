@@ -45,8 +45,10 @@ public:
 	std::list< DimsResponse > getDirectActionResponse( CAction const * _action );// this is bad use but I don't know  what will really happen yet
 
 	void deleteAction( CAction const * _action );
+
+	~CRequestHandler(){}
 private:
-	void setInvalid(){ m_valid = false; }
+	void setInvalid();
 private:
 	mutable boost::mutex m_mutex;
 

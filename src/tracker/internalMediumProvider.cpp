@@ -51,10 +51,19 @@ CInternalMediumProvider::removeNodeCallback( CNode * node )
 }
 
 void
-CInternalMediumProvider::stopCommunicationWithNode( uintptr_t _nodePtr )
+CInternalMediumProvider::removeMedium( common::CMedium * _removeMedium )
 {
-	CNode * node = reinterpret_cast< CNode * >( _nodePtr );
-	node->fDisconnect = true;
+	boost::lock_guard<boost::mutex> lock( m_mutex );
+
+	CNode *remove;
+
+	BOOST_FOREACH( PAIRTYPE( CNode *, common::CBitcoinNodeMedium * ) const medium, m_nodeToMedium )
+	{
+		if ( (common::CMedium * )medium.second == _removeMedium )
+				remove = medium.first;
+	}
+	m_nodeToMedium.erase( remove );
+	delete _removeMedium;
 }
 
 std::list< common::CMedium *>
@@ -79,30 +88,42 @@ CInternalMediumProvider::getMediumByClass( common::CMediumKinds::Enum _mediumKin
 	else if ( common::CMediumKinds::BitcoinsNodes == _mediumKind )
 	{
 		LOCK(cs_vNodes);
-		std::map< CNode *, common::CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
-		//simplified  approach
-		for ( unsigned int i = 0; ( i < vNodes.size() ) && ( i < _mediumNumber ); )
+
+		if ( m_nodeToMedium.size() < _mediumNumber )
 		{
 
-			if ( iterator != m_nodeToMedium.end() )
+			unsigned int newMediums = ( vNodes.size() > _mediumNumber ? _mediumNumber : vNodes.size() ) - m_nodeToMedium.size();
+			int i = 0;
+			while( newMediums )
 			{
-				// validate that node  is  still working??
-				mediums.push_back( static_cast< common::CMedium * >( iterator->second ) );
-				iterator++;
-				++i;
-			}
-			else
-			{
-				CNode * node = vNodes.at( i );
-				m_nodeToMedium.insert( std::make_pair( node, new common::CBitcoinNodeMedium( node ) ) );
-				//ugly
-				iterator =  m_nodeToMedium.begin();
-				std::advance( iterator, i );
+
+				if ( m_nodeToMedium.find( vNodes[i] ) == m_nodeToMedium.end() )
+				{
+					m_nodeToMedium.insert( std::make_pair( vNodes[i], new common::CBitcoinNodeMedium( vNodes[i] ) ) );
+					newMediums--;
+				}
+				i++;
 			}
 
 		}
+
+		std::map< CNode *, common::CBitcoinNodeMedium * >::const_iterator iterator =  m_nodeToMedium.begin();
+		//simplified  approach
+		for ( unsigned int i = 0; i < ( vNodes.size() > _mediumNumber ? _mediumNumber : vNodes.size() ); i++ )
+		{
+			mediums.push_back( static_cast< common::CMedium * >( iterator->second ) );
+			iterator++;
+		}
+
 	}
 	return mediums;
+}
+
+unsigned int
+CInternalMediumProvider::getBitcoinNodesAmount()const
+{
+	LOCK(cs_vNodes);
+	return vNodes.size();
 }
 
 void

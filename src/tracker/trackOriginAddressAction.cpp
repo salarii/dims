@@ -59,9 +59,9 @@ struct CUninitiatedTrackAction : boost::statechart::state< CUninitiatedTrackActi
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
-		CController::getInstance()->process_event( common::CBitcoinNetworkConnection( vNodes.size() ) );
+		CController::getInstance()->process_event( common::CBitcoinNetworkConnection( CInternalMediumProvider::getInstance()->getBitcoinNodesAmount() ) );
 
-		if ( vNodes.size() >= common::dimsParams().getUsedBitcoinNodesNumber() )
+		if ( CInternalMediumProvider::getInstance()->getBitcoinNodesAmount() >= common::dimsParams().getUsedBitcoinNodesNumber() )
 		{
 			context< CTrackOriginAddressAction >().requestFiltered();// could proceed  with origin address scanning
 			return transit< CReadingData >();
@@ -94,7 +94,7 @@ struct CReadingData : boost::statechart::state< CReadingData, CTrackOriginAddres
 
 	boost::statechart::result react( common::CMerkleBlocksEvent const & _merkleblockEvent )
 	{
-		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_nodePtr, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
+		context< CTrackOriginAddressAction >().analyseOutput( _merkleblockEvent.m_medium, _merkleblockEvent.m_transactions, _merkleblockEvent.m_merkles );
 		return discard_event();
 	}
 
@@ -206,9 +206,9 @@ CTrackOriginAddressAction::requestFiltered()
 // it should be  done  in fency style in  final version,
 // but for  now I will keep it simple as much as possible
 
-typedef std::map< long long, std::vector< CMerkleBlock > >::value_type MerkleResult;
+typedef std::map< common::CMedium *, std::vector< CMerkleBlock > >::value_type MerkleResult;
 
-typedef std::map< long long, std::map< uint256 , std::vector< CTransaction > > >::value_type TransactionsResult;
+typedef std::map< common::CMedium *, std::map< uint256 , std::vector< CTransaction > > >::value_type TransactionsResult;
 
 
 struct CCompareTransactions
@@ -272,9 +272,9 @@ CTrackOriginAddressAction::getInstance()
 }
 //
 void
-CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput )
+CTrackOriginAddressAction::analyseOutput( common::CMedium * _key, std::map< uint256 ,std::vector< CTransaction > > const & _newTransactions, std::vector< CMerkleBlock > const & _newInput )
 {
-	std::map< long long, std::map< uint256 , std::vector< CTransaction > > > ::iterator transactionIterator = m_transactions.find( _key );
+	std::map< common::CMedium *, std::map< uint256 , std::vector< CTransaction > > > ::iterator transactionIterator = m_transactions.find( _key );
 
 	if ( transactionIterator == m_transactions.end() )
 	{
@@ -285,7 +285,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 		transactionIterator->second.insert( _newTransactions.begin(), _newTransactions.end() );
 	}
 
-	std::map< long long, std::vector< CMerkleBlock > >::iterator iterator = m_blocks.find( _key );
+	std::map< common::CMedium *, std::vector< CMerkleBlock > >::iterator iterator = m_blocks.find( _key );
 
 	if ( iterator == m_blocks.end() )
 	{
@@ -405,7 +405,7 @@ CTrackOriginAddressAction::analyseOutput( long long _key, std::map< uint256 ,std
 
 
 void
-CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected )
+CTrackOriginAddressAction::validPart( common::CMedium * _key, std::vector< CMerkleBlock > const & _input, std::vector< CMerkleBlock > & _rejected )
 {
 	if ( _input.empty() )
 	{
@@ -419,7 +419,7 @@ CTrackOriginAddressAction::validPart( long long _key, std::vector< CMerkleBlock 
 
 	CMerkleBlock block = output.back();
 
-	std::map< long long, std::vector< CMerkleBlock > >::iterator iterator;
+	std::map< common::CMedium *, std::vector< CMerkleBlock > >::iterator iterator;
 	iterator = m_acceptedBlocks.find( _key );
 
 	uint256 lastAcceptedHash = iterator != m_acceptedBlocks.end() && !iterator->second.empty() ? iterator->second.back().header.GetHash() : this->m_currentHash;
@@ -470,6 +470,9 @@ CTrackOriginAddressAction::adjustTracking()
 				common::CMediumKinds::BitcoinsNodes
 				, common::dimsParams().getUsedBitcoinNodesNumber() );
 
+	if ( !BlockAskedNumber )
+		return;
+
 	unsigned thereshold = BlockAskedNumber * 0.1 + 1;
 
 	if ( m_updated < thereshold )
@@ -482,13 +485,13 @@ CTrackOriginAddressAction::adjustTracking()
 
 			if ( m_updated + size < thereshold )
 			{
-				CInternalMediumProvider::getInstance()->stopCommunicationWithNode( nodeResults.first );
+				CInternalMediumProvider::getInstance()->removeMedium( nodeResults.first );
 			}
 		}
 
 		BOOST_FOREACH( common::CMedium * medium, mediums )
 		{
-			CInternalMediumProvider::getInstance()->stopCommunicationWithNode( (uintptr_t)medium );
+			CInternalMediumProvider::getInstance()->removeMedium( medium );
 		}
 	}
 	else if ( m_updated < MaxMerkleNumber / 2 )

@@ -38,7 +38,7 @@ public:
 	virtual void operator()( common::CRequestedMerkles & _param ) const
 	{
 		LogPrintf("set response \"requested merkles\" to action: %p \n", m_action );
-		m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_nodePtr ) );
+		m_action->process_event( common::CMerkleBlocksEvent( _param.m_merkles, _param.m_transactions, _param.m_medium ) );
 	}
 
 	virtual void operator()( common::CNetworkInfoResult & _param ) const
