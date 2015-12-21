@@ -191,7 +191,7 @@ public:
         }
 		m_originAddress = CPubKey(getRatcoinOriginPublicAddress().c_str(), &getRatcoinOriginPublicAddress().c_str()[65]).GetID();
 
-		m_confirmation = 6;
+		m_confirmation = 5;
 	}
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -279,7 +279,7 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x35)(0x87)(0xCF);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x35)(0x83)(0x94);
 
-		m_confirmation = 2;
+		m_confirmation = 5;
     }
     virtual Network NetworkID() const { return CNetworkParams::TESTNET; }
 };
