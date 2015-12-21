@@ -14,7 +14,7 @@
 
 namespace common
 {
-
+class CMedium;
 class CSelfNode;
 
 struct CNodeConnectedEvent : boost::statechart::event< CNodeConnectedEvent >
@@ -111,11 +111,11 @@ struct CInitialSynchronizationDoneEvent : boost::statechart::event< CInitialSync
 
 struct CMerkleBlocksEvent : boost::statechart::event< CMerkleBlocksEvent >
 {
-	CMerkleBlocksEvent( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, uintptr_t _nodePtr )
-		: m_merkles( _merkles ), m_transactions( _transactions ), m_nodePtr( _nodePtr ){};
+	CMerkleBlocksEvent( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, common::CMedium * _medium )
+		: m_merkles( _merkles ), m_transactions( _transactions ), m_medium( _medium ){};
 	std::vector< CMerkleBlock > m_merkles;
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
-	uintptr_t const m_nodePtr;
+	common::CMedium * m_medium;
 };
 
 struct CUpdateStatus : boost::statechart::event< CUpdateStatus >

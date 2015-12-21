@@ -75,7 +75,7 @@ CBitcoinNodeMedium ::reloadResponses()
 {
 	m_responses.clear();
 
-	m_responses.insert( std::make_pair( LastRequest, CRequestedMerkles( m_merkles, m_transactions,reinterpret_cast< uintptr_t >( m_node ) ) ) );
+	m_responses.insert( std::make_pair( LastRequest, CRequestedMerkles( m_merkles, m_transactions, this ) ) );
 }
 
 void
@@ -117,6 +117,13 @@ CBitcoinNodeMedium ::setResponse( CTransaction const & _tx )
 	}
 
 	reloadResponses();
+}
+
+CBitcoinNodeMedium::~CBitcoinNodeMedium()
+{
+	m_deleteHook();
+
+	m_node->fDisconnect = true;
 }
 
 }

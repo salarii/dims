@@ -35,7 +35,9 @@ public:
 
 	void registerRemoveCallback( CNodeSignals& nodeSignals );
 
-	void stopCommunicationWithNode( uintptr_t _nodePtr );
+	void removeMedium( common::CMedium * _removeMedium );
+
+	unsigned int getBitcoinNodesAmount()const;
 private:
 	void removeNodeCallback( CNode * node );
 

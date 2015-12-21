@@ -26,6 +26,7 @@
 
 namespace common
 {
+class CMedium;
 
 struct CNoMedium : boost::statechart::event< CNoMedium >
 {};
@@ -330,11 +331,14 @@ typedef boost::variant< CNetworkInfoResult, CTransactionAck, CValidRegistration,
 
 struct CRequestedMerkles
 {
-	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, uintptr_t _nodePtr ):m_merkles( _merkles ),m_transactions( _transactions ), m_nodePtr( _nodePtr ){};
+	CRequestedMerkles( std::vector< CMerkleBlock > const & _merkles, std::map< uint256 ,std::vector< CTransaction > > const & _transactions, common::CMedium * _medium )
+		:m_merkles( _merkles )
+		,m_transactions( _transactions )
+		, m_medium( _medium ){};
 
 	std::vector< CMerkleBlock > m_merkles;
 	std::map< uint256 ,std::vector< CTransaction > > m_transactions;
-	uintptr_t m_nodePtr;
+	common::CMedium * m_medium;
 };
 
 struct CDnsInfo : boost::statechart::event< CDnsInfo >
