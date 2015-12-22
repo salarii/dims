@@ -48,9 +48,16 @@ public:
 	void transactionAddmited( uint256 const & _hash, CTransaction const & _transaction );
 
 	CClientSignals & acquireClientSignals();
+
+	bool isClientReady()const{ return m_clientReady; }
+
+	bool setClientReady(){ m_clientReady = true; }
+
 private:
 	CClientControl();
 private:
+	bool m_clientReady;
+
 	static CClientControl * ms_instance;
 
 	AddressTableModel * m_addressTableModel;// invent  something  else  to  do such a  things, signals??

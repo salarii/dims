@@ -33,12 +33,12 @@
 
 WalletModel::WalletModel(CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
     QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0),
-    transactionTableModel(0),
-    recentRequestsTableModel(0),
-    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
-    cachedNumTransactions(0),
-    cachedEncryptionStatus(Unencrypted),
-    cachedNumBlocks(0)
+	transactionTableModel(0),
+	recentRequestsTableModel(0),
+	cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
+	cachedNumTransactions(0),
+	cachedEncryptionStatus(Unencrypted),
+	cachedNumBlocks(0)
 {
     addressTableModel = new AddressTableModel(wallet, this);
     transactionTableModel = new TransactionTableModel(wallet, this);

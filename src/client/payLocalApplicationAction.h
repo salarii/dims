@@ -98,7 +98,10 @@ public:
 
 public:
 	std::vector<unsigned char> m_signature;
+
+	bool m_userEnabled;
 private:
+
 	uint256 m_firstInitialHash;
 
 	CTransaction m_firstTransaction;

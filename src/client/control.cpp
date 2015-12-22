@@ -84,6 +84,7 @@ CClientControl::getAvailableAddresses() const
 void
 CClientControl::updateTotalBalance( int64_t _totalBalance )
 {
+	setClientReady();
 	m_clientSignals.m_updateTotalBalance( _totalBalance );
 }
 
@@ -113,6 +114,7 @@ CClientControl::acquireClientSignals()
 
 CClientControl::CClientControl()
 	: m_addressTableModel( 0 )
+	, m_clientReady( false )
 {
 	initiate();
 }
