@@ -21,6 +21,8 @@
 #include <QScrollBar>
 #include <QTextDocument>
 
+#include "client/control.h"
+
 // both  ugly
 CSendSentinel SendSentinel;
 QStringList formatted;
@@ -173,6 +175,17 @@ SendCoinsDialog::getCoinAmount( QString & _amountToSend ) const
 
 void SendCoinsDialog::on_sendButton_clicked()
 {
+	if ( !client::CClientControl::getInstance()->isClientReady() )
+	{
+		QMessageBox msgBox;
+
+		msgBox.setInformativeText("Client not ready yet");
+
+		msgBox.addButton(QMessageBox::Ok);
+		msgBox.exec();
+		return;
+	}
+
     if(!model || !model->getOptionsModel())
         return;
 

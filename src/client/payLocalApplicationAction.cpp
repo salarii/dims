@@ -6,12 +6,14 @@
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 
-#include "payLocalApplicationAction.h"
 #include "common/nodeMessages.h"
 #include "common/setResponseVisitor.h"
 #include "common/medium.h"
 #include "common/analyseTransaction.h"
 #include "common/requests.h"
+
+#include "client/payLocalApplicationAction.h"
+#include "client/control.h"
 
 #include "filters.h"
 #include "requests.h"
@@ -54,10 +56,51 @@ struct CCheckAppData : boost::statechart::state< CCheckAppData, CPayLocalApplica
 {
 	CCheckAppData( my_context ctx ) : my_base( ctx )
 	{
+		context< CPayLocalApplicationAction >().addRequest(
+					new common::CTimeEventRequest( 1000, new CMediumClassFilter( ClientMediums::Time ) ) );
+	}
+
+	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
+	{
+		if ( CClientControl::getInstance()->isClientReady() && context< CPayLocalApplicationAction >().m_userEnabled )
+		{
+			std::vector<CKeyID>::const_iterator iterator = context< CPayLocalApplicationAction >().getTrackers().begin();
+
+			while( iterator != context< CPayLocalApplicationAction >().getTrackers().end() )
+			{
+				if ( CTrackerLocalRanking::getInstance()->isValidTrackerKnown( *iterator ) )
+				{
+					context< CPayLocalApplicationAction >().process_event( CServiceByTrackerEvent( *iterator ) );
+					return discard_event();
+				}
+				iterator++;
+			}
+
+			iterator = context< CPayLocalApplicationAction >().getMonitors().begin();
+
+			while( iterator != context< CPayLocalApplicationAction >().getMonitors().end() )
+			{
+				if ( CTrackerLocalRanking::getInstance()->isValidMonitorKnown( *iterator ) )
+				{
+					context< CPayLocalApplicationAction >().process_event( CResolveByMonitorEvent( *iterator ) );
+					return discard_event();
+				}
+
+				iterator++;
+			}
+		}
+		else
+		{
+			context< CPayLocalApplicationAction >().addRequest(
+						new common::CTimeEventRequest( 1000, new CMediumClassFilter( ClientMediums::Time ) ) );
+		}
+
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
-	  boost::statechart::transition< CIndicateErrorEvent, CIndicateErrorCondition >
+	  boost::statechart::custom_reaction< common::CTimeEvent >
+	, boost::statechart::transition< CIndicateErrorEvent, CIndicateErrorCondition >
 	, boost::statechart::transition< CServiceByTrackerEvent, CServiceByTracker >
 	, boost::statechart::transition< CResolveByMonitorEvent, CResolveByMonitor >
 	> reactions;
@@ -391,40 +434,11 @@ CPayLocalApplicationAction::CPayLocalApplicationAction( uintptr_t _socket, CPriv
 {
 	initiate();
 
-	std::vector<CKeyID>::const_iterator iterator = m_trackers.begin();
-
-	CTrackerLocalRanking::getInstance()->isValidTrackerKnown( CKeyID() );
-
-	if ( !CClientControl::getInstance()->executePaymentMessageBox(_value) )
+	if ( !CClientControl::getInstance()->executePaymentMessageBox(context< CPayLocalApplicationAction >().getValue()) )
 	{
-		process_event( CIndicateErrorEvent( dims::CAppError::RefusedByClient ) );
-		return;
+		context< CPayLocalApplicationAction >().process_event( CIndicateErrorEvent( dims::CAppError::RefusedByClient ) );
 	}
-
-	while( iterator != m_trackers.end() )
-	{
-		if ( CTrackerLocalRanking::getInstance()->isValidTrackerKnown( *iterator ) )
-		{
-			process_event( CServiceByTrackerEvent( *iterator ) );
-			return;
-		}
-		iterator++;
-	}
-
-	iterator = m_monitors.begin();
-
-	while( iterator != m_monitors.end() )
-	{
-		if ( CTrackerLocalRanking::getInstance()->isValidMonitorKnown( *iterator ) )
-		{
-			process_event( CResolveByMonitorEvent( *iterator ) );
-			return;
-		}
-
-		iterator++;
-	}
-
-	process_event( CIndicateErrorEvent( dims::CAppError::DifferentNetwork ) );
+	m_userEnabled = true;
 }
 
 void
