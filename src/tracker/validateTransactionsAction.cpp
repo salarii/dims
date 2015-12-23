@@ -579,28 +579,33 @@ struct CApproved : boost::statechart::state< CApproved, CValidateTransactionsAct
 	{
 		LogPrintf("validate transaction action: %p approved \n", &context< CValidateTransactionsAction >() );
 
-		// make real check  against storage ??
-		CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
-			context< CValidateTransactionsAction >().getTransactions() );
-
-		CTransactionRecordManager::getInstance()->addTransactionsToStorage(
-					context< CValidateTransactionsAction >().getTransactions() );
-
-		std::vector< CTransaction > transactions = context< CValidateTransactionsAction >().getTransactions();
-
-		BOOST_FOREACH( CTransaction const & transaction, transactions )
+		// make real check  ??
+		if ( CTransactionRecordManager::getInstance()->addValidatedTransactionBundle(
+			context< CValidateTransactionsAction >().getTransactions() ) )
 		{
-			common::findSelfCoinsAndAddToWallet( transaction );
+			CTransactionRecordManager::getInstance()->addTransactionsToStorage(
+						context< CValidateTransactionsAction >().getTransactions() );
+
+			std::vector< CTransaction > transactions = context< CValidateTransactionsAction >().getTransactions();
+
+			BOOST_FOREACH( CTransaction const & transaction, transactions )
+			{
+				common::findSelfCoinsAndAddToWallet( transaction );
+			}
+
+			context< CValidateTransactionsAction >().forgetRequests();
+
+			context< CValidateTransactionsAction >().addRequest(
+						new common::CSendMessageRequest(
+							common::CPayloadKind::Transactions
+							, common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() )
+							, context< CValidateTransactionsAction >().getActionKey()
+							, new CMediumClassFilter( common::CMediumKinds::Monitors ) ) );
 		}
-
-		context< CValidateTransactionsAction >().forgetRequests();
-
-		context< CValidateTransactionsAction >().addRequest(
-				new common::CSendMessageRequest(
-					common::CPayloadKind::Transactions
-					, common::CTransactionBundle( context< CValidateTransactionsAction >().getTransactions() )
-					, context< CValidateTransactionsAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Monitors ) ) );
+		else
+		{
+			context< CValidateTransactionsAction >().setExit();
+		}
 	}
 
 	boost::statechart::result react( common::CAckEvent const & _ackEvent )

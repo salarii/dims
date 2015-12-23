@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
 	dims::AuthorId = "dXUT2rfnE8J7nqfa3TQHqPJnur6BX9YsFe";  // enter  your address
 
-	dims::Value = 100;
+	dims::Value = 7000;
 
 	dims::PossibleMonitors.push_back( "mKzBm7EtrR1nZP3T5VNGGy9of2MPyPHUH4" );
 
