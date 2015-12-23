@@ -246,12 +246,18 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 			StrageSize = synchronizationInfo.m_strageSize;
 			HeaderSize = synchronizationInfo.m_headerSize;
 
-			context< CSynchronizationAction >().addRequest(
-						new common::CAckRequest(
-							  context< CSynchronizationAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
-
+			if ( !StrageSize && !HeaderSize )
+			{
+				context< CSynchronizationAction >().onExit();
+			}
+			else
+			{
+				context< CSynchronizationAction >().addRequest(
+							new common::CAckRequest(
+								context< CSynchronizationAction >().getActionKey()
+								, _messageResult.m_message.m_header.m_id
+								, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+			}
 		}
 		return transit< CSynchronizingHeaders >();
 	}
@@ -326,16 +332,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 			}
 			else
 			{
-				common::CSegmentFileStorage::getInstance()->resetState();
-				common::CSegmentFileStorage::getInstance()->retriveState();
-
-				if ( !CReputationTracker::getInstance()->isRegisteredTracker( _messageResult.m_pubKey.GetID() ) )
-					CReputationTracker::getInstance()->removeNodeFromSynch( _messageResult.m_pubKey.GetID() );
-
-				context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 1 ) );
-
-				CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
-				context< CSynchronizationAction >().setExit();
+				context< CSynchronizationAction >().onExit();
 			}
 		}
 		return discard_event();
@@ -801,6 +798,21 @@ bool
 CSynchronizationAction::isRequestInitialized() const
 {
 	return !m_requests.empty();
+}
+
+void
+CSynchronizationAction::onExit()
+{
+	common::CSegmentFileStorage::getInstance()->resetState();
+	common::CSegmentFileStorage::getInstance()->retriveState();
+
+	if ( !CReputationTracker::getInstance()->isRegisteredTracker( m_partnerKey.GetID() ) )
+		CReputationTracker::getInstance()->removeNodeFromSynch( m_partnerKey.GetID() );
+
+	setResult( common::CSynchronizationResult( 1 ) );
+
+	CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
+	setExit();
 }
 
 CSynchronizationAction::~CSynchronizationAction()

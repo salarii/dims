@@ -36,6 +36,9 @@ public:
 
 	void setRequestKey( uint256 const & _requestKey ){ m_requestKey = _requestKey; }
 
+
+	void onExit();
+
 	~CSynchronizationAction();
 
 private:
