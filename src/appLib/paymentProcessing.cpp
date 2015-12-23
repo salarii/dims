@@ -90,6 +90,7 @@ CPaymentProcessing::readLicenseFileData()
 
 	licenseStream >> m_licenseData;
 
+	delete license;
 	return true;
 }
 
@@ -105,6 +106,7 @@ CPaymentProcessing::saveLicenseFileData( CLicenseData const & _licenseData )
 
 	licenseFile << m_licenseData;
 
+	delete license;
 	return true;
 }
 
@@ -119,7 +121,7 @@ CPaymentProcessing::verifyData( CLicenseData const & _licenseData )
 
 	if(
 			! hardwareKeys.m_macBased.GetPubKey().Verify( hash, _licenseData.m_macSignature )
-		&& ! hardwareKeys.m_procBased.GetPubKey().Verify( hash, _licenseData.m_procSignature )
+		//&& ! hardwareKeys.m_procBased.GetPubKey().Verify( hash, _licenseData.m_procSignature )  I noticed two machines  with  the  same proc id  number  why??
 		&& ! hardwareKeys.m_volumeBased.GetPubKey().Verify( hash, _licenseData.m_volumeSignature )
 			)
 		return false;
@@ -453,8 +455,8 @@ CPaymentProcessing::createKeys()
 	CHardwareNumbers hardwareNumbers = getHardwareNumbers();
 
 	hardwareKeys.m_macBased = createHardwareKey( hardwareNumbers.m_macHash );
-	hardwareKeys.m_procBased = createHardwareKey( hardwareNumbers.m_volumeHash );
-	hardwareKeys.m_volumeBased = createHardwareKey( hardwareNumbers.m_cpuHash );
+	hardwareKeys.m_procBased = createHardwareKey( hardwareNumbers.m_cpuHash );
+	hardwareKeys.m_volumeBased = createHardwareKey( hardwareNumbers.m_volumeHash );
 
 	return hardwareKeys;
 }
