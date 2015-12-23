@@ -56,6 +56,8 @@ struct CSynchronizingRegistrationAsk : boost::statechart::state< CSynchronizingR
 {
 	CSynchronizingRegistrationAsk( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p ask \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -136,6 +138,7 @@ struct CGetBitcoinHeader: boost::statechart::state< CGetBitcoinHeader, CSynchron
 {
 	CGetBitcoinHeader( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p get bitcoin  header \n", &context< CSynchronizationAction >() );
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -207,6 +210,8 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 {
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p get info \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -257,6 +262,8 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 {
 	CSynchronizingBlocks( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
+		LogPrintf("synchronize action: %p blocks \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().forgetRequests();
 
 		common::CSynchronizationGet synchronizationGet(
@@ -385,6 +392,8 @@ struct CSynchronizingHeaders : boost::statechart::state< CSynchronizingHeaders, 
 {
 	CSynchronizingHeaders( my_context ctx ) : my_base( ctx ), m_currentBlock( 0 )
 	{
+		LogPrintf("synchronize action: %p headers \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().forgetRequests();
 
 		common::CSynchronizationGet synchronizationGet(
@@ -491,6 +500,8 @@ struct CSynchronizedGetInfo : boost::statechart::state< CSynchronizedGetInfo, CS
 {
 	CSynchronizedGetInfo( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p get info \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(

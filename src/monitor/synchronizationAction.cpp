@@ -71,6 +71,7 @@ struct CSynchronizingAsk : boost::statechart::state< CSynchronizingAsk, CSynchro
 {
 	CSynchronizingAsk( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p ask \n", &context< CSynchronizationAction >() );
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -221,6 +222,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 {
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p get synchronizing info \n", &context< CSynchronizationAction >() );
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -474,6 +476,8 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 {
 	CSynchronizedUninitialized( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p get synchronizied uninitiated \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
 						SynchronisingWaitTime
@@ -568,6 +572,8 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 {
 	CSynchronizedProvideCopy( my_context ctx ) : my_base( ctx ), m_copyRequestDone( false )
 	{
+		LogPrintf("synchronize action: %p provide copy \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
 						 100
@@ -630,6 +636,7 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 		{
 			return transit< CSynchronized >();
 		}
+		return discard_event();
 	}
 
 	typedef boost::mpl::list<
@@ -644,7 +651,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 {
 	CSynchronized( my_context ctx ) : my_base( ctx )
 	{
-
+		LogPrintf("synchronize action: %p synchronized \n", &context< CSynchronizationAction >() );
 		m_storedBlocks = CCopyStorageHandler::getInstance()->getDiscBlockSize();
 
 		m_storedHeaders = CCopyStorageHandler::getInstance()->getSegmentHeaderSize();
