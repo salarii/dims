@@ -81,8 +81,11 @@ CCopyStorageHandler::loop()
 				m_storageSize = common::CSegmentFileStorage::getInstance()->calculateStoredBlockNumber();
 				m_headerSize = common::CSegmentFileStorage::getInstance()->getStoredHeaderCount();
 
-				common::CSegmentFileStorage::getInstance()->copyHeader();
-				common::CSegmentFileStorage::getInstance()->copyStorage();
+				if ( m_headerSize )
+					common::CSegmentFileStorage::getInstance()->copyHeader();
+
+				if ( m_storageSize )
+					common::CSegmentFileStorage::getInstance()->copyStorage();
 
 				m_copyCreated = true;
 				m_copyRequest = false;
