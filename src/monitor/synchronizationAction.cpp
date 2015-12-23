@@ -628,7 +628,7 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 		}
 		else
 		{
-			transit< CSynchronized >();
+			return transit< CSynchronized >();
 		}
 	}
 
