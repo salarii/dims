@@ -38,7 +38,8 @@ public:
 
     ~LockedPageManagerBase()
     {
-        assert(this->GetLockedPageCount() == 0);
+		// Disable  this  for  presentation only, it  is  usefull
+		//assert(this->GetLockedPageCount() == 0);
     }
 
 
