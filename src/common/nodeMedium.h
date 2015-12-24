@@ -48,6 +48,8 @@ public:
 	void addActionResponse( uint256 const & _actionId, DimsResponse const & _response );
 
 	void deleteAction( CAction const * _action );
+
+	~CNodeMedium();
 protected:
 	void clearResponses();
 

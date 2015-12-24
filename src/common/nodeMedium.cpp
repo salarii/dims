@@ -198,4 +198,12 @@ CNodeMedium::add( CSendMessageRequest const * _request )
 	setLastRequest( _request->getId(), (common::CRequest const*)_request );
 }
 
+
+CNodeMedium::~CNodeMedium()
+{
+	m_deleteHook();
+
+	m_usedNode->fDisconnect = true;
+}
+
 }
