@@ -29,12 +29,12 @@ int main(int argc, char *argv[])
 
 	dims::Value = 7000;
 
-	dims::PossibleMonitors.push_back( "mLBvPGhZifTQajQUR5MpmoXrfAZQePuJCA" );
+	dims::PossibleMonitors.push_back( "mR3CmPx5U5jdyAHUPBWZFznrcYisfKkhNh" );
 
-	dims::PossibleMonitors.push_back( "mYh8ST9HsokJSZ9tr1qKrHN7ineJCDzcPt" );
+	dims::PossibleMonitors.push_back( "mWMBwVopNMDbmMQSMtKmut2g8HB2xEzUTy" );
 
-	//dims::PossibleTrackers.push_back( "tJpviiWjg8FuvTrvXmPJM5btQQkneiLhTB");
-	//dims::PossibleTrackers.push_back( "tJMhNj9DXPnRgDMDjYmCqvnjadQ4oRVfUt" );
+	//dims::PossibleTrackers.push_back( "tWAyLrZL5GFshWc2wCF4JWUuymzfwXsL6c");
+	//dims::PossibleTrackers.push_back( "tPNj1FsxrZdvyFmyuuHW26BhJQDvAZuMiK" );
 
 	QApplication app (argc, argv);
 

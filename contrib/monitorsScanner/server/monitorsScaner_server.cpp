@@ -68,7 +68,7 @@ init( boost::thread_group & _threadGroup )
 
 	connectAction->m_connected.connect( boost::bind( &CInforamtionProvider::reloadData, CInforamtionProvider::getInstance() ) );
 
-	common::CPeriodicActionExecutor::getInstance()->addAction( connectAction, 60000 );
+	common::CPeriodicActionExecutor::getInstance()->addAction( connectAction, 120000 );
 }
 
 int main(int argc, char **argv)
