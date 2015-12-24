@@ -59,7 +59,7 @@ init( boost::thread_group & _threadGroup )
 
 	_threadGroup.create_thread(boost::bind(&common::CActionHandler::loop, common::CActionHandler::getInstance()));
 
-	threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
+	_threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
 
 	common::CActionHandler::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
