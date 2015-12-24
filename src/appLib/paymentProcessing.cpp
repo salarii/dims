@@ -90,7 +90,6 @@ CPaymentProcessing::readLicenseFileData()
 
 	licenseStream >> m_licenseData;
 
-	delete license;
 	return true;
 }
 
@@ -106,7 +105,6 @@ CPaymentProcessing::saveLicenseFileData( CLicenseData const & _licenseData )
 
 	licenseFile << m_licenseData;
 
-	delete license;
 	return true;
 }
 

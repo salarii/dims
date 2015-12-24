@@ -259,7 +259,7 @@ struct CCheckTransactionStatus : boost::statechart::state< CCheckTransactionStat
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
 					, common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getFirstTransaction().GetHash())
-					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) ) );
+					, new CMediumByKeyFilter( context< CPayLocalApplicationAction >().getTrackerStats().m_key.GetID() ) ) );
 	}
 
 	boost::statechart::result react( common::CClientMessageResponse const & _message )
@@ -373,7 +373,7 @@ struct CSecondCheck : boost::statechart::state< CSecondCheck, CPayLocalApplicati
 				new common::CSendClientMessageRequest(
 					common::CMainRequestType::TransactionStatusReq
 					, common::CClientTransactionStatusAsk(context< CPayLocalApplicationAction >().getSecondTransaction().GetHash())
-					, new CMediumClassFilter( ClientMediums::TrackersRep, 1 ) ) );
+					, new CMediumByKeyFilter( context< CPayLocalApplicationAction >().getTrackerStats().m_key.GetID() ) ) );
 
 	}
 
