@@ -34,7 +34,7 @@ struct CRecognizeNetwork;
 
 namespace
 {
-std::map< uint160, common::CTrackerData > TrackersData;
+std::map< uint160, common::CTrackerData > TrackersData; // assume  this  is  singleton  action
 }
 
 
@@ -42,6 +42,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 {
 	CClientUnconnected( my_context ctx ) : my_base( ctx )
 	{
+		TrackersData.clear();
 		CTrackerLocalRanking::getInstance()->resetMonitors();
 		CTrackerLocalRanking::getInstance()->resetTrackers();
 		context< CConnectAction >().forgetRequests();
