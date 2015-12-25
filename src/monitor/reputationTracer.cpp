@@ -149,7 +149,7 @@ CReputationTracker::loop()
 					, getTrackers()
 					, getSynchronizedTrackers()
 					, getMeasureReputationTime()
-					, CReputationControlAction::getInstance()->getActionKey() );
+					, CReputationControlAction::getInstance() ? CReputationControlAction::getInstance()->getActionKey() : uint256() );
 
 		if ( !toBeRemoved.empty() )
 		{
