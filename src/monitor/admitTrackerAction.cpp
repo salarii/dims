@@ -61,6 +61,12 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 					, registrationTerms
 					, context< CAdmitTrackerAction >().getActionKey()
 					, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) ) );
+
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -107,6 +113,7 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
 
 			CReputationTracker::getInstance()->addTracker( trackerData );
+
 			context< CAdmitTrackerAction >().setExit();
 
 		}
@@ -121,6 +128,7 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		CReputationTracker::getInstance()->eraseExtendInProgress( context< CAdmitTrackerAction >().getPartnerKey() ); //propagate  it in  other  places
 		context< CAdmitTrackerAction >().setExit();
 		return discard_event();
 	}
