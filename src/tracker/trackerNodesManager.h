@@ -72,6 +72,10 @@ public:
 	bool isActiveNode( uint160 const & _idKey ) const;
 
 	bool getAddresFromKey( uint160 const & _pubKeyId, CAddress & _address )const;
+
+	void setMyMonitor( CKeyID const & _myMonitor );
+
+	CKeyID getMyMonitor() const;
 private:
 	std::set< common::CValidNodeInfo > extractValidNodeInfo( std::map< uint160, common::CValidNodeInfo > const & _validNode ) const;
 
@@ -92,6 +96,8 @@ private:
 	std::map< uint160, common::CValidNodeInfo > m_networkMonitors;
 
 	std::set< uint160 > m_activeNodes;
+
+	CKeyID m_myMonitor;
 };
 
 }

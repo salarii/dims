@@ -46,6 +46,7 @@ struct CInitialConnect : public boost::statechart::state< CInitialConnect, CConn
 	{
 		if ( _synchronizationResult.m_result )
 		{
+			CTrackerNodesManager::getInstance()->setMyMonitor( m_key.GetID());
 			CController::getInstance()->setConnected(true);
 			CController::getInstance()->process_event( CMonitorAcceptEvent( m_key ) );
 		}

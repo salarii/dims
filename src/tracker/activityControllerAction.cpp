@@ -11,14 +11,20 @@
 #include "common/setResponseVisitor.h"
 #include "common/requests.h"
 #include "common/events.h"
+#include "common/actionHandler.h"
 
 #include "tracker/filters.h"
 #include "tracker/activityControllerAction.h"
 #include "tracker/connectNodeAction.h"
+#include "tracker/trackerNodesManager.h"
+#include "tracker/provideInfoAction.h"
+#include "tracker/connectNetworkAction.h"
+#include "tracker/registerAction.h"
 
 namespace tracker
 {
 
+struct CRestorePosition;
 //milisec
 unsigned int const WaitTime = 20000;
 
@@ -84,6 +90,9 @@ struct CInitiateActivation : boost::statechart::state< CInitiateActivation, CAct
 					new common::CTimeEventRequest(
 						WaitTime
 						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
+		if ( context< CActivityControllerAction >().m_nodeKey.GetID() == CTrackerNodesManager::getInstance()->getMyMonitor() )
+			return transit< CRestorePosition >();
 
 		return discard_event();
 	}
@@ -169,6 +178,8 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 			common::CValidNodeInfo validNodeInfo;
 			if ( CTrackerNodesManager::getInstance()->getNodeInfo( m_activationStatus.m_keyId, validNodeInfo ) )
 			{
+				context< CActivityControllerAction >().m_address = validNodeInfo.m_address;
+
 				context< CActivityControllerAction >().addRequest(
 							new common::CScheduleActionRequest(
 								new CConnectNodeAction( validNodeInfo.m_address )
@@ -215,6 +226,9 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 						, context< CActivityControllerAction >().getActionKey()
 						, new CNodeExceptionFilter( common::CMediumKinds::DimsNodes, m_informingNodes ) ) );
 
+		if ( m_activationStatus.m_keyId == CTrackerNodesManager::getInstance()->getMyMonitor() )
+			return transit< CRestorePosition >();
+
 		return discard_event();
 	}
 
@@ -255,12 +269,67 @@ struct CRecognizeNodeState : boost::statechart::state< CRecognizeNodeState, CAct
 	bool m_alreadyInformed;
 };
 
+// try  harder in future
+struct CRestorePosition : boost::statechart::state< CRestorePosition, CActivityControllerAction >
+{
+	CRestorePosition( my_context ctx )
+		: my_base( ctx )
+	{
+		LogPrintf("activity controller action: %p restore position \n", &context< CActivityControllerAction >() );
+
+		context< CActivityControllerAction >().addRequest(
+					new common::CScheduleActionRequest(
+						new CConnectNodeAction( context< CActivityControllerAction >().m_address )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+	}
+
+
+	boost::statechart::result react( common::CNetworkInfoResult const & _networkInfoEvent )
+	{
+		context< CActivityControllerAction >().addRequest(
+					new common::CScheduleActionRequest(
+						  new CProvideInfoAction( common::CInfoKind::IsRegistered, _networkInfoEvent.m_nodeSelfInfo.m_publicKey )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+
+		m_pubKey = _networkInfoEvent.m_nodeSelfInfo.m_publicKey;
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CFailureEvent _failureEvent )
+	{
+		context< CActivityControllerAction >().addRequest(
+					new common::CScheduleActionRequest(
+						new CConnectNodeAction( context< CActivityControllerAction >().m_address )
+						, new CMediumClassFilter( common::CMediumKinds::Schedule) ) );
+
+		return discard_event();
+	}
+
+	boost::statechart::result react( common::CRegistrationData const & _registerData )
+	{
+		if ( _registerData.m_registrationTime )
+			common::CActionHandler::getInstance()->executeAction( new CConnectNetworkAction() );
+		else
+			common::CActionHandler::getInstance()->executeAction( new CRegisterAction( m_pubKey ) );
+
+		return discard_event();
+	}
+
+	typedef boost::mpl::list<
+	boost::statechart::custom_reaction< common::CNetworkInfoResult >,
+	boost::statechart::custom_reaction< common::CRegistrationData >,
+	boost::statechart::custom_reaction< common::CFailureEvent >
+	> reactions;
+
+	CPubKey m_pubKey;
+};
+
 CActivityControllerAction::CActivityControllerAction( CPubKey const & _nodeKey, CAddress const & _address, CActivitySatatus::Enum _status )
 	: m_nodeKey( _nodeKey )
 	, m_address( _address )
 	, m_status( _status )
 {
-	LogPrintf("activity controller action: %p initiate % \n", this, _address.ToStringIPPort().c_str() );
+	LogPrintf("activity controller action: %p initiate %s \n", this, _address.ToStringIPPort().c_str() );
 
 	initiate();
 	process_event( CInitiateActivationEvent() );
