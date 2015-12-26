@@ -540,6 +540,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 						, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
 		context< CConnectAction >().forgetRequests();
+		context< CConnectAction >().setExit();
 		return discard_event();
 	}
 
