@@ -25,7 +25,7 @@
 namespace client
 {
 const unsigned DnsAskLoopTime = 15000;//
-const unsigned NetworkAskLoopTime = 15000;//
+const unsigned NetworkAskLoopTime = 20000;//
 const unsigned MonitorAskLoopTime = 15000;//
 //stupid logic here
 struct CMonitorPresent;
@@ -91,9 +91,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		if ( !m_uniqueNodes.size() )
 		{
-			return transit< CRecognizeNetwork >();
+				context< CConnectAction >().setExit();
 		}
-
 		bool moniorPresent = false;
 
 		analyseData( moniorPresent );
