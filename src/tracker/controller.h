@@ -51,7 +51,7 @@ public:
 		return m_statusMessage;
 	}
 
-	void autoRenewRegistration( bool _renewal )
+	void setAutoRenewRegistration( bool _renewal )
 	{
 		m_autoRegistrationRenewal = _renewal;
 	}

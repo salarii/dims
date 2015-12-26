@@ -726,8 +726,12 @@ CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRanking
 
 	//add new tracker data, if any
 
+	std::set< uint160 > presentTrackers;
+
 	BOOST_FOREACH( common::CTrackerData const & trackerData, _rankingFullInfo.m_trackers )
 	{
+		presentTrackers.insert( trackerData.m_publicKey.GetID() );
+
 		if ( m_allyTrackersRankings.find( trackerData.m_publicKey.GetID() ) == m_allyTrackersRankings.end() )
 		{
 			if ( m_knownTrackers.find( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) ) == m_knownTrackers.end() )
@@ -738,11 +742,32 @@ CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRanking
 		}
 	}
 
+	std::list< uint160 > deleteTrackersList;
+
+	// gather  all tracker   with  this  monitor
+	BOOST_FOREACH( PAIRTYPE( uint160, uint160 ) const & trackerToMonitor, m_trackerToMonitor )
+	{
+		if ( trackerToMonitor.second == _pubKey.GetID() )
+		{
+			if ( presentTrackers.find( trackerToMonitor.first ) == presentTrackers.end() )
+			{
+				deleteTrackersList.push_back( trackerToMonitor.first );
+			}
+		}
+	}
+
+	BOOST_FOREACH( uint160 const & trackerKey, deleteTrackersList )
+	{
+			m_allyTrackersRankings.erase( trackerKey );
+			m_trackerToMonitor.erase( trackerKey );
+			m_synchronizedTrackers.erase( trackerKey );
+	}
+
 	BOOST_FOREACH( uint160 const & keyId, _rankingFullInfo.m_synchronizedTrackers )
 	{
 		m_synchronizedTrackers.insert( keyId );
 	}
-
+	// popagate  ranking ??
 }
 
 }
