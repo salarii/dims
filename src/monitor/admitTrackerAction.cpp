@@ -30,6 +30,7 @@ struct CPaidRegistrationEmptyNetwork;
 struct CWaitForInfo;
 struct CExtendRegistration;
 //milisec
+// paid  registration  is  broken  now
 unsigned int const WaitTime = 20000;
 
 struct CRegisterEvent : boost::statechart::event< CRegisterEvent >{};
@@ -61,6 +62,12 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 					, registrationTerms
 					, context< CAdmitTrackerAction >().getActionKey()
 					, new CByKeyMediumFilter( context< CAdmitTrackerAction >().getPartnerKey() ) ) );
+
+		context< CAdmitTrackerAction >().addRequest(
+					new common::CTimeEventRequest(
+						WaitTime
+						, new CMediumClassFilter( common::CMediumKinds::Time ) ) );
+
 	}
 
 	boost::statechart::result react( common::CMessageResult const & _messageResult )
@@ -84,29 +91,42 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 			if ( CController::getInstance()->getPrice() )
 				return transit< CPaidRegistration >();
 
-			CAddress address;
-			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )
-				assert( !"problem" );
-
-			common::CTrackerData	trackerData;
-			if( CReputationTracker::getInstance()->getTracker( context< CAdmitTrackerAction >().getPartnerKey().GetID(), trackerData ) )
+			if ( CController::getInstance()->isAdmitted() )
 			{
-				trackerData.m_networkTime = CController::getInstance()->getPeriod();
-				trackerData.m_contractTime = GetTime();
-			}
-			else
-			{
-				trackerData = common::CTrackerData(
-							context< CAdmitTrackerAction >().getPartnerKey()
-							, address
-							, 0
-							, CController::getInstance()->getPeriod()
-							, GetTime() );
+				CAddress address;
+				if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CAdmitTrackerAction >().getPartnerKey().GetID(), address ) )
+					assert( !"problem" );
+
+				common::CTrackerData	trackerData;
+				if( CReputationTracker::getInstance()->getTracker( context< CAdmitTrackerAction >().getPartnerKey().GetID(), trackerData ) )
+				{
+					trackerData.m_networkTime = CController::getInstance()->getPeriod();
+					trackerData.m_contractTime = GetTime();
+				}
+				else
+				{
+					trackerData = common::CTrackerData(
+								context< CAdmitTrackerAction >().getPartnerKey()
+								, address
+								, 0
+								, CController::getInstance()->getPeriod()
+								, GetTime() );
+				}
+
+				CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+
+				CReputationTracker::getInstance()->addTracker( trackerData );
+
 			}
 
-			CRankingDatabase::getInstance()->writeTrackerData( trackerData );
+			context< CAdmitTrackerAction >().addRequest(
+						new common::CSendMessageRequest(
+							common::CPayloadKind::Result
+							, common::CResult( CController::getInstance()->isAdmitted() ? 1 : 0 )
+							, context< CAdmitTrackerAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
 
-			CReputationTracker::getInstance()->addTracker( trackerData );
 			context< CAdmitTrackerAction >().setExit();
 
 		}
@@ -121,6 +141,7 @@ struct CExtendRegistration : boost::statechart::state< CExtendRegistration, CAdm
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
 	{
+		CReputationTracker::getInstance()->eraseExtendInProgress( context< CAdmitTrackerAction >().getPartnerKey() ); //propagate  it in  other  places
 		context< CAdmitTrackerAction >().setExit();
 		return discard_event();
 	}
@@ -164,10 +185,13 @@ struct CWaitForInfo : boost::statechart::state< CWaitForInfo, CAdmitTrackerActio
 		context< CAdmitTrackerAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::Result
-					, common::CResult( 1 )
+					, common::CResult( CController::getInstance()->isAdmitted() ?1 : 0 )
 					, context< CAdmitTrackerAction >().getActionKey()
 					, _messageResult.m_message.m_header.m_id
 					, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+
+		if ( !CController::getInstance()->isAdmitted() )
+			context< CAdmitTrackerAction >().setExit();
 
 		return discard_event();
 	}

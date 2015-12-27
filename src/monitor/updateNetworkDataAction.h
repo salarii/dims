@@ -7,6 +7,8 @@
 
 #include "common/action.h"
 #include "common/filters.h"
+#include "common/mediumKinds.h"
+#include "common/communicationProtocol.h"
 
 #include <boost/statechart/state_machine.hpp>
 
@@ -20,11 +22,15 @@ struct CUpdateDataInit;
 class CUpdateNetworkDataAction : public common::CAction, public  boost::statechart::state_machine< CUpdateNetworkDataAction, CUpdateDataInit >
 {
 public:
-	CUpdateNetworkDataAction();
+	CUpdateNetworkDataAction( common::CRankingFullInfo const & _rankingFullInfo, common::CMediumKinds::Enum _mediumKind );
 
 	CUpdateNetworkDataAction( uint256 const & _actionKey );
 
 	virtual void accept( common::CSetResponseVisitor & _visitor );
+public:
+	common::CRankingFullInfo m_rankingFullInfo;
+
+	common::CMediumKinds::Enum m_mediumKind;
 };
 
 

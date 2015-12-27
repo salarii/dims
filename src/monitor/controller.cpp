@@ -215,7 +215,7 @@ CController::CController()
 	: m_enterancePrice(0)
 	, m_price( 0 )
 	, m_period( 3600 )
-	, m_tryPeriod( 60 *15 )
+	, m_tryPeriod( 60 *10 )
 	, m_admitted( false )
 {
 	initiate();

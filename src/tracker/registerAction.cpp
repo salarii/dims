@@ -86,6 +86,25 @@ struct CRegistrationExtension : boost::statechart::state< CRegistrationExtension
 				m_price = connectCondition.m_price;
 			}
 		}
+		else if ( orginalMessage.m_header.m_payloadKind == common::CPayloadKind::Result )
+		{
+			common::CResult result;
+
+			common::convertPayload( orginalMessage, result );
+
+			context< CRegisterAction >().addRequest(
+						new common::CAckRequest(
+							context< CRegisterAction >().getActionKey()
+							, _messageResult.m_message.m_header.m_id
+							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+
+			if ( !result.m_result )
+			{
+				CTrackerNodesManager::getInstance()->setMyMonitor( CKeyID() );
+			}
+		}
+
+			return discard_event();
 	}
 
 	boost::statechart::result react( common::CTimeEvent const & _timeEvent )
@@ -141,21 +160,21 @@ struct COriginateRegistration : boost::statechart::state< COriginateRegistration
 
 		if ( result.m_result )
 		{
-		if ( !m_registrationTerms.m_price )
-		{
-			return transit< CFreeRegistration >();
-		}
-		else
-		{
-			common::CNetworkRecognizedData networkData =
-					CController::getInstance()->getNetworkData();
+			if ( !m_registrationTerms.m_price )
+			{
+				return transit< CFreeRegistration >();
+			}
+			else
+			{
+				common::CNetworkRecognizedData networkData =
+						CController::getInstance()->getNetworkData();
 
-			context< CRegisterAction >().setRegisterPayment( m_registrationTerms.m_price );
+				context< CRegisterAction >().setRegisterPayment( m_registrationTerms.m_price );
 
-			return networkData.m_trackersInfo.empty()
-					? transit< CSynchronize >()
-					: transit< CNetworkAlive >();
-		}
+				return networkData.m_trackersInfo.empty()
+						? transit< CSynchronize >()
+						: transit< CNetworkAlive >();
+			}
 		}
 		else
 		{
@@ -235,6 +254,7 @@ struct CFreeRegistration : boost::statechart::state< CFreeRegistration, CRegiste
 	{
 		if ( _synchronizationResult.m_result )
 		{
+			CTrackerNodesManager::getInstance()->setMyMonitor( context< CRegisterAction >().getPartnerKey().GetID());
 			context< CRegisterAction >().setInNetwork( true );
 		}
 		context< CRegisterAction >().setExit();
@@ -322,6 +342,7 @@ struct CNoTrackers : boost::statechart::state< CNoTrackers, CRegisterAction >
 					, _messageResult.m_message.m_header.m_id
 					, new CByKeyMediumFilter( context< CRegisterAction >().getPartnerKey() ) ) );
 
+		CTrackerNodesManager::getInstance()->setMyMonitor( context< CRegisterAction >().getPartnerKey().GetID());
 		context< CRegisterAction >().setInNetwork( true );
 		return discard_event();
 	}
@@ -468,6 +489,7 @@ struct CNetworkAlive : boost::statechart::state< CNetworkAlive, CRegisterAction 
 	{
 		if ( _synchronizationResult.m_result )
 		{
+			CTrackerNodesManager::getInstance()->setMyMonitor( context< CRegisterAction >().getPartnerKey().GetID());
 			context< CRegisterAction >().setInNetwork( true );
 		}
 		else

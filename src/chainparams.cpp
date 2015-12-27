@@ -241,19 +241,19 @@ public:
 
         // Modify the testnet genesis block so the timestamp is valid for a later start.
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 32);
-		genesis.nVersion =3;
+		genesis.nVersion =4;
 
-		genesis.hashPrevBlock = uint256("0x000000000118074217495f8ca2391f0a8900754130784022402851fe05ff18e6");
+		genesis.hashPrevBlock = uint256("0x00000000000072f9a5a34436165f8c0990e75fc708aa1d93003c004340f01d2c");
 
-		genesis.hashMerkleRoot = uint256("0x7deeaf9bda48a2bc635b821467aa74203c3b4b52f03aa0480851ce1fb2357580");
+		genesis.hashMerkleRoot = uint256("0x44cb41aab8210253629903ac24e4cc7d4cfde9e7aa261ce574441e332a981026");
 
-		genesis.nTime    = 1438300094;
-		genesis.nBits    = 486604799;
-		genesis.nNonce   = 2177938181;
+		genesis.nTime    = 1450874418;
+		genesis.nBits    = 453030933;
+		genesis.nNonce   = 1606886626;
 
 		hashGenesisBlock = genesis.GetHash();
 
-		assert(hashGenesisBlock == uint256("0x00000000011adeaabdd7c9b1f14e0ee5c6b89b9f51b1b9a4d8aac5b36b3e8d8a"));
+		assert(hashGenesisBlock == uint256("0x000000000000848bf63af538b81abce7799bd4cf649ef2bb92692ccfcd7c1d21"));
 		vFixedSeeds.clear();
 		for (unsigned int i = 0; i < ARRAYLEN(pnSeedTest); i++)
 		{

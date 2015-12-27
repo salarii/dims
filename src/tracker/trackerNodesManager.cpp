@@ -408,4 +408,17 @@ CTrackerNodesManager::getAddresFromKey( uint160 const & _pubKeyId, CAddress & _a
 	return getAddress( nodeIndicator, _address );
 }
 
+
+void
+CTrackerNodesManager::setMyMonitor( CKeyID const & _myMonitor )
+{
+	m_myMonitor = _myMonitor;
+}
+
+CKeyID
+CTrackerNodesManager::getMyMonitor() const
+{
+	return m_myMonitor;
+}
+
 }

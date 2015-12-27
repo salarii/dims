@@ -2978,7 +2978,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
     {
         CBlock block;
-        vRecv >> block;
+		vRecv >> block;
 		/* at least  for now */
 		LogPrintf("received block %s\n", block.GetHash().ToString() );
         // block.print();

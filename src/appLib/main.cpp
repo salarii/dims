@@ -25,16 +25,16 @@ int main(int argc, char *argv[])
 {
   dims::HardcodedSeed = "beufgsuyfguadfbnakjdfnhauifhbaisfhuashfusjaf"; // random  pattern
 
-	dims::AuthorId = "dXUT2rfnE8J7nqfa3TQHqPJnur6BX9YsFe";  // enter  your address
+	dims::AuthorId = "dW7fkLqxUN17n9KKxN5DDUBww5emdQq1NJ";  // enter  your address
 
-	dims::Value = 100;
+	dims::Value = 7000;
 
-	dims::PossibleMonitors.push_back( "mKzBm7EtrR1nZP3T5VNGGy9of2MPyPHUH4" );
+	dims::PossibleMonitors.push_back( "mR3CmPx5U5jdyAHUPBWZFznrcYisfKkhNh" );
 
-	dims::PossibleMonitors.push_back( "mYh8ST9HsokJSZ9tr1qKrHN7ineJCDzcPt" );
+	dims::PossibleMonitors.push_back( "mWMBwVopNMDbmMQSMtKmut2g8HB2xEzUTy" );
 
-	//dims::PossibleTrackers.push_back( "tJpviiWjg8FuvTrvXmPJM5btQQkneiLhTB");
-	//dims::PossibleTrackers.push_back( "tJMhNj9DXPnRgDMDjYmCqvnjadQ4oRVfUt" );
+	//dims::PossibleTrackers.push_back( "tWAyLrZL5GFshWc2wCF4JWUuymzfwXsL6c");
+	//dims::PossibleTrackers.push_back( "tPNj1FsxrZdvyFmyuuHW26BhJQDvAZuMiK" );
 
 	QApplication app (argc, argv);
 

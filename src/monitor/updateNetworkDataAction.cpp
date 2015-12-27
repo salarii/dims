@@ -18,7 +18,7 @@
 namespace monitor
 {
 
-struct CUpdateTrackers;
+struct CInitiateUpdate;
 
 struct CUpdateNetworkData;
 
@@ -29,29 +29,22 @@ struct CUpdateSelfEvent : boost::statechart::event< CUpdateSelfEvent >{};
 struct CUpdateDataInit : boost::statechart::simple_state< CUpdateDataInit, CUpdateNetworkDataAction >
 {
 	typedef boost::mpl::list<
-	boost::statechart::transition< CUpdateTrackerEvent, CUpdateTrackers >,
+	boost::statechart::transition< CUpdateTrackerEvent, CInitiateUpdate >,
 	boost::statechart::transition< CUpdateSelfEvent, CUpdateNetworkData >
 	> reactions;
 };
 
-struct CUpdateTrackers : boost::statechart::state< CUpdateTrackers, CUpdateNetworkDataAction >
+struct CInitiateUpdate : boost::statechart::state< CInitiateUpdate, CUpdateNetworkDataAction >
 {
-	CUpdateTrackers( my_context ctx ) : my_base( ctx )
+	CInitiateUpdate( my_context ctx ) : my_base( ctx )
 	{
-		common::CRankingFullInfo rankingFullInfo(
-					CReputationTracker::getInstance()->getAllyTrackers()
-					, CReputationTracker::getInstance()->getAllyMonitors()
-					, CReputationTracker::getInstance()->getTrackers()
-					, CReputationTracker::getInstance()->getSynchronizedTrackers()
-					, CReputationTracker::getInstance()->getMeasureReputationTime()
-					, uint256() );
 
 		context< CUpdateNetworkDataAction >().addRequest(
 				new common::CSendMessageRequest(
 					common::CPayloadKind::FullRankingInfo
-					, rankingFullInfo
+					, context< CUpdateNetworkDataAction >().m_rankingFullInfo
 					, context< CUpdateNetworkDataAction >().getActionKey()
-					, new CMediumClassFilter( common::CMediumKinds::Trackers ) ) );
+					, new CMediumClassFilter( context< CUpdateNetworkDataAction >().m_mediumKind ) ) );
 		context< CUpdateNetworkDataAction >().setExit();
 	}
 };
@@ -102,10 +95,11 @@ CUpdateNetworkDataAction::CUpdateNetworkDataAction( uint256 const & _actionKey )
 	process_event( CUpdateSelfEvent() );
 }
 
-CUpdateNetworkDataAction::CUpdateNetworkDataAction()
+CUpdateNetworkDataAction::CUpdateNetworkDataAction( common::CRankingFullInfo const & _rankingFullInfo, common::CMediumKinds::Enum _mediumKind )
+	: m_rankingFullInfo( _rankingFullInfo )
+	, m_mediumKind(_mediumKind)
 {
-
-	LogPrintf("update network action: %p update trackers \n", this );
+	LogPrintf("update network action: %p initiate  update \n", this );
 
 	initiate();
 

@@ -187,6 +187,7 @@ CTrackerLocalRanking::addMonitor( common::CMonitorInfo const & _monitor )
 void
 CTrackerLocalRanking::resetMonitors()
 {
+	m_undeterminedMonitors.clear();
 	m_monitors.clear();
 }
 

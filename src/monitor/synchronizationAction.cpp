@@ -71,6 +71,7 @@ struct CSynchronizingAsk : boost::statechart::state< CSynchronizingAsk, CSynchro
 {
 	CSynchronizingAsk( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p ask \n", &context< CSynchronizationAction >() );
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -221,6 +222,7 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 {
 	CSynchronizingGetInfo( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p get synchronizing info \n", &context< CSynchronizationAction >() );
 		context< CSynchronizationAction >().forgetRequests();
 
 		context< CSynchronizationAction >().addRequest(
@@ -246,12 +248,18 @@ struct CSynchronizingGetInfo : boost::statechart::state< CSynchronizingGetInfo, 
 			StrageSize = synchronizationInfo.m_strageSize;
 			HeaderSize = synchronizationInfo.m_headerSize;
 
-			context< CSynchronizationAction >().addRequest(
-						new common::CAckRequest(
-							  context< CSynchronizationAction >().getActionKey()
-							, _messageResult.m_message.m_header.m_id
-							, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
-
+			if ( !StrageSize && !HeaderSize )
+			{
+				context< CSynchronizationAction >().onExit();
+			}
+			else
+			{
+				context< CSynchronizationAction >().addRequest(
+							new common::CAckRequest(
+								context< CSynchronizationAction >().getActionKey()
+								, _messageResult.m_message.m_header.m_id
+								, new CByKeyMediumFilter( _messageResult.m_pubKey ) ) );
+			}
 		}
 		return transit< CSynchronizingHeaders >();
 	}
@@ -326,16 +334,7 @@ struct CSynchronizingBlocks : boost::statechart::state< CSynchronizingBlocks, CS
 			}
 			else
 			{
-				common::CSegmentFileStorage::getInstance()->resetState();
-				common::CSegmentFileStorage::getInstance()->retriveState();
-
-				if ( !CReputationTracker::getInstance()->isRegisteredTracker( _messageResult.m_pubKey.GetID() ) )
-					CReputationTracker::getInstance()->removeNodeFromSynch( _messageResult.m_pubKey.GetID() );
-
-				context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 1 ) );
-
-				CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
-				context< CSynchronizationAction >().setExit();
+				context< CSynchronizationAction >().onExit();
 			}
 		}
 		return discard_event();
@@ -477,6 +476,8 @@ struct CSynchronizedUninitialized : boost::statechart::state< CSynchronizedUnini
 {
 	CSynchronizedUninitialized( my_context ctx ) : my_base( ctx )
 	{
+		LogPrintf("synchronize action: %p get synchronizied uninitiated \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
 						SynchronisingWaitTime
@@ -571,6 +572,8 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 {
 	CSynchronizedProvideCopy( my_context ctx ) : my_base( ctx ), m_copyRequestDone( false )
 	{
+		LogPrintf("synchronize action: %p provide copy \n", &context< CSynchronizationAction >() );
+
 		context< CSynchronizationAction >().addRequest(
 					new common::CTimeEventRequest(
 						 100
@@ -599,6 +602,15 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 							, context< CSynchronizationAction >().getActionKey()
 							, context< CSynchronizationAction >().getRequestKey()
 							, new CByKeyMediumFilter( context< CSynchronizationAction >().getPartnerKey() ) ) );
+
+				if ( !CCopyStorageHandler::getInstance()->getSegmentHeaderSize()
+					 && !CCopyStorageHandler::getInstance()->getDiscBlockSize() )
+				{
+
+					//fix  this  case, I have  no  time  for  this  now
+					context< CSynchronizationAction >().forgetRequests();
+					context< CSynchronizationAction >().setExit();
+				}
 			}
 		}
 
@@ -610,9 +622,26 @@ struct CSynchronizedProvideCopy : boost::statechart::state< CSynchronizedProvide
 		return discard_event();
 	}
 
+	boost::statechart::result react( common::CAckEvent const & )
+	{
+		context< CSynchronizationAction >().forgetRequests();
+
+		if ( !CCopyStorageHandler::getInstance()->getSegmentHeaderSize()
+			 && !CCopyStorageHandler::getInstance()->getDiscBlockSize() )
+		{
+			context< CSynchronizationAction >().onSynchronizedExit();
+			return discard_event();
+		}
+		else
+		{
+			return transit< CSynchronized >();
+		}
+		return discard_event();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CTimeEvent >,
-		boost::statechart::transition< common::CAckEvent, CSynchronized >
+	boost::statechart::custom_reaction< common::CAckEvent >
 	> reactions;
 
 	bool m_copyRequestDone;
@@ -622,7 +651,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 {
 	CSynchronized( my_context ctx ) : my_base( ctx )
 	{
-
+		LogPrintf("synchronize action: %p synchronized \n", &context< CSynchronizationAction >() );
 		m_storedBlocks = CCopyStorageHandler::getInstance()->getDiscBlockSize();
 
 		m_storedHeaders = CCopyStorageHandler::getInstance()->getSegmentHeaderSize();
@@ -708,35 +737,7 @@ struct CSynchronized : boost::statechart::state< CSynchronized, CSynchronization
 		context< CSynchronizationAction >().forgetRequests();
 		if ( m_exit )
 		{
-			context< CSynchronizationAction >().setExit();
-
-			CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
-
-			if ( CReputationTracker::getInstance()->isRegisteredTracker( context< CSynchronizationAction >().getPartnerKey().GetID() ) )
-				CReputationTracker::getInstance()->setTrackerSynchronized( context< CSynchronizationAction >().getPartnerKey().GetID() );
-
-			common::CRankingFullInfo rankingFullInfo(
-						CReputationTracker::getInstance()->getAllyTrackers()
-						, CReputationTracker::getInstance()->getAllyMonitors()
-						, CReputationTracker::getInstance()->getTrackers()
-						, CReputationTracker::getInstance()->getSynchronizedTrackers()
-						, CReputationTracker::getInstance()->getMeasureReputationTime()
-						, CReputationControlAction::getInstance()->getActionKey() );
-
-			context< CSynchronizationAction >().addRequest(
-						new common::CSendMessageRequest(
-							common::CPayloadKind::FullRankingInfo
-							, rankingFullInfo
-							, context< CSynchronizationAction >().getActionKey()
-							, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
-
-			CAddress address;
-			if ( !CReputationTracker::getInstance()->getAddresFromKey( context< CSynchronizationAction >().getPartnerKey().GetID(), address ) )
-				assert( !"can't fail" );
-
-			context< CSynchronizationAction >().setResult( common::CSynchronizationResult( 1 ) );
-
-			common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( context< CSynchronizationAction >().getPartnerKey(), address, CActivitySatatus::Active ) );
+			context< CSynchronizationAction >().onSynchronizedExit();
 		}
 
 		return discard_event();
@@ -801,6 +802,55 @@ bool
 CSynchronizationAction::isRequestInitialized() const
 {
 	return !m_requests.empty();
+}
+
+void
+CSynchronizationAction::onSynchronizedExit()
+{
+	setExit();
+
+	CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
+
+	if ( CReputationTracker::getInstance()->isRegisteredTracker( context< CSynchronizationAction >().getPartnerKey().GetID() ) )
+		CReputationTracker::getInstance()->setTrackerSynchronized( context< CSynchronizationAction >().getPartnerKey().GetID() );
+
+	common::CRankingFullInfo rankingFullInfo(
+				CReputationTracker::getInstance()->getAllyTrackers()
+				, CReputationTracker::getInstance()->getAllyMonitors()
+				, CReputationTracker::getInstance()->getTrackers()
+				, CReputationTracker::getInstance()->getSynchronizedTrackers()
+				, CReputationTracker::getInstance()->getMeasureReputationTime()
+				, CReputationControlAction::getInstance()->getActionKey() );
+
+	context< CSynchronizationAction >().addRequest(
+				new common::CSendMessageRequest(
+					common::CPayloadKind::FullRankingInfo
+					, rankingFullInfo
+					, context< CSynchronizationAction >().getActionKey()
+					, new CMediumClassFilter( common::CMediumKinds::DimsNodes ) ) );
+
+	CAddress address;
+	if ( !CReputationTracker::getInstance()->getAddresFromKey( m_partnerKey.GetID(), address ) )
+		assert( !"can't fail" );
+
+	setResult( common::CSynchronizationResult( 1 ) );
+
+	common::CActionHandler::getInstance()->executeAction( new CActivityControllerAction( m_partnerKey, address, CActivitySatatus::Active ) );
+}
+
+void
+CSynchronizationAction::onExit()
+{
+	common::CSegmentFileStorage::getInstance()->resetState();
+	common::CSegmentFileStorage::getInstance()->retriveState();
+
+	if ( !CReputationTracker::getInstance()->isRegisteredTracker( m_partnerKey.GetID() ) )
+		CReputationTracker::getInstance()->removeNodeFromSynch( m_partnerKey.GetID() );
+
+	setResult( common::CSynchronizationResult( 1 ) );
+
+	CReputationTracker::getInstance()->setPresentNode( context< CSynchronizationAction >().getPartnerKey().GetID() );
+	setExit();
 }
 
 CSynchronizationAction::~CSynchronizationAction()

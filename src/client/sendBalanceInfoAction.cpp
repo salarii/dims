@@ -115,6 +115,11 @@ struct CGetBalanceInfo : boost::statechart::state< CGetBalanceInfo, CSendBalance
 
 	}
 
+	~CGetBalanceInfo()
+	{
+		CClientControl::getInstance()->setClientReady();
+	}
+
 	typedef boost::mpl::list<
 	boost::statechart::custom_reaction< common::CNoMedium >,
 	boost::statechart::custom_reaction< common::CClientMessageResponse >

@@ -16,6 +16,8 @@
 #include "monitor/reputationTracer.h"
 #include "monitor/activityControllerAction.h"
 #include "monitor/pingAction.h"
+#include "monitor/updateNetworkDataAction.h"
+#include "monitor/reputationControlAction.h"
 
 namespace common
 {
@@ -24,7 +26,7 @@ std::vector< uint256 > deleteList;
 
 namespace monitor
 {
-double const PreviousReptationRatio = 0.95;// I want  to preserve  a lot
+double const PreviousReptationRatio = 0.99;// I want  to preserve  a lot
 
 double const TriggerExtendRatio = 0.1;
 double const RelativeToMax = 0.3;
@@ -34,7 +36,7 @@ unsigned int const BoostForServicesAlone = 10;
 
 // allow some  deviation for  other monitors
 
-uint64_t const CReputationTracker::m_recalculateTime = 40;// seconds, this  time is  vital how frequent it should be???
+uint64_t const CReputationTracker::m_recalculateTime = 60;// seconds, this  time is  vital how frequent it should be???
 
 CReputationTracker::CReputationTracker()
 {
@@ -103,10 +105,10 @@ CReputationTracker::loop()
 {
 	while( 1 )
 	{
+		std::list< uint160 > toBeRemoved;
 		{
 			boost::lock_guard<boost::mutex> lock( m_lock );
 
-			std::list< uint160 > toBeRemoved;
 			BOOST_FOREACH( PAIRTYPE( uint160 const, common::CTrackerData ) & tracker, m_registeredTrackers )
 			{
 				int64_t timePassed = GetTime() - tracker.second.m_contractTime;
@@ -129,7 +131,7 @@ CReputationTracker::loop()
 				else
 				{
 					if ( isExtendInProgress( tracker.second.m_publicKey ) )
-						eraseExtendInProgress( tracker.second.m_publicKey );
+						m_extendInProgress.erase( tracker.second.m_publicKey );
 				}
 			}
 
@@ -137,9 +139,24 @@ CReputationTracker::loop()
 			{
 				m_registeredTrackers.erase( id );
 			}
+
 		}
 
-		MilliSleep( 100 );
+		// outside of  lock  scope
+		common::CRankingFullInfo rankingFullInfo(
+					getAllyTrackers()
+					, getAllyMonitors()
+					, getTrackers()
+					, getSynchronizedTrackers()
+					, getMeasureReputationTime()
+					, CReputationControlAction::getInstance() ? CReputationControlAction::getInstance()->getActionKey() : uint256() );
+
+		if ( !toBeRemoved.empty() )
+		{
+			common::CActionHandler::getInstance()->executeAction( new CUpdateNetworkDataAction( rankingFullInfo, common::CMediumKinds::DimsNodes ) );
+		}
+
+		MilliSleep( 1000 );
 	}
 }
 
@@ -535,6 +552,7 @@ CReputationTracker::isExtendInProgress( CPubKey const & _pubKey )
 bool
 CReputationTracker::eraseExtendInProgress( CPubKey const & _pubKey )
 {
+	boost::lock_guard<boost::mutex> lock( m_lock );
 	m_extendInProgress.erase(_pubKey);
 
 	return true;
@@ -687,7 +705,8 @@ CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRanking
 				&& m_allyTrackersRankings.find( allyTrackerData.m_publicKey.GetID() ) == m_allyTrackersRankings.end()
 					)
 		{
-			assert( !"react  to  this" );
+			//assert( !"react  to  this" );
+			//  problem  here  but  work on it  another  day
 		}
 	}
 
@@ -707,8 +726,12 @@ CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRanking
 
 	//add new tracker data, if any
 
+	std::set< uint160 > presentTrackers;
+
 	BOOST_FOREACH( common::CTrackerData const & trackerData, _rankingFullInfo.m_trackers )
 	{
+		presentTrackers.insert( trackerData.m_publicKey.GetID() );
+
 		if ( m_allyTrackersRankings.find( trackerData.m_publicKey.GetID() ) == m_allyTrackersRankings.end() )
 		{
 			if ( m_knownTrackers.find( common::CValidNodeInfo( trackerData.m_publicKey, trackerData.m_address ) ) == m_knownTrackers.end() )
@@ -719,11 +742,32 @@ CReputationTracker::updateRankingInfo( CPubKey const & _pubKey, common::CRanking
 		}
 	}
 
+	std::list< uint160 > deleteTrackersList;
+
+	// gather  all tracker   with  this  monitor
+	BOOST_FOREACH( PAIRTYPE( uint160, uint160 ) const & trackerToMonitor, m_trackerToMonitor )
+	{
+		if ( trackerToMonitor.second == _pubKey.GetID() )
+		{
+			if ( presentTrackers.find( trackerToMonitor.first ) == presentTrackers.end() )
+			{
+				deleteTrackersList.push_back( trackerToMonitor.first );
+			}
+		}
+	}
+
+	BOOST_FOREACH( uint160 const & trackerKey, deleteTrackersList )
+	{
+			m_allyTrackersRankings.erase( trackerKey );
+			m_trackerToMonitor.erase( trackerKey );
+			m_synchronizedTrackers.erase( trackerKey );
+	}
+
 	BOOST_FOREACH( uint160 const & keyId, _rankingFullInfo.m_synchronizedTrackers )
 	{
 		m_synchronizedTrackers.insert( keyId );
 	}
-
+	// popagate  ranking ??
 }
 
 }

@@ -134,6 +134,12 @@ CTrackOriginAddressAction::CTrackOriginAddressAction()
 	else
 	{
 		block = const_cast<CBlock&>(Params().GenesisBlock());
+		CAutoFile file(OpenHeadFile(false), SER_DISK, CLIENT_VERSION);
+		file << (CBlockHeader const &)block;
+
+		fflush(file);
+
+		FileCommit(file);
 	}
 
 	m_currentHash = block.GetHash();

@@ -254,9 +254,10 @@ CController::setConnected( bool _connected )
 }
 
 CController::CController()
-	: m_price(1000)
+	: m_price(100)
 	, m_connected( false )
 	, m_deviation(0.001)
+	, m_autoRegistrationRenewal(true)
 {
 	initiate();
 }

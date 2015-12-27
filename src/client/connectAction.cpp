@@ -25,7 +25,7 @@
 namespace client
 {
 const unsigned DnsAskLoopTime = 15000;//
-const unsigned NetworkAskLoopTime = 15000;//
+const unsigned NetworkAskLoopTime = 20000;//
 const unsigned MonitorAskLoopTime = 15000;//
 //stupid logic here
 struct CMonitorPresent;
@@ -34,7 +34,7 @@ struct CRecognizeNetwork;
 
 namespace
 {
-std::map< uint160, common::CTrackerData > TrackersData;
+std::map< uint160, common::CTrackerData > TrackersData; // assume  this  is  singleton  action
 }
 
 
@@ -42,6 +42,7 @@ struct CClientUnconnected : boost::statechart::state< CClientUnconnected, CConne
 {
 	CClientUnconnected( my_context ctx ) : my_base( ctx )
 	{
+		TrackersData.clear();
 		CTrackerLocalRanking::getInstance()->resetMonitors();
 		CTrackerLocalRanking::getInstance()->resetTrackers();
 		context< CConnectAction >().forgetRequests();
@@ -90,9 +91,8 @@ struct CRecognizeNetwork : boost::statechart::state< CRecognizeNetwork, CConnect
 	{
 		if ( !m_uniqueNodes.size() )
 		{
-			return transit< CRecognizeNetwork >();
+				context< CConnectAction >().setExit();
 		}
-
 		bool moniorPresent = false;
 
 		analyseData( moniorPresent );
@@ -539,6 +539,7 @@ struct CDetermineTrackers : boost::statechart::state< CDetermineTrackers, CConne
 						, CTrackerLocalRanking::getInstance()->monitorCount() ) );
 
 		context< CConnectAction >().forgetRequests();
+		context< CConnectAction >().setExit();
 		return discard_event();
 	}
 

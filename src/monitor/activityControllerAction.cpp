@@ -56,7 +56,15 @@ void updateMonitorData(uint160 const & _pubKeyId)
 			}
 		}
 
-		common::CActionHandler::getInstance()->executeAction( new CUpdateNetworkDataAction() );
+		common::CRankingFullInfo rankingFullInfo(
+					CReputationTracker::getInstance()->getAllyTrackers()
+					, CReputationTracker::getInstance()->getAllyMonitors()
+					, CReputationTracker::getInstance()->getTrackers()
+					, CReputationTracker::getInstance()->getSynchronizedTrackers()
+					, CReputationTracker::getInstance()->getMeasureReputationTime()
+					, uint256() );
+
+		common::CActionHandler::getInstance()->executeAction( new CUpdateNetworkDataAction( rankingFullInfo, common::CMediumKinds::Trackers ) );
 	}
 	else if ( CReputationTracker::getInstance()->isRegisteredTracker( _pubKeyId ) )
 	{

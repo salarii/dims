@@ -18,6 +18,7 @@
 #include "common/actionHandler.h"
 #include "common/periodicActionExecutor.h"
 #include "common/dimsParams.h"
+#include "common/timeMedium.h"
 
 #include "client/settingsConnectionProvider.h"
 #include "client/connectAction.h"
@@ -58,6 +59,8 @@ init( boost::thread_group & _threadGroup )
 
 	_threadGroup.create_thread(boost::bind(&common::CActionHandler::loop, common::CActionHandler::getInstance()));
 
+	_threadGroup.create_thread( boost::bind( &common::CTimeMedium::workLoop, common::CTimeMedium::getInstance() ) );
+
 	common::CActionHandler::getInstance()->addConnectionProvider( client::CSettingsConnectionProvider::getInstance() );
 
 	common::CActionHandler::getInstance()->addConnectionProvider( client::CTrackerLocalRanking::getInstance() );
@@ -68,7 +71,7 @@ init( boost::thread_group & _threadGroup )
 
 	connectAction->m_connected.connect( boost::bind( &CInforamtionProvider::reloadData, CInforamtionProvider::getInstance() ) );
 
-	common::CPeriodicActionExecutor::getInstance()->addAction( connectAction, 60000 );
+	common::CPeriodicActionExecutor::getInstance()->addAction( connectAction, 120000 );
 }
 
 int main(int argc, char **argv)
