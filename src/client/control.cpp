@@ -25,7 +25,7 @@ namespace client
 {
 CClientControl * CClientControl::ms_instance = 0;
 
-unsigned int const CheckBalancePeriod = 30000;
+unsigned int const CheckBalancePeriod = 60000;
 
 struct CClientConnected;
 

@@ -31,12 +31,12 @@ CDefferedAction ::isReady()
 		readyToRun = GetTimeMillis() - m_time < m_deffer ? false : true;
 
 		if ( readyToRun )
+		{
+			m_time = GetTimeMillis();
 			reset();
+		}
 	}
-	else
-	{
-		m_time = GetTimeMillis();
-	}
+
 	return readyToRun;
 }
 
