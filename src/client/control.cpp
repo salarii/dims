@@ -84,7 +84,6 @@ CClientControl::getAvailableAddresses() const
 void
 CClientControl::updateTotalBalance( int64_t _totalBalance )
 {
-	setClientReady();
 	m_clientSignals.m_updateTotalBalance( _totalBalance );
 }
 
