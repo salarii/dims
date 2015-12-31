@@ -88,6 +88,8 @@ public:
 	std::vector<unsigned char> const getNodePrefix( NodePrefix::Enum const _nodePrefix ) const{ return nodesPrefixes[ _nodePrefix ]; }
 	virtual const vector<CPubKey>& getPreferedMonitorsAddresses() const = 0;
 	unsigned int getUsedBitcoinNodesNumber()const{ return 3; }
+	int64_t getCleanupPeriod()const{ return 3600 * 24 *28; }// sec
+	uint getCleanupTriggerPoint()const{ return 150; }
 protected:
 
 

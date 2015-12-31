@@ -58,7 +58,8 @@ struct CPayloadKind
 		RankingInfo,
 		FullRankingInfo,
 		ExtendRegistration,
-		ActivationStatus
+		ActivationStatus,
+		TransactionsCleanup
 	};
 };
 
@@ -144,6 +145,26 @@ struct CHeader
 	uint256 m_actionKey;
 	uint256 m_id;
 };
+
+struct CCleanupMessage
+{
+	IMPLEMENT_SERIALIZE
+	(
+		READWRITE( m_hashes );
+		READWRITE( m_transactions );
+	)
+
+	CCleanupMessage(){}
+
+	CCleanupMessage(	std::vector< uint256 > const & _hashes, std::vector< CTransaction > const & _transactions )
+		: m_hashes( _hashes )
+		, m_transactions( _transactions )
+	{}
+
+	std::vector< uint256 > m_hashes;
+	std::vector< CTransaction > m_transactions;
+};
+
 
 struct CIdentifyMessage
 {

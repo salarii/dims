@@ -30,10 +30,9 @@ COMMON_H = \
   common/commandLine.h \
   common/communicationProtocol.h \
   common/commonEvents.h \
-  common/responses.h \
-  common/requests.h \
   common/databaseManager.h \
   common/dimsParams.h \
+  common/expireRegister.h \
   common/filters.h \
   common/identifyRequest.h \
   common/manageNetwork.h \
@@ -47,8 +46,10 @@ COMMON_H = \
   common/periodicActionExecutor.h \
   common/pingAction.h \
   common/responseVisitorInternal.h \
+  common/responses.h \
   common/requestHandler.h \
   common/request.h \
+  common/requests.h \
   common/scheduleAbleAction.h \
   common/scheduledActionManager.h \
   common/segmentFileStorage.h \
@@ -69,11 +70,10 @@ COMMON_CPP = \
   common/bitcoinNodeMedium.cpp \
   common/blockInfoDatabase.cpp \
   common/commandLine.cpp \
-  common/communicationProtocol.cpp \
-  common/responses.cpp \
-  common/requests.cpp	 \	
+  common/communicationProtocol.cpp \	
   common/databaseManager.cpp \
   common/dimsParams.cpp \
+  common/expireRegister.h \
   common/manageNetwork.cpp \
   common/networkActionRegister.cpp \
   common/nodeMedium.cpp \
@@ -82,8 +82,10 @@ COMMON_CPP = \
   common/originAddressScanner.cpp \
   common/originTransactionsDatabase.cpp \
   common/periodicActionExecutor.cpp \
+  common/responses.cpp \
   common/requestHandler.cpp \
   common/request.cpp \
+  common/requests.cpp \
   common/scheduledActionManager.cpp \
   common/segmentFileStorage.cpp \
   common/selfNode.cpp \
