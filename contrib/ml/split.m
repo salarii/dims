@@ -7,7 +7,6 @@ function split
 
 MaxSize = 10;
 
-
 function [y]=ranking(size, baseFactor = 4, deviationFactor = 17, variationBase = 1000 )% at least 2
   typical = unidrnd(variationBase); 
   
@@ -95,56 +94,55 @@ z = elemProb * combCnt;
 
 endfunction;  
  
- 
-actions = [ 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1 ];
- 
-function statesProbability( actions, size )
+global actions = [ 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1 ];
 
-states = zeros( size + 3, size * 4 );
+global SameState = 3; % this + 1 is how many different actions can be  taken in basically the same internal state
+
+function [y]=statesProbability( size )
+
+global actions;
+
+global SameState;
+
+size -= 2;
 
 actionsSize = columns( actions ); 
 
+probabilities = zeros( size + 1, actionsSize, size );
 
-
-for k = 2 : size
-  probabilities = zeros( size, actionsSize );
+for k = 0 : size - 1
+  
     for i = k : size
 
 	for j = 1 : actionsSize
-	  probabilities( i, j ) = probability( actions(j), i - k , size - k );
+	  probabilities( i + 1, j, k + 1 ) = probability( actions(j), i - k , size - k );
 
 	endfor  
     endfor
-
-probabilities
-
+    
+    %probabilities([(size + 1)  (k+1) ],:, k+1) = probabilities([ (k +1) (1 + size)],:, k+1);
 endfor
+
+y = probabilities;
 
 endfunction
 
 
 function [p] = calculateResult( current, size, attackSupport, defendSupport )
 
-function [y]= support( strength )
+function [y]= support( strength, all )
 
-y = strength + 0.3 * strength ^ 2;
+y = 0.3 * ( 1/(1 - strength/all)^2 );
 
 endfunction
 
-attack = current + current *( support(attackSupport)/size );
+attack = current + current *support(attackSupport,size );
 
-defense = 1 - current + ( 1 - current ) *( support(defendSupport)/size ); 
+defense = 1 - current + ( 1 - current ) * support(defendSupport, size ); 
 
 p = attack ./ (attack + defense );
 
 endfunction
-
-
-function fullProbability(size) % size  means  network size, how many monitors are there
-% probability of  given state  to happen 
-% here state means how are monitors likely to  vote  base on current situation 
-% with given ranking  distribution  involving  some randomness
-% assumption: initiating  montor acts randomly( this  is  quite important!! )
 
 
 function [y] = statesCnt( n )
@@ -152,6 +150,28 @@ function [y] = statesCnt( n )
 y = ( (2 + floor(n/2 )  ) /2 ) * ( floor(n/2) + 1 ) + ( (2 + n - floor( n/2 ) ) /2 ) * (n - floor( n /2 ) - 1);
 
 endfunction
+
+% remove this  !!!
+function [y] = reverseStatesCnt( state )
+
+% don't  try to be smart
+mainState = 0;
+while (state <= statesCnt( mainState ))
+  mainState++;
+endwhile
+
+y = mainState;
+
+endfunction
+
+
+
+function [z]=fullProbability(size) % size  means  network size, how many monitors are there
+% probability of  given state  to happen 
+% here state means how are monitors likely to  vote  base on current situation 
+% with given ranking  distribution  involving  some randomness
+% assumption: initiating  montor acts randomly( this  is  quite important!! )
+
 
 function [y]= properColumn( attacked , defended )
 
@@ -162,10 +182,10 @@ endfunction
 
 n = statesCnt( size -2 );
 
-transitions = zeros( size - 2, n )
+transitions = zeros( size - 2, n );
 
 
-repetitionCnt = 10;
+repetitionCnt = 100;
 
 
 % first  get random  matrix  with  specific  size
@@ -180,21 +200,36 @@ for k=  3 : size
 	
 	rank = ranking(k);% move this  outside later	
 	
+	
 	defended = 0; attacked = 0;
 	
 	howMany = k - 2 - m;
 	
 	for i =  1 : howMany
-	% i denotes how  many will make mind
-	%since this is an attack there is no corelation  what so ever with rank content, we can take any numbers from a row any row
-	attackRatio = rank( i , 1 ) / ( rank( i , 2 ) + rank( i , 1 ) );
+	  % i denotes how  many will make mind
+	  %since this is an attack there is no corelation  what so ever with rank content, we can take any numbers from a row any row
+	  attackRatio = rank( i , 1 ) / ( rank( i , 2 ) + rank( i , 1 ) );
 
-	
-	if ( calculateResult( attackRatio, k -2 , j, m - j ) > 0.5 )
-	  attacked++;
-	else
-	  defended++;
-	endif
+	  all = 0;
+	  for z = 3 : k
+	    all += rank( i , z );
+	  endfor
+
+	  suppAttack = 0;
+	  for z = 3 : 2 + j
+	    suppAttack += rank( i , z );
+	  endfor
+	  
+	  suppDefense = 0;
+	  for z = 3 + j : 2 + m - j
+	    suppDefense += rank( i , z );
+	  endfor
+
+	  if ( calculateResult( attackRatio, all , suppAttack, suppDefense ) > 0.5 )
+	    attacked++;
+	  else
+	    defended++;
+	  endif
 	  
 	endfor
 	
@@ -216,13 +251,87 @@ for k=  3 : size
 
 endfor
 
-transitions
+z = transitions;
+
+endfunction
+
+% penalties 
+%
+%  n  m 
+%
+
+
+function [y] = penalty( m , n, size )
+y = -stdnormal_pdf( ( n / (m + 0.1) - m / (n + 0.1 ) ) / 2 ) * ( (m + n)/size )^2;
+endfunction
+
+staticPenal = - 0.05;
+
+t = 0.9;
+
+function [V] = createV(size)
+global SameState;
+V = zeros( size - 1, statesCnt( size - 2 )  + SameState );
+endfunction
+
+function [y] = Reward( i , j )
 
 endfunction
 
 
-fullProbability(10)
+function [y] = Probability( i , j, size ) 
 
+global actions;
+
+P = statesProbability( size );
+
+p = P(:, :, i);
+
+for i = 1 : rows( p ) 
+
+endfor
+
+FP = fullProbability(size);
+
+
+probStates = createV( size );
+statesProbAction = repmat ( probStates , 1,  columns( actions ))
+
+P = reshape( statesProbAction, rows(probStates), columns( probStates ), columns( actions ) )
+
+endfunction
+
+
+% algorithm
+
+function Optymalyse( size )
+
+createV( size );
+
+Vnew = V;
+
+iteration = 10;
+
+for k =  1 : iteration
+
+  for i = 1 : size -2
+
+    for j = 1 : size -2
+
+      Vnew(i,j) = Rs( i,j )+ max (t .* Probability(i, j) .* V);	
+
+
+    endfor
+
+  endfor
+
+endfor
+
+endfunction
+  
+  
+Probability( 1 , 1, 4 )
+  
 
 endfunction; 
 
