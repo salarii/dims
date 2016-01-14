@@ -104,11 +104,9 @@ global actions;
 
 global SameState;
 
-size -= 2;
-
 actionsSize = columns( actions ); 
 
-probabilities = zeros( size + 1, actionsSize, size );
+probabilities = zeros( size + 1, actionsSize, size + 1 );
 
 for k = 0 : size - 1
   
@@ -150,13 +148,13 @@ function [y] = statesCnt( n )
 y = ( (2 + floor(n/2 )  ) /2 ) * ( floor(n/2) + 1 ) + ( (2 + n - floor( n/2 ) ) /2 ) * (n - floor( n /2 ) - 1);
 
 endfunction
-
-% remove this  !!!
+%REMOVE !!!!!!
 function [y] = reverseStatesCnt( state )
 
 % don't  try to be smart
 mainState = 0;
-while (state <= statesCnt( mainState ))
+
+while (state > statesCnt( mainState ))
   mainState++;
 endwhile
 
@@ -180,85 +178,77 @@ y = statesCnt( attacked + defended ) - min( attacked , defended ) ;
 endfunction
 
 
-n = statesCnt( size -2 );
+n = statesCnt( size );
 
-transitions = zeros( size - 2, n );
+transitions = zeros( size, n );
 
 
 repetitionCnt = 100;
 
+for rep = 1: repetitionCnt%   fairness repetition
+	
+  rank = ranking(size +  2 );
+  % first  get random  matrix  with  specific  size
+  for k=  1 : size
+  % teraz  losowanie
+    for m=  0 : k - 1
+      % m denotes  how many make  mind  already
+      % possible states
+      for j = 0 : m
+      % j denotes how many agreed with  split( attacked )
+	  
+	  defended = 0; attacked = 0;
+	  
+	  howMany = k - m;
+	  
+	  for i =  1 : howMany
+	    % i denotes how  many will make mind
+	    %since this is an attack there is no corelation  what so ever with rank content, we can take any numbers from a row any row
+	    attackRatio = rank( i , 1 ) / ( rank( i , 2 ) + rank( i , 1 ) );
 
-% first  get random  matrix  with  specific  size
-for k=  3 : size
-% teraz  losowanie
-  for m=  0 : k - 3
-    % m denotes  how many make  mind  already
-    % possible states
-    for j = 0 : m
-    % j denotes how many agreed with  split( attacked )
-      for rep = 1:repetitionCnt % fairness repetition
-	
-	rank = ranking(k);% move this  outside later	
-	
-	
-	defended = 0; attacked = 0;
-	
-	howMany = k - 2 - m;
-	
-	for i =  1 : howMany
-	  % i denotes how  many will make mind
-	  %since this is an attack there is no corelation  what so ever with rank content, we can take any numbers from a row any row
-	  attackRatio = rank( i , 1 ) / ( rank( i , 2 ) + rank( i , 1 ) );
+	    all = 0;
+	    for z = 1 : k
+	      all += rank( i , z );
+	    endfor
 
-	  all = 0;
-	  for z = 3 : k
-	    all += rank( i , z );
-	  endfor
+	    suppAttack = 0;
+	    for z = 3 : 2 + j
+	      suppAttack += rank( i , z );
+	    endfor
+	    
+	    suppDefense = 0;
+	    for z = 3 + j : 2 + m - j
+	      suppDefense += rank( i , z );
+	    endfor
 
-	  suppAttack = 0;
-	  for z = 3 : 2 + j
-	    suppAttack += rank( i , z );
+	    if ( calculateResult( attackRatio, all , suppAttack, suppDefense ) > 0.5 )
+	      attacked++;
+	    else
+	      defended++;
+	    endif
+	    
 	  endfor
 	  
-	  suppDefense = 0;
-	  for z = 3 + j : 2 + m - j
-	    suppDefense += rank( i , z );
-	  endfor
-
-	  if ( calculateResult( attackRatio, all , suppAttack, suppDefense ) > 0.5 )
-	    attacked++;
-	  else
-	    defended++;
+	  column = properColumn( j + attacked , m - j + defended );
+	  
+	  modifier = 1;
+	  if (m != 0 )
+	    modifier= ( floor(m/2) + 1 ) * 2 - 1 + mod(m,2); 
 	  endif
-	  
-	endfor
-	
-	column = properColumn( j + attacked , m - j + defended );
-	
-	modifier = 1;
-	if (m != 0 )
-	  modifier= ( floor(m/2) + 1 ) * 2 - 1 + mod(m,2); 
-	endif
-	
-	transitions( howMany, column ) = transitions( howMany, column ) + 1/(repetitionCnt * modifier );
 
-      endfor
+	  transitions( howMany, column ) = transitions( howMany, column ) + 1/(repetitionCnt * modifier );
       
-     
+      endfor
+    
     endfor
-  
+
   endfor
 
 endfor
-
+      
 z = transitions;
 
 endfunction
-
-% penalties 
-%
-%  n  m 
-%
 
 
 function [y] = penalty( m , n, size )
@@ -271,7 +261,7 @@ t = 0.9;
 
 function [V] = createV(size)
 global SameState;
-V = zeros( size - 1, statesCnt( size - 2 )  + SameState );
+V = zeros( ( size + 1 )* (SameState + 1), statesCnt( size )   );
 endfunction
 
 function [y] = Reward( i , j )
@@ -282,22 +272,43 @@ endfunction
 function [y] = Probability( i , j, size ) 
 
 global actions;
+global SameState;
 
 P = statesProbability( size );
 
-p = P(:, :, i);
+trI =  mod(i - 1, size + 1 ) + 1;
 
-for i = 1 : rows( p ) 
+p = P(:, :, trI )
+
+FP = fullProbability(size)
+
+probStates = createV( size );
+statesProbAction = repmat ( probStates , 1,  columns( actions ));
+
+PS = reshape( statesProbAction, rows(probStates), columns( probStates ), columns( actions ) );
+
+for m = 1 : columns( p ) 
+  id = i /( size );
+  if ( floor(id) <= SameState + 1 )
+    PS( ( size + 1) + i ,  j , m ) = p( trI, m );
+  else
+    PS(  i , j , m ) = p( trI, m );
+  endif
+  
+  for l = trI: size    
+    startState = (statesCnt( l - 1 ) ) + 1;
+    
+    endState = statesCnt( l );
+    for h = startState : endState 
+	  PS(  l + 1, h , m )= p( l+1, m )* FP( l, h);
+    endfor 
+  
+  endfor 
 
 endfor
 
-FP = fullProbability(size);
 
-
-probStates = createV( size );
-statesProbAction = repmat ( probStates , 1,  columns( actions ))
-
-P = reshape( statesProbAction, rows(probStates), columns( probStates ), columns( actions ) )
+PS
 
 endfunction
 
@@ -314,9 +325,9 @@ iteration = 10;
 
 for k =  1 : iteration
 
-  for i = 1 : size -2
+  for i = 1 : size
 
-    for j = 1 : size -2
+    for j = 1 : size
 
       Vnew(i,j) = Rs( i,j )+ max (t .* Probability(i, j) .* V);	
 
@@ -330,7 +341,7 @@ endfor
 endfunction
   
   
-Probability( 1 , 1, 4 )
+Probability( 8, 1, 2 )
   
 
 endfunction; 
