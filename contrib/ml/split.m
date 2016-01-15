@@ -118,7 +118,6 @@ for k = 0 : size - 1
 	endfor  
     endfor
     
-    %probabilities([(size + 1)  (k+1) ],:, k+1) = probabilities([ (k +1) (1 + size)],:, k+1);
 endfor
 
 y = probabilities;
@@ -148,21 +147,6 @@ function [y] = statesCnt( n )
 y = ( (2 + floor(n/2 )  ) /2 ) * ( floor(n/2) + 1 ) + ( (2 + n - floor( n/2 ) ) /2 ) * (n - floor( n /2 ) - 1);
 
 endfunction
-%REMOVE !!!!!!
-function [y] = reverseStatesCnt( state )
-
-% don't  try to be smart
-mainState = 0;
-
-while (state > statesCnt( mainState ))
-  mainState++;
-endwhile
-
-y = mainState;
-
-endfunction
-
-
 
 function [z]=fullProbability(size) % size  means  network size, how many monitors are there
 % probability of  given state  to happen 
@@ -251,13 +235,6 @@ z = transitions;
 endfunction
 
 
-function [y] = penalty( m , n, size )
-y = -stdnormal_pdf( ( n / (m + 0.1) - m / (n + 0.1 ) ) / 2 ) * ( (m + n)/size )^2;
-endfunction
-
-staticPenal = - 0.05;
-
-t = 0.9;
 
 function [V] = createV(size)
 global SameState;
@@ -278,9 +255,9 @@ P = statesProbability( size );
 
 trI =  mod(i - 1, size + 1 ) + 1;
 
-p = P(:, :, trI )
+p = P(:, :, trI );
 
-FP = fullProbability(size)
+FP = fullProbability(size);
 
 probStates = createV( size );
 statesProbAction = repmat ( probStates , 1,  columns( actions ));
@@ -300,7 +277,7 @@ for m = 1 : columns( p )
     
     endState = statesCnt( l );
     for h = startState : endState 
-	  PS(  l + 1, h , m )= p( l+1, m )* FP( l, h);
+	  PS(  l + 1, h , m )= p( l+1, m )* FP( l-trI + 1, h);
     endfor 
   
   endfor 
@@ -308,41 +285,125 @@ for m = 1 : columns( p )
 endfor
 
 
-PS
+y = PS;
 
 endfunction
 
+function [y] = penalty( m , n, size )
+y = stdnormal_pdf( 0 )-stdnormal_pdf( ( n / (m + 0.1) - m / (n + 0.1 ) ) / 2 ) * ( (m + n)/size )^2;
+endfunction
 
-% algorithm
+global Rewards;
+
+function CreateReward( size )
+
+  global Rewards;
+  global SameState;
+  
+  Rewards = createV( size );
+
+  allSubstates = statesCnt( size );
+
+  numberSubstates = floor( size / 2 ) + 1;
+
+  for j = 1 : SameState + 1
+  
+    for i = 0 : numberSubstates - 1
+
+      Rewards( j * ( size + 1), allSubstates - i ) = penalty( i , size  - i, size );
+    endfor
+ endfor
+ 
+endfunction
+
+
+global staticPenal;
+
+global towardTime;
+
+function [y] = Rs (i,j, size)
+
+global Rewards;
+global staticPenal;
+
+y = Rewards( i, j) +  staticPenal*( 1 + floor( i / (size +1) ) /2 );
+
+endfunction
+
 
 function Optymalyse( size )
 
-createV( size );
+global towardTime;
+global actions;
+
+CreateReward( size ); 
+V = createV( size );
+
+GivenActions = V;
 
 Vnew = V;
 
-iteration = 10;
 
-for k =  1 : iteration
+VPrep = repmat( V, columns( actions) * rows(Vnew) * columns(Vnew) ,1 );  
+VPres = reshape( VPrep, rows( V ), columns(V ), columns( actions),rows(Vnew), columns(Vnew) );
 
-  for i = 1 : size
+V
 
-    for j = 1 : size
+for i = 1 : rows(Vnew)
 
-      Vnew(i,j) = Rs( i,j )+ max (t .* Probability(i, j) .* V);	
-
-
-    endfor
+    for j = 1 : columns(Vnew)
+      VPres(:,:, :, i ,j) = Probability(i, j, size);
 
   endfor
+endfor      
 
+      
+iteration = 50;      
+      
+for k =  1 : iteration
+
+  Vrep = repmat( V, 1 ,columns( actions) );  
+  Vres = reshape( Vrep, rows( V ), columns(V ), columns( actions) );
+  
+  for i = 1 : rows(Vnew)
+
+    for j = 1 : columns(Vnew)
+ 
+  
+    Vnew(i,j) = Rs( i, j, size ) + towardTime .* max ( sum( sum( (  VPres(:,:,:,i,j) .* Vres ), 1 ), 2 ) );
+	
+
+    endfor
+  endfor
+  
+  V = Vnew;
 endfor
 
+for i = 1 : rows(Vnew)
+
+  for j = 1 : columns(Vnew)
+      
+    [ optimal, max_index ] =  max ( sum( sum( (  VPres(:,:,:,i,j) .* Vres ), 1 ), 2 ) );
+     
+     GivenActions(i , j) = max_index;
+  endfor
+endfor
+
+V
+
+GivenActions
+
 endfunction
-  
-  
-Probability( 8, 1, 2 )
-  
+
+staticPenal = - 0.03;
+towardTime = 0.9;
+
+%Probability( 1, 1, 2 ) 
+%Probability( 2, 1, 2 ) 
+%fullProbability(1)
+Optymalyse( 3 );
+
+%Rewards
 
 endfunction; 
 
