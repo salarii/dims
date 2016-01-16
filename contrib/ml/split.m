@@ -142,9 +142,25 @@ p = attack ./ (attack + defense );
 endfunction
 
 
+function [y] = levelStates( n )
+
+y = floor(n/2 ) + 1;
+endfunction
+
 function [y] = statesCnt( n )
 
-y = ( (2 + floor(n/2 )  ) /2 ) * ( floor(n/2) + 1 ) + ( (2 + n - floor( n/2 ) ) /2 ) * (n - floor( n /2 ) - 1);
+y = ( (2 + floor(n/2 )  ) /2 ) * ( floor(n/2) + 1 ) + ( (2 + n - floor( n/2 ) ) /2 ) * (n - floor( n /2 ) - 1)+1;
+
+endfunction
+
+
+function [y] = fullstatesCnt( n )
+level = 1;
+y = 0;
+for i = 1 : n
+level = levelStates( i ) * levelStates( i - 1 );
+y += level;
+endfor 
 
 endfunction
 
@@ -157,17 +173,17 @@ function [z]=fullProbability(size) % size  means  network size, how many monitor
 
 function [y]= properColumn( attacked , defended )
 
-y = statesCnt( attacked + defended ) - min( attacked , defended ) ;
+y = fullstatesCnt( attacked + defended - 1 ) + levelStates( attacked + defended ) - min( attacked , defended );
 
 endfunction
 
 
-n = statesCnt( size );
+n = fullstatesCnt( size );
 
 transitions = zeros( size, n );
 
 
-repetitionCnt = 100;
+repetitionCnt = 10;
 
 for rep = 1: repetitionCnt%   fairness repetition
 	
@@ -201,10 +217,12 @@ for rep = 1: repetitionCnt%   fairness repetition
 	    endfor
 	    
 	    suppDefense = 0;
-	    for z = 3 + j : 2 + m - j
+	    for z = 3 + j : 2 + m
 	      suppDefense += rank( i , z );
 	    endfor
 
+
+	    
 	    if ( calculateResult( attackRatio, all , suppAttack, suppDefense ) > 0.5 )
 	      attacked++;
 	    else
@@ -212,12 +230,12 @@ for rep = 1: repetitionCnt%   fairness repetition
 	    endif
 	    
 	  endfor
-	  
-	  column = properColumn( j + attacked , m - j + defended );
-	  
+
+	  column = properColumn( j + attacked , m - j + defended ) + levelStates( m + i ) * ( levelStates( m ) - min( j , m - j ) - 1 );
+	    
 	  modifier = 1;
-	  if (m != 0 )
-	    modifier= ( floor(m/2) + 1 ) * 2 - 1 + mod(m,2); 
+	  if (  2*j != m )
+	    modifier++; 
 	  endif
 
 	  transitions( howMany, column ) = transitions( howMany, column ) + 1/(repetitionCnt * modifier );
@@ -238,26 +256,49 @@ endfunction
 
 function [V] = createV(size)
 global SameState;
-V = zeros( ( size + 1 )* (SameState + 1), statesCnt( size )   );
+V = zeros( SameState + 1, statesCnt( size ) );
 endfunction
 
-function [y] = Reward( i , j )
+function [y] = determineColumn( n )
+i = 0;
+States = 0;
+
+while( levelStates( i ) < n )
+n -= levelStates( i );
+i++;
+endwhile
+
+y = n - 1;
 
 endfunction
 
+function [y] = reverseStatesCnt( state )
 
-function [y] = Probability( i , j, size ) 
+% don't  try to be smart
+mainState = 0;
+
+while (state > statesCnt( mainState ))
+  mainState++;
+endwhile
+
+y = mainState;
+
+endfunction
+
+function [y] = Probability( deep, stateId, size ) 
 
 global actions;
 global SameState;
 
 P = statesProbability( size );
 
-trI =  mod(i - 1, size + 1 ) + 1;
+nodesDecided = reverseStatesCnt( stateId )
 
-p = P(:, :, trI );
+trI =  mod(nodesDecided, size + 1 ) + 1;
 
-FP = fullProbability(size);
+p = P(:, :, nodesDecided + 1 );
+
+FP = fullProbability(size)
 
 probStates = createV( size );
 statesProbAction = repmat ( probStates , 1,  columns( actions ));
@@ -265,25 +306,23 @@ statesProbAction = repmat ( probStates , 1,  columns( actions ));
 PS = reshape( statesProbAction, rows(probStates), columns( probStates ), columns( actions ) );
 
 for m = 1 : columns( p ) 
-  id = i /( size );
-  if ( floor(id) <= SameState + 1 )
-    PS( ( size + 1) + i ,  j , m ) = p( trI, m );
+
+  if ( deep < SameState + 1 )
+    PS( ( size + 1) + nodesDecided ,  j , m ) = p( trI, m );
   else
-    PS(  i , j , m ) = p( trI, m );
+   % PS(  nodesDecided , j , m ) = p( trI, m );
   endif
   
-  for l = trI: size    
-    startState = (statesCnt( l - 1 ) ) + 1;
+  for l = 1 : size - nodesDecided
     
-    endState = statesCnt( l );
-    for h = startState : endState 
-	  PS(  l + 1, h , m )= p( l+1, m )* FP( l-trI + 1, h);
+    for h = 1 : levelStates( l + nodesDecided )
+      col = determineColumn(stateId)* levelStates( nodesDecided + l )  + fullstatesCnt( nodesDecided + l - 1 ) + h; 
+      PS( 1 , statesCnt( l + nodesDecided - 1 ) + h  , m ) = p( nodesDecided + l + 1, m ) * FP( l, col );
     endfor 
   
   endfor 
 
 endfor
-
 
 y = PS;
 
@@ -304,7 +343,7 @@ function CreateReward( size )
 
   allSubstates = statesCnt( size );
 
-  numberSubstates = floor( size / 2 ) + 1;
+  numberSubstates = levelStates( size );
 
   for j = 1 : SameState + 1
   
@@ -326,7 +365,7 @@ function [y] = Rs (i,j, size)
 global Rewards;
 global staticPenal;
 
-y = Rewards( i, j) +  staticPenal*( 1 + floor( i / (size +1) ) /2 );
+y = Rewards( i, j) +  staticPenal * ( 1 +  power( floor( i / (size +1) ) /2, 3 ) );
 
 endfunction
 
@@ -344,21 +383,18 @@ GivenActions = V;
 Vnew = V;
 
 
-VPrep = repmat( V, columns( actions) * rows(Vnew) * columns(Vnew) ,1 );  
+VPrep = repmat( V, 1, columns( actions) * rows(Vnew) * columns(Vnew) );  
 VPres = reshape( VPrep, rows( V ), columns(V ), columns( actions),rows(Vnew), columns(Vnew) );
-
-V
 
 for i = 1 : rows(Vnew)
 
     for j = 1 : columns(Vnew)
       VPres(:,:, :, i ,j) = Probability(i, j, size);
-
-  endfor
+    endfor
 endfor      
 
       
-iteration = 50;      
+iteration = 200;      
       
 for k =  1 : iteration
 
@@ -395,13 +431,25 @@ GivenActions
 
 endfunction
 
-staticPenal = - 0.03;
-towardTime = 0.9;
+staticPenal = - 0.005;
+towardTime = 1;
+ 
+%fullProbability(5)
+%Optymalyse( 5 );
+%  1  2 4 6 9 
+%  1   2 2 3 3
 
-%Probability( 1, 1, 2 ) 
-%Probability( 2, 1, 2 ) 
-%fullProbability(1)
-Optymalyse( 3 );
+for i = 1 : 5
+%c= i - 1
+endfor
+
+statesCnt( 2 + 0 - 1 ) + 1 
+statesCnt( 2 + 0 - 1 ) + 2
+x = statesProbability( 4 );
+x(:,:, 1)
+
+
+Probability(  1, 4 )
 
 %Rewards
 
