@@ -292,13 +292,13 @@ global SameState;
 
 P = statesProbability( size );
 
-nodesDecided = reverseStatesCnt( stateId )
+nodesDecided = reverseStatesCnt( stateId );
 
 trI =  mod(nodesDecided, size + 1 ) + 1;
 
 p = P(:, :, nodesDecided + 1 );
 
-FP = fullProbability(size)
+FP = fullProbability(size);
 
 probStates = createV( size );
 statesProbAction = repmat ( probStates , 1,  columns( actions ));
@@ -308,9 +308,9 @@ PS = reshape( statesProbAction, rows(probStates), columns( probStates ), columns
 for m = 1 : columns( p ) 
 
   if ( deep < SameState + 1 )
-    PS( ( size + 1) + nodesDecided ,  j , m ) = p( trI, m );
+    PS( deep + 1,  stateId , m ) = p( nodesDecided + 1, m );
   else
-   % PS(  nodesDecided , j , m ) = p( trI, m );
+    PS(  deep , stateId , m ) = p( nodesDecided + 1, m );
   endif
   
   for l = 1 : size - nodesDecided
@@ -349,10 +349,10 @@ function CreateReward( size )
   
     for i = 0 : numberSubstates - 1
 
-      Rewards( j * ( size + 1), allSubstates - i ) = penalty( i , size  - i, size );
+      Rewards( j , allSubstates - i ) = penalty( i , size  - i, size );
     endfor
  endfor
- 
+ Rewards
 endfunction
 
 
@@ -392,9 +392,8 @@ for i = 1 : rows(Vnew)
       VPres(:,:, :, i ,j) = Probability(i, j, size);
     endfor
 endfor      
-
-      
-iteration = 200;      
+ 
+iteration = 20;      
       
 for k =  1 : iteration
 
@@ -404,8 +403,6 @@ for k =  1 : iteration
   for i = 1 : rows(Vnew)
 
     for j = 1 : columns(Vnew)
- 
-  
     Vnew(i,j) = Rs( i, j, size ) + towardTime .* max ( sum( sum( (  VPres(:,:,:,i,j) .* Vres ), 1 ), 2 ) );
 	
 
@@ -431,7 +428,7 @@ GivenActions
 
 endfunction
 
-staticPenal = - 0.005;
+staticPenal = -0.02;
 towardTime = 1;
  
 %fullProbability(5)
@@ -439,17 +436,9 @@ towardTime = 1;
 %  1  2 4 6 9 
 %  1   2 2 3 3
 
-for i = 1 : 5
-%c= i - 1
-endfor
 
-statesCnt( 2 + 0 - 1 ) + 1 
-statesCnt( 2 + 0 - 1 ) + 2
-x = statesProbability( 4 );
-x(:,:, 1)
+Optymalyse( 5 )
 
-
-Probability(  1, 4 )
 
 %Rewards
 
